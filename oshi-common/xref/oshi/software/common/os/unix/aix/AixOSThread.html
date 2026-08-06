@@ -25,26 +25,32 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  @ThreadSafe
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="AixOSThread" href="../../../../../../oshi/software/common/os/unix/aix/AixOSThread.html#AixOSThread">AixOSThread</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractOSThread" href="../../../../../../oshi/software/common/AbstractOSThread.html#AbstractOSThread">AbstractOSThread</a> {
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">public</strong> <a name="AixOSThread" href="../../../../../../oshi/software/common/os/unix/aix/AixOSThread.html#AixOSThread">AixOSThread</a>(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">int</strong> tid) {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">super</strong>(pid);
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>          <strong class="jxr_keyword">this</strong>.threadId = tid;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          updateAttributes();
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      @Override
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>          <a name="AixLwpsInfo" href="../../../../../../oshi/driver/common/unix/aix/AixLwpsInfo.html#AixLwpsInfo">AixLwpsInfo</a> lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">if</strong> (lwpsinfo == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>              <strong class="jxr_keyword">this</strong>.state = OSProcess.State.INVALID;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>              <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          }
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">this</strong>.threadId = (<strong class="jxr_keyword">int</strong>) lwpsinfo.pr_lwpid; <em class="jxr_comment">// 64 bit storage but always 32 bit</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">this</strong>.startMemoryAddress = lwpsinfo.pr_addr;
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">this</strong>.state = AixProcessState.getStateFromOutput((<strong class="jxr_keyword">char</strong>) lwpsinfo.pr_sname);
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">this</strong>.priority = lwpsinfo.pr_pri;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  }
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">     * Constructs a new {@code AixOSThread}.</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * @param pid the process ID</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     * @param tid the thread ID</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">public</strong> <a name="AixOSThread" href="../../../../../../oshi/software/common/os/unix/aix/AixOSThread.html#AixOSThread">AixOSThread</a>(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">int</strong> tid) {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">super</strong>(pid);
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          <strong class="jxr_keyword">this</strong>.threadId = tid;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          updateAttributes();
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      }
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      @Override
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <a name="AixLwpsInfo" href="../../../../../../oshi/driver/common/unix/aix/AixLwpsInfo.html#AixLwpsInfo">AixLwpsInfo</a> lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">if</strong> (lwpsinfo == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              <strong class="jxr_keyword">this</strong>.state = OSProcess.State.INVALID;
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">this</strong>.threadId = (<strong class="jxr_keyword">int</strong>) lwpsinfo.pr_lwpid; <em class="jxr_comment">// 64 bit storage but always 32 bit</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">this</strong>.startMemoryAddress = lwpsinfo.pr_addr;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <strong class="jxr_keyword">this</strong>.state = AixProcessState.getStateFromOutput((<strong class="jxr_keyword">char</strong>) lwpsinfo.pr_sname);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">this</strong>.priority = lwpsinfo.pr_pri;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

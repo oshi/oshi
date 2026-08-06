@@ -93,7 +93,7 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              @SuppressWarnings(<span class="jxr_string">"resource"</span>) <em class="jxr_comment">// CFAllocatorGetDefault returns a borrowed singleton</em>
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              CFAllocatorRef allocator = <strong class="jxr_keyword">new</strong> CFAllocatorRef(CFAllocatorGetDefault());
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">try</strong> (DASessionRef session = <strong class="jxr_keyword">new</strong> DASessionRef(DASessionCreate(allocator.segment()))) {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">if</strong> (session.segment() == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  <strong class="jxr_keyword">if</strong> (session.isNull()) {
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                      LOG.error(<span class="jxr_string">"Unable to open session to DiskArbitration framework."</span>);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                      <strong class="jxr_keyword">return</strong> fsList;
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  }

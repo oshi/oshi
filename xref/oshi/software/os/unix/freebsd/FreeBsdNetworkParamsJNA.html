@@ -51,7 +51,7 @@
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>                      }
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>                      <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>                  }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <strong class="jxr_keyword">try</strong> (Addrinfo info = <strong class="jxr_keyword">new</strong> Addrinfo(ptr.getValue())) { <em class="jxr_comment">// NOSONAR</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <strong class="jxr_keyword">try</strong> (Addrinfo info = <strong class="jxr_keyword">new</strong> Addrinfo(ptr.getValue())) {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>                      String canonname = info.ai_canonname == <strong class="jxr_keyword">null</strong> ? <span class="jxr_string">""</span> : info.ai_canonname.trim();
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>                      LIBC.freeaddrinfo(ptr.getValue());
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>                      <strong class="jxr_keyword">return</strong> canonname;

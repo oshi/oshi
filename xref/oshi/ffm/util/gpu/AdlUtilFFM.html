@@ -208,7 +208,7 @@
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> adlUninit(MemorySegment context) {
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">// Block lambda (not an expression lambda) so invokeExact() on this void handle is in a statement context and</em>
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>         <em class="jxr_comment">// its return type is inferred as void; an expression lambda infers Object -&gt; WrongMethodTypeException (#3422).</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <em class="jxr_comment">// NOSONAR on the next line so S1602 does not collapse the block back to the buggy expression form.</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <em class="jxr_comment">// The suppression on the next line stops S1602 collapsing the block back to the buggy expression form.</em>
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>         runOrLog(() -&gt; { <em class="jxr_comment">// NOSONAR java:S1602 - block form required; expression lambda miscompiles void invokeExact</em>
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>             ADL2_MAIN_CONTROL_DESTROY.invokeExact(context);
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>         }, LOG, <span class="jxr_string">"ADL uninit failed: {}"</span>);

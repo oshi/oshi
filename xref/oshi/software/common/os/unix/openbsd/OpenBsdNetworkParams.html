@@ -17,20 +17,36 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * OpenBsdNetworkParams class.</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdNetworkParams" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdNetworkParams.html#OpenBsdNetworkParams">OpenBsdNetworkParams</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworkParams" href="../../../../../../oshi/software/common/AbstractNetworkParams.html#AbstractNetworkParams">AbstractNetworkParams</a> {
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>      @Override
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">public</strong> String getIpv4DefaultGateway() {
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      }
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Override
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">public</strong> String getIpv6DefaultGateway() {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      }
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  }
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * Abstract base for the OpenBSD NetworkParams. Holds the command-line gateway lookup and the host name fallback; the</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * JNA and FFM subclasses supply the {@code gethostname} binding.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdNetworkParams" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdNetworkParams.html#OpenBsdNetworkParams">OpenBsdNetworkParams</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworkParams" href="../../../../../../oshi/software/common/AbstractNetworkParams.html#AbstractNetworkParams">AbstractNetworkParams</a> {
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      @Override
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">public</strong> String getHostName() {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>          String hn = queryHostName();
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">return</strong> hn != <strong class="jxr_keyword">null</strong> ? hn : <strong class="jxr_keyword">super</strong>.getHostName();
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      }
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Override
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">public</strong> String getIpv4DefaultGateway() {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      @Override
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">public</strong> String getIpv6DefaultGateway() {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * Reads the host name from libc, avoiding the name resolution that the {@link AbstractNetworkParams} fallback</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * performs.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @return the native host name, or {@code null} to fall back to the InetAddress lookup</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> String queryHostName();
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

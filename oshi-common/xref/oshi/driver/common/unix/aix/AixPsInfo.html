@@ -57,38 +57,43 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] pr__pad = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[8]; <em class="jxr_comment">// reserved for future use</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">public</strong> <a name="AixLwpsInfo" href="../../../../../oshi/driver/common/unix/aix/AixLwpsInfo.html#AixLwpsInfo">AixLwpsInfo</a> pr_lwp; <em class="jxr_comment">// "representative" thread info</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">public</strong> <a name="AixPsInfo" href="../../../../../oshi/driver/common/unix/aix/AixPsInfo.html#AixPsInfo">AixPsInfo</a>(ByteBuffer buff) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">this</strong>.pr_flag = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">this</strong>.pr_flag2 = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">this</strong>.pr_nlwp = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">this</strong>.pr__pad1 = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>.pr_uid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.pr_euid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.pr_gid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.pr_egid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.pr_pid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">this</strong>.pr_ppid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">this</strong>.pr_pgid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.pr_sid = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.pr_ttydev = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.pr_addr = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">this</strong>.pr_size = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>.pr_rssize = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>.pr_start = <strong class="jxr_keyword">new</strong> <a name="Timestruc" href="../../../../../oshi/driver/common/unix/aix/Timestruc.html#Timestruc">Timestruc</a>(buff);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>.pr_time = <strong class="jxr_keyword">new</strong> <a name="Timestruc" href="../../../../../oshi/driver/common/unix/aix/Timestruc.html#Timestruc">Timestruc</a>(buff);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">this</strong>.pr_cid = FileUtil.readShortFromBuffer(buff);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.pr__pad2 = FileUtil.readShortFromBuffer(buff);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">this</strong>.pr_argc = FileUtil.readIntFromBuffer(buff);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.pr_argv = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">this</strong>.pr_envp = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_fname);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_psargs);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pr__pad.length; i++) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">this</strong>.pr__pad[i] = FileUtil.readLongFromBuffer(buff);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">this</strong>.pr_lwp = <strong class="jxr_keyword">new</strong> <a name="AixLwpsInfo" href="../../../../../oshi/driver/common/unix/aix/AixLwpsInfo.html#AixLwpsInfo">AixLwpsInfo</a>(buff);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Constructs a new {@code AixPsInfo}.</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param buff the buffer positioned at the start of the struct</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">public</strong> <a name="AixPsInfo" href="../../../../../oshi/driver/common/unix/aix/AixPsInfo.html#AixPsInfo">AixPsInfo</a>(ByteBuffer buff) {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.pr_flag = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.pr_flag2 = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">this</strong>.pr_nlwp = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">this</strong>.pr__pad1 = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">this</strong>.pr_uid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">this</strong>.pr_euid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.pr_gid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.pr_egid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.pr_pid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">this</strong>.pr_ppid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>.pr_pgid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>.pr_sid = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>.pr_ttydev = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">this</strong>.pr_addr = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.pr_size = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">this</strong>.pr_rssize = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.pr_start = <strong class="jxr_keyword">new</strong> <a name="Timestruc" href="../../../../../oshi/driver/common/unix/aix/Timestruc.html#Timestruc">Timestruc</a>(buff);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">this</strong>.pr_time = <strong class="jxr_keyword">new</strong> <a name="Timestruc" href="../../../../../oshi/driver/common/unix/aix/Timestruc.html#Timestruc">Timestruc</a>(buff);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">this</strong>.pr_cid = FileUtil.readShortFromBuffer(buff);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">this</strong>.pr__pad2 = FileUtil.readShortFromBuffer(buff);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">this</strong>.pr_argc = FileUtil.readIntFromBuffer(buff);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">this</strong>.pr_argv = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">this</strong>.pr_envp = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_fname);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          FileUtil.readByteArrayFromBuffer(buff, <strong class="jxr_keyword">this</strong>.pr_psargs);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; pr__pad.length; i++) {
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">this</strong>.pr__pad[i] = FileUtil.readLongFromBuffer(buff);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">this</strong>.pr_lwp = <strong class="jxr_keyword">new</strong> <a name="AixLwpsInfo" href="../../../../../oshi/driver/common/unix/aix/AixLwpsInfo.html#AixLwpsInfo">AixLwpsInfo</a>(buff);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

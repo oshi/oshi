@@ -25,13 +25,13 @@
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFDataRef;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundationFunctions;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreGraphicsFunctions;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.IOKit.IOIterator;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.IOKit.IORegistryEntry;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.ObjCFunctions;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundationFunctions;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreGraphicsFunctions;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.IOKit.IOIterator;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.IOKit.IORegistryEntry;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.ObjCFunctions;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.mac.CFUtilFFM;
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.mac.IOKitUtilFFM;
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Display;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.DisplayInfo;
@@ -168,15 +168,15 @@
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>     <em class="jxr_comment">// Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with</em>
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     <em class="jxr_comment">// native resolution and device name from the framebuffer node and CoreGraphics.</em>
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="DisplayInfo" href="../../../../oshi/hardware/DisplayInfo.html#DisplayInfo">DisplayInfo</a> synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         CFDictionaryRef product = cfDictGetDictionary(attrs, <span class="jxr_string">"ProductAttributes"</span>);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         CFDictionaryRef product = CFUtilFFM.getDictionary(attrs, <span class="jxr_string">"ProductAttributes"</span>);
 <a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">if</strong> (product == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         Long legacyMfg = cfDictGetLong(product, <span class="jxr_string">"LegacyManufacturerID"</span>);
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         Long week = cfDictGetLong(product, <span class="jxr_string">"WeekOfManufacture"</span>);
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         Long year = cfDictGetLong(product, <span class="jxr_string">"YearOfManufacture"</span>);
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         String model = cfDictGetString(product, <span class="jxr_string">"ProductName"</span>);
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         String serial = cfDictGetString(product, <span class="jxr_string">"AlphanumericSerialNumber"</span>);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         Long legacyMfg = CFUtilFFM.getLong(product, <span class="jxr_string">"LegacyManufacturerID"</span>);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         Long week = CFUtilFFM.getLong(product, <span class="jxr_string">"WeekOfManufacture"</span>);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         Long year = CFUtilFFM.getLong(product, <span class="jxr_string">"YearOfManufacture"</span>);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         String model = CFUtilFFM.getString(product, <span class="jxr_string">"ProductName"</span>);
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         String serial = CFUtilFFM.getString(product, <span class="jxr_string">"AlphanumericSerialNumber"</span>);
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         <em class="jxr_comment">// Native pixel resolution from the framebuffer node.</em>
 <a class="jxr_linenumber" name="L173" href="#L173">173</a>         Long displayWidth = fb.getLongProperty(<span class="jxr_string">"DisplayWidth"</span>);
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>         Long displayHeight = fb.getLongProperty(<span class="jxr_string">"DisplayHeight"</span>);
@@ -299,31 +299,7 @@
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>         }
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <em class="jxr_comment">// CFDictionary accessors. CFDictionaryGetValue returns a borrowed reference: the returned wrappers must NOT be</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <em class="jxr_comment">// released.</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a> 
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> CFDictionaryRef cfDictGetDictionary(CFDictionaryRef dict, String key) {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">try</strong> (CFStringRef k = CFStringRef.createCFString(key)) {
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>             MemorySegment v = dict.getValue(k);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>             <strong class="jxr_keyword">return</strong> v == <strong class="jxr_keyword">null</strong> || v.equals(MemorySegment.NULL) ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">new</strong> CFDictionaryRef(v);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a> 
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String cfDictGetString(CFDictionaryRef dict, String key) {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">try</strong> (CFStringRef k = CFStringRef.createCFString(key)) {
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>             MemorySegment v = dict.getValue(k);
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">return</strong> v == <strong class="jxr_keyword">null</strong> || v.equals(MemorySegment.NULL) ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">new</strong> CFStringRef(v).stringValue();
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         }
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>     }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Long cfDictGetLong(CFDictionaryRef dict, String key) {
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <strong class="jxr_keyword">try</strong> (CFStringRef k = CFStringRef.createCFString(key)) {
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>             MemorySegment v = dict.getValue(k);
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>             <strong class="jxr_keyword">return</strong> v == <strong class="jxr_keyword">null</strong> || v.equals(MemorySegment.NULL) ? <strong class="jxr_keyword">null</strong> : <strong class="jxr_keyword">new</strong> CFNumberRef(v).longValue();
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         }
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     }
-<a class="jxr_linenumber" name="L318" href="#L318">318</a> }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

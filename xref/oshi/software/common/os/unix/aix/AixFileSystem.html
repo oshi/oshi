@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          Map&lt;String, Long&gt; inodeTotalMap = inodes.getB();
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// Get mount table</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">for</strong> (String fs : ExecutingCommand.runNative(<span class="jxr_string">"mount"</span>)) { <em class="jxr_comment">// NOSONAR squid:S135</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">for</strong> (String fs : ExecutingCommand.runNative(<span class="jxr_string">"mount"</span>)) { <em class="jxr_comment">// NOSONAR java:S135</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              <em class="jxr_comment">/*- Sample Output:</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_comment">             *   node       mounted        mounted over    vfs       date        options</em>
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_comment">            * -------- ---------------  ---------------  ------ ------------ ---------------</em>

@@ -19,7 +19,7 @@
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.nio.charset.StandardCharsets;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.unix.aix.AixLibcFunctions;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.unix.PosixLibcFunctions;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.software.common.os.unix.aix.AixNetworkParams;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">/**</em>
@@ -32,7 +32,7 @@
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">public</strong> String getHostName() {
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>          <strong class="jxr_keyword">try</strong> (Arena arena = Arena.ofConfined()) {
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>              MemorySegment buf = arena.allocate(HOST_NAME_BUF_SIZE);
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>              <strong class="jxr_keyword">if</strong> (AixLibcFunctions.gethostname(buf, HOST_NAME_BUF_SIZE) != 0) {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>              <strong class="jxr_keyword">if</strong> (PosixLibcFunctions.gethostname(buf, HOST_NAME_BUF_SIZE) != 0) {
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">super</strong>.getHostName();
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>              }
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>              <strong class="jxr_keyword">int</strong> len = 0;

@@ -26,31 +26,56 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  @ThreadSafe
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="AixPowerSource" href="../../../../../../oshi/hardware/common/platform/unix/aix/AixPowerSource.html#AixPowerSource">AixPowerSource</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractPowerSource" href="../../../../../../oshi/hardware/common/AbstractPowerSource.html#AbstractPowerSource">AbstractPowerSource</a> {
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">public</strong> <a name="AixPowerSource" href="../../../../../../oshi/hardware/common/platform/unix/aix/AixPowerSource.html#AixPowerSource">AixPowerSource</a>(String name, String deviceName, <strong class="jxr_keyword">double</strong> remainingCapacityPercent,
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>              <strong class="jxr_keyword">double</strong> timeRemainingEstimated, <strong class="jxr_keyword">double</strong> timeRemainingInstant, <strong class="jxr_keyword">double</strong> powerUsageRate, <strong class="jxr_keyword">double</strong> voltage,
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>              <strong class="jxr_keyword">double</strong> amperage, <strong class="jxr_keyword">boolean</strong> powerOnLine, <strong class="jxr_keyword">boolean</strong> charging, <strong class="jxr_keyword">boolean</strong> discharging, CapacityUnits capacityUnits,
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>              <strong class="jxr_keyword">int</strong> currentCapacity, <strong class="jxr_keyword">int</strong> maxCapacity, <strong class="jxr_keyword">int</strong> designCapacity, <strong class="jxr_keyword">int</strong> cycleCount, String chemistry,
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>              LocalDate manufactureDate, String manufacturer, String serialNumber, <strong class="jxr_keyword">double</strong> temperature) {
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">super</strong>(name, deviceName, remainingCapacityPercent, timeRemainingEstimated, timeRemainingInstant, powerUsageRate,
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  voltage, amperage, powerOnLine, charging, discharging, capacityUnits, currentCapacity, maxCapacity,
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>                  designCapacity, cycleCount, chemistry, manufactureDate, manufacturer, serialNumber, temperature);
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      }
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      @Override
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">protected</strong> List&lt;PowerSource&gt; queryPowerSources() {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">return</strong> getPowerSources();
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * Gets Battery Information. AIX does not provide any battery statistics, as most servers are not designed to be run</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * on battery.</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * @return An empty list.</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;PowerSource&gt; getPowerSources() {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * Constructs a new {@code AixPowerSource}.</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     * @param name                     the power source name</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * @param deviceName               the device name</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * @param remainingCapacityPercent the remaining capacity as a fraction of the maximum</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * @param timeRemainingEstimated   the estimated time remaining in seconds</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @param timeRemainingInstant     the reported instantaneous time remaining in seconds</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * @param powerUsageRate           the power usage rate in milliwatts</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     * @param voltage                  the voltage in volts</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * @param amperage                 the amperage in milliamperes</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * @param powerOnLine              whether external power is connected</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @param charging                 whether the power source is charging</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param discharging              whether the power source is discharging</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param capacityUnits            the units of the capacity values</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @param currentCapacity          the current capacity</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * @param maxCapacity              the maximum capacity</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     * @param designCapacity           the design capacity</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * @param cycleCount               the charge cycle count</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * @param chemistry                the battery chemistry</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @param manufactureDate          the manufacture date</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @param manufacturer             the manufacturer</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * @param serialNumber             the serial number</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     * @param temperature              the temperature in degrees Celsius</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <a name="AixPowerSource" href="../../../../../../oshi/hardware/common/platform/unix/aix/AixPowerSource.html#AixPowerSource">AixPowerSource</a>(String name, String deviceName, <strong class="jxr_keyword">double</strong> remainingCapacityPercent,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">double</strong> timeRemainingEstimated, <strong class="jxr_keyword">double</strong> timeRemainingInstant, <strong class="jxr_keyword">double</strong> powerUsageRate, <strong class="jxr_keyword">double</strong> voltage,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">double</strong> amperage, <strong class="jxr_keyword">boolean</strong> powerOnLine, <strong class="jxr_keyword">boolean</strong> charging, <strong class="jxr_keyword">boolean</strong> discharging, CapacityUnits capacityUnits,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <strong class="jxr_keyword">int</strong> currentCapacity, <strong class="jxr_keyword">int</strong> maxCapacity, <strong class="jxr_keyword">int</strong> designCapacity, <strong class="jxr_keyword">int</strong> cycleCount, String chemistry,
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              LocalDate manufactureDate, String manufacturer, String serialNumber, <strong class="jxr_keyword">double</strong> temperature) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">super</strong>(name, deviceName, remainingCapacityPercent, timeRemainingEstimated, timeRemainingInstant, powerUsageRate,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  voltage, amperage, powerOnLine, charging, discharging, capacityUnits, currentCapacity, maxCapacity,
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  designCapacity, cycleCount, chemistry, manufactureDate, manufacturer, serialNumber, temperature);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      @Override
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">protected</strong> List&lt;PowerSource&gt; queryPowerSources() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">return</strong> getPowerSources();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * Gets Battery Information. AIX does not provide any battery statistics, as most servers are not designed to be run</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * on battery.</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @return An empty list.</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;PowerSource&gt; getPowerSources() {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

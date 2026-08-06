@@ -262,220 +262,227 @@
 <a class="jxr_linenumber" name="L254" href="#L254">254</a> 
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * Gets the current process.</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * @return the current process</em>
-<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>     <strong class="jxr_keyword">default</strong> <a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> getCurrentProcess() {
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         <strong class="jxr_keyword">return</strong> getProcess(getProcessId());
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> <em class="jxr_javadoccomment">     * Get the number of processes currently running</em>
-<a class="jxr_linenumber" name="L266" href="#L266">266</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> <em class="jxr_javadoccomment">     * @return The number of processes running</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>     <strong class="jxr_keyword">int</strong> getProcessCount();
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     * Unlike {@link #getProcess(int)}, this never returns null: the current process exists by definition, so a failed</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">     * lookup is a failed read — a truncated native process list, a denied {@code /proc} entry, a race with the query —</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">     * rather than a missing process. When the platform query cannot produce it, a stand-in is returned reporting the</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">     * current process ID and a {@link OSProcess.State#RUNNING} state, with the unknown/zero/empty defaults elsewhere.</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> <em class="jxr_javadoccomment">     * @return the current process, never null</em>
+<a class="jxr_linenumber" name="L264" href="#L264">264</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">default</strong> <a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> getCurrentProcess() {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <strong class="jxr_keyword">int</strong> pid = getProcessId();
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <a name="OSProcess" href="../../../oshi/software/os/OSProcess.html#OSProcess">OSProcess</a> proc = getProcess(pid);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">return</strong> proc == <strong class="jxr_keyword">null</strong> ? <strong class="jxr_keyword">new</strong> <a name="CurrentProcessStub" href="../../../oshi/software/os/CurrentProcessStub.html#CurrentProcessStub">CurrentProcessStub</a>(pid) : proc;
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
 <a class="jxr_linenumber" name="L270" href="#L270">270</a> 
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     * Makes a best effort to get the current thread ID (TID). May not be useful in a multithreaded environment. The</em>
-<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     * thread ID returned may have been short lived and no longer exist.</em>
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     * Thread IDs on macOS are not correlated with any other Operating System output.</em>
-<a class="jxr_linenumber" name="L276" href="#L276">276</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> <em class="jxr_javadoccomment">     * @return the Thread ID of the current thread if known, 0 otherwise.</em>
-<a class="jxr_linenumber" name="L278" href="#L278">278</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>     <strong class="jxr_keyword">int</strong> getThreadId();
-<a class="jxr_linenumber" name="L280" href="#L280">280</a> 
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     * Makes a best effort to get the current thread. May not be useful in a multithreaded environment. The thread</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     * returned may have been short lived and no longer exist.</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     * On macOS, returns the oldest thread in the calling process.</em>
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L287" href="#L287">287</a> <em class="jxr_javadoccomment">     * @return the current thread if known; an invalid thread otherwise.</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>     <a name="OSThread" href="../../../oshi/software/os/OSThread.html#OSThread">OSThread</a> getCurrentThread();
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> 
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * Get the number of threads currently running</em>
+<a class="jxr_linenumber" name="L272" href="#L272">272</a> <em class="jxr_javadoccomment">     * Get the number of processes currently running</em>
+<a class="jxr_linenumber" name="L273" href="#L273">273</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L274" href="#L274">274</a> <em class="jxr_javadoccomment">     * @return The number of processes running</em>
+<a class="jxr_linenumber" name="L275" href="#L275">275</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>     <strong class="jxr_keyword">int</strong> getProcessCount();
+<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> <em class="jxr_javadoccomment">     * Makes a best effort to get the current thread ID (TID). May not be useful in a multithreaded environment. The</em>
+<a class="jxr_linenumber" name="L280" href="#L280">280</a> <em class="jxr_javadoccomment">     * thread ID returned may have been short lived and no longer exist.</em>
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L282" href="#L282">282</a> <em class="jxr_javadoccomment">     * Thread IDs on macOS are not correlated with any other Operating System output.</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a> <em class="jxr_javadoccomment">     * @return the Thread ID of the current thread if known, 0 otherwise.</em>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>     <strong class="jxr_keyword">int</strong> getThreadId();
+<a class="jxr_linenumber" name="L287" href="#L287">287</a> 
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     * Makes a best effort to get the current thread. May not be useful in a multithreaded environment. The thread</em>
+<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * returned may have been short lived and no longer exist.</em>
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     * On macOS, returns the oldest thread in the calling process.</em>
 <a class="jxr_linenumber" name="L293" href="#L293">293</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * @return The number of threads running</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * @return the current thread if known; an invalid thread otherwise.</em>
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">int</strong> getThreadCount();
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <a name="OSThread" href="../../../oshi/software/os/OSThread.html#OSThread">OSThread</a> getCurrentThread();
 <a class="jxr_linenumber" name="L297" href="#L297">297</a> 
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     * Gets the bitness (32 or 64) of the operating system.</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     * Get the number of threads currently running</em>
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * @return The number of bits supported by the operating system.</em>
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * @return The number of threads running</em>
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">int</strong> getBitness();
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">int</strong> getThreadCount();
 <a class="jxr_linenumber" name="L304" href="#L304">304</a> 
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     * Get the System up time (time since boot).</em>
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> <em class="jxr_javadoccomment">     * Gets the bitness (32 or 64) of the operating system.</em>
 <a class="jxr_linenumber" name="L307" href="#L307">307</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">     * @return Number of seconds since boot.</em>
+<a class="jxr_linenumber" name="L308" href="#L308">308</a> <em class="jxr_javadoccomment">     * @return The number of bits supported by the operating system.</em>
 <a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <strong class="jxr_keyword">long</strong> getSystemUptime();
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>     <strong class="jxr_keyword">int</strong> getBitness();
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> 
 <a class="jxr_linenumber" name="L312" href="#L312">312</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     * Get Unix time of boot.</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     * Get the System up time (time since boot).</em>
 <a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * @return The approximate time at which the system booted, in seconds since the Unix epoch.</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * @return Number of seconds since boot.</em>
 <a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <strong class="jxr_keyword">long</strong> getSystemBootTime();
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <strong class="jxr_keyword">long</strong> getSystemUptime();
 <a class="jxr_linenumber" name="L318" href="#L318">318</a> 
 <a class="jxr_linenumber" name="L319" href="#L319">319</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * Determine whether the current process has elevated permissions such as sudo / Administrator</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     * Get Unix time of boot.</em>
 <a class="jxr_linenumber" name="L321" href="#L321">321</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * @return True if this process has elevated permissions</em>
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> <em class="jxr_javadoccomment">     * @return The approximate time at which the system booted, in seconds since the Unix epoch.</em>
 <a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">default</strong> <strong class="jxr_keyword">boolean</strong> isElevated() {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     }
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> 
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">     * Instantiates a {@link oshi.software.os.NetworkParams} object.</em>
-<a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L331" href="#L331">331</a> <em class="jxr_javadoccomment">     * @return A {@link oshi.software.os.NetworkParams} object.</em>
-<a class="jxr_linenumber" name="L332" href="#L332">332</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <a name="NetworkParams" href="../../../oshi/software/os/NetworkParams.html#NetworkParams">NetworkParams</a> getNetworkParams();
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>     <strong class="jxr_keyword">long</strong> getSystemBootTime();
+<a class="jxr_linenumber" name="L325" href="#L325">325</a> 
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">     * Determine whether the current process has elevated permissions such as sudo / Administrator</em>
+<a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a> <em class="jxr_javadoccomment">     * @return True if this process has elevated permissions</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     <strong class="jxr_keyword">default</strong> <strong class="jxr_keyword">boolean</strong> isElevated() {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>         <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>     }
 <a class="jxr_linenumber" name="L334" href="#L334">334</a> 
 <a class="jxr_linenumber" name="L335" href="#L335">335</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">     * Gets the all services on the system. The definition of what is a service is platform-dependent.</em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> <em class="jxr_javadoccomment">     * Instantiates a {@link oshi.software.os.NetworkParams} object.</em>
 <a class="jxr_linenumber" name="L337" href="#L337">337</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">     * @return An array of {@link OSService} objects</em>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a> <em class="jxr_javadoccomment">     * @return A {@link oshi.software.os.NetworkParams} object.</em>
 <a class="jxr_linenumber" name="L339" href="#L339">339</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>     <strong class="jxr_keyword">default</strong> List&lt;OSService&gt; getServices() {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>     }
-<a class="jxr_linenumber" name="L343" href="#L343">343</a> 
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">     * Gets currently logged in users.</em>
-<a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">     * On macOS, Linux, and Unix systems, the default implementation uses native code (see {@code man getutxent}) that</em>
-<a class="jxr_linenumber" name="L348" href="#L348">348</a> <em class="jxr_javadoccomment">     * is not thread safe. OSHI's use of this code is synchronized and may be used in a multi-threaded environment</em>
-<a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">     * without introducing any additional conflicts. Users should note, however, that other operating system code may</em>
-<a class="jxr_linenumber" name="L350" href="#L350">350</a> <em class="jxr_javadoccomment">     * access the same native code.</em>
-<a class="jxr_linenumber" name="L351" href="#L351">351</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">     * The {@code Who#queryWho()} method produces similar output parsing the output of the Posix-standard {@code who}</em>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_javadoccomment">     * command, and may internally employ reentrant code on some platforms. Users may opt to use this command-line</em>
-<a class="jxr_linenumber" name="L354" href="#L354">354</a> <em class="jxr_javadoccomment">     * variant by default using the {@code oshi.os.unix.whocommand} configuration property.</em>
-<a class="jxr_linenumber" name="L355" href="#L355">355</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> <em class="jxr_javadoccomment">     * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users</em>
-<a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <strong class="jxr_keyword">default</strong> List&lt;OSSession&gt; getSessions() {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>     }
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * Gets windows on the operating system's GUI desktop.</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">     * On Unix-like systems, reports X11 windows only, which may be limited to the current display and will not report</em>
-<a class="jxr_linenumber" name="L366" href="#L366">366</a> <em class="jxr_javadoccomment">     * windows used by other window managers.</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a> <em class="jxr_javadoccomment">     * While not a guarantee, a best effort is made to return windows in foreground-to-background order. This ordering</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a> <em class="jxr_javadoccomment">     * may be used along with {@link OSDesktopWindow#getOrder()} to (probably) determine the frontmost window.</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">     * @param visibleOnly Whether to restrict the list to only windows visible to the user.</em>
-<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">     *                    &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">     *                    This is a best effort attempt at a reasonable definition of visibility. Visible windows may be</em>
-<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     *                    completely transparent.</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     <strong class="jxr_keyword">default</strong> List&lt;OSDesktopWindow&gt; getDesktopWindows(<strong class="jxr_keyword">boolean</strong> visibleOnly) {
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>     }
-<a class="jxr_linenumber" name="L380" href="#L380">380</a> 
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">     * Retrieves a list of installed applications on the system.</em>
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a> <em class="jxr_javadoccomment">     * This method is implemented per OS. If the OS does not support this feature, it returns an empty list.</em>
-<a class="jxr_linenumber" name="L385" href="#L385">385</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a> <em class="jxr_javadoccomment">     * @return A list of installed applications or an empty list if unsupported.</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <strong class="jxr_keyword">default</strong> List&lt;ApplicationInfo&gt; getInstalledApplications() {
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>     }
-<a class="jxr_linenumber" name="L391" href="#L391">391</a> 
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">     * Retrieves cgroup information for the current process.</em>
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L395" href="#L395">395</a> <em class="jxr_javadoccomment">     * On Linux, this returns detailed cgroup resource limits and usage metrics. On non-Linux platforms, this returns a</em>
-<a class="jxr_linenumber" name="L396" href="#L396">396</a> <em class="jxr_javadoccomment">     * no-op instance where {@link CgroupInfo#isContainerized()} returns {@code false}.</em>
-<a class="jxr_linenumber" name="L397" href="#L397">397</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L398" href="#L398">398</a> <em class="jxr_javadoccomment">     * @return A {@link CgroupInfo} object representing cgroup information.</em>
-<a class="jxr_linenumber" name="L399" href="#L399">399</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>     <strong class="jxr_keyword">default</strong> <a name="CgroupInfo" href="../../../oshi/software/os/CgroupInfo.html#CgroupInfo">CgroupInfo</a> getCgroupInfo() {
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="CgroupInfo" href="../../../oshi/software/os/CgroupInfo.html#CgroupInfo">CgroupInfo</a>() {
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         };
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>     }
-<a class="jxr_linenumber" name="L404" href="#L404">404</a> 
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     * A class representing the Operating System version details.</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>     @PublicApi
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     @Immutable
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>     <strong class="jxr_keyword">class</strong> OSVersionInfo {
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String version;
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String codeName;
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String buildNumber;
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String versionStr;
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> 
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">         * Creates an OSVersionInfo.</em>
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">         * @param version     the version string</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">         * @param codeName    the code name</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">         * @param buildNumber the build number</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <strong class="jxr_keyword">public</strong> OSVersionInfo(String version, String codeName, String buildNumber) {
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>             <strong class="jxr_keyword">this</strong>.version = version;
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>             <strong class="jxr_keyword">this</strong>.codeName = codeName;
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>             <strong class="jxr_keyword">this</strong>.buildNumber = buildNumber;
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(getVersion() != <strong class="jxr_keyword">null</strong> ? getVersion() : Constants.UNKNOWN);
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getCodeName())) {
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>                 sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(')');
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>             }
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getBuildNumber())) {
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>                 sb.append(<span class="jxr_string">" build "</span>).append(getBuildNumber());
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             }
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <strong class="jxr_keyword">this</strong>.versionStr = sb.toString();
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         }
-<a class="jxr_linenumber" name="L437" href="#L437">437</a> 
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a> <em class="jxr_javadoccomment">         * Gets the operating system version.</em>
-<a class="jxr_linenumber" name="L440" href="#L440">440</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a> <em class="jxr_javadoccomment">         * @return The version, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">public</strong> String getVersion() {
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>             <strong class="jxr_keyword">return</strong> version;
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>         }
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">         * Gets the operating system codename.</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">         * @return The code name, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <strong class="jxr_keyword">public</strong> String getCodeName() {
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             <strong class="jxr_keyword">return</strong> codeName;
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         }
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> 
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">         * Gets the operating system build number.</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">         * @return The build number, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <strong class="jxr_keyword">public</strong> String getBuildNumber() {
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>             <strong class="jxr_keyword">return</strong> buildNumber;
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         @Override
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.versionStr;
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         }
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>     }
-<a class="jxr_linenumber" name="L470" href="#L470">470</a> }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>     <a name="NetworkParams" href="../../../oshi/software/os/NetworkParams.html#NetworkParams">NetworkParams</a> getNetworkParams();
+<a class="jxr_linenumber" name="L341" href="#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a> <em class="jxr_javadoccomment">     * Gets the all services on the system. The definition of what is a service is platform-dependent.</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">     * @return An array of {@link OSService} objects</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>     <strong class="jxr_keyword">default</strong> List&lt;OSService&gt; getServices() {
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>     }
+<a class="jxr_linenumber" name="L350" href="#L350">350</a> 
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> <em class="jxr_javadoccomment">     * Gets currently logged in users.</em>
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L354" href="#L354">354</a> <em class="jxr_javadoccomment">     * On macOS, Linux, and Unix systems, the default implementation uses native code (see {@code man getutxent}) that</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> <em class="jxr_javadoccomment">     * is not thread safe. OSHI's use of this code is synchronized and may be used in a multi-threaded environment</em>
+<a class="jxr_linenumber" name="L356" href="#L356">356</a> <em class="jxr_javadoccomment">     * without introducing any additional conflicts. Users should note, however, that other operating system code may</em>
+<a class="jxr_linenumber" name="L357" href="#L357">357</a> <em class="jxr_javadoccomment">     * access the same native code.</em>
+<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     * The {@code Who#queryWho()} method produces similar output parsing the output of the Posix-standard {@code who}</em>
+<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     * command, and may internally employ reentrant code on some platforms. Users may opt to use this command-line</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * variant by default using the {@code oshi.os.unix.whocommand} configuration property.</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * @return A list of {@link oshi.software.os.OSSession} objects representing logged-in users</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>     <strong class="jxr_keyword">default</strong> List&lt;OSSession&gt; getSessions() {
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     }
+<a class="jxr_linenumber" name="L368" href="#L368">368</a> 
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a> <em class="jxr_javadoccomment">     * Gets windows on the operating system's GUI desktop.</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a> <em class="jxr_javadoccomment">     * On Unix-like systems, reports X11 windows only, which may be limited to the current display and will not report</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> <em class="jxr_javadoccomment">     * windows used by other window managers.</em>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L375" href="#L375">375</a> <em class="jxr_javadoccomment">     * While not a guarantee, a best effort is made to return windows in foreground-to-background order. This ordering</em>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> <em class="jxr_javadoccomment">     * may be used along with {@link OSDesktopWindow#getOrder()} to (probably) determine the frontmost window.</em>
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L378" href="#L378">378</a> <em class="jxr_javadoccomment">     * @param visibleOnly Whether to restrict the list to only windows visible to the user.</em>
+<a class="jxr_linenumber" name="L379" href="#L379">379</a> <em class="jxr_javadoccomment">     *                    &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L380" href="#L380">380</a> <em class="jxr_javadoccomment">     *                    This is a best effort attempt at a reasonable definition of visibility. Visible windows may be</em>
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> <em class="jxr_javadoccomment">     *                    completely transparent.</em>
+<a class="jxr_linenumber" name="L382" href="#L382">382</a> <em class="jxr_javadoccomment">     * @return A list of {@link oshi.software.os.OSDesktopWindow} objects representing the desktop windows.</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>     <strong class="jxr_keyword">default</strong> List&lt;OSDesktopWindow&gt; getDesktopWindows(<strong class="jxr_keyword">boolean</strong> visibleOnly) {
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>     }
+<a class="jxr_linenumber" name="L387" href="#L387">387</a> 
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a> <em class="jxr_javadoccomment">     * Retrieves a list of installed applications on the system.</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a> <em class="jxr_javadoccomment">     * This method is implemented per OS. If the OS does not support this feature, it returns an empty list.</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a> <em class="jxr_javadoccomment">     * @return A list of installed applications or an empty list if unsupported.</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     <strong class="jxr_keyword">default</strong> List&lt;ApplicationInfo&gt; getInstalledApplications() {
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>     }
+<a class="jxr_linenumber" name="L398" href="#L398">398</a> 
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a> <em class="jxr_javadoccomment">     * Retrieves cgroup information for the current process.</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a> <em class="jxr_javadoccomment">     * On Linux, this returns detailed cgroup resource limits and usage metrics. On non-Linux platforms, this returns a</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a> <em class="jxr_javadoccomment">     * no-op instance where {@link CgroupInfo#isContainerized()} returns {@code false}.</em>
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     * @return A {@link CgroupInfo} object representing cgroup information.</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>     <strong class="jxr_keyword">default</strong> <a name="CgroupInfo" href="../../../oshi/software/os/CgroupInfo.html#CgroupInfo">CgroupInfo</a> getCgroupInfo() {
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="CgroupInfo" href="../../../oshi/software/os/CgroupInfo.html#CgroupInfo">CgroupInfo</a>() {
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         };
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>     }
+<a class="jxr_linenumber" name="L411" href="#L411">411</a> 
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">     * A class representing the Operating System version details.</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     @PublicApi
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     @Immutable
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     <strong class="jxr_keyword">class</strong> OSVersionInfo {
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String version;
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String codeName;
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String buildNumber;
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String versionStr;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> 
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">         * Creates an OSVersionInfo.</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">         * @param version     the version string</em>
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">         * @param codeName    the code name</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">         * @param buildNumber the build number</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">public</strong> OSVersionInfo(String version, String codeName, String buildNumber) {
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>             <strong class="jxr_keyword">this</strong>.version = version;
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>             <strong class="jxr_keyword">this</strong>.codeName = codeName;
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>             <strong class="jxr_keyword">this</strong>.buildNumber = buildNumber;
+<a class="jxr_linenumber" name="L434" href="#L434">434</a> 
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(getVersion() != <strong class="jxr_keyword">null</strong> ? getVersion() : Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getCodeName())) {
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>                 sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(')');
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>             }
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getBuildNumber())) {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 sb.append(<span class="jxr_string">" build "</span>).append(getBuildNumber());
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             }
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             <strong class="jxr_keyword">this</strong>.versionStr = sb.toString();
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         }
+<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> <em class="jxr_javadoccomment">         * Gets the operating system version.</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">         * @return The version, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         <strong class="jxr_keyword">public</strong> String getVersion() {
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>             <strong class="jxr_keyword">return</strong> version;
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         }
+<a class="jxr_linenumber" name="L453" href="#L453">453</a> 
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">         * Gets the operating system codename.</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">         * @return The code name, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <strong class="jxr_keyword">public</strong> String getCodeName() {
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>             <strong class="jxr_keyword">return</strong> codeName;
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         }
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> 
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a> <em class="jxr_javadoccomment">         * Gets the operating system build number.</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">         * @return The build number, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         <strong class="jxr_keyword">public</strong> String getBuildNumber() {
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>             <strong class="jxr_keyword">return</strong> buildNumber;
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         }
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> 
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         @Override
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.versionStr;
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         }
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>     }
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

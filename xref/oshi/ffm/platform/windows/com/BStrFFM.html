@@ -79,7 +79,7 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// Block lambda (not an expression lambda) so invokeExact() on this void handle is in a statement context and</em>
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// its return type is inferred as void; an expression lambda infers Object -&gt; WrongMethodTypeException (#3422).</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// NOSONAR on the next line so S1602 does not collapse the block back to the buggy expression form.</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// The suppression on the next line stops S1602 collapsing the block back to the buggy expression form.</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          runOrLog(() -&gt; { <em class="jxr_comment">// NOSONAR java:S1602 - block form required; expression lambda miscompiles void invokeExact</em>
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              SysFreeString.invokeExact(bstr);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          }, LOG, <span class="jxr_string">"BStrFFM.free failed"</span>);

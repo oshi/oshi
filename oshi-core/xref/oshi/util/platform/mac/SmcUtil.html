@@ -348,7 +348,7 @@
 <a class="jxr_linenumber" name="L340" href="#L340">340</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; discoverFanSpeedKeys() {
 <a class="jxr_linenumber" name="L341" href="#L341">341</a>         IOConnect conn = smcOpen();
 <a class="jxr_linenumber" name="L342" href="#L342">342</a>         <strong class="jxr_keyword">if</strong> (conn == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR squid:S1168 - null means "could not read", which the caller must not cache</em>
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR java:S1168 - null means "could not read", which the caller must not cache</em>
 <a class="jxr_linenumber" name="L344" href="#L344">344</a>         }
 <a class="jxr_linenumber" name="L345" href="#L345">345</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L346" href="#L346">346</a>             <strong class="jxr_keyword">int</strong> keyCount = (<strong class="jxr_keyword">int</strong>) smcGetLong(conn, SMC_KEY_COUNT);
@@ -417,7 +417,7 @@
 <a class="jxr_linenumber" name="L409" href="#L409">409</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; discoverGpuTemperatureKeys() {
 <a class="jxr_linenumber" name="L410" href="#L410">410</a>         IOConnect conn = smcOpen();
 <a class="jxr_linenumber" name="L411" href="#L411">411</a>         <strong class="jxr_keyword">if</strong> (conn == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR squid:S1168 - null means "could not read", which the caller must not cache</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR java:S1168 - null means "could not read", which the caller must not cache</em>
 <a class="jxr_linenumber" name="L413" href="#L413">413</a>         }
 <a class="jxr_linenumber" name="L414" href="#L414">414</a>         <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L415" href="#L415">415</a>             <strong class="jxr_keyword">int</strong> keyCount = (<strong class="jxr_keyword">int</strong>) smcGetLong(conn, SMC_KEY_COUNT);

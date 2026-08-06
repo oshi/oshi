@@ -65,7 +65,7 @@
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          Map&lt;String, Long&gt; inodeUsedMap = inodes.getB();
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Get mount table</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">for</strong> (String fs : ExecutingCommand.runNative(<span class="jxr_string">"mount"</span>)) { <em class="jxr_comment">// NOSONAR squid:S135</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">for</strong> (String fs : ExecutingCommand.runNative(<span class="jxr_string">"mount"</span>)) { <em class="jxr_comment">// NOSONAR java:S135</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              <em class="jxr_comment">/*-</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_comment">             Sample Output:</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_comment">             /dev/dk0 on / type ffs (local)</em>

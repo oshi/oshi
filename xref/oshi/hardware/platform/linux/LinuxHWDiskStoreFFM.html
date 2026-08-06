@@ -210,7 +210,7 @@
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"1"</span>.equals(rotational)) {
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">return</strong> <span class="jxr_string">"HDD"</span>;
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             }
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         } <strong class="jxr_keyword">catch</strong> (Throwable t) { <em class="jxr_comment">// NOSONAR</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         } <strong class="jxr_keyword">catch</strong> (Throwable t) { <em class="jxr_comment">// NOSONAR java:S1181 - an FFM downcall throws Throwable</em>
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>             LOG.debug(<span class="jxr_string">"Unable to read disk type sysattr"</span>, t);
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>         }
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">return</strong> <span class="jxr_string">"Unknown"</span>;

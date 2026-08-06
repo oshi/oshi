@@ -119,146 +119,148 @@
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> 
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, Long&gt; stats(Object... keyValues) {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         Map&lt;String, Long&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; keyValues.length; i += 2) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             map.put((String) keyValues[i], (Long) keyValues[i + 1]);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">return</strong> map;
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     @Test
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">void</strong> testIntelDoesNotSubscribeToIoReport() {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <em class="jxr_comment">// The IOReport GPU channels exist only on Apple Silicon, so no subscription is attempted on Intel.</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         RecordingFactory factory = <strong class="jxr_keyword">new</strong> RecordingFactory(<strong class="jxr_keyword">new</strong> FakeSampler(50d, 12d));
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         StubGpuStats intel = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"intel card"</span>, factory, stats(), -1d);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertThat(<span class="jxr_string">"no sampler is created on Intel"</span>, factory.calls, is(0));
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_comment">// GpuTicks has no equals(), so compare the components.</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertThat(<span class="jxr_string">"active ticks fall back to zero without a sampler"</span>, intel.getGpuTicks().getActiveTicks(), is(0L));
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         assertThat(<span class="jxr_string">"idle ticks fall back to zero without a sampler"</span>, intel.getGpuTicks().getIdleTicks(), is(0L));
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         assertThat(<span class="jxr_string">"power is unavailable without a sampler"</span>, intel.getPowerDraw(), is(-1d));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     @Test
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">void</strong> testAppleSiliconSubscribesAndSamples() {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         RecordingFactory factory = <strong class="jxr_keyword">new</strong> RecordingFactory(<strong class="jxr_keyword">new</strong> FakeSampler(42d, 12.5d));
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         StubGpuStats apple = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"apple card"</span>, factory, stats(), -1d);
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         assertThat(<span class="jxr_string">"a sampler is created on Apple Silicon"</span>, factory.calls, is(1));
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         assertThat(<span class="jxr_string">"active ticks come from the sampler"</span>, apple.getGpuTicks().getActiveTicks(), is(7L));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(<span class="jxr_string">"idle ticks come from the sampler"</span>, apple.getGpuTicks().getIdleTicks(), is(3L));
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThat(<span class="jxr_string">"utilization comes from the sampler"</span>, apple.getGpuUtilization(), is(42d));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         assertThat(<span class="jxr_string">"power comes from the sampler"</span>, apple.getPowerDraw(), is(12.5d));
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     @Test
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     <strong class="jxr_keyword">void</strong> testUtilizationFallsBackWhenTheSamplerReturnsNegative() {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         RecordingFactory factory = <strong class="jxr_keyword">new</strong> RecordingFactory(<strong class="jxr_keyword">new</strong> FakeSampler(-1d, 5d));
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         StubGpuStats apple = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"fallback card"</span>, factory, stats(CORE_UTIL, 0xFFFFFFFFL / 2), -1d);
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(<span class="jxr_string">"core utilization is scaled against the residency divisor"</span>, apple.getGpuUtilization(),
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 is(closeTo(50d, 0.001d)));
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> 
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     @Test
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">void</strong> testUtilizationPrefersCoreThenDeviceThenSentinel() {
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         StubGpuStats withBoth = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"both card"</span>, nullFactory(),
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 stats(CORE_UTIL, 0xFFFFFFFFL, DEVICE_UTIL, 17L), -1d);
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(<span class="jxr_string">"core utilization wins"</span>, withBoth.getGpuUtilization(), is(closeTo(100d, 0.001d)));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> 
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         StubGpuStats deviceOnly = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"device card"</span>, nullFactory(), stats(DEVICE_UTIL, 17L), -1d);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertThat(<span class="jxr_string">"device utilization is used unscaled"</span>, deviceOnly.getGpuUtilization(), is(17d));
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         StubGpuStats neither = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"neither card"</span>, nullFactory(), stats(), -1d);
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         assertThat(<span class="jxr_string">"no key yields the sentinel"</span>, neither.getGpuUtilization(), is(-1d));
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         StubGpuStats unreadable = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"unreadable card"</span>, nullFactory(), <strong class="jxr_keyword">null</strong>, -1d);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         assertThat(<span class="jxr_string">"an unreadable dictionary yields the sentinel"</span>, unreadable.getGpuUtilization(), is(-1d));
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
-<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>     @Test
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">void</strong> testVramKeySelectionDiffersByArchitecture() {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <em class="jxr_comment">// Apple Silicon reports GPU memory as a share of unified memory under a different key than discrete VRAM.</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         Map&lt;String, Long&gt; both = stats(VRAM_INTEL, 100L, VRAM_APPLE, 200L);
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         assertThat(<span class="jxr_string">"Apple Silicon prefers the unified memory key"</span>,
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"vram a"</span>, nullFactory(), both, -1d).getVramUsed(), is(200L));
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         assertThat(<span class="jxr_string">"Intel prefers the discrete VRAM key"</span>,
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"vram b"</span>, nullFactory(), both, -1d).getVramUsed(), is(100L));
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <em class="jxr_comment">// Each key is the other's fallback.</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         assertThat(<span class="jxr_string">"Apple Silicon falls back to the discrete key"</span>,
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"vram c"</span>, nullFactory(), stats(VRAM_INTEL, 100L), -1d).getVramUsed(), is(100L));
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         assertThat(<span class="jxr_string">"Intel falls back to the unified key"</span>,
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"vram d"</span>, nullFactory(), stats(VRAM_APPLE, 200L), -1d).getVramUsed(), is(200L));
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(<span class="jxr_string">"neither key yields the sentinel"</span>,
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"vram e"</span>, nullFactory(), stats(), -1d).getVramUsed(), is(-1L));
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     }
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     @Test
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>     <strong class="jxr_keyword">void</strong> testTemperaturePrefersSmcOnAppleSilicon() {
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         StubGpuStats apple = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"smc card"</span>, nullFactory(), stats(TEMPERATURE, 55L), 61.5d);
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         assertThat(<span class="jxr_string">"a plausible SMC reading wins"</span>, apple.getTemperature(), is(61.5d));
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         assertThat(<span class="jxr_string">"the accelerator was not consulted"</span>, apple.perfStatQueries, is(0));
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         StubGpuStats noSmc = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"no smc card"</span>, nullFactory(), stats(TEMPERATURE, 55L), 0d);
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         assertThat(<span class="jxr_string">"an unavailable SMC reading falls through"</span>, noSmc.getTemperature(), is(55d));
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     }
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     @Test
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">void</strong> testTemperatureLatchesOnlyOnAMissingKey() {
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <em class="jxr_comment">// A dictionary present but lacking the key means this card has no such sensor: latch it off.</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>         StubGpuStats missingKey = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"latch card"</span>, nullFactory(), stats(), -1d);
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>         assertThat(<span class="jxr_string">"missing key yields the sentinel"</span>, missingKey.getTemperature(), is(-1d));
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         assertThat(<span class="jxr_string">"the first call queried"</span>, missingKey.perfStatQueries, is(1));
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         assertThat(<span class="jxr_string">"still the sentinel"</span>, missingKey.getTemperature(), is(-1d));
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         assertThat(<span class="jxr_string">"the lookup is not repeated once latched"</span>, missingKey.perfStatQueries, is(1));
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>     }
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> 
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>     @Test
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">void</strong> testTemperatureDoesNotLatchOnAnUnreadableDictionary() {
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <em class="jxr_comment">// A missing accelerator entry can be transient (driver reset, eGPU unplugged), so it must stay retryable.</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>         StubGpuStats unreadable = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"transient card"</span>, nullFactory(), <strong class="jxr_keyword">null</strong>, -1d);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         assertThat(<span class="jxr_string">"unreadable yields the sentinel"</span>, unreadable.getTemperature(), is(-1d));
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         assertThat(<span class="jxr_string">"unreadable still yields the sentinel"</span>, unreadable.getTemperature(), is(-1d));
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         assertThat(<span class="jxr_string">"the lookup is retried"</span>, unreadable.perfStatQueries, is(2));
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     @Test
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     <strong class="jxr_keyword">void</strong> testUnsupportedMetricsReturnSentinels() {
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         StubGpuStats gpu = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"sentinel card"</span>, nullFactory(), stats(), -1d);
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         assertThat(<span class="jxr_string">"clock is unavailable on macOS"</span>, gpu.getCoreClockMhz(), is(-1L));
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         assertThat(<span class="jxr_string">"memory clock is unavailable on macOS"</span>, gpu.getMemoryClockMhz(), is(-1L));
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         assertThat(<span class="jxr_string">"fan speed is unavailable on macOS"</span>, gpu.getFanSpeedPercent(), is(-1d));
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         assertThat(<span class="jxr_string">"shared memory is unavailable on macOS"</span>, gpu.getSharedMemoryUsed(), is(-1L));
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     @Test
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     <strong class="jxr_keyword">void</strong> testCloseReleasesTheSamplerAndBlocksFurtherReads() {
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         FakeSampler sampler = <strong class="jxr_keyword">new</strong> FakeSampler(10d, 1d);
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         StubGpuStats gpu = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"close card"</span>, <strong class="jxr_keyword">new</strong> RecordingFactory(sampler), stats(), -1d);
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         assertThat(<span class="jxr_string">"open to begin with"</span>, gpu.isClosed(), is(false));
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         gpu.close();
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         assertThat(<span class="jxr_string">"closed after close"</span>, gpu.isClosed(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         assertThat(<span class="jxr_string">"the sampler was released"</span>, sampler.closed, is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <em class="jxr_comment">// Every metric guards on the closed flag.</em>
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         assertThrows(IllegalStateException.<strong class="jxr_keyword">class</strong>, gpu::getGpuUtilization, <span class="jxr_string">"reading a closed session should throw"</span>);
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>     }
-<a class="jxr_linenumber" name="L236" href="#L236">236</a> 
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     @Test
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     <strong class="jxr_keyword">void</strong> testMatchesNameIgnoresCaseAndTrademarks() {
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         StubGpuStats gpu = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"Radeon Pro 5500M"</span>, nullFactory(), stats(), -1d);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         assertThat(<span class="jxr_string">"exact match"</span>, gpu.matchesName(<span class="jxr_string">"radeon pro 5500m"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         assertThat(<span class="jxr_string">"case is ignored"</span>, gpu.matchesName(<span class="jxr_string">"RADEON PRO 5500M"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>         assertThat(<span class="jxr_string">"trademark symbols are stripped"</span>, gpu.matchesName(<span class="jxr_string">"Radeon™ Pro 5500M"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>         assertThat(<span class="jxr_string">"a containing name matches on a word boundary"</span>, gpu.matchesName(<span class="jxr_string">"AMD Radeon Pro 5500M GPU"</span>),
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                 is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertThat(<span class="jxr_string">"a different card does not match"</span>, gpu.matchesName(<span class="jxr_string">"Radeon Pro 5300M"</span>), is(false));
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         assertThat(<span class="jxr_string">"null does not match"</span>, gpu.matchesName(<strong class="jxr_keyword">null</strong>), is(false));
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         assertThat(<span class="jxr_string">"empty does not match"</span>, gpu.matchesName(<span class="jxr_string">""</span>), is(false));
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     }
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> 
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Supplier&lt;IOReportSampler&gt; nullFactory() {
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">return</strong> () -&gt; <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     }
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <em class="jxr_comment">// The varargs are key/value pairs, so the loop is bounded on the value index rather than the key index: a caller</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <em class="jxr_comment">// that passes a stray trailing key gets one fewer entry instead of running off the end.</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, Long&gt; stats(Object... keyValues) {
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         Map&lt;String, Long&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i + 1 &lt; keyValues.length; i += 2) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             map.put((String) keyValues[i], (Long) keyValues[i + 1]);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">return</strong> map;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     @Test
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">void</strong> testIntelDoesNotSubscribeToIoReport() {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// The IOReport GPU channels exist only on Apple Silicon, so no subscription is attempted on Intel.</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         RecordingFactory factory = <strong class="jxr_keyword">new</strong> RecordingFactory(<strong class="jxr_keyword">new</strong> FakeSampler(50d, 12d));
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         StubGpuStats intel = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"intel card"</span>, factory, stats(), -1d);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertThat(<span class="jxr_string">"no sampler is created on Intel"</span>, factory.calls, is(0));
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <em class="jxr_comment">// GpuTicks has no equals(), so compare the components.</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         assertThat(<span class="jxr_string">"active ticks fall back to zero without a sampler"</span>, intel.getGpuTicks().getActiveTicks(), is(0L));
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         assertThat(<span class="jxr_string">"idle ticks fall back to zero without a sampler"</span>, intel.getGpuTicks().getIdleTicks(), is(0L));
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(<span class="jxr_string">"power is unavailable without a sampler"</span>, intel.getPowerDraw(), is(-1d));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     @Test
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">void</strong> testAppleSiliconSubscribesAndSamples() {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         RecordingFactory factory = <strong class="jxr_keyword">new</strong> RecordingFactory(<strong class="jxr_keyword">new</strong> FakeSampler(42d, 12.5d));
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         StubGpuStats apple = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"apple card"</span>, factory, stats(), -1d);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(<span class="jxr_string">"a sampler is created on Apple Silicon"</span>, factory.calls, is(1));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThat(<span class="jxr_string">"active ticks come from the sampler"</span>, apple.getGpuTicks().getActiveTicks(), is(7L));
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         assertThat(<span class="jxr_string">"idle ticks come from the sampler"</span>, apple.getGpuTicks().getIdleTicks(), is(3L));
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(<span class="jxr_string">"utilization comes from the sampler"</span>, apple.getGpuUtilization(), is(42d));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         assertThat(<span class="jxr_string">"power comes from the sampler"</span>, apple.getPowerDraw(), is(12.5d));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> 
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     @Test
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     <strong class="jxr_keyword">void</strong> testUtilizationFallsBackWhenTheSamplerReturnsNegative() {
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         RecordingFactory factory = <strong class="jxr_keyword">new</strong> RecordingFactory(<strong class="jxr_keyword">new</strong> FakeSampler(-1d, 5d));
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         StubGpuStats apple = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"fallback card"</span>, factory, stats(CORE_UTIL, 0xFFFFFFFFL / 2), -1d);
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(<span class="jxr_string">"core utilization is scaled against the residency divisor"</span>, apple.getGpuUtilization(),
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 is(closeTo(50d, 0.001d)));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Test
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">void</strong> testUtilizationPrefersCoreThenDeviceThenSentinel() {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         StubGpuStats withBoth = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"both card"</span>, nullFactory(),
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 stats(CORE_UTIL, 0xFFFFFFFFL, DEVICE_UTIL, 17L), -1d);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         assertThat(<span class="jxr_string">"core utilization wins"</span>, withBoth.getGpuUtilization(), is(closeTo(100d, 0.001d)));
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         StubGpuStats deviceOnly = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"device card"</span>, nullFactory(), stats(DEVICE_UTIL, 17L), -1d);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertThat(<span class="jxr_string">"device utilization is used unscaled"</span>, deviceOnly.getGpuUtilization(), is(17d));
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> 
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         StubGpuStats neither = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"neither card"</span>, nullFactory(), stats(), -1d);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         assertThat(<span class="jxr_string">"no key yields the sentinel"</span>, neither.getGpuUtilization(), is(-1d));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         StubGpuStats unreadable = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"unreadable card"</span>, nullFactory(), <strong class="jxr_keyword">null</strong>, -1d);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         assertThat(<span class="jxr_string">"an unreadable dictionary yields the sentinel"</span>, unreadable.getGpuUtilization(), is(-1d));
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     }
+<a class="jxr_linenumber" name="L170" href="#L170">170</a> 
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     @Test
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <strong class="jxr_keyword">void</strong> testVramKeySelectionDiffersByArchitecture() {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <em class="jxr_comment">// Apple Silicon reports GPU memory as a share of unified memory under a different key than discrete VRAM.</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         Map&lt;String, Long&gt; both = stats(VRAM_INTEL, 100L, VRAM_APPLE, 200L);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         assertThat(<span class="jxr_string">"Apple Silicon prefers the unified memory key"</span>,
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"vram a"</span>, nullFactory(), both, -1d).getVramUsed(), is(200L));
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         assertThat(<span class="jxr_string">"Intel prefers the discrete VRAM key"</span>,
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"vram b"</span>, nullFactory(), both, -1d).getVramUsed(), is(100L));
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> 
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// Each key is the other's fallback.</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         assertThat(<span class="jxr_string">"Apple Silicon falls back to the discrete key"</span>,
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"vram c"</span>, nullFactory(), stats(VRAM_INTEL, 100L), -1d).getVramUsed(), is(100L));
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(<span class="jxr_string">"Intel falls back to the unified key"</span>,
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"vram d"</span>, nullFactory(), stats(VRAM_APPLE, 200L), -1d).getVramUsed(), is(200L));
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         assertThat(<span class="jxr_string">"neither key yields the sentinel"</span>,
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>                 <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"vram e"</span>, nullFactory(), stats(), -1d).getVramUsed(), is(-1L));
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     @Test
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">void</strong> testTemperaturePrefersSmcOnAppleSilicon() {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         StubGpuStats apple = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"smc card"</span>, nullFactory(), stats(TEMPERATURE, 55L), 61.5d);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         assertThat(<span class="jxr_string">"a plausible SMC reading wins"</span>, apple.getTemperature(), is(61.5d));
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         assertThat(<span class="jxr_string">"the accelerator was not consulted"</span>, apple.perfStatQueries, is(0));
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         StubGpuStats noSmc = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"no smc card"</span>, nullFactory(), stats(TEMPERATURE, 55L), 0d);
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         assertThat(<span class="jxr_string">"an unavailable SMC reading falls through"</span>, noSmc.getTemperature(), is(55d));
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     @Test
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <strong class="jxr_keyword">void</strong> testTemperatureLatchesOnlyOnAMissingKey() {
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>         <em class="jxr_comment">// A dictionary present but lacking the key means this card has no such sensor: latch it off.</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         StubGpuStats missingKey = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"latch card"</span>, nullFactory(), stats(), -1d);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>         assertThat(<span class="jxr_string">"missing key yields the sentinel"</span>, missingKey.getTemperature(), is(-1d));
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         assertThat(<span class="jxr_string">"the first call queried"</span>, missingKey.perfStatQueries, is(1));
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         assertThat(<span class="jxr_string">"still the sentinel"</span>, missingKey.getTemperature(), is(-1d));
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         assertThat(<span class="jxr_string">"the lookup is not repeated once latched"</span>, missingKey.perfStatQueries, is(1));
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>     }
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>     @Test
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">void</strong> testTemperatureDoesNotLatchOnAnUnreadableDictionary() {
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <em class="jxr_comment">// A missing accelerator entry can be transient (driver reset, eGPU unplugged), so it must stay retryable.</em>
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         StubGpuStats unreadable = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"transient card"</span>, nullFactory(), <strong class="jxr_keyword">null</strong>, -1d);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         assertThat(<span class="jxr_string">"unreadable yields the sentinel"</span>, unreadable.getTemperature(), is(-1d));
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         assertThat(<span class="jxr_string">"unreadable still yields the sentinel"</span>, unreadable.getTemperature(), is(-1d));
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         assertThat(<span class="jxr_string">"the lookup is retried"</span>, unreadable.perfStatQueries, is(2));
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a> 
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     @Test
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     <strong class="jxr_keyword">void</strong> testUnsupportedMetricsReturnSentinels() {
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         StubGpuStats gpu = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"sentinel card"</span>, nullFactory(), stats(), -1d);
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>         assertThat(<span class="jxr_string">"clock is unavailable on macOS"</span>, gpu.getCoreClockMhz(), is(-1L));
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         assertThat(<span class="jxr_string">"memory clock is unavailable on macOS"</span>, gpu.getMemoryClockMhz(), is(-1L));
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         assertThat(<span class="jxr_string">"fan speed is unavailable on macOS"</span>, gpu.getFanSpeedPercent(), is(-1d));
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         assertThat(<span class="jxr_string">"shared memory is unavailable on macOS"</span>, gpu.getSharedMemoryUsed(), is(-1L));
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     }
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     @Test
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">void</strong> testCloseReleasesTheSamplerAndBlocksFurtherReads() {
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         FakeSampler sampler = <strong class="jxr_keyword">new</strong> FakeSampler(10d, 1d);
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         StubGpuStats gpu = <strong class="jxr_keyword">new</strong> StubGpuStats(<strong class="jxr_keyword">true</strong>, <span class="jxr_string">"close card"</span>, <strong class="jxr_keyword">new</strong> RecordingFactory(sampler), stats(), -1d);
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         assertThat(<span class="jxr_string">"open to begin with"</span>, gpu.isClosed(), is(false));
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         gpu.close();
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>         assertThat(<span class="jxr_string">"closed after close"</span>, gpu.isClosed(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         assertThat(<span class="jxr_string">"the sampler was released"</span>, sampler.closed, is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>         <em class="jxr_comment">// Every metric guards on the closed flag.</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         assertThrows(IllegalStateException.<strong class="jxr_keyword">class</strong>, gpu::getGpuUtilization, <span class="jxr_string">"reading a closed session should throw"</span>);
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>     @Test
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">void</strong> testMatchesNameIgnoresCaseAndTrademarks() {
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         StubGpuStats gpu = <strong class="jxr_keyword">new</strong> StubGpuStats(false, <span class="jxr_string">"Radeon Pro 5500M"</span>, nullFactory(), stats(), -1d);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         assertThat(<span class="jxr_string">"exact match"</span>, gpu.matchesName(<span class="jxr_string">"radeon pro 5500m"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         assertThat(<span class="jxr_string">"case is ignored"</span>, gpu.matchesName(<span class="jxr_string">"RADEON PRO 5500M"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         assertThat(<span class="jxr_string">"trademark symbols are stripped"</span>, gpu.matchesName(<span class="jxr_string">"Radeon™ Pro 5500M"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertThat(<span class="jxr_string">"a containing name matches on a word boundary"</span>, gpu.matchesName(<span class="jxr_string">"AMD Radeon Pro 5500M GPU"</span>),
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>                 is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         assertThat(<span class="jxr_string">"a different card does not match"</span>, gpu.matchesName(<span class="jxr_string">"Radeon Pro 5300M"</span>), is(false));
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         assertThat(<span class="jxr_string">"null does not match"</span>, gpu.matchesName(<strong class="jxr_keyword">null</strong>), is(false));
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertThat(<span class="jxr_string">"empty does not match"</span>, gpu.matchesName(<span class="jxr_string">""</span>), is(false));
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Supplier&lt;IOReportSampler&gt; nullFactory() {
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         <strong class="jxr_keyword">return</strong> () -&gt; <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>     }
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

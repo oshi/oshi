@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              logger.info(<span class="jxr_string">"Server started. Listening for connections on port {}"</span>, PORT);
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              <em class="jxr_comment">// we listen until user halts server execution</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) { <em class="jxr_comment">// NOSONAR squid:S2189</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">while</strong> (<strong class="jxr_keyword">true</strong>) { <em class="jxr_comment">// NOSONAR java:S2189</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#OshiHTTPServer">OshiHTTPServer</a> myServer = <strong class="jxr_keyword">new</strong> <a name="OshiHTTPServer" href="../../oshi/demo/OshiHTTPServer.html#OshiHTTPServer">OshiHTTPServer</a>(serverConnect.accept());
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <em class="jxr_comment">// create dedicated thread to manage the client connection</em>

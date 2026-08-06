@@ -107,7 +107,7 @@
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>              Predicate&lt;String&gt; mask) {
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>         <strong class="jxr_keyword">if</strong> (keyCount &lt;= 0 || keyCount &gt; MAX_KEY_COUNT) {
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>             LOG.debug(<span class="jxr_string">"Implausible SMC key count {}; skipping key discovery."</span>, keyCount);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR squid:S1168 - null and empty are different answers; see the javadoc</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR java:S1168 - null and empty are different answers; see the javadoc</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// Any failed read, in the binary search or in the forward scan, could have hidden a matching key: the search</em>
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <em class="jxr_comment">// substitutes a neighbour for an unreadable probe, which can move the landing point past the block entirely,</em>
@@ -122,7 +122,7 @@
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         };
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">int</strong> start = lowerBound(keyCount, tracked, prefix);
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">if</strong> (start &lt; 0) {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR squid:S1168 - null and empty are different answers; see the javadoc</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR java:S1168 - null and empty are different answers; see the javadoc</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>         Set&lt;String&gt; found = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;();
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">int</strong> limit = Math.min(keyCount, start + MAX_SCAN);
@@ -150,7 +150,7 @@
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             <em class="jxr_comment">// sensor for the JVM lifetime. An empty result from a run with no failed read is different: that is a</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>             <em class="jxr_comment">// genuine "this machine has none", and is a cacheable answer.</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>             LOG.debug(<span class="jxr_string">"No SMC keys matched '{}' and at least one read failed; skipping key discovery."</span>, prefix);
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR squid:S1168 - null and empty are different answers; see the javadoc</em>
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR java:S1168 - null and empty are different answers; see the javadoc</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         }
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(<strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(found));
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>     }
@@ -283,7 +283,7 @@
 <a class="jxr_linenumber" name="L275" href="#L275">275</a>         }
 <a class="jxr_linenumber" name="L276" href="#L276">276</a>         <strong class="jxr_keyword">if</strong> (discovered == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L277" href="#L277">277</a>             LOG.debug(<span class="jxr_string">"Neither the SMC key index nor FNum could be read; deferring the fan count."</span>);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR squid:S1168 - null and empty are different answers; see the javadoc</em>
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>; <em class="jxr_comment">// NOSONAR java:S1168 - null and empty are different answers; see the javadoc</em>
 <a class="jxr_linenumber" name="L279" href="#L279">279</a>         }
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>         <strong class="jxr_keyword">return</strong> Collections.emptyList();
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>     }
