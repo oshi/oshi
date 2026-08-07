@@ -19,9 +19,12 @@ jobs:
     permissions:
       contents: write
     steps:
+      # Fully qualify the ref: actions/checkout resolves an unqualified name by
+      # looking for a branch before a tag, so a branch sharing a release tag's
+      # name would package the wrong commit. Both values here are always tags.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          ref: refs/tags/${{ github.event.release.tag_name || inputs.tag }}
           persist-credentials: false
       - name: Setup Java
         uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
