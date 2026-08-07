@@ -26,7 +26,7 @@ correct.
 | `oshi-demo` | Proof-of-concept examples, jbang catalog entries. |
 | `oshi-metrics` | Micrometer bindings. Java 17+. |
 | `oshi-benchmark` | JMH benchmarks and the `oshi.comparison` cross-implementation tests. Java 25+. |
-| `oshi-dist` | Distribution zip assembly. |
+| `oshi-dist` | Distribution zip assembly (a single `.zip`, excluding `oshi-demo`). |
 | `config/` | Checkstyle, import-control, forbidden-apis, license header, formatter, Sonar config. |
 | `src/site/` | Maven site sources (`SampleOutput.md`, project listings). |
 

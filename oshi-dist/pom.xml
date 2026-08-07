@@ -12,7 +12,7 @@
     <packaging>pom</packaging>
 
     <name>oshi-dist</name>
-    <description>OSHI JAR files packaged in zip, tar.gz, and tar.bz2 formats.</description>
+    <description>OSHI JAR files and their dependencies packaged in a zip file.</description>
 
     <!-- These dependency declarations are only required to sort this project to the end of the line in the multimodule build. -->
     <dependencies>
@@ -31,11 +31,6 @@
             <artifactId>oshi-core-ffm</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>oshi-demo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -45,7 +40,6 @@
                 <artifactId>maven-assembly-plugin</artifactId>
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <tarLongFileMode>posix</tarLongFileMode>
                     <descriptors>
                         <descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
                     </descriptors>

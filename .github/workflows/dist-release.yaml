@@ -1,0 +1,44 @@
+name: Attach dist archive to GitHub Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to build and attach (e.g. oshi-parent-7.4.5)'
+        required: true
+
+permissions: {}
+
+jobs:
+  dist:
+    if: github.repository_owner == 'oshi'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag }}
+          persist-credentials: false
+      - name: Setup Java
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          cache: maven
+          distribution: temurin
+          java-version: 25
+      # -am builds oshi-common/core/core-ffm, which the assembly's moduleSet
+      # (useAllReactorProjects) requires. JDK 25 is needed: oshi-dist and
+      # oshi-core-ffm are in the java25 profile.
+      - name: Build dist archive
+        run: >
+          ./mvnw -B -pl oshi-dist -am package
+          -DskipTests -Djacoco.skip=true -Dmaven.javadoc.skip=true
+          --settings ./.mvn/settings.xml
+      - name: Upload to release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
+        run: gh release upload "$TAG" --clobber oshi-dist/target/oshi-dist-*.zip
