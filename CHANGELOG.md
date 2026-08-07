@@ -1,6 +1,8 @@
 # 7.4.5 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3589](https://github.com/oshi/oshi/pull/3589): Reduce OSHI's Maven Central publishing footprint by 64% to stay within Sonatype's per-organization limits. `oshi-dist` now ships a single `.zip` rather than three identical archives in three compression formats, and no longer bundles `oshi-demo` or its `jfreechart` and `jackson` dependencies, so downloading it to put `oshi-core` on a classpath no longer drags in example-only code. The zip is now also attached to each GitHub release. Test-javadoc jars are no longer published, `oshi-common`'s javadoc is no longer duplicated into the `oshi-core` and `oshi-core-ffm` javadoc jars (the published site remains fully cross-linked), and `oshi-benchmark` is no longer published at all - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2026-07-24), 7.4.3 (2026-07-31), 7.4.4 (2026-08-06)
 

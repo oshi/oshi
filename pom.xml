@@ -999,6 +999,12 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
+                    <!-- Local-only JMH harness with no consumer value; keeping it out of the release also
+                    keeps us under Sonatype's per-organization monthly publishing limits. Matched on
+                    artifactId only, and silent when it matches, so verify the staged bundle after edits. -->
+                    <excludeArtifacts>
+                        <excludeArtifact>oshi-benchmark</excludeArtifact>
+                    </excludeArtifacts>
                 </configuration>
             </plugin>
         </plugins>
@@ -1308,12 +1314,6 @@
                                 <id>attach-javadocs</id>
                                 <goals>
                                     <goal>jar</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>attach-test-javadocs</id>
-                                <goals>
-                                    <goal>test-jar</goal>
                                 </goals>
                             </execution>
                         </executions>

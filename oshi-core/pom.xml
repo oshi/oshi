@@ -129,16 +129,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <includeDependencySources>true</includeDependencySources>
-                    <dependencySourceIncludes>
-                        <dependencySourceInclude>com.github.oshi:oshi-common</dependencySourceInclude>
-                    </dependencySourceIncludes>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>com.github.siom79.japicmp</groupId>
                 <artifactId>japicmp-maven-plugin</artifactId>
                 <executions>
@@ -164,6 +154,9 @@
     </build>
     <reporting>
         <plugins>
+            <!-- Inline oshi-common's javadoc into the site so the published site is self-contained and
+            cross-linked. Deliberately NOT done in <build>: reporting configuration does not inherit from
+            build, so the attached -javadoc.jar stays free of a duplicate copy of oshi-common's pages. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>

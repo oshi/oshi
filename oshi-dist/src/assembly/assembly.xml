@@ -5,8 +5,6 @@
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.3 http://maven.apache.org/xsd/assembly-1.1.3.xsd">
     <id>distribution</id>
     <formats>
-        <format>tar.gz</format>
-        <format>tar.bz2</format>
         <format>zip</format>
     </formats>
     <!-- Root of archive has files -->
@@ -31,7 +29,9 @@
             <destName>license.txt</destName>
         </file>
     </files>
-    <!-- Include module jars in root level -->
+    <!-- Include module jars in root level. Deliberately excludes oshi-demo: it is example code
+    rather than something to put on a classpath, and bundling it would drag its jfreechart and
+    jackson dependencies into lib/ for everyone. -->
     <moduleSets>
         <moduleSet>
             <!-- Enable access to all projects in the current multimodule build! -->
@@ -41,7 +41,6 @@
                 <include>com.github.oshi:oshi-common</include>
                 <include>com.github.oshi:oshi-core</include>
                 <include>com.github.oshi:oshi-core-ffm</include>
-                <include>com.github.oshi:oshi-demo</include>
             </includes>
             <binaries>
                 <includeDependencies>false</includeDependencies>

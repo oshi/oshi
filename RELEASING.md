@@ -83,6 +83,21 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
     * Push your local `site` branch upstream
 
 * Add a title and release notes [to the tag](https://github.com/oshi/oshi/tags) on GitHub and publish the release to make it current.
+    * Publishing fires the `Attach dist archive to GitHub Release` workflow, which rebuilds
+      `oshi-dist-x.x.x.zip` from the tag and uploads it as a release asset. **The workflow must
+      already be on master before `release:prepare` cuts the tag**, or the checked-out tag will not
+      contain it and nothing will fire.
+    * If the workflow fails or the tag predates it, re-run it with an explicit tag:
+      ```sh
+      gh workflow run dist-release.yaml -f tag=oshi-parent-x.x.x
+      ```
+    * Or upload by hand from the `release:perform` build, which runs in `target/checkout`:
+      ```sh
+      gh release upload oshi-parent-x.x.x target/checkout/oshi-dist/target/oshi-dist-x.x.x.zip
+      ```
+    * The rebuilt jars are functionally identical to Central's but not byte-identical: the manifest
+      carries a `Build-Time` and no `project.build.outputTimestamp` is set, so checksums differ. The
+      zip is also on Central, which remains the authoritative copy.
 
 ### Ongoing Maintenance
 
