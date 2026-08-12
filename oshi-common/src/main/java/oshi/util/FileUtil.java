@@ -125,7 +125,7 @@ public final class FileUtil {
                     }
                     lines.add(line);
                 }
-                return lines;
+                return Collections.unmodifiableList(lines);
             } catch (IOException e) {
                 if (reportError) {
                     LOG.error("Error reading file {}. {}", filename, e.getMessage());

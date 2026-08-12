@@ -105,6 +105,6 @@ public final class BsdGraphicsCard extends AbstractGraphicsCard {
                     productId.isEmpty() ? UNKNOWN_PCI_ID : productId, vendorId.isEmpty() ? UNKNOWN_PCI_ID : vendorId,
                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
         }
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 }

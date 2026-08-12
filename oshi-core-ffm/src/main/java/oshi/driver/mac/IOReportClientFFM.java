@@ -325,7 +325,7 @@ public final class IOReportClientFFM implements IOReportSampler {
                     }
                 }
             }
-            return result;
+            return Collections.unmodifiableMap(result);
         }
     }
 

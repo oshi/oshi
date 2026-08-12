@@ -5,6 +5,7 @@
 package oshi.hardware.platform.linux;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
 import java.util.ArrayList;
@@ -86,6 +87,6 @@ public final class LinuxUsbDeviceJNA {
         } finally {
             udev.unref();
         }
-        return devices;
+        return unmodifiableList(devices);
     }
 }

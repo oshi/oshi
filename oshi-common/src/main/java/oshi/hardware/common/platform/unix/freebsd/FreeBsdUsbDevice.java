@@ -127,6 +127,6 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             controllerDevices.add(buildDeviceTree(parent, "0000", "0000", nameMap, vendorMap, vendorIdMap, productIdMap,
                     serialMap, hubMap, FreeBsdUsbDevice::new));
         }
-        return controllerDevices;
+        return Collections.unmodifiableList(controllerDevices);
     }
 }

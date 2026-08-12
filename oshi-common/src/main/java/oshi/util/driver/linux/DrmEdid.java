@@ -64,6 +64,6 @@ public final class DrmEdid {
                 }
             }
         }
-        return displays;
+        return Collections.unmodifiableList(displays);
     }
 }

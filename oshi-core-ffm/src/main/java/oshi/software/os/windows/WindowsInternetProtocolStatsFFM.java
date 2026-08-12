@@ -12,6 +12,7 @@ import static oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM.queryUDPv4Connectio
 import static oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM.queryUDPv6Connections;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class WindowsInternetProtocolStatsFFM extends AbstractInternetProtocolSta
         conns.addAll(queryTCPv6Connections());
         conns.addAll(queryUDPv4Connections());
         conns.addAll(queryUDPv6Connections());
-        return conns;
+        return Collections.unmodifiableList(conns);
     }
 
     @Override

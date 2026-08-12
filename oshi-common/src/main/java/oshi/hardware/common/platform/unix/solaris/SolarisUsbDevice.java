@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.solaris;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -129,6 +130,6 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
                         productIdMap, emptyMap(), hubMap, SolarisUsbDevice::new));
             }
         }
-        return controllerDevices;
+        return unmodifiableList(controllerDevices);
     }
 }

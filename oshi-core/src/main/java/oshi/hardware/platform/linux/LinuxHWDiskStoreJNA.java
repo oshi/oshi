@@ -150,7 +150,7 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
             udev.unref();
         }
         finalizePartitions(result);
-        return result;
+        return Collections.unmodifiableList(result);
     }
 
     @Override

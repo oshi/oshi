@@ -185,7 +185,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                     }
                     svcArray.add(new OSService(displayName, processId, state));
                 }
-                return svcArray;
+                return Collections.unmodifiableList(svcArray);
             }
         }, LOG, ERROR, "Error enumerating services", Collections.emptyList());
     }

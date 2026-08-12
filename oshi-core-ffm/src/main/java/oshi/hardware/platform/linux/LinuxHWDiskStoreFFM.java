@@ -182,7 +182,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
             return Collections.emptyList();
         }
         finalizePartitions(result);
-        return result;
+        return Collections.unmodifiableList(result);
     }
 
     @Override

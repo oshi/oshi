@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.linux.nativefree;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public final class LinuxUsbDeviceNF {
             }
             devices.add(new UdevUsbDevice(syspath, product, manufacturer, idVendor, idProduct, serial, parentSyspath));
         }
-        return devices;
+        return unmodifiableList(devices);
     }
 
     private static String emptyToNull(String value) {

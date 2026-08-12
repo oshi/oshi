@@ -104,7 +104,7 @@ public final class MacInstalledApps {
                     }
                 }
 
-                return new ArrayList<>(appInfoSet);
+                return Collections.unmodifiableList(new ArrayList<>(appInfoSet));
             }
         } catch (Exception e) {
             LOG.trace("Unable to read installed apps: " + e.getMessage(), e);
@@ -176,7 +176,7 @@ public final class MacInstalledApps {
         for (String dictInner : dictBlocks) {
             out.add(parseDict(dictInner));
         }
-        return out;
+        return Collections.unmodifiableList(out);
     }
 
     static Map<String, String> parseDict(String dictInner) {

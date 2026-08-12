@@ -63,6 +63,6 @@ public final class Xrandr {
                 sb = null;
             }
         }
-        return displays;
+        return Collections.unmodifiableList(displays);
     }
 }
