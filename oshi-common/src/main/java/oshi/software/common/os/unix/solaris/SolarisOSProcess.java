@@ -251,8 +251,10 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
         if (!nofilesLine.isPresent()) {
             return -1;
         }
-        // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
-        // A non-numeric limit (e.g. "nofiles(descriptors) 256 unlimited") yields fewer tokens
+        // Split all non-digits away -> ["", "{soft-limit}", "{hard-limit}"]. -1 preserves the trailing empty
+        // token that a non-numeric limit produces (e.g. "nofiles(descriptors) 256 unlimited" -> ["", "256", ""],
+        // since "unlimited" is itself consumed as trailing non-digit delimiter text); parseLongOrDefault below
+        // then falls back to -1 for that position instead of throwing.
         final String[] split = nofilesLine.get().split("\\D+", -1);
         if (split.length <= index) {
             return -1;

@@ -129,7 +129,7 @@ public final class ProcUtil {
         Map<String, Long> result = new HashMap<>();
         List<String> lines = FileUtil.readFile(procFile);
         for (String line : lines) {
-            String[] parts = separator.split(line, -1);
+            String[] parts = separator.split(line.trim(), -1);
 
             // This would happen if the line starts with the given separator (whitespace?)
             if (parts[0].isEmpty()) {

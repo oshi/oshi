@@ -49,13 +49,15 @@ public final class CpuStat {
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
         String[] tickArr = ParseUtil.whitespaces.split(tickStr, -1);
-        if (tickArr.length <= TickType.IDLE.getIndex()) {
+        // -1 preserves a trailing empty token from trailing whitespace; discount it so it can't count as a field.
+        int tickLen = tickArr.length > 0 && tickArr[tickArr.length - 1].isEmpty() ? tickArr.length - 1 : tickArr.length;
+        if (tickLen <= TickType.IDLE.getIndex()) {
             // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
         }
         // Note tickArr is offset by 1 because first element is "cpu". Stop if a truncated line runs out of
         // fields, leaving the zero defaults for any missing values.
-        for (int i = 0; i < TickType.values().length && i + 1 < tickArr.length; i++) {
+        for (int i = 0; i < TickType.values().length && i + 1 < tickLen; i++) {
             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
         }
         // Ignore guest or guest_nice, they are included in user/nice
@@ -93,13 +95,17 @@ public final class CpuStat {
                 // remaining
                 // elements are offset by 1 from the enum index
                 String[] tickArr = ParseUtil.whitespaces.split(stat, -1);
-                if (tickArr.length <= TickType.IDLE.getIndex()) {
+                // -1 preserves a trailing empty token from trailing whitespace; discount it so it can't count as
+                // a field.
+                int tickLen = tickArr.length > 0 && tickArr[tickArr.length - 1].isEmpty() ? tickArr.length - 1
+                        : tickArr.length;
+                if (tickLen <= TickType.IDLE.getIndex()) {
                     // If ticks don't at least go user/nice/system/idle, abort
                     return ticks;
                 }
                 // Note tickArr is offset by 1. Stop if a truncated line runs out of fields, leaving the zero
                 // defaults for any missing values.
-                for (int i = 0; i < TickType.values().length && i + 1 < tickArr.length; i++) {
+                for (int i = 0; i < TickType.values().length && i + 1 < tickLen; i++) {
                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
                 }
                 // Ignore guest or guest_nice, they are included in
@@ -131,7 +137,8 @@ public final class CpuStat {
         for (String stat : procStat) {
             if (stat.startsWith("ctxt ")) {
                 String[] ctxtArr = ParseUtil.whitespaces.split(stat, -1);
-                if (ctxtArr.length == 2) {
+                // >= rather than == so a trailing empty token from trailing whitespace doesn't drop a valid line.
+                if (ctxtArr.length >= 2) {
                     return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
                 }
             }
