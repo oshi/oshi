@@ -85,7 +85,7 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
                 ds.setPartitionList(buildPartitionList(maps, ds.getName()));
                 result.add(ds);
             }
-            return result;
+            return Collections.unmodifiableList(result);
         } catch (FfmComException e) {
             LOG.warn("COM exception: {}", e.getMessage());
             return Collections.emptyList();

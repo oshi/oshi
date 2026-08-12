@@ -194,7 +194,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
                 }
             }
         }
-        return psList;
+        return Collections.unmodifiableList(psList);
     }
 
     /**

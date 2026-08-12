@@ -345,7 +345,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                         diskList.add(diskStore);
                     }
                 }
-                return diskList;
+                return Collections.unmodifiableList(diskList);
             } finally {
                 session.release();
             }

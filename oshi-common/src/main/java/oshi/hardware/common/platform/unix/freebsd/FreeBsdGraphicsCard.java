@@ -102,6 +102,6 @@ public class FreeBsdGraphicsCard extends AbstractGraphicsCard {
                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
         }
-        return cardList;
+        return Collections.unmodifiableList(cardList);
     }
 }

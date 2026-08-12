@@ -94,7 +94,7 @@ public class WindowsInternetProtocolStatsJNA extends AbstractInternetProtocolSta
             conns.addAll(queryTCPv6Connections());
             conns.addAll(queryUDPv4Connections());
             conns.addAll(queryUDPv6Connections());
-            return conns;
+            return Collections.unmodifiableList(conns);
         }
         return Collections.emptyList();
     }

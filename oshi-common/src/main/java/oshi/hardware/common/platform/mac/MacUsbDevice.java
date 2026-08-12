@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.mac;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -182,7 +183,7 @@ public final class MacUsbDevice extends AbstractUsbDevice {
             controllerDevices.add(buildDeviceTree(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
                     productIdMap, serialMap, hubMap, MacUsbDevice::new));
         }
-        return controllerDevices;
+        return unmodifiableList(controllerDevices);
     }
 
     /**

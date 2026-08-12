@@ -368,7 +368,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
                 }
                 svcArray.add(new OSService(service.lpDisplayName, service.ServiceStatusProcess.dwProcessId, state));
             }
-            return svcArray;
+            return Collections.unmodifiableList(svcArray);
         } catch (com.sun.jna.platform.win32.Win32Exception ex) {
             LOG.error("Win32Exception: {}", ex.getMessage());
             return Collections.emptyList();

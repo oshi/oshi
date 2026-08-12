@@ -80,7 +80,7 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
                 ds.setPartitionList(buildPartitionList(maps, ds.getName()));
                 result.add(ds);
             }
-            return result;
+            return Collections.unmodifiableList(result);
         } catch (COMException e) {
             LOG.warn("COM exception: {}", e.getMessage());
             return Collections.emptyList();
