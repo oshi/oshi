@@ -123,10 +123,7 @@
                     <jdkToolchain>
                         <version>25</version>
                     </jdkToolchain>
-                    <!-- combine.children="append" so this list adds to, rather than replaces,
-                         the error-prone profile's error_prone_core path (Maven's default merge
-                         for list-valued plugin config is child-replaces-parent). -->
-                    <annotationProcessorPaths combine.children="append">
+                    <annotationProcessorPaths>
                         <path>
                             <groupId>org.openjdk.jmh</groupId>
                             <artifactId>jmh-generator-annprocess</artifactId>
@@ -204,6 +201,28 @@
     </build>
 
     <profiles>
+        <profile>
+            <!-- Opt out of the root error-prone profile: this module's maven-compiler-plugin
+            config above forks a separate javac process for its JDK toolchain, and a forked
+            invocation doesn't preserve a multi-option -Xplugin value as one token the way
+            in-process compilation does elsewhere in the reactor, breaking Error Prone's own
+            "-Xep:Check:OFF"-style flags. Not worth extra plumbing for a JMH-only module that never
+            carries jSpecify annotations - restore the plain compilerArgs baseline instead. -->
+            <id>error-prone</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-Xlint:-options</arg>
+                            </compilerArgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>native-comparison</id>
             <properties>

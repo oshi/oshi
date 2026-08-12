@@ -94,7 +94,7 @@ public final class IPHlpAPIUtilFFM {
                     FIXED_INFO_LAYOUT.byteOffset(PathElement.groupElement("DnsServerList")),
                     IP_ADDR_STRING_LAYOUT.byteSize());
 
-            while (dnsServerList != NULL) {
+            while (dnsServerList.address() != 0) {
                 MemorySegment ipStringSeg = dnsServerList
                         .asSlice(IP_ADDR_STRING_LAYOUT.byteOffset(PathElement.groupElement("IpAddress")), 16);
 

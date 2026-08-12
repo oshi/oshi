@@ -71,7 +71,7 @@ public final class MonitoringFootprintReport {
     // Retained bytes of `copies` poll results held from a single reused SystemInfo
     private static double resultKb(Function<SystemInfo, Object> read) {
         SystemInfo si = new SystemInfo();
-        read.apply(si); // realize the subsystem graph so only per-result allocations are measured below
+        var _ = read.apply(si); // realize the subsystem graph so only per-result allocations are measured below
         Object[] hold = new Object[RESULT_COPIES];
         long before = usedBytes();
         for (int i = 0; i < RESULT_COPIES; i++) {
@@ -95,7 +95,9 @@ public final class MonitoringFootprintReport {
 
         record Metric(String name, Function<SystemInfo, Object> read) {
             Consumer<SystemInfo> realize() {
-                return read::apply;
+                return si -> {
+                    var _ = read.apply(si); // realize the subsystem graph; only the side effect matters here
+                };
             }
         }
         Metric[] metrics = { new Metric("cpuTicks", si -> si.getHardware().getProcessor().getSystemCpuLoadTicks()),
@@ -105,7 +107,7 @@ public final class MonitoringFootprintReport {
         // Warm up class loading, native libraries, and JIT before measuring (see PERFORMANCE.md cold-start note)
         for (int i = 0; i < WARMUP; i++) {
             for (Metric m : metrics) {
-                m.read().apply(new SystemInfo());
+                var _ = m.read().apply(new SystemInfo());
             }
         }
 
