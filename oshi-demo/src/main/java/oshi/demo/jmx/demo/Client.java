@@ -45,10 +45,13 @@ public class Client {
      * @throws AttributeNotFoundException   if attribute not found
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
+    @SuppressWarnings("BanJNDI")
     public static void main(String[] args) throws IOException, MalformedObjectNameException, ReflectionException,
             InstanceNotFoundException, MBeanException, AttributeNotFoundException {
 
-        // The address of the connector server
+        // The address of the connector server. JMX-over-RMI inherently resolves through JNDI;
+        // this targets OshiJMXServer, this demo's own companion server on a hardcoded localhost
+        // address, not attacker-controlled input.
         JMXServiceURL address = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://localhost:8888/server");
         // Map for custom properties key values
         Map<String, ?> environment = null;
