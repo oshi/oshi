@@ -55,14 +55,18 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
             false);
 
     // Get a list of orders to pass to ParseUtil
-    private static final int[] PROC_PID_STAT_ORDERS = new int[ProcPidStat.values().length];
+    private static final int[] PROC_PID_STAT_ORDERS = buildProcPidStatOrders();
 
-    static {
+    // ProcPidStat.ordinal() only indexes this class's own lookup table, built from ProcPidStat.values() itself
+    @SuppressWarnings("EnumOrdinal")
+    private static int[] buildProcPidStatOrders() {
+        int[] orders = new int[ProcPidStat.values().length];
         for (ProcPidStat stat : ProcPidStat.values()) {
             // The PROC_PID_STAT enum indices are 1-indexed.
             // Subtract one to get a zero-based index
-            PROC_PID_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
+            orders[stat.ordinal()] = stat.getOrder() - 1;
         }
+        return orders;
     }
 
     private final LinuxOperatingSystem os;
@@ -325,6 +329,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         return null;
     }
 
+    // ProcPidStat.ordinal() only indexes statArray, built from ProcPidStat.values() itself via PROC_PID_STAT_ORDERS
+    @SuppressWarnings("EnumOrdinal")
     private boolean updateAttributesFromProc() {
         String procPidExe = String.format(Locale.ROOT, ProcPath.PID_EXE, getProcessID());
         try {

@@ -128,6 +128,9 @@ public final class PerfCounterWildcardQueryFFM {
      * @return A pair containing a list of instances and an {@link EnumMap} of the corresponding values indexed by
      *         {@code propertyEnum} on success, or an empty list and empty map if the WMI query failed.
      */
+    // ordinal() == 0 is intentional: PdhCounterWildcardProperty's contract requires the first declared
+    // enum constant to be the instance filter (see PdhCounterWildcardProperty javadoc).
+    @SuppressWarnings("EnumOrdinal")
     public static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValuesFromWMI(
             Class<T> propertyEnum, String perfWmiClass) {
         T[] props = propertyEnum.getEnumConstants();

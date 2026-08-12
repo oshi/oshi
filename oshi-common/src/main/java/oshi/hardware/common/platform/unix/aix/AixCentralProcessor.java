@@ -278,14 +278,14 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
 
     private static long[] ticksFromRow(CpuTickRow row) {
         long[] ticks = new long[TickType.values().length];
-        ticks[TickType.USER.ordinal()] = row.user * 1000L / USER_HZ;
+        ticks[TickType.USER.getIndex()] = row.user * 1000L / USER_HZ;
         // Skip NICE
-        ticks[TickType.SYSTEM.ordinal()] = row.sys * 1000L / USER_HZ;
-        ticks[TickType.IDLE.ordinal()] = row.idle * 1000L / USER_HZ;
-        ticks[TickType.IOWAIT.ordinal()] = row.wait * 1000L / USER_HZ;
-        ticks[TickType.IRQ.ordinal()] = row.devintrs * 1000L / USER_HZ;
-        ticks[TickType.SOFTIRQ.ordinal()] = row.softintrs * 1000L / USER_HZ;
-        ticks[TickType.STEAL.ordinal()] = (row.idle_stolen_purr + row.busy_stolen_purr) * 1000L / USER_HZ;
+        ticks[TickType.SYSTEM.getIndex()] = row.sys * 1000L / USER_HZ;
+        ticks[TickType.IDLE.getIndex()] = row.idle * 1000L / USER_HZ;
+        ticks[TickType.IOWAIT.getIndex()] = row.wait * 1000L / USER_HZ;
+        ticks[TickType.IRQ.getIndex()] = row.devintrs * 1000L / USER_HZ;
+        ticks[TickType.SOFTIRQ.getIndex()] = row.softintrs * 1000L / USER_HZ;
+        ticks[TickType.STEAL.getIndex()] = (row.idle_stolen_purr + row.busy_stolen_purr) * 1000L / USER_HZ;
         return ticks;
     }
 
