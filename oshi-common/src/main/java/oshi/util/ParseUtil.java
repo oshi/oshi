@@ -407,9 +407,9 @@ public final class ParseUtil {
         long total = 0L;
         for (int i = 0; i < size; i++) {
             if (bigEndian) {
-                total = total << 8 | bytes[i] & 0xff;
+                total = (total << 8) | (bytes[i] & 0xff);
             } else {
-                total = total << 8 | bytes[size - i - 1] & 0xff;
+                total = (total << 8) | (bytes[size - i - 1] & 0xff);
             }
         }
         return total;
@@ -793,7 +793,7 @@ public final class ParseUtil {
                 // Doesn't impact parsing, ignore
                 delimCurrent = false;
             } else if (c >= '0' && c <= '9' && !dashSeen) {
-                if (power > 18 || power == 17 && c == '9' && parsed[parsedIndex] > 223_372_036_854_775_807L) {
+                if (power > 18 || (power == 17 && c == '9' && parsed[parsedIndex] > 223_372_036_854_775_807L)) {
                     parsed[parsedIndex] = Long.MAX_VALUE;
                 } else {
                     parsed[parsedIndex] += (c - '0') * ParseUtil.POWERS_OF_TEN[power++];
@@ -1226,7 +1226,7 @@ public final class ParseUtil {
     public static int bigEndian16ToLittleEndian(int port) {
         // 20480 = 0x5000 should be 0x0050 = 80
         // 47873 = 0xBB01 should be 0x01BB = 443
-        return port >> 8 & 0xff | port << 8 & 0xff00;
+        return ((port >> 8) & 0xff) | ((port << 8) & 0xff00);
     }
 
     /**

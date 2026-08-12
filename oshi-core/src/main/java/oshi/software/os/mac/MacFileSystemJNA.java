@@ -87,9 +87,9 @@ public class MacFileSystemJNA extends MacFileSystem {
                     final int flags = fs[f].f_flags;
                     boolean isLocal = (flags & MNT_LOCAL) != 0;
                     // Skip non-local drives if requested, and exclude pseudo file systems
-                    if ((localOnly && !isLocal) || !path.equals("/")
+                    if ((localOnly && !isLocal) || (!path.equals("/")
                             && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
-                                    FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
+                                    FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES)))) {
                         continue;
                     }
 

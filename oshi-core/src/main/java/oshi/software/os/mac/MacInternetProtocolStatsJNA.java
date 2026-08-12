@@ -81,7 +81,7 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
     private static IPConnection queryIPConnection(int pid, int fd) {
         try (CloseableSocketFdInfo si = new CloseableSocketFdInfo()) {
             int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
-            if (si.size() == ret && si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
+            if (si.size() == ret && (si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6)) {
                 InSockInfo ini;
                 String type;
                 TcpState state;
