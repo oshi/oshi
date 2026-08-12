@@ -126,8 +126,19 @@ public final class ProcUtil {
      * @return a map of statistics and associated values
      */
     public static Map<String, Long> parseStatistics(String procFile, Pattern separator) {
+        return parseStatistics(FileUtil.readFile(procFile), separator);
+    }
+
+    /**
+     * Parses lines formatted as "statistic (long)value" to produce a simple mapping. Package-private for testing.
+     *
+     * @param lines     the lines to process
+     * @param separator a regex specifying the separator between statistic and value
+     * @return a map of statistics and associated values
+     * @see #parseStatistics(String, Pattern)
+     */
+    static Map<String, Long> parseStatistics(List<String> lines, Pattern separator) {
         Map<String, Long> result = new HashMap<>();
-        List<String> lines = FileUtil.readFile(procFile);
         for (String line : lines) {
             String[] parts = separator.split(line.trim(), -1);
 

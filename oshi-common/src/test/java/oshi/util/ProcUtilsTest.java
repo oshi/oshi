@@ -10,16 +10,12 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junit.jupiter.api.io.TempDir;
 
 @EnabledOnOs(OS.LINUX)
 class ProcUtilsTest {
@@ -75,12 +71,10 @@ class ProcUtilsTest {
     }
 
     @Test
-    void testParseStatisticsWithTrailingWhitespace(@TempDir Path tempDir) throws IOException {
+    void testParseStatisticsWithTrailingWhitespace() {
         // A trailing space on the line must not prevent it from producing exactly two fields
-        Path procFile = tempDir.resolve("trailing-whitespace-stat");
-        Files.write(procFile, "SomeStatistic             12345 \n".getBytes(StandardCharsets.UTF_8));
-
-        Map<String, Long> results = ProcUtil.parseStatistics(procFile.toString());
+        Map<String, Long> results = ProcUtil
+                .parseStatistics(Collections.singletonList("SomeStatistic             12345 "), ParseUtil.whitespaces);
 
         assertThat(results.get("SomeStatistic"), is(12345L));
     }
