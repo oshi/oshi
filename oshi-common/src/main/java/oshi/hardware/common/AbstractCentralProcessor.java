@@ -409,6 +409,8 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * @param caches A set of unique caches.
      * @return A list sorted by level (desc), type, and size (desc)
      */
+    // Type.ordinal() is intentional: declaration order (UNIFIED, INSTRUCTION, DATA) defines the sort order
+    @SuppressWarnings("EnumOrdinal")
     public static List<ProcessorCache> orderedProcCaches(Set<ProcessorCache> caches) {
         return caches.stream().sorted(Comparator.comparing(
                 c -> -1000 * c.getLevel() + 100 * c.getType().ordinal() - Integer.highestOneBit(c.getCacheSize())))

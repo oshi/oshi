@@ -21,13 +21,18 @@ import oshi.util.linux.ProcPath;
 @ThreadSafe
 public class LinuxOSThread extends AbstractOSThread {
 
-    private static final int[] PROC_TASK_STAT_ORDERS = new int[LinuxOSThread.ThreadPidStat.values().length];
-    static {
-        for (LinuxOSThread.ThreadPidStat stat : LinuxOSThread.ThreadPidStat.values()) {
+    private static final int[] PROC_TASK_STAT_ORDERS = buildProcTaskStatOrders();
+
+    // ThreadPidStat.ordinal() only indexes this class's own lookup table, built from ThreadPidStat.values() itself
+    @SuppressWarnings("EnumOrdinal")
+    private static int[] buildProcTaskStatOrders() {
+        int[] orders = new int[ThreadPidStat.values().length];
+        for (ThreadPidStat stat : ThreadPidStat.values()) {
             // The PROC_PID_STAT enum indices are 1-indexed.
             // Subtract one to get a zero-based index
-            PROC_TASK_STAT_ORDERS[stat.ordinal()] = stat.getOrder() - 1;
+            orders[stat.ordinal()] = stat.getOrder() - 1;
         }
+        return orders;
     }
 
     private final LinuxOperatingSystem os;
@@ -46,6 +51,9 @@ public class LinuxOSThread extends AbstractOSThread {
         updateAttributes();
     }
 
+    // ThreadPidStat.ordinal() only indexes statArray, built from ThreadPidStat.values() itself via
+    // PROC_TASK_STAT_ORDERS
+    @SuppressWarnings("EnumOrdinal")
     @Override
     public boolean updateAttributes() {
         this.name = FileUtil.getStringFromFile(

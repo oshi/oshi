@@ -139,6 +139,9 @@ public enum PlatformEnum {
      *               {@code Platform.getOSType()} return values.
      * @return the value corresponding to the specified platform type
      */
+    // ordinal() is intentional here: this enum's declaration order is defined (see class javadoc) to match
+    // JNA's Platform.getOSType() values, so osType is itself an ordinal into this enum.
+    @SuppressWarnings("EnumOrdinal")
     public static PlatformEnum getValue(int osType) {
         if (osType < 0 || osType >= UNKNOWN.ordinal()) {
             return UNKNOWN;

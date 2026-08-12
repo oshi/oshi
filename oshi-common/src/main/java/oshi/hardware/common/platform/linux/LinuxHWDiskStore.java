@@ -75,11 +75,16 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     protected static final int SECTORSIZE = 512;
 
     /** Ordering array for parsing udev stat fields. */
-    protected static final int[] UDEV_STAT_ORDERS = new int[UdevStat.values().length];
-    static {
+    protected static final int[] UDEV_STAT_ORDERS = buildUdevStatOrders();
+
+    // UdevStat.ordinal() only indexes this class's own lookup table, built from UdevStat.values() itself
+    @SuppressWarnings("EnumOrdinal")
+    private static int[] buildUdevStatOrders() {
+        int[] orders = new int[UdevStat.values().length];
         for (UdevStat stat : UdevStat.values()) {
-            UDEV_STAT_ORDERS[stat.ordinal()] = stat.getOrder();
+            orders[stat.ordinal()] = stat.getOrder();
         }
+        return orders;
     }
 
     /** Number of fields in udev stat output. */
@@ -135,6 +140,8 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @param store   the disk store to update
      * @param devstat the stat string from sysfs or /proc/diskstats
      */
+    // UdevStat.ordinal() only indexes UDEV_STAT_ORDERS/devstatArray, both built from UdevStat.values() itself
+    @SuppressWarnings("EnumOrdinal")
     protected static void computeDiskStats(LinuxHWDiskStore store, String devstat) {
         long[] devstatArray = ParseUtil.parseStringToLongArray(devstat, UDEV_STAT_ORDERS, UDEV_STAT_LENGTH, ' ');
         store.setDiskStats(devstatArray[UdevStat.READS.ordinal()],

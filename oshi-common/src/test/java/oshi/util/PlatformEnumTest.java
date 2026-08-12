@@ -37,6 +37,8 @@ class PlatformEnumTest {
         assertThat(PlatformEnum.getValue(2), is(PlatformEnum.WINDOWS));
     }
 
+    // ordinal() is intentional: exercises PlatformEnum.getValue's own documented ordinal-based lookup
+    @SuppressWarnings("EnumOrdinal")
     @Test
     void testGetValueOutOfRange() {
         assertThat(PlatformEnum.getValue(-1), is(PlatformEnum.UNKNOWN));

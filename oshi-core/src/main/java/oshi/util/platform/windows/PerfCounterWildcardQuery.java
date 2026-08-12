@@ -234,6 +234,9 @@ public final class PerfCounterWildcardQuery {
      *
      * @throws ClassCastException if a property has a CIM type this does not convert
      */
+    // ordinal() == 0 is intentional: PdhCounterWildcardProperty's contract requires the first declared
+    // enum constant to be the instance filter (see PdhCounterWildcardProperty javadoc).
+    @SuppressWarnings("EnumOrdinal")
     static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> mapInstancesAndValuesFromResult(
             Class<T> propertyEnum, WmiResult<T> result) {
         List<String> instances = new ArrayList<>();
