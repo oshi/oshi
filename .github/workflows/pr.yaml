@@ -56,12 +56,14 @@ jobs:
             echo "unix=false" >> "$GITHUB_OUTPUT"
           fi
 
-  # Static analysis: formatting, style, API restrictions, and javadoc link validity.
-  # Runs once on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).
-  lint:
+  # Static analysis, split into parallel jobs so no single job's sequential Maven
+  # invocations dominate the critical path.
+
+  # Formatting and style — the fastest of the static-analysis jobs.
+  lint-format:
     if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
     runs-on: ubuntu-latest
-    name: Lint (Spotless, Checkstyle, ForbiddenAPIs, Javadoc)
+    name: Lint (Spotless, Checkstyle)
     permissions:
       contents: read
     steps:
@@ -81,12 +83,60 @@ jobs:
         run: ./mvnw spotless:check
       - name: Checkstyle
         run: ./mvnw checkstyle:check
+
+  # API restrictions, javadoc, and SLF4J compatibility.
+  # Runs on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).
+  lint-verify:
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
+    runs-on: ubuntu-latest
+    name: Lint (ForbiddenAPIs, Javadoc, SLF4J)
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up JDK 25
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          java-version: 25
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Install (release profile, catches javadoc-jar errors javadoc:javadoc misses)
+        # -Prelease exercises the same attach-javadocs execution used at release:perform time,
+        # which RELEASING.md notes is stricter than the javadoc:javadoc report goal below about
+        # unresolved {@link} references. -Dgpg.skip=true skips only the release profile's signing
+        # step (no key is configured here); its source-jar attachment is harmless.
+        run: ./mvnw -Prelease install -DskipTests -Dgpg.skip=true -q
       - name: Forbidden APIs
         run: ./mvnw forbiddenapis:check forbiddenapis:testCheck
-      - name: Javadoc
-        run: ./mvnw javadoc:javadoc -DskipTests
       - name: Verify SLF4J 1.7 API compatibility
         run: ./mvnw -Pverify-slf4j-17 clean compile
+
+  # Error Prone: groundwork for jSpecify nullability annotations (NullAway, the Error Prone
+  # check that will enforce them once added, needs Error Prone wired in first). Reports findings
+  # without blocking the PR until the initial backlog is triaged.
+  error-prone:
+    if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'
+    runs-on: ubuntu-latest
+    name: Error Prone (informational)
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Set up JDK 25
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          java-version: 25
+          distribution: 'zulu'
+          cache: 'maven'
+      - name: Error Prone
+        continue-on-error: true
+        run: ./mvnw install -DskipTests -Perror-prone
 
   test:
     if: github.event.action != 'labeled' || github.event.label.name == 'full-coverage'

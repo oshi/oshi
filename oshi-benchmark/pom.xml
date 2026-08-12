@@ -123,7 +123,10 @@
                     <jdkToolchain>
                         <version>25</version>
                     </jdkToolchain>
-                    <annotationProcessorPaths>
+                    <!-- combine.children="append" so this list adds to, rather than replaces,
+                         the error-prone profile's error_prone_core path (Maven's default merge
+                         for list-valued plugin config is child-replaces-parent). -->
+                    <annotationProcessorPaths combine.children="append">
                         <path>
                             <groupId>org.openjdk.jmh</groupId>
                             <artifactId>jmh-generator-annprocess</artifactId>
