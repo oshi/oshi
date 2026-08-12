@@ -62,7 +62,7 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("cat /etc/mnttab")) { // NOSONAR java:S135
-            String[] split = ParseUtil.whitespaces.split(fs);
+            String[] split = ParseUtil.whitespaces.split(fs, -1);
             if (split.length < 5) {
                 continue;
             }
@@ -136,7 +136,7 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
                  ufs fstype       0x00000004 flag             255 filename length
             */
             if (line.startsWith("/")) {
-                key = ParseUtil.whitespaces.split(line)[0];
+                key = ParseUtil.whitespaces.split(line, -1)[0];
                 total = null;
             } else if (line.contains("available") && line.contains("total files")) {
                 total = ParseUtil.getTextBetweenStrings(line, "available", "total files").trim();

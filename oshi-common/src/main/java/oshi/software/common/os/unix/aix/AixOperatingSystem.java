@@ -252,7 +252,7 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
                 header = false;
                 continue;
             }
-            String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim());
+            String[] serviceSplit = ParseUtil.whitespaces.split(systemService.trim(), -1);
             if (systemService.contains("active")) {
                 if (serviceSplit.length == 4) {
                     services.add(

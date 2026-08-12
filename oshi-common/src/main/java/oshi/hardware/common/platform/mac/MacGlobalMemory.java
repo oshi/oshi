@@ -93,7 +93,8 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
                     bankLabel = bankLabel.substring(0, colon - 1);
                 }
             } else if (bank > 0) {
-                String[] split = line.trim().split(":");
+                // Limit 2 so a value containing a colon (e.g. a hex serial number) isn't split further.
+                String[] split = line.trim().split(":", 2);
                 if (split.length == 2) {
                     switch (split[0]) {
                         case "Size":
@@ -127,7 +128,8 @@ public abstract class MacGlobalMemory extends AbstractGlobalMemory {
         } else {
             // Apple Silicon format: no BANK lines, parse top-level keys
             for (String line : lines) {
-                String[] split = line.trim().split(":");
+                // Limit 2 so a value containing a colon (e.g. a hex serial number) isn't split further.
+                String[] split = line.trim().split(":", 2);
                 if (split.length == 2) {
                     String key = split[0].trim();
                     String value = split[1].trim();

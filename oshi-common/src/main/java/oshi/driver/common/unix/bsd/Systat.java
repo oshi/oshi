@@ -60,7 +60,7 @@ public final class Systat {
         List<Double> allTemps = new ArrayList<>();
         List<Integer> fanRPMs = new ArrayList<>();
         for (String line : systatLines) {
-            String[] split = ParseUtil.whitespaces.split(line);
+            String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length > 1) {
                 if (split[0].contains("cpu")) {
                     if (split[0].contains("temp0")) {
@@ -137,7 +137,7 @@ public final class Systat {
         int maxCapacity = 1;
         int designCapacity = 1;
         for (String line : systatLines) {
-            String[] split = ParseUtil.whitespaces.split(line);
+            String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length > 1 && split[0].startsWith(name)) {
                 if (split[0].contains("volt0") || (split[0].contains("volt") && line.contains("current"))) {
                     voltage = ParseUtil.parseDoubleOrDefault(split[1], -1d);

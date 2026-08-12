@@ -73,10 +73,10 @@ public final class Iostat {
         for (int i = 0; i < mountNames.size() && i < mountPoints.size(); i++) {
             // Map disk
             disk = mountNames.get(i);
-            String[] diskSplit = disk.split(",");
+            String[] diskSplit = disk.split(",", -1);
             if (diskSplit.length >= 5 && !DEVICE_HEADER.equals(diskSplit[0])) {
                 String mount = mountPoints.get(i);
-                String[] mountSplit = mount.split(",");
+                String[] mountSplit = mount.split(",", -1);
                 if (mountSplit.length >= 5 && !DEVICE_HEADER.equals(mountSplit[4])) {
                     deviceMap.put(diskSplit[0], mountSplit[4]);
                 }
@@ -116,7 +116,7 @@ public final class Iostat {
             // The -r switch enables comma delimited for easy parsing!
             // No guarantees on which line the results appear so we'll nest
             // a loop iterating on the comma splits
-            String[] split = line.split(",");
+            String[] split = line.split(",", -1);
             for (String keyValue : split) {
                 keyValue = keyValue.trim();
                 // If entry is tne name of a disk, this is beginning of new
@@ -147,9 +147,9 @@ public final class Iostat {
                     product = keyValue.replace("Product:", "").trim();
                 } else if (keyValue.startsWith("Size:")) {
                     // Size: 1.23GB <1227563008 bytes>
-                    String[] bytes = keyValue.split("<");
+                    String[] bytes = keyValue.split("<", -1);
                     if (bytes.length > 1) {
-                        bytes = ParseUtil.whitespaces.split(bytes[1]);
+                        bytes = ParseUtil.whitespaces.split(bytes[1], -1);
                         size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
                     }
                 }

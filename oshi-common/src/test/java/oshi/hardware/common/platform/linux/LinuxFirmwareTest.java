@@ -76,4 +76,13 @@ class LinuxFirmwareTest {
         assertThat(result.getManufacturer(), is("Broadcom"));
         assertThat(result.getVersion(), is("abc123"));
     }
+
+    @Test
+    void testQueryVcGenCmdParsesManufacturerWithTrailingWhitespace() {
+        // A trailing space on the copyright line must not be mistaken for an empty final token
+        List<String> trailingWhitespace = Arrays.asList("Jan 13 2013 16:24:29", "Copyright (c) 2012 Broadcom ",
+                "version abc123");
+        VcGenCmdStrings result = LinuxFirmware.queryVcGenCmd(trailingWhitespace);
+        assertThat(result.getManufacturer(), is("Broadcom"));
+    }
 }

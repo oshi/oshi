@@ -113,15 +113,15 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
         for (final String checkLine : dmidecode) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                manufacturer = checkLine.split(manufacturerMarker, -1)[1].trim();
             } else if (checkLine.contains(productNameMarker)) {
-                model = checkLine.split(productNameMarker)[1].trim();
+                model = checkLine.split(productNameMarker, -1)[1].trim();
             } else if (checkLine.contains(serialNumMarker)) {
-                serialNumber = checkLine.split(serialNumMarker)[1].trim();
+                serialNumber = checkLine.split(serialNumMarker, -1)[1].trim();
             } else if (checkLine.contains(uuidMarker)) {
-                uuid = checkLine.split(uuidMarker)[1].trim();
+                uuid = checkLine.split(uuidMarker, -1)[1].trim();
             } else if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker)[1].trim();
+                version = checkLine.split(versionMarker, -1)[1].trim();
             }
         }
         return new Quintet<>(manufacturer, model, serialNumber, uuid, version);

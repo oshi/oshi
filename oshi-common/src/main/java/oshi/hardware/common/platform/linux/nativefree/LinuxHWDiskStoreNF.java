@@ -81,7 +81,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                     int major = 0;
                     int minor = 0;
                     if (devStr.contains(":")) {
-                        String[] majMin = devStr.split(":");
+                        String[] majMin = devStr.split(":", -1);
                         major = ParseUtil.parseIntOrDefault(majMin[0], 0);
                         minor = ParseUtil.parseIntOrDefault(majMin[1], 0);
                     }

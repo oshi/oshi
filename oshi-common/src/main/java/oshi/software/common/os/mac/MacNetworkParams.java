@@ -37,9 +37,9 @@ public abstract class MacNetworkParams extends AbstractNetworkParams {
         boolean v6Table = false;
         for (String line : lines) {
             if (v6Table && line.startsWith(DEFAULT_GATEWAY)) {
-                String[] fields = ParseUtil.whitespaces.split(line);
+                String[] fields = ParseUtil.whitespaces.split(line, -1);
                 if (fields.length > 2 && fields[2].contains("G")) {
-                    return fields[1].split("%")[0];
+                    return fields[1].split("%", -1)[0];
                 }
             } else if (line.startsWith(IPV6_ROUTE_HEADER)) {
                 v6Table = true;

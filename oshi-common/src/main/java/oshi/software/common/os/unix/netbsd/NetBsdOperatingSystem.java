@@ -38,7 +38,7 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
         String family = BsdSysctlUtil.sysctl("kern.ostype", "NetBSD");
         String version = BsdSysctlUtil.sysctl("kern.osrelease", "");
         String versionInfo = BsdSysctlUtil.sysctl("kern.version", "");
-        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
+        String buildNumber = versionInfo.split(":", -1)[0].replace(family, "").replace(version, "").trim();
 
         return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
     }
@@ -103,7 +103,7 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
     public int getProcessId() {
         // RuntimeMXBean name format is "pid@hostname"
         String name = ManagementFactory.getRuntimeMXBean().getName();
-        return ParseUtil.parseIntOrDefault(name.split("@")[0], -1);
+        return ParseUtil.parseIntOrDefault(name.split("@", -1)[0], -1);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
     protected long queryBootTime() {
         // Boot time will be the first consecutive string of digits.
         return ParseUtil.parseLongOrDefault(
-                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",", -1)[0].replaceAll("\\D", ""),
                 System.currentTimeMillis() / 1000);
     }
 }

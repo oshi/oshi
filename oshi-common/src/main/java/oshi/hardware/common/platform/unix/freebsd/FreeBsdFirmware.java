@@ -56,11 +56,11 @@ public class FreeBsdFirmware extends BsdFirmware {
 
         for (final String checkLine : dmidecode) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker)[1].trim();
+                manufacturer = checkLine.split(manufacturerMarker, -1)[1].trim();
             } else if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker)[1].trim();
+                version = checkLine.split(versionMarker, -1)[1].trim();
             } else if (checkLine.contains(releaseDateMarker)) {
-                releaseDate = checkLine.split(releaseDateMarker)[1].trim();
+                releaseDate = checkLine.split(releaseDateMarker, -1)[1].trim();
             }
         }
         releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);

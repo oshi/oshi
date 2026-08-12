@@ -69,7 +69,8 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                     serialNumber = Constants.UNKNOWN;
                 }
             } else if (bank > 0) {
-                String[] split = line.trim().split(":");
+                // Limit 2 so a value containing a colon (e.g. a hex serial number) isn't split further.
+                String[] split = line.trim().split(":", 2);
                 if (split.length == 2) {
                     switch (split[0]) {
                         case "Bank Locator":

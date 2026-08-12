@@ -77,7 +77,7 @@ public final class Dmidecode {
         String marker = "Serial Number:";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
-                return checkLine.split(marker)[1].trim();
+                return checkLine.split(marker, -1)[1].trim();
             }
         }
         return null;
@@ -102,7 +102,7 @@ public final class Dmidecode {
         String marker = "UUID:";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
-                return checkLine.split(marker)[1].trim();
+                return checkLine.split(marker, -1)[1].trim();
             }
         }
         return null;
@@ -132,7 +132,7 @@ public final class Dmidecode {
 
         for (final String checkLine : lines) {
             if (checkLine.contains(biosMarker)) {
-                String[] biosArr = ParseUtil.whitespaces.split(checkLine);
+                String[] biosArr = ParseUtil.whitespaces.split(checkLine, -1);
                 if (biosArr.length >= 2) {
                     biosName = biosArr[0] + " " + biosArr[1];
                 }

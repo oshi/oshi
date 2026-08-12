@@ -103,7 +103,7 @@ final class SolarisCentralProcessorFFM extends SolarisCentralProcessor {
                 if (kc.read(ksp)) {
                     String suppFreq = KstatUtilFFM.dataLookupString(ksp, "supported_frequencies_Hz");
                     if (!suppFreq.isEmpty()) {
-                        for (String s : suppFreq.split(":")) {
+                        for (String s : suppFreq.split(":", -1)) {
                             long freq = ParseUtil.parseLongOrDefault(s, -1L);
                             if (max < freq) {
                                 max = freq;

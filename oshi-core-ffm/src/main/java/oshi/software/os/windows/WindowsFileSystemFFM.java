@@ -288,9 +288,13 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
                 } else {
                     // Network drive
                     volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
-                    String[] split = volume.split("\\\\");
-                    if (split.length > 1 && !split[split.length - 1].isEmpty()) {
-                        description = split[split.length - 1];
+                    // Last non-empty component, in case PROVIDERNAME ends with a trailing backslash
+                    String[] split = volume.split("\\\\", -1);
+                    for (int idx = split.length - 1; idx >= 0; idx--) {
+                        if (!split[idx].isEmpty()) {
+                            description = split[idx];
+                            break;
+                        }
                     }
                 }
 

@@ -47,7 +47,7 @@ public final class NetBsdNetworkIF extends AbstractNetworkIF {
         // wm0 1500 <Link> 52:54:00:12:34:56 689584214 13656411
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + getName(), 1);
         this.timeStamp = System.currentTimeMillis();
-        String[] split = ParseUtil.whitespaces.split(stats);
+        String[] split = ParseUtil.whitespaces.split(stats, -1);
         if (split.length < 6) {
             return false;
         }
@@ -57,7 +57,7 @@ public final class NetBsdNetworkIF extends AbstractNetworkIF {
         // Get packet counts from netstat -iI <name> (without -b)
         // Name Mtu Network Address Ipkts Ierrs Opkts Oerrs Coll
         String pktStats = ExecutingCommand.getAnswerAt("netstat -iI " + getName(), 1);
-        String[] pktSplit = ParseUtil.whitespaces.split(pktStats);
+        String[] pktSplit = ParseUtil.whitespaces.split(pktStats, -1);
         if (pktSplit.length >= 9) {
             this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(pktSplit[4], 0L);
             this.inErrors = ParseUtil.parseUnsignedLongOrDefault(pktSplit[5], 0L);

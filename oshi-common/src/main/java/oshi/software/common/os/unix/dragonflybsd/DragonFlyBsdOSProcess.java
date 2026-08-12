@@ -95,9 +95,9 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
         List<String> status = FileUtil.readFile("/proc/" + pid + "/status", false);
         if (!status.isEmpty()) {
             // Format: name pid ... startSec,startUsec ...
-            String[] split = ParseUtil.whitespaces.split(status.get(0).trim());
+            String[] split = ParseUtil.whitespaces.split(status.get(0).trim(), -1);
             if (split.length >= 8) {
-                String[] timeParts = split[7].split(",");
+                String[] timeParts = split[7].split(",", -1);
                 long seconds = ParseUtil.parseLongOrDefault(timeParts[0], 0L);
                 if (seconds > 0) {
                     return seconds * 1000L;

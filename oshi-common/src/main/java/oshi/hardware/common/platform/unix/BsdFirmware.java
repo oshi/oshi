@@ -91,9 +91,9 @@ public abstract class BsdFirmware extends AbstractFirmware {
             if (line.startsWith("bios0: vendor")) {
                 version = ParseUtil.getStringBetween(line, '"');
                 releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(ParseUtil.parseLastString(line));
-                String afterVendor = line.split("vendor")[1].trim();
+                String afterVendor = line.split("vendor", -1)[1].trim();
                 int versionIdx = afterVendor.indexOf(" version ");
-                vendor = versionIdx > 0 ? afterVendor.substring(0, versionIdx) : afterVendor.split("\\s+")[0];
+                vendor = versionIdx > 0 ? afterVendor.substring(0, versionIdx) : afterVendor.split("\\s+", -1)[0];
             }
         }
         return new Triplet<>(vendor, version, releaseDate);

@@ -156,7 +156,7 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
      */
     protected static Pair<String, OSVersionInfo> buildFamilyVersionInfo(String family, String version,
             String versionInfo) {
-        String buildNumber = versionInfo.split(":")[0].replace(family, "").replace(version, "").trim();
+        String buildNumber = versionInfo.split(":", -1)[0].replace(family, "").replace(version, "").trim();
         return new Pair<>(family, new OSVersionInfo(version, null, buildNumber));
     }
 
@@ -169,7 +169,7 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
     protected static long queryBootTimeFromCommand() {
         // Boot time will be the first consecutive string of digits.
         return ParseUtil.parseLongOrDefault(
-                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",", -1)[0].replaceAll("\\D", ""),
                 System.currentTimeMillis() / 1000);
     }
 

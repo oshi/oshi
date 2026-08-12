@@ -102,7 +102,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         String buildNumber = null;
         List<String> procVersion = FileUtil.readFile(ProcPath.VERSION);
         if (!procVersion.isEmpty()) {
-            String[] split = ParseUtil.whitespaces.split(procVersion.get(0));
+            String[] split = ParseUtil.whitespaces.split(procVersion.get(0), -1);
             for (String s : split) {
                 if (!"Linux".equals(s) && !"version".equals(s)) {
                     buildNumber = s;
@@ -563,7 +563,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         List<OSService> services = new ArrayList<>();
         boolean systemctlFound = false;
         for (String str : systemctl) {
-            String[] split = ParseUtil.whitespaces.split(str);
+            String[] split = ParseUtil.whitespaces.split(str, -1);
             if (split.length >= 2 && split[0].endsWith(".service") && "enabled".equals(split[1])) {
                 // systemctl produced usable output; the /etc/init fallback is only for systems without systemctl,
                 // so mark it found even if every enabled unit turns out to be already running

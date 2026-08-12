@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Collections;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -67,6 +68,15 @@ class ProcUtilsTest {
         assertThat(results.get("Ip6OutMcastOctets"), is(45957L));
         assertThat(results.get("UdpLite6MemErrors"), is(1L));
         assertThat(results.get("IndentedEntry"), is(37L));
+    }
+
+    @Test
+    void testParseStatisticsWithTrailingWhitespace() {
+        // A trailing space on the line must not prevent it from producing exactly two fields
+        Map<String, Long> results = ProcUtil
+                .parseStatistics(Collections.singletonList("SomeStatistic             12345 "), ParseUtil.whitespaces);
+
+        assertThat(results.get("SomeStatistic"), is(12345L));
     }
 
 }

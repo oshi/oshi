@@ -139,7 +139,7 @@ public class NetBsdFileSystem extends AbstractFileSystem {
             /dev/wd0d      6082908   3343172   2435592    58%   27813  386905     7%   /usr
             */
             if (!line.startsWith("Filesystem")) {
-                String[] split = ParseUtil.whitespaces.split(line);
+                String[] split = ParseUtil.whitespaces.split(line, -1);
                 if (split.length > 6) {
                     inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
                     inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));

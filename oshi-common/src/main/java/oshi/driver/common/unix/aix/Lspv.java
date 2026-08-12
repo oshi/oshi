@@ -138,7 +138,7 @@ public final class Lspv {
         Map<String, String> typeMap = new HashMap<>();
         Map<String, Integer> ppMap = new HashMap<>();
         for (String s : lspvP) {
-            String[] split = ParseUtil.whitespaces.split(s.trim());
+            String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
             if (split.length >= 6 && "used".equals(split[1])) {
                 // Region may have two words, so count from end
                 String name = split[split.length - 3];

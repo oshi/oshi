@@ -48,14 +48,16 @@ public final class CpuStat {
 
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
-        String[] tickArr = ParseUtil.whitespaces.split(tickStr);
-        if (tickArr.length <= TickType.IDLE.getIndex()) {
+        String[] tickArr = ParseUtil.whitespaces.split(tickStr, -1);
+        // -1 preserves a trailing empty token from trailing whitespace; discount it so it can't count as a field.
+        int tickLen = tickArr.length > 0 && tickArr[tickArr.length - 1].isEmpty() ? tickArr.length - 1 : tickArr.length;
+        if (tickLen <= TickType.IDLE.getIndex()) {
             // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
         }
         // Note tickArr is offset by 1 because first element is "cpu". Stop if a truncated line runs out of
         // fields, leaving the zero defaults for any missing values.
-        for (int i = 0; i < TickType.values().length && i + 1 < tickArr.length; i++) {
+        for (int i = 0; i < TickType.values().length && i + 1 < tickLen; i++) {
             ticks[i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
         }
         // Ignore guest or guest_nice, they are included in user/nice
@@ -92,14 +94,18 @@ public final class CpuStat {
                 // Split the line. Note the first (0) element is "cpu" so
                 // remaining
                 // elements are offset by 1 from the enum index
-                String[] tickArr = ParseUtil.whitespaces.split(stat);
-                if (tickArr.length <= TickType.IDLE.getIndex()) {
+                String[] tickArr = ParseUtil.whitespaces.split(stat, -1);
+                // -1 preserves a trailing empty token from trailing whitespace; discount it so it can't count as
+                // a field.
+                int tickLen = tickArr.length > 0 && tickArr[tickArr.length - 1].isEmpty() ? tickArr.length - 1
+                        : tickArr.length;
+                if (tickLen <= TickType.IDLE.getIndex()) {
                     // If ticks don't at least go user/nice/system/idle, abort
                     return ticks;
                 }
                 // Note tickArr is offset by 1. Stop if a truncated line runs out of fields, leaving the zero
                 // defaults for any missing values.
-                for (int i = 0; i < TickType.values().length && i + 1 < tickArr.length; i++) {
+                for (int i = 0; i < TickType.values().length && i + 1 < tickLen; i++) {
                     ticks[cpu][i] = ParseUtil.parseLongOrDefault(tickArr[i + 1], 0L);
                 }
                 // Ignore guest or guest_nice, they are included in
@@ -130,8 +136,9 @@ public final class CpuStat {
     static long parseContextSwitches(List<String> procStat) {
         for (String stat : procStat) {
             if (stat.startsWith("ctxt ")) {
-                String[] ctxtArr = ParseUtil.whitespaces.split(stat);
-                if (ctxtArr.length == 2) {
+                String[] ctxtArr = ParseUtil.whitespaces.split(stat, -1);
+                // >= rather than == so a trailing empty token from trailing whitespace doesn't drop a valid line.
+                if (ctxtArr.length >= 2) {
                     return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
                 }
             }
@@ -157,7 +164,7 @@ public final class CpuStat {
     static long parseInterrupts(List<String> procStat) {
         for (String stat : procStat) {
             if (stat.startsWith("intr ")) {
-                String[] intrArr = ParseUtil.whitespaces.split(stat);
+                String[] intrArr = ParseUtil.whitespaces.split(stat, -1);
                 if (intrArr.length > 2) {
                     return ParseUtil.parseLongOrDefault(intrArr[1], 0);
                 }
@@ -185,7 +192,7 @@ public final class CpuStat {
         // Boot time given by btime variable in /proc/stat.
         for (String stat : procStat) {
             if (stat.startsWith("btime")) {
-                String[] bTime = ParseUtil.whitespaces.split(stat);
+                String[] bTime = ParseUtil.whitespaces.split(stat, -1);
                 if (bTime.length >= 2) {
                     return ParseUtil.parseLongOrDefault(bTime[1], 0L);
                 }

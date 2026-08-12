@@ -53,7 +53,7 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
 
         // Get mount table
         for (String fs : ExecutingCommand.runNative("mount -p")) {
-            String[] split = ParseUtil.whitespaces.split(fs);
+            String[] split = ParseUtil.whitespaces.split(fs, -1);
             if (split.length < 5) {
                 continue;
             }
@@ -162,7 +162,7 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
             /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
             */
             if (!line.startsWith("Filesystem")) {
-                String[] split = ParseUtil.whitespaces.split(line);
+                String[] split = ParseUtil.whitespaces.split(line, -1);
                 if (split.length > 8) {
                     long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);
                     long iused = ParseUtil.parseLongOrDefault(split[5], 0L);

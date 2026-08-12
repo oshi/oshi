@@ -98,7 +98,7 @@ public final class CpuInfo {
         String pcSerialNumber = null;
 
         for (String line : cpuInfo) {
-            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
+            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, -1);
             if (splitLine.length < 2) {
                 continue;
             }

@@ -290,7 +290,7 @@ public final class ParseUtil {
      * @return last space-delimited element
      */
     public static String parseLastString(String s) {
-        String[] ss = whitespaces.split(s);
+        String[] ss = whitespaces.split(s.trim(), -1);
         // guaranteed at least one element
         return ss[ss.length - 1];
     }
@@ -699,7 +699,7 @@ public final class ParseUtil {
      */
     public static int getNthIntValue(String line, int n) {
         // Split the string by non-digits,
-        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(""));
+        String[] split = notDigits.split(startWithNotDigits.matcher(line).replaceFirst(""), -1);
         if (split.length >= n) {
             return parseIntOrDefault(split[n - 1], 0);
         }
@@ -1113,12 +1113,12 @@ public final class ParseUtil {
     public static long parseLshwResourceString(String resources) {
         long bytes = 0L;
         // First split by whitespace
-        String[] resourceArray = whitespaces.split(resources);
+        String[] resourceArray = whitespaces.split(resources, -1);
         for (String r : resourceArray) {
             // Remove prefix
             if (r.startsWith("memory:")) {
                 // Split to low and high
-                String[] mem = r.substring(7).split("-");
+                String[] mem = r.substring(7).split("-", -1);
                 if (mem.length == 2) {
                     try {
                         // Parse the hex strings
@@ -1170,10 +1170,10 @@ public final class ParseUtil {
      */
     public static List<Integer> parseHyphenatedIntList(String str) {
         List<Integer> result = new ArrayList<>();
-        String[] csvTokens = str.split(",");
+        String[] csvTokens = str.split(",", -1);
         for (String csvToken : csvTokens) {
             csvToken = csvToken.trim();
-            for (String s : whitespaces.split(csvToken)) {
+            for (String s : whitespaces.split(csvToken, -1)) {
                 if (s.contains("-")) {
                     int first = getFirstIntValue(s);
                     int last = getNthIntValue(s, 2);

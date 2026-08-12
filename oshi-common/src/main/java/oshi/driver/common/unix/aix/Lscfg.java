@@ -62,11 +62,11 @@ public final class Lscfg {
                 planeFlag = true;
             } else if (planeFlag) {
                 if (checkLine.contains(modelMarker)) {
-                    model = ParseUtil.removeLeadingDots(checkLine.split(modelMarker)[1].trim());
+                    model = ParseUtil.removeLeadingDots(checkLine.split(modelMarker, -1)[1].trim());
                 } else if (checkLine.contains(serialMarker)) {
-                    serialNumber = ParseUtil.removeLeadingDots(checkLine.split(serialMarker)[1].trim());
+                    serialNumber = ParseUtil.removeLeadingDots(checkLine.split(serialMarker, -1)[1].trim());
                 } else if (checkLine.contains(versionMarker)) {
-                    version = ParseUtil.removeLeadingDots(checkLine.split(versionMarker)[1].trim());
+                    version = ParseUtil.removeLeadingDots(checkLine.split(versionMarker, -1)[1].trim());
                 } else if (checkLine.contains(locationMarker)) {
                     break;
                 }
@@ -108,9 +108,9 @@ public final class Lscfg {
                 }
             }
             if (s.contains(modelMarker)) {
-                model = ParseUtil.removeLeadingDots(s.split(modelMarker)[1].trim());
+                model = ParseUtil.removeLeadingDots(s.split(modelMarker, -1)[1].trim());
             } else if (s.contains(serialMarker)) {
-                serial = ParseUtil.removeLeadingDots(s.split(serialMarker)[1].trim());
+                serial = ParseUtil.removeLeadingDots(s.split(serialMarker, -1)[1].trim());
             }
         }
         return new Pair<>(model, serial);

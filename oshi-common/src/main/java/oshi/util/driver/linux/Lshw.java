@@ -47,11 +47,11 @@ public final class Lshw {
 
         for (String checkLine : lines) {
             if (checkLine.contains(modelMarker)) {
-                model = checkLine.split(modelMarker)[1].trim();
+                model = checkLine.split(modelMarker, -1)[1].trim();
             } else if (checkLine.contains(serialMarker)) {
-                serial = checkLine.split(serialMarker)[1].trim();
+                serial = checkLine.split(serialMarker, -1)[1].trim();
             } else if (checkLine.contains(uuidMarker)) {
-                uuid = checkLine.split(uuidMarker)[1].trim();
+                uuid = checkLine.split(uuidMarker, -1)[1].trim();
             }
         }
         return new Triplet<>(model, serial, uuid);
@@ -103,7 +103,7 @@ public final class Lshw {
         String capacityMarker = "capacity:";
         for (String checkLine : lines) {
             if (checkLine.contains(capacityMarker)) {
-                return ParseUtil.parseHertz(checkLine.split(capacityMarker)[1].trim());
+                return ParseUtil.parseHertz(checkLine.split(capacityMarker, -1)[1].trim());
             }
         }
         return -1L;

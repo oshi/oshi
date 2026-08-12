@@ -140,7 +140,7 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
             if (line.startsWith("lgroup")) {
                 lgroup = ParseUtil.getFirstIntValue(line);
             } else if (line.contains("CPUs:") || line.contains("CPU:")) {
-                for (Integer cpu : ParseUtil.parseHyphenatedIntList(line.split(":")[1])) {
+                for (Integer cpu : ParseUtil.parseHyphenatedIntList(line.split(":", -1)[1])) {
                     numaNodeMap.put(cpu, lgroup);
                 }
             }

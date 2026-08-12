@@ -69,7 +69,7 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
         Map<String, Long> inodeUsedMap = new HashMap<>();
         for (String line : dfOutput) {
             if (!line.startsWith("Filesystem")) {
-                String[] split = ParseUtil.whitespaces.split(line);
+                String[] split = ParseUtil.whitespaces.split(line, -1);
                 if (split.length > 6) {
                     inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
                     inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));

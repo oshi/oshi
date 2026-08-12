@@ -43,7 +43,7 @@ public abstract class WindowsOSThread extends AbstractOSThread {
      * @return the process name (portion before "/" in the thread name)
      */
     protected String getProcName() {
-        return this.name == null ? "" : this.name.split("/")[0];
+        return this.name == null ? "" : this.name.split("/", -1)[0];
     }
 
     /**

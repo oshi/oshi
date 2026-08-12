@@ -66,7 +66,7 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
     static Map<String, Set<String>> parsePhysicalVolumes(List<String> pvs) {
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
         for (String s : pvs) {
-            String[] split = ParseUtil.whitespaces.split(s.trim());
+            String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
             if (split.length == 2 && split[1].startsWith(DevPath.DEV)) {
                 physicalVolumesMap.computeIfAbsent(split[0], k -> new HashSet<>()).add(split[1]);
             }

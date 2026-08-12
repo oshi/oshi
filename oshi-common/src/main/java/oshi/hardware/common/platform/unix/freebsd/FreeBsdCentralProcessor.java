@@ -327,23 +327,24 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         for (String checkLine : lscpu) {
             if (checkLine.contains("L1d cache:")) {
                 caches.add(new ProcessorCache(1, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":")[1].trim()), Type.DATA));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()), Type.DATA));
             } else if (checkLine.contains("L1i cache:")) {
                 caches.add(new ProcessorCache(1, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":")[1].trim()), Type.INSTRUCTION));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()),
+                        Type.INSTRUCTION));
             } else if (checkLine.contains("L2 cache:")) {
                 caches.add(new ProcessorCache(2, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":")[1].trim()), Type.UNIFIED));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()), Type.UNIFIED));
             } else if (checkLine.contains("L3 cache:")) {
                 caches.add(new ProcessorCache(3, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":")[1].trim()), Type.UNIFIED));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()), Type.UNIFIED));
             }
         }
         return orderedProcCaches(caches);
     }
 
     private List<LogicalProcessor> parseTopology() {
-        String[] topology = sysctlString("kern.sched.topology_spec", "").split("[\\n\\r]");
+        String[] topology = sysctlString("kern.sched.topology_spec", "").split("[\\n\\r]", -1);
         /*-
          * Sample output:
          *
@@ -390,7 +391,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 if (m.matches()) {
                     // If csv of hex values like "f,0,0,0", parse the first value
                     String csvMatch = m.group(1);
-                    String[] csvTokens = csvMatch.split(",");
+                    String[] csvTokens = csvMatch.split(",", -1);
                     String firstVal = csvTokens[0];
 
                     // Regex guarantees parsing digits so we won't get a
@@ -459,8 +460,8 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         long max = -1L;
         String freqLevels = sysctlString("dev.cpu.0.freq_levels", "");
         // MHz/Watts pairs like: 2501/32000 2187/27125 2000/24000
-        for (String s : ParseUtil.whitespaces.split(freqLevels)) {
-            long freq = ParseUtil.parseLongOrDefault(s.split("/")[0], -1L);
+        for (String s : ParseUtil.whitespaces.split(freqLevels, -1)) {
+            long freq = ParseUtil.parseLongOrDefault(s.split("/", -1)[0], -1L);
             if (max < freq) {
                 max = freq;
             }
@@ -489,7 +490,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 marker = "ID:";
                 procInfo = true;
             } else if (procInfo && checkLine.contains(marker)) {
-                String[] parts = checkLine.split(marker);
+                String[] parts = checkLine.split(marker, -1);
                 if (parts.length > 1) {
                     return parts[1].trim();
                 }

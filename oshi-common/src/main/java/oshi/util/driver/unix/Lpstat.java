@@ -103,7 +103,7 @@ public final class Lpstat {
         String currentPrinter = null;
         for (String line : lines) {
             if (line.startsWith("printer ")) {
-                String[] parts = line.split("\\s+");
+                String[] parts = line.split("\\s+", -1);
                 if (parts.length >= 2) {
                     currentPrinter = parts[1];
                 }

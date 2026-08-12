@@ -153,7 +153,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         Map<String, String> mountsMap = new HashMap<>();
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
-            String[] split = ParseUtil.whitespaces.split(mount);
+            String[] split = ParseUtil.whitespaces.split(mount, -1);
             if (split.length < 2 || !split[0].startsWith(DevPath.DEV)) {
                 continue;
             }

@@ -69,7 +69,7 @@ public final class BsdUsbDevice extends AbstractUsbDevice {
             } else if (line.startsWith("addr ")) {
                 if (line.indexOf(':') == 7 && line.indexOf(',') >= 18) {
                     key = parent + line.substring(0, 7);
-                    String[] split = line.substring(8).trim().split(",");
+                    String[] split = line.substring(8).trim().split(",", -1);
                     if (split.length > 1) {
                         String vendorStr = split[0].trim();
                         int idx1 = vendorStr.indexOf(':');

@@ -109,7 +109,7 @@ public abstract class OpenBsdOperatingSystem extends BsdOperatingSystem {
     protected long queryBootTime() {
         // Boot time will be the first consecutive string of digits.
         return ParseUtil.parseLongOrDefault(
-                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",", -1)[0].replaceAll("\\D", ""),
                 System.currentTimeMillis() / 1000);
     }
 

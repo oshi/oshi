@@ -182,8 +182,8 @@ public abstract class FreeBsdPowerSource extends AbstractPowerSource {
         double psTimeRemainingInstant = psTimeRemainingEstimated;
         String time = psMap.get("Remaining time");
         if (time != null) {
-            String[] hhmm = time.split(":");
-            if (hhmm.length == 2) {
+            String[] hhmm = time.split(":", -1);
+            if (hhmm.length == 2 && !hhmm[1].isEmpty()) {
                 psTimeRemainingInstant = 3600d * ParseUtil.parseIntOrDefault(hhmm[0], 0)
                         + 60d * ParseUtil.parseIntOrDefault(hhmm[1], 0);
             }

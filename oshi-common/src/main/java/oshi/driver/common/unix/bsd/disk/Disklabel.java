@@ -75,13 +75,13 @@ public final class Disklabel {
         for (String line : disklabelLines) {
             if (line.contains(TOTAL_MARKER)) {
                 // Parse as long to avoid int overflow for disks larger than ~2 TiB at 512-byte sectors.
-                totalSectors = ParseUtil.parseLongOrDefault(line.split(TOTAL_MARKER)[1].trim(), 1L);
+                totalSectors = ParseUtil.parseLongOrDefault(line.split(TOTAL_MARKER, -1)[1].trim(), 1L);
             } else if (line.contains(BPS_MARKER)) {
                 bytesPerSector = ParseUtil.getFirstIntValue(line);
             } else if (line.contains(LABEL_MARKER)) {
-                label = line.split(LABEL_MARKER)[1].trim();
+                label = line.split(LABEL_MARKER, -1)[1].trim();
             } else if (line.contains(DUID_MARKER)) {
-                duid = line.split(DUID_MARKER)[1].trim();
+                duid = line.split(DUID_MARKER, -1)[1].trim();
             }
             if (line.trim().indexOf(':') == 1) {
                 // Partition rows have a single letter followed by a colon:
@@ -115,7 +115,7 @@ public final class Disklabel {
         List<HWPartition> partitions = new ArrayList<>();
         for (String line : dfLines) {
             if (line.startsWith("/dev/" + diskName)) {
-                String[] split = ParseUtil.whitespaces.split(line);
+                String[] split = ParseUtil.whitespaces.split(line, -1);
                 if (split.length > 5) {
                     String name = split[0].substring(5 + diskName.length());
                     Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);

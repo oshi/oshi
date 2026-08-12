@@ -188,7 +188,7 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
                     services.add(new OSService(name, 0, STOPPED));
                 }
             } else if (line.startsWith(" ")) {
-                String[] split = ParseUtil.whitespaces.split(line.trim());
+                String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
                 if (split.length == 3) {
                     services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));
                 }
