@@ -96,7 +96,7 @@ public final class GeomPartList {
                 }
                 // If we don't have a valid partition, don't parse anything until we do.
                 if (partName != null) {
-                    String[] split = ParseUtil.whitespaces.split(line);
+                    String[] split = ParseUtil.whitespaces.split(line, -1);
                     if (split.length >= 2) {
                         if (line.startsWith("Mediasize:")) {
                             size = ParseUtil.parseLongOrDefault(split[1], 0L);

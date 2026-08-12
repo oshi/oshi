@@ -157,7 +157,7 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
             this.privateResidentMemory = this.residentSetSize;
         }
         this.commandLineBackup = ParseUtil.decodeNulTerminated(info.pr_psargs, StandardCharsets.US_ASCII);
-        this.path = ParseUtil.whitespaces.split(commandLineBackup)[0];
+        this.path = ParseUtil.whitespaces.split(commandLineBackup, -1)[0];
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (this.name.isEmpty()) {
             this.name = ParseUtil.decodeNulTerminated(info.pr_fname, StandardCharsets.US_ASCII);

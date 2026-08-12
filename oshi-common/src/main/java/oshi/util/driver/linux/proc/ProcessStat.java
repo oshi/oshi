@@ -376,7 +376,7 @@ public final class ProcessStat {
         String name = stat.substring(nameStart, nameEnd);
         Character state = stat.charAt(nameEnd + 2);
         // Split everything after the state
-        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 4).trim());
+        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 4).trim(), -1);
 
         Map<PidStat, Long> statMap = new EnumMap<>(PidStat.class);
         PidStat[] enumArray = PidStat.class.getEnumConstants();
@@ -401,7 +401,7 @@ public final class ProcessStat {
             return null;
         }
         // Split the fields
-        String[] split = ParseUtil.whitespaces.split(statm);
+        String[] split = ParseUtil.whitespaces.split(statm, -1);
 
         Map<PidStatM, Long> statmMap = new EnumMap<>(PidStatM.class);
         PidStatM[] enumArray = PidStatM.class.getEnumConstants();

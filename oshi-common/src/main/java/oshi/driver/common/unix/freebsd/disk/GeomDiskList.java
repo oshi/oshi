@@ -67,7 +67,7 @@ public final class GeomDiskList {
             if (diskName != null) {
                 line = line.trim();
                 if (line.startsWith("Mediasize:")) {
-                    String[] split = ParseUtil.whitespaces.split(line);
+                    String[] split = ParseUtil.whitespaces.split(line, -1);
                     if (split.length > 1) {
                         mediaSize = ParseUtil.parseLongOrDefault(split[1], 0L);
                     }

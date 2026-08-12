@@ -159,7 +159,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                 : Collections.emptyMap();
 
         for (String mount : mounts) {
-            String[] split = mount.split(" ");
+            String[] split = mount.split(" ", -1);
             // As reported in fstab(5) manpage, struct is:
             // 1st field is volume name
             // 2nd field is path with spaces escaped as \040
@@ -327,7 +327,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     private static Map<String, Boolean> probeNfsHosts(List<String> mounts) {
         Set<String> hosts = new HashSet<>();
         for (String mount : mounts) {
-            String[] split = mount.split(" ");
+            String[] split = mount.split(" ", -1);
             if (split.length >= 6 && isNfsType(split[2])) {
                 String host = parseNfsAddr(split[3]);
                 if (host != null) {
@@ -392,7 +392,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         }
         List<String> osDescriptors = FileUtil.readFile(filename);
         if (!osDescriptors.isEmpty()) {
-            String[] splittedLine = osDescriptors.get(0).split("\\D+");
+            String[] splittedLine = osDescriptors.get(0).split("\\D+", -1);
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;

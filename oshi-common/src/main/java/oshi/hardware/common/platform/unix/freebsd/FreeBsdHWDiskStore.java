@@ -47,7 +47,7 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : output) {
-            String[] split = ParseUtil.whitespaces.split(line);
+            String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length < 7 || !split[0].equals(getName())) {
                 continue;
             }
@@ -82,12 +82,12 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
         if (kernDisks.isEmpty()) {
             return diskList;
         }
-        List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(kernDisks));
+        List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(kernDisks, -1));
 
         List<String> iostat = ExecutingCommand.runNative("iostat -Ix");
         long now = System.currentTimeMillis();
         for (String line : iostat) {
-            String[] split = ParseUtil.whitespaces.split(line);
+            String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length > 6 && devices.contains(split[0])) {
                 Triplet<String, String, Long> storeInfo = diskInfoMap.get(split[0]);
                 T store = (storeInfo == null) ? factory.create(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)

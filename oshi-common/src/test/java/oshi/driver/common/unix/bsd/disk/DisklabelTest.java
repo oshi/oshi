@@ -165,7 +165,7 @@ class DisklabelTest {
         String[] devices = disknames.isEmpty() ? new String[0] : disknames.split(",");
         boolean elevated = "0".equals(ExecutingCommand.getFirstAnswer("id -u"));
         for (String device : devices) {
-            String diskName = device.split(":")[0];
+            String diskName = device.split(":", -1)[0];
             Quartet<String, String, Long, List<HWPartition>> diskdata = Disklabel.getDiskParams(diskName);
             if (elevated) {
                 assertThat("Disk label is not null", diskdata.getA(), is(not(nullValue())));

@@ -74,7 +74,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return true if the OS version is at least {@code major.minor}
      */
     private static boolean isWindowsVersionOrGreater(int major, int minor) {
-        String[] parts = System.getProperty("os.version", "").split("\\.");
+        String[] parts = System.getProperty("os.version", "").split("\\.", -1);
         if (parts.length >= 2) {
             int osMajor = ParseUtil.parseIntOrDefault(parts[0], 0);
             int osMinor = ParseUtil.parseIntOrDefault(parts[1], 0);
@@ -157,7 +157,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return the string following id
      */
     protected static String parseIdentifier(String identifier, String key) {
-        String[] idSplit = ParseUtil.whitespaces.split(identifier);
+        String[] idSplit = ParseUtil.whitespaces.split(identifier, -1);
         boolean found = false;
         for (String s : idSplit) {
             if (found) {

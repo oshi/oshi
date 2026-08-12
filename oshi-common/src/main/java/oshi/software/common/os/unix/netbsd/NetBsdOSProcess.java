@@ -150,7 +150,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
         for (String line : schedctl) {
             // Output includes "Affinity: <list>" when bound
             if (line.contains("Affinity:")) {
-                String[] parts = line.split("Affinity:")[1].trim().split("[,\\s]+");
+                String[] parts = line.split("Affinity:", -1)[1].trim().split("[,\\s]+", -1);
                 for (String part : parts) {
                     int bitToSet = ParseUtil.parseIntOrDefault(part.trim(), -1);
                     if (bitToSet >= 0) {

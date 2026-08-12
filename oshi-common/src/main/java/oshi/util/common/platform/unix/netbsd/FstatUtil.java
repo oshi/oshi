@@ -41,7 +41,7 @@ public final class FstatUtil {
      */
     public static String parseCwdFromFstat(List<String> fstatLines) {
         for (String line : fstatLines) {
-            String[] split = line.trim().split("\\s+");
+            String[] split = line.trim().split("\\s+", -1);
             if (split.length > 4 && "wd".equals(split[3])) {
                 return split[4];
             }

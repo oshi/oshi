@@ -48,7 +48,7 @@ public final class CpuStat {
 
         // Split the line. Note the first (0) element is "cpu" so remaining
         // elements are offset by 1 from the enum index
-        String[] tickArr = ParseUtil.whitespaces.split(tickStr);
+        String[] tickArr = ParseUtil.whitespaces.split(tickStr, -1);
         if (tickArr.length <= TickType.IDLE.getIndex()) {
             // If ticks don't at least go user/nice/system/idle, abort
             return ticks;
@@ -92,7 +92,7 @@ public final class CpuStat {
                 // Split the line. Note the first (0) element is "cpu" so
                 // remaining
                 // elements are offset by 1 from the enum index
-                String[] tickArr = ParseUtil.whitespaces.split(stat);
+                String[] tickArr = ParseUtil.whitespaces.split(stat, -1);
                 if (tickArr.length <= TickType.IDLE.getIndex()) {
                     // If ticks don't at least go user/nice/system/idle, abort
                     return ticks;
@@ -130,7 +130,7 @@ public final class CpuStat {
     static long parseContextSwitches(List<String> procStat) {
         for (String stat : procStat) {
             if (stat.startsWith("ctxt ")) {
-                String[] ctxtArr = ParseUtil.whitespaces.split(stat);
+                String[] ctxtArr = ParseUtil.whitespaces.split(stat, -1);
                 if (ctxtArr.length == 2) {
                     return ParseUtil.parseLongOrDefault(ctxtArr[1], 0);
                 }
@@ -157,7 +157,7 @@ public final class CpuStat {
     static long parseInterrupts(List<String> procStat) {
         for (String stat : procStat) {
             if (stat.startsWith("intr ")) {
-                String[] intrArr = ParseUtil.whitespaces.split(stat);
+                String[] intrArr = ParseUtil.whitespaces.split(stat, -1);
                 if (intrArr.length > 2) {
                     return ParseUtil.parseLongOrDefault(intrArr[1], 0);
                 }
@@ -185,7 +185,7 @@ public final class CpuStat {
         // Boot time given by btime variable in /proc/stat.
         for (String stat : procStat) {
             if (stat.startsWith("btime")) {
-                String[] bTime = ParseUtil.whitespaces.split(stat);
+                String[] bTime = ParseUtil.whitespaces.split(stat, -1);
                 if (bTime.length >= 2) {
                     return ParseUtil.parseLongOrDefault(bTime[1], 0L);
                 }

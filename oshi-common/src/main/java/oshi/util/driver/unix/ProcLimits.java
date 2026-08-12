@@ -58,7 +58,7 @@ public final class ProcLimits {
             return -1;
         }
         // Split all non-digits away -> ["", "{soft-limit}", "{hard-limit}", ""]
-        final String[] split = maxOpenFilesLine.get().split("\\D+");
+        final String[] split = maxOpenFilesLine.get().split("\\D+", -1);
         // Element 0 is the empty string left of the label, so a usable index is 1 or 2
         if (index < 1 || split.length <= index) {
             return -1;

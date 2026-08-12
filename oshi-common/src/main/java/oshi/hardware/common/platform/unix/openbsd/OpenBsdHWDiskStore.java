@@ -64,11 +64,11 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         if (disknames.isEmpty()) {
             return diskList;
         }
-        String[] devices = disknames.split(",");
+        String[] devices = disknames.split(",", -1);
         T store;
         String diskName;
         for (String device : devices) {
-            diskName = device.split(":")[0];
+            diskName = device.split(":", -1)[0];
             if (diskName.isEmpty()) {
                 continue;
             }
@@ -115,7 +115,7 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : iostat.get()) {
-            String[] split = ParseUtil.whitespaces.split(line);
+            String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length >= 6 && split[0].equals(getName())) {
                 diskFound = true;
                 this.readBytes = ParseUtil.parseMultipliedToLongs(split[1]);

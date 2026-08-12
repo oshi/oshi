@@ -1223,6 +1223,11 @@
                         <configuration>
                             <compilerArgs>
                                 <arg>-Xlint:-options</arg>
+                                <!-- javac's default -Xmaxwarns is 100 per module; Error Prone's findings are
+                                javac warnings, so without this a module with more findings than that silently
+                                drops the rest with no indication anything was truncated. -->
+                                <arg>-Xmaxwarns</arg>
+                                <arg>100000</arg>
                                 <arg>-XDcompilePolicy=simple</arg>
                                 <arg>--should-stop=ifError=FLOW</arg>
                                 <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF</arg>

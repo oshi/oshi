@@ -69,7 +69,7 @@ public abstract class AbstractGlobalMemory implements GlobalMemory {
                     serialNumber = Constants.UNKNOWN;
                 }
             } else if (bank > 0) {
-                String[] split = line.trim().split(":");
+                String[] split = line.trim().split(":", -1);
                 if (split.length == 2) {
                     switch (split[0]) {
                         case "Bank Locator":

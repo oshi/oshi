@@ -214,7 +214,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
     static String resolveV1ControllerPath(List<String> selfCgroup, String controller) {
         for (String line : selfCgroup) {
             // v1 format: "hierarchy-id:controllers:path"
-            String[] parts = line.split(":");
+            String[] parts = line.split(":", -1);
             if (parts.length >= 3) {
                 String controllers = parts[1];
                 if (controllers.isEmpty()) {
@@ -222,7 +222,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
                 }
                 String path = parts[2];
                 // Exact match: split comma-separated controllers
-                for (String c : controllers.split(",")) {
+                for (String c : controllers.split(",", -1)) {
                     if (c.equals(controller)) {
                         if (path.startsWith("/")) {
                             path = path.substring(1);
@@ -256,7 +256,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         if (cpuMax.isEmpty()) {
             return UNLIMITED;
         }
-        String[] parts = cpuMax.split("\\s+");
+        String[] parts = cpuMax.split("\\s+", -1);
         if (parts.length >= 1) {
             if ("max".equalsIgnoreCase(parts[0])) {
                 return UNLIMITED;
@@ -296,7 +296,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         if (cpuMax.isEmpty()) {
             return DEFAULT_CPU_PERIOD;
         }
-        String[] parts = cpuMax.split("\\s+");
+        String[] parts = cpuMax.split("\\s+", -1);
         if (parts.length >= 2) {
             return ParseUtil.parseLongOrDefault(parts[1], DEFAULT_CPU_PERIOD);
         }
@@ -322,7 +322,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         List<String> lines = FileUtil.readFile(basePath + "cpu.stat");
         for (String line : lines) {
             if (line.startsWith("usage_usec")) {
-                String[] parts = line.split("\\s+");
+                String[] parts = line.split("\\s+", -1);
                 if (parts.length >= 2) {
                     long usec = ParseUtil.parseLongOrDefault(parts[1], 0L);
                     return usec * NANOSECONDS_PER_MICROSECOND;

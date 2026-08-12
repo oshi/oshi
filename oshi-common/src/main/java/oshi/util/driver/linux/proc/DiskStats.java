@@ -132,7 +132,7 @@ public final class DiskStats {
         Map<String, Map<IoStat, Long>> diskStatMap = new HashMap<>();
         IoStat[] enumArray = IoStat.class.getEnumConstants();
         for (String stat : diskStats) {
-            String[] split = ParseUtil.whitespaces.split(stat.trim());
+            String[] split = ParseUtil.whitespaces.split(stat.trim(), -1);
             Map<IoStat, Long> statMap = new EnumMap<>(IoStat.class);
             String name = null;
             for (int i = 0; i < enumArray.length && i < split.length; i++) {

@@ -53,7 +53,7 @@ public final class ProcstatUtil {
      */
     public static String parseCwdFromFstat(List<String> fstatLines) {
         for (String line : fstatLines) {
-            String[] split = ParseUtil.whitespaces.split(line.trim());
+            String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
             if (split.length >= 8 && "wd".equals(split[4])) {
                 return split[split.length - 1];
             }
@@ -91,7 +91,7 @@ public final class ProcstatUtil {
     public static long parseOpenFiles(List<String> fstatLines) {
         long fd = 0L;
         for (String line : fstatLines) {
-            String[] split = ParseUtil.whitespaces.split(line.trim());
+            String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
             if (split.length >= 8 && !"wd".equals(split[4]) && !"root".equals(split[4]) && !"text".equals(split[4])) {
                 fd++;
             }

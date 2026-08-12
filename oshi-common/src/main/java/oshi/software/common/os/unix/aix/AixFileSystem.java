@@ -78,7 +78,7 @@ public class AixFileSystem extends AbstractFileSystem {
              */
             // Lines begin with optional node, which we don't use. To force sensible split
             // behavior, append any character at the beginning of the string
-            String[] split = ParseUtil.whitespaces.split("x" + fs);
+            String[] split = ParseUtil.whitespaces.split("x" + fs, -1);
             if (split.length > 7) {
                 // 1st field is volume name [0-index]
                 // 2nd field is mount point
@@ -159,7 +159,7 @@ public class AixFileSystem extends AbstractFileSystem {
              * NFS mounts appear as hostname:/path or ip:/path and are matched by FS_PATTERN
              */
             if (FS_PATTERN.matcher(line).find()) {
-                String[] split = ParseUtil.whitespaces.split(line);
+                String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
                 // Columns: Filesystem, 512-blocks, Ifree (%n), Iused (%l)
                 if (split.length >= 4) {
                     long free = ParseUtil.parseLongOrDefault(split[split.length - 2], 0L);

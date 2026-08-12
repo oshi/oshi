@@ -170,7 +170,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         boolean cpu64bit = false;
         StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
         for (String line : cpuInfo) {
-            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line);
+            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, -1);
             if (splitLine.length < 2) {
                 // special case
                 if (line.startsWith("CPU architecture: ")) {
@@ -519,32 +519,32 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 size = 0L;
             } else if (s.contains("one-size")) {
                 // "one-size": "65536",
-                String[] split = ParseUtil.notDigits.split(s);
+                String[] split = ParseUtil.notDigits.split(s, -1);
                 if (split.length > 1) {
                     size = ParseUtil.parseLongOrDefault(split[1], 0L);
                 }
             } else if (s.contains("ways")) {
                 // "ways": null,
                 // "ways": 4,
-                String[] split = ParseUtil.notDigits.split(s);
+                String[] split = ParseUtil.notDigits.split(s, -1);
                 if (split.length > 1) {
                     associativity = ParseUtil.parseIntOrDefault(split[1], 0);
                 }
             } else if (s.contains("type")) {
                 // "type": "Unified",
-                String[] split = s.split("\"");
+                String[] split = s.split("\"", -1);
                 if (split.length > 2) {
                     type = parseCacheType(split[split.length - 2]);
                 }
             } else if (s.contains("level")) {
                 // "level": 3,
-                String[] split = ParseUtil.notDigits.split(s);
+                String[] split = ParseUtil.notDigits.split(s, -1);
                 if (split.length > 1) {
                     level = ParseUtil.parseIntOrDefault(split[1], 0);
                 }
             } else if (s.contains("coherency-size")) {
                 // "coherency-size": 64
-                String[] split = ParseUtil.notDigits.split(s);
+                String[] split = ParseUtil.notDigits.split(s, -1);
                 if (split.length > 1) {
                     lineSize = ParseUtil.parseIntOrDefault(split[1], 0);
                 }
@@ -700,7 +700,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
         double[] average = new double[nelem];
-        String[] parts = ParseUtil.whitespaces.split(loadavgContent.trim());
+        String[] parts = ParseUtil.whitespaces.split(loadavgContent.trim(), -1);
         for (int i = 0; i < nelem; i++) {
             average[i] = i < parts.length ? ParseUtil.parseDoubleOrDefault(parts[i], -1d) : -1d;
         }
@@ -754,7 +754,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 marker = "ID:";
                 procInfo = true;
             } else if (procInfo && checkLine.contains(marker)) {
-                return checkLine.split(marker)[1].trim();
+                return checkLine.split(marker, -1)[1].trim();
             }
         }
         // If we've gotten this far, dmidecode failed. Try cpuid.
@@ -780,7 +780,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             if (checkLine.contains("eax=") && checkLine.trim().startsWith("0x00000001")) {
                 String eax = "";
                 String edx = "";
-                for (String register : ParseUtil.whitespaces.split(checkLine)) {
+                for (String register : ParseUtil.whitespaces.split(checkLine, -1)) {
                     if (register.startsWith("eax=")) {
                         eax = ParseUtil.removeMatchingString(register, "eax=0x");
                     } else if (register.startsWith("edx=")) {
@@ -818,7 +818,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         int midrBytes = 0;
         // Build 32-bit MIDR
         if (stepping.startsWith("r") && stepping.contains("p")) {
-            String[] rev = stepping.substring(1).split("p");
+            String[] rev = stepping.substring(1).split("p", -1);
             // 3:0 – Revision: last n in rnpn
             midrBytes |= ParseUtil.parseLastInt(rev[1], 0);
             // 23:20 - Variant: first n in rnpn

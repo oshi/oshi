@@ -131,7 +131,7 @@ final class LinuxFirmware extends AbstractFirmware {
                     () -> DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0))),
                     Constants.UNKNOWN);
             // Second line is copyright
-            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1));
+            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1), -1);
             vcManufacturer = copyright.length > 0 && !copyright[copyright.length - 1].isEmpty()
                     ? copyright[copyright.length - 1]
                     : Constants.UNKNOWN;

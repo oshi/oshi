@@ -248,7 +248,7 @@ public final class EdidUtil {
         for (byte[] b : getDescriptors(edid)) {
             if (getDescriptorType(b) == MONITOR_NAME_TYPE) {
                 // The model name is the final whitespace-delimited token of the monitor-name descriptor
-                String[] tokens = getDescriptorText(b).split("\\s+");
+                String[] tokens = getDescriptorText(b).split("\\s+", -1);
                 return tokens[tokens.length - 1].trim();
             }
         }
@@ -426,7 +426,7 @@ public final class EdidUtil {
      * @param version The version as a {@code major.minor} string (e.g. {@code "1.4"})
      */
     public static void setVersion(byte[] edid, String version) {
-        String[] parts = version.split("\\.");
+        String[] parts = version.split("\\.", -1);
         edid[VERSION_OFFSET] = (byte) ParseUtil.parseIntOrDefault(parts[0], 1);
         edid[VERSION_OFFSET + 1] = (byte) (parts.length > 1 ? ParseUtil.parseIntOrDefault(parts[1], 0) : 0);
     }

@@ -81,7 +81,7 @@ public final class PrivilegedUtil {
         }
 
         // Extract the command name (first token)
-        String[] tokens = command.trim().split("\\s+");
+        String[] tokens = command.trim().split("\\s+", -1);
         if (tokens.length == 0) {
             return false;
         }

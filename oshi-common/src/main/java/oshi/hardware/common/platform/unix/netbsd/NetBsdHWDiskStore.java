@@ -49,7 +49,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
         // Get list of disks from sysctl
         // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
-        String[] devices = BsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+");
+        String[] devices = BsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+", -1);
         NetBsdHWDiskStore store;
         for (String diskName : devices) {
             // Try disklabel first (works for physical disks, not wedges)
@@ -103,7 +103,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : iostat.get()) {
-            String[] split = ParseUtil.whitespaces.split(line.trim());
+            String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
             // iostat -x -I output (cumulative totals, 9 fields):
             // device read KB/t xfr time MB write KB/t xfr time MB
             // ld0 27.74 38896 14.03 1356 36.19 0 0.00 0.000

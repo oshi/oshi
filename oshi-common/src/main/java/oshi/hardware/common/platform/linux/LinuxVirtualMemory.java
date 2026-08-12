@@ -122,7 +122,7 @@ final class LinuxVirtualMemory extends AbstractVirtualMemory {
         long swapPagesIn = 0L;
         long swapPagesOut = 0L;
         for (String checkLine : procVmStat) {
-            String[] memorySplit = ParseUtil.whitespaces.split(checkLine);
+            String[] memorySplit = ParseUtil.whitespaces.split(checkLine, -1);
             if (memorySplit.length > 1) {
                 switch (memorySplit[0]) {
                     case "pswpin":

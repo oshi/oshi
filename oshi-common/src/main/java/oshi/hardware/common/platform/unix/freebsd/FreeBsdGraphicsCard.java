@@ -63,9 +63,9 @@ public class FreeBsdGraphicsCard extends AbstractGraphicsCard {
                             versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
                 }
                 // Parse this line
-                String[] split = ParseUtil.whitespaces.split(line);
+                String[] split = ParseUtil.whitespaces.split(line, -1);
                 for (String s : split) {
-                    String[] keyVal = s.split("=");
+                    String[] keyVal = s.split("=", -1);
                     if (keyVal.length > 1) {
                         if (keyVal[0].equals("class") && keyVal[1].length() >= 4) {
                             // class=0x030000

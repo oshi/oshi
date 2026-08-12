@@ -70,7 +70,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
         // Boot time will be the first consecutive string of digits.
         if (bootTime == 0) {
             bootTime = ParseUtil.parseLongOrDefault(
-                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
+                    ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",", -1)[0].replaceAll("\\D", ""),
                     System.currentTimeMillis() / 1000);
         }
         BOOTTIME = bootTime;

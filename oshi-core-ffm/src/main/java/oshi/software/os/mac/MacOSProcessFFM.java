@@ -210,7 +210,7 @@ public class MacOSProcessFFM extends MacOSProcess {
             if (proc_pidpath(pid, pathBuf, PROC_PIDPATHINFO_MAXSIZE) > 0) {
                 this.path = pathBuf.getString(0).trim();
                 // Overwrite name with last part of path
-                String[] pathSplit = this.path.split("/");
+                String[] pathSplit = this.path.split("/", -1);
                 if (pathSplit.length > 0) {
                     this.name = pathSplit[pathSplit.length - 1];
                 }

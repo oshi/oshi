@@ -126,7 +126,7 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
      * @return the bytes used on this swap device
      */
     static long parseSwapUsed(String swapInfoRow) {
-        String[] split = ParseUtil.whitespaces.split(swapInfoRow);
+        String[] split = ParseUtil.whitespaces.split(swapInfoRow, -1);
         if (split.length < 5) {
             return 0L;
         }

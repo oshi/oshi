@@ -92,9 +92,9 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         long interrupts = 0L;
         for (String line : vmstat) {
             if (line.endsWith("CPU context switches")) {
-                contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+")[0], 0L);
+                contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
             } else if (line.endsWith("device interrupts")) {
-                interrupts = ParseUtil.parseLongOrDefault(line.trim().split("\\s+")[0], 0L);
+                interrupts = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
             }
         }
         return new Pair<>(contextSwitches, interrupts);
@@ -110,7 +110,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
     static String[] parseFamilyModelStepping(List<String> dmesg) {
         for (String line : dmesg) {
             if (line.startsWith("cpu0:") && line.matches(".*\\d+-[\\da-fA-F]+-[\\da-fA-F]+.*")) {
-                String[] parts = line.split(",");
+                String[] parts = line.split(",", -1);
                 for (String part : parts) {
                     String trimmed = part.trim();
                     if (trimmed.matches("[\\da-fA-F]+-[\\da-fA-F]+-[\\da-fA-F]+")) {
@@ -182,9 +182,9 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         if (colonIdx < 0) {
             return ticks;
         }
-        String[] pairs = cpTimeStr.substring(colonIdx + 1).split(",");
+        String[] pairs = cpTimeStr.substring(colonIdx + 1).split(",", -1);
         for (String pair : pairs) {
-            String[] kv = pair.trim().split("\\s*=\\s*");
+            String[] kv = pair.trim().split("\\s*=\\s*", -1);
             if (kv.length == 2) {
                 long val = ParseUtil.parseLongOrDefault(kv[1].trim(), 0L);
                 switch (kv[0].trim()) {
@@ -236,7 +236,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         // Parse "vm.loadavg: 1.59 0.47 0.18"
         String loadavg = ExecutingCommand.getFirstAnswer("sysctl -n vm.loadavg");
         if (!loadavg.isEmpty()) {
-            String[] loads = ParseUtil.whitespaces.split(loadavg.trim());
+            String[] loads = ParseUtil.whitespaces.split(loadavg.trim(), -1);
             for (int i = 0; i < nelem && i < loads.length; i++) {
                 average[i] = ParseUtil.parseDoubleOrDefault(loads[i], -1d);
             }

@@ -44,7 +44,7 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
     public boolean updateAttributes() {
         String stats = ExecutingCommand.getAnswerAt("netstat -bI " + getName(), 1);
         this.timeStamp = System.currentTimeMillis();
-        String[] split = ParseUtil.whitespaces.split(stats);
+        String[] split = ParseUtil.whitespaces.split(stats, -1);
         if (split.length < 12) {
             // No update
             return false;

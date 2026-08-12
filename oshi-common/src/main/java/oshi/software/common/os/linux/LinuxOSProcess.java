@@ -289,7 +289,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         // Output:
         // pid 3283's current affinity mask: 3
         // pid 9726's current affinity mask: f
-        String[] split = ParseUtil.whitespaces.split(tasksetOutput);
+        String[] split = ParseUtil.whitespaces.split(tasksetOutput.trim(), -1);
         if (split.length == 0) {
             return 0;
         }
@@ -381,7 +381,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
         this.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];
         // Parse /proc/[pid]/statm for resident and shared pages (all in pages)
         // Fields: size resident shared text lib data dt
-        String[] statmFields = ParseUtil.whitespaces.split(statm);
+        String[] statmFields = ParseUtil.whitespaces.split(statm, -1);
         if (statmFields.length > 2) {
             long resident = ParseUtil.parseLongOrDefault(statmFields[1], 0L);
             long shared = ParseUtil.parseLongOrDefault(statmFields[2], 0L);
@@ -407,9 +407,9 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
 
         // Don't set open files or bitness or currentWorkingDirectory; fetch on demand.
 
-        this.userID = ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""))[0];
+        this.userID = ParseUtil.whitespaces.split(status.getOrDefault("Uid", ""), -1)[0];
         // defer user lookup until asked
-        this.groupID = ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""))[0];
+        this.groupID = ParseUtil.whitespaces.split(status.getOrDefault("Gid", ""), -1)[0];
         // defer group lookup until asked
         this.name = status.getOrDefault("Name", "");
         this.state = ProcessStat.getState(status.getOrDefault("State", "U").charAt(0));

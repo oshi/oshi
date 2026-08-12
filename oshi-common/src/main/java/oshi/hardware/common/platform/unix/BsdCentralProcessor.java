@@ -118,7 +118,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
             } else {
                 Matcher n = q.matcher(s);
                 if (n.matches()) {
-                    for (String cacheStr : n.group(2).split(",")) {
+                    for (String cacheStr : n.group(2).split(",", -1)) {
                         ProcessorCache cache = parseCacheStr(cacheStr);
                         if (cache != null) {
                             caches.add(cache);
@@ -127,7 +127,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
                 }
             }
             if (s.startsWith("cpu")) {
-                String[] ss = s.trim().split(": ");
+                String[] ss = s.trim().split(": ", -1);
                 if (ss.length == 2 && ss[1].split(",").length > 3) {
                     featureFlags.add(ss[1]);
                 }
@@ -164,7 +164,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     static ProcessorCache parseCacheStr(String cacheStr) {
-        String[] split = ParseUtil.whitespaces.split(cacheStr.trim());
+        String[] split = ParseUtil.whitespaces.split(cacheStr.trim(), -1);
         if (split.length > 3) {
             switch (split[split.length - 1]) {
                 case "I-cache":

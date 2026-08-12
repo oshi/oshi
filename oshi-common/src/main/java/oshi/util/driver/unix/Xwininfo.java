@@ -78,7 +78,7 @@ public final class Xwininfo {
             String stack = stacking.get(0);
             int bottom = stack.indexOf("0x");
             if (bottom >= 0) {
-                for (String id : stack.substring(bottom).split(", ")) {
+                for (String id : stack.substring(bottom).split(", ", -1)) {
                     zOrderMap.put(id, ++z);
                 }
             }

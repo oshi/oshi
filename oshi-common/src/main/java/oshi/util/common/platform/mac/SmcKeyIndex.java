@@ -291,7 +291,7 @@ public final class SmcKeyIndex {
             return Collections.emptyList();
         }
         List<String> keys = new ArrayList<>();
-        for (String token : csv.split(",")) {
+        for (String token : csv.split(",", -1)) {
             String key = token.trim();
             if (key.length() == KEY_LENGTH) {
                 keys.add(key);

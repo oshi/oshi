@@ -154,7 +154,7 @@ public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                 // find matching logical volume
                 for (Entry<String, String> entry : vdMap.entrySet()) {
                     if (entry.getKey().contains(spObjectId)) {
-                        String vdObjectId = ParseUtil.whitespaces.split(entry.getKey())[0];
+                        String vdObjectId = ParseUtil.whitespaces.split(entry.getKey(), -1)[0];
                         logicalVolumeMap.put(entry.getValue() + " " + vdObjectId, physicalVolumeSet);
                     }
                 }

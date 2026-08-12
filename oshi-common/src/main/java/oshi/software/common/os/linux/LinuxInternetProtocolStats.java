@@ -102,7 +102,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         // UDP6, udplite6 stats
         for (int line = lines.size() - 1; line >= 0 && foundUDPv6StatsCount < 4; line--) {
             if (lines.get(line).startsWith(UDP6)) {
-                String[] parts = lines.get(line).split("\\s+");
+                String[] parts = lines.get(line).split("\\s+", -1);
                 switch (parts[0]) {
                     case "Udp6InDatagrams":
                         inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
@@ -144,7 +144,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         List<IPConnection> conns = new ArrayList<>();
         for (String s : FileUtil.readFile(ProcPath.NET + "/" + protocol + (ipver == 6 ? "6" : ""))) {
             if (s.indexOf(':') >= 0) {
-                String[] split = ParseUtil.whitespaces.split(s.trim());
+                String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
                 if (split.length > 9) {
                     Pair<byte[], Integer> lAddr = parseIpAddr(split[1]);
                     Pair<byte[], Integer> fAddr = parseIpAddr(split[2]);

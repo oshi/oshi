@@ -116,7 +116,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
             return 0L;
         } else if (cpuset.endsWith(".") && cpuset.contains("strongly bound to processor(s)")) {
             String parse = cpuset.substring(0, cpuset.length() - 1);
-            String[] split = ParseUtil.whitespaces.split(parse);
+            String[] split = ParseUtil.whitespaces.split(parse.trim(), -1);
             for (int i = split.length - 1; i >= 0; i--) {
                 int bitToSet = ParseUtil.parseIntOrDefault(split[i], -1);
                 if (bitToSet >= 0) {
@@ -139,7 +139,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
     static long parsePsrinfo(List<String> psrinfo) {
         long bitMask = 0L;
         for (String proc : psrinfo) {
-            String[] split = ParseUtil.whitespaces.split(proc);
+            String[] split = ParseUtil.whitespaces.split(proc, -1);
             int bitToSet = ParseUtil.parseIntOrDefault(split[0], -1);
             if (bitToSet >= 0) {
                 bitMask |= 1L << bitToSet;
@@ -177,7 +177,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
         this.userTime = info.pr_time.toMillis();
         // 80 character truncation but enough for path and name (usually)
         this.commandLineBackup = PsInfo.bytesToString(info.pr_psargs);
-        String[] parts = ParseUtil.whitespaces.split(commandLineBackup);
+        String[] parts = ParseUtil.whitespaces.split(commandLineBackup, -1);
         this.path = parts.length > 0 ? parts[0] : "";
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         if (usage != null) {
@@ -253,7 +253,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
         }
         // Split all non-Digits away -> ["", "{soft-limit}, "{hard-limit}"]
         // A non-numeric limit (e.g. "nofiles(descriptors) 256 unlimited") yields fewer tokens
-        final String[] split = nofilesLine.get().split("\\D+");
+        final String[] split = nofilesLine.get().split("\\D+", -1);
         if (split.length <= index) {
             return -1;
         }

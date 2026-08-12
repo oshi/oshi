@@ -83,7 +83,7 @@ public final class UserGroupInfo {
         Map<String, String> userMap = new ConcurrentHashMap<>();
         // see man 5 passwd for the fields
         for (String entry : passwd) {
-            String[] split = entry.split(":");
+            String[] split = entry.split(":", -1);
             if (split.length > 2) {
                 String userName = split[0];
                 String uid = split[2];
@@ -113,7 +113,7 @@ public final class UserGroupInfo {
         Map<String, String> groupMap = new ConcurrentHashMap<>();
         // see man 5 group for the fields
         for (String entry : group) {
-            String[] split = entry.split(":");
+            String[] split = entry.split(":", -1);
             if (split.length > 2) {
                 String groupName = split[0];
                 String gid = split[2];

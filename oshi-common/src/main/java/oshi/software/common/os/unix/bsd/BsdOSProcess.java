@@ -136,9 +136,9 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         // Sample output:
         // pid 8 mask: 0, 1
         // cpuset: getaffinity: No such process
-        String[] split = cpuset.split(":");
+        String[] split = cpuset.split(":", -1);
         if (split.length > 1) {
-            String[] bits = split[1].split(",");
+            String[] bits = split[1].split(",", -1);
             for (String bit : bits) {
                 int bitToSet = ParseUtil.parseIntOrDefault(bit.trim(), -1);
                 if (bitToSet >= 0 && bitToSet < Long.SIZE) {

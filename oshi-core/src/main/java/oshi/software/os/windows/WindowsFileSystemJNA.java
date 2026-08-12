@@ -236,7 +236,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
                 volume = Native.toString(chrVolume);
             } else {
                 volume = WmiUtil.getString(drives, LogicalDiskProperty.PROVIDERNAME, i);
-                String[] split = volume.split("\\\\");
+                String[] split = volume.split("\\\\", -1);
                 if (split.length > 1 && !split[split.length - 1].isEmpty()) {
                     description = split[split.length - 1];
                 }

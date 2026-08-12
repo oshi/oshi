@@ -44,7 +44,7 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
      */
     static String parseDefaultGateway(List<String> netstat) {
         for (String line : netstat) {
-            String[] split = ParseUtil.whitespaces.split(line);
+            String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length > 7 && "default".equals(split[0])) {
                 return split[1];
             }

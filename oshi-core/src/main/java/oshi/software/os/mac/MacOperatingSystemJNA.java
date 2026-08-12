@@ -39,9 +39,9 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
             if (!SysctlUtil.sysctl("kern.boottime", tv) || tv.tv_sec.longValue() == 0L) {
                 // Usually this works. If it doesn't, fall back to text parsing.
                 // Boot time will be the first consecutive string of digits.
-                BOOTTIME = ParseUtil.parseLongOrDefault(
-                        ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",")[0].replaceAll("\\D", ""),
-                        System.currentTimeMillis() / 1000);
+                BOOTTIME = ParseUtil
+                        .parseLongOrDefault(ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",", -1)[0]
+                                .replaceAll("\\D", ""), System.currentTimeMillis() / 1000);
             } else {
                 // tv now points to a 64-bit timeval structure for boot time.
                 // First 4 bytes are seconds, second 4 bytes are microseconds
