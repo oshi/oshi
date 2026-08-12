@@ -72,7 +72,7 @@ public final class DxgiUtil {
             long total = 0L;
             int size = Math.min(bytes.length, 8);
             for (int i = 0; i < size; i++) {
-                total = total << 8 | bytes[size - i - 1] & 0xff;
+                total = (total << 8) | (bytes[size - i - 1] & 0xff);
             }
             return total;
         }

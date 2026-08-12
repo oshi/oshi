@@ -233,8 +233,8 @@ public final class EdidUtil {
 
     public static String getPreferredResolution(byte[] edid) {
         int dtd = DESCRIPTOR_OFFSET;
-        int horizontalRes = (edid[dtd + 4] & 0xF0) << 4 | edid[dtd + 2] & 0xFF;
-        int verticalRes = (edid[dtd + 7] & 0xF0) << 4 | edid[dtd + 5] & 0xFF;
+        int horizontalRes = ((edid[dtd + 4] & 0xF0) << 4) | (edid[dtd + 2] & 0xFF);
+        int verticalRes = ((edid[dtd + 7] & 0xF0) << 4) | (edid[dtd + 5] & 0xFF);
         return horizontalRes + "x" + verticalRes;
     }
 
@@ -390,7 +390,7 @@ public final class EdidUtil {
                     "Serial number must be an unsigned 32-bit value (0-4294967295): " + serial);
         }
         for (int i = 0; i < 4; i++) {
-            edid[SERIAL_NUMBER_OFFSET + i] = (byte) (serial >> 8 * i & 0xFF);
+            edid[SERIAL_NUMBER_OFFSET + i] = (byte) ((serial >> (8 * i)) & 0xFF);
         }
     }
 
@@ -439,7 +439,7 @@ public final class EdidUtil {
      * @param digital Whether the EDID represents a digital monitor
      */
     public static void setDigital(byte[] edid, boolean digital) {
-        edid[VIDEO_PARAMS_OFFSET] = (byte) (edid[VIDEO_PARAMS_OFFSET] & 0x7F | (digital ? 0x80 : 0x00));
+        edid[VIDEO_PARAMS_OFFSET] = (byte) ((edid[VIDEO_PARAMS_OFFSET] & 0x7F) | (digital ? 0x80 : 0x00));
     }
 
     /**
@@ -491,9 +491,9 @@ public final class EdidUtil {
         int vertical = ParseUtil.parseIntOrDefault(resolution.substring(x + 1), 0);
         int dtd = DESCRIPTOR_OFFSET;
         edid[dtd + 2] = (byte) (horizontal & 0xFF);
-        edid[dtd + 4] = (byte) (edid[dtd + 4] & 0x0F | horizontal >> 4 & 0xF0);
+        edid[dtd + 4] = (byte) ((edid[dtd + 4] & 0x0F) | ((horizontal >> 4) & 0xF0));
         edid[dtd + 5] = (byte) (vertical & 0xFF);
-        edid[dtd + 7] = (byte) (edid[dtd + 7] & 0x0F | vertical >> 4 & 0xF0);
+        edid[dtd + 7] = (byte) ((edid[dtd + 7] & 0x0F) | ((vertical >> 4) & 0xF0));
     }
 
     /**

@@ -79,8 +79,8 @@ public abstract class SolarisFileSystem extends AbstractFileSystem {
             // Skip non-local drives if requested, and exclude pseudo file systems
             boolean isLocal = !NETWORK_FS_TYPES.contains(type);
             if ((localOnly && !isLocal)
-                    || !path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
-                            volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES))) {
+                    || (!path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
+                            volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES)))) {
                 continue;
             }
 

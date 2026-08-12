@@ -79,7 +79,7 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
         }
         mib = new int[] { CTL_HW, HW_MACHINE };
         String machine = sysctl(mib, "");
-        boolean cpu64bit = machine != null && machine.contains("64")
+        boolean cpu64bit = (machine != null && machine.contains("64"))
                 || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
         String processorID = String.format(Locale.ROOT, "%08x%08x", cpufeature, cpuid);
 
@@ -89,9 +89,9 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
 
     static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
         // family is bits 27:20 | 11:8
-        int family = cpuid >> 16 & 0xff0 | cpuid >> 8 & 0xf;
+        int family = ((cpuid >> 16) & 0xff0) | ((cpuid >> 8) & 0xf);
         // model is bits 19:16 | 7:4
-        int model = cpuid >> 12 & 0xf0 | cpuid >> 4 & 0xf;
+        int model = ((cpuid >> 12) & 0xf0) | ((cpuid >> 4) & 0xf);
         // stepping is bits 3:0
         int stepping = cpuid & 0xf;
         return new Triplet<>(family, model, stepping);
