@@ -15,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Constants;
@@ -65,20 +64,20 @@ class CentralProcessorTest {
 
     @Test
     void testProcessorCacheGetters() {
-        ProcessorCache cache = new ProcessorCache(2, 8, 64, 262144, Type.UNIFIED);
+        ProcessorCache cache = new ProcessorCache(2, 8, 64, 262144, ProcessorCache.Type.UNIFIED);
         assertThat(cache.getLevel(), is((byte) 2));
         assertThat(cache.getAssociativity(), is((byte) 8));
         assertThat(cache.getLineSize(), is((short) 64));
         assertThat(cache.getCacheSize(), is(262144));
-        assertThat(cache.getType(), is(Type.UNIFIED));
+        assertThat(cache.getType(), is(ProcessorCache.Type.UNIFIED));
         assertThat(cache.toString(), containsString("L2"));
     }
 
     @Test
     void testProcessorCacheEqualsAndHashCode() {
-        ProcessorCache a = new ProcessorCache(1, 4, 64, 32768, Type.DATA);
-        ProcessorCache b = new ProcessorCache(1, 4, 64, 32768, Type.DATA);
-        ProcessorCache c = new ProcessorCache(1, 4, 64, 32768, Type.INSTRUCTION);
+        ProcessorCache a = new ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
+        ProcessorCache b = new ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
+        ProcessorCache c = new ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.INSTRUCTION);
         assertThat(a, is(b));
         assertThat(a.hashCode(), is(b.hashCode()));
         assertThat(a, is(not(c)));
@@ -88,10 +87,10 @@ class CentralProcessorTest {
 
     @Test
     void testProcessorCacheTypeToString() {
-        assertThat(Type.UNIFIED.toString(), is("Unified"));
-        assertThat(Type.INSTRUCTION.toString(), is("Instruction"));
-        assertThat(Type.DATA.toString(), is("Data"));
-        assertThat(Type.TRACE.toString(), is("Trace"));
+        assertThat(ProcessorCache.Type.UNIFIED.toString(), is("Unified"));
+        assertThat(ProcessorCache.Type.INSTRUCTION.toString(), is("Instruction"));
+        assertThat(ProcessorCache.Type.DATA.toString(), is("Data"));
+        assertThat(ProcessorCache.Type.TRACE.toString(), is("Trace"));
     }
 
     @Test

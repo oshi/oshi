@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -327,17 +326,20 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
         for (String checkLine : lscpu) {
             if (checkLine.contains("L1d cache:")) {
                 caches.add(new ProcessorCache(1, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()), Type.DATA));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()),
+                        ProcessorCache.Type.DATA));
             } else if (checkLine.contains("L1i cache:")) {
                 caches.add(new ProcessorCache(1, 0, 0,
                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()),
-                        Type.INSTRUCTION));
+                        ProcessorCache.Type.INSTRUCTION));
             } else if (checkLine.contains("L2 cache:")) {
                 caches.add(new ProcessorCache(2, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()), Type.UNIFIED));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()),
+                        ProcessorCache.Type.UNIFIED));
             } else if (checkLine.contains("L3 cache:")) {
                 caches.add(new ProcessorCache(3, 0, 0,
-                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()), Type.UNIFIED));
+                        ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(":", -1)[1].trim()),
+                        ProcessorCache.Type.UNIFIED));
             }
         }
         return orderedProcCaches(caches);

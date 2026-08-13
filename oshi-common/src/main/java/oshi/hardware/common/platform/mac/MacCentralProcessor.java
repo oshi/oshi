@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FormatUtil;
@@ -517,19 +516,19 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         for (int i = 0; i < perflevels; i++) {
             int size = sysctlIntNoWarn("hw.perflevel" + i + ".l1icachesize", 0);
             if (size > 0) {
-                caches.add(new ProcessorCache(1, l1associativity, linesize, size, Type.INSTRUCTION));
+                caches.add(new ProcessorCache(1, l1associativity, linesize, size, ProcessorCache.Type.INSTRUCTION));
             }
             size = sysctlIntNoWarn("hw.perflevel" + i + ".l1dcachesize", 0);
             if (size > 0) {
-                caches.add(new ProcessorCache(1, l1associativity, linesize, size, Type.DATA));
+                caches.add(new ProcessorCache(1, l1associativity, linesize, size, ProcessorCache.Type.DATA));
             }
             size = sysctlIntNoWarn("hw.perflevel" + i + ".l2cachesize", 0);
             if (size > 0) {
-                caches.add(new ProcessorCache(2, l2associativity, linesize, size, Type.UNIFIED));
+                caches.add(new ProcessorCache(2, l2associativity, linesize, size, ProcessorCache.Type.UNIFIED));
             }
             size = sysctlIntNoWarn("hw.perflevel" + i + ".l3cachesize", 0);
             if (size > 0) {
-                caches.add(new ProcessorCache(3, 0, linesize, size, Type.UNIFIED));
+                caches.add(new ProcessorCache(3, 0, linesize, size, ProcessorCache.Type.UNIFIED));
             }
         }
         return caches;

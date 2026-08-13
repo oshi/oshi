@@ -34,7 +34,6 @@ import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.util.platform.windows.WmiQueryExecutorJNA;
 import oshi.util.tuples.Triplet;
 
@@ -76,8 +75,9 @@ public final class LogicalProcessorInformation {
                     break;
                 case LOGICAL_PROCESSOR_RELATIONSHIP.RelationCache:
                     CACHE_RELATIONSHIP cache = (CACHE_RELATIONSHIP) info;
-                    Type[] types = Type.values();
-                    Type cacheType = cache.type >= 0 && cache.type < types.length ? types[cache.type] : Type.UNIFIED;
+                    ProcessorCache.Type[] types = ProcessorCache.Type.values();
+                    ProcessorCache.Type cacheType = cache.type >= 0 && cache.type < types.length ? types[cache.type]
+                            : ProcessorCache.Type.UNIFIED;
                     caches.add(new ProcessorCache(cache.level, cache.associativity, cache.lineSize, cache.cacheSize,
                             cacheType));
                     break;

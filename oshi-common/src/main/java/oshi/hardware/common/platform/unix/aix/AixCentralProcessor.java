@@ -12,7 +12,6 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lssrad;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
@@ -178,23 +177,23 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         List<ProcessorCache> caches = new ArrayList<>();
         switch (powerVersion) {
             case 7:
-                caches.add(new ProcessorCache(3, 8, 128, (2 * 32) << 20, Type.UNIFIED));
-                caches.add(new ProcessorCache(2, 8, 128, 256 << 10, Type.UNIFIED));
-                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.DATA));
-                caches.add(new ProcessorCache(1, 4, 128, 32 << 10, Type.INSTRUCTION));
+                caches.add(new ProcessorCache(3, 8, 128, (2 * 32) << 20, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(2, 8, 128, 256 << 10, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, ProcessorCache.Type.DATA));
+                caches.add(new ProcessorCache(1, 4, 128, 32 << 10, ProcessorCache.Type.INSTRUCTION));
                 break;
             case 8:
-                caches.add(new ProcessorCache(4, 8, 128, (16 * 16) << 20, Type.UNIFIED));
-                caches.add(new ProcessorCache(3, 8, 128, 40 << 20, Type.UNIFIED));
-                caches.add(new ProcessorCache(2, 8, 128, 512 << 10, Type.UNIFIED));
-                caches.add(new ProcessorCache(1, 8, 128, 64 << 10, Type.DATA));
-                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.INSTRUCTION));
+                caches.add(new ProcessorCache(4, 8, 128, (16 * 16) << 20, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(3, 8, 128, 40 << 20, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(2, 8, 128, 512 << 10, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(1, 8, 128, 64 << 10, ProcessorCache.Type.DATA));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, ProcessorCache.Type.INSTRUCTION));
                 break;
             case 9:
-                caches.add(new ProcessorCache(3, 20, 128, (cores * 10) << 20, Type.UNIFIED));
-                caches.add(new ProcessorCache(2, 8, 128, 512 << 10, Type.UNIFIED));
-                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.DATA));
-                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, Type.INSTRUCTION));
+                caches.add(new ProcessorCache(3, 20, 128, (cores * 10) << 20, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(2, 8, 128, 512 << 10, ProcessorCache.Type.UNIFIED));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, ProcessorCache.Type.DATA));
+                caches.add(new ProcessorCache(1, 8, 128, 32 << 10, ProcessorCache.Type.INSTRUCTION));
                 break;
             default:
                 // Don't guess

@@ -18,7 +18,6 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -170,15 +169,15 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
                 case "I-cache":
                     return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]),
                             ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
-                            Type.INSTRUCTION);
+                            ProcessorCache.Type.INSTRUCTION);
                 case "D-cache":
                     return new ProcessorCache(1, ParseUtil.getFirstIntValue(split[2]),
                             ParseUtil.getFirstIntValue(split[1]), ParseUtil.parseDecimalMemorySizeToBinary(split[0]),
-                            Type.DATA);
+                            ProcessorCache.Type.DATA);
                 default:
                     return new ProcessorCache(ParseUtil.getFirstIntValue(split[3]),
                             ParseUtil.getFirstIntValue(split[2]), ParseUtil.getFirstIntValue(split[1]),
-                            ParseUtil.parseDecimalMemorySizeToBinary(split[0]), Type.UNIFIED);
+                            ParseUtil.parseDecimalMemorySizeToBinary(split[0]), ProcessorCache.Type.UNIFIED);
             }
         }
         return null;

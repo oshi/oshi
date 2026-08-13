@@ -18,7 +18,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.platform.unix.BsdCentralProcessor.DmesgStrings;
 import oshi.util.tuples.Pair;
 
@@ -107,7 +106,7 @@ class BsdCentralProcessorTest {
     void testParseCacheStrDCache() {
         ProcessorCache cache = BsdCentralProcessor.parseCacheStr("32KB 64b/line 8-way D-cache");
         assertThat(cache, is(not(nullValue())));
-        assertThat(cache.getType(), is(Type.DATA));
+        assertThat(cache.getType(), is(ProcessorCache.Type.DATA));
         assertThat(cache.getLevel(), is((byte) 1));
         assertThat(cache.getAssociativity(), is((byte) 8));
         assertThat(cache.getLineSize(), is((short) 64));
@@ -118,7 +117,7 @@ class BsdCentralProcessorTest {
     void testParseCacheStrICache() {
         ProcessorCache cache = BsdCentralProcessor.parseCacheStr("48KB 64b/line 3-way L1 PIPT I-cache");
         assertThat(cache, is(not(nullValue())));
-        assertThat(cache.getType(), is(Type.INSTRUCTION));
+        assertThat(cache.getType(), is(ProcessorCache.Type.INSTRUCTION));
         assertThat(cache.getLevel(), is((byte) 1));
         assertThat(cache.getAssociativity(), is((byte) 3));
     }
@@ -127,7 +126,7 @@ class BsdCentralProcessorTest {
     void testParseCacheStrL2Unified() {
         ProcessorCache cache = BsdCentralProcessor.parseCacheStr("4MB 64b/line 16-way L2 cache");
         assertThat(cache, is(not(nullValue())));
-        assertThat(cache.getType(), is(Type.UNIFIED));
+        assertThat(cache.getType(), is(ProcessorCache.Type.UNIFIED));
         assertThat(cache.getLevel(), is((byte) 2));
         assertThat(cache.getAssociativity(), is((byte) 16));
         assertThat(cache.getLineSize(), is((short) 64));
@@ -138,7 +137,7 @@ class BsdCentralProcessorTest {
     void testParseCacheStrL3Unified() {
         ProcessorCache cache = BsdCentralProcessor.parseCacheStr("24MB 64b/line 12-way L3 cache");
         assertThat(cache, is(not(nullValue())));
-        assertThat(cache.getType(), is(Type.UNIFIED));
+        assertThat(cache.getType(), is(ProcessorCache.Type.UNIFIED));
         assertThat(cache.getLevel(), is((byte) 3));
         assertThat(cache.getAssociativity(), is((byte) 12));
     }
