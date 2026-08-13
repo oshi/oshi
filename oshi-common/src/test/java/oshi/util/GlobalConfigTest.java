@@ -184,8 +184,6 @@ class GlobalConfigTest {
     }
 
     static final class GlobalConfigAsserter {
-        private static final String FAILURE_MESSAGE_TEMPLATE = "property: %s value for def: %s should be";
-        private static final String DEFAULT_FAILURE_MESSAGE_TEMPLATE = "Property: %s default value def: %s should be";
         private final String property;
 
         private GlobalConfigAsserter(String property) {
@@ -220,11 +218,11 @@ class GlobalConfigTest {
         }
 
         private String failureMessage(Object def) {
-            return format(Locale.ROOT, FAILURE_MESSAGE_TEMPLATE, property, def);
+            return format(Locale.ROOT, "property: %s value for def: %s should be", property, def);
         }
 
         private String defaultFailureMessage(Object def) {
-            return format(Locale.ROOT, DEFAULT_FAILURE_MESSAGE_TEMPLATE, PROPERTY, def);
+            return format(Locale.ROOT, "Property: %s default value def: %s should be", PROPERTY, def);
         }
     }
 }
