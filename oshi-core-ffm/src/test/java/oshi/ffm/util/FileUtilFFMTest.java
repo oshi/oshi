@@ -46,14 +46,18 @@ class FileUtilFFMTest {
     @Test
     void testReadPointerFromBuffer() {
         ByteBuffer buff = ByteBuffer.allocate(8).order(ByteOrder.nativeOrder());
-        buff.putLong(0x0000_0000_DEAD_BEEFL);
+        // Non-zero high 32 bits so the 32-bit and 64-bit read paths produce distinguishable values
+        long written = 0x1234_5678_DEAD_BEEFL;
+        buff.putLong(written);
         buff.flip();
+        // Read the first 4 bytes the same way the 32-bit path does, so the expectation is endian-agnostic
+        long expected32Bit = Integer.toUnsignedLong(buff.duplicate().getInt());
         long value = FileUtilFFM.readPointerFromBuffer(buff);
         if (ForeignFunctions.NATIVE_POINTER_SIZE == 4) {
-            // 32-bit: reads 4 bytes as unsigned
-            assertEquals(0xDEAD_BEEFL, value);
+            // 32-bit: reads only the first 4 bytes, as unsigned
+            assertEquals(expected32Bit, value);
         } else {
-            assertEquals(0x0000_0000_DEAD_BEEFL, value);
+            assertEquals(written, value);
         }
     }
 

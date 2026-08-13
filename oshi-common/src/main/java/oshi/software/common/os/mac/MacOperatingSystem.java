@@ -70,9 +70,9 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     /**
      * Creates a MacOperatingSystem.
      *
-     * @param maxproc the maximum number of processes
+     * @param maxProc the maximum number of processes
      */
-    protected MacOperatingSystem(int maxproc) {
+    protected MacOperatingSystem(int maxProc) {
         String version = System.getProperty("os.version");
         int verMajor = ParseUtil.getFirstIntValue(version);
         int verMinor = ParseUtil.getNthIntValue(version, 2);
@@ -86,7 +86,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
         this.osXVersion = version;
         this.major = verMajor;
         this.minor = verMinor;
-        this.maxProc = maxproc;
+        this.maxProc = maxProc;
     }
 
     static String resolveVersion(String osVersion, String swVersOutput) {

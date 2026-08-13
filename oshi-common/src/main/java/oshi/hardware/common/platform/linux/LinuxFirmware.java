@@ -117,26 +117,26 @@ final class LinuxFirmware extends AbstractFirmware {
     /**
      * Parse vcgencmd version output for Raspberry Pi firmware info.
      *
-     * @param vcgencmd output of {@code vcgencmd version}
+     * @param output output of {@code vcgencmd version}
      * @return parsed firmware strings
      */
-    static VcGenCmdStrings queryVcGenCmd(List<String> vcgencmd) {
+    static VcGenCmdStrings queryVcGenCmd(List<String> output) {
         String vcReleaseDate = null;
         String vcManufacturer = null;
         String vcVersion = null;
 
-        if (vcgencmd.size() >= 3) {
+        if (output.size() >= 3) {
             // First line is date
             vcReleaseDate = ExceptionUtil.getOrDefault(
-                    () -> DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(vcgencmd.get(0))),
+                    () -> DateTimeFormatter.ISO_LOCAL_DATE.format(VCGEN_FORMATTER.parse(output.get(0))),
                     Constants.UNKNOWN);
             // Second line is copyright
-            String[] copyright = ParseUtil.whitespaces.split(vcgencmd.get(1).trim(), -1);
+            String[] copyright = ParseUtil.whitespaces.split(output.get(1).trim(), -1);
             vcManufacturer = copyright.length > 0 && !copyright[copyright.length - 1].isEmpty()
                     ? copyright[copyright.length - 1]
                     : Constants.UNKNOWN;
             // Third line is version
-            vcVersion = vcgencmd.get(2).replace("version ", "");
+            vcVersion = output.get(2).replace("version ", "");
             return new VcGenCmdStrings(vcReleaseDate, vcManufacturer, vcVersion, "RPi", "Bootloader");
         }
         return new VcGenCmdStrings(null, null, null, null, null);
