@@ -1230,7 +1230,18 @@
                                 <arg>100000</arg>
                                 <arg>-XDcompilePolicy=simple</arg>
                                 <arg>--should-stop=ifError=FLOW</arg>
-                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF</arg>
+                                <!-- MissingSummary demands a prose summary fragment distinct from the @return
+                                block; Checkstyle's Missing*Javadoc checks don't require that phrasing, and the
+                                project doesn't want to enforce it separately via Error Prone.
+
+                                Everything below :ERROR defaults to WARNING severity, but the entire backlog for
+                                these specific checks is zero across the reactor as of the #3594-3605 triage.
+                                Escalating them turns a regression in any one of these categories into a build
+                                failure, via the same javac behavior that already blocks the build on Error
+                                Prone's own ERROR-severity checks - without reaching for -Werror, which would
+                                fail on every javac warning, including several lint categories nothing here has
+                                ever triaged. -->
+                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>
                                 <path>
