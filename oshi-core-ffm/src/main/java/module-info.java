@@ -34,5 +34,5 @@ module com.github.oshi.ffm {
     // dependencies
     requires transitive com.github.oshi.common;
     requires transitive java.desktop;
-    requires org.slf4j;
+    requires transitive org.slf4j;
 }

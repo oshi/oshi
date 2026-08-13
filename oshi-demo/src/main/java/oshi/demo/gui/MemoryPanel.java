@@ -120,10 +120,10 @@ public class MemoryPanel extends OshiJPanel { // NOSONAR java:S110
     private static void updateDatasets(GlobalMemory memory, DefaultPieDataset<String> physMemData,
             DefaultPieDataset<String> virtMemData) {
         physMemData.setValue(USED, (double) memory.getTotal() - memory.getAvailable());
-        physMemData.setValue(AVAILABLE, (double) memory.getAvailable());
+        physMemData.setValue(AVAILABLE, (double) memory.getAvailable()); // NOSONAR java:S1905 - LongDoubleConversion
 
         VirtualMemory virtualMemory = memory.getVirtualMemory();
-        virtMemData.setValue(USED, (double) virtualMemory.getSwapUsed());
+        virtMemData.setValue(USED, (double) virtualMemory.getSwapUsed()); // NOSONAR java:S1905 - LongDoubleConversion
         virtMemData.setValue(AVAILABLE, (double) virtualMemory.getSwapTotal() - virtualMemory.getSwapUsed());
     }
 

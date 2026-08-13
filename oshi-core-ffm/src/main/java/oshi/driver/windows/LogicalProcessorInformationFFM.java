@@ -93,6 +93,7 @@ public final class LogicalProcessorInformationFFM {
                     case RELATION_CACHE -> parseCache(buffer, offset, caches);
                     case RELATION_PROCESSOR_PACKAGE -> parsePackage(buffer, offset, packages);
                     default -> {
+                        // Ignore unsupported relationship types
                     }
                 }
                 offset += size;

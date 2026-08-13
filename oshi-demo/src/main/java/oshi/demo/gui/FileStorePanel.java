@@ -57,7 +57,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR java:S110
 
     private void init(FileSystem fs) {
         List<OSFileStore> fileStores = fs.getFileStores();
-        @SuppressWarnings("unchecked")
+        @SuppressWarnings({ "unchecked", "rawtypes" })
         DefaultPieDataset<String>[] fsData = new DefaultPieDataset[fileStores.size()];
         JFreeChart[] fsCharts = new JFreeChart[fsData.length];
 
@@ -112,7 +112,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR java:S110
                     "Available: " + FormatUtil.formatBytes(usable) + "/" + FormatUtil.formatBytes(total)));
             fsCharts[i].setSubtitles(subtitles);
             fsData[i].setValue(USED, (double) total - usable);
-            fsData[i].setValue(AVAILABLE, (double) usable);
+            fsData[i].setValue(AVAILABLE, (double) usable); // NOSONAR java:S1905 - LongDoubleConversion
             i++;
         }
         return true;
