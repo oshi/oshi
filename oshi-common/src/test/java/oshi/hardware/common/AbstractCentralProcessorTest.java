@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.ParseUtil;
@@ -154,12 +153,12 @@ class AbstractCentralProcessorTest {
         // of the same level+type have different sizes but the same highestOneBit,
         // producing sort key ties (e.g., 131072 and 196608 both -> highestOneBit 131072)
         Set<ProcessorCache> caches = new HashSet<>();
-        ProcessorCache l2p = new ProcessorCache(2, 0, 128, 16777216, Type.UNIFIED);
-        ProcessorCache l2e = new ProcessorCache(2, 0, 128, 25165824, Type.UNIFIED);
-        ProcessorCache l1ip = new ProcessorCache(1, 0, 128, 131072, Type.INSTRUCTION);
-        ProcessorCache l1ie = new ProcessorCache(1, 0, 128, 196608, Type.INSTRUCTION);
-        ProcessorCache l1dp = new ProcessorCache(1, 0, 128, 131072, Type.DATA);
-        ProcessorCache l1de = new ProcessorCache(1, 0, 128, 196608, Type.DATA);
+        ProcessorCache l2p = new ProcessorCache(2, 0, 128, 16777216, ProcessorCache.Type.UNIFIED);
+        ProcessorCache l2e = new ProcessorCache(2, 0, 128, 25165824, ProcessorCache.Type.UNIFIED);
+        ProcessorCache l1ip = new ProcessorCache(1, 0, 128, 131072, ProcessorCache.Type.INSTRUCTION);
+        ProcessorCache l1ie = new ProcessorCache(1, 0, 128, 196608, ProcessorCache.Type.INSTRUCTION);
+        ProcessorCache l1dp = new ProcessorCache(1, 0, 128, 131072, ProcessorCache.Type.DATA);
+        ProcessorCache l1de = new ProcessorCache(1, 0, 128, 196608, ProcessorCache.Type.DATA);
         caches.add(l2p);
         caches.add(l2e);
         caches.add(l1ip);
@@ -199,7 +198,7 @@ class AbstractCentralProcessorTest {
                         new PhysicalProcessor(0, 1, 1, "P-core"), new PhysicalProcessor(0, 2, 0, "E-core"),
                         new PhysicalProcessor(0, 3, 0, "E-core"));
                 List<ProcessorCache> caches = Collections
-                        .singletonList(new ProcessorCache(2, 0, 64, 4 * 1024 * 1024, Type.UNIFIED));
+                        .singletonList(new ProcessorCache(2, 0, 64, 4 * 1024 * 1024, ProcessorCache.Type.UNIFIED));
                 return new Quartet<>(logProcs, physProcs, caches, Arrays.asList("sse", "avx"));
             }
 

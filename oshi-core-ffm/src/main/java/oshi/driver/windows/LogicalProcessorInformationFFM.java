@@ -29,7 +29,6 @@ import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.PhysicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -186,8 +185,8 @@ public final class LogicalProcessorInformationFFM {
         int lineSize = Short.toUnsignedInt(buffer.get(ValueLayout.JAVA_SHORT, dataOffset + 2));
         int cacheSize = buffer.get(ValueLayout.JAVA_INT, dataOffset + 4);
         int type = buffer.get(ValueLayout.JAVA_INT, dataOffset + 8);
-        Type[] types = Type.values();
-        Type cacheType = (type >= 0 && type < types.length) ? types[type] : Type.UNIFIED;
+        ProcessorCache.Type[] types = ProcessorCache.Type.values();
+        ProcessorCache.Type cacheType = (type >= 0 && type < types.length) ? types[type] : ProcessorCache.Type.UNIFIED;
         caches.add(new ProcessorCache(level, associativity, lineSize, cacheSize, cacheType));
     }
 

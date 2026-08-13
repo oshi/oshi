@@ -31,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
@@ -400,7 +399,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         try (Stream<Path> path = Files.list(Paths.get(cachePath))) {
             path.filter(p -> p.toString().startsWith(indexPrefix)).forEach(c -> {
                 int level = FileUtil.getIntFromFile(c + "/level"); // 1
-                Type type = parseCacheType(FileUtil.getStringFromFile(c + "/type")); // Data
+                ProcessorCache.Type type = parseCacheType(FileUtil.getStringFromFile(c + "/type")); // Data
                 int associativity = FileUtil.getIntFromFile(c + "/ways_of_associativity"); // 8
                 int lineSize = FileUtil.getIntFromFile(c + "/coherency_line_size"); // 64
                 long size = ParseUtil.parseDecimalMemorySizeToBinary(FileUtil.getStringFromFile(c + "/size")); // 32K
@@ -501,7 +500,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     static Set<ProcessorCache> mapCachesFromLscpu(List<String> lscpu) {
         Set<ProcessorCache> caches = new HashSet<>();
         int level = 0;
-        Type type = null;
+        ProcessorCache.Type type = null;
         int associativity = 0;
         int lineSize = 0;
         long size = 0L;
