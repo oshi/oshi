@@ -21,22 +21,29 @@ import org.junit.jupiter.api.condition.DisabledIf;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage;
 import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskProperty;
+import oshi.driver.common.windows.wmi.OhmHardware;
 import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.common.windows.wmi.OhmSensor;
 import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32BaseBoard.BaseBoardProperty;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosProperty;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
 import oshi.driver.common.windows.wmi.Win32ComputerSystem.ComputerSystemProperty;
 import oshi.driver.common.windows.wmi.Win32ComputerSystemProduct.ComputerSystemProductProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDrive;
 import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition;
 import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32DiskPartition;
 import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition;
 import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32PhysicalMemory.PhysicalMemoryProperty;
@@ -53,12 +60,6 @@ import oshi.driver.windows.wmi.LhmSensorFFM;
 import oshi.driver.windows.wmi.LhmSensorJNA;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureFFM;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureJNA;
-import oshi.driver.windows.wmi.MSFTStorageFFM;
-import oshi.driver.windows.wmi.MSFTStorageJNA;
-import oshi.driver.windows.wmi.OhmHardwareFFM;
-import oshi.driver.windows.wmi.OhmHardwareJNA;
-import oshi.driver.windows.wmi.OhmSensorFFM;
-import oshi.driver.windows.wmi.OhmSensorJNA;
 import oshi.driver.windows.wmi.Win32BaseBoardFFM;
 import oshi.driver.windows.wmi.Win32BaseBoardJNA;
 import oshi.driver.windows.wmi.Win32BiosFFM;
@@ -67,18 +68,10 @@ import oshi.driver.windows.wmi.Win32ComputerSystemFFM;
 import oshi.driver.windows.wmi.Win32ComputerSystemJNA;
 import oshi.driver.windows.wmi.Win32ComputerSystemProductFFM;
 import oshi.driver.windows.wmi.Win32ComputerSystemProductJNA;
-import oshi.driver.windows.wmi.Win32DiskDriveFFM;
-import oshi.driver.windows.wmi.Win32DiskDriveJNA;
-import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionFFM;
-import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionJNA;
-import oshi.driver.windows.wmi.Win32DiskPartitionFFM;
-import oshi.driver.windows.wmi.Win32DiskPartitionJNA;
 import oshi.driver.windows.wmi.Win32FanFFM;
 import oshi.driver.windows.wmi.Win32FanJNA;
 import oshi.driver.windows.wmi.Win32LogicalDiskFFM;
 import oshi.driver.windows.wmi.Win32LogicalDiskJNA;
-import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionFFM;
-import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionJNA;
 import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
 import oshi.driver.windows.wmi.Win32OperatingSystemJNA;
 import oshi.driver.windows.wmi.Win32PhysicalMemoryFFM;
@@ -431,12 +424,12 @@ class WmiComparisonTest {
         boolean jnaComInit = jnaHandler.initCOM();
         boolean ffmComInit = ffmHandler.initCOM();
         try {
-            WmiResult<ValueProperty> jna = OhmSensorJNA.querySensorValue(jnaHandler, null, null);
-            WmiResult<ValueProperty> ffm = OhmSensorFFM.querySensorValue(ffmHandler, null, null);
+            WmiResult<ValueProperty> jna = OhmSensor.querySensorValue(jnaHandler, null, null);
+            WmiResult<ValueProperty> ffm = OhmSensor.querySensorValue(ffmHandler, null, null);
             assertThat(ffm.getResultCount()).as("OhmSensor count").isEqualTo(jna.getResultCount());
 
-            WmiResult<IdentifierProperty> jnaHw = OhmHardwareJNA.queryHwIdentifier(jnaHandler, null, null);
-            WmiResult<IdentifierProperty> ffmHw = OhmHardwareFFM.queryHwIdentifier(ffmHandler, null, null);
+            WmiResult<IdentifierProperty> jnaHw = OhmHardware.queryHwIdentifier(jnaHandler, null, null);
+            WmiResult<IdentifierProperty> ffmHw = OhmHardware.queryHwIdentifier(ffmHandler, null, null);
             assertThat(ffmHw.getResultCount()).as("OhmHardware count").isEqualTo(jnaHw.getResultCount());
         } finally {
             if (ffmComInit) {
@@ -476,46 +469,46 @@ class WmiComparisonTest {
         boolean ffmComInit = ffmHandler.initCOM();
         try {
             // DiskDrive
-            WmiResult<DiskDriveProperty> jnaDd = Win32DiskDriveJNA.queryDiskDrive(jnaHandler);
-            WmiResult<DiskDriveProperty> ffmDd = Win32DiskDriveFFM.queryDiskDrive(ffmHandler);
+            WmiResult<DiskDriveProperty> jnaDd = Win32DiskDrive.queryDiskDrive(jnaHandler);
+            WmiResult<DiskDriveProperty> ffmDd = Win32DiskDrive.queryDiskDrive(ffmHandler);
             assertThat(ffmDd.getResultCount()).as("DiskDrive count").isEqualTo(jnaDd.getResultCount());
 
             // DiskDriveToDiskPartition
-            WmiResult<DriveToPartitionProperty> jnaDtp = Win32DiskDriveToDiskPartitionJNA
+            WmiResult<DriveToPartitionProperty> jnaDtp = Win32DiskDriveToDiskPartition
                     .queryDriveToPartition(jnaHandler);
-            WmiResult<DriveToPartitionProperty> ffmDtp = Win32DiskDriveToDiskPartitionFFM
+            WmiResult<DriveToPartitionProperty> ffmDtp = Win32DiskDriveToDiskPartition
                     .queryDriveToPartition(ffmHandler);
             assertThat(ffmDtp.getResultCount()).as("DriveToPartition count").isEqualTo(jnaDtp.getResultCount());
 
             // DiskPartition
-            WmiResult<DiskPartitionProperty> jnaDp = Win32DiskPartitionJNA.queryPartition(jnaHandler);
-            WmiResult<DiskPartitionProperty> ffmDp = Win32DiskPartitionFFM.queryPartition(ffmHandler);
+            WmiResult<DiskPartitionProperty> jnaDp = Win32DiskPartition.queryPartition(jnaHandler);
+            WmiResult<DiskPartitionProperty> ffmDp = Win32DiskPartition.queryPartition(ffmHandler);
             assertThat(ffmDp.getResultCount()).as("DiskPartition count").isEqualTo(jnaDp.getResultCount());
 
             // LogicalDiskToPartition
-            WmiResult<DiskToPartitionProperty> jnaLtp = Win32LogicalDiskToPartitionJNA.queryDiskToPartition(jnaHandler);
-            WmiResult<DiskToPartitionProperty> ffmLtp = Win32LogicalDiskToPartitionFFM.queryDiskToPartition(ffmHandler);
+            WmiResult<DiskToPartitionProperty> jnaLtp = Win32LogicalDiskToPartition.queryDiskToPartition(jnaHandler);
+            WmiResult<DiskToPartitionProperty> ffmLtp = Win32LogicalDiskToPartition.queryDiskToPartition(ffmHandler);
             assertThat(ffmLtp.getResultCount()).as("LogicalDiskToPartition count").isEqualTo(jnaLtp.getResultCount());
 
             // MSFTStorage: StoragePools
-            WmiResult<StoragePoolProperty> jnaSp = MSFTStorageJNA.queryStoragePools(jnaHandler);
-            WmiResult<StoragePoolProperty> ffmSp = MSFTStorageFFM.queryStoragePools(ffmHandler);
+            WmiResult<StoragePoolProperty> jnaSp = MSFTStorage.queryStoragePools(jnaHandler);
+            WmiResult<StoragePoolProperty> ffmSp = MSFTStorage.queryStoragePools(ffmHandler);
             assertThat(ffmSp.getResultCount()).as("StoragePool count").isEqualTo(jnaSp.getResultCount());
 
             // MSFTStorage: PhysicalDisks
-            WmiResult<PhysicalDiskProperty> jnaPd = MSFTStorageJNA.queryPhysicalDisks(jnaHandler);
-            WmiResult<PhysicalDiskProperty> ffmPd = MSFTStorageFFM.queryPhysicalDisks(ffmHandler);
+            WmiResult<PhysicalDiskProperty> jnaPd = MSFTStorage.queryPhysicalDisks(jnaHandler);
+            WmiResult<PhysicalDiskProperty> ffmPd = MSFTStorage.queryPhysicalDisks(ffmHandler);
             assertThat(ffmPd.getResultCount()).as("MSFT PhysicalDisk count").isEqualTo(jnaPd.getResultCount());
 
             // MSFTStorage: VirtualDisks
-            WmiResult<VirtualDiskProperty> jnaVd = MSFTStorageJNA.queryVirtualDisks(jnaHandler);
-            WmiResult<VirtualDiskProperty> ffmVd = MSFTStorageFFM.queryVirtualDisks(ffmHandler);
+            WmiResult<VirtualDiskProperty> jnaVd = MSFTStorage.queryVirtualDisks(jnaHandler);
+            WmiResult<VirtualDiskProperty> ffmVd = MSFTStorage.queryVirtualDisks(ffmHandler);
             assertThat(ffmVd.getResultCount()).as("VirtualDisk count").isEqualTo(jnaVd.getResultCount());
 
             // MSFTStorage: StoragePoolToPhysicalDisk
-            WmiResult<StoragePoolToPhysicalDiskProperty> jnaSpPd = MSFTStorageJNA
+            WmiResult<StoragePoolToPhysicalDiskProperty> jnaSpPd = MSFTStorage
                     .queryStoragePoolPhysicalDisks(jnaHandler);
-            WmiResult<StoragePoolToPhysicalDiskProperty> ffmSpPd = MSFTStorageFFM
+            WmiResult<StoragePoolToPhysicalDiskProperty> ffmSpPd = MSFTStorage
                     .queryStoragePoolPhysicalDisks(ffmHandler);
             assertThat(ffmSpPd.getResultCount()).as("StoragePoolToPhysicalDisk count")
                     .isEqualTo(jnaSpPd.getResultCount());

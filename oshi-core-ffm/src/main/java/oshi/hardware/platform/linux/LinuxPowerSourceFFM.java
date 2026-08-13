@@ -47,7 +47,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
      *
      * @return A list of PowerSource objects representing batteries, etc.
      */
-    public static List<PowerSource> getPowerSources() {
+    public static List<PowerSource> getPowerSources() { // NOSONAR java:S9149 - intentional override with FFM impl
         if (!HAS_UDEV) {
             return LinuxPowerSource.getPowerSources();
         }

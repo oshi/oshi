@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.VersionHelpers;
 
+import oshi.driver.common.windows.wmi.MSFTStorage;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
-import oshi.driver.windows.wmi.MSFTStorageJNA;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.platform.windows.WindowsLogicalVolumeGroup;
 import oshi.util.platform.windows.WmiQueryHandler;
@@ -43,12 +43,12 @@ final class WindowsLogicalVolumeGroupJNA extends WindowsLogicalVolumeGroup {
         try {
             comInit = h.initCOM();
             // Query Storage Pools first, so we can skip other queries if we have no pools
-            WmiResult<StoragePoolProperty> sp = MSFTStorageJNA.queryStoragePools(h);
+            WmiResult<StoragePoolProperty> sp = MSFTStorage.queryStoragePools(h);
             if (sp.getResultCount() == 0) {
                 return Collections.emptyList();
             }
-            return buildFromWmi(sp, MSFTStorageJNA.queryVirtualDisks(h), MSFTStorageJNA.queryPhysicalDisks(h),
-                    MSFTStorageJNA.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupJNA::new);
+            return buildFromWmi(sp, MSFTStorage.queryVirtualDisks(h), MSFTStorage.queryPhysicalDisks(h),
+                    MSFTStorage.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupJNA::new);
         } catch (COMException e) {
             LOG.warn("COM exception: {}", e.getMessage());
             return Collections.emptyList();

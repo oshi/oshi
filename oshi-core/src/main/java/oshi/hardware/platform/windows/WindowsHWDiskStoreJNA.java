@@ -17,17 +17,17 @@ import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.Kernel32;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.Win32DiskDrive;
 import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition;
 import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32DiskPartition;
 import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition;
 import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.PhysicalDiskJNA;
-import oshi.driver.windows.wmi.Win32DiskDriveJNA;
-import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionJNA;
-import oshi.driver.windows.wmi.Win32DiskPartitionJNA;
-import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionJNA;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.windows.WindowsHWDiskStore;
@@ -66,7 +66,7 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
             DiskStats stats = populateDiskStats(null, PhysicalDiskJNA.queryDiskCounters());
             PartitionMaps maps = queryPartitionMaps(h);
 
-            WmiResult<DiskDriveProperty> vals = Win32DiskDriveJNA.queryDiskDrive(h);
+            WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive(h);
             for (int i = 0; i < vals.getResultCount(); i++) {
                 WindowsHWDiskStoreJNA ds = new WindowsHWDiskStoreJNA(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
                         String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
@@ -95,15 +95,14 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
         PartitionMaps maps = new PartitionMaps();
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartitionJNA
-                .queryDriveToPartition(h);
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartition.queryDriveToPartition(h);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mapDriveToPartition(maps, WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i),
                     WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
         }
 
         // Map partitions to logical disks
-        WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartitionJNA.queryDiskToPartition(h);
+        WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartition.queryDiskToPartition(h);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
             long size = WmiUtil.getUint64(diskPartitionMap, DiskToPartitionProperty.ENDINGADDRESS, i)
                     - WmiUtil.getUint64(diskPartitionMap, DiskToPartitionProperty.STARTINGADDRESS, i) + 1L;
@@ -113,7 +112,7 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
         }
 
         // Get all partitions and create objects
-        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartitionJNA.queryPartition(h);
+        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartition.queryPartition(h);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             List<Pair<String, Long>> logicalDrives = maps.getPartitionToLogicalDriveMap().get(deviceID);

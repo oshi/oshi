@@ -19,17 +19,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.Win32DiskDrive;
 import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition;
 import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition.DriveToPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32DiskPartition;
 import oshi.driver.common.windows.wmi.Win32DiskPartition.DiskPartitionProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition;
 import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition.DiskToPartitionProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.perfmon.PhysicalDiskFFM;
-import oshi.driver.windows.wmi.Win32DiskDriveFFM;
-import oshi.driver.windows.wmi.Win32DiskDriveToDiskPartitionFFM;
-import oshi.driver.windows.wmi.Win32DiskPartitionFFM;
-import oshi.driver.windows.wmi.Win32LogicalDiskToPartitionFFM;
 import oshi.ffm.platform.windows.Kernel32FFM;
 import oshi.ffm.platform.windows.WindowsForeignFunctions;
 import oshi.ffm.platform.windows.com.FfmComException;
@@ -71,7 +71,7 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
             DiskStats stats = populateDiskStats(null, PhysicalDiskFFM.queryDiskCounters());
             PartitionMaps maps = queryPartitionMaps(h);
 
-            WmiResult<DiskDriveProperty> vals = Win32DiskDriveFFM.queryDiskDrive(h);
+            WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive(h);
             for (int i = 0; i < vals.getResultCount(); i++) {
                 WindowsHWDiskStoreFFM ds = new WindowsHWDiskStoreFFM(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
                         String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
@@ -100,15 +100,14 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
         PartitionMaps maps = new PartitionMaps();
 
         // Map drives to partitions
-        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartitionFFM
-                .queryDriveToPartition(h);
+        WmiResult<DriveToPartitionProperty> drivePartitionMap = Win32DiskDriveToDiskPartition.queryDriveToPartition(h);
         for (int i = 0; i < drivePartitionMap.getResultCount(); i++) {
             mapDriveToPartition(maps, WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.ANTECEDENT, i),
                     WmiUtil.getRefString(drivePartitionMap, DriveToPartitionProperty.DEPENDENT, i));
         }
 
         // Map partitions to logical disks
-        WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartitionFFM.queryDiskToPartition(h);
+        WmiResult<DiskToPartitionProperty> diskPartitionMap = Win32LogicalDiskToPartition.queryDiskToPartition(h);
         for (int i = 0; i < diskPartitionMap.getResultCount(); i++) {
             long size = WmiUtil.getUint64(diskPartitionMap, DiskToPartitionProperty.ENDINGADDRESS, i)
                     - WmiUtil.getUint64(diskPartitionMap, DiskToPartitionProperty.STARTINGADDRESS, i) + 1L;
@@ -118,7 +117,7 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
         }
 
         // Get all partitions and create objects
-        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartitionFFM.queryPartition(h);
+        WmiResult<DiskPartitionProperty> hwPartitionQueryMap = Win32DiskPartition.queryPartition(h);
         for (int i = 0; i < hwPartitionQueryMap.getResultCount(); i++) {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             List<Pair<String, Long>> logicalDrives = maps.getPartitionToLogicalDriveMap().get(deviceID);

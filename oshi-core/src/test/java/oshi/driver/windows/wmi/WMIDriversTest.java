@@ -23,7 +23,12 @@ import org.junit.jupiter.api.condition.OS;
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.SystemInfo;
+import oshi.driver.common.windows.wmi.MSFTStorage;
+import oshi.driver.common.windows.wmi.Win32DiskDrive;
+import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition;
+import oshi.driver.common.windows.wmi.Win32DiskPartition;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
+import oshi.driver.common.windows.wmi.Win32LogicalDiskToPartition;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
@@ -45,13 +50,13 @@ class WMIDriversTest {
         assertThat(handler, is(notNullValue()));
         boolean comInit = handler.initCOM();
 
-        assertThat("Failed MSFTStorage.queryPhysicalDisks", MSFTStorageJNA.queryPhysicalDisks(handler).getResultCount(),
+        assertThat("Failed MSFTStorage.queryPhysicalDisks", MSFTStorage.queryPhysicalDisks(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
         assertThat("Failed MSFTStorage.queryStoragePoolPhysicalDisks",
-                MSFTStorageJNA.queryStoragePoolPhysicalDisks(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
-        assertThat("Failed MSFTStorage.queryStoragePools", MSFTStorageJNA.queryStoragePools(handler).getResultCount(),
+                MSFTStorage.queryStoragePoolPhysicalDisks(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
+        assertThat("Failed MSFTStorage.queryStoragePools", MSFTStorage.queryStoragePools(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
-        assertThat("Failed MSFTStorage.queryVirtualDisks", MSFTStorageJNA.queryVirtualDisks(handler).getResultCount(),
+        assertThat("Failed MSFTStorage.queryVirtualDisks", MSFTStorage.queryVirtualDisks(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         if (comInit) {
@@ -68,18 +73,18 @@ class WMIDriversTest {
         assertThat(handler, is(notNullValue()));
         boolean comInit = handler.initCOM();
 
-        assertThat("Failed Win32DiskDrive.queryDiskDrive", Win32DiskDriveJNA.queryDiskDrive(handler).getResultCount(),
+        assertThat("Failed Win32DiskDrive.queryDiskDrive", Win32DiskDrive.queryDiskDrive(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         assertThat("Failed Win32DiskDriveToDiskPartition.queryDriveToPartition",
-                Win32DiskDriveToDiskPartitionJNA.queryDriveToPartition(handler).getResultCount(),
+                Win32DiskDriveToDiskPartition.queryDriveToPartition(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         assertThat("Failed Win32DiskPartition.queryPartition",
-                Win32DiskPartitionJNA.queryPartition(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
+                Win32DiskPartition.queryPartition(handler).getResultCount(), is(greaterThanOrEqualTo(0)));
 
         assertThat("Failed Win32LogicalDiskToPartition.queryDiskToPartition",
-                Win32LogicalDiskToPartitionJNA.queryDiskToPartition(handler).getResultCount(),
+                Win32LogicalDiskToPartition.queryDiskToPartition(handler).getResultCount(),
                 is(greaterThanOrEqualTo(0)));
 
         if (comInit) {
