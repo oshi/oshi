@@ -25,19 +25,11 @@ public class Json {
     }
 
     /**
-     * <p>
-     * main.
-     * </p>
-     *
-     * @param args an array of {@link java.lang.String} objects.
-     */
-    @SuppressForbidden(reason = "Using System.out in a demo class")
-
-    /**
      * Entry point.
      *
      * @param args command line arguments
      */
+    @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
         // Jackson ObjectMapper
         ObjectMapper mapper = new ObjectMapper();

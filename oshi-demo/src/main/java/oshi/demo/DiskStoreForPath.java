@@ -32,18 +32,12 @@ public class DiskStoreForPath {
     }
 
     /**
-     * Main method
+     * Entry point.
      *
      * @param args Optional file path
      * @throws URISyntaxException on invalid path
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
-
-    /**
-     * Entry point.
-     *
-     * @param args command line arguments
-     */
     public static void main(String[] args) throws URISyntaxException {
         // Use the arg as a file path or get this class's path
         String filePath = args.length > 0 ? args[0]

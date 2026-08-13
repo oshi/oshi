@@ -149,7 +149,7 @@ public final class PerfstatCpuFFM {
     /**
      * Returns the affinity mask derived from the number of CPUs reported by {@code perfstat_cpu_total}.
      *
-     * @return mask, or {@code -1L} if {@code ncpus &gt; 63}
+     * @return mask, or {@code -1L} if {@code ncpus > 63}
      */
     public static long queryCpuAffinityMask() {
         int cpus = queryCpuTotal().ncpus;

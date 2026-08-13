@@ -35,7 +35,7 @@ public class FreeBsdSensorsFFM extends FreeBsdSensors {
         return queryKldloadCoretemp();
     }
 
-    /*
+    /**
      * If user has loaded coretemp module via kldload coretemp, sysctl call will return temperature
      *
      * @return Temperature if successful, otherwise NaN

@@ -50,17 +50,11 @@ public class DetectVM {
             "Linux Containers", "LXC" };
 
     /**
-     * The main method, executing the {@link #identifyVM} method.
+     * Entry point, executing the {@link #identifyVM} method.
      *
      * @param args Arguments, ignored.
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
-
-    /**
-     * Entry point.
-     *
-     * @param args command line arguments
-     */
     public static void main(String[] args) {
         String vmString = identifyVM();
 
