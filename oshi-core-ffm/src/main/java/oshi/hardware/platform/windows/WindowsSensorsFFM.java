@@ -12,14 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.common.windows.wmi.OhmHardware;
 import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.common.windows.wmi.OhmSensor;
 import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.windows.wmi.MSAcpiThermalZoneTemperatureFFM;
-import oshi.driver.windows.wmi.OhmHardwareFFM;
-import oshi.driver.windows.wmi.OhmSensorFFM;
 import oshi.driver.windows.wmi.Win32FanFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.ffm.platform.windows.com.FfmComException;
@@ -40,7 +40,7 @@ final class WindowsSensorsFFM extends WindowsSensors {
         return getOhmSensors(typeToQuery, typeName, sensorType, (h, ohmHardware) -> {
             String cpuIdentifier = selectOhmCpuIdentifier(ohmHardware, searchCpu);
             if (!cpuIdentifier.isEmpty()) {
-                return OhmSensorFFM.querySensorValue(h, cpuIdentifier, sensorType);
+                return OhmSensor.querySensorValue(h, cpuIdentifier, sensorType);
             }
             return null;
         });
@@ -53,7 +53,7 @@ final class WindowsSensorsFFM extends WindowsSensors {
         WmiResult<ValueProperty> ohmSensors = null;
         try {
             comInit = h.initCOM();
-            WmiResult<IdentifierProperty> ohmHardware = OhmHardwareFFM.queryHwIdentifier(h, typeToQuery, typeName);
+            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, typeToQuery, typeName);
             if (ohmHardware.getResultCount() > 0) {
                 LOG.debug("Found {} data in Open Hardware Monitor", sensorType);
                 ohmSensors = querySensorFunction.apply(h, ohmHardware);

@@ -13,9 +13,9 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.driver.common.windows.wmi.MSFTStorage;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
-import oshi.driver.windows.wmi.MSFTStorageFFM;
 import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.ffm.platform.windows.com.FfmComException;
 import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
@@ -42,12 +42,12 @@ final class WindowsLogicalVolumeGroupFFM extends WindowsLogicalVolumeGroup {
         try {
             comInit = h.initCOM();
             // Query Storage Pools first, so we can skip other queries if we have no pools
-            WmiResult<StoragePoolProperty> sp = MSFTStorageFFM.queryStoragePools(h);
+            WmiResult<StoragePoolProperty> sp = MSFTStorage.queryStoragePools(h);
             if (sp.getResultCount() == 0) {
                 return Collections.emptyList();
             }
-            return buildFromWmi(sp, MSFTStorageFFM.queryVirtualDisks(h), MSFTStorageFFM.queryPhysicalDisks(h),
-                    MSFTStorageFFM.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupFFM::new);
+            return buildFromWmi(sp, MSFTStorage.queryVirtualDisks(h), MSFTStorage.queryPhysicalDisks(h),
+                    MSFTStorage.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupFFM::new);
         } catch (FfmComException e) {
             LOG.warn("COM exception: {}", e.getMessage());
             return Collections.emptyList();
