@@ -342,7 +342,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         /** Time spent doing I/Os in milliseconds. */
         ACTIVE_MS(9);
 
-        private int order;
+        private final int order;
 
         /**
          * Gets the field order index.

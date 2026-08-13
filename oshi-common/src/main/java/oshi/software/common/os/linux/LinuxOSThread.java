@@ -131,7 +131,7 @@ public class LinuxOSThread extends AbstractOSThread {
             this.order = order;
         }
 
-        public int getOrder() {
+        int getOrder() {
             return this.order;
         }
     }

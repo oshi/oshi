@@ -214,18 +214,13 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
             if (shouldCacheFailure(query.getNameSpace())) {
                 int hresult = e.getHresult();
                 switch (hresult) {
-                    case WbemcliFFM.WBEM_E_INVALID_NAMESPACE:
-                        LOG.warn("COM exception: Invalid Namespace {}", query.getNameSpace());
-                        break;
-                    case WbemcliFFM.WBEM_E_INVALID_CLASS:
-                        LOG.warn("COM exception: Invalid Class {}", query.getWmiClassName());
-                        break;
-                    case WbemcliFFM.WBEM_E_INVALID_QUERY:
-                        LOG.warn("COM exception: Invalid Query for {}", query.getWmiClassName());
-                        break;
-                    default:
-                        handleComException(query, e);
-                        break;
+                    case WbemcliFFM.WBEM_E_INVALID_NAMESPACE -> LOG.warn("COM exception: Invalid Namespace {}",
+                            query.getNameSpace());
+                    case WbemcliFFM.WBEM_E_INVALID_CLASS -> LOG.warn("COM exception: Invalid Class {}",
+                            query.getWmiClassName());
+                    case WbemcliFFM.WBEM_E_INVALID_QUERY -> LOG.warn("COM exception: Invalid Query for {}",
+                            query.getWmiClassName());
+                    default -> handleComException(query, e);
                 }
                 failedWmiClassNames.add(query.getWmiClassName());
             }

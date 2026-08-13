@@ -91,7 +91,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
         // Create list to hold results
-        ArrayList<OSFileStore> result;
+        List<OSFileStore> result;
 
         // Begin with all the local volumes
         result = getLocalVolumes(null);
@@ -129,8 +129,8 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
      * @param volumeToMatch an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted volumes
      */
-    static ArrayList<OSFileStore> getLocalVolumes(String volumeToMatch) {
-        ArrayList<OSFileStore> fs;
+    static List<OSFileStore> getLocalVolumes(String volumeToMatch) {
+        List<OSFileStore> fs;
         String volume;
         String strFsType;
         String strName;

@@ -219,11 +219,10 @@ public class WmiQueryHandler implements WmiQueryExecutor {
      * @throws COMException if COM initialization fails with an unexpected error
      */
     public boolean initCOM() {
-        boolean comInit = false;
         // Step 1: --------------------------------------------------
         // Initialize COM. ------------------------------------------
         int threading = getComThreading();
-        comInit = initCOM(threading);
+        boolean comInit = initCOM(threading);
         if (!comInit) {
             // Only switch if another thread hasn't already switched away from our value
             int switched = switchComThreadingFrom(threading);

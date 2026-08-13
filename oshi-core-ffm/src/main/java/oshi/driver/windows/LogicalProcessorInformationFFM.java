@@ -88,20 +88,12 @@ public final class LogicalProcessorInformationFFM {
                 int size = buffer.get(ValueLayout.JAVA_INT, offset + 4L);
 
                 switch (relationship) {
-                    case RELATION_PROCESSOR_CORE:
-                        parseProcessorCore(buffer, offset, cores);
-                        break;
-                    case RELATION_NUMA_NODE:
-                        parseNumaNode(buffer, offset, numaNodes);
-                        break;
-                    case RELATION_CACHE:
-                        parseCache(buffer, offset, caches);
-                        break;
-                    case RELATION_PROCESSOR_PACKAGE:
-                        parsePackage(buffer, offset, packages);
-                        break;
-                    default:
-                        break;
+                    case RELATION_PROCESSOR_CORE -> parseProcessorCore(buffer, offset, cores);
+                    case RELATION_NUMA_NODE -> parseNumaNode(buffer, offset, numaNodes);
+                    case RELATION_CACHE -> parseCache(buffer, offset, caches);
+                    case RELATION_PROCESSOR_PACKAGE -> parsePackage(buffer, offset, packages);
+                    default -> {
+                    }
                 }
                 offset += size;
             }

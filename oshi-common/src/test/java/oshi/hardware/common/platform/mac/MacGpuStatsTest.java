@@ -154,17 +154,18 @@ class MacGpuStatsTest {
 
     @Test
     void testUtilizationPrefersCoreThenDeviceThenSentinel() {
-        StubGpuStats withBoth = new StubGpuStats(false, "both card", nullFactory(),
+        StubGpuStats withBoth = new StubGpuStats(false, "both card", MacGpuStatsTest::nullSampler,
                 stats(CORE_UTIL, 0xFFFFFFFFL, DEVICE_UTIL, 17L), -1d);
         assertThat("core utilization wins", withBoth.getGpuUtilization(), is(closeTo(100d, 0.001d)));
 
-        StubGpuStats deviceOnly = new StubGpuStats(false, "device card", nullFactory(), stats(DEVICE_UTIL, 17L), -1d);
+        StubGpuStats deviceOnly = new StubGpuStats(false, "device card", MacGpuStatsTest::nullSampler,
+                stats(DEVICE_UTIL, 17L), -1d);
         assertThat("device utilization is used unscaled", deviceOnly.getGpuUtilization(), is(17d));
 
-        StubGpuStats neither = new StubGpuStats(false, "neither card", nullFactory(), stats(), -1d);
+        StubGpuStats neither = new StubGpuStats(false, "neither card", MacGpuStatsTest::nullSampler, stats(), -1d);
         assertThat("no key yields the sentinel", neither.getGpuUtilization(), is(-1d));
 
-        StubGpuStats unreadable = new StubGpuStats(false, "unreadable card", nullFactory(), null, -1d);
+        StubGpuStats unreadable = new StubGpuStats(false, "unreadable card", MacGpuStatsTest::nullSampler, null, -1d);
         assertThat("an unreadable dictionary yields the sentinel", unreadable.getGpuUtilization(), is(-1d));
     }
 
@@ -173,33 +174,39 @@ class MacGpuStatsTest {
         // Apple Silicon reports GPU memory as a share of unified memory under a different key than discrete VRAM.
         Map<String, Long> both = stats(VRAM_INTEL, 100L, VRAM_APPLE, 200L);
         assertThat("Apple Silicon prefers the unified memory key",
-                new StubGpuStats(true, "vram a", nullFactory(), both, -1d).getVramUsed(), is(200L));
+                new StubGpuStats(true, "vram a", MacGpuStatsTest::nullSampler, both, -1d).getVramUsed(), is(200L));
         assertThat("Intel prefers the discrete VRAM key",
-                new StubGpuStats(false, "vram b", nullFactory(), both, -1d).getVramUsed(), is(100L));
+                new StubGpuStats(false, "vram b", MacGpuStatsTest::nullSampler, both, -1d).getVramUsed(), is(100L));
 
         // Each key is the other's fallback.
         assertThat("Apple Silicon falls back to the discrete key",
-                new StubGpuStats(true, "vram c", nullFactory(), stats(VRAM_INTEL, 100L), -1d).getVramUsed(), is(100L));
+                new StubGpuStats(true, "vram c", MacGpuStatsTest::nullSampler, stats(VRAM_INTEL, 100L), -1d)
+                        .getVramUsed(),
+                is(100L));
         assertThat("Intel falls back to the unified key",
-                new StubGpuStats(false, "vram d", nullFactory(), stats(VRAM_APPLE, 200L), -1d).getVramUsed(), is(200L));
+                new StubGpuStats(false, "vram d", MacGpuStatsTest::nullSampler, stats(VRAM_APPLE, 200L), -1d)
+                        .getVramUsed(),
+                is(200L));
         assertThat("neither key yields the sentinel",
-                new StubGpuStats(false, "vram e", nullFactory(), stats(), -1d).getVramUsed(), is(-1L));
+                new StubGpuStats(false, "vram e", MacGpuStatsTest::nullSampler, stats(), -1d).getVramUsed(), is(-1L));
     }
 
     @Test
     void testTemperaturePrefersSmcOnAppleSilicon() {
-        StubGpuStats apple = new StubGpuStats(true, "smc card", nullFactory(), stats(TEMPERATURE, 55L), 61.5d);
+        StubGpuStats apple = new StubGpuStats(true, "smc card", MacGpuStatsTest::nullSampler, stats(TEMPERATURE, 55L),
+                61.5d);
         assertThat("a plausible SMC reading wins", apple.getTemperature(), is(61.5d));
         assertThat("the accelerator was not consulted", apple.perfStatQueries, is(0));
 
-        StubGpuStats noSmc = new StubGpuStats(true, "no smc card", nullFactory(), stats(TEMPERATURE, 55L), 0d);
+        StubGpuStats noSmc = new StubGpuStats(true, "no smc card", MacGpuStatsTest::nullSampler,
+                stats(TEMPERATURE, 55L), 0d);
         assertThat("an unavailable SMC reading falls through", noSmc.getTemperature(), is(55d));
     }
 
     @Test
     void testTemperatureLatchesOnlyOnAMissingKey() {
         // A dictionary present but lacking the key means this card has no such sensor: latch it off.
-        StubGpuStats missingKey = new StubGpuStats(false, "latch card", nullFactory(), stats(), -1d);
+        StubGpuStats missingKey = new StubGpuStats(false, "latch card", MacGpuStatsTest::nullSampler, stats(), -1d);
         assertThat("missing key yields the sentinel", missingKey.getTemperature(), is(-1d));
         assertThat("the first call queried", missingKey.perfStatQueries, is(1));
         assertThat("still the sentinel", missingKey.getTemperature(), is(-1d));
@@ -209,7 +216,7 @@ class MacGpuStatsTest {
     @Test
     void testTemperatureDoesNotLatchOnAnUnreadableDictionary() {
         // A missing accelerator entry can be transient (driver reset, eGPU unplugged), so it must stay retryable.
-        StubGpuStats unreadable = new StubGpuStats(false, "transient card", nullFactory(), null, -1d);
+        StubGpuStats unreadable = new StubGpuStats(false, "transient card", MacGpuStatsTest::nullSampler, null, -1d);
         assertThat("unreadable yields the sentinel", unreadable.getTemperature(), is(-1d));
         assertThat("unreadable still yields the sentinel", unreadable.getTemperature(), is(-1d));
         assertThat("the lookup is retried", unreadable.perfStatQueries, is(2));
@@ -217,7 +224,7 @@ class MacGpuStatsTest {
 
     @Test
     void testUnsupportedMetricsReturnSentinels() {
-        StubGpuStats gpu = new StubGpuStats(true, "sentinel card", nullFactory(), stats(), -1d);
+        StubGpuStats gpu = new StubGpuStats(true, "sentinel card", MacGpuStatsTest::nullSampler, stats(), -1d);
         assertThat("clock is unavailable on macOS", gpu.getCoreClockMhz(), is(-1L));
         assertThat("memory clock is unavailable on macOS", gpu.getMemoryClockMhz(), is(-1L));
         assertThat("fan speed is unavailable on macOS", gpu.getFanSpeedPercent(), is(-1d));
@@ -238,7 +245,7 @@ class MacGpuStatsTest {
 
     @Test
     void testMatchesNameIgnoresCaseAndTrademarks() {
-        StubGpuStats gpu = new StubGpuStats(false, "Radeon Pro 5500M", nullFactory(), stats(), -1d);
+        StubGpuStats gpu = new StubGpuStats(false, "Radeon Pro 5500M", MacGpuStatsTest::nullSampler, stats(), -1d);
         assertThat("exact match", gpu.matchesName("radeon pro 5500m"), is(true));
         assertThat("case is ignored", gpu.matchesName("RADEON PRO 5500M"), is(true));
         assertThat("trademark symbols are stripped", gpu.matchesName("Radeon™ Pro 5500M"), is(true));
@@ -249,7 +256,7 @@ class MacGpuStatsTest {
         assertThat("empty does not match", gpu.matchesName(""), is(false));
     }
 
-    private static Supplier<IOReportSampler> nullFactory() {
-        return () -> null;
+    private static IOReportSampler nullSampler() {
+        return null;
     }
 }

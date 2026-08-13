@@ -7,10 +7,10 @@ package oshi.jna.platform.mac;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * IOReport is a private Apple framework that provides access to hardware performance counters, including GPU residency
@@ -55,6 +55,8 @@ public interface IOReport extends Library {
      * @param b     source channel descriptor
      * @param null3 reserved, pass {@code null}
      */
+    // "null" above is the value to pass, not a mis-reference to the null3 parameter's name
+    @SuppressWarnings("InvalidParam")
     void IOReportMergeChannels(CFDictionaryRef a, CFDictionaryRef b, CFTypeRef null3);
 
     /**

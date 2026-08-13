@@ -306,7 +306,6 @@ class OperatingSystemTest {
         // Zero
         int matchedChild = 0;
         int matchedDescendant = 0;
-        int descendantNotLessThanChild = 0;
         if (zeroChildMap.size() > 9) {
             int total = 0;
             for (Integer i : zeroChildMap.keySet()) {
@@ -331,7 +330,7 @@ class OperatingSystemTest {
         // One child
         matchedChild = 0;
         matchedDescendant = 0;
-        descendantNotLessThanChild = 0;
+        int descendantNotLessThanChild = 0;
         if (oneChildMap.size() > 9) {
             int total = 0;
             for (Integer i : oneChildMap.keySet()) {

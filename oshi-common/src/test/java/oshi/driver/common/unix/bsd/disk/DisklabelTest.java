@@ -37,8 +37,11 @@ import oshi.util.tuples.Quartet;
 class DisklabelTest {
 
     /** Returns deterministic (major,minor) without calling stat(1). */
-    private static final BiFunction<String, String, Pair<Integer, Integer>> ZERO_MAJOR_MINOR = (d, n) -> new Pair<>(0,
-            0);
+    private static final BiFunction<String, String, Pair<Integer, Integer>> ZERO_MAJOR_MINOR = DisklabelTest::zeroMajorMinor;
+
+    private static Pair<Integer, Integer> zeroMajorMinor(String device, String name) {
+        return new Pair<>(0, 0);
+    }
 
     @Test
     void testParseDiskParamsExtractsHeaderAndPartitions() {

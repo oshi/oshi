@@ -47,6 +47,8 @@ public final class WhoJNA {
      *
      * @return A list of logged in user sessions
      */
+    // assignment-in-condition is the standard idiom for "loop while getutxent() returns non-null"
+    @SuppressWarnings("AssignmentExpression")
     public static synchronized List<OSSession> queryUtxent() {
         // Try systemd first if available
         if (useSystemd) {
