@@ -112,7 +112,7 @@ public class FileStorePanel extends OshiJPanel { // NOSONAR java:S110
                     "Available: " + FormatUtil.formatBytes(usable) + "/" + FormatUtil.formatBytes(total)));
             fsCharts[i].setSubtitles(subtitles);
             fsData[i].setValue(USED, (double) total - usable);
-            fsData[i].setValue(AVAILABLE, usable);
+            fsData[i].setValue(AVAILABLE, (double) usable);
             i++;
         }
         return true;

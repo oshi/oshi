@@ -198,6 +198,8 @@ class PrivilegedUtilTest {
         assertThat(result.length, is(0));
     }
 
+    // == is intentional: checks whether the memoized supplier returned the same cached instance
+    @SuppressWarnings("ReferenceEquality")
     @Test
     void testCommandAllowlistCaching() {
         // Memoized suppliers cache based on time expiration, not config changes
@@ -207,6 +209,8 @@ class PrivilegedUtilTest {
         assertThat(allowlist1 == allowlist2 || allowlist1.equals(allowlist2), is(true));
     }
 
+    // == is intentional: checks whether the memoized supplier returned the same cached instance
+    @SuppressWarnings("ReferenceEquality")
     @Test
     void testFileAllowlistCaching() {
         // Memoized suppliers cache based on time expiration, not config changes

@@ -100,6 +100,8 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
         return WhoFFM.queryUtxent();
     }
 
+    // numberOfProcesses is a live process count (thousands at most), can't overflow int when scaled by INT_SIZE
+    @SuppressWarnings("NarrowCalculation")
     @Override
     public List<OSProcess> queryAllProcesses() {
         return callInArenaOrDefault(arena -> {

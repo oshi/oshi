@@ -101,16 +101,17 @@ public final class LogicalProcessorInformation {
         // for consistent use across the API. Here we sort so core, cache, and package
         // numbers increment consistently with processor numbers/bitmasks, ordered in
         // processor groups.
-        cores.sort(Comparator.comparing(c -> c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
+        cores.sort(Comparator.comparingLong(c -> c.group * 64L + Long.numberOfTrailingZeros(c.mask.longValue())));
 
         // if package in multiple groups will still use first group for sorting
-        packages.sort(Comparator.comparing(p -> p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));
+        packages.sort(
+                Comparator.comparingLong(p -> p[0].group * 64L + Long.numberOfTrailingZeros(p[0].mask.longValue())));
 
         // Iterate Logical Processors and use bitmasks to match packages, cores,
         // and NUMA nodes. Perfmon instances are numa node + processor number, so we
         // iterate by numa node so the returned list will properly index perfcounter
         // numa/proc-per-numa indices with all numa nodes grouped together
-        numaNodes.sort(Comparator.comparing(n -> n.nodeNumber));
+        numaNodes.sort(Comparator.comparingInt(n -> n.nodeNumber));
 
         // Fetch the processorIDs from WMI
         Map<Integer, String> processorIdMap = new HashMap<>();

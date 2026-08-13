@@ -183,7 +183,7 @@ public class MacOSProcessJNA extends MacOSProcess {
             this.bitness = (taskAllInfo.pbsd.pbi_flags & P_LP64) == 0 ? 32 : 64;
             this.majorFaults = taskAllInfo.ptinfo.pti_pageins;
             // testing using getrusage confirms pti_faults includes both major and minor
-            this.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; // NOSONAR java:S2184
+            this.minorFaults = taskAllInfo.ptinfo.pti_faults - this.majorFaults; // NOSONAR java:S2184
             // getrusage(RUSAGE_SELF) aggregates across all threads for current process
             if (getProcessID() == this.os.getProcessId()) {
                 SystemB.Rusage rusage = new SystemB.Rusage();

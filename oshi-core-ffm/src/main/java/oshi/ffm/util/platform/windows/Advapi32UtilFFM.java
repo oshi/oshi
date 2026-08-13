@@ -119,6 +119,8 @@ public final class Advapi32UtilFFM {
      * @return array of subkey names
      * @throws Throwable if the native call fails
      */
+    // maxNameLen is a Windows registry key-name length (bounded well under 32K), can't overflow int
+    @SuppressWarnings("NarrowCalculation")
     public static String[] registryGetKeys(MemorySegment hKey) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment lpcSubKeys = arena.allocate(JAVA_INT);
@@ -468,9 +470,8 @@ public final class Advapi32UtilFFM {
                     while (offset < read) {
                         MemorySegment eventRecord = buffer.asSlice(offset, WinNTFFM.EVENTLOGRECORD.byteSize());
 
-                        int eventId = eventRecord.get(JAVA_INT, (int) offsetEventId);
-                        long timeGenerated = Integer
-                                .toUnsignedLong(eventRecord.get(JAVA_INT, (int) offsetTimeGenerated));
+                        int eventId = eventRecord.get(JAVA_INT, offsetEventId);
+                        long timeGenerated = Integer.toUnsignedLong(eventRecord.get(JAVA_INT, offsetTimeGenerated));
 
                         if (eventId == 12) { // system boot
                             return timeGenerated;
@@ -482,7 +483,7 @@ public final class Advapi32UtilFFM {
                         }
 
                         // Advance to next record
-                        int length = eventRecord.get(JAVA_INT, (int) offsetLength);
+                        int length = eventRecord.get(JAVA_INT, offsetLength);
                         offset += length;
                     }
                 }
