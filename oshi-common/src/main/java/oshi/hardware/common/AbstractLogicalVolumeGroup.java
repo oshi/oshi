@@ -5,6 +5,7 @@
 package oshi.hardware.common;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -29,10 +30,11 @@ public class AbstractLogicalVolumeGroup implements LogicalVolumeGroup {
      */
     protected AbstractLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         this.name = name;
+        Map<String, Set<String>> unmodifiableValues = new HashMap<>();
         for (Entry<String, Set<String>> entry : lvMap.entrySet()) {
-            lvMap.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
+            unmodifiableValues.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
         }
-        this.lvMap = Collections.unmodifiableMap(lvMap);
+        this.lvMap = Collections.unmodifiableMap(unmodifiableValues);
         this.pvSet = Collections.unmodifiableSet(pvSet);
     }
 

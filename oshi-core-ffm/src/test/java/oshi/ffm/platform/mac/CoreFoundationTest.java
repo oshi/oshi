@@ -76,6 +76,12 @@ class CoreFoundationTest {
             assertThat(str1.equals(str3), is(false));
             assertThat(str1.equals(null), is(false));
             assertThat(str1.equals(str1), is(true));
+            // A base-typed wrapper around the same segment compares equal in both directions. Not
+            // try-with-resources: str1 already owns release of the underlying native object.
+            var typeAlias = new CFTypeRef(str1.segment());
+            assertThat(typeAlias.equals(str1), is(true));
+            assertThat(str1.equals(typeAlias), is(true));
+            assertThat(typeAlias.hashCode(), is(str1.hashCode()));
             // Null refs are equal to each other
             var nullRef1 = new CFTypeRef(NULL);
             var nullRef2 = new CFTypeRef(NULL);
