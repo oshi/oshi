@@ -27,19 +27,18 @@ public class FreeBsdSensorsJNA extends FreeBsdSensors {
         return queryKldloadCoretemp();
     }
 
-    /*
+    /**
      * If user has loaded coretemp module via kldload coretemp, sysctl call will return temperature
      *
      * @return Temperature if successful, otherwise NaN
      */
     private static double queryKldloadCoretemp() {
-        String name = "dev.cpu.%d.temperature";
         try (CloseableSizeTByReference size = new CloseableSizeTByReference(FreeBsdLibc.INT_SIZE)) {
             int cpu = 0;
             double sumTemp = 0d;
             try (Memory p = new Memory(size.longValue())) {
-                while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(Locale.ROOT, name, cpu), p, size, null,
-                        size_t.ZERO)) {
+                while (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(Locale.ROOT, "dev.cpu.%d.temperature", cpu),
+                        p, size, null, size_t.ZERO)) {
                     sumTemp += p.getInt(0) / 10d - 273.15;
                     cpu++;
                 }

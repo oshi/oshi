@@ -122,8 +122,8 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
 
     /**
      * Applies the perfstat-derived CPU and memory quartet to this process. Concrete subclasses arrange a
-     * {@code Quartet&lt;ucpu_time(ms), scpu_time(ms), real_inuse(bytes), proc_real_mem_data+text(bytes)&gt;} from their
-     * data source and call this. Returns true on success; sets {@code state = INVALID} and returns false otherwise.
+     * {@code Quartet<ucpu_time(ms), scpu_time(ms), real_inuse(bytes), proc_real_mem_data+text(bytes)>} from their data
+     * source and call this. Returns true on success; sets {@code state = INVALID} and returns false otherwise.
      *
      * @param cpuMem the quartet of (userTime, kernelTime, residentSetSize, privateResidentMemory)
      * @return {@code true} if attributes were updated

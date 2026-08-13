@@ -85,7 +85,7 @@ public final class FileSystemUtil {
     }
 
     /**
-     * Checks if {@code text} matches any of @param patterns}.
+     * Checks if {@code text} matches any of {@code patterns}.
      *
      * @param text     The text to be matched.
      * @param patterns List of patterns.

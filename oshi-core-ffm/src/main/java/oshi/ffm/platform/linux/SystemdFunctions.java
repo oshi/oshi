@@ -100,7 +100,7 @@ public final class SystemdFunctions extends ForeignFunctions {
     }
 
     /**
-     * Calls {@code sd_session_get_username(session, &amp;username)}.
+     * Calls {@code sd_session_get_username(session, &username)}.
      *
      * @param session     session ID segment (null-terminated)
      * @param usernamePtr pointer-to-pointer output segment
@@ -112,7 +112,7 @@ public final class SystemdFunctions extends ForeignFunctions {
     }
 
     /**
-     * Calls {@code sd_session_get_start_time(session, &amp;usec)}.
+     * Calls {@code sd_session_get_start_time(session, &usec)}.
      *
      * @param session session ID segment (null-terminated)
      * @param usecPtr pointer to uint64_t output
@@ -124,7 +124,7 @@ public final class SystemdFunctions extends ForeignFunctions {
     }
 
     /**
-     * Calls {@code sd_session_get_tty(session, &amp;tty)}.
+     * Calls {@code sd_session_get_tty(session, &tty)}.
      *
      * @param session session ID segment (null-terminated)
      * @param ttyPtr  pointer-to-pointer output segment
@@ -136,7 +136,7 @@ public final class SystemdFunctions extends ForeignFunctions {
     }
 
     /**
-     * Calls {@code sd_session_get_remote_host(session, &amp;remote_host)}.
+     * Calls {@code sd_session_get_remote_host(session, &remote_host)}.
      *
      * @param session       session ID segment (null-terminated)
      * @param remoteHostPtr pointer-to-pointer output segment

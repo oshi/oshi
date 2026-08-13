@@ -258,7 +258,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
         }, null, LOG, "Error reading performance data from registry for {}.");
     }
 
-    /*
+    /**
      * Registry entries subordinate to HKEY_PERFORMANCE_TEXT key reference the text strings that describe counters in US
      * English. Not supported in Windows 2000.
      *
@@ -268,7 +268,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
      * These pairs are translated to a map for later lookup.
      *
      * @return An unmodifiable map containing counter name strings as keys and indices as integer values if the key is
-     * read successfully; an empty map otherwise.
+     *         read successfully; an empty map otherwise.
      */
     private static Map<String, Integer> mapCounterIndicesFromRegistry() {
         try {
