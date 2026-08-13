@@ -153,10 +153,9 @@ public interface CoreFoundation {
             if (this == o) {
                 return true;
             }
-            if (!(o instanceof CFTypeRef)) {
+            if (!(o instanceof CFTypeRef cfTypeRef)) {
                 return false;
             }
-            CFTypeRef cfTypeRef = (CFTypeRef) o;
             if (isNull() || cfTypeRef.isNull()) {
                 return isNull() == cfTypeRef.isNull();
             }
