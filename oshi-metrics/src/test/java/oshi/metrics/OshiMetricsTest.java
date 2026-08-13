@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
-import oshi.software.os.OperatingSystem;
 import oshi.spi.SystemInfoProvider;
 import oshi.util.PlatformEnum;
 
@@ -31,13 +30,11 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 class OshiMetricsTest {
 
     private static MeterRegistry registry;
-    private static OperatingSystem os;
 
     @BeforeAll
     static void setUp() {
         registry = new SimpleMeterRegistry();
         SystemInfoProvider si = new SystemInfo();
-        os = si.getOperatingSystem();
         OshiMetrics.bindTo(registry, si);
     }
 

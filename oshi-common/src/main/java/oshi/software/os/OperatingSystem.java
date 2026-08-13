@@ -78,7 +78,14 @@ public interface OperatingSystem {
         /**
          * No sorting
          */
-        public static final Comparator<OSProcess> NO_SORTING = (p1, p2) -> 0;
+        public static final Comparator<OSProcess> NO_SORTING = ProcessSorting::noSorting;
+
+        // a no-op comparator is expected to ignore both arguments
+        @SuppressWarnings("UnusedVariable")
+        private static int noSorting(OSProcess p1, OSProcess p2) {
+            return 0;
+        }
+
         /**
          * Sort by decreasing cumulative CPU percentage
          */

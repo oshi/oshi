@@ -291,11 +291,14 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         SSE2(58, "sse2"), SS(59, "ss"), HTT(60, "htt", "ht"), TM(61, "tm"), IA64(62, "ia64"), PBE(63, "pbe");
 
         private final int bit;
-        private final String[] names;
+        // List is flagged as mutable on its face, but this field is final and always assigned an
+        // unmodifiableList in the constructor below, never reassigned.
+        @SuppressWarnings("ImmutableEnumChecker")
+        private final List<String> names;
 
         CpuidFeature(int bit, String... names) {
             this.bit = bit;
-            this.names = names;
+            this.names = Collections.unmodifiableList(Arrays.asList(names));
         }
     }
 
@@ -392,7 +395,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
                 // High-efficiency CPU (LITTLE): Cortex-A53, Cortex-A55
                 if (isHybrid && ((idStr.startsWith("ARM Cortex") && ParseUtil.getFirstIntValue(idStr) >= 70)
                         || (idStr.startsWith("Apple")
-                                && (idStr.contains("Firestorm") || (idStr.contains("Avalanche")))))) {
+                                && (idStr.contains("Firestorm") || idStr.contains("Avalanche"))))) {
                     efficiency = 1;
                 }
                 physProcs.add(new PhysicalProcessor(pkgId, coreId, efficiency, idStr));

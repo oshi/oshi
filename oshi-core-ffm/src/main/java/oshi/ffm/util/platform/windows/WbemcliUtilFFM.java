@@ -238,43 +238,22 @@ public final class WbemcliUtilFFM {
                 int vt = getVt(getResult.variant());
                 int cimType = getResult.cimType();
                 switch (vt) {
-                    case VT_BSTR:
-                        result.add(vt, cimType, property, getBstrVal(getResult.variant(), arena));
-                        break;
-                    case VT_I4, VT_INT, VT_UI4, VT_UINT:
-                        result.add(vt, cimType, property, getIntVal(getResult.variant()));
-                        break;
-                    case VT_I8, VT_UI8:
-                        result.add(vt, cimType, property, getLongVal(getResult.variant()));
-                        break;
-                    case VT_I2:
-                        result.add(vt, cimType, property, (int) getShortVal(getResult.variant()));
-                        break;
-                    case VT_UI2:
-                        result.add(vt, cimType, property, getShortVal(getResult.variant()) & 0xFFFF);
-                        break;
-                    case VT_I1:
-                        result.add(vt, cimType, property, (int) getByteVal(getResult.variant()));
-                        break;
-                    case VT_UI1:
-                        result.add(vt, cimType, property, getByteVal(getResult.variant()) & 0xFF);
-                        break;
-                    case VT_BOOL:
-                        result.add(vt, cimType, property, getBoolVal(getResult.variant()));
-                        break;
-                    case VT_R4:
-                        result.add(vt, cimType, property, getFloatVal(getResult.variant()));
-                        break;
-                    case VT_R8:
-                        result.add(vt, cimType, property, getDoubleVal(getResult.variant()));
-                        break;
-                    case VT_NULL, VT_EMPTY:
-                        result.add(vt, cimType, property, null);
-                        break;
-                    default:
+                    case VT_BSTR -> result.add(vt, cimType, property, getBstrVal(getResult.variant(), arena));
+                    case VT_I4, VT_INT, VT_UI4, VT_UINT -> result.add(vt, cimType, property,
+                            getIntVal(getResult.variant()));
+                    case VT_I8, VT_UI8 -> result.add(vt, cimType, property, getLongVal(getResult.variant()));
+                    case VT_I2 -> result.add(vt, cimType, property, (int) getShortVal(getResult.variant()));
+                    case VT_UI2 -> result.add(vt, cimType, property, getShortVal(getResult.variant()) & 0xFFFF);
+                    case VT_I1 -> result.add(vt, cimType, property, (int) getByteVal(getResult.variant()));
+                    case VT_UI1 -> result.add(vt, cimType, property, getByteVal(getResult.variant()) & 0xFF);
+                    case VT_BOOL -> result.add(vt, cimType, property, getBoolVal(getResult.variant()));
+                    case VT_R4 -> result.add(vt, cimType, property, getFloatVal(getResult.variant()));
+                    case VT_R8 -> result.add(vt, cimType, property, getDoubleVal(getResult.variant()));
+                    case VT_NULL, VT_EMPTY -> result.add(vt, cimType, property, null);
+                    default -> {
                         LOG.debug("Unhandled VT type {} for property {}", vt, property.name());
                         result.add(VT_EMPTY, cimType, property, null);
-                        break;
+                    }
                 }
             } finally {
                 clear(getResult.variant());

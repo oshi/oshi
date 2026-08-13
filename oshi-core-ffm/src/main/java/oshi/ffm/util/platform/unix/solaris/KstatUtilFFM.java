@@ -216,23 +216,18 @@ public final class KstatUtilFFM {
             }
             MemorySegment named = data.reinterpret(KSTAT_NAMED_LAYOUT.byteSize());
             byte dt = namedDataType(named);
-            switch (dt) {
-                case KSTAT_DATA_CHAR:
-                    return namedValueChar(named);
-                case KSTAT_DATA_INT32:
-                    return Integer.toString(namedValueInt32(named));
-                case KSTAT_DATA_UINT32:
-                    return FormatUtil.toUnsignedString(namedValueInt32(named));
-                case KSTAT_DATA_INT64:
-                    return Long.toString(namedValueInt64(named));
-                case KSTAT_DATA_UINT64:
-                    return FormatUtil.toUnsignedString(namedValueInt64(named));
-                case KSTAT_DATA_STRING:
-                    return namedValueString(named);
-                default:
+            return switch (dt) {
+                case KSTAT_DATA_CHAR -> namedValueChar(named);
+                case KSTAT_DATA_INT32 -> Integer.toString(namedValueInt32(named));
+                case KSTAT_DATA_UINT32 -> FormatUtil.toUnsignedString(namedValueInt32(named));
+                case KSTAT_DATA_INT64 -> Long.toString(namedValueInt64(named));
+                case KSTAT_DATA_UINT64 -> FormatUtil.toUnsignedString(namedValueInt64(named));
+                case KSTAT_DATA_STRING -> namedValueString(named);
+                default -> {
                     LOG.error("Unimplemented kstat data type {}", dt);
-                    return "";
-            }
+                    yield "";
+                }
+            };
         }, "", LOG, WARN, "kstat_data_lookup failed for key {}", name);
     }
 
@@ -260,17 +255,15 @@ public final class KstatUtilFFM {
             }
             MemorySegment named = data.reinterpret(KSTAT_NAMED_LAYOUT.byteSize());
             byte dt = namedDataType(named);
-            switch (dt) {
-                case KSTAT_DATA_INT32:
-                    return namedValueInt32(named);
-                case KSTAT_DATA_UINT32:
-                    return FormatUtil.getUnsignedInt(namedValueInt32(named));
-                case KSTAT_DATA_INT64, KSTAT_DATA_UINT64:
-                    return namedValueInt64(named);
-                default:
+            return switch (dt) {
+                case KSTAT_DATA_INT32 -> (long) namedValueInt32(named);
+                case KSTAT_DATA_UINT32 -> FormatUtil.getUnsignedInt(namedValueInt32(named));
+                case KSTAT_DATA_INT64, KSTAT_DATA_UINT64 -> namedValueInt64(named);
+                default -> {
                     LOG.error("Unimplemented or non-numeric kstat data type {}", dt);
-                    return 0L;
-            }
+                    yield 0L;
+                }
+            };
         }, 0L, LOG, WARN, "kstat_data_lookup failed for key {}", name);
     }
 

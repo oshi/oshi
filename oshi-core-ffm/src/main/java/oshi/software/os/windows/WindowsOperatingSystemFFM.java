@@ -171,18 +171,11 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
                     int currentState = lpServices.get(JAVA_INT, base + CURRENT_STATE_OFFSET);
                     int processId = lpServices.get(JAVA_INT, base + PROCESS_ID_OFFSET);
 
-                    State state;
-                    switch (currentState) {
-                        case 1:
-                            state = State.STOPPED;
-                            break;
-                        case 4:
-                            state = State.RUNNING;
-                            break;
-                        default:
-                            state = State.OTHER;
-                            break;
-                    }
+                    State state = switch (currentState) {
+                        case 1 -> State.STOPPED;
+                        case 4 -> State.RUNNING;
+                        default -> State.OTHER;
+                    };
                     svcArray.add(new OSService(displayName, processId, state));
                 }
                 return Collections.unmodifiableList(svcArray);

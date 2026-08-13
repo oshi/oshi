@@ -401,6 +401,8 @@ public final class LibKstatFunctions extends ForeignFunctions {
      * @param named segment reinterpreted to {@link #KSTAT_NAMED_LAYOUT}
      * @return the record name
      */
+    // "name" above refers to the native struct field, not this method's `named` parameter
+    @SuppressWarnings("InvalidParam")
     public static String namedName(MemorySegment named) {
         return named.getString(KSTAT_NAMED_NAME_OFFSET);
     }

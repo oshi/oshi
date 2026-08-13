@@ -478,7 +478,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
 
         private final int order;
 
-        public int getOrder() {
+        int getOrder() {
             return this.order;
         }
 

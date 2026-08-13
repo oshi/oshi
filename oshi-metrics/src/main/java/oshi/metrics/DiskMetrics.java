@@ -49,7 +49,7 @@ public class DiskMetrics implements MeterBinder {
     // Intentionally retained though never read: holds a strong reference to the disk stores so the GC cannot clear
     // the WeakReferences that Micrometer's FunctionCounter keeps to them (see bindTo). Removing this would silently
     // break the disk metrics after a garbage collection.
-    @SuppressWarnings("java:S1068") // intentionally unused field — see above
+    @SuppressWarnings({ "java:S1068", "UnusedVariable" }) // intentionally unused field — see above
     private List<HWDiskStore> diskStores;
 
     /**
