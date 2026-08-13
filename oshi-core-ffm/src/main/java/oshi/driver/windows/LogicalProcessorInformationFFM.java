@@ -109,11 +109,11 @@ public final class LogicalProcessorInformationFFM {
         }
 
         // Sort cores by group*64 + trailing zeros of mask
-        cores.sort(Comparator.comparing(c -> c[0] * 64L + Long.numberOfTrailingZeros(c[1])));
+        cores.sort(Comparator.comparingLong(c -> c[0] * 64L + Long.numberOfTrailingZeros(c[1])));
         // Sort packages by first group affinity
-        packages.sort(Comparator.comparing(p -> p.get(0)[0] * 64L + Long.numberOfTrailingZeros(p.get(0)[1])));
+        packages.sort(Comparator.comparingLong(p -> p.get(0)[0] * 64L + Long.numberOfTrailingZeros(p.get(0)[1])));
         // Sort numa nodes by node number
-        numaNodes.sort(Comparator.comparing(n -> n[0]));
+        numaNodes.sort(Comparator.comparingLong(n -> n[0]));
 
         // Fetch processorIDs from WMI
         Map<Integer, String> processorIdMap = new HashMap<>();

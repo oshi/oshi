@@ -63,6 +63,6 @@ class WindowsCentralProcessorFFMLegacyTest {
         long modernTotal = LongStream.of(modern).sum();
         assertThat("legacy total ticks", legacyTotal, greaterThan(0L));
         // Both measure cumulative CPU time since boot; a generous tolerance catches a rotted binding without flaking
-        assertThat((double) legacyTotal, closeTo(modernTotal, modernTotal * 0.5));
+        assertThat((double) legacyTotal, closeTo((double) modernTotal, modernTotal * 0.5));
     }
 }

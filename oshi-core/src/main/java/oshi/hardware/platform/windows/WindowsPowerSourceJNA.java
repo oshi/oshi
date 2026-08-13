@@ -41,6 +41,8 @@ import oshi.util.Constants;
 public final class WindowsPowerSourceJNA extends WindowsPowerSource {
 
     private static final GUID GUID_DEVCLASS_BATTERY = GUID.fromString("{72631E54-78A4-11D0-BCF7-00AA00B7B32A}");
+    // == is intentional: DEFAULT is JNA's own reference to one of the UNICODE/ASCII singleton constants
+    @SuppressWarnings("ReferenceEquality")
     private static final int CHAR_WIDTH = W32APITypeMapper.DEFAULT == W32APITypeMapper.UNICODE ? 2 : 1;
     private static final boolean X64 = Platform.is64Bit();
 

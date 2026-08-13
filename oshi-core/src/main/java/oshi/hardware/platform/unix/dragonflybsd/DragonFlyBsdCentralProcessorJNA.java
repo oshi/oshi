@@ -43,6 +43,8 @@ public class DragonFlyBsdCentralProcessorJNA extends FreeBsdCentralProcessorJNA 
         return ticks;
     }
 
+    // CP_* constants are 0-4 and UINT64_SIZE is 8, so these products can't overflow int
+    @SuppressWarnings("NarrowCalculation")
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
         long[][] ticks = new long[getLogicalProcessorCount()][CentralProcessor.TickType.values().length];

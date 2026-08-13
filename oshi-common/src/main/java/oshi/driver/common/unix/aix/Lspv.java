@@ -46,7 +46,7 @@ public final class Lspv {
     public static List<HWPartition> queryLogicalVolumes(String device, Map<String, Pair<Integer, Integer>> majMinMap) {
         return PARTITION_CACHE.computeIfAbsent(device,
                 d -> Collections.unmodifiableList(computeLogicalVolumes(d, majMinMap).stream()
-                        .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
+                        .sorted(Comparator.comparingInt(HWPartition::getMinor).thenComparing(HWPartition::getName))
                         .collect(Collectors.toList())));
     }
 

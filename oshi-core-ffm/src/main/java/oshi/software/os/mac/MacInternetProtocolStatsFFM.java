@@ -100,6 +100,8 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
         }, LOG, TRACE, "Failed to enumerate IP connections", conns);
     }
 
+    // i is bounded by numStructs (a process's fd count), can't overflow int when multiplied by structSize
+    @SuppressWarnings("NarrowCalculation")
     private static List<Integer> queryFdList(int pid, Arena arena) {
         List<Integer> fdList = new ArrayList<>();
         return getOrDefault(() -> {
@@ -195,6 +197,8 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
         }, null, LOG, TRACE, "Failed to query IP connection details");
     }
 
+    // i is 0-3 (fixed 4-element array), can't overflow int
+    @SuppressWarnings("NarrowCalculation")
     private static byte[] parseIntArrayToIP(MemorySegment segment, long offset) {
         int[] array = new int[4];
         for (int i = 0; i < 4; i++) {

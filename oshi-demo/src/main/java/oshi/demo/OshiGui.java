@@ -83,6 +83,8 @@ public class OshiGui {
         menuBar.add(getJMenu("Network", 'N', "Network Params and Interfaces", new InterfacePanel(si)));
     }
 
+    // != is intentional: checks whether this exact panel instance is already displayed
+    @SuppressWarnings("ReferenceEquality")
     private JButton getJMenu(String title, char mnemonic, String toolTip, OshiJPanel panel) {
         JButton button = new JButton(title);
         button.setMnemonic(mnemonic);

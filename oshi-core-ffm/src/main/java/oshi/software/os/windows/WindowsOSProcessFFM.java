@@ -336,7 +336,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                     if (envSize > 0 && envSize < Integer.MAX_VALUE) {
                         MemorySegment envAddress = upp.get(ADDRESS, UPP_ENVIRONMENT_OFFSET);
                         if (envAddress.address() != 0) {
-                            MemorySegment envBuffer = arena.allocate((int) envSize);
+                            MemorySegment envBuffer = arena.allocate(envSize);
                             if (Kernel32FFM.ReadProcessMemory(h.get(), envAddress, envBuffer, envSize, bytesRead)
                                     && bytesRead.get(JAVA_LONG, 0) > 0) {
                                 char[] env = new char[(int) (envSize / 2)];
