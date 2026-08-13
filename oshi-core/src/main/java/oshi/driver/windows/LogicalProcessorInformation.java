@@ -93,7 +93,7 @@ public final class LogicalProcessorInformation {
                     numaNodes.add((NUMA_NODE_RELATIONSHIP) info);
                     break;
                 default:
-                    // Ignore Group info
+                    // Ignore unsupported relationship types
                     break;
             }
         }

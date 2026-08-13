@@ -256,7 +256,7 @@ public final class KstatUtilFFM {
             MemorySegment named = data.reinterpret(KSTAT_NAMED_LAYOUT.byteSize());
             byte dt = namedDataType(named);
             return switch (dt) {
-                case KSTAT_DATA_INT32 -> (long) namedValueInt32(named);
+                case KSTAT_DATA_INT32 -> namedValueInt32(named);
                 case KSTAT_DATA_UINT32 -> FormatUtil.getUnsignedInt(namedValueInt32(named));
                 case KSTAT_DATA_INT64, KSTAT_DATA_UINT64 -> namedValueInt64(named);
                 default -> {
