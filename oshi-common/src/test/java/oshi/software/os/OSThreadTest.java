@@ -7,6 +7,7 @@ package oshi.software.os;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.software.os.OSProcess.State;
@@ -30,7 +31,7 @@ class OSThreadTest {
         }
 
         @Override
-        public double getThreadCpuLoadBetweenTicks(OSThread thread) {
+        public double getThreadCpuLoadBetweenTicks(@Nullable OSThread thread) {
             return 0.0;
         }
 
@@ -82,7 +83,7 @@ class OSThreadTest {
         }
 
         @Override
-        public double getThreadCpuLoadBetweenTicks(OSThread thread) {
+        public double getThreadCpuLoadBetweenTicks(@Nullable OSThread thread) {
             return 0.0;
         }
 

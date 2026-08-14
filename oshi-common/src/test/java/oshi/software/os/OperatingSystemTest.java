@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.software.os.OperatingSystem.OSVersionInfo;
@@ -38,7 +39,8 @@ class OperatingSystemTest {
         }
 
         @Override
-        public List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit) {
+        public List<OSProcess> getProcesses(@Nullable Predicate<OSProcess> filter, @Nullable Comparator<OSProcess> sort,
+                int limit) {
             return Collections.emptyList();
         }
 
@@ -48,14 +50,14 @@ class OperatingSystemTest {
         }
 
         @Override
-        public List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
-                int limit) {
+        public List<OSProcess> getChildProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+                @Nullable Comparator<OSProcess> sort, int limit) {
             return Collections.emptyList();
         }
 
         @Override
-        public List<OSProcess> getDescendantProcesses(int parentPid, Predicate<OSProcess> filter,
-                Comparator<OSProcess> sort, int limit) {
+        public List<OSProcess> getDescendantProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+                @Nullable Comparator<OSProcess> sort, int limit) {
             return Collections.emptyList();
         }
 

@@ -889,7 +889,9 @@ public interface CentralProcessor {
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq,
                 @Nullable String microarchitecture) {
-            this.derivedMicroarchitecture = microarchitecture;
+            // Normalized to empty rather than kept null, so the field matches its non-null declaration; both are
+            // treated as absent by the isBlank check in queryMicroarchitecture.
+            this.derivedMicroarchitecture = microarchitecture == null ? "" : microarchitecture;
             this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;

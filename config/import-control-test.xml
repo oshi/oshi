@@ -18,6 +18,9 @@
         pkg="com\.sun\.(jna|jna\..*)"
         regex="true" />
 
+    <!-- jspecify -->
+    <allow pkg="org.jspecify.annotations" />
+
     <!-- slf4j -->
     <allow pkg="org.slf4j" />
 
