@@ -1078,7 +1078,9 @@ public interface CentralProcessor {
                 arch = this.derivedMicroarchitecture;
             }
 
-            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
+            // Spelled out rather than using Util.isBlank so that NullAway can see arch is non-null on this path;
+            // it cannot look through a helper for the null half of the check. Util.isBlank is the same test.
+            return arch == null || arch.isEmpty() ? Constants.UNKNOWN : arch;
         }
 
         private String queryVendorFromImplementer(String cpuVendor) {

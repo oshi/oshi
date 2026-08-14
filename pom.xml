@@ -157,6 +157,7 @@
         optional so it stays off consumers' transitive classpath, and imported optionally by OSGi. Four
         annotation classes, no transitive dependencies, Java 8 bytecode, Apache 2.0. -->
         <jspecify.version>1.0.1</jspecify.version>
+        <nullaway.version>0.13.8</nullaway.version>
         <!-- report only -->
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
@@ -1269,13 +1270,18 @@
                                 74-site backlog was drained; every log call now passes the throwable rather than
                                 its message, so it is back at the plugin's default ERROR. Note the severity token
                                 Error Prone accepts is WARN, not WARNING. -->
-                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR</arg>
+                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>
                                 <path>
                                     <groupId>com.google.errorprone</groupId>
                                     <artifactId>error_prone_core</artifactId>
                                     <version>${error-prone.version}</version>
+                                </path>
+                                <path>
+                                    <groupId>com.uber.nullaway</groupId>
+                                    <artifactId>nullaway</artifactId>
+                                    <version>${nullaway.version}</version>
                                 </path>
                                 <path>
                                     <groupId>jp.skypencil.errorprone.slf4j</groupId>

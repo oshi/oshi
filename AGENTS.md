@@ -281,9 +281,25 @@ right default.
 **Nullability.** `oshi.hardware` and `oshi.software.os` are `@NullMarked` (jSpecify) via their
 `package-info.java`, so **every type usage in a signature in those two packages is non-null unless
 you annotate it `@Nullable`**. `@NullMarked` does not extend to subpackages, and no other package is
-marked yet — Phase 2 of [#3593](https://github.com/oshi/oshi/issues/3593) covers `oshi.util`, and
-`oshi.ffm` waits on a NullAway fix. Adding an annotation to an unmarked package is harmless but
-proves nothing, since an unmarked package makes no claim either way.
+marked yet — Phase 2 of [#3593](https://github.com/oshi/oshi/issues/3593) covers `oshi.util` and
+`oshi.ffm`. Adding an annotation to an unmarked package is harmless but proves nothing, since an
+unmarked package makes no claim either way.
+
+**This is enforced, not documentation.** NullAway runs in the `error-prone` profile with
+`OnlyNullMarked=true` and `JSpecifyMode=true`, at ERROR severity, so a violation inside a marked
+package fails the build — in main *and* test sources, since `-DskipTests` skips execution but not
+compilation. `OnlyNullMarked=true` means the analysis follows the marking, not the module list:
+mark a package and it is checked, everywhere, with no build-file change. That cuts both ways —
+marking a package is a commitment to fixing every finding in it, so mark one package at a time and
+run `./mvnw -Perror-prone clean install` before assuming the marking is free.
+
+Three findings are worth recognizing on sight. *Assigning `@Nullable` expression to `@NonNull`
+field* — normalize at the assignment (`x == null ? "" : x`), do not annotate the field. *Parameter
+is `@NonNull`, but overridden method's parameter is `@Nullable`* — an override cannot narrow a
+parameter, so repeat the interface's `@Nullable` on it; this is the one that reaches test stubs.
+*Dereferenced expression is `@Nullable`* — NullAway cannot see through a helper, so
+`Util.isBlank(s)` does not establish that `s` is non-null on the following line; spell out
+`s == null || s.isEmpty()` where the flow depends on it.
 
 Do not reach for `@Nullable` to make a null return legal: the convention is a **sentinel, not a
 null** — `Constants.UNKNOWN` or `""` for strings, an empty collection or array, and `0`/`-1`/`NaN`

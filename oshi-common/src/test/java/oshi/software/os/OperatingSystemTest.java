@@ -30,12 +30,12 @@ class OperatingSystemTest {
     private abstract static class StubOperatingSystem implements OperatingSystem {
         @Override
         public FileSystem getFileSystem() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
         public InternetProtocolStats getInternetProtocolStats() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -45,7 +45,8 @@ class OperatingSystemTest {
         }
 
         @Override
-        public OSProcess getProcess(int pid) {
+        public @Nullable OSProcess getProcess(int pid) {
+            // Load-bearing: the getCurrentProcess() default-method test needs a failed lookup
             return null;
         }
 
@@ -68,7 +69,7 @@ class OperatingSystemTest {
 
         @Override
         public OSThread getCurrentThread() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -93,7 +94,7 @@ class OperatingSystemTest {
 
         @Override
         public NetworkParams getNetworkParams() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
     }
 
