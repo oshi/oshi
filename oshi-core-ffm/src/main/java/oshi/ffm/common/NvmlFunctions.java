@@ -123,7 +123,7 @@ public final class NvmlFunctions extends ForeignFunctions {
             available = true;
             LOG.debug("NVML library loaded via FFM");
         } catch (Throwable t) {
-            LOG.debug("NVML library not available via FFM: {}", t.getMessage());
+            LOG.debug("NVML library not available via FFM", t);
         }
         nvmlInit_v2 = hInit;
         nvmlShutdown = hShutdown;

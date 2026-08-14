@@ -65,7 +65,7 @@ public final class NvmlUtilJNA {
                 loaded = true;
                 LOG.debug("NVML library loaded");
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.debug("NVML library not available: {}", e.getMessage());
+                LOG.debug("NVML library not available", e);
             }
             LIB = lib;
             LIBRARY_LOADED = loaded;

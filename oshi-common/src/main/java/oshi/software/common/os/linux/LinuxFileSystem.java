@@ -119,7 +119,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                 try {
                     volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());
                 } catch (IOException e) {
-                    LOG.debug("Couldn't get canonical path for {}. {}", volume.getName(), e.getMessage());
+                    LOG.debug("Couldn't get canonical path for {}", volume.getName(), e);
                 }
             }
         }
@@ -137,7 +137,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                         uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
                     }
                 } catch (IOException e) {
-                    LOG.debug("Couldn't get canonical path for {}. {}", uuid.getName(), e.getMessage());
+                    LOG.debug("Couldn't get canonical path for {}", uuid.getName(), e);
                 }
             }
         }
@@ -220,7 +220,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                         logicalVolume = full.normalize().toString();
                     }
                 } catch (IOException e) {
-                    LOG.debug("Couldn't access symbolic path  {}. {}", link, e.getMessage());
+                    LOG.debug("Couldn't access symbolic path {}", link, e);
                 }
             }
 
@@ -307,7 +307,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             socket.connect(new InetSocketAddress(host, port), timeoutMs);
             return true;
         } catch (IOException e) {
-            LOG.debug("NFS host {} not reachable on port {}: {}", host, port, e.getMessage());
+            LOG.debug("NFS host {} not reachable on port {}", host, port, e);
             return false;
         }
     }

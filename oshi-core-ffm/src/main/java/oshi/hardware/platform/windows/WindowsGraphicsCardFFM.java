@@ -145,7 +145,7 @@ final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
                         cardList.add(card);
                     }
                 } catch (Throwable t) {
-                    LOG.debug("Error reading graphics card registry key {}: {}", key, t.getMessage());
+                    LOG.debug("Error reading graphics card registry key {}", key, t);
                 }
             }
         }, LOG, "Failed to enumerate display device registry keys: {}");
@@ -188,7 +188,7 @@ final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
                 }
             }
         } catch (Exception e) {
-            LOG.debug("LHM GPU hardware query failed (LHM may not be running): {}", e.getMessage());
+            LOG.debug("LHM GPU hardware query failed (LHM may not be running)", e);
         }
         return map;
     }

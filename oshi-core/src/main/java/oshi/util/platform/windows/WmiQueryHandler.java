@@ -57,7 +57,7 @@ public class WmiQueryHandler implements WmiQueryExecutor {
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     private static final String COM_EXCEPTION_FMT = "COM exception querying {}, which might not be on your system."
-            + " Will not attempt to query it again. Error was {}: {}";
+            + " Will not attempt to query it again. Error was {}";
 
     // Factory to create this or a subclass
     private static Class<? extends WmiQueryHandler> customClass = null;
@@ -207,9 +207,9 @@ public class WmiQueryHandler implements WmiQueryExecutor {
         String className = query.getWmiClassName();
         Integer hresult = ex.getHresult() == null ? null : ex.getHresult().intValue();
         if ("MSAcpi_ThermalZoneTemperature".equals(className)) {
-            LOG.debug(COM_EXCEPTION_FMT, className, hresult, ex.getMessage());
+            LOG.debug(COM_EXCEPTION_FMT, className, hresult, ex);
         } else {
-            LOG.warn(COM_EXCEPTION_FMT, className, hresult, ex.getMessage());
+            LOG.warn(COM_EXCEPTION_FMT, className, hresult, ex);
         }
     }
 

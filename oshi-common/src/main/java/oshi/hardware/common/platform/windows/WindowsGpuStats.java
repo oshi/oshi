@@ -269,7 +269,7 @@ public abstract class WindowsGpuStats implements GpuStats {
                     }
                 }
             } catch (Exception e) {
-                LOG.debug("LHM GPU utilization query failed: {}", e.getMessage());
+                LOG.debug("LHM GPU utilization query failed", e);
             }
         }
         GpuTicks curr = getGpuTicks();
@@ -305,7 +305,7 @@ public abstract class WindowsGpuStats implements GpuStats {
                     }
                 }
             } catch (Exception e) {
-                LOG.debug("LHM GPU memory used query failed: {}", e.getMessage());
+                LOG.debug("LHM GPU memory used query failed", e);
             }
         }
         return -1L;
@@ -499,7 +499,7 @@ public abstract class WindowsGpuStats implements GpuStats {
                 }
             }
         } catch (Exception e) {
-            LOG.debug("LHM {} {} query failed: {}", sensorType, sensorName, e.getMessage());
+            LOG.debug("LHM {} {} query failed", sensorType, sensorName, e);
         }
         return -1d;
     }

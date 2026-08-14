@@ -370,7 +370,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             }
             return Collections.unmodifiableList(svcArray);
         } catch (com.sun.jna.platform.win32.Win32Exception ex) {
-            LOG.error("Win32Exception: {}", ex.getMessage());
+            LOG.error("Win32Exception", ex);
             return Collections.emptyList();
         }
     }

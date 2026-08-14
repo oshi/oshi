@@ -275,7 +275,7 @@ public final class KstatUtil {
                 handle.close();
             }
         } catch (Kstat2StatusException e) {
-            LOG.debug("Failed to get stats on {} for names {}: {}", mapStr, Arrays.toString(names), e.getMessage());
+            LOG.debug("Failed to get stats on {} for names {}", mapStr, Arrays.toString(names), e);
         } finally {
             KstatUtil.CHAIN.unlock();
             matchers.free();
@@ -325,7 +325,7 @@ public final class KstatUtil {
                 handle.close();
             }
         } catch (Kstat2StatusException e) {
-            LOG.debug("Failed to initialize kstat2 handle for {}: {}", beforeStr + "*" + afterStr, e.getMessage());
+            LOG.debug("Failed to initialize kstat2 handle for {}", beforeStr + "*" + afterStr, e);
         } finally {
             KstatUtil.CHAIN.unlock();
             matchers.free();

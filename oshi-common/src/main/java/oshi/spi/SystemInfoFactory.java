@@ -59,7 +59,7 @@ public final class SystemInfoFactory {
                     best = provider;
                 }
             } catch (ServiceConfigurationError | RuntimeException e) {
-                LOG.debug("Skipping unavailable provider: {}", e.getMessage());
+                LOG.debug("Skipping unavailable provider", e);
             }
         }
         if (best == null) {

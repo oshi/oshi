@@ -279,7 +279,7 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
                 }
             }
         } catch (Exception e) {
-            LOG.debug("LHM GPU hardware query failed (LHM may not be running): {}", e.getMessage());
+            LOG.debug("LHM GPU hardware query failed (LHM may not be running)", e);
         }
         return map;
     }

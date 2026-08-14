@@ -127,7 +127,11 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             this.ipv6 = ipv6list.toArray(new String[0]);
             this.prefixLengths = prefixLengthList.toArray(new Short[0]);
         } catch (SocketException e) {
-            throw new InstantiationException(e.getMessage());
+            // InstantiationException has no (String, Throwable) constructor, so attach the cause separately;
+            // without it the stack trace logged by getNetworks() would stop here and lose the SocketException.
+            InstantiationException ie = new InstantiationException(e.getMessage());
+            ie.initCause(e);
+            throw ie;
         }
     }
 
@@ -174,7 +178,7 @@ public abstract class AbstractNetworkIF implements NetworkIF {
             try {
                 ifList.add(factory.create(ni));
             } catch (InstantiationException e) {
-                LOG.debug("Network Interface Instantiation failed: {}", e.getMessage());
+                LOG.debug("Network Interface Instantiation failed", e);
             }
         }
         return ifList;

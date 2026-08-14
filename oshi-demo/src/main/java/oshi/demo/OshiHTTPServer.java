@@ -69,7 +69,7 @@ public class OshiHTTPServer implements Runnable {
                 thread.start();
             }
         } catch (IOException e) {
-            logger.error("Server Connection error: {}", e.getMessage());
+            logger.error("Server Connection error", e);
         }
     }
 
@@ -136,13 +136,13 @@ public class OshiHTTPServer implements Runnable {
                 logger.debug("Data {} returned", fileRequested);
             }
         } catch (IOException ioe) {
-            logger.error("Server error: {}", ioe.getMessage());
+            logger.error("Server error", ioe);
         } finally {
             try {
                 // close socket connection, defined for this thread
                 connect.close();
             } catch (Exception e) {
-                logger.error("Error closing connection: {}", e.getMessage());
+                logger.error("Error closing connection", e);
             }
             logger.debug("Connection closed.");
         }

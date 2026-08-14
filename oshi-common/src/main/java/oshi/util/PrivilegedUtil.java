@@ -299,7 +299,7 @@ public final class PrivilegedUtil {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
             }
-            LOG.debug("Failed to execute privileged cat command: {}", e.getMessage());
+            LOG.debug("Failed to execute privileged cat command", e);
         }
         return new byte[0];
     }

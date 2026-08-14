@@ -84,7 +84,7 @@ public final class ExecutingCommand {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
             return getProcessOutput(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
-            LOG.trace("Couldn't run command {}: {}", Arrays.toString(cmdToRunWithArgs), e.getMessage());
+            LOG.trace("Couldn't run command {}", Arrays.toString(cmdToRunWithArgs), e);
         } finally {
             // Ensure all resources are released
             if (p != null) {
@@ -104,9 +104,9 @@ public final class ExecutingCommand {
             }
             p.waitFor();
         } catch (IOException e) {
-            LOG.trace("Problem reading output from {}: {}", Arrays.toString(cmd), e.getMessage());
+            LOG.trace("Problem reading output from {}", Arrays.toString(cmd), e);
         } catch (InterruptedException ie) {
-            LOG.trace("Interrupted while reading output from {}: {}", Arrays.toString(cmd), ie.getMessage());
+            LOG.trace("Interrupted while reading output from {}", Arrays.toString(cmd), ie);
             Thread.currentThread().interrupt();
         }
         return sa;

@@ -88,9 +88,9 @@ public final class Dxgi {
             DxgiLib lib = DxgiLib.INSTANCE;
             available = true;
         } catch (UnsatisfiedLinkError e) {
-            LOG.debug("dxgi.dll not available: {}", e.getMessage());
+            LOG.debug("dxgi.dll not available", e);
         } catch (NoClassDefFoundError e) {
-            LOG.debug("JNA DxgiLib class failed to load: {}", e.getMessage());
+            LOG.debug("JNA DxgiLib class failed to load", e);
         }
         DXGI_AVAILABLE = available;
     }

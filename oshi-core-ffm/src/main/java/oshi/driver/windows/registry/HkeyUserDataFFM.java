@@ -95,7 +95,7 @@ public final class HkeyUserDataFFM {
                         }
                         sessions.add(new OSSession(name, device, loginTime, host));
                     } catch (Throwable ex) {
-                        LOG.warn("Error querying user registry entry: {}", ex.getMessage());
+                        LOG.warn("Error querying user registry entry", ex);
                         LOG.debug("Failed SID: {}", sidKey);
                     }
                 }

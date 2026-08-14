@@ -62,7 +62,7 @@ public final class DxgiFFM extends ForeignFunctions {
             hCreate = Linker.nativeLinker().downcallHandle(sym, FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
             available = true;
         } catch (Throwable t) {
-            LOG.debug("dxgi.dll not available via FFM: {}", t.getMessage());
+            LOG.debug("dxgi.dll not available via FFM", t);
         }
         AVAILABLE = available;
         CREATE_DXGI_FACTORY = hCreate;
