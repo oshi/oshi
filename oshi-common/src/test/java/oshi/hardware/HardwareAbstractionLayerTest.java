@@ -24,17 +24,17 @@ class HardwareAbstractionLayerTest {
     private static final HardwareAbstractionLayer MINIMAL_HAL = new HardwareAbstractionLayer() {
         @Override
         public ComputerSystem getComputerSystem() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
         public CentralProcessor getProcessor() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
         public GlobalMemory getMemory() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -64,7 +64,7 @@ class HardwareAbstractionLayerTest {
 
         @Override
         public Sensors getSensors() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -87,17 +87,17 @@ class HardwareAbstractionLayerTest {
     private static final HardwareAbstractionLayer OVERRIDING_HAL = new HardwareAbstractionLayer() {
         @Override
         public ComputerSystem getComputerSystem() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
         public CentralProcessor getProcessor() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
         public GlobalMemory getMemory() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -127,7 +127,7 @@ class HardwareAbstractionLayerTest {
 
         @Override
         public Sensors getSensors() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override

@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.software.os.OSProcess.State;
@@ -155,7 +156,7 @@ class OSProcessTest {
             }
 
             @Override
-            public double getProcessCpuLoadBetweenTicks(OSProcess proc) {
+            public double getProcessCpuLoadBetweenTicks(@Nullable OSProcess proc) {
                 return 0.0;
             }
 
@@ -320,7 +321,7 @@ class OSProcessTest {
         }
 
         @Override
-        public double getProcessCpuLoadBetweenTicks(OSProcess proc) {
+        public double getProcessCpuLoadBetweenTicks(@Nullable OSProcess proc) {
             return 0.0;
         }
 

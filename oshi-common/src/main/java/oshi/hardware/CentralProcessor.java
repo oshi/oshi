@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -795,7 +797,7 @@ public interface CentralProcessor {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(@Nullable Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -885,8 +887,11 @@ public interface CentralProcessor {
          *                          May be null.
          */
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
-                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq, String microarchitecture) {
-            this.derivedMicroarchitecture = microarchitecture;
+                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq,
+                @Nullable String microarchitecture) {
+            // Normalized to empty rather than kept null, so the field matches its non-null declaration; both are
+            // treated as absent by the isBlank check in queryMicroarchitecture.
+            this.derivedMicroarchitecture = microarchitecture == null ? "" : microarchitecture;
             this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;
@@ -1073,7 +1078,9 @@ public interface CentralProcessor {
                 arch = this.derivedMicroarchitecture;
             }
 
-            return Util.isBlank(arch) ? Constants.UNKNOWN : arch;
+            // Spelled out rather than using Util.isBlank so that NullAway can see arch is non-null on this path;
+            // it cannot look through a helper for the null half of the check. Util.isBlank is the same test.
+            return arch == null || arch.isEmpty() ? Constants.UNKNOWN : arch;
         }
 
         private String queryVendorFromImplementer(String cpuVendor) {

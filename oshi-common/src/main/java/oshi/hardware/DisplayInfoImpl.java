@@ -7,6 +7,8 @@ package oshi.hardware;
 import java.util.Arrays;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.EdidUtil;
 import oshi.util.ParseUtil;
@@ -27,9 +29,10 @@ public class DisplayInfoImpl implements DisplayInfo {
 
     // For a real EDID this is set in the constructor and the field getters parse it on demand; for a synthetic instance
     // it starts null and is lazily populated by getEdid() from the field values below.
-    private volatile byte[] edid;
+    private volatile byte @Nullable [] edid;
 
-    // Populated only for a synthetic instance; for a real instance the getters derive these from the EDID bytes.
+    // Populated only for a synthetic instance; for a real instance the getters derive these from the EDID bytes, and
+    // these hold the empty string rather than null so that no getter can return null for either flavor of instance.
     private final String manufacturerID;
     private final String productID;
     private final String serialNo;
@@ -51,18 +54,18 @@ public class DisplayInfoImpl implements DisplayInfo {
     public DisplayInfoImpl(byte[] edid) {
         this.edid = Arrays.copyOf(edid, edid.length);
         this.synthetic = false;
-        this.manufacturerID = null;
-        this.productID = null;
-        this.serialNo = null;
+        this.manufacturerID = "";
+        this.productID = "";
+        this.serialNo = "";
         this.week = 0;
         this.year = 0;
-        this.version = null;
+        this.version = "";
         this.digital = false;
         this.hcm = 0;
         this.vcm = 0;
-        this.preferredResolution = null;
-        this.model = null;
-        this.productSerialNumber = null;
+        this.preferredResolution = "";
+        this.model = "";
+        this.productSerialNumber = "";
     }
 
     /**
@@ -73,36 +76,38 @@ public class DisplayInfoImpl implements DisplayInfo {
      * @param manufacturerID      The three-letter manufacturer ID (see {@link EdidUtil#getManufacturerID(byte[])}).
      * @param productID           The product ID as a hex string (see {@link EdidUtil#getProductID(byte[])}).
      * @param serialNo            The serial number, either 8 hex characters or 4 printable characters (see
-     *                            {@link EdidUtil#getSerialNo(byte[])}).
+     *                            {@link EdidUtil#getSerialNo(byte[])}); {@code null} or empty if not available.
      * @param week                The week of manufacture.
      * @param year                The four-digit year of manufacture.
      * @param version             The EDID version as a {@code major.minor} string (e.g. {@code "1.4"}).
      * @param digital             Whether the display is digital.
      * @param hcm                 The monitor width in cm.
      * @param vcm                 The monitor height in cm.
-     * @param preferredResolution The preferred resolution as a {@code WIDTHxHEIGHT} string (e.g. {@code "2560x1440"}).
-     * @param model               The monitor model.
+     * @param preferredResolution The preferred resolution as a {@code WIDTHxHEIGHT} string (e.g. {@code "2560x1440"});
+     *                            {@code null} or empty if not available.
+     * @param model               The monitor model; {@code null} or empty if not available.
      * @param productSerialNumber The display product serial number (the serial-number descriptor text, distinct from
      *                            {@code serialNo}); {@code null} or empty if not available.
      */
     @SuppressWarnings("java:S107") // value holder mirroring the EdidUtil field set
-    public DisplayInfoImpl(String manufacturerID, String productID, String serialNo, byte week, int year,
-            String version, boolean digital, int hcm, int vcm, String preferredResolution, String model,
-            String productSerialNumber) {
+    public DisplayInfoImpl(String manufacturerID, String productID, @Nullable String serialNo, byte week, int year,
+            String version, boolean digital, int hcm, int vcm, @Nullable String preferredResolution,
+            @Nullable String model, @Nullable String productSerialNumber) {
         this.edid = null;
         this.synthetic = true;
         this.manufacturerID = manufacturerID;
         this.productID = productID;
-        this.serialNo = serialNo;
         this.week = week;
         this.year = year;
         this.version = version;
         this.digital = digital;
         this.hcm = hcm;
         this.vcm = vcm;
-        this.preferredResolution = preferredResolution;
-        this.model = model;
-        // Normalize to empty so getProductSerialNumber never returns null, matching getSerialNo/getModel
+        // Normalize absent values to empty so no getter returns null, matching the DisplayInfo contract and the
+        // unknown-is-empty convention the rest of the API follows.
+        this.serialNo = serialNo == null ? "" : serialNo;
+        this.preferredResolution = preferredResolution == null ? "" : preferredResolution;
+        this.model = model == null ? "" : model;
         this.productSerialNumber = productSerialNumber == null ? "" : productSerialNumber;
     }
 
@@ -209,7 +214,7 @@ public class DisplayInfoImpl implements DisplayInfo {
     // fails (e.g. bytes happen to be printable ASCII causing getSerialNo to interpret differently), falls back to the
     // numeric long form which writes the bytes directly.
     private static void setSerialNoSafe(byte[] edid, String serialNo) {
-        if (serialNo == null || serialNo.isEmpty()) {
+        if (serialNo.isEmpty()) {
             return;
         }
         try {

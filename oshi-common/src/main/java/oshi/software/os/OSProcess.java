@@ -7,6 +7,8 @@ package oshi.software.os;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -355,7 +357,7 @@ public interface OSProcess {
      *         between the current process snapshot and the previous one that the process was executing in kernel or
      *         user mode. Returns cumulative load otherwise.
      */
-    double getProcessCpuLoadBetweenTicks(OSProcess proc);
+    double getProcessCpuLoadBetweenTicks(@Nullable OSProcess proc);
 
     /**
      * Attempts to get the bitness (32 or 64) of the process.

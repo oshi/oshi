@@ -6,6 +6,8 @@ package oshi.hardware;
 
 import java.time.LocalDate;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
 
@@ -204,6 +206,7 @@ public interface PowerSource {
      *
      * @return the manufacture date, if available. May be {@code null}.
      */
+    @Nullable
     LocalDate getManufactureDate();
 
     /**

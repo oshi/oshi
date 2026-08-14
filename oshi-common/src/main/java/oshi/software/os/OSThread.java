@@ -6,6 +6,8 @@ package oshi.software.os;
 
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.software.os.OSProcess.State;
 
@@ -85,7 +87,7 @@ public interface OSThread {
      *         between the current thread snapshot and the previous one that the thread was executing in kernel or user
      *         mode. Returns cumulative load otherwise.
      */
-    double getThreadCpuLoadBetweenTicks(OSThread thread);
+    double getThreadCpuLoadBetweenTicks(@Nullable OSThread thread);
 
     /**
      * The owning process of this thread. For single-threaded processes, the owning process ID may be the same as the

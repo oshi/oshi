@@ -9,6 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 
 /**
@@ -46,7 +48,7 @@ public class ApplicationInfo {
      * @param additionalInfo A map of additional information (can be {@code null}, in which case an empty map is used).
      */
     public ApplicationInfo(String name, String version, String vendor, long timestamp,
-            Map<String, String> additionalInfo) {
+            @Nullable Map<String, String> additionalInfo) {
         this.name = name;
         this.version = version;
         this.vendor = vendor;
@@ -113,7 +115,7 @@ public class ApplicationInfo {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(@Nullable Object o) {
         if (this == o) {
             return true;
         }

@@ -270,13 +270,44 @@ trailing comment, spotless will wrap it and strand the rule id underneath — sh
 working around the wrap. The AIX uptime pattern is the worked example: splitting the regex into named
 constants both shortened it and made Sonar stop reporting `S5843` at all, so the suppression could go.
 
-## Two conventions that apply to nearly every class
+## Conventions that apply to nearly every class
 
 **Concurrency annotations.** Roughly two thirds of the classes in this project carry
 `@ThreadSafe`, `@Immutable`, `@NotThreadSafe`, or `@GuardedBy` from
 `oshi.annotation.concurrent`. These are documentation, not enforcement — but new classes are
 expected to declare one, and matching the annotation of the class you are modeling yours on is the
 right default.
+
+**Nullability.** `oshi.hardware` and `oshi.software.os` are `@NullMarked` (jSpecify) via their
+`package-info.java`, so **every type usage in a signature in those two packages is non-null unless
+you annotate it `@Nullable`**. `@NullMarked` does not extend to subpackages, and no other package is
+marked yet — Phase 2 of [#3593](https://github.com/oshi/oshi/issues/3593) covers `oshi.util` and
+`oshi.ffm`. Adding an annotation to an unmarked package is harmless but proves nothing, since an
+unmarked package makes no claim either way.
+
+**This is enforced, not documentation.** NullAway runs in the `error-prone` profile with
+`OnlyNullMarked=true` and `JSpecifyMode=true`, at ERROR severity, so a violation inside a marked
+package fails the build — in main *and* test sources, since `-DskipTests` skips execution but not
+compilation. `OnlyNullMarked=true` means the analysis follows the marking, not the module list:
+mark a package and it is checked, everywhere, with no build-file change. That cuts both ways —
+marking a package is a commitment to fixing every finding in it, so mark one package at a time and
+run `./mvnw -Perror-prone clean install` before assuming the marking is free.
+
+Three findings are worth recognizing on sight. *Assigning `@Nullable` expression to `@NonNull`
+field* — normalize at the assignment (`x == null ? "" : x`), do not annotate the field. *Parameter
+is `@NonNull`, but overridden method's parameter is `@Nullable`* — an override cannot narrow a
+parameter, so repeat the interface's `@Nullable` on it; this is the one that reaches test stubs.
+*Dereferenced expression is `@Nullable`* — NullAway cannot see through a helper, so
+`Util.isBlank(s)` does not establish that `s` is non-null on the following line; spell out
+`s == null || s.isEmpty()` where the flow depends on it.
+
+Do not reach for `@Nullable` to make a null return legal: the convention is a **sentinel, not a
+null** — `Constants.UNKNOWN` or `""` for strings, an empty collection or array, and `0`/`-1`/`NaN`
+for numbers, whichever is outside the value's real range. Annotate a return `@Nullable` only when
+absence is genuinely meaningful to the caller and no sentinel can express it (`getProcess(int)` for a
+process that is not running). Nullable *parameters* are the common case and mean "optional argument".
+The jspecify dependency is `optional` in `oshi-common/pom.xml` and `requires static org.jspecify` in
+its `module-info.java`; do not make it a hard dependency.
 
 **Memoization.** System calls are expensive, and callers poll. Values that are constant (CPU model,
 serial number) or expensive-but-slow-changing are wrapped in

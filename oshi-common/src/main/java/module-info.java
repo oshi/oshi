@@ -77,5 +77,7 @@ module com.github.oshi.common {
 
     requires transitive java.desktop;
     requires java.management;
+    // Compile-time nullability metadata only; the annotations have no runtime effect, so the module is optional.
+    requires static org.jspecify;
     requires org.slf4j;
 }

@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayWithSize;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -374,10 +375,23 @@ class EdidUtilTest {
     }
 
     @Test
-    void testSynthesizeDisplayInfoNullResolutionWhenDimensionsZero() {
+    void testSynthesizeDisplayInfoEmptyResolutionWhenDimensionsZero() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, 0L, 0L, null,
                 null, null, null);
-        assertThat(info.getPreferredResolution(), is(nullValue()));
+        // No resolution could be derived, but DisplayInfo getters never return null
+        assertThat(info.getPreferredResolution(), is(""));
+    }
+
+    @Test
+    void testSynthesizeDisplayInfoAbsentStringsAreEmptyNotNull() {
+        DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null, null,
+                null, null, null);
+        // Nothing was supplied but no getter returns null, and toString renders no "null"
+        assertThat(info.getSerialNo(), is("00000000"));
+        assertThat(info.getPreferredResolution(), is(""));
+        assertThat(info.getModel(), is(""));
+        assertThat(info.getProductSerialNumber(), is(""));
+        assertThat(info.toString(), not(containsString("null")));
     }
 
     @Test

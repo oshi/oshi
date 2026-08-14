@@ -18,7 +18,7 @@ class NetworkIFTest {
     private static final NetworkIF MINIMAL = new NetworkIF() {
         @Override
         public NetworkInterface queryNetworkInterface() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -130,7 +130,7 @@ class NetworkIFTest {
     private static final NetworkIF OVERRIDING = new NetworkIF() {
         @Override
         public NetworkInterface queryNetworkInterface() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override

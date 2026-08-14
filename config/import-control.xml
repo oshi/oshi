@@ -35,6 +35,9 @@
     <allow pkg="com.sun.jna.platform.win32.COM.util.annotation" />
     <allow pkg="com.sun.jna.platform.wince" />
 
+    <!-- jspecify -->
+    <allow pkg="org.jspecify.annotations" />
+
     <!-- slf4j -->
     <allow pkg="org.slf4j" />
 

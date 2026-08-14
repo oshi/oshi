@@ -2,6 +2,10 @@
 
   * [What is the intended use of the API?](#what-is-the-intended-use-of-the-api)
   * [Is the API backwards compatible between versions?](#is-the-api-backwards-compatible-between-versions)
+  * [What do OSHI's annotations mean?](#what-do-oshis-annotations-mean)
+    + [API stability: `@PublicApi`](#api-stability-publicapi)
+    + [Thread safety: `@ThreadSafe`, `@Immutable`, `@NotThreadSafe`, `@GuardedBy`](#thread-safety-threadsafe-immutable-notthreadsafe-guardedby)
+    + [Nullability: `@NullMarked`, `@Nullable`](#nullability-nullmarked-nullable)
   * [Does OSHI support Open Service Gateway initiative (OSGi) modules?](#does-oshi-support-open-service-gateway-initiative-osgi-modules)
   * [Does OSHI support Java Module System (JPMS) modules?](#does-oshi-support-java-module-system-jpms-modules)
   * [Is OSHI Thread Safe?](#is-oshi-thread-safe)
@@ -40,6 +44,34 @@ OSHI follows [Semantic Versioning](https://semver.org/). The interfaces and clas
 Most, if not all, of the platform-specific implementations of these APIs in lower level packages will remain the same, although it is not intended that users access platform-specific code, and some changes may occur between minor versions, most often in the number of arguments passed to constructors or platform-specific methods. Supporting code in the `oshi.driver` and `oshi.util` packages may, rarely, change between minor versions, usually associated with organizing package structure or changing parsing methods for efficiency/consistency/ease of use.
 
 Code in the `oshi.jna.*` and `oshi.ffm.*` packages, other than the `oshi.ffm.SystemInfo` entry point, is intended to be temporary and is not intended for dependent projects to rely on. This covers the native mappings and the utilities supporting them. The JNA code will be removed as it is included in the JNA project, and the FFM code may likewise move to a project of its own.
+
+## What do OSHI's annotations mean?
+
+OSHI uses annotations to document three separate contracts: what is part of the API, what is safe to call from multiple threads, and what can be `null`. All three are documentation for callers rather than anything enforced at runtime, and none of them are retained in a way that affects your application's behavior.
+
+### API stability: `@PublicApi`
+
+`oshi.annotation.PublicApi` marks the types covered by the Semantic Versioning guarantee described [above](#is-the-api-backwards-compatible-between-versions). Everything in `oshi.hardware` and `oshi.software.os` is part of the API whether or not it carries the annotation; the annotation additionally marks API types that live elsewhere, such as `oshi.util.PlatformEnum` and the `oshi.ffm.SystemInfo` entry point. Unannotated types in the lower-level packages may change between minor versions.
+
+### Thread safety: `@ThreadSafe`, `@Immutable`, `@NotThreadSafe`, `@GuardedBy`
+
+The annotations in `oshi.annotation.concurrent` are modeled on those in *Java Concurrency in Practice*. `@Immutable` means the instance's state cannot change after construction, `@ThreadSafe` means it may be used from multiple threads without external synchronization, and `@NotThreadSafe` means it may not. `@GuardedBy` names the lock protecting a field. See [Is OSHI Thread Safe?](#is-oshi-thread-safe) for the classes that are exceptions to the general guarantee.
+
+### Nullability: `@NullMarked`, `@Nullable`
+
+OSHI uses [jSpecify](https://jspecify.dev/) annotations to document which values can be `null`. A package annotated `@NullMarked` (in its `package-info.java`) declares that **every type usage in a signature is non-null unless it is explicitly annotated `@Nullable`** — parameters, return types, and fields alike. `oshi.hardware` and `oshi.software.os` are `@NullMarked`; other packages are not yet marked, and an unmarked package makes no nullability claim either way.
+
+Very little in the API is nullable, because OSHI reports a value it could not read as a sentinel rather than as `null`:
+
+- strings become `oshi.util.Constants.UNKNOWN` or the empty string,
+- collections and arrays become empty rather than `null`,
+- numbers become `0`, `-1`, or `Double.NaN` depending on which is out of the value's legitimate range.
+
+Prefer testing for those over a null check. The handful of genuinely nullable API members — such as `OperatingSystem.getProcess(int)` for a process that is not running, and `PowerSource.getManufactureDate()` for a battery that does not report one — are annotated `@Nullable` and say so in their Javadoc. Nullable *parameters* are more common, and mark an argument as optional: passing `null` for the `filter` and `sort` arguments of `OperatingSystem.getProcesses(Predicate, Comparator, int)` requests no filtering and no sorting.
+
+These are not just comments: OSHI's own build runs [NullAway](https://github.com/uber/NullAway) over the marked packages in `@NullMarked`-only, jSpecify mode, and a violation fails continuous integration. So a method not annotated `@Nullable` in a marked package is a checked guarantee rather than an aspiration, and a null check on one is dead code you can delete.
+
+The `org.jspecify:jspecify` dependency is compile-time metadata only. It is declared `optional` in Maven and `requires static` in the module descriptor, so it does not reach your runtime classpath, and you do not need it on your own compile classpath unless you want to run a null-checking analyzer against OSHI's signatures yourself.
 
 ## Does OSHI support Open Service Gateway initiative (OSGi) modules?
 

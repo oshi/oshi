@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.software.os.OperatingSystem.OSVersionInfo;
@@ -29,33 +30,35 @@ class OperatingSystemTest {
     private abstract static class StubOperatingSystem implements OperatingSystem {
         @Override
         public FileSystem getFileSystem() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
         public InternetProtocolStats getInternetProtocolStats() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
-        public List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public OSProcess getProcess(int pid) {
-            return null;
-        }
-
-        @Override
-        public List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
+        public List<OSProcess> getProcesses(@Nullable Predicate<OSProcess> filter, @Nullable Comparator<OSProcess> sort,
                 int limit) {
             return Collections.emptyList();
         }
 
         @Override
-        public List<OSProcess> getDescendantProcesses(int parentPid, Predicate<OSProcess> filter,
-                Comparator<OSProcess> sort, int limit) {
+        public @Nullable OSProcess getProcess(int pid) {
+            // Load-bearing: the getCurrentProcess() default-method test needs a failed lookup
+            return null;
+        }
+
+        @Override
+        public List<OSProcess> getChildProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+                @Nullable Comparator<OSProcess> sort, int limit) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public List<OSProcess> getDescendantProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+                @Nullable Comparator<OSProcess> sort, int limit) {
             return Collections.emptyList();
         }
 
@@ -66,7 +69,7 @@ class OperatingSystemTest {
 
         @Override
         public OSThread getCurrentThread() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
 
         @Override
@@ -91,7 +94,7 @@ class OperatingSystemTest {
 
         @Override
         public NetworkParams getNetworkParams() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
     }
 

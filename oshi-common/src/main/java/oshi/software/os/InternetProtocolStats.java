@@ -9,6 +9,8 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -480,7 +482,7 @@ public interface InternetProtocolStats {
         private final int localPort;
         private final byte[] foreignAddress;
         private final int foreignPort;
-        private final TcpState state;
+        private final @Nullable TcpState state;
         private final int transmitQueue;
         private final int receiveQueue;
         private int owningProcessId;
@@ -493,13 +495,13 @@ public interface InternetProtocolStats {
          * @param localPort       the local port
          * @param foreignAddress  the remote address bytes
          * @param foreignPort     the remote port
-         * @param state           the TCP state
+         * @param state           the TCP state, or {@code null} for a UDP connection or when not known
          * @param transmitQueue   the transmit queue size
          * @param receiveQueue    the receive queue size
          * @param owningProcessId the PID of the owning process
          */
         public IPConnection(String type, byte[] localAddress, int localPort, byte[] foreignAddress, int foreignPort,
-                TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {
+                @Nullable TcpState state, int transmitQueue, int receiveQueue, int owningProcessId) {
             this.type = type;
             this.localAddress = Arrays.copyOf(localAddress, localAddress.length);
             this.localPort = localPort;
@@ -569,7 +571,7 @@ public interface InternetProtocolStats {
          *
          * @return The connection state if known or relevant, null otherwise.
          */
-        public TcpState getState() {
+        public @Nullable TcpState getState() {
             return state;
         }
 
