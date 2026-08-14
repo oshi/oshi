@@ -51,8 +51,8 @@ Stable Release Versions
   * FFM: [oshi-core-ffm-7.4.4](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.4.4)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.4.5-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.4.5-SNAPSHOT/)
-  * FFM: [oshi-core-ffm-7.4.5-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.4.5-SNAPSHOT/)
+  * JNA: [oshi-core-7.5.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.5.0-SNAPSHOT/)
+  * FFM: [oshi-core-ffm-7.5.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.5.0-SNAPSHOT/)
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)

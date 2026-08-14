@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to build and attach (e.g. oshi-parent-7.4.5)'
+        description: 'Tag to build and attach (e.g. oshi-parent-7.5.0)'
         required: true
 
 permissions: {}
