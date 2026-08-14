@@ -33,9 +33,9 @@ public abstract class WindowsSensors extends AbstractSensors {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
-    protected static final String COM_EXCEPTION_MSG = "COM exception: {}";
+    protected static final String COM_EXCEPTION_MSG = "COM exception";
 
-    private static final String REFLECT_EXCEPTION_MSG = "Reflect exception: {}";
+    private static final String REFLECT_EXCEPTION_MSG = "Reflect exception";
 
     private static final String JLIBREHARDWAREMONITOR_PACKAGE = "io.github.pandalxb.jlibrehardwaremonitor";
 
@@ -138,19 +138,19 @@ public abstract class WindowsSensors extends AbstractSensors {
                     double value = (double) getValueMethod.invoke(sensor);
                     return value > 0;
                 } catch (Exception e) {
-                    LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+                    LOG.warn(REFLECT_EXCEPTION_MSG, e);
                     return false;
                 }
             }).mapToInt(sensor -> {
                 try {
                     return (int) (double) getValueMethod.invoke(sensor);
                 } catch (Exception e) {
-                    LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+                    LOG.warn(REFLECT_EXCEPTION_MSG, e);
                     return 0;
                 }
             }).toArray();
         } catch (Exception e) {
-            LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+            LOG.warn(REFLECT_EXCEPTION_MSG, e);
         }
         return new int[0];
     }
@@ -270,7 +270,7 @@ public abstract class WindowsSensors extends AbstractSensors {
             }
             return validCount > 0 ? sum / validCount : 0;
         } catch (Exception e) {
-            LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+            LOG.warn(REFLECT_EXCEPTION_MSG, e);
         }
         return 0;
     }
@@ -297,9 +297,9 @@ public abstract class WindowsSensors extends AbstractSensors {
             Method querySensorsMethod = libreHardwareManagerClass.getMethod("querySensors", String.class, String.class);
             return (List<?>) querySensorsMethod.invoke(instance, hardwareType, sensorType);
         } catch (ClassNotFoundException e) {
-            LOG.trace("jLibreHardwareMonitor not available: {}", e.getMessage());
+            LOG.trace("jLibreHardwareMonitor not available", e);
         } catch (Exception e) {
-            LOG.warn(REFLECT_EXCEPTION_MSG, e.getMessage());
+            LOG.warn(REFLECT_EXCEPTION_MSG, e);
         }
         return Collections.emptyList();
     }

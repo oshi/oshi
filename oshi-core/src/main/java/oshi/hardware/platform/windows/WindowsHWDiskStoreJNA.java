@@ -82,7 +82,7 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
             }
             return Collections.unmodifiableList(result);
         } catch (COMException e) {
-            LOG.warn("COM exception: {}", e.getMessage());
+            LOG.warn("COM exception", e);
             return Collections.emptyList();
         } finally {
             if (comInit) {

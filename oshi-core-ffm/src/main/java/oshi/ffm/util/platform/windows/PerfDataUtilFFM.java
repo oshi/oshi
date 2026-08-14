@@ -323,7 +323,7 @@ public final class PerfDataUtilFFM {
                         try {
                             counterHandles[p - 1].add(addEnglishCounter(arena, query, path));
                         } catch (Throwable t) {
-                            LOG.warn("Failed to add wildcard counter {}: {}", path, t.getMessage());
+                            LOG.warn("Failed to add wildcard counter {}", path, t);
                             return new Pair<>(Collections.emptyList(), new EnumMap<>(propertyEnum));
                         }
                     }
@@ -339,7 +339,7 @@ public final class PerfDataUtilFFM {
                         try {
                             values.add(readRawCounterValue(arena, handle, isBase[p - 1]));
                         } catch (Throwable t) {
-                            LOG.debug("Failed to read counter for {}: {}", props[p], t.getMessage());
+                            LOG.debug("Failed to read counter for {}", props[p], t);
                             values.add(0L);
                         }
                     }

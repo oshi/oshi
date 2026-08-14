@@ -62,7 +62,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
     private static final String COM_EXCEPTION_FMT = "COM exception querying {}, which might not be on your system."
-            + " Will not attempt to query it again. Error was {}: {}";
+            + " Will not attempt to query it again. Error was {}";
 
     // Factory to create this or a subclass
     private static Class<? extends WmiQueryHandlerFFM> customClass = null;
@@ -228,7 +228,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                 failedWmiClassNames.add(query.getWmiClassName());
             }
         } catch (Exception e) {
-            LOG.debug("WMI query failed for {}: {}", query.getWmiClassName(), e.getMessage());
+            LOG.debug("WMI query failed for {}", query.getWmiClassName(), e);
         } finally {
             if (comInit) {
                 unInitCOM();
@@ -375,7 +375,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
                 failedWmiClassNames.add(wmiClassName);
             }
         } catch (Exception e) {
-            LOG.debug("WMI query failed for {}: {}", wmiClassName, e.getMessage());
+            LOG.debug("WMI query failed for {}", wmiClassName, e);
         } finally {
             if (comInit) {
                 unInitCOM();
@@ -424,9 +424,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
     protected void handleComException(WbemcliUtilFFM.WmiQuery<?> query, FfmComException ex) {
         String className = query.getWmiClassName();
         if ("MSAcpi_ThermalZoneTemperature".equals(className)) {
-            LOG.debug(COM_EXCEPTION_FMT, className, ex.getHresult(), ex.getMessage());
+            LOG.debug(COM_EXCEPTION_FMT, className, ex.getHresult(), ex);
         } else {
-            LOG.warn(COM_EXCEPTION_FMT, className, ex.getHresult(), ex.getMessage());
+            LOG.warn(COM_EXCEPTION_FMT, className, ex.getHresult(), ex);
         }
     }
 

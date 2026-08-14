@@ -84,7 +84,7 @@ public final class HkeyUserData {
                     }
                     sessions.add(new OSSession(name, device, loginTime, host));
                 } catch (Win32Exception ex) {
-                    LOG.warn("Error querying SID {} from registry: {}", sidKey, ex.getMessage());
+                    LOG.warn("Error querying SID {} from registry", sidKey, ex);
                 }
             }
         }

@@ -41,7 +41,7 @@ class LinuxNetworkParamsJNA extends LinuxNetworkParams {
             try {
                 hostname = InetAddress.getLocalHost().getHostName();
             } catch (UnknownHostException e) {
-                LOG.warn("Unknown host exception when getting address of local host: {}", e.getMessage());
+                LOG.warn("Unknown host exception when getting address of local host", e);
                 return "";
             }
             try (CloseablePointerByReference ptr = new CloseablePointerByReference()) {

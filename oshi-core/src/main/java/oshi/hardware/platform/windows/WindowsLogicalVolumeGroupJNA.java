@@ -50,7 +50,7 @@ final class WindowsLogicalVolumeGroupJNA extends WindowsLogicalVolumeGroup {
             return buildFromWmi(sp, MSFTStorage.queryVirtualDisks(h), MSFTStorage.queryPhysicalDisks(h),
                     MSFTStorage.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupJNA::new);
         } catch (COMException e) {
-            LOG.warn("COM exception: {}", e.getMessage());
+            LOG.warn("COM exception", e);
             return Collections.emptyList();
         } finally {
             if (comInit) {

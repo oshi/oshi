@@ -46,7 +46,7 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
             }
             return soundCards;
         } catch (Throwable t) { // NOSONAR java:S1181
-            LOG.debug("Failed to enumerate sound card registry keys: {}", t.getMessage());
+            LOG.debug("Failed to enumerate sound card registry keys", t);
             return soundCards;
         }
         for (String key : keys) {
@@ -65,7 +65,7 @@ final class WindowsSoundCardFFM extends AbstractSoundCard {
                     throw e;
                 }
             } catch (Throwable t) { // NOSONAR java:S1181
-                LOG.debug("Failed to read sound card registry key {}: {}", key, t.getMessage());
+                LOG.debug("Failed to read sound card registry key {}", key, t);
             }
         }
         return soundCards;

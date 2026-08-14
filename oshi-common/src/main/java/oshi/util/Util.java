@@ -51,7 +51,7 @@ public final class Util {
             LOG.trace("Sleeping for {} ms", ms);
             Thread.sleep(ms);
         } catch (InterruptedException e) { // NOSONAR java:S2142
-            LOG.warn("Interrupted while sleeping for {} ms: {}", ms, e.getMessage());
+            LOG.warn("Interrupted while sleeping for {} ms", ms, e);
             Thread.currentThread().interrupt();
         }
     }

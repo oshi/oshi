@@ -76,9 +76,9 @@ public final class FileUtil {
                 return Files.readAllLines(path, StandardCharsets.UTF_8);
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.error("Error reading file {}", filename, e);
                 } else {
-                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.debug("Error reading file {}", filename, e);
                 }
             }
         } else if (reportError) {
@@ -128,9 +128,9 @@ public final class FileUtil {
                 return Collections.unmodifiableList(lines);
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.error("Error reading file {}", filename, e);
                 } else {
-                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.debug("Error reading file {}", filename, e);
                 }
             }
         } else if (reportError) {
@@ -157,9 +157,9 @@ public final class FileUtil {
                 return Files.readAllBytes(path);
             } catch (IOException e) {
                 if (reportError) {
-                    LOG.error("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.error("Error reading file {}", filename, e);
                 } else {
-                    LOG.debug("Error reading file {}. {}", filename, e.getMessage());
+                    LOG.debug("Error reading file {}", filename, e);
                 }
             }
         } else if (reportError) {
@@ -329,7 +329,7 @@ public final class FileUtil {
                 return ParseUtil.parseIntOrDefault(read.get(0), 0);
             }
         } catch (NumberFormatException ex) {
-            LOG.warn("Unable to read value from {}. {}", filename, ex.getMessage());
+            LOG.warn("Unable to read value from {}", filename, ex);
         }
         return 0;
     }

@@ -60,7 +60,7 @@ final class WindowsSensorsJNA extends WindowsSensors {
                 ohmSensors = querySensorFunction.apply(h, ohmHardware);
             }
         } catch (COMException e) {
-            LOG.warn(COM_EXCEPTION_MSG, e.getMessage());
+            LOG.warn(COM_EXCEPTION_MSG, e);
         } finally {
             if (comInit) {
                 h.unInitCOM();

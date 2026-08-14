@@ -124,7 +124,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 }
             }
         } catch (Throwable t) {
-            LOG.debug("Failed to read processor registry info: {}", t.getMessage());
+            LOG.debug("Failed to read processor registry info", t);
         }
 
         if (!cpuIdentifier.isEmpty()) {

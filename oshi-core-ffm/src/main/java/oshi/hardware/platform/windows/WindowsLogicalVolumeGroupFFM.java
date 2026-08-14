@@ -49,7 +49,7 @@ final class WindowsLogicalVolumeGroupFFM extends WindowsLogicalVolumeGroup {
             return buildFromWmi(sp, MSFTStorage.queryVirtualDisks(h), MSFTStorage.queryPhysicalDisks(h),
                     MSFTStorage.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupFFM::new);
         } catch (FfmComException e) {
-            LOG.warn("COM exception: {}", e.getMessage());
+            LOG.warn("COM exception", e);
             return Collections.emptyList();
         } finally {
             if (comInit) {

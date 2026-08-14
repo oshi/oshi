@@ -154,7 +154,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
                 return cwd;
             }
         } catch (IOException e) {
-            LOG.trace("Couldn't find cwd for pid {}: {}", getProcessID(), e.getMessage());
+            LOG.trace("Couldn't find cwd for pid {}", getProcessID(), e);
         }
         return "";
     }

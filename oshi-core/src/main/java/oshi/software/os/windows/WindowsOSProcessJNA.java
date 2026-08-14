@@ -212,8 +212,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
                             }
                         }
                     } catch (Win32Exception e) {
-                        LOG.warn("Failed to query {} info for process {} ({}): {}", infoType, getProcessID(), getName(),
-                                e.getMessage());
+                        LOG.warn("Failed to query {} info for process {} ({})", infoType, getProcessID(), getName(), e);
                     } finally {
                         final HANDLE token = phToken.getValue();
                         if (token != null) {

@@ -150,9 +150,8 @@ public final class PerfCounterWildcardQuery {
         try {
             objectItems = PdhUtil.PdhEnumObjectItems(null, null, perfObjectLocalized, 100);
         } catch (PdhException e) {
-            LOG.warn(
-                    "Failed to locate performance object for {} in the registry. Performance counters may be corrupt. {}",
-                    perfObjectLocalized, e.getMessage());
+            LOG.warn("Failed to locate performance object for {} in the registry. Performance counters may be corrupt.",
+                    perfObjectLocalized, e);
         }
         if (objectItems == null) {
             return new Pair<>(Collections.emptyList(), Collections.emptyMap());

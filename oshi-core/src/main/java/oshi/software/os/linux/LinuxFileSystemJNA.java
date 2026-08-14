@@ -34,7 +34,7 @@ public class LinuxFileSystemJNA extends LinuxFileSystem {
             LOG.debug("Failed to get information to use statvfs. path: {}, Error code: {}", path,
                     Native.getLastError());
         } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-            LOG.error("Failed to get file counts from statvfs. {}", e.getMessage());
+            LOG.error("Failed to get file counts from statvfs", e);
         }
         return null;
     }

@@ -79,7 +79,7 @@ public final class AdlUtilJNA {
                 loaded = true;
                 LOG.debug("ADL library loaded");
             } catch (UnsatisfiedLinkError | NoClassDefFoundError e) {
-                LOG.debug("ADL library not available: {}", e.getMessage());
+                LOG.debug("ADL library not available", e);
             }
             LIB = lib;
             LIBRARY_LOADED = loaded;

@@ -138,7 +138,7 @@ public final class AdlUtilFFM {
             available = true;
             LOG.debug("ADL library loaded via FFM");
         } catch (Throwable t) {
-            LOG.debug("ADL library not available via FFM: {}", t.getMessage());
+            LOG.debug("ADL library not available via FFM", t);
         }
         AVAILABLE = available;
         ADL2_MAIN_CONTROL_CREATE = hCreate;

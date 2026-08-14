@@ -87,7 +87,7 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
             }
             return Collections.unmodifiableList(result);
         } catch (FfmComException e) {
-            LOG.warn("COM exception: {}", e.getMessage());
+            LOG.warn("COM exception", e);
             return Collections.emptyList();
         } finally {
             if (comInit) {

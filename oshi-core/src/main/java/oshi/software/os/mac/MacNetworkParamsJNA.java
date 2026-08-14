@@ -41,7 +41,7 @@ final class MacNetworkParamsJNA extends MacNetworkParams {
                 return "";
             }
         } catch (UnknownHostException e) {
-            LOG.debug("Unknown host exception when getting address of local host: {}", e.getMessage());
+            LOG.debug("Unknown host exception when getting address of local host", e);
             return "";
         }
         try (Addrinfo hint = new Addrinfo(); CloseablePointerByReference ptr = new CloseablePointerByReference()) {
