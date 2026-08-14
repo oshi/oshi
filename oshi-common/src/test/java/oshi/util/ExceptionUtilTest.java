@@ -417,6 +417,18 @@ class ExceptionUtilTest {
     }
 
     @Test
+    void testLogAtLevelAcceptsATypedArgumentArray() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        Throwable t = new IllegalStateException("boom");
+        // Passing a typed array for the varargs parameter is legal Java, so the copy must widen to Object[]:
+        // a copy keeping the String[] component type would throw ArrayStoreException on appending the throwable.
+        // The cast only tells javac the array is meant to be spread; at runtime this is still a String[].
+        String[] args = new String[] { "key", "value" };
+        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, "Failed to read {} of {}", t, (Object[]) args);
+        assertThat("Caller args then throwable", recorder.arguments(), arrayContaining("key", "value", t));
+    }
+
+    @Test
     void testGetOrDefaultForwardsArgumentsOnFailure() {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
         String result = ExceptionUtil.getOrDefault(() -> {

@@ -43,8 +43,10 @@ public final class ExceptionUtil {
      */
     public static void logAtLevel(Logger log, LogLevel level, String msg, Throwable t, Object... args) {
         // Append the throwable itself; SLF4J takes a trailing throwable as the cause rather than a substitution
-        // argument, so it is logged with its stack trace instead of being formatted into the message.
-        Object[] all = Arrays.copyOf(args, args.length + 1);
+        // argument, so it is logged with its stack trace instead of being formatted into the message. Copy into an
+        // Object[] explicitly: a caller may pass a typed array (e.g. String[]) for the varargs, and a copy keeping
+        // that component type would throw ArrayStoreException on the write below.
+        Object[] all = Arrays.copyOf(args, args.length + 1, Object[].class);
         all[args.length] = t;
         LogUtil.logAtLevel(log, level, msg, all);
     }
@@ -212,7 +214,7 @@ public final class ExceptionUtil {
      * @param supplier     the operation to attempt
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -229,7 +231,7 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param level        the level at which to log the exception
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -265,7 +267,7 @@ public final class ExceptionUtil {
      * @param supplier     the operation to attempt
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -282,7 +284,7 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param level        the level at which to log the exception
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -318,7 +320,7 @@ public final class ExceptionUtil {
      * @param supplier     the operation to attempt
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -335,7 +337,7 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param level        the level at which to log the exception
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -371,7 +373,7 @@ public final class ExceptionUtil {
      * @param supplier     the operation to attempt
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -388,7 +390,7 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @param log          the logger to use
      * @param level        the level at which to log the exception
-     * @param msg          the log message
+     * @param msg          the log message (use {} for each argument, and none for the exception)
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
@@ -408,7 +410,7 @@ public final class ExceptionUtil {
      * @param <T>      the result type
      * @param supplier the operation to attempt
      * @param log      the logger to use
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      * @return an Optional containing the result, or empty on failure
      */
@@ -424,7 +426,7 @@ public final class ExceptionUtil {
      * @param supplier the operation to attempt
      * @param log      the logger to use
      * @param level    the level at which to log the exception
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      * @return an Optional containing the result, or empty on failure
      */
@@ -444,7 +446,7 @@ public final class ExceptionUtil {
      *
      * @param supplier the operation to attempt
      * @param log      the logger to use
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      * @return an OptionalInt containing the result, or empty on failure
      */
@@ -459,7 +461,7 @@ public final class ExceptionUtil {
      * @param supplier the operation to attempt
      * @param log      the logger to use
      * @param level    the level at which to log the exception
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      * @return an OptionalInt containing the result, or empty on failure
      */
@@ -479,7 +481,7 @@ public final class ExceptionUtil {
      *
      * @param supplier the operation to attempt
      * @param log      the logger to use
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      * @return an OptionalLong containing the result, or empty on failure
      */
@@ -494,7 +496,7 @@ public final class ExceptionUtil {
      * @param supplier the operation to attempt
      * @param log      the logger to use
      * @param level    the level at which to log the exception
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      * @return an OptionalLong containing the result, or empty on failure
      */
@@ -526,7 +528,7 @@ public final class ExceptionUtil {
      *
      * @param runnable the operation to attempt
      * @param log      the logger to use
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      */
     public static void runOrLog(ThrowingRunnable runnable, Logger log, String msg, Object... args) {
@@ -539,7 +541,7 @@ public final class ExceptionUtil {
      * @param runnable the operation to attempt
      * @param log      the logger to use
      * @param level    the level at which to log the exception
-     * @param msg      the log message
+     * @param msg      the log message (use {} for each argument, and none for the exception)
      * @param args     the arguments filling the {} placeholders, if any
      */
     public static void runOrLog(ThrowingRunnable runnable, Logger log, LogLevel level, String msg, Object... args) {
