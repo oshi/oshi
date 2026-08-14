@@ -153,6 +153,10 @@
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
         <spotless-plugin.version>3.9.0</spotless-plugin.version>
         <jlibrehardwaremonitor.version>1.0.6</jlibrehardwaremonitor.version>
+        <!-- jSpecify nullability annotations (@NullMarked/@Nullable). Compile-time metadata only: declared
+        optional so it stays off consumers' transitive classpath, and imported optionally by OSGi. Four
+        annotation classes, no transitive dependencies, Java 8 bytecode, Apache 2.0. -->
+        <jspecify.version>1.0.1</jspecify.version>
         <!-- report only -->
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
@@ -787,6 +791,7 @@
                                         <!-- Allow known dependencies -->
                                         <allowedImport>com.sun.jna.**</allowedImport>
                                         <allowedImport>io.github.pandalxb.jlibrehardwaremonitor.**</allowedImport>
+                                        <allowedImport>org.jspecify.annotations.**</allowedImport>
                                         <allowedImport>org.slf4j.**</allowedImport>
                                         <allowedImport>org.junit.jupiter.api.**</allowedImport>
                                         <allowedImport>static org.hamcrest.**</allowedImport>

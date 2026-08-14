@@ -13,6 +13,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -165,8 +167,8 @@ public interface OperatingSystem {
      * Gets currently running processes. No order is guaranteed.
      *
      * @return A list of {@link oshi.software.os.OSProcess} objects for the specified number (or all) of currently
-     *         running processes, sorted as specified. The list may contain null elements or processes with a state of
-     *         {@link OSProcess.State#INVALID} if a process terminates during iteration.
+     *         running processes. The list may contain processes with a state of {@link OSProcess.State#INVALID} if a
+     *         process terminates during iteration.
      */
     default List<OSProcess> getProcesses() {
         return getProcesses(null, null, 0);
@@ -191,7 +193,8 @@ public interface OperatingSystem {
      *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
      *         during iteration.
      */
-    List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit);
+    List<OSProcess> getProcesses(@Nullable Predicate<OSProcess> filter, @Nullable Comparator<OSProcess> sort,
+            int limit);
 
     /**
      * Gets information on a {@link Collection} of currently running processes. This has potentially improved
@@ -212,6 +215,7 @@ public interface OperatingSystem {
      * @return An {@link oshi.software.os.OSProcess} object for the specified process id if it is running; null
      *         otherwise
      */
+    @Nullable
     OSProcess getProcess(int pid);
 
     /**
@@ -230,8 +234,8 @@ public interface OperatingSystem {
      *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
      *         during iteration.
      */
-    List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
-            int limit);
+    List<OSProcess> getChildProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+            @Nullable Comparator<OSProcess> sort, int limit);
 
     /**
      * Gets currently running processes of provided parent PID's descendants, including their children, the children's
@@ -249,8 +253,8 @@ public interface OperatingSystem {
      *         The list may contain processes with a state of {@link OSProcess.State#INVALID} if a process terminates
      *         during iteration.
      */
-    List<OSProcess> getDescendantProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
-            int limit);
+    List<OSProcess> getDescendantProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+            @Nullable Comparator<OSProcess> sort, int limit);
 
     /**
      * Gets the current process ID (PID).
@@ -422,19 +426,19 @@ public interface OperatingSystem {
     @PublicApi
     @Immutable
     class OSVersionInfo {
-        private final String version;
-        private final String codeName;
-        private final String buildNumber;
+        private final @Nullable String version;
+        private final @Nullable String codeName;
+        private final @Nullable String buildNumber;
         private final String versionStr;
 
         /**
          * Creates an OSVersionInfo.
          *
-         * @param version     the version string
-         * @param codeName    the code name
-         * @param buildNumber the build number
+         * @param version     the version string, or {@code null} if not available
+         * @param codeName    the code name, or {@code null} if the platform has none
+         * @param buildNumber the build number, or {@code null} if not available
          */
-        public OSVersionInfo(String version, String codeName, String buildNumber) {
+        public OSVersionInfo(@Nullable String version, @Nullable String codeName, @Nullable String buildNumber) {
             this.version = version;
             this.codeName = codeName;
             this.buildNumber = buildNumber;
@@ -454,7 +458,7 @@ public interface OperatingSystem {
          *
          * @return The version, if any. May be {@code null}.
          */
-        public String getVersion() {
+        public @Nullable String getVersion() {
             return version;
         }
 
@@ -463,7 +467,7 @@ public interface OperatingSystem {
          *
          * @return The code name, if any. May be {@code null}.
          */
-        public String getCodeName() {
+        public @Nullable String getCodeName() {
             return codeName;
         }
 
@@ -472,7 +476,7 @@ public interface OperatingSystem {
          *
          * @return The build number, if any. May be {@code null}.
          */
-        public String getBuildNumber() {
+        public @Nullable String getBuildNumber() {
             return buildNumber;
         }
 

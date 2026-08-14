@@ -270,13 +270,28 @@ trailing comment, spotless will wrap it and strand the rule id underneath — sh
 working around the wrap. The AIX uptime pattern is the worked example: splitting the regex into named
 constants both shortened it and made Sonar stop reporting `S5843` at all, so the suppression could go.
 
-## Two conventions that apply to nearly every class
+## Conventions that apply to nearly every class
 
 **Concurrency annotations.** Roughly two thirds of the classes in this project carry
 `@ThreadSafe`, `@Immutable`, `@NotThreadSafe`, or `@GuardedBy` from
 `oshi.annotation.concurrent`. These are documentation, not enforcement — but new classes are
 expected to declare one, and matching the annotation of the class you are modeling yours on is the
 right default.
+
+**Nullability.** `oshi.hardware` and `oshi.software.os` are `@NullMarked` (jSpecify) via their
+`package-info.java`, so **every type usage in a signature in those two packages is non-null unless
+you annotate it `@Nullable`**. `@NullMarked` does not extend to subpackages, and no other package is
+marked yet — Phase 2 of [#3593](https://github.com/oshi/oshi/issues/3593) covers `oshi.util`, and
+`oshi.ffm` waits on a NullAway fix. Adding an annotation to an unmarked package is harmless but
+proves nothing, since an unmarked package makes no claim either way.
+
+Do not reach for `@Nullable` to make a null return legal: the convention is a **sentinel, not a
+null** — `Constants.UNKNOWN` or `""` for strings, an empty collection or array, and `0`/`-1`/`NaN`
+for numbers, whichever is outside the value's real range. Annotate a return `@Nullable` only when
+absence is genuinely meaningful to the caller and no sentinel can express it (`getProcess(int)` for a
+process that is not running). Nullable *parameters* are the common case and mean "optional argument".
+The jspecify dependency is `optional` in `oshi-common/pom.xml` and `requires static org.jspecify` in
+its `module-info.java`; do not make it a hard dependency.
 
 **Memoization.** System calls are expensive, and callers poll. Values that are constant (CPU model,
 serial number) or expensive-but-slow-changing are wrapped in

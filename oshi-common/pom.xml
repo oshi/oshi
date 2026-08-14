@@ -17,6 +17,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jspecify</groupId>
+            <artifactId>jspecify</artifactId>
+            <version>${jspecify.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
@@ -48,7 +54,7 @@
                 <artifactId>bnd-maven-plugin</artifactId>
                 <configuration>
                     <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true
-                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
+                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, org.jspecify.annotations;resolution:=optional, ${osgi.slf4j.import.packages}, *
                     Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                     -snapshot: SNAPSHOT]]></bnd>
                 </configuration>

@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -795,7 +797,7 @@ public interface CentralProcessor {
         }
 
         @Override
-        public boolean equals(Object obj) {
+        public boolean equals(@Nullable Object obj) {
             if (this == obj) {
                 return true;
             }
@@ -885,7 +887,8 @@ public interface CentralProcessor {
          *                          May be null.
          */
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
-                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq, String microarchitecture) {
+                String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq,
+                @Nullable String microarchitecture) {
             this.derivedMicroarchitecture = microarchitecture;
             this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
             this.cpuName = cpuName;

@@ -174,4 +174,19 @@ class DisplayInfoImplTest {
         DisplayInfo reparsed = new DisplayInfoImpl(info.getEdid());
         assertThat("reparsed productSerialNumber", reparsed.getProductSerialNumber(), is(""));
     }
+
+    @Test
+    void testSyntheticNullableFieldsReportedAsEmpty() {
+        // Every nullable constructor argument is normalized to an empty string, so no getter breaks the non-null
+        // DisplayInfo contract and toString never renders "null"
+        DisplayInfo info = new DisplayInfoImpl("APP", "a050", null, (byte) 0, 1990, "1.4", true, 0, 0, null, null,
+                null);
+        assertThat("serialNo", info.getSerialNo(), is(""));
+        assertThat("preferredResolution", info.getPreferredResolution(), is(""));
+        assertThat("model", info.getModel(), is(""));
+        assertThat("productSerialNumber", info.getProductSerialNumber(), is(""));
+        assertThat("toString has no null", info.toString(), not(containsString("null")));
+        // The EDID synthesized from those absent values is still well formed
+        assertThat("edid length", info.getEdid().length, is(128));
+    }
 }
