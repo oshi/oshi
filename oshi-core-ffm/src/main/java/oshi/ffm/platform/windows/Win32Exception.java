@@ -8,6 +8,8 @@ import java.util.Locale;
 
 public class Win32Exception extends RuntimeException {
 
+    private static final long serialVersionUID = 1L;
+
     private final int errorCode;
 
     public Win32Exception(int errorCode) {
