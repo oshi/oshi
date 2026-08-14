@@ -143,8 +143,8 @@ public final class SmcUtil {
                 if (result == 0) {
                     return new IOConnect(connPtr.getValue());
                 } else if (LOG.isErrorEnabled()) {
-                    LOG.error(String.format(Locale.ROOT, "Unable to open connection to AppleSMC service. Error: 0x%08x",
-                            result));
+                    LOG.error("Unable to open connection to AppleSMC service. Error: 0x{}",
+                            String.format(Locale.ROOT, "%08x", result));
                 }
             } finally {
                 smcService.release();

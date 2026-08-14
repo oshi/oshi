@@ -112,6 +112,12 @@
         will enforce them) requires Error Prone as its host platform. Only wired up behind the
         error-prone profile for now; see pom.xml profile "error-prone". -->
         <error-prone.version>2.50.0</error-prone.version>
+        <!-- Error Prone plugin adding SLF4J-specific checks (placeholder/argument agreement, constant format
+        strings, logger field shape). Registers itself through META-INF/services, so it only needs to be on the
+        annotationProcessorPath; its checks are then configured with -Xep like any other. Compiled against an
+        older error_prone_check_api than ${error-prone.version} but declares it compileOnly, so it contributes
+        no transitive dependency; verified working against 2.50.0. -->
+        <errorprone-slf4j.version>0.1.29</errorprone-slf4j.version>
         <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>3.0.0</restrict-imports-enforcer-rule.version>
@@ -1240,14 +1246,40 @@
                                 failure, via the same javac behavior that already blocks the build on Error
                                 Prone's own ERROR-severity checks - without reaching for -Werror, which would
                                 fail on every javac warning, including several lint categories nothing here has
-                                ever triaged. -->
-                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR</arg>
+                                ever triaged.
+
+                                The Slf4j* checks come from the errorprone-slf4j plugin rather than
+                                error_prone_core, and unlike core's defaults three of them (PlaceholderMismatch,
+                                FormatShouldBeConst, DoNotLogMessageOfExceptionExplicitly) already default to
+                                ERROR; the :ERROR below is therefore explicit-not-escalating for those, and a
+                                genuine escalation for LoggerShouldBePrivate/ShouldBeFinal/IllegalPassedClass,
+                                whose backlog was zero when the plugin was adopted.
+
+                                Two are OFF as findings the project rejects rather than a backlog to drain:
+                                LoggerShouldBeNonStatic fires on all ~200 `private static final Logger LOG`
+                                fields, whose staticness is deliberate, and SignOnlyFormat only ever flagged the
+                                horizontal-rule separator lines the SystemInfoTest mains print.
+
+                                DoNotLogMessageOfExceptionExplicitly is deliberately demoted to WARN rather than
+                                left at its default ERROR: its ~70-site backlog is a real one the project intends
+                                to drain (passing the throwable instead of its message keeps the stack trace, is
+                                null-safe where getMessage() is not, and defers all rendering when the level is
+                                disabled), but the fixes change log output across every platform and belong in
+                                their own change. WARN keeps the backlog visible without blocking; escalate to
+                                ERROR once it is drained. Note the severity token Error Prone accepts is WARN,
+                                not WARNING. -->
+                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:WARN -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>
                                 <path>
                                     <groupId>com.google.errorprone</groupId>
                                     <artifactId>error_prone_core</artifactId>
                                     <version>${error-prone.version}</version>
+                                </path>
+                                <path>
+                                    <groupId>jp.skypencil.errorprone.slf4j</groupId>
+                                    <artifactId>errorprone-slf4j</artifactId>
+                                    <version>${errorprone-slf4j.version}</version>
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>
