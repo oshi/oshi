@@ -148,7 +148,7 @@ final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
                     LOG.debug("Error reading graphics card registry key {}", key, t);
                 }
             }
-        }, LOG, "Failed to enumerate display device registry keys: {}");
+        }, LOG, "Failed to enumerate display device registry keys");
 
         List<GraphicsCard> result = new ArrayList<>(dxgiOrdered.values());
         result.addAll(cardList);

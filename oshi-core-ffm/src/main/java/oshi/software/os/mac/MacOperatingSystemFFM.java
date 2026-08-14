@@ -124,13 +124,13 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return getIntOrDefault(() -> getpid(), 0, LOG, "Failed to get current pid: {}");
+        return getIntOrDefault(() -> getpid(), 0, LOG, "Failed to get current pid");
     }
 
     @Override
     public int getProcessCount() {
         return getIntOrDefault(() -> proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE, 0, LOG,
-                "Failed to query processes: {}");
+                "Failed to query processes");
     }
 
     @Override

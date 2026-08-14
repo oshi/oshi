@@ -228,7 +228,7 @@ final class MacDisplayFFM extends AbstractDisplay {
                 }
             }
             return -1;
-        }, -1, LOG, "Failed to find built-in display ID: {}");
+        }, -1, LOG, "Failed to find built-in display ID");
     }
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.
@@ -243,7 +243,7 @@ final class MacDisplayFFM extends AbstractDisplay {
                     ObjCFunctions.objc_autoreleasePoolPop(pool);
                 }
             }
-        }, null, LOG, "Failed to get localized display name: {}");
+        }, null, LOG, "Failed to get localized display name");
     }
 
     private static String queryLocalizedDisplayName(Arena arena, int targetDisplayId) throws Throwable {

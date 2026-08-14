@@ -67,7 +67,7 @@ class ExceptionUtilTest {
     void testGetOrDefaultWithLogging() {
         String result = ExceptionUtil.getOrDefault(() -> {
             throw new RuntimeException("test error");
-        }, "fallback", LOG, "Operation failed: {}");
+        }, "fallback", LOG, "Operation failed");
         assertThat(result, is(equalTo("fallback")));
     }
 
@@ -97,7 +97,7 @@ class ExceptionUtilTest {
     void testGetIntOrDefaultWithLogging() {
         int result = ExceptionUtil.getIntOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, 0, LOG, "Int op failed: {}");
+        }, 0, LOG, "Int op failed");
         assertThat(result, is(0));
     }
 
@@ -127,7 +127,7 @@ class ExceptionUtilTest {
     void testGetLongOrDefaultWithLogging() {
         long result = ExceptionUtil.getLongOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, 0L, LOG, "Long op failed: {}");
+        }, 0L, LOG, "Long op failed");
         assertThat(result, is(0L));
     }
 
@@ -157,7 +157,7 @@ class ExceptionUtilTest {
     void testGetBooleanOrDefaultWithLogging() {
         boolean result = ExceptionUtil.getBooleanOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, true, LOG, "Bool op failed: {}");
+        }, true, LOG, "Bool op failed");
         assertThat(result, is(true));
     }
 
@@ -187,7 +187,7 @@ class ExceptionUtilTest {
     void testGetDoubleOrDefaultWithLogging() {
         double result = ExceptionUtil.getDoubleOrDefault(() -> {
             throw new RuntimeException("fail");
-        }, -1d, LOG, "Double op failed: {}");
+        }, -1d, LOG, "Double op failed");
         assertThat(result, is(-1d));
     }
 
@@ -210,7 +210,7 @@ class ExceptionUtilTest {
     void testGetOptionalReturnsEmptyOnException() {
         Optional<String> result = ExceptionUtil.getOptional(() -> {
             throw new RuntimeException("fail");
-        }, LOG, "Optional op failed: {}");
+        }, LOG, "Optional op failed");
         assertThat(result.isPresent(), is(false));
     }
 
@@ -233,7 +233,7 @@ class ExceptionUtilTest {
     void testGetOptionalIntReturnsEmptyOnException() {
         OptionalInt result = ExceptionUtil.getOptionalInt(() -> {
             throw new RuntimeException("fail");
-        }, LOG, "OptionalInt op failed: {}");
+        }, LOG, "OptionalInt op failed");
         assertThat(result.isPresent(), is(false));
     }
 
@@ -250,7 +250,7 @@ class ExceptionUtilTest {
     void testGetOptionalLongReturnsEmptyOnException() {
         OptionalLong result = ExceptionUtil.getOptionalLong(() -> {
             throw new RuntimeException("fail");
-        }, LOG, "OptionalLong op failed: {}");
+        }, LOG, "OptionalLong op failed");
         assertThat(result.isPresent(), is(false));
     }
 
@@ -290,7 +290,7 @@ class ExceptionUtilTest {
     void testRunOrLogHandlesException() {
         assertDoesNotThrow(() -> ExceptionUtil.runOrLog(() -> {
             throw new RuntimeException("test error");
-        }, LOG, "RunOrLog failed: {}"));
+        }, LOG, "RunOrLog failed"));
     }
 
     // -- Edge cases --
@@ -309,7 +309,7 @@ class ExceptionUtilTest {
     void testGetOrDefaultWithTraceLevel() {
         String result = ExceptionUtil.getOrDefault(() -> {
             throw new RuntimeException("trace test");
-        }, "fallback", LOG, LogLevel.TRACE, "Trace-level failure: {}");
+        }, "fallback", LOG, LogLevel.TRACE, "Trace-level failure");
         assertThat(result, is(equalTo("fallback")));
     }
 
@@ -390,30 +390,42 @@ class ExceptionUtilTest {
                 // Intentional: exercises the exception-logging path at each level. The stack trace this logs is
                 // expected test output, not a real failure.
                 throw new IllegalStateException("expected test exception, stack trace is intentional");
-            }, "no exception", LOG, level, "failed: {}");
+            }, "no exception", LOG, level, "failed");
             assertThat(result, is("no exception"));
         }
     }
 
     @Test
-    void testLogAtLevelPassesThrowableMessageAndThrowable() {
+    void testLogAtLevelPassesOnlyTheThrowable() {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
         Throwable t = new IllegalStateException("boom");
-        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, "Failed: {}", t);
+        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, "Failed", t);
         assertThat("Dispatched to the method matching the level", recorder.onlyCall(), is("warn"));
-        // The message fills the placeholder; the trailing throwable is left for SLF4J to pull out as the cause
-        assertThat("Throwable message then throwable", recorder.arguments(), arrayContaining("boom", t));
+        // Only the throwable is appended, for SLF4J to pull out as the cause. Its message is not passed
+        // separately: doing so would print it inline and again in the stack trace the backend renders.
+        assertThat("Throwable only", recorder.arguments(), arrayContaining(t));
     }
 
     @Test
-    void testLogAtLevelPutsCallerArgumentsBeforeTheThrowableMessage() {
+    void testLogAtLevelPutsCallerArgumentsBeforeTheThrowable() {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
         Throwable t = new IllegalStateException("boom");
-        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.DEBUG, "Failed to read {} of {}: {}", t, "key", 42);
+        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.DEBUG, "Failed to read {} of {}", t, "key", 42);
         assertThat("Dispatched to the method matching the level", recorder.onlyCall(), is("debug"));
-        // Caller arguments fill the leading placeholders in order, then the exception message, then the cause
-        assertThat("Caller args, exception message, throwable", recorder.arguments(),
-                arrayContaining("key", 42, "boom", t));
+        // Caller arguments fill the placeholders in order, then the throwable as the cause
+        assertThat("Caller args then throwable", recorder.arguments(), arrayContaining("key", 42, t));
+    }
+
+    @Test
+    void testLogAtLevelAcceptsATypedArgumentArray() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        Throwable t = new IllegalStateException("boom");
+        // Passing a typed array for the varargs parameter is legal Java, so the copy must widen to Object[]:
+        // a copy keeping the String[] component type would throw ArrayStoreException on appending the throwable.
+        // The cast only tells javac the array is meant to be spread; at runtime this is still a String[].
+        String[] args = new String[] { "key", "value" };
+        ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, "Failed to read {} of {}", t, (Object[]) args);
+        assertThat("Caller args then throwable", recorder.arguments(), arrayContaining("key", "value", t));
     }
 
     @Test
@@ -421,11 +433,11 @@ class ExceptionUtilTest {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
         String result = ExceptionUtil.getOrDefault(() -> {
             throw new IllegalStateException("boom");
-        }, "fallback", recorder.logger(), "Lookup of {} failed: {}", "someKey");
+        }, "fallback", recorder.logger(), "Lookup of {} failed", "someKey");
         assertThat("Returns the default", result, is("fallback"));
         assertThat("Defaults to debug", recorder.onlyCall(), is("debug"));
-        assertThat("Argument precedes the exception message", recorder.arguments(),
-                arrayContaining(is("someKey"), is("boom"), instanceOf(IllegalStateException.class)));
+        assertThat("Argument precedes the throwable", recorder.arguments(),
+                arrayContaining(is("someKey"), instanceOf(IllegalStateException.class)));
     }
 
     @Test
@@ -433,11 +445,11 @@ class ExceptionUtilTest {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
         long result = ExceptionUtil.getLongOrDefault(() -> {
             throw new IllegalStateException("boom");
-        }, -1L, recorder.logger(), LogLevel.WARN, "Read of {}/{} failed: {}", "path", "value");
+        }, -1L, recorder.logger(), LogLevel.WARN, "Read of {}/{} failed", "path", "value");
         assertThat("Returns the default", result, is(-1L));
         assertThat("Honors the explicit level", recorder.onlyCall(), is("warn"));
-        assertThat("Both arguments precede the exception message", recorder.arguments(),
-                arrayContaining(is("path"), is("value"), is("boom"), instanceOf(IllegalStateException.class)));
+        assertThat("Both arguments precede the throwable", recorder.arguments(),
+                arrayContaining(is("path"), is("value"), instanceOf(IllegalStateException.class)));
     }
 
     @Test
@@ -445,18 +457,16 @@ class ExceptionUtilTest {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
         String result = ExceptionUtil.getOrDefault(() -> {
             throw new IllegalStateException("boom");
-        }, "fallback", recorder.logger(), "Failed: {}");
+        }, "fallback", recorder.logger(), "Failed");
         assertThat("Returns the default", result, is("fallback"));
         // Adding the varargs parameter must not change what an existing zero-argument call logs
-        assertThat("Exception message then throwable", recorder.arguments(),
-                arrayContaining(is("boom"), instanceOf(IllegalStateException.class)));
+        assertThat("Throwable only", recorder.arguments(), arrayContaining(instanceOf(IllegalStateException.class)));
     }
 
     @Test
     void testSuccessfulCallLogsNothing() {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-        String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", recorder.logger(), "Failed for {}: {}",
-                "key");
+        String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", recorder.logger(), "Failed for {}", "key");
         assertThat("Returns the supplied value", result, is("ok"));
         assertThat("Nothing logged on the success path", recorder.calls(), is(empty()));
     }

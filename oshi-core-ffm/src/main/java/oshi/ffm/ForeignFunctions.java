@@ -175,7 +175,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @param logger       the logger for the calling class
      * @param level        the level at which to log thrown failures
-     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param message      the message to log, with one {} per argument and none for the exception
      * @param args         the arguments filling the message placeholders
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
@@ -223,7 +223,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @param logger       the logger for the calling class
      * @param level        the level at which to log thrown failures
-     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param message      the message to log, with one {} per argument and none for the exception
      * @param args         the arguments filling the message placeholders
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
@@ -271,7 +271,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @param logger       the logger for the calling class
      * @param level        the level at which to log thrown failures
-     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param message      the message to log, with one {} per argument and none for the exception
      * @param args         the arguments filling the message placeholders
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
@@ -319,7 +319,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @param logger       the logger for the calling class
      * @param level        the level at which to log thrown failures
-     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param message      the message to log, with one {} per argument and none for the exception
      * @param args         the arguments filling the message placeholders
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
@@ -367,7 +367,7 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @param logger       the logger for the calling class
      * @param level        the level at which to log thrown failures
-     * @param message      the message to log, with one {} per argument (the exception message is appended)
+     * @param message      the message to log, with one {} per argument and none for the exception
      * @param args         the arguments filling the message placeholders
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
@@ -439,7 +439,11 @@ public abstract class ForeignFunctions {
         } catch (UnsatisfiedLinkError e) {
             throw e;
         } catch (Throwable t) {
-            throw new UnsatisfiedLinkError("dlopen failed for " + path + ": " + t.getMessage());
+            // UnsatisfiedLinkError has no (String, Throwable) constructor, so attach the cause separately;
+            // without it the stack trace stops here and loses what dlopen actually threw.
+            UnsatisfiedLinkError e = new UnsatisfiedLinkError("dlopen failed for " + path);
+            e.initCause(t);
+            throw e;
         }
     }
 
@@ -595,7 +599,6 @@ public abstract class ForeignFunctions {
     private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t, Object... args) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
-        // Callers pass a bare message; the trailing placeholder for the exception message is appended here.
-        ExceptionUtil.logAtLevel(logger, level, message + ": {}", t, args);
+        ExceptionUtil.logAtLevel(logger, level, message, t, args);
     }
 }

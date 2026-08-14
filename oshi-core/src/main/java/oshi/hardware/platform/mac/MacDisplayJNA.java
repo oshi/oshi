@@ -290,7 +290,7 @@ final class MacDisplayJNA extends AbstractDisplay {
             } finally {
                 objc.objc_autoreleasePoolPop(pool);
             }
-        }, null, LOG, "Failed to get localized display name: {}");
+        }, null, LOG, "Failed to get localized display name");
     }
 
     private static String queryLocalizedDisplayName(ObjCRuntime objc, int targetDisplayId) {

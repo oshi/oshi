@@ -294,7 +294,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 }
             }
             return "";
-        }, "", LOG, "Failed to read registry string {}/{}: {}", path, valueName);
+        }, "", LOG, "Failed to read registry string {}/{}", path, valueName);
     }
 
     private static long registryGetDword(Arena arena, String path, String valueName) {
@@ -314,6 +314,6 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 }
             }
             return 0L;
-        }, 0L, LOG, "Failed to read registry DWORD {}/{}: {}", path, valueName);
+        }, 0L, LOG, "Failed to read registry DWORD {}/{}", path, valueName);
     }
 }

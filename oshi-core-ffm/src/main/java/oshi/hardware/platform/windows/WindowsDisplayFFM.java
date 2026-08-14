@@ -107,6 +107,6 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                 return edidBuf.asSlice(0, size).toArray(JAVA_BYTE);
             }
             return null;
-        }, null, LOG, "Failed to read EDID from registry: {}");
+        }, null, LOG, "Failed to read EDID from registry");
     }
 }

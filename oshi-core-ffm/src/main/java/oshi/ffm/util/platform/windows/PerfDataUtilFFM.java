@@ -101,7 +101,7 @@ public final class PerfDataUtilFFM {
                     runOrLog(() -> {
                         counterHandles.put(prop, addEnglishCounter(arena, query, path));
                         baseFlags.put(prop, isBase);
-                    }, LOG, "Failed to add counter {}: {}", path);
+                    }, LOG, "Failed to add counter {}", path);
                 }
                 if (counterHandles.isEmpty()) {
                     return valueMap;
@@ -115,7 +115,7 @@ public final class PerfDataUtilFFM {
                     runOrLog(
                             () -> valueMap.put(entry.getKey(),
                                     readRawCounterValue(arena, entry.getValue(), baseFlags.get(entry.getKey()))),
-                            LOG, "Failed to read counter for {}: {}", entry.getKey());
+                            LOG, "Failed to read counter for {}", entry.getKey());
                 }
 
             } finally {
