@@ -309,7 +309,8 @@ public final class PerfDataUtilFFM {
                 // counterHandles[propIndex - 1][instanceIndex]
                 // Detect _Base suffix: strip it from the counter path and read SecondValue instead
                 boolean[] isBase = new boolean[props.length - 1];
-                @SuppressWarnings("unchecked")
+                // Generic array creation is illegal, so the array is allocated raw and cast
+                @SuppressWarnings({ "unchecked", "rawtypes" })
                 List<MemorySegment>[] counterHandles = new List[props.length - 1];
                 for (int p = 1; p < props.length; p++) {
                     String counterName = props[p].getCounter();

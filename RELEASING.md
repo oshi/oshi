@@ -18,6 +18,7 @@ manually deployed using `mvn clean deploy`
 * Make sure tests pass on all configured CI operating systems.
 * Manually run tests on any non-CI-covered OS using `mvn clean test`.
 * Review [SonarQube](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent) for any bugs.
+* Run the javac lint sweep described under [Pre-release bug hunt](#pre-release-bug-hunt) below.
 * Choose an appropriate [version number](https://semver.org/) for the release
     * Proactively change version numbers in the download links on [README.md](README.md).
     * Copy `README.md` to `src/site/markdown/index.md`, then apply the site transformations below.
@@ -50,6 +51,47 @@ manually deployed using `mvn clean deploy`
       javadoc is the usual culprit, and it will not surface until `release:perform`.
     * **Always `clean` first.** The javadoc goals skip when their output is already present, so a
       re-run without `clean` can report `BUILD SUCCESS` without checking anything.
+
+### Pre-release bug hunt
+
+Error Prone, SonarCloud, Coverity, and the `oshi.comparison` twin-agreement tests all run on every
+PR, so they need no pre-release step. The one bug-hunting signal that is **not** continuously
+enforced is javac's own `-Xlint`, and it is worth sweeping once per release.
+
+It is deliberately not wired into the build. `-Xlint:all` expands to a different set of categories on
+every JDK, and an unrecognized category is a hard `error: invalid flag` rather than a warning — so it
+cannot be suppressed, and a blocking config would break the *oldest* JDK in the matrix rather than
+the newest. `restricted` requires JDK 22+, `this-escape` requires 21+, and the cfarm Solaris SPARC
+job builds on 17. Run it by hand instead, forking the compiler so javac reads the environment
+variable:
+
+```sh
+JDK_JAVAC_OPTIONS="-Xlint:all -Xmaxwarns 100000" \
+    ./mvnw clean install -DskipTests -Dmaven.compiler.fork=true > /tmp/lint.log 2>&1
+grep '^\[WARNING\]' /tmp/lint.log | sed -E 's/.*\[([a-z-]+)\].*/\1/' | sort | uniq -c | sort -rn
+```
+
+* **`-Xmaxwarns` is not optional.** javac stops after 100 warnings *per compilation* by default and
+  says nothing about it, which hid 48% of the findings (237 reported of 457 real) the first time this
+  was surveyed — including both of the only two genuine bugs it found. A per-module count of exactly
+  100 is truncation, not a result.
+* **`clean` is not optional either**, or incremental compilation recompiles nothing and cheerfully
+  reports zero warnings.
+* Use a JDK 25+ toolchain, or `oshi-core-ffm`, `oshi-benchmark`, and `oshi-dist` are silently skipped.
+  Findings are *not* OS-dependent — javac compiles every platform's sources on every host — so a
+  single sweep on any one machine covers all supported platforms.
+* **The value is the delta, not the total.** As of 7.5.0 the expected result is 455 findings in
+  exactly three categories, all structural and all deliberate:
+
+  | Category | Count | Why it is expected |
+  |---|---|---|
+  | `restricted` | 285 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
+  | `this-escape` | 149 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
+  | `exports` | 21 | Public `oshi.ffm` methods returning types from non-exported packages, which [AGENTS.md](AGENTS.md) already declares off-limits to dependents |
+
+  Anything in a fourth category is new and worth reading. The 7.5.0 sweep surfaced two real defects
+  this way — a missing `serialVersionUID` and a raw `List` array — both of which had been hidden
+  under the 100-warning cap through several earlier passes.
 
 ### Release
 
