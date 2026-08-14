@@ -55,7 +55,9 @@ public final class ParseUtil {
 
     private static final Charset CP1252 = Charset.forName("Windows-1252");
 
-    private static final String DEFAULT_LOG_MSG = "{} didn't parse. Returning default. {}";
+    // The exception is passed as the trailing argument with no matching placeholder, so SLF4J attaches it as the
+    // event's cause rather than substituting it. A second "{}" here would be left in the output literally.
+    private static final String DEFAULT_LOG_MSG = "{} didn't parse. Returning default.";
 
     /*
      * Used for matching

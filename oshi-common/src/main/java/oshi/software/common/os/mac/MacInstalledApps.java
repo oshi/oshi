@@ -100,14 +100,14 @@ public final class MacInstalledApps {
                         appInfoSet.add(new ApplicationInfo(dictValues.get("_name"), version, vendor, lastModifiedEpoch,
                                 additionalInfo));
                     } catch (Exception e) {
-                        LOG.trace("Unable to parse dict values: " + e.getMessage() + " - " + dictValues, e);
+                        LOG.trace("Unable to parse dict values: {}", dictValues, e);
                     }
                 }
 
                 return Collections.unmodifiableList(new ArrayList<>(appInfoSet));
             }
         } catch (Exception e) {
-            LOG.trace("Unable to read installed apps: " + e.getMessage(), e);
+            LOG.trace("Unable to read installed apps", e);
         }
         return Collections.emptyList();
     }

@@ -63,6 +63,9 @@ public final class LogUtil {
      * @param msg   the log message, with {@code {}} placeholders for the arguments
      * @param args  the arguments to substitute into the message
      */
+    // Forwarding the caller's message is the entire point of this method, so the format string cannot be a constant
+    // here; the callers are the ones that must pass one.
+    @SuppressWarnings("Slf4jFormatShouldBeConst")
     public static void logAtLevel(Logger log, LogLevel level, String msg, Object... args) {
         switch (level) {
             case ERROR:

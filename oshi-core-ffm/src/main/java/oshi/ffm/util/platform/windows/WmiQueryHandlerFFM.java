@@ -61,6 +61,9 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
     private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class<?>[0];
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
 
+    private static final String COM_EXCEPTION_FMT = "COM exception querying {}, which might not be on your system."
+            + " Will not attempt to query it again. Error was {}: {}";
+
     // Factory to create this or a subclass
     private static Class<? extends WmiQueryHandlerFFM> customClass = null;
 
@@ -419,13 +422,11 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
      * @param ex    a FfmComException object
      */
     protected void handleComException(WbemcliUtilFFM.WmiQuery<?> query, FfmComException ex) {
-        String msg = "COM exception querying {}, which might not be on your system."
-                + " Will not attempt to query it again. Error was {}: {}";
-        Object[] args = { query.getWmiClassName(), ex.getHresult(), ex.getMessage() };
-        if ("MSAcpi_ThermalZoneTemperature".equals(query.getWmiClassName())) {
-            LOG.debug(msg, args);
+        String className = query.getWmiClassName();
+        if ("MSAcpi_ThermalZoneTemperature".equals(className)) {
+            LOG.debug(COM_EXCEPTION_FMT, className, ex.getHresult(), ex.getMessage());
         } else {
-            LOG.warn(msg, args);
+            LOG.warn(COM_EXCEPTION_FMT, className, ex.getHresult(), ex.getMessage());
         }
     }
 
