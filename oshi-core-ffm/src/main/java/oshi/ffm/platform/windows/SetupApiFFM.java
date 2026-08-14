@@ -54,7 +54,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
             MemorySegment handle = (MemorySegment) SetupDiGetClassDevs.invokeExact(classGuid, MemorySegment.NULL,
                     MemorySegment.NULL, flags);
             return Kernel32FFM.isInvalidHandle(handle) ? null : handle;
-        }, LOG, "SetupApiFFM.SetupDiGetClassDevs failed: {}");
+        }, LOG, "SetupApiFFM.SetupDiGetClassDevs failed");
     }
 
     private static final MethodHandle SetupDiEnumDeviceInterfaces = downcall(SETUPAPI, "SetupDiEnumDeviceInterfaces",
@@ -77,7 +77,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
             }
             int err = Kernel32FFM.GetLastError().orElse(0);
             return err == ERROR_NO_MORE_ITEMS ? 0 : -1;
-        }, -1, LOG, "SetupApiFFM.SetupDiEnumDeviceInterfaces failed: {}");
+        }, -1, LOG, "SetupApiFFM.SetupDiEnumDeviceInterfaces failed");
     }
 
     private static final MethodHandle SetupDiGetDeviceInterfaceDetail = downcall(SETUPAPI,
@@ -99,7 +99,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
                     requiredSize, MemorySegment.NULL);
             int err = Kernel32FFM.GetLastError().orElse(0);
             return err == ERROR_INSUFFICIENT_BUFFER ? requiredSize.get(JAVA_INT, 0) : 0;
-        }, 0, LOG, "SetupApiFFM.SetupDiGetDeviceInterfaceDetailSize failed: {}");
+        }, 0, LOG, "SetupApiFFM.SetupDiGetDeviceInterfaceDetailSize failed");
     }
 
     /**
@@ -121,7 +121,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
             int result = (int) SetupDiGetDeviceInterfaceDetail.invokeExact(hDevInfo, deviceInterfaceData, detail,
                     requiredSize, reqSize, MemorySegment.NULL);
             return isSuccess(result) ? readWideString(detail.asSlice(4)) : null;
-        }, LOG, "SetupApiFFM.SetupDiGetDeviceInterfaceDetail failed: {}");
+        }, LOG, "SetupApiFFM.SetupDiGetDeviceInterfaceDetail failed");
     }
 
     private static final MethodHandle SetupDiDestroyDeviceInfoList = downcall(SETUPAPI, "SetupDiDestroyDeviceInfoList",
@@ -129,7 +129,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
 
     public static OptionalInt SetupDiDestroyDeviceInfoList(MemorySegment hDevInfo) {
         return getOptionalInt(() -> (int) SetupDiDestroyDeviceInfoList.invokeExact(hDevInfo), LOG,
-                "SetupApiFFM.SetupDiDestroyDeviceInfoList failed: {}");
+                "SetupApiFFM.SetupDiDestroyDeviceInfoList failed");
     }
 
     /**
@@ -155,7 +155,7 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
     public static boolean SetupDiEnumDeviceInfo(MemorySegment hDevInfo, int memberIndex, MemorySegment devInfoData) {
         return getBooleanOrDefault(
                 () -> isSuccess((int) SetupDiEnumDeviceInfo.invokeExact(hDevInfo, memberIndex, devInfoData)), false,
-                LOG, "SetupApiFFM.SetupDiEnumDeviceInfo failed: {}");
+                LOG, "SetupApiFFM.SetupDiEnumDeviceInfo failed");
     }
 
     private static final MethodHandle SetupDiOpenDevRegKey = downcall(SETUPAPI, "SetupDiOpenDevRegKey", ADDRESS,
@@ -178,6 +178,6 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
             MemorySegment key = (MemorySegment) SetupDiOpenDevRegKey.invokeExact(hDevInfo, devInfoData, scope,
                     hwProfile, keyType, samDesired);
             return Kernel32FFM.isInvalidHandle(key) ? null : key;
-        }, null, LOG, "SetupApiFFM.SetupDiOpenDevRegKey failed: {}");
+        }, null, LOG, "SetupApiFFM.SetupDiOpenDevRegKey failed");
     }
 }

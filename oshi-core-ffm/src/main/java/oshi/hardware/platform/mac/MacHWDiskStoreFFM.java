@@ -225,7 +225,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                         }
                                     }
                                 }
-                            }, LOG, "Error building partition list for {}: {}", bsdName);
+                            }, LOG, "Error building partition list for {}", bsdName);
                         }
                     }
                     setPartitionList(Collections.unmodifiableList(

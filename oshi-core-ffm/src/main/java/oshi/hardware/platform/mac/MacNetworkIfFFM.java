@@ -60,7 +60,7 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
                 }
             }
             return name;
-        }, name, LOG, "Failed to query SC network interface display name for {}: {}", name);
+        }, name, LOG, "Failed to query SC network interface display name for {}", name);
     }
 
     public static List<NetworkIF> getNetworks(boolean includeLocalInterfaces) {

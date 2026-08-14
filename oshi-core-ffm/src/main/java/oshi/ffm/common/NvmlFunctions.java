@@ -155,7 +155,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int init() {
-        return getIntOrDefault(() -> (int) nvmlInit_v2.invokeExact(), -1, LOG, "nvmlInit_v2 failed: {}");
+        return getIntOrDefault(() -> (int) nvmlInit_v2.invokeExact(), -1, LOG, "nvmlInit_v2 failed");
     }
 
     /**
@@ -164,7 +164,7 @@ public final class NvmlFunctions extends ForeignFunctions {
      * @return NVML return code
      */
     public static int shutdown() {
-        return getIntOrDefault(() -> (int) nvmlShutdown.invokeExact(), -1, LOG, "nvmlShutdown failed: {}");
+        return getIntOrDefault(() -> (int) nvmlShutdown.invokeExact(), -1, LOG, "nvmlShutdown failed");
     }
 
     /**

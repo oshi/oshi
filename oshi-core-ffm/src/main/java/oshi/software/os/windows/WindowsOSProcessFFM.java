@@ -225,7 +225,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                 }
                 return null;
             }
-        }, null, LOG, WARN, "Failed to query {} info for process {} ({}): {}", what, getProcessID(), getName());
+        }, null, LOG, WARN, "Failed to query {} info for process {} ({})", what, getProcessID(), getName());
         return pair != null ? pair : defaultPair();
     }
 

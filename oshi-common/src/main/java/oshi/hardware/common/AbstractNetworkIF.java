@@ -193,12 +193,12 @@ public abstract class AbstractNetworkIF implements NetworkIF {
         return ExceptionUtil.getOrDefault(() -> {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
             return interfaces == null ? Collections.emptyList() : Collections.list(interfaces);
-        }, Collections.emptyList(), LOG, "Socket exception when retrieving interfaces: {}");
+        }, Collections.emptyList(), LOG, "Socket exception when retrieving interfaces");
     }
 
     private static boolean isLocalInterface(NetworkInterface networkInterface) {
         return ExceptionUtil.getBooleanOrDefault(() -> networkInterface.getHardwareAddress() == null, false, LOG,
-                "Socket exception when retrieving interface information: {}");
+                "Socket exception when retrieving interface information");
     }
 
     @Override

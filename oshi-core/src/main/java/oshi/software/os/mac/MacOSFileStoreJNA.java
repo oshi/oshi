@@ -45,7 +45,7 @@ public class MacOSFileStoreJNA extends MacOSFileStore {
                 return true;
             }
             return false;
-        }, false, LOG, "statfs64 fast path failed for {}: {}", getMount())) {
+        }, false, LOG, "statfs64 fast path failed for {}", getMount())) {
             return true;
         }
         // Fall back to full enumeration

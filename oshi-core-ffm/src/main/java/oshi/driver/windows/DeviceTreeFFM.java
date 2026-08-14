@@ -116,7 +116,7 @@ public final class DeviceTreeFFM {
                                         child = sibling;
                                     }
                                 }
-                            }, LOG, "CM_Get_Child/Sibling threw for node {}: {}", node);
+                            }, LOG, "CM_Get_Child/Sibling threw for node {}", node);
                         }
                     }
                 } finally {

@@ -76,7 +76,7 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
             long written = size.get(SIZE_T, 0);
             byte[] bytes = getByteArrayFromNativePointer(buf, written, arena);
             return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(bytes));
-        }, LOG, oshi.util.LogLevel.WARN, "queryArguments failed", Collections.<String>emptyList());
+        }, LOG, WARN, "queryArguments failed", Collections.<String>emptyList());
     }
 
     @Override
@@ -129,6 +129,6 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
                 return 0;
             }
             return elfBitness(buf.getString(0));
-        }, LOG, oshi.util.LogLevel.WARN, "queryBitness failed", 0);
+        }, LOG, WARN, "queryBitness failed", 0);
     }
 }

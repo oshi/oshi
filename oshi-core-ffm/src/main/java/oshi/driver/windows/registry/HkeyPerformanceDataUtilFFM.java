@@ -255,7 +255,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
                 return null;
             }
             return pPerfData;
-        }, null, LOG, "Error reading performance data from registry for {}.");
+        }, null, LOG, "Error reading performance data from registry for {}.", objectName);
     }
 
     /**

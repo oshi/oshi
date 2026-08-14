@@ -91,7 +91,7 @@ public final class NativeHandle implements AutoCloseable {
     @Override
     public void close() {
         if (!isNull() && closed.compareAndSet(false, true)) {
-            runOrLog(() -> closer.close(handle), LOG, "Failed to close native handle: {}");
+            runOrLog(() -> closer.close(handle), LOG, "Failed to close native handle");
         }
     }
 }

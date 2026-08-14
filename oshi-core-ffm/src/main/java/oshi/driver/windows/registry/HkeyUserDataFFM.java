@@ -100,7 +100,7 @@ public final class HkeyUserDataFFM {
                     }
                 }
             }
-        }, LOG, "Error enumerating HKEY_USERS: {}");
+        }, LOG, "Error enumerating HKEY_USERS");
         return sessions;
     }
 
@@ -174,6 +174,6 @@ public final class HkeyUserDataFFM {
 
     private static String[] getSubKeys(MemorySegment rootKey, String keyPath) {
         return getOrDefault(() -> Advapi32UtilFFM.registryGetKeys(rootKey, keyPath, 0), new String[0], LOG,
-                "Error getting subkeys for {}: {}");
+                "Error getting subkeys for {}", keyPath);
     }
 }

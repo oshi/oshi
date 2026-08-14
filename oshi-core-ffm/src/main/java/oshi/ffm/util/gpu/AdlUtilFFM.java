@@ -194,7 +194,7 @@ public final class AdlUtilFFM {
             }
             LOG.debug("ADL2_Main_Control_Create failed with code {}", ret);
             return null;
-        }, null, LOG, "ADL init failed: {}");
+        }, null, LOG, "ADL init failed");
     }
 
     private static void adlUninit(MemorySegment context) {
@@ -203,7 +203,7 @@ public final class AdlUtilFFM {
         // The suppression on the next line stops S1602 collapsing the block back to the buggy expression form.
         runOrLog(() -> { // NOSONAR java:S1602 - block form required; expression lambda miscompiles void invokeExact
             ADL2_MAIN_CONTROL_DESTROY.invokeExact(context);
-        }, LOG, "ADL uninit failed: {}");
+        }, LOG, "ADL uninit failed");
     }
 
     private static void ensureAdaptersEnumerated(MemorySegment context, Arena arena) {
@@ -260,7 +260,7 @@ public final class AdlUtilFFM {
                 }
             }
             return Collections.unmodifiableMap(map);
-        }, null, LOG, "ADL adapter enumeration failed: {}");
+        }, null, LOG, "ADL adapter enumeration failed");
     }
 
     private static boolean supportsOverdriveN(MemorySegment context, int adapterIndex, Arena arena) {
@@ -281,7 +281,7 @@ public final class AdlUtilFFM {
                 return supported.get(JAVA_INT, 0) != 0 && version.get(JAVA_INT, 0) >= minVersion;
             }
             return false;
-        }, false, LOG, "ADL Overdrive_Caps failed: {}");
+        }, false, LOG, "ADL Overdrive_Caps failed");
     }
 
     // -------------------------------------------------------------------------

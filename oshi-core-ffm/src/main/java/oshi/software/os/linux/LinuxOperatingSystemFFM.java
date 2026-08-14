@@ -104,7 +104,7 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
         boolean hasSyscallGettid = LinuxLibcFunctions.hasGettid();
         if (!hasSyscallGettid) {
             hasSyscallGettid = getBooleanOrDefault(() -> LinuxLibcFunctions.syscallGettid() > 0, false, LOG,
-                    "Did not find working syscall gettid via FFM, using procfs: {}");
+                    "Did not find working syscall gettid via FFM, using procfs");
         }
         HAS_SYSCALL_GETTID = hasSyscallGettid;
     }
@@ -140,14 +140,14 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return getIntOrDefault(LinuxLibcFunctions::getpid, 0, LOG, WARN, "FFM getpid failed: {}");
+        return getIntOrDefault(LinuxLibcFunctions::getpid, 0, LOG, WARN, "FFM getpid failed");
     }
 
     @Override
     public int getThreadId() {
         if (HAS_SYSCALL_GETTID) {
             OptionalInt tid = getOptionalInt(() -> LinuxLibcFunctions.hasGettid() ? LinuxLibcFunctions.gettid()
-                    : (int) LinuxLibcFunctions.syscallGettid(), LOG, WARN, "FFM gettid failed: {}");
+                    : (int) LinuxLibcFunctions.syscallGettid(), LOG, WARN, "FFM gettid failed");
             if (tid.isPresent()) {
                 return tid.getAsInt();
             }
