@@ -6,6 +6,8 @@ package oshi.hardware.common.platform.linux.nativefree;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
@@ -55,12 +57,12 @@ final class LinuxGraphicsCardNF extends LinuxGraphicsCard {
         }
 
         @Override
-        protected String nvmlFindDevice(String busId) {
+        protected @Nullable String nvmlFindDevice(String busId) {
             return null;
         }
 
         @Override
-        protected String nvmlFindDeviceByName(String name) {
+        protected @Nullable String nvmlFindDeviceByName(String name) {
             return null;
         }
 

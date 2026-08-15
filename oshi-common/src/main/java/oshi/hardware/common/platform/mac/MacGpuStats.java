@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public abstract class MacGpuStats implements GpuStats {
     private final Pattern cardNamePattern;
 
     /** Non-null only on Apple Silicon, where the IOReport GPU channels exist. */
-    private final IOReportSampler sampler;
+    private final @Nullable IOReportSampler sampler;
 
     private boolean closed;
 
@@ -78,7 +79,7 @@ public abstract class MacGpuStats implements GpuStats {
      *                       It is consulted only on Apple Silicon: the IOReport GPU channels do not exist on Intel, so
      *                       subscribing there would attempt a subscription that can never yield a sample.
      */
-    protected MacGpuStats(boolean isAppleSilicon, String cardName, Supplier<IOReportSampler> samplerFactory) {
+    protected MacGpuStats(boolean isAppleSilicon, String cardName, Supplier<@Nullable IOReportSampler> samplerFactory) {
         this.isAppleSilicon = isAppleSilicon;
         this.normCardName = normalize(cardName);
         this.cardNamePattern = Pattern.compile("\\b" + Pattern.quote(normCardName) + "\\b");

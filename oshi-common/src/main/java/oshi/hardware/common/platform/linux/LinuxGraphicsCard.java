@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
@@ -214,7 +216,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @return list of graphics cards
      */
     static List<GraphicsCard> getGraphicsCardsFromLspci(List<String> lspci, Function<Attrs, GraphicsCard> factory,
-            ToLongFunction<String> vramLookup, Function<String, Triplet<String, String, String>> drmLookup) {
+            ToLongFunction<String> vramLookup, Function<@Nullable String, Triplet<String, String, String>> drmLookup) {
         List<GraphicsCard> cardList = new ArrayList<>();
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
@@ -310,7 +312,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @return list of graphics cards
      */
     static List<GraphicsCard> getGraphicsCardsFromLshw(List<String> lshw, Function<Attrs, GraphicsCard> factory,
-            Function<String, Triplet<String, String, String>> drmLookup) {
+            Function<@Nullable String, Triplet<String, String, String>> drmLookup) {
         List<GraphicsCard> cardList = new ArrayList<>();
         String name = Constants.UNKNOWN;
         String deviceId = Constants.UNKNOWN;
@@ -395,7 +397,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @param pciSlot the PCI slot address from lspci (e.g. {@code "01:00.0"}), or {@code null} to use first-match
      * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found
      */
-    private static Triplet<String, String, String> findDrmInfo(String pciSlot) {
+    private static Triplet<String, String, String> findDrmInfo(@Nullable String pciSlot) {
         return findDrmInfo(pciSlot, DRM_PATH);
     }
 
@@ -406,7 +408,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
      * @param drmPath the base DRM sysfs directory path
      * @return triplet of (drmDevicePath, driverName, pciBusId), all empty strings if not found
      */
-    static Triplet<String, String, String> findDrmInfo(String pciSlot, String drmPath) {
+    static Triplet<String, String, String> findDrmInfo(@Nullable String pciSlot, String drmPath) {
         File drmDir = new File(drmPath);
         File[] cards = drmDir.listFiles(f -> f.getName().matches("card\\d+"));
         if (cards == null) {

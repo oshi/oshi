@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,9 +41,9 @@ public abstract class WindowsGpuStats implements GpuStats {
 
     private boolean closed;
 
-    private String cachedNvmlDevice;
+    private @Nullable String cachedNvmlDevice;
     private int cachedAdlIndex = Integer.MIN_VALUE;
-    private GpuTicks prevUtilTicks;
+    private @Nullable GpuTicks prevUtilTicks;
 
     /**
      * Constructor.
@@ -456,7 +457,7 @@ public abstract class WindowsGpuStats implements GpuStats {
         return -1L;
     }
 
-    private String findNvmlDevice() {
+    private @Nullable String findNvmlDevice() {
         if (cachedNvmlDevice != null) {
             return cachedNvmlDevice.isEmpty() ? null : cachedNvmlDevice;
         }
