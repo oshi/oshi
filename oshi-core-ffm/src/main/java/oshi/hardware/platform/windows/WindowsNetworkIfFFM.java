@@ -4,8 +4,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.util.LogLevel.ERROR;
 
@@ -15,6 +13,7 @@ import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

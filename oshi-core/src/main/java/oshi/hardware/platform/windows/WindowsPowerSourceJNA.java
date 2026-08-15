@@ -4,13 +4,13 @@
  */
 package oshi.hardware.platform.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import java.nio.charset.StandardCharsets;
 import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+
+import org.jspecify.annotations.Nullable;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;

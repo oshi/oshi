@@ -4,8 +4,6 @@
  */
 package oshi.hardware.platform.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
@@ -48,6 +46,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,11 +4,10 @@
  */
 package oshi.hardware.platform.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
 import java.util.function.BiFunction;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +37,7 @@ final class WindowsSensorsFFM extends WindowsSensors {
 
     @Override
     protected @Nullable WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName,
-            String sensorType,
-            boolean searchCpu) {
+            String sensorType, boolean searchCpu) {
         return getOhmSensors(typeToQuery, typeName, sensorType, (h, ohmHardware) -> {
             String cpuIdentifier = selectOhmCpuIdentifier(ohmHardware, searchCpu);
             if (!cpuIdentifier.isEmpty()) {

@@ -62,7 +62,7 @@ public abstract class AbstractPowerSource implements PowerSource {
      * @param designCapacity           design capacity
      * @param cycleCount               charge cycle count
      * @param chemistry                battery chemistry
-     * @param manufactureDate          manufacture date
+     * @param manufactureDate          manufacture date, or {@code null} if the platform did not report one
      * @param manufacturer             manufacturer name
      * @param serialNumber             serial number
      * @param temperature              temperature in degrees Celsius
