@@ -55,7 +55,7 @@ public abstract class HkeyPerformanceDataUtil {
      * @param counterText The string array from the registry, or null if the read failed
      * @return An unmodifiable map of counter name to index
      */
-    protected static Map<String, Integer> buildCounterIndexMap(String[] counterText) {
+    protected static Map<String, Integer> buildCounterIndexMap(String @Nullable [] counterText) {
         HashMap<String, Integer> indexMap = new HashMap<>();
         if (counterText != null && counterText.length > 1) {
             for (int i = 1; i < counterText.length; i += 2) {

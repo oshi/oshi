@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.win32.Kernel32Util;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.WinNT;
@@ -53,7 +55,7 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> getLogicalProcessorInformationEx() {
+    public static Triplet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>> getLogicalProcessorInformationEx() {
         // Collect a list of logical processors on each physical core and
         // package. These will be 64-bit bitmasks.
         SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX[] procInfo = Kernel32Util
@@ -199,7 +201,7 @@ public final class LogicalProcessorInformation {
      *
      * @return A list of logical processors
      */
-    public static Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> getLogicalProcessorInformation() {
+    public static Triplet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>> getLogicalProcessorInformation() {
         // Collect a list of logical processors on each physical core and package.
         List<Long> packageMaskList = new ArrayList<>();
         List<Long> coreMaskList = new ArrayList<>();

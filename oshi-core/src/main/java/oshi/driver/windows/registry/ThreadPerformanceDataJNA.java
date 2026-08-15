@@ -17,7 +17,6 @@ import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.perfmon.PerfmonDisabled;
 import oshi.driver.windows.perfmon.ThreadInformationJNA;
-import oshi.util.Util;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -65,13 +64,13 @@ public final class ThreadPerformanceDataJNA {
      *         counter information.
      */
     public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
-            Collection<Integer> pids, String procName, int threadNum) {
+            Collection<Integer> pids, @Nullable String procName, int threadNum) {
         if (PerfmonDisabled.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = Util.isBlank(procName)
-                ? ThreadInformationJNA.queryThreadCounters()
-                : ThreadInformationJNA.queryThreadCounters(procName, threadNum);
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = procName == null
+                || procName.isEmpty() ? ThreadInformationJNA.queryThreadCounters()
+                        : ThreadInformationJNA.queryThreadCounters(procName, threadNum);
         return ThreadPerformanceData.buildThreadMapFromPerfCounters(pids, instanceValues);
     }
 }

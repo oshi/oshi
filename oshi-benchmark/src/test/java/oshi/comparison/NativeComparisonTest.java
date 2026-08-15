@@ -431,8 +431,12 @@ class NativeComparisonTest {
         // Time counters: snapshots taken close together, allow small difference
         assertThat(ffm.getKernelTime()).as("process.kernelTime").isGreaterThanOrEqualTo(jna.getKernelTime());
         assertThat(ffm.getUserTime()).as("process.userTime").isGreaterThanOrEqualTo(jna.getUserTime());
-        // Uptime may differ due to memoization (300ms TTL); BSD uses seconds-resolution ps output
-        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 300L);
+        // Uptime may differ due to memoization (300ms TTL); BSD uses seconds-resolution ps output.
+        // The two snapshots are taken in sequence, so this difference is the wall-clock gap between them, which is
+        // unrelated to how long the process has been up. The percentage term is therefore far too tight on a
+        // freshly started JVM - which is when this test runs - so the floor is what actually governs: it has to
+        // cover building two process maps through a cold native stack. 300ms did not on Windows.
+        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 1500L);
         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
                 .isLessThanOrEqualTo(upTimeTolerance);
         assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");

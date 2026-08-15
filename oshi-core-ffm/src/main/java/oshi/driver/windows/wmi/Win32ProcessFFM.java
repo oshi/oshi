@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32Process;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
@@ -20,7 +22,7 @@ public final class Win32ProcessFFM extends Win32Process {
     private Win32ProcessFFM() {
     }
 
-    public static WmiResult<CommandLineProperty> queryCommandLines(Set<Integer> pidsToQuery) {
+    public static WmiResult<CommandLineProperty> queryCommandLines(@Nullable Set<Integer> pidsToQuery) {
         return Win32Process.queryCommandLines(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()),
                 pidsToQuery);
     }

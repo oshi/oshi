@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 The OSHI Project Contributors
+ * Copyright 2021-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.windows;
@@ -56,7 +56,7 @@ public final class EnumWindows {
                         User32.INSTANCE.GetWindowThreadProcessId(hWnd, pProcessId);
                         windowList.add(new OSDesktopWindow(Pointer.nativeValue(hWnd.getPointer()), window.getTitle(),
                                 window.getFilePath(), window.getLocAndSize(), pProcessId.getValue(),
-                                zOrderMap.get(hWnd), visible));
+                                zOrderMap.getOrDefault(hWnd, 0), visible));
                     }
                 }
             }

@@ -69,9 +69,10 @@ class RegistryComparisonTest {
                     "process[" + pid + "].privateWorkingSetSize");
 
             // Uptime differs by the delta between the two reads; the floor absorbs the collection-time gap
-            // between the perf-counter and registry passes, which can exceed 1s on a loaded CI runner.
+            // between the perf-counter and registry passes, which can exceed 1s on a loaded CI runner. Raised
+            // from 1200 after a Windows run measured 1267.
             assertThat(Math.abs(p.getUpTime() - r.getUpTime())).as("process[%d].upTime delta", pid)
-                    .isLessThanOrEqualTo(Math.max(r.getUpTime() / 10, 1200L));
+                    .isLessThanOrEqualTo(Math.max(r.getUpTime() / 10, 1500L));
         }
     }
 

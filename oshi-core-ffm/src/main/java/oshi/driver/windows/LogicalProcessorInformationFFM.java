@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public final class LogicalProcessorInformationFFM {
      *
      * @return A triplet of logical processors, physical processors, and processor caches
      */
-    public static Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> getLogicalProcessorInformationEx() {
+    public static Triplet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>> getLogicalProcessorInformationEx() {
         List<List<long[]>> packages = new ArrayList<>(); // each entry: list of [group, mask]
         Set<ProcessorCache> caches = new HashSet<>();
         List<long[]> cores = new ArrayList<>(); // each entry: [group, mask, efficiency]
