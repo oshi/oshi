@@ -160,7 +160,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
-        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> lpi = LogicalProcessorInformationFFM
+        Triplet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>> lpi = LogicalProcessorInformationFFM
                 .getLogicalProcessorInformationEx();
         buildNumaNodeProcMap(lpi.getA());
 

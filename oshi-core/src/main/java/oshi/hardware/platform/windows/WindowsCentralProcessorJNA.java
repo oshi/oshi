@@ -122,7 +122,7 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
-        Triplet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>> lpi;
+        Triplet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>> lpi;
         if (VersionHelpers.IsWindows7OrGreater()) {
             lpi = LogicalProcessorInformation.getLogicalProcessorInformationEx();
             buildNumaNodeProcMap(lpi.getA());

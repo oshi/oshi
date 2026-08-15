@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,7 +89,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         return displays;
     }
 
-    private static byte[] queryEdidFromKey(MemorySegment key, MemorySegment edidName, Arena arena) {
+    private static byte @Nullable [] queryEdidFromKey(MemorySegment key, MemorySegment edidName, Arena arena) {
         return getOrDefault(() -> {
             MemorySegment pType = arena.allocate(JAVA_INT);
             MemorySegment lpcbData = arena.allocate(JAVA_INT);

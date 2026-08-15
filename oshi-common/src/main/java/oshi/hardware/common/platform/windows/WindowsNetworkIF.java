@@ -6,6 +6,8 @@ package oshi.hardware.common.platform.windows;
 
 import java.net.NetworkInterface;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
 
@@ -109,5 +111,5 @@ public abstract class WindowsNetworkIF extends AbstractNetworkIF {
      *
      * @return the stats, or {@code null} if the query failed
      */
-    protected abstract IfStats queryStats();
+    protected abstract @Nullable IfStats queryStats();
 }

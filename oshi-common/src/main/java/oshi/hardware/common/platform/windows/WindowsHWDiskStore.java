@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      * @param instanceValuePair The raw PDH counter data
      * @return A populated DiskStats object
      */
-    protected static DiskStats populateDiskStats(String index,
+    protected static DiskStats populateDiskStats(@Nullable String index,
             Pair<List<String>, Map<PhysicalDiskProperty, List<Long>>> instanceValuePair) {
         DiskStats stats = new DiskStats();
         List<String> instances = instanceValuePair.getA();

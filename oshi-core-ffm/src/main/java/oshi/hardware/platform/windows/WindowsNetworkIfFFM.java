@@ -13,6 +13,7 @@ import java.net.NetworkInterface;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public final class WindowsNetworkIfFFM extends WindowsNetworkIF {
     }
 
     @Override
-    protected IfStats queryStats() {
+    protected @Nullable IfStats queryStats() {
         // FFM targets JDK 25+ which requires Vista+; use GetIfEntry2 directly
         return callInArenaOrDefault(arena -> {
             MemorySegment ifRow = arena.allocate(IPHlpAPIFFM.MIB_IF_ROW2_SIZE);

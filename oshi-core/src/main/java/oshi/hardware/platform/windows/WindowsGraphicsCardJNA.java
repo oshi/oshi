@@ -290,7 +290,7 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
      * @param locationInfo the LocationInformation registry value
      * @return PCI bus number, or -1 if not parseable
      */
-    static int parsePciBusNumber(String locationInfo) {
+    static int parsePciBusNumber(@Nullable String locationInfo) {
         return DxgiUtil.parsePciBusNumber(locationInfo);
     }
 
@@ -321,7 +321,7 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
      * @param locationInfo the LocationInformation registry value
      * @return PCI bus ID string, or empty string if not parseable
      */
-    static String buildPciBusId(String locationInfo) {
+    static String buildPciBusId(@Nullable String locationInfo) {
         return DxgiUtil.buildPciBusId(locationInfo);
     }
 

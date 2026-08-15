@@ -41,7 +41,7 @@ public final class DxgiUtilJNA {
      * @return best-matching adapter, or {@code null}
      */
     public static @Nullable DxgiAdapterInfo findMatch(List<DxgiAdapterInfo> adapters, int vendorId, int deviceId,
-            String adapterName) {
+            @Nullable String adapterName) {
         return DxgiUtil.findMatch(adapters, vendorId, deviceId, adapterName);
     }
 
