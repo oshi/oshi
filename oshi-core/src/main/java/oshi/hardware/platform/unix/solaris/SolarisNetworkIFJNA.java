@@ -9,6 +9,8 @@ import static oshi.software.os.unix.solaris.SolarisOperatingSystemJNA.HAS_KSTAT2
 import java.net.NetworkInterface;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -39,7 +41,7 @@ public final class SolarisNetworkIFJNA extends SolarisNetworkIF {
     }
 
     @Override
-    protected IfStats queryStats() {
+    protected @Nullable IfStats queryStats() {
         if (HAS_KSTAT2) {
             return queryStats2();
         }
@@ -67,7 +69,7 @@ public final class SolarisNetworkIFJNA extends SolarisNetworkIF {
         return null;
     }
 
-    private IfStats queryStats2() {
+    private @Nullable IfStats queryStats2() {
         Object[] results = KstatUtil.queryKstat2("kstat:/net/link/" + getName() + "/0", "obytes64", "rbytes64",
                 "opackets64", "ipackets64", "oerrors", "ierrors", "collisions", "dl_idrops", "ifspeed", "snaptime");
         if (results[results.length - 1] == null) {

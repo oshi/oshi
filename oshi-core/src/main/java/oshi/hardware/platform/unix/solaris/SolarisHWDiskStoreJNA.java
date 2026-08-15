@@ -8,6 +8,8 @@ import static oshi.software.os.unix.solaris.SolarisOperatingSystemJNA.HAS_KSTAT2
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatIO;
 
@@ -37,7 +39,7 @@ public final class SolarisHWDiskStoreJNA extends SolarisHWDiskStore {
     }
 
     @Override
-    protected DiskStats queryStats() {
+    protected @Nullable DiskStats queryStats() {
         if (HAS_KSTAT2) {
             return queryStats2();
         }
@@ -59,7 +61,7 @@ public final class SolarisHWDiskStoreJNA extends SolarisHWDiskStore {
         return null;
     }
 
-    private DiskStats queryStats2() {
+    private @Nullable DiskStats queryStats2() {
         String fullName = getName();
         String alpha = fullName;
         String numeric = "";

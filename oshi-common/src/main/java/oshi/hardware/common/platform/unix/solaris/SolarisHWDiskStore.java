@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.solaris.disk.Iostat;
 import oshi.driver.common.unix.solaris.disk.Lshal;
@@ -128,5 +130,5 @@ public abstract class SolarisHWDiskStore extends AbstractHWDiskStore {
      *
      * @return stats POJO, or {@code null} if no entry was found for this disk name
      */
-    protected abstract DiskStats queryStats();
+    protected abstract @Nullable DiskStats queryStats();
 }

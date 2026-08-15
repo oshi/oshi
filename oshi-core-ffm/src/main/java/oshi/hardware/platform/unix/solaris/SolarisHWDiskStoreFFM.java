@@ -7,6 +7,8 @@ package oshi.hardware.platform.unix.solaris;
 import java.lang.foreign.MemorySegment;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.solaris.LibKstatFunctions;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
@@ -35,7 +37,7 @@ public final class SolarisHWDiskStoreFFM extends SolarisHWDiskStore {
     }
 
     @Override
-    protected DiskStats queryStats() {
+    protected @Nullable DiskStats queryStats() {
         try (KstatChain kc = KstatUtilFFM.openChain()) {
             MemorySegment ksp = kc.lookup(null, 0, getName());
             if (ksp.address() != 0L && kc.read(ksp)) {
