@@ -9,6 +9,7 @@ import static oshi.util.LogLevel.DEBUG;
 
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ final class LinuxFileSystemFFM extends LinuxFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystemFFM.class);
 
     @Override
-    protected long[] queryStatvfs(String path) {
+    protected long @Nullable [] queryStatvfs(String path) {
         return callInArenaOrDefault(arena -> {
             MemorySegment pathSeg = arena.allocateFrom(path);
             MemorySegment buf = arena.allocate(LinuxLibcFunctions.STATVFS_LAYOUT);

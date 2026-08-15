@@ -12,6 +12,7 @@ import static oshi.util.LogLevel.WARN;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ public class LinuxOSProcessFFM extends LinuxOSProcess {
     }
 
     @Override
-    protected long[] queryContextSwitches() {
+    protected long @Nullable [] queryContextSwitches() {
         return callInArenaOrDefault(arena -> {
             MemorySegment rusage = arena.allocate(LinuxLibcFunctions.RUSAGE_SIZE);
             if (0 == LinuxLibcFunctions.getrusage(LinuxLibcFunctions.RUSAGE_SELF, rusage)) {

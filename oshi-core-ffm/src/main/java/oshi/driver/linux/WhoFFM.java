@@ -15,6 +15,8 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
 import oshi.ffm.platform.linux.SystemdFunctions;
@@ -136,7 +138,7 @@ public final class WhoFFM {
         return sessionList;
     }
 
-    private static OSSession queryOneSession(String sessionId, Arena arena) throws Throwable {
+    private static @Nullable OSSession queryOneSession(String sessionId, Arena arena) throws Throwable {
         MemorySegment sessionSeg = arena.allocateFrom(sessionId);
 
         // Get username (required)

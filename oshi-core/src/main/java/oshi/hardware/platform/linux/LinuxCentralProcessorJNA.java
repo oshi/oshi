@@ -9,6 +9,7 @@ import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +39,7 @@ final class LinuxCentralProcessorJNA extends LinuxCentralProcessor {
     }
 
     @Override
-    protected List<String> enumerateCpuSyspathsViaUdev() {
+    protected @Nullable List<String> enumerateCpuSyspathsViaUdev() {
         if (!HAS_UDEV) {
             return null;
         }

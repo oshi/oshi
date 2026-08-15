@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.OptionalInt;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,7 +126,7 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         OSProcess proc = createOSProcess(pid);
         if (!proc.getState().equals(State.INVALID)) {
             return proc;
