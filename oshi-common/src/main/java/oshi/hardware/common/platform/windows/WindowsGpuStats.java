@@ -42,8 +42,8 @@ public abstract class WindowsGpuStats implements GpuStats {
     private boolean closed;
 
     private volatile @Nullable String cachedNvmlDevice;
-    private int cachedAdlIndex = Integer.MIN_VALUE;
-    private @Nullable GpuTicks prevUtilTicks;
+    private volatile int cachedAdlIndex = Integer.MIN_VALUE;
+    private volatile @Nullable GpuTicks prevUtilTicks;
 
     /**
      * Constructor.
@@ -274,9 +274,10 @@ public abstract class WindowsGpuStats implements GpuStats {
             }
         }
         GpuTicks curr = getGpuTicks();
-        if (prevUtilTicks != null) {
-            long dActive = curr.getActiveTicks() - prevUtilTicks.getActiveTicks();
-            long dIdle = curr.getIdleTicks() - prevUtilTicks.getIdleTicks();
+        GpuTicks prev = this.prevUtilTicks;
+        if (prev != null) {
+            long dActive = curr.getActiveTicks() - prev.getActiveTicks();
+            long dIdle = curr.getIdleTicks() - prev.getIdleTicks();
             if (dActive < 0 || dIdle < 0) {
                 prevUtilTicks = curr;
                 return -1d;
