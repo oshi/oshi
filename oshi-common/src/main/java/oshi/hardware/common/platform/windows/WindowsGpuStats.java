@@ -43,7 +43,7 @@ public abstract class WindowsGpuStats implements GpuStats {
 
     private volatile @Nullable String cachedNvmlDevice;
     private volatile int cachedAdlIndex = Integer.MIN_VALUE;
-    private volatile @Nullable GpuTicks prevUtilTicks;
+    private volatile @Nullable GpuTicks prevUtilTicks; // NOSONAR java:S3077 - published value is immutable
 
     /**
      * Constructor.
