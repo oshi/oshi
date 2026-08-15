@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,8 +104,8 @@ public final class InstalledAppsDataFFM {
         return new ArrayList<>(appInfoSet);
     }
 
-    private static Object getRegistryValueOrNull(MemorySegment rootKey, String path, String key, int accessFlag)
-            throws Throwable {
+    private static @Nullable Object getRegistryValueOrNull(MemorySegment rootKey, String path, String key,
+            int accessFlag) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment phkKey = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, path), 0, KEY_READ | accessFlag, phkKey);

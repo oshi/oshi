@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -65,7 +67,7 @@ public class Win32Process {
      * @param pids Process IDs to filter, or {@code null} to query all processes
      * @return the WMI class name with WHERE clause appended if pids is non-null
      */
-    public static String buildWmiClassNameWithPidFilter(Collection<Integer> pids) {
+    public static String buildWmiClassNameWithPidFilter(@Nullable Collection<Integer> pids) {
         if (pids == null || pids.isEmpty()) {
             return WIN32_PROCESS;
         }
@@ -80,7 +82,8 @@ public class Win32Process {
      * @param pidsToQuery Process IDs to query for command lines. Pass {@code null} to query all processes.
      * @return A {@link WmiResult} containing process IDs and command lines.
      */
-    public static WmiResult<CommandLineProperty> queryCommandLines(WmiQueryExecutor h, Set<Integer> pidsToQuery) {
+    public static WmiResult<CommandLineProperty> queryCommandLines(WmiQueryExecutor h,
+            @Nullable Set<Integer> pidsToQuery) {
         WmiQuery<CommandLineProperty> commandLineQuery = new WmiQuery<>(buildWmiClassNameWithPidFilter(pidsToQuery),
                 CommandLineProperty.class);
         return h.queryWMI(commandLineQuery);

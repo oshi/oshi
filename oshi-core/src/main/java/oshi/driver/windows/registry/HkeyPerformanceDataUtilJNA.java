@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,10 +59,11 @@ public final class HkeyPerformanceDataUtilJNA extends HkeyPerformanceDataUtil {
      * @return A triplet containing the results. The first element maps the input enum to the counter values where the
      *         first enum will contain the instance name as a {@link String}, and the remaining values will either be
      *         {@link Long}, {@link Integer}, or {@code null} depending on whether the specified enum counter was
-     *         present and the size of the counter value. The second element is a timestamp in 100nSec increments
-     *         (Windows 1601 Epoch) while the third element is a timestamp in milliseconds since the 1970 Epoch.
+     *         present and the size of the counter value, or {@code null} if the object could not be read. The second
+     *         element is a timestamp in 100nSec increments (Windows 1601 Epoch) while the third element is a timestamp
+     *         in milliseconds since the 1970 Epoch.
      */
-    public static <T extends Enum<T> & PdhCounterWildcardProperty> Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
+    public static <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
             String objectName, Class<T> counterEnum) {
         // Load indices
         Pair<Integer, EnumMap<T, Integer>> indices = getCounterIndices(objectName, counterEnum, COUNTER_INDEX_MAP);
@@ -120,14 +122,16 @@ public final class HkeyPerformanceDataUtilJNA extends HkeyPerformanceDataUtil {
                                 pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
                         for (int i = 1; i < counterKeys.length; i++) {
                             T key = counterKeys[i];
-                            int keyIndex = enumIndexMap.get(key);
+                            int keyIndex = enumIndexMap.getOrDefault(key, -1);
                             int size = counterSizeMap.getOrDefault(keyIndex, 0);
+                            Integer offset = counterOffsetMap.get(keyIndex);
+                            if (offset == null) {
+                                return null;
+                            }
                             if (size == 4) {
-                                counterMap.put(key,
-                                        pPerfData.getInt(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));
+                                counterMap.put(key, pPerfData.getInt(perfCounterBlockOffset + offset));
                             } else if (size == 8) {
-                                counterMap.put(key,
-                                        pPerfData.getLong(perfCounterBlockOffset + counterOffsetMap.get(keyIndex)));
+                                counterMap.put(key, pPerfData.getLong(perfCounterBlockOffset + offset));
                             } else {
                                 return null;
                             }
@@ -153,8 +157,13 @@ public final class HkeyPerformanceDataUtilJNA extends HkeyPerformanceDataUtil {
      * @param objectName The counter object for which to fetch data.
      * @return A buffer containing the data if successful, null otherwise.
      */
-    private static synchronized Memory readPerfDataBuffer(String objectName) {
-        String objectIndexStr = Integer.toString(COUNTER_INDEX_MAP.get(objectName));
+    private static synchronized @Nullable Memory readPerfDataBuffer(String objectName) {
+        Integer objectIndex = COUNTER_INDEX_MAP.get(objectName);
+        if (objectIndex == null) {
+            LOG.error("No counter index for performance object {}.", objectName);
+            return null;
+        }
+        String objectIndexStr = objectIndex.toString();
 
         try (CloseableIntByReference lpcbData = new CloseableIntByReference(maxPerfBufferSize)) {
             Memory pPerfData = new Memory(maxPerfBufferSize);

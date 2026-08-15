@@ -12,6 +12,7 @@ import java.util.Objects;
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.PublicApi;
+import oshi.util.ParseUtil;
 
 /**
  * Represents common information about an installed application across different operating systems. This class provides
@@ -41,17 +42,17 @@ public class ApplicationInfo {
     /**
      * Constructs an {@code ApplicationInfo} object with the specified details.
      *
-     * @param name           The name of the application.
-     * @param version        The version of the application.
-     * @param vendor         The vendor or publisher of the application.
+     * @param name           The name of the application, or {@code null} if not reported.
+     * @param version        The version of the application, or {@code null} if not reported.
+     * @param vendor         The vendor or publisher of the application, or {@code null} if not reported.
      * @param timestamp      The installation or last modified timestamp in milliseconds since epoch.
      * @param additionalInfo A map of additional information (can be {@code null}, in which case an empty map is used).
      */
-    public ApplicationInfo(String name, String version, String vendor, long timestamp,
+    public ApplicationInfo(@Nullable String name, @Nullable String version, @Nullable String vendor, long timestamp,
             @Nullable Map<String, String> additionalInfo) {
-        this.name = name;
-        this.version = version;
-        this.vendor = vendor;
+        this.name = ParseUtil.getStringValueOrEmpty(name);
+        this.version = ParseUtil.getStringValueOrEmpty(version);
+        this.vendor = ParseUtil.getStringValueOrEmpty(vendor);
         this.timestamp = timestamp;
         this.additionalInfo = additionalInfo != null ? new LinkedHashMap<>(additionalInfo) : Collections.emptyMap();
     }

@@ -29,6 +29,7 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,7 +105,7 @@ public final class HkeyUserDataFFM {
         return sessions;
     }
 
-    private static String[] lookupAccountBySid(String sidString) {
+    private static String @Nullable [] lookupAccountBySid(String sidString) {
         return callInArenaOrDefault(arena -> {
             MemorySegment pSidPtr = arena.allocate(ADDRESS);
             if (!ConvertStringSidToSid(toWideString(arena, sidString), pSidPtr)) {

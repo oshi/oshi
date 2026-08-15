@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,10 +89,11 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
      * @return A triplet containing the results. The first element maps the input enum to the counter values where the
      *         first enum will contain the instance name as a {@link String}, and the remaining values will either be
      *         {@link Long}, {@link Integer}, or {@code null} depending on whether the specified enum counter was
-     *         present and the size of the counter value. The second element is a timestamp in 100nSec increments
-     *         (Windows 1601 Epoch) while the third element is a timestamp in milliseconds since the 1970 Epoch.
+     *         present and the size of the counter value, or {@code null} if the object could not be read. The second
+     *         element is a timestamp in 100nSec increments (Windows 1601 Epoch) while the third element is a timestamp
+     *         in milliseconds since the 1970 Epoch.
      */
-    public static <T extends Enum<T> & PdhCounterWildcardProperty> Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
+    public static <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
             String objectName, Class<T> counterEnum) {
         // Load indices
         // e.g., call with "Process" and ProcessPerformanceProperty.class
@@ -178,14 +180,15 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
                     counterMap.put(counterKeys[0], readWideString(pPerfData.asSlice(perfInstanceOffset + nameOffset)));
                     for (int i = 1; i < counterKeys.length; i++) {
                         T key = counterKeys[i];
-                        int keyIndex = enumIndexMap.get(key);
+                        int keyIndex = enumIndexMap.getOrDefault(key, -1);
                         // All entries in size map have corresponding entry in offset map
                         int size = counterSizeMap.getOrDefault(keyIndex, 0);
+                        Integer offset = counterOffsetMap.get(keyIndex);
                         // Currently, only DWORDs (4 bytes) and ULONGLONGs (8 bytes) are used to provide
                         // counter values.
-                        Object counterValue = switch (size) {
-                            case 4 -> pPerfData.get(JAVA_INT, perfCounterBlockOffset + counterOffsetMap.get(keyIndex));
-                            case 8 -> pPerfData.get(JAVA_LONG, perfCounterBlockOffset + counterOffsetMap.get(keyIndex));
+                        Object counterValue = offset == null ? null : switch (size) {
+                            case 4 -> pPerfData.get(JAVA_INT, perfCounterBlockOffset + offset);
+                            case 8 -> pPerfData.get(JAVA_LONG, perfCounterBlockOffset + offset);
                             // If counter defined in enum isn't in registry, fail
                             default -> null;
                         };
@@ -223,9 +226,14 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
      *                   exists in {@link #COUNTER_INDEX_MAP}.
      * @return A buffer containing the data if successful, null otherwise.
      */
-    private static synchronized MemorySegment readPerfDataBuffer(String objectName) {
+    private static synchronized @Nullable MemorySegment readPerfDataBuffer(String objectName) {
         // Need this index as a string
-        String objectIndexStr = Integer.toString(COUNTER_INDEX_MAP.get(objectName));
+        Integer objectIndex = COUNTER_INDEX_MAP.get(objectName);
+        if (objectIndex == null) {
+            LOG.error("No counter index for performance object {}.", objectName);
+            return null;
+        }
+        String objectIndexStr = objectIndex.toString();
 
         // Now load the data from the registry.
         // Use a global arena so the returned segment outlives this method
