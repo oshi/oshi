@@ -37,16 +37,16 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     private final Supplier<List<String>> arguments = memoize(this::queryArguments);
     private final Supplier<Map<String, String>> environmentVariables = memoize(this::queryEnvironmentVariables);
 
-    protected volatile String user;
-    protected volatile String userID;
-    protected volatile String group;
-    protected volatile String groupID;
+    protected volatile String user = "";
+    protected volatile String userID = "";
+    protected volatile String group = "";
+    protected volatile String groupID = "";
     protected volatile long residentSetSize;
     protected volatile long minorFaults;
     protected volatile long majorFaults;
     protected volatile long voluntaryContextSwitches;
     protected volatile long involuntaryContextSwitches;
-    protected volatile String commandLineBackup;
+    protected volatile String commandLineBackup = "";
 
     /**
      * Constructs a new {@code BsdOSProcess}.
@@ -182,18 +182,20 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
      */
     protected synchronized boolean updateAttributes(Map<BsdPsKeyword, String> psMap) {
         long now = System.currentTimeMillis();
-        this.state = getStateFromOutput(psMap.get(BsdPsKeyword.STATE).charAt(0));
+        String stateValue = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.STATE));
+        // An absent state column falls through to OTHER rather than failing the whole update
+        this.state = getStateFromOutput(stateValue.isEmpty() ? ' ' : stateValue.charAt(0));
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PPID), 0);
-        this.user = psMap.get(BsdPsKeyword.USER);
-        this.userID = psMap.get(BsdPsKeyword.UID);
+        this.user = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.USER));
+        this.userID = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.UID));
         // Most platforms report a group name and gid. DragonFly's ps has no group column, so fall
         // back to the user name and the real group id.
         if (psMap.containsKey(BsdPsKeyword.GROUP)) {
-            this.group = psMap.get(BsdPsKeyword.GROUP);
-            this.groupID = psMap.get(BsdPsKeyword.GID);
+            this.group = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.GROUP));
+            this.groupID = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.GID));
         } else {
             this.group = this.user;
-            this.groupID = psMap.get(BsdPsKeyword.RGID);
+            this.groupID = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.RGID));
         }
         this.priority = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PRI), 0);
         // These are in KB, multiply
@@ -234,15 +236,16 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             this.startTime = now - this.upTime;
         }
         // Path/name come from comm (ucomm on DragonFly)
-        this.path = psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM);
+        this.path = ParseUtil.getStringValueOrEmpty(
+                psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM));
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MINFLT), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MAJFLT), 0L);
         this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NVCSW), 0L);
         this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NIVCSW), 0L);
         // Command-line fallback: the full args column (named "command" on DragonFly)
-        this.commandLineBackup = psMap
-                .get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS);
+        this.commandLineBackup = ParseUtil.getStringValueOrEmpty(
+                psMap.get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS));
         return true;
     }
 

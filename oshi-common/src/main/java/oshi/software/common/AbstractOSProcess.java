@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
 
@@ -27,7 +29,7 @@ public abstract class AbstractOSProcess implements OSProcess {
     // Common attributes populated by each platform's updateAttributes(). Declared protected (rather than private with
     // setters) so the platform subclasses can assign them directly in their native refresh methods; see the
     // VisibilityModifier suppression for this file.
-    protected volatile String name;
+    protected volatile String name = "";
     protected volatile String path = "";
     protected volatile State state = State.INVALID;
     protected volatile int parentProcessID;
@@ -130,7 +132,7 @@ public abstract class AbstractOSProcess implements OSProcess {
     }
 
     @Override
-    public double getProcessCpuLoadBetweenTicks(OSProcess priorSnapshot) {
+    public double getProcessCpuLoadBetweenTicks(@Nullable OSProcess priorSnapshot) {
         if (priorSnapshot != null && this.processID == priorSnapshot.getProcessID()
                 && getUpTime() > priorSnapshot.getUpTime()) {
             return (getUserTime() - priorSnapshot.getUserTime() + getKernelTime() - priorSnapshot.getKernelTime())

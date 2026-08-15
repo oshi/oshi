@@ -21,6 +21,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
@@ -103,7 +105,8 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected abstract int queryBitness(int jvmBitness);
 
     @Override
-    public List<OSProcess> getProcesses(Predicate<OSProcess> filter, Comparator<OSProcess> sort, int limit) {
+    public List<OSProcess> getProcesses(@Nullable Predicate<OSProcess> filter, @Nullable Comparator<OSProcess> sort,
+            int limit) {
         return queryAllProcesses().stream().filter(filter == null ? ALL_PROCESSES : filter)
                 .sorted(sort == null ? NO_SORTING : sort).limit(limit > 0 ? limit : Long.MAX_VALUE)
                 .collect(Collectors.toList());
@@ -117,8 +120,8 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected abstract List<OSProcess> queryAllProcesses();
 
     @Override
-    public List<OSProcess> getChildProcesses(int parentPid, Predicate<OSProcess> filter, Comparator<OSProcess> sort,
-            int limit) {
+    public List<OSProcess> getChildProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+            @Nullable Comparator<OSProcess> sort, int limit) {
         // Get this pid and its children
         List<OSProcess> childProcs = queryChildProcesses(parentPid);
         // Extract the parent from the list
@@ -141,8 +144,8 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     protected abstract List<OSProcess> queryChildProcesses(int parentPid);
 
     @Override
-    public List<OSProcess> getDescendantProcesses(int parentPid, Predicate<OSProcess> filter,
-            Comparator<OSProcess> sort, int limit) {
+    public List<OSProcess> getDescendantProcesses(int parentPid, @Nullable Predicate<OSProcess> filter,
+            @Nullable Comparator<OSProcess> sort, int limit) {
         // Get this pid and its descendants
         List<OSProcess> descendantProcs = queryDescendantProcesses(parentPid);
         // Extract the parent from the list

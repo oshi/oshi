@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
@@ -68,7 +70,8 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of process ID to performance counter block, or {@code null} if the registry data is unavailable
      */
-    protected abstract Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids);
+    protected abstract Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            @Nullable Collection<Integer> pids);
 
     /**
      * Reads process performance data from performance counters, with a WMI backup.
@@ -76,7 +79,8 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of process ID to performance counter block
      */
-    protected abstract Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids);
+    protected abstract Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+            @Nullable Collection<Integer> pids);
 
     /**
      * Reads thread performance data from {@code HKEY_PERFORMANCE_DATA}.
@@ -84,7 +88,8 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of thread ID to performance counter block, or {@code null} if the registry data is unavailable
      */
-    protected abstract Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids);
+    protected abstract Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            @Nullable Collection<Integer> pids);
 
     /**
      * Reads thread performance data from performance counters, with a WMI backup.
@@ -92,7 +97,8 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of thread ID to performance counter block
      */
-    protected abstract Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids);
+    protected abstract Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            @Nullable Collection<Integer> pids);
 
     /**
      * Reads process information from the Windows Terminal Service, with a WMI backup.
@@ -100,7 +106,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of process ID to terminal service information
      */
-    protected abstract Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids);
+    protected abstract Map<Integer, WtsInfo> queryProcessWtsMap(@Nullable Collection<Integer> pids);
 
     /**
      * Maps every process ID to the ID of its parent.
@@ -120,10 +126,10 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @return The process
      */
     protected abstract OSProcess createOSProcess(int pid, Map<Integer, ProcessPerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap);
+            Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap);
 
     @Override
-    public List<OSProcess> getProcesses(Collection<Integer> pids) {
+    public List<OSProcess> getProcesses(@Nullable Collection<Integer> pids) {
         return processMapToList(pids);
     }
 
@@ -133,7 +139,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         List<OSProcess> procList = processMapToList(Collections.singletonList(pid));
         return procList.isEmpty() ? null : procList.get(0);
     }
@@ -158,7 +164,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
         return resolveProcessMap(null);
     }
 
-    private Map<Integer, ProcessPerfCounterBlock> resolveProcessMap(Collection<Integer> pids) {
+    private Map<Integer, ProcessPerfCounterBlock> resolveProcessMap(@Nullable Collection<Integer> pids) {
         // Get data from the registry if possible
         Map<Integer, ProcessPerfCounterBlock> processMap = processMapFromRegistry.get();
         // otherwise performance counters with WMI backup
@@ -168,7 +174,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
         return processMap == null ? Collections.emptyMap() : processMap;
     }
 
-    private List<OSProcess> processMapToList(Collection<Integer> pids) {
+    private List<OSProcess> processMapToList(@Nullable Collection<Integer> pids) {
         Map<Integer, ProcessPerfCounterBlock> processMap = resolveProcessMap(pids);
         Map<Integer, ThreadPerfCounterBlock> threadMap = null;
         if (USE_PROCSTATE_SUSPENDED) {

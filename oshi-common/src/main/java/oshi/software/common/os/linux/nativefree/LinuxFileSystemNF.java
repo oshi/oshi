@@ -4,6 +4,8 @@
  */
 package oshi.software.common.os.linux.nativefree;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.linux.LinuxFileSystem;
 
@@ -15,7 +17,7 @@ import oshi.software.common.os.linux.LinuxFileSystem;
 public class LinuxFileSystemNF extends LinuxFileSystem {
 
     @Override
-    protected long[] queryStatvfs(String path) {
+    protected long @Nullable [] queryStatvfs(String path) {
         return null;
     }
 }

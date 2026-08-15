@@ -65,11 +65,11 @@ public abstract class MacOSProcess extends AbstractOSProcess {
     private final Supplier<Pair<List<String>, Map<String, String>>> argsEnviron = memoize(
             this::queryArgsAndEnvironment);
 
-    protected volatile String currentWorkingDirectory;
-    protected volatile String user;
-    protected volatile String userID;
-    protected volatile String group;
-    protected volatile String groupID;
+    protected volatile String currentWorkingDirectory = "";
+    protected volatile String user = "";
+    protected volatile String userID = "";
+    protected volatile String group = "";
+    protected volatile String groupID = "";
     protected volatile long residentSetSize;
     protected volatile long memoryFootprint;
     protected volatile long openFiles;

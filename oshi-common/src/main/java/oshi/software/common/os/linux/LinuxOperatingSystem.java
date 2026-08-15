@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,7 +292,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if file successfully read and NAME= found, null
      *         otherwise
      */
-    private static Triplet<String, String, String> readOsRelease() {
+    private static @Nullable Triplet<String, String, String> readOsRelease() {
         return readOsRelease(FileUtil.readFile("/etc/os-release"));
     }
 
@@ -301,7 +302,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @param osRelease lines from /etc/os-release
      * @return a triplet with the parsed family, versionID and codeName if NAME= found, null otherwise
      */
-    static Triplet<String, String, String> readOsRelease(List<String> osRelease) {
+    static @Nullable Triplet<String, String, String> readOsRelease(List<String> osRelease) {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
@@ -337,7 +338,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if the command successfully executed and
      *         Distributor ID: or Description: found, null otherwise
      */
-    private static Triplet<String, String, String> execLsbRelease() {
+    private static @Nullable Triplet<String, String, String> execLsbRelease() {
         return execLsbRelease(ExecutingCommand.runNative("lsb_release -a"));
     }
 
@@ -348,7 +349,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if Distributor ID: or Description: found, null
      *         otherwise
      */
-    static Triplet<String, String, String> execLsbRelease(List<String> lines) {
+    static @Nullable Triplet<String, String, String> execLsbRelease(List<String> lines) {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
@@ -386,7 +387,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if file successfully read and and DISTRIB_ID or
      *         DISTRIB_DESCRIPTION, null otherwise
      */
-    private static Triplet<String, String, String> readLsbRelease() {
+    private static @Nullable Triplet<String, String, String> readLsbRelease() {
         return readLsbRelease(FileUtil.readFile("/etc/lsb-release"));
     }
 
@@ -397,7 +398,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if DISTRIB_ID or DISTRIB_DESCRIPTION found, null
      *         otherwise
      */
-    static Triplet<String, String, String> readLsbRelease(List<String> lines) {
+    static @Nullable Triplet<String, String, String> readLsbRelease(List<String> lines) {
         String family = null;
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
@@ -436,7 +437,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if file successfully read and " release " or "
      *         VERSION " found, null otherwise
      */
-    private static Triplet<String, String, String> readDistribRelease(String filename) {
+    private static @Nullable Triplet<String, String, String> readDistribRelease(String filename) {
         if (new File(filename).exists()) {
             return readDistribRelease(FileUtil.readFile(filename));
         }
@@ -450,7 +451,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * @return a triplet with the parsed family, versionID and codeName if " release " or " VERSION " found, null
      *         otherwise
      */
-    static Triplet<String, String, String> readDistribRelease(List<String> lines) {
+    static @Nullable Triplet<String, String, String> readDistribRelease(List<String> lines) {
         for (String line : lines) {
             if (line.contains(RELEASE_DELIM)) {
                 return parseRelease(line, RELEASE_DELIM);
