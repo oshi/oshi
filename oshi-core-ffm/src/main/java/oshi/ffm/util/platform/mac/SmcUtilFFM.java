@@ -44,6 +44,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -282,7 +283,7 @@ public final class SmcUtilFFM {
      * @param index The index, from 0 to the value of {@link #SMC_KEY_COUNT}
      * @return The four-character key name, or null if it could not be read
      */
-    public static String smcReadKeyAtIndex(int conn, int index) {
+    public static @Nullable String smcReadKeyAtIndex(int conn, int index) {
         return callInArenaOrDefault(arena -> {
             MemorySegment input = arena.allocate(SMC_KEY_DATA);
             MemorySegment output = arena.allocate(SMC_KEY_DATA);
@@ -366,7 +367,7 @@ public final class SmcUtilFFM {
     /**
      * @return the keys to read, or null if neither the key index nor {@code FNum} could be read
      */
-    private static List<String> discoverFanSpeedKeys() {
+    private static @Nullable List<String> discoverFanSpeedKeys() {
         int conn = smcOpen();
         if (conn == 0) {
             return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache
@@ -435,7 +436,7 @@ public final class SmcUtilFFM {
     /**
      * @return the discovered keys, or null if the SMC key index could not be read
      */
-    private static List<String> discoverGpuTemperatureKeys() {
+    private static @Nullable List<String> discoverGpuTemperatureKeys() {
         int conn = smcOpen();
         if (conn == 0) {
             return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache

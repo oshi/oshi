@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +136,7 @@ public final class SmcUtil {
      *
      * @return The connection if successful, null if failure
      */
-    public static IOConnect smcOpen() {
+    public static @Nullable IOConnect smcOpen() {
         IOService smcService = IOKitUtil.getMatchingService("AppleSMC");
         if (smcService != null) {
             try (CloseablePointerByReference connPtr = new CloseablePointerByReference()) {
@@ -259,7 +260,7 @@ public final class SmcUtil {
      * @param index The index, from 0 to the value of {@link #SMC_KEY_COUNT}
      * @return The four-character key name, or null if it could not be read
      */
-    public static String smcReadKeyAtIndex(IOConnect conn, int index) {
+    public static @Nullable String smcReadKeyAtIndex(IOConnect conn, int index) {
         try (SMCKeyData input = new SMCKeyData(); SMCKeyData output = new SMCKeyData()) {
             input.data8 = SMC_CMD_READ_INDEX;
             input.data32 = index;
@@ -337,7 +338,7 @@ public final class SmcUtil {
     /**
      * @return the keys to read, or null if neither the key index nor {@code FNum} could be read
      */
-    private static List<String> discoverFanSpeedKeys() {
+    private static @Nullable List<String> discoverFanSpeedKeys() {
         IOConnect conn = smcOpen();
         if (conn == null) {
             return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache
@@ -406,7 +407,7 @@ public final class SmcUtil {
     /**
      * @return the discovered keys, or null if the SMC key index could not be read
      */
-    private static List<String> discoverGpuTemperatureKeys() {
+    private static @Nullable List<String> discoverGpuTemperatureKeys() {
         IOConnect conn = smcOpen();
         if (conn == null) {
             return null; // NOSONAR java:S1168 - null means "could not read", which the caller must not cache

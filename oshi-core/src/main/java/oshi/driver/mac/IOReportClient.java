@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation.CFArrayRef;
@@ -46,10 +48,10 @@ public final class IOReportClient implements IOReportSampler {
     private final CFDictionaryRef subscribedChannels;
 
     // Previous sample for utilization delta
-    private CFDictionaryRef prevSampleUtil;
+    private @Nullable CFDictionaryRef prevSampleUtil;
 
     // Previous sample and timestamp for power delta
-    private CFDictionaryRef prevSamplePower;
+    private @Nullable CFDictionaryRef prevSamplePower;
     private long prevSamplePowerNanos;
 
     private boolean closed;
@@ -66,7 +68,7 @@ public final class IOReportClient implements IOReportSampler {
      *
      * @return a new client, or {@code null} if IOReport is unavailable or subscription fails
      */
-    public static IOReportClient create() {
+    public static @Nullable IOReportClient create() {
         IOReport io;
         try {
             io = Native.load("IOReport", IOReport.class);

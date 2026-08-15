@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,8 +52,8 @@ public final class IOReportClientFFM implements IOReportSampler {
     private final MemorySegment subscription;
     private final MemorySegment subscribedChannels;
 
-    private MemorySegment prevSampleUtil;
-    private MemorySegment prevSamplePower;
+    private @Nullable MemorySegment prevSampleUtil;
+    private @Nullable MemorySegment prevSamplePower;
     private long prevSamplePowerNanos;
 
     private boolean closed;
@@ -67,7 +68,7 @@ public final class IOReportClientFFM implements IOReportSampler {
      *
      * @return a new client, or {@code null} if IOReport is unavailable or subscription fails
      */
-    public static IOReportClientFFM create() {
+    public static @Nullable IOReportClientFFM create() {
         if (!IOReportFunctions.isAvailable()) {
             return null;
         }
