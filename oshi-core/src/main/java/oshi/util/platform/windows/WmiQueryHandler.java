@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,7 @@ public class WmiQueryHandler implements WmiQueryExecutor {
             + " Will not attempt to query it again. Error was {}";
 
     // Factory to create this or a subclass
-    private static Class<? extends WmiQueryHandler> customClass = null;
+    private static @Nullable Class<? extends WmiQueryHandler> customClass = null;
 
     /** Creates the WMI query handler. Subclasses may override via {@link #setInstanceClass(Class)}. */
     protected WmiQueryHandler() {
@@ -72,7 +73,7 @@ public class WmiQueryHandler implements WmiQueryExecutor {
      *
      * @return An instance of this class or a class defined by {@link #setInstanceClass(Class)}
      */
-    public static synchronized WmiQueryHandler createInstance() {
+    public static synchronized @Nullable WmiQueryHandler createInstance() {
         if (customClass == null) {
             return new WmiQueryHandler();
         }

@@ -7,6 +7,7 @@ package oshi.util.platform.windows;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     // Map of counter handles
     private Map<PerfCounter, CloseableHANDLEByReference> counterHandleMap = new HashMap<>();
     // The query handle
-    private CloseableHANDLEByReference queryHandle = null;
+    private @Nullable CloseableHANDLEByReference queryHandle = null;
 
     /**
      * Begin monitoring a Performance Data counter.

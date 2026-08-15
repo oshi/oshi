@@ -12,6 +12,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +70,7 @@ public final class PerfCounterWildcardQueryFFM {
      *         {@code propertyEnum} on success, or an empty list and empty map if both PDH and WMI queries failed.
      */
     public static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValues(
-            Class<T> propertyEnum, String perfObject, String perfWmiClass, String customFilter) {
+            Class<T> propertyEnum, String perfObject, String perfWmiClass, @Nullable String customFilter) {
         if (!Util.isBlank(customFilter) || !FAILED_QUERY_CACHE.contains(perfObject)) {
             Pair<List<String>, Map<T, List<Long>>> result = queryInstancesAndValuesFromPDH(propertyEnum, perfObject,
                     customFilter);
@@ -113,7 +114,7 @@ public final class PerfCounterWildcardQueryFFM {
      *         {@code propertyEnum} on success, or an empty list and empty map if the PDH query failed.
      */
     public static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValuesFromPDH(
-            Class<T> propertyEnum, String perfObject, String customFilter) {
+            Class<T> propertyEnum, String perfObject, @Nullable String customFilter) {
         return PerfDataUtilFFM.queryWildcardCounters(propertyEnum, perfObject, customFilter);
     }
 

@@ -20,6 +20,7 @@ import java.lang.invoke.VarHandle;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import oshi.util.ExceptionUtil;
@@ -39,7 +40,7 @@ public abstract class ForeignFunctions {
      * @param <T> the return type
      */
     @FunctionalInterface
-    public interface ArenaCallable<T> {
+    public interface ArenaCallable<T extends @Nullable Object> {
         /**
          * Executes this operation with the provided arena.
          *
@@ -148,8 +149,8 @@ public abstract class ForeignFunctions {
      * @param defaultValue the value to return if the operation throws
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static <T> T callInArenaOrDefault(ArenaCallable<T> callable, Logger logger, LogLevel level, String message,
-            T defaultValue) {
+    public static <T extends @Nullable Object> T callInArenaOrDefault(ArenaCallable<T> callable, Logger logger,
+            LogLevel level, String message, T defaultValue) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
@@ -179,8 +180,8 @@ public abstract class ForeignFunctions {
      * @param args         the arguments filling the message placeholders
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
-    public static <T> T callInArenaOrDefault(ArenaCallable<T> callable, T defaultValue, Logger logger, LogLevel level,
-            String message, Object... args) {
+    public static <T extends @Nullable Object> T callInArenaOrDefault(ArenaCallable<T> callable, T defaultValue,
+            Logger logger, LogLevel level, String message, Object... args) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);

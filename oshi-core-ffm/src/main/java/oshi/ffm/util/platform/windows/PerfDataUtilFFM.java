@@ -39,6 +39,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +115,8 @@ public final class PerfDataUtilFFM {
                 for (var entry : counterHandles.entrySet()) {
                     runOrLog(
                             () -> valueMap.put(entry.getKey(),
-                                    readRawCounterValue(arena, entry.getValue(), baseFlags.get(entry.getKey()))),
+                                    readRawCounterValue(arena, entry.getValue(),
+                                            baseFlags.getOrDefault(entry.getKey(), false))),
                             LOG, "Failed to read counter for {}", entry.getKey());
                 }
 
@@ -125,7 +127,7 @@ public final class PerfDataUtilFFM {
         }, new EnumMap<>(propertyEnum), LOG, DEBUG, "PDH queryCounters failed for {}", perfObject);
     }
 
-    private static String counterPath(String object, String instance, String counter) {
+    private static String counterPath(String object, @Nullable String instance, String counter) {
         StringBuilder path = new StringBuilder();
         path.append('\\').append(object);
         if (instance != null) {
@@ -281,15 +283,15 @@ public final class PerfDataUtilFFM {
      *         empty list and empty map on failure.
      */
     public static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<List<String>, Map<T, List<Long>>> queryWildcardCounters(
-            Class<T> propertyEnum, String perfObject, String customFilter) {
+            Class<T> propertyEnum, String perfObject, @Nullable String customFilter) {
 
         T[] props = propertyEnum.getEnumConstants();
         if (props.length < 2) {
             throw new IllegalArgumentException("Enum " + propertyEnum.getName()
                     + " must have at least two elements, an instance filter and a counter.");
         }
-        String instanceFilter = Util.isBlank(customFilter) ? props[0].getCounter().toLowerCase(Locale.ROOT)
-                : customFilter.toLowerCase(Locale.ROOT);
+        String instanceFilter = (customFilter == null || customFilter.isEmpty() ? props[0].getCounter() : customFilter)
+                .toLowerCase(Locale.ROOT);
 
         List<String> instances = enumInstances(perfObject, instanceFilter);
         EnumMap<T, List<Long>> valuesMap = new EnumMap<>(propertyEnum);

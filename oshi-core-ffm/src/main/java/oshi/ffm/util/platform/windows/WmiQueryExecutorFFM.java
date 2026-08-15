@@ -6,6 +6,8 @@ package oshi.ffm.util.platform.windows;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.driver.common.windows.wmi.WmiQuery;
 import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.driver.common.windows.wmi.WmiResult;
@@ -31,7 +33,7 @@ public class WmiQueryExecutorFFM implements WmiQueryExecutor {
      *
      * @return a new executor, or {@code null} if handler creation fails
      */
-    public static WmiQueryExecutorFFM createInstance() {
+    public static @Nullable WmiQueryExecutorFFM createInstance() {
         WmiQueryHandlerFFM h = WmiQueryHandlerFFM.createInstance();
         return h == null ? null : new WmiQueryExecutorFFM(h);
     }
@@ -71,7 +73,7 @@ public class WmiQueryExecutorFFM implements WmiQueryExecutor {
         }
 
         @Override
-        public Object getValue(T property, int index) {
+        public @Nullable Object getValue(T property, int index) {
             return delegate.getValue(property, index);
         }
 

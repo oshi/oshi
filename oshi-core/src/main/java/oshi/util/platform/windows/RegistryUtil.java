@@ -51,7 +51,8 @@ public final class RegistryUtil {
      * @param accessFlag the access flag
      * @return the registry value or null
      */
-    public static Object getRegistryValueOrNull(HKEY root, String path, String key, int accessFlag) {
+    public static @Nullable Object getRegistryValueOrNull(HKEY root, String path, @Nullable String key,
+            int accessFlag) {
         try {
             // registryGetValues opens the key with KEY_READ | accessFlag, so the WOW64 access flag (e.g.
             // KEY_WOW64_32KEY/KEY_WOW64_64KEY) is honored when reading the value. Reading the value separately via

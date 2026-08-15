@@ -6,6 +6,8 @@ package oshi.util.platform.windows;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.win32.COM.WbemcliUtil;
 
 import oshi.driver.common.windows.wmi.WmiQuery;
@@ -33,7 +35,7 @@ public class WmiQueryExecutorJNA implements WmiQueryExecutor {
      *
      * @return a new executor, or {@code null} if handler creation fails
      */
-    public static WmiQueryExecutorJNA createInstance() {
+    public static @Nullable WmiQueryExecutorJNA createInstance() {
         WmiQueryHandler h = WmiQueryHandler.createInstance();
         return h == null ? null : new WmiQueryExecutorJNA(h);
     }

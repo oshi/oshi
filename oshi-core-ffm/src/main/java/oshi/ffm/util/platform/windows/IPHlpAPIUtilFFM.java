@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +125,7 @@ public final class IPHlpAPIUtilFFM {
      * @param family the address family (AF_INET or AF_INET6)
      * @return TCP statistics, or null on failure
      */
-    public static TcpStats getTcpStats(int family) {
+    public static @Nullable TcpStats getTcpStats(int family) {
         return callInArenaOrDefault(arena -> {
             MemorySegment stats = arena.allocate(MIB_TCPSTATS_LAYOUT);
 
@@ -163,7 +164,7 @@ public final class IPHlpAPIUtilFFM {
      * @param family the address family (AF_INET or AF_INET6)
      * @return UDP statistics, or null on failure
      */
-    public static UdpStats getUdpStats(int family) {
+    public static @Nullable UdpStats getUdpStats(int family) {
         return callInArenaOrDefault(arena -> {
             MemorySegment stats = arena.allocate(MIB_UDPSTATS_LAYOUT);
 
