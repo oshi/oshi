@@ -9,6 +9,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
@@ -52,7 +54,7 @@ public abstract class MacPowerSource extends AbstractPowerSource {
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            int psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
         super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
@@ -65,7 +67,7 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         private String deviceName = Constants.UNKNOWN;
         private String manufacturer = Constants.UNKNOWN;
         private String serialNumber = Constants.UNKNOWN;
-        private LocalDate manufactureDate;
+        private @Nullable LocalDate manufactureDate;
         private CapacityUnits capacityUnits = CapacityUnits.RELATIVE;
         private int designCapacity = -1;
         private int maxCapacity = 1;
@@ -134,7 +136,7 @@ public abstract class MacPowerSource extends AbstractPowerSource {
                 double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate,
                 double psVoltage, double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
                 CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-                int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+                int psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
                 String psSerialNumber, double psTemperature);
     }
 

@@ -4,8 +4,11 @@
  */
 package oshi.hardware.common;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
+import oshi.util.ParseUtil;
 
 /**
  * An abstract Sound Card
@@ -13,21 +16,21 @@ import oshi.hardware.SoundCard;
 @Immutable
 public abstract class AbstractSoundCard implements SoundCard {
 
-    private String kernelVersion;
-    private String name;
-    private String codec;
+    private final String kernelVersion;
+    private final String name;
+    private final String codec;
 
     /**
      * Abstract Sound Card Constructor
      *
-     * @param kernelVersion The version
+     * @param kernelVersion The version, or {@code null} if the platform did not report one
      * @param name          The name
-     * @param codec         The codec
+     * @param codec         The codec, or {@code null} if the platform did not report one
      */
-    protected AbstractSoundCard(String kernelVersion, String name, String codec) {
-        this.kernelVersion = kernelVersion;
+    protected AbstractSoundCard(@Nullable String kernelVersion, String name, @Nullable String codec) {
+        this.kernelVersion = ParseUtil.getStringValueOrUnknown(kernelVersion);
         this.name = name;
-        this.codec = codec;
+        this.codec = ParseUtil.getStringValueOrUnknown(codec);
     }
 
     @Override

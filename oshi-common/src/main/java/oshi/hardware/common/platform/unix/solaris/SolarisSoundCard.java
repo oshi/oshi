@@ -75,8 +75,9 @@ public class SolarisSoundCard extends AbstractSoundCard {
         }
         List<SoundCard> soundCards = new ArrayList<>();
         for (String s : sounds) {
-            soundCards.add(new SolarisSoundCard(productMap.get(s) + " " + DEFAULT_AUDIO_DRIVER,
-                    vendorMap.get(s) + " " + productMap.get(s), productMap.get(s)));
+            String product = ParseUtil.getStringValueOrUnknown(productMap.get(s));
+            soundCards.add(new SolarisSoundCard(product + " " + DEFAULT_AUDIO_DRIVER,
+                    ParseUtil.getStringValueOrUnknown(vendorMap.get(s)) + " " + product, product));
         }
         return soundCards;
     }

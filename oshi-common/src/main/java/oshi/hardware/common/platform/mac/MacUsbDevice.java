@@ -15,6 +15,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -31,7 +33,7 @@ public final class MacUsbDevice extends AbstractUsbDevice {
     private static final String IOSERVICE = "IOService";
 
     private MacUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
+            @Nullable String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 

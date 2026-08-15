@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
@@ -36,7 +38,7 @@ public final class BsdSoundCard extends AbstractSoundCard {
      * @param name          the sound card name
      * @param codec         the codec
      */
-    public BsdSoundCard(String kernelVersion, String name, String codec) {
+    public BsdSoundCard(@Nullable String kernelVersion, String name, @Nullable String codec) {
         super(kernelVersion, name, codec);
     }
 

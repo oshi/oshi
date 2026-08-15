@@ -14,6 +14,8 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -33,8 +35,8 @@ import oshi.util.tuples.Triplet;
 @Immutable
 public final class WindowsUsbDevice extends AbstractUsbDevice {
 
-    private WindowsUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
+    private WindowsUsbDevice(String name, @Nullable String vendor, String vendorId, String productId,
+            String serialNumber, @Nullable String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
@@ -66,15 +68,16 @@ public final class WindowsUsbDevice extends AbstractUsbDevice {
         return usbDevices;
     }
 
-    private static WindowsUsbDevice queryDeviceAndChildren(Integer device, Map<Integer, Integer> parentMap,
+    private static @Nullable WindowsUsbDevice queryDeviceAndChildren(Integer device, Map<Integer, Integer> parentMap,
             Map<Integer, String> nameMap, Map<Integer, String> deviceIdMap, Map<Integer, String> mfgMap, String vid,
             String pid, String parentSerial) {
         // Parse vendor and product IDs from the device ID; fall back to the parent's IDs if that fails
         String vendorId = vid;
         String productId = pid;
         String serial = parentSerial;
+        String deviceId = deviceIdMap.get(device);
         Triplet<String, String, String> idsAndSerial = ParseUtil
-                .parseDeviceIdToVendorProductSerial(deviceIdMap.get(device));
+                .parseDeviceIdToVendorProductSerial(ParseUtil.getStringValueOrEmpty(deviceId));
         if (idsAndSerial != null) {
             vendorId = idsAndSerial.getA();
             productId = idsAndSerial.getB();
@@ -100,7 +103,6 @@ public final class WindowsUsbDevice extends AbstractUsbDevice {
             if (name.isEmpty()) {
                 name = vendorId + ":" + productId;
             }
-            String deviceId = deviceIdMap.get(device);
             String mfg = mfgMap.get(device);
             return new WindowsUsbDevice(name, mfg, vendorId, productId, serial, deviceId, childDevices);
         }

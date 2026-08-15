@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
@@ -32,7 +34,7 @@ class LinuxSoundCard extends AbstractSoundCard {
      * @param name          The name
      * @param codec         The codec
      */
-    LinuxSoundCard(String kernelVersion, String name, String codec) {
+    LinuxSoundCard(@Nullable String kernelVersion, String name, @Nullable String codec) {
         super(kernelVersion, name, codec);
     }
 
@@ -81,7 +83,7 @@ class LinuxSoundCard extends AbstractSoundCard {
      * @param cardDir The sound card directory
      * @return The name of the codec
      */
-    static String getCardCodec(File cardDir) {
+    static @Nullable String getCardCodec(File cardDir) {
         String cardCodec = "";
         File[] cardFiles = cardDir.listFiles();
         if (cardFiles != null) {

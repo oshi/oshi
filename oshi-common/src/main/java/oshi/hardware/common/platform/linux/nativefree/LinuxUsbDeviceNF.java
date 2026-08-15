@@ -11,6 +11,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.hardware.common.platform.linux.UdevUsbDevice;
 import oshi.util.FileUtil;
 import oshi.util.linux.SysPath;
@@ -79,7 +81,7 @@ public final class LinuxUsbDeviceNF {
         return unmodifiableList(devices);
     }
 
-    private static String emptyToNull(String value) {
+    private static @Nullable String emptyToNull(String value) {
         return value.isEmpty() ? null : value;
     }
 }

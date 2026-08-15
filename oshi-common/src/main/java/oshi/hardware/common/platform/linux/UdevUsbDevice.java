@@ -4,6 +4,8 @@
  */
 package oshi.hardware.common.platform.linux;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -17,12 +19,12 @@ import oshi.annotation.concurrent.Immutable;
 public class UdevUsbDevice {
 
     private final String syspath;
-    private final String product;
-    private final String manufacturer;
-    private final String vendorId;
-    private final String productId;
-    private final String serial;
-    private final String parentSyspath;
+    private final @Nullable String product;
+    private final @Nullable String manufacturer;
+    private final @Nullable String vendorId;
+    private final @Nullable String productId;
+    private final @Nullable String serial;
+    private final @Nullable String parentSyspath;
 
     /**
      * Creates a UdevUsbDevice.
@@ -35,8 +37,9 @@ public class UdevUsbDevice {
      * @param serial        the serial number, or {@code null}
      * @param parentSyspath the parent device's syspath, or {@code null} if this is a root controller
      */
-    public UdevUsbDevice(String syspath, String product, String manufacturer, String vendorId, String productId,
-            String serial, String parentSyspath) {
+    public UdevUsbDevice(String syspath, @Nullable String product, @Nullable String manufacturer,
+            @Nullable String vendorId, @Nullable String productId, @Nullable String serial,
+            @Nullable String parentSyspath) {
         this.syspath = syspath;
         this.product = product;
         this.manufacturer = manufacturer;
@@ -56,42 +59,42 @@ public class UdevUsbDevice {
     /**
      * @return the product name, or {@code null}
      */
-    public String getProduct() {
+    public @Nullable String getProduct() {
         return product;
     }
 
     /**
      * @return the manufacturer/vendor name, or {@code null}
      */
-    public String getManufacturer() {
+    public @Nullable String getManufacturer() {
         return manufacturer;
     }
 
     /**
      * @return the vendor ID, or {@code null}
      */
-    public String getVendorId() {
+    public @Nullable String getVendorId() {
         return vendorId;
     }
 
     /**
      * @return the product ID, or {@code null}
      */
-    public String getProductId() {
+    public @Nullable String getProductId() {
         return productId;
     }
 
     /**
      * @return the serial number, or {@code null}
      */
-    public String getSerial() {
+    public @Nullable String getSerial() {
         return serial;
     }
 
     /**
      * @return the parent device's syspath, or {@code null} if this is a root controller
      */
-    public String getParentSyspath() {
+    public @Nullable String getParentSyspath() {
         return parentSyspath;
     }
 }
