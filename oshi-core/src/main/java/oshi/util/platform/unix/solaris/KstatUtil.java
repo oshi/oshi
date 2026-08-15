@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public final class KstatUtil {
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class locked until the lock is released on auto-close.
     @GuardedBy("CHAIN")
-    private static KstatCtl kstatCtl = null;
+    private static @Nullable KstatCtl kstatCtl = null;
 
     private KstatUtil() {
     }
@@ -106,7 +107,7 @@ public final class KstatUtil {
          * @return The first match of the requested Kstat structure if found, or {@code null}
          */
         @GuardedBy("CHAIN")
-        public Kstat lookup(String module, int instance, String name) {
+        public @Nullable Kstat lookup(@Nullable String module, int instance, @Nullable String name) {
             return LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);
         }
 
@@ -122,7 +123,7 @@ public final class KstatUtil {
          * @return All matches of the requested Kstat structure if found, or an empty list otherwise
          */
         @GuardedBy("CHAIN")
-        public List<Kstat> lookupAll(String module, int instance, String name) {
+        public List<Kstat> lookupAll(@Nullable String module, int instance, @Nullable String name) {
             List<Kstat> kstats = new ArrayList<>();
             for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name); ksp != null; ksp = ksp
                     .next()) {

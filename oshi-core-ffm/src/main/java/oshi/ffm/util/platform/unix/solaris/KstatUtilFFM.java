@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -116,7 +117,7 @@ public final class KstatUtilFFM {
          *         {@link MemorySegment#NULL}
          */
         @GuardedBy("CHAIN")
-        public MemorySegment lookup(String module, int instance, String name) {
+        public MemorySegment lookup(@Nullable String module, int instance, @Nullable String name) {
             return callInArenaOrDefault(arena -> {
                 MemorySegment modSeg = module == null ? MemorySegment.NULL : arena.allocateFrom(module);
                 MemorySegment nameSeg = name == null ? MemorySegment.NULL : arena.allocateFrom(name);
@@ -138,7 +139,7 @@ public final class KstatUtilFFM {
          * @return all matching kstats (each reinterpreted to {@link LibKstatFunctions#KSTAT_LAYOUT})
          */
         @GuardedBy("CHAIN")
-        public List<MemorySegment> lookupAll(String module, int instance, String name) {
+        public List<MemorySegment> lookupAll(@Nullable String module, int instance, @Nullable String name) {
             List<MemorySegment> matches = new ArrayList<>();
             MemorySegment ksp = lookup(module, instance, name);
             while (ksp.address() != 0L) {

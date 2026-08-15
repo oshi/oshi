@@ -181,7 +181,7 @@ public abstract class ForeignFunctions {
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
     public static <T extends @Nullable Object> T callInArenaOrDefault(ArenaCallable<T> callable, T defaultValue,
-            Logger logger, LogLevel level, String message, Object... args) {
+            Logger logger, LogLevel level, String message, @Nullable Object... args) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
@@ -229,7 +229,7 @@ public abstract class ForeignFunctions {
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
     public static int callInArenaIntOrDefault(ArenaIntCallable callable, int defaultValue, Logger logger,
-            LogLevel level, String message, Object... args) {
+            LogLevel level, String message, @Nullable Object... args) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
@@ -277,7 +277,7 @@ public abstract class ForeignFunctions {
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
     public static long callInArenaLongOrDefault(ArenaLongCallable callable, long defaultValue, Logger logger,
-            LogLevel level, String message, Object... args) {
+            LogLevel level, String message, @Nullable Object... args) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
@@ -325,7 +325,7 @@ public abstract class ForeignFunctions {
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
     public static double callInArenaDoubleOrDefault(ArenaDoubleCallable callable, double defaultValue, Logger logger,
-            LogLevel level, String message, Object... args) {
+            LogLevel level, String message, @Nullable Object... args) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);
@@ -373,7 +373,7 @@ public abstract class ForeignFunctions {
      * @return the operation result, or {@code defaultValue} if the operation throws
      */
     public static boolean callInArenaBooleanOrDefault(ArenaBooleanCallable callable, boolean defaultValue,
-            Logger logger, LogLevel level, String message, Object... args) {
+            Logger logger, LogLevel level, String message, @Nullable Object... args) {
         Objects.requireNonNull(callable, "callable");
         try (Arena arena = Arena.ofConfined()) {
             return callable.call(arena);

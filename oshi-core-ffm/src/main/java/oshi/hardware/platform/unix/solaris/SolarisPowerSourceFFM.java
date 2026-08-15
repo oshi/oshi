@@ -8,6 +8,8 @@ import java.lang.foreign.MemorySegment;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM;
 import oshi.ffm.util.platform.unix.solaris.KstatUtilFFM.KstatChain;
@@ -40,7 +42,7 @@ public final class SolarisPowerSourceFFM extends SolarisPowerSource {
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            int psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
         super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
