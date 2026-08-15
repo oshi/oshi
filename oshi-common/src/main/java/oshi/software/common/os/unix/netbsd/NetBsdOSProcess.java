@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -48,6 +49,8 @@ import oshi.util.common.platform.unix.netbsd.FstatUtil;
  */
 @ThreadSafe
 public class NetBsdOSProcess extends BsdOSProcess {
+    private static final Pattern AFFINITY = Pattern.compile("Affinity:");
+    private static final Pattern COMMA_OR_WHITESPACE = Pattern.compile("[,\\s]+");
 
     /**
      * Ordered {@code ps} columns queried for each process. Shared by NetBsdOSProcess and the NetBSD OperatingSystem so
@@ -150,7 +153,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
         for (String line : schedctl) {
             // Output includes "Affinity: <list>" when bound
             if (line.contains("Affinity:")) {
-                String[] parts = line.split("Affinity:", -1)[1].trim().split("[,\\s]+", -1);
+                String[] parts = COMMA_OR_WHITESPACE.split(AFFINITY.split(line, -1)[1].trim(), -1);
                 for (String part : parts) {
                     int bitToSet = ParseUtil.parseIntOrDefault(part.trim(), -1);
                     if (bitToSet >= 0) {

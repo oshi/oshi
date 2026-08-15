@@ -82,7 +82,7 @@ public final class PrivilegedUtil {
         }
 
         // Extract the command name (first token)
-        String[] tokens = command.trim().split("\\s+", -1);
+        String[] tokens = ParseUtil.whitespaces.split(command.trim(), -1);
         if (tokens.length == 0) {
             return false;
         }
@@ -309,7 +309,7 @@ public final class PrivilegedUtil {
         List<String> cmdList = new ArrayList<>();
         String prefix = getPrefix();
         if (!prefix.isEmpty()) {
-            cmdList.addAll(Arrays.asList(prefix.split("\\s+")));
+            cmdList.addAll(Arrays.asList(ParseUtil.whitespaces.split(prefix)));
         }
         cmdList.add("cat");
         cmdList.add(filePath);

@@ -118,7 +118,7 @@ public abstract class CupsPrinter extends AbstractPrinter {
 
         for (String line : lpstatLines) {
             if (line.startsWith("printer ")) {
-                String[] parts = line.split("\\s+", -1);
+                String[] parts = ParseUtil.whitespaces.split(line, -1);
                 if (parts.length >= 3) {
                     String name = parts[1];
                     PrinterStatus status = Lpstat.parseStatus(line);

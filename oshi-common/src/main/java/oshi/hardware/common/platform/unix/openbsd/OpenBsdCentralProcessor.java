@@ -121,9 +121,9 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
         long interrupts = 0L;
         for (String line : vmstat) {
             if (line.endsWith("cpu context switches")) {
-                contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
+                contextSwitches = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
             } else if (line.endsWith("interrupts")) {
-                interrupts = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
+                interrupts = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
             }
         }
         return new Pair<>(contextSwitches, interrupts);

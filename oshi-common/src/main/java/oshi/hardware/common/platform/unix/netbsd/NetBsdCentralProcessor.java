@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.netbsd;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.unix.BsdCentralProcessor;
@@ -21,6 +22,7 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class NetBsdCentralProcessor extends BsdCentralProcessor {
+    private static final Pattern KEY_VALUE = Pattern.compile("\\s*=\\s*");
 
     private static final int CPUSTATES = 5;
     private static final int CP_USER = 0;
@@ -92,9 +94,9 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         long interrupts = 0L;
         for (String line : vmstat) {
             if (line.endsWith("CPU context switches")) {
-                contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
+                contextSwitches = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
             } else if (line.endsWith("device interrupts")) {
-                interrupts = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
+                interrupts = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
             }
         }
         return new Pair<>(contextSwitches, interrupts);
@@ -184,7 +186,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         }
         String[] pairs = cpTimeStr.substring(colonIdx + 1).split(",", -1);
         for (String pair : pairs) {
-            String[] kv = pair.trim().split("\\s*=\\s*", -1);
+            String[] kv = KEY_VALUE.split(pair.trim(), -1);
             if (kv.length == 2) {
                 long val = ParseUtil.parseLongOrDefault(kv[1].trim(), 0L);
                 switch (kv[0].trim()) {

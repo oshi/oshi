@@ -256,7 +256,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         if (cpuMax.isEmpty()) {
             return UNLIMITED;
         }
-        String[] parts = cpuMax.split("\\s+", -1);
+        String[] parts = ParseUtil.whitespaces.split(cpuMax, -1);
         if (parts.length >= 1) {
             if ("max".equalsIgnoreCase(parts[0])) {
                 return UNLIMITED;
@@ -296,7 +296,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         if (cpuMax.isEmpty()) {
             return DEFAULT_CPU_PERIOD;
         }
-        String[] parts = cpuMax.split("\\s+", -1);
+        String[] parts = ParseUtil.whitespaces.split(cpuMax, -1);
         if (parts.length >= 2) {
             return ParseUtil.parseLongOrDefault(parts[1], DEFAULT_CPU_PERIOD);
         }
@@ -322,7 +322,7 @@ public class LinuxCgroupInfo implements CgroupInfo {
         List<String> lines = FileUtil.readFile(basePath + "cpu.stat");
         for (String line : lines) {
             if (line.startsWith("usage_usec")) {
-                String[] parts = line.split("\\s+", -1);
+                String[] parts = ParseUtil.whitespaces.split(line, -1);
                 if (parts.length >= 2) {
                     long usec = ParseUtil.parseLongOrDefault(parts[1], 0L);
                     return usec * NANOSECONDS_PER_MICROSECOND;

@@ -141,9 +141,6 @@ public final class ParseUtil {
 
     /** Constant <code>startWithNotDigits</code> */
     public static final Pattern startWithNotDigits = Pattern.compile("^\\D*");
-
-    /** Constant <code>forwardSlash</code> */
-    public static final Pattern slash = Pattern.compile("\\/");
     // CHECKSTYLE:ON ConstantName
 
     static {

@@ -39,8 +39,10 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
     private static final String VERSION;
     private static final String BUILD_NUMBER;
     static {
+        // Splitting on whitespace yields a zero-length array for input that is entirely whitespace, so guard the
+        // first element too; this runs in a static initializer, where an exception would leave the class unusable
         String[] split = ParseUtil.whitespaces.split(ExecutingCommand.getFirstAnswer("uname -rv"));
-        VERSION = split[0];
+        VERSION = split.length > 0 ? split[0] : "";
         BUILD_NUMBER = split.length > 1 ? split[1] : "";
     }
 
