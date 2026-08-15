@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
@@ -25,7 +27,7 @@ final class IOKitProviderJNA implements IOKitProvider {
     }
 
     @Override
-    public <T> T withMatchingService(String serviceName, Function<RegistryEntry, T> extractor) {
+    public <T> @Nullable T withMatchingService(String serviceName, Function<RegistryEntry, @Nullable T> extractor) {
         IORegistryEntry entry = IOKitUtil.getMatchingService(serviceName);
         if (entry != null) {
             try {

@@ -8,6 +8,7 @@ import java.lang.foreign.MemorySegment;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +41,7 @@ final class MacGpuStatsFFM extends MacGpuStats {
     }
 
     @Override
-    protected Map<String, Long> queryPerfStats(String... keys) {
+    protected @Nullable Map<String, Long> queryPerfStats(String... keys) {
         CFMutableDictionaryRef perfStats = openPerfStats();
         if (perfStats == null) {
             return null; // NOSONAR java:S1168 - null and empty are different answers; see the superclass javadoc
@@ -79,7 +80,7 @@ final class MacGpuStatsFFM extends MacGpuStats {
      * @return the retained dictionary, which the caller must close, or {@code null} if this card has no accelerator
      *         entry
      */
-    private CFMutableDictionaryRef openPerfStats() {
+    private @Nullable CFMutableDictionaryRef openPerfStats() {
         IOIterator iter = IOKitUtilFFM.getMatchingServices("IOAccelerator");
         if (iter == null) {
             return null;

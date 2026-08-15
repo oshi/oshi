@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.mac.SystemB;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -103,7 +105,7 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         OSProcess proc = new MacOSProcessJNA(pid, this.major, this.minor, this);
         return proc.getState().equals(OSProcess.State.INVALID) ? null : proc;
     }

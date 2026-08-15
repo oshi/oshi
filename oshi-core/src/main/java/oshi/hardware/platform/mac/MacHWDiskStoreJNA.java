@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -405,7 +406,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
      * @param media the IOMedia registry entry
      * @return the {@code Medium Type} string, or {@code null} if any step of the traversal finds nothing
      */
-    private static String queryMediumType(IORegistryEntry media) {
+    private static @Nullable String queryMediumType(IORegistryEntry media) {
         // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
         IORegistryEntry driver = media.getParentEntry("IOService");
         if (driver == null) {

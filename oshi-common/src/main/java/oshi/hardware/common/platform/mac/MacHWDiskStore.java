@@ -4,6 +4,8 @@
  */
 package oshi.hardware.common.platform.mac;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractHWDiskStore;
 
@@ -46,7 +48,7 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
      *                   {@code null} if the property is absent
      * @return {@code "SSD"}, {@code "HDD"}, or {@code "Unknown"} if the medium type is absent or unrecognized
      */
-    protected static String parseMediumType(String mediumType) {
+    protected static String parseMediumType(@Nullable String mediumType) {
         if (mediumType != null) {
             if (mediumType.contains("Solid State") || mediumType.contains("SSD")) {
                 return "SSD";

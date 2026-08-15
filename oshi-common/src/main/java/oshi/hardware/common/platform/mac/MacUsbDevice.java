@@ -68,12 +68,14 @@ public final class MacUsbDevice extends AbstractUsbDevice {
          * @param plane the registry plane to search
          * @return the parent entry in the given plane, or {@code null} if none
          */
+        @Nullable
         RegistryEntry getParentEntry(String plane);
 
         /**
          * @param plane the registry plane to iterate
          * @return an iterator over child entries in the given plane, or {@code null} if none
          */
+        @Nullable
         RegistryIterator getChildIterator(String plane);
 
         /**
@@ -82,6 +84,7 @@ public final class MacUsbDevice extends AbstractUsbDevice {
          *
          * @return a two-element array {@code {vendorId, productId}}; either element may be {@code null} if not found
          */
+        @Nullable
         String[] lookupControllerVidPid();
 
         /**
@@ -102,6 +105,7 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         /**
          * @return the next entry, or {@code null} when the iterator is exhausted
          */
+        @Nullable
         RegistryEntry next();
 
         /**
@@ -121,7 +125,7 @@ public final class MacUsbDevice extends AbstractUsbDevice {
      * @param root the IO registry root as a backend-neutral view, or {@code null} if unavailable
      * @return a list of USB controllers, each with its connected-device tree
      */
-    public static List<UsbDevice> getUsbDevices(RegistryEntry root) {
+    public static List<UsbDevice> getUsbDevices(@Nullable RegistryEntry root) {
         if (root == null) {
             return emptyList();
         }
@@ -157,12 +161,15 @@ public final class MacUsbDevice extends AbstractUsbDevice {
                         }
                         // The only controller info in the registry is its locationID; use it to find the matching PCI
                         // device and pull vendor/product IDs.
+                        @Nullable
                         String[] vidPid = controller.lookupControllerVidPid();
-                        if (vidPid[0] != null) {
-                            vendorIdMap.put(id, vidPid[0]);
+                        String controllerVendorId = vidPid[0];
+                        if (controllerVendorId != null) {
+                            vendorIdMap.put(id, controllerVendorId);
                         }
-                        if (vidPid[1] != null) {
-                            productIdMap.put(id, vidPid[1]);
+                        String controllerProductId = vidPid[1];
+                        if (controllerProductId != null) {
+                            productIdMap.put(id, controllerProductId);
                         }
                     }
                     controller.release();

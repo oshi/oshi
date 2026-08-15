@@ -157,7 +157,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             byte[] data = entry.getByteArrayProperty("manufacturer");
             return data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
         });
-        return Util.isBlank(manufacturer) ? "Apple Inc." : manufacturer;
+        return manufacturer == null || manufacturer.isEmpty() ? "Apple Inc." : manufacturer;
     }
 
     /**

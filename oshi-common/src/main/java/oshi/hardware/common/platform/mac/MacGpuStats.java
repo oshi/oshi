@@ -100,7 +100,7 @@ public abstract class MacGpuStats implements GpuStats {
      * @param keys the keys to read
      * @return the requested keys that were present, or {@code null} if this card's statistics could not be read
      */
-    protected abstract Map<String, Long> queryPerfStats(String... keys);
+    protected abstract @Nullable Map<String, Long> queryPerfStats(String... keys);
 
     /**
      * Reads the GPU temperature from the SMC. Called only on Apple Silicon.

@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
@@ -24,7 +26,7 @@ final class IOKitProviderFFM implements IOKitProvider {
     }
 
     @Override
-    public <T> T withMatchingService(String serviceName, Function<RegistryEntry, T> extractor) {
+    public <T> @Nullable T withMatchingService(String serviceName, Function<RegistryEntry, @Nullable T> extractor) {
         IORegistryEntry entry = IOKitUtilFFM.getMatchingService(serviceName);
         if (entry != null) {
             try (entry) {

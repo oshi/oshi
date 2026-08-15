@@ -7,6 +7,8 @@ package oshi.hardware.platform.mac;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFIndex;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -73,19 +75,19 @@ public final class MacUsbDeviceJNA {
         }
 
         @Override
-        public MacUsbDevice.RegistryEntry getParentEntry(String plane) {
+        public MacUsbDevice.@Nullable RegistryEntry getParentEntry(String plane) {
             IORegistryEntry parent = entry.getParentEntry(plane);
             return parent == null ? null : new JnaRegistryEntry(parent);
         }
 
         @Override
-        public MacUsbDevice.RegistryIterator getChildIterator(String plane) {
+        public MacUsbDevice.@Nullable RegistryIterator getChildIterator(String plane) {
             IOIterator iter = entry.getChildIterator(plane);
             return iter == null ? null : new JnaRegistryIterator(iter);
         }
 
         @Override
-        public String[] lookupControllerVidPid() {
+        public @Nullable String[] lookupControllerVidPid() {
             String[] result = new String[2];
             CFStringRef locationIDKey = CFStringRef.createCFString("locationID");
             CFStringRef ioPropertyMatchKey = CFStringRef.createCFString("IOPropertyMatch");
@@ -168,7 +170,7 @@ public final class MacUsbDeviceJNA {
         }
 
         @Override
-        public MacUsbDevice.RegistryEntry next() {
+        public MacUsbDevice.@Nullable RegistryEntry next() {
             IORegistryEntry next = iter.next();
             return next == null ? null : new JnaRegistryEntry(next);
         }

@@ -10,6 +10,7 @@ import java.lang.foreign.MemorySegment;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,19 +78,19 @@ public final class MacUsbDeviceFFM {
         }
 
         @Override
-        public MacUsbDevice.RegistryEntry getParentEntry(String plane) {
+        public MacUsbDevice.@Nullable RegistryEntry getParentEntry(String plane) {
             IORegistryEntry parent = entry.getParentEntry(plane);
             return parent == null ? null : new FfmRegistryEntry(parent);
         }
 
         @Override
-        public MacUsbDevice.RegistryIterator getChildIterator(String plane) {
+        public MacUsbDevice.@Nullable RegistryIterator getChildIterator(String plane) {
             IOIterator iter = entry.getChildIterator(plane);
             return iter == null ? null : new FfmRegistryIterator(iter);
         }
 
         @Override
-        public String[] lookupControllerVidPid() {
+        public @Nullable String[] lookupControllerVidPid() {
             String[] result = new String[2];
             CFStringRef locationIDKey = CFStringRef.createCFString("locationID");
             CFStringRef ioPropertyMatchKey = CFStringRef.createCFString("IOPropertyMatch");
@@ -125,7 +126,7 @@ public final class MacUsbDeviceFFM {
          * @param serviceIterator the iterator of matching services, or {@code null}
          * @param result          the two-element {@code {vendorId, productId}} array to populate
          */
-        private static void readVidPid(IOIterator serviceIterator, String[] result) {
+        private static void readVidPid(@Nullable IOIterator serviceIterator, @Nullable String[] result) {
             if (serviceIterator == null) {
                 return;
             }
@@ -171,7 +172,7 @@ public final class MacUsbDeviceFFM {
         }
 
         @Override
-        public MacUsbDevice.RegistryEntry next() {
+        public MacUsbDevice.@Nullable RegistryEntry next() {
             IORegistryEntry next = iter.next();
             return next == null ? null : new FfmRegistryEntry(next);
         }

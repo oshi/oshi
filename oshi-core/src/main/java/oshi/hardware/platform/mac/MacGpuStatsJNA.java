@@ -7,6 +7,8 @@ package oshi.hardware.platform.mac;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFMutableDictionaryRef;
@@ -38,7 +40,7 @@ final class MacGpuStatsJNA extends MacGpuStats {
     }
 
     @Override
-    protected Map<String, Long> queryPerfStats(String... keys) {
+    protected @Nullable Map<String, Long> queryPerfStats(String... keys) {
         CFMutableDictionaryRef perfStats = openPerfStats();
         if (perfStats == null) {
             return null; // NOSONAR java:S1168 - null and empty are different answers; see the superclass javadoc
@@ -78,7 +80,7 @@ final class MacGpuStatsJNA extends MacGpuStats {
      * @return the retained dictionary, which the caller must release, or {@code null} if this card has no accelerator
      *         entry
      */
-    private CFMutableDictionaryRef openPerfStats() {
+    private @Nullable CFMutableDictionaryRef openPerfStats() {
         IOIterator iter = IOKitUtil.getMatchingServices("IOAccelerator");
         if (iter == null) {
             return null;

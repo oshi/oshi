@@ -10,6 +10,7 @@ import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +61,8 @@ final class MacDisplayFFM extends AbstractDisplay {
         return displays;
     }
 
-    private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName, String childEntryName) {
+    private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
+            @Nullable String childEntryName) {
         List<Display> displays = new ArrayList<>();
         IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(serviceName);
         if (serviceIterator == null) {
@@ -159,7 +161,7 @@ final class MacDisplayFFM extends AbstractDisplay {
 
     // Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with
     // native resolution and device name from the framebuffer node and CoreGraphics.
-    private static DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
+    private static @Nullable DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
         CFDictionaryRef product = CFUtilFFM.getDictionary(attrs, "ProductAttributes");
         if (product == null) {
             return null;
@@ -232,7 +234,7 @@ final class MacDisplayFFM extends AbstractDisplay {
     }
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.
-    private static String getLocalizedDisplayName(int targetDisplayId) {
+    private static @Nullable String getLocalizedDisplayName(int targetDisplayId) {
         return ExceptionUtil.getOrDefault(() -> {
             try (Arena arena = Arena.ofConfined()) {
                 // Autorelease pool is thread-local; concurrent callers each get their own pool
@@ -246,7 +248,7 @@ final class MacDisplayFFM extends AbstractDisplay {
         }, null, LOG, "Failed to get localized display name");
     }
 
-    private static String queryLocalizedDisplayName(Arena arena, int targetDisplayId) throws Throwable {
+    private static @Nullable String queryLocalizedDisplayName(Arena arena, int targetDisplayId) throws Throwable {
         MemorySegment nsScreenClass = ObjCFunctions.objc_getClass(arena.allocateFrom("NSScreen"));
         if (nsScreenClass.address() == 0) {
             return null;

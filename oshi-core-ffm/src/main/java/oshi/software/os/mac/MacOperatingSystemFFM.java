@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +118,7 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         OSProcess proc = new MacOSProcessFFM(pid, this.major, this.minor, this);
         return proc.getState().equals(State.INVALID) ? null : proc;
     }
