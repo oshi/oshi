@@ -4,12 +4,19 @@
  */
 package oshi.ffm;
 
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static oshi.util.LogLevel.DEBUG;
 
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
+import java.lang.foreign.StructLayout;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
@@ -27,6 +34,8 @@ import org.slf4j.LoggerFactory;
 class ForeignFunctionsTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ForeignFunctionsTest.class);
+
+    private static final StructLayout LAYOUT = MemoryLayout.structLayout(JAVA_INT.withName("x"));
 
     @Test
     void testCallInArenaOrDefaultReturnsValue() {
@@ -170,4 +179,47 @@ class ForeignFunctionsTest {
         }, true, LOG, DEBUG, "boolean failed for {}", "k"), is(true));
     }
 
+    // -- raw pointer readers --
+
+    @Test
+    void testPointerReadersReturnNullForANullPointer() {
+        try (Arena arena = Arena.ofConfined()) {
+            assertThat(ForeignFunctions.getByteArrayFromNativePointer(null, 4L, arena), is(nullValue()));
+            assertThat(ForeignFunctions.getStringFromNativePointer(null, arena), is(nullValue()));
+            assertThat(ForeignFunctions.getStructFromNativePointer(null, LAYOUT, arena), is(nullValue()));
+        }
+    }
+
+    @Test
+    void testPointerReadersReturnNullForTheNullSegment() {
+        try (Arena arena = Arena.ofConfined()) {
+            assertThat(ForeignFunctions.getByteArrayFromNativePointer(MemorySegment.NULL, 4L, arena), is(nullValue()));
+            assertThat(ForeignFunctions.getStringFromNativePointer(MemorySegment.NULL, arena), is(nullValue()));
+            assertThat(ForeignFunctions.getStructFromNativePointer(MemorySegment.NULL, LAYOUT, arena), is(nullValue()));
+        }
+    }
+
+    /**
+     * The null guards above must not have cost the reader its actual job: a real pointer still yields its bytes.
+     */
+    @Test
+    void testGetByteArrayFromNativePointerReadsTheBytes() {
+        try (Arena arena = Arena.ofConfined()) {
+            byte[] expected = { 1, 2, 3, 4 };
+            MemorySegment segment = arena.allocate(expected.length);
+            MemorySegment.copy(expected, 0, segment, JAVA_BYTE, 0, expected.length);
+
+            assertThat(ForeignFunctions.getByteArrayFromNativePointer(segment, expected.length, arena),
+                    is(equalTo(expected)));
+        }
+    }
+
+    /**
+     * Both sizes come from the linker's canonical layouts, which every platform this runs on defines.
+     */
+    @Test
+    void testNativeTypeSizesAreResolved() {
+        assertThat(ForeignFunctions.NATIVE_LONG_SIZE, is(greaterThan(0L)));
+        assertThat(ForeignFunctions.NATIVE_SIZE_T_SIZE, is(greaterThan(0L)));
+    }
 }

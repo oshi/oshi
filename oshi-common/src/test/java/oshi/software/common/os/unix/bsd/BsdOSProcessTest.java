@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
 
 /**
@@ -153,5 +154,36 @@ class BsdOSProcessTest {
         proc.updateAttributes(second);
         assertThat(proc.getKernelTime(), is(4000L));
         assertThat(proc.getUserTime(), is(6000L));
+    }
+
+    /**
+     * A ps row missing its STATE column used to throw from charAt(0) partway through updateAttributes, leaving the
+     * process half-updated. An absent state now reads as OTHER and the rest of the row is still applied.
+     */
+    @Test
+    void testAbsentStateColumnYieldsOtherRatherThanThrowing() {
+        BsdOSProcess proc = stubProcess(42, 42);
+        Map<BsdPsKeyword, String> psMap = psRow("0:09.78");
+        psMap.remove(BsdPsKeyword.STATE);
+
+        assertThat(proc.updateAttributes(psMap), is(true));
+        assertThat(proc.getState(), is(OSProcess.State.OTHER));
+        assertThat(proc.getParentProcessID(), is(1));
+        assertThat(proc.getUser(), is("root"));
+    }
+
+    /**
+     * Absent string columns read as the empty string rather than null, which the OSProcess getters promise.
+     */
+    @Test
+    void testAbsentStringColumnsReadAsEmpty() {
+        BsdOSProcess proc = stubProcess(42, 42);
+        Map<BsdPsKeyword, String> psMap = psRow("0:09.78");
+        psMap.remove(BsdPsKeyword.USER);
+        psMap.remove(BsdPsKeyword.UID);
+
+        assertThat(proc.updateAttributes(psMap), is(true));
+        assertThat(proc.getUser(), is(""));
+        assertThat(proc.getUserID(), is(""));
     }
 }

@@ -33,6 +33,12 @@ public final class Win32ProcessFFM extends Win32Process {
                 pidsToQuery);
     }
 
+    /**
+     * Queries process information.
+     *
+     * @param pids the process IDs to query, or {@code null} to query all processes
+     * @return a {@link WmiResult} of information on the matching processes
+     */
     public static WmiResult<ProcessXPProperty> queryProcesses(@Nullable Collection<Integer> pids) {
         return Win32Process.queryProcesses(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()), pids);
     }

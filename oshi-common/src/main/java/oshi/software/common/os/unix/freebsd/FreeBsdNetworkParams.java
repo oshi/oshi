@@ -38,10 +38,10 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
     }
 
     /**
-     * Resolves the domain name via the subclass's getaddrinfo binding. Subclasses return an empty string on failure
-     * (matching the prior JNA behavior).
+     * Resolves the domain name via the subclass's getaddrinfo binding.
      *
-     * @return the resolved canonical domain name, or {@code ""} on failure
+     * @return the resolved canonical domain name, or {@code null} if the native call failed. {@link #getDomainName()}
+     *         converts that to the empty string its own contract promises.
      */
     protected abstract @Nullable String queryDomainName();
 

@@ -218,7 +218,8 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
                 if (Advapi32FFM.OpenProcessToken(pHandle.get(), TOKEN_QUERY, hTokenPtr)) {
                     try (NativeHandle hToken = NativeHandle.of(hTokenPtr.get(ADDRESS, 0), Kernel32FFM::CloseHandle)) {
                         MemorySegment token = hToken.get();
-                        return token == null ? null : getTokenAccountInfo(token, tokenInformationClass, arena);
+                        return token == null || token.address() == 0 ? null
+                                : getTokenAccountInfo(token, tokenInformationClass, arena);
                     }
                 }
                 int error = Kernel32FFM.GetLastError().orElse(0);
@@ -289,7 +290,8 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             try (NativeHandle h = NativeHandle.of(hOpt.get(), Kernel32FFM::CloseHandle);
                     Arena arena = Arena.ofConfined()) {
                 MemorySegment process = h.get();
-                if (process != null && WindowsOperatingSystemFFM.isX86() == isWow(process, arena)) {
+                if (process != null && process.address() != 0
+                        && WindowsOperatingSystemFFM.isX86() == isWow(process, arena)) {
                     MemorySegment pbi = arena.allocate(PROCESS_BASIC_INFORMATION_STRUCT);
                     MemorySegment nRead = arena.allocate(JAVA_INT);
 

@@ -67,7 +67,7 @@ final class MacNetworkParamsFFM extends MacNetworkParams {
             try (NativeHandle addrInfo = NativeHandle.of(resPtr.get(ADDRESS, 0), MacSystemFunctions::freeaddrinfo)) {
                 // resPtr holds a pointer to the first addrinfo struct
                 MemorySegment info = addrInfo.get();
-                if (info == null) {
+                if (info == null || info.address() == 0) {
                     return "";
                 }
                 MemorySegment infoPtr = info.reinterpret(ADDRINFO.byteSize(), arena, null);

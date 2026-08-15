@@ -33,9 +33,9 @@ public class FreeBsdInternetProtocolStatsFFM extends FreeBsdInternetProtocolStat
     private static final int UDPSTAT_MIN_SIZE = 84;
 
     private Supplier<Pair<Long, Long>> establishedv4v6 = memoize(NetStat::queryTcpnetstat, defaultExpiration());
-    private Supplier<MemorySegment> tcpstat = memoize(FreeBsdInternetProtocolStatsFFM::queryTcpstat,
+    private Supplier<@Nullable MemorySegment> tcpstat = memoize(FreeBsdInternetProtocolStatsFFM::queryTcpstat,
             defaultExpiration());
-    private Supplier<MemorySegment> udpstat = memoize(FreeBsdInternetProtocolStatsFFM::queryUdpstat,
+    private Supplier<@Nullable MemorySegment> udpstat = memoize(FreeBsdInternetProtocolStatsFFM::queryUdpstat,
             defaultExpiration());
 
     @Override

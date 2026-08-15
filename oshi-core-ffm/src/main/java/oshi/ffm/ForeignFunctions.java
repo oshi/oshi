@@ -503,13 +503,13 @@ public abstract class ForeignFunctions {
     /**
      * Reinterpret a raw native pointer as a struct of the given layout, scoped to the provided arena.
      *
-     * @param pointer the native pointer
+     * @param pointer the native pointer, which may be {@code null}
      * @param layout  the struct layout
      * @param arena   the arena to scope the resulting segment to
      * @return a memory segment over the struct, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static @Nullable MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout,
-            Arena arena) {
+    public static @Nullable MemorySegment getStructFromNativePointer(@Nullable MemorySegment pointer,
+            StructLayout layout, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
@@ -519,11 +519,11 @@ public abstract class ForeignFunctions {
     /**
      * Read a null-terminated UTF-8 string from a raw native pointer.
      *
-     * @param pointer the native pointer
+     * @param pointer the native pointer, which may be {@code null}
      * @param arena   the arena to scope the reinterpreted segment to
      * @return the Java string, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static @Nullable String getStringFromNativePointer(MemorySegment pointer, Arena arena) {
+    public static @Nullable String getStringFromNativePointer(@Nullable MemorySegment pointer, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
@@ -534,12 +534,13 @@ public abstract class ForeignFunctions {
     /**
      * Copy {@code length} bytes from a raw native pointer into a Java byte array.
      *
-     * @param pointer the native pointer
+     * @param pointer the native pointer, which may be {@code null}
      * @param length  the number of bytes to copy
      * @param arena   the arena to scope the reinterpreted segment to
      * @return the byte array, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static byte @Nullable [] getByteArrayFromNativePointer(MemorySegment pointer, long length, Arena arena) {
+    public static byte @Nullable [] getByteArrayFromNativePointer(@Nullable MemorySegment pointer, long length,
+            Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
