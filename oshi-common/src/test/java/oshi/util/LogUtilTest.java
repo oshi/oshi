@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +36,7 @@ class LogUtilTest {
      */
     static final class RecordingLogger implements InvocationHandler {
         private final List<String> calls = new ArrayList<>();
-        private Object[] lastArgs;
+        private Object @Nullable [] lastArgs;
         private boolean enabled = true;
 
         static RecordingLogger create() {
@@ -57,7 +59,7 @@ class LogUtilTest {
         }
 
         @Override
-        public Object invoke(Object proxy, Method method, Object[] args) {
+        public @Nullable Object invoke(Object proxy, Method method, Object @Nullable [] args) {
             calls.add(method.getName());
             if (boolean.class.equals(method.getReturnType())) {
                 return enabled;
@@ -76,10 +78,12 @@ class LogUtilTest {
         }
 
         String message() {
+            assertNotNull(lastArgs, "no logging call was recorded");
             return (String) lastArgs[0];
         }
 
         Object[] arguments() {
+            assertNotNull(lastArgs, "no logging call was recorded");
             return (Object[]) lastArgs[1];
         }
     }

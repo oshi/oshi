@@ -4,6 +4,7 @@
  */
 package oshi.util;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,22 +75,17 @@ public final class Util {
 
     /**
      * Tests if a String is either null or empty.
+     * <p>
+     * This is a predicate, so a nullability analyzer cannot infer from it that the tested String is non-null on the
+     * following line. When the result feeds a value rather than a branch, prefer
+     * {@link ParseUtil#getStringValueOrUnknown} or {@link ParseUtil#getStringValueOrEmpty}, whose non-null returns
+     * carry that guarantee.
      *
      * @param s The string to test
      * @return True if the String is either null or empty.
      */
-    public static boolean isBlank(String s) {
+    public static boolean isBlank(@Nullable String s) {
         return s == null || s.isEmpty();
-    }
-
-    /**
-     * Tests if a String is either null or empty or the unknown constant.
-     *
-     * @param s The string to test
-     * @return True if the String is either null or empty or the unknown constant.
-     */
-    public static boolean isBlankOrUnknown(String s) {
-        return isBlank(s) || Constants.UNKNOWN.equals(s);
     }
 
     /**

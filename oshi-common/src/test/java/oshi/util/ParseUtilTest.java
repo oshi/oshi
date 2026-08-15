@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -625,19 +624,19 @@ class ParseUtilTest {
     void testParseDeviceIdToVendorProductSerial() {
         Triplet<String, String, String> idsAndSerial = ParseUtil
                 .parseDeviceIdToVendorProductSerial("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
-        assertThat("VEN_ DEV_ deviceID failed to parse", idsAndSerial, is(notNullValue()));
+        assertNotNull(idsAndSerial, "VEN_ DEV_ deviceID failed to parse");
         assertThat("Vendor ID failed to parse", idsAndSerial.getA(), is("0x10de"));
         assertThat("Product ID failed to parse", idsAndSerial.getB(), is("0x134b"));
         assertThat("SerialNumber should not have parsed", idsAndSerial.getC(), is(emptyString()));
 
         idsAndSerial = ParseUtil.parseDeviceIdToVendorProductSerial("USB\\VID_045E&PID_07C6\\000001000000");
-        assertThat("VID_ PID_ serial deviceID failed to parse", idsAndSerial, is(notNullValue()));
+        assertNotNull(idsAndSerial, "VID_ PID_ serial deviceID failed to parse");
         assertThat("Vendor ID failed to parse", idsAndSerial.getA(), is("0x045e"));
         assertThat("Product ID failed to parse", idsAndSerial.getB(), is("0x07c6"));
         assertThat("SerialNumber failed to parse", idsAndSerial.getC(), is("000001000000"));
 
         idsAndSerial = ParseUtil.parseDeviceIdToVendorProductSerial("USB\\VID_045E&PID_07C6\\5&000001000000");
-        assertThat("VID_ PID_ nonserial deviceID failed to parse", idsAndSerial, is(notNullValue()));
+        assertNotNull(idsAndSerial, "VID_ PID_ nonserial deviceID failed to parse");
         assertThat("Vendor ID failed to parse", idsAndSerial.getA(), is("0x045e"));
         assertThat("Product ID failed to parse", idsAndSerial.getB(), is("0x07c6"));
         assertThat("SerialNumber should not have parsed", idsAndSerial.getC(), is(emptyString()));
@@ -652,19 +651,19 @@ class ParseUtilTest {
         // Full PNPDeviceID with trailing instance — same inputs as the Serial test
         Pair<Integer, Integer> ids = ParseUtil
                 .parseDeviceIdToVendorProductIds("PCI\\VEN_10DE&DEV_134B&SUBSYS_00081414&REV_A2\\4&25BACB6&0&00E0");
-        assertThat("PCI full deviceID failed to parse", ids, is(notNullValue()));
+        assertNotNull(ids, "PCI full deviceID failed to parse");
         assertThat("Vendor ID", ids.getA(), is(0x10DE));
         assertThat("Product ID", ids.getB(), is(0x134B));
 
         // USB VID/PID with serial
         ids = ParseUtil.parseDeviceIdToVendorProductIds("USB\\VID_045E&PID_07C6\\000001000000");
-        assertThat("USB VID/PID failed to parse", ids, is(notNullValue()));
+        assertNotNull(ids, "USB VID/PID failed to parse");
         assertThat("Vendor ID", ids.getA(), is(0x045E));
         assertThat("Product ID", ids.getB(), is(0x07C6));
 
         // Bare MatchingDeviceId — no trailing backslash instance (the case VEN_DEV_PATTERN handled)
         ids = ParseUtil.parseDeviceIdToVendorProductIds("pci\\ven_8086&dev_56a0&subsys_00008086&rev_08");
-        assertThat("Bare MatchingDeviceId failed to parse", ids, is(notNullValue()));
+        assertNotNull(ids, "Bare MatchingDeviceId failed to parse");
         assertThat("Vendor ID", ids.getA(), is(0x8086));
         assertThat("Product ID", ids.getB(), is(0x56A0));
 
@@ -695,6 +694,7 @@ class ParseUtilTest {
     @Test
     void testParseLspciMachineReadable() {
         Pair<String, String> pair = ParseUtil.parseLspciMachineReadable("foo [bar]");
+        assertNotNull(pair, "Well-formed lspci line failed to parse");
         assertThat("First element of pair mismatch.", pair.getA(), is("foo"));
         assertThat("Second element of pair mismatch.", pair.getB(), is("bar"));
         assertThat(ParseUtil.parseLspciMachineReadable("Bad format"), is(nullValue()));
@@ -1006,6 +1006,24 @@ class ParseUtilTest {
 
         map.put(key, "value");
         assertThat(ParseUtil.getValueOrUnknown(map, key), is("value"));
+    }
+
+    @Test
+    void testGetStringValueOrUnknown() {
+        assertThat("null should be unknown", ParseUtil.getStringValueOrUnknown(null), is(Constants.UNKNOWN));
+        assertThat("empty should be unknown", ParseUtil.getStringValueOrUnknown(""), is(Constants.UNKNOWN));
+        assertThat("whitespace should be unchanged", ParseUtil.getStringValueOrUnknown(" "), is(" "));
+        assertThat("value should be unchanged", ParseUtil.getStringValueOrUnknown("value"), is("value"));
+    }
+
+    @Test
+    void testGetStringValueOrEmpty() {
+        assertThat("null should be empty", ParseUtil.getStringValueOrEmpty(null), is(""));
+        assertThat("empty should be empty", ParseUtil.getStringValueOrEmpty(""), is(""));
+        assertThat("whitespace should be unchanged", ParseUtil.getStringValueOrEmpty(" "), is(" "));
+        assertThat("value should be unchanged", ParseUtil.getStringValueOrEmpty("value"), is("value"));
+        assertThat("unknown should be unchanged", ParseUtil.getStringValueOrEmpty(Constants.UNKNOWN),
+                is(Constants.UNKNOWN));
     }
 
     @Test

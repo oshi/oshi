@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -172,9 +173,9 @@ public final class ParseUtil {
      * Decodes REG_BINARY to String. Supports UTF-16LE and Windows-1252 C-strings, otherwise returns a hex.
      *
      * @param bytes the byte array to decode
-     * @return the decoded string
+     * @return the decoded string, or {@code null} if the array is null or empty
      */
-    public static String decodeBinaryToString(byte[] bytes) {
+    public static @Nullable String decodeBinaryToString(byte @Nullable [] bytes) {
         if (bytes == null || bytes.length == 0) {
             return null;
         }
@@ -495,7 +496,7 @@ public final class ParseUtil {
      * @param defaultInt The value to return if parsing fails
      * @return The parsed int, or the default if parsing failed
      */
-    public static int parseIntOrDefault(String s, int defaultInt) {
+    public static int parseIntOrDefault(@Nullable String s, int defaultInt) {
         try {
             return Integer.parseInt(s);
         } catch (NullPointerException | NumberFormatException e) {
@@ -511,7 +512,7 @@ public final class ParseUtil {
      * @param defaultLong The value to return if parsing fails
      * @return The parsed long, or the default if parsing failed
      */
-    public static long parseLongOrDefault(String s, long defaultLong) {
+    public static long parseLongOrDefault(@Nullable String s, long defaultLong) {
         try {
             return Long.parseLong(s);
         } catch (NullPointerException | NumberFormatException e) {
@@ -528,7 +529,7 @@ public final class ParseUtil {
      * @return The parsed long containing the same 64 bits that an unsigned long would contain (which may produce a
      *         negative value)
      */
-    public static long parseUnsignedLongOrDefault(String s, long defaultLong) {
+    public static long parseUnsignedLongOrDefault(@Nullable String s, long defaultLong) {
         try {
             return new BigInteger(s).longValue();
         } catch (NullPointerException | NumberFormatException e) {
@@ -545,7 +546,7 @@ public final class ParseUtil {
      * @param defaultInt The value to return if decoding fails
      * @return The decoded int, or the default if decoding failed
      */
-    public static int decodeIntOrDefault(String s, int defaultInt) {
+    public static int decodeIntOrDefault(@Nullable String s, int defaultInt) {
         try {
             return Integer.decode(s);
         } catch (NullPointerException | NumberFormatException e) {
@@ -562,7 +563,7 @@ public final class ParseUtil {
      * @param defaultLong The value to return if decoding fails
      * @return The decoded long, or the default if decoding failed
      */
-    public static long decodeLongOrDefault(String s, long defaultLong) {
+    public static long decodeLongOrDefault(@Nullable String s, long defaultLong) {
         try {
             return Long.decode(s);
         } catch (NullPointerException | NumberFormatException e) {
@@ -578,7 +579,7 @@ public final class ParseUtil {
      * @param defaultDouble The value to return if parsing fails
      * @return The parsed double, or the default if parsing failed
      */
-    public static double parseDoubleOrDefault(String s, double defaultDouble) {
+    public static double parseDoubleOrDefault(@Nullable String s, double defaultDouble) {
         try {
             return Double.parseDouble(s);
         } catch (NullPointerException | NumberFormatException e) {
@@ -595,7 +596,7 @@ public final class ParseUtil {
      * @param defaultLong The value to return if parsing fails
      * @return The parsed number of seconds, or the default if parsing fails
      */
-    public static long parseDHMSOrDefault(String s, long defaultLong) {
+    public static long parseDHMSOrDefault(@Nullable String s, long defaultLong) {
         if (s == null) {
             return defaultLong;
         }
@@ -627,7 +628,7 @@ public final class ParseUtil {
      * @param defaultStr The value to return if parsing fails
      * @return The parsed UUID, or the default if parsing fails
      */
-    public static String parseUuidOrDefault(String s, String defaultStr) {
+    public static String parseUuidOrDefault(@Nullable String s, String defaultStr) {
         if (s == null) {
             return defaultStr;
         }
@@ -715,7 +716,8 @@ public final class ParseUtil {
      * @param toRemove the sub string to be removed
      * @return The string with all matching substrings removed
      */
-    public static String removeMatchingString(final String original, final String toRemove) {
+    public static @Nullable String removeMatchingString(@Nullable final String original,
+            @Nullable final String toRemove) {
         if (original == null || original.isEmpty() || toRemove == null || toRemove.isEmpty()) {
             return original;
         }
@@ -1072,7 +1074,7 @@ public final class ParseUtil {
      *         third element is either a serial number or empty string if parsing was successful, or {@code null}
      *         otherwise
      */
-    public static Triplet<String, String, String> parseDeviceIdToVendorProductSerial(String deviceId) {
+    public static @Nullable Triplet<String, String, String> parseDeviceIdToVendorProductSerial(String deviceId) {
         Matcher m = VENDOR_PRODUCT_ID_SERIAL.matcher(deviceId);
         if (m.matches()) {
             String vendorId = "0x" + m.group(1).toLowerCase(Locale.ROOT);
@@ -1095,7 +1097,7 @@ public final class ParseUtil {
      * @return A {@link Pair} of (vendorId, productId) as integers, or {@code null} if the string does not contain a
      *         recognisable {@code VEN_xxxx&DEV_xxxx} or {@code VID_xxxx&PID_xxxx} pattern
      */
-    public static Pair<Integer, Integer> parseDeviceIdToVendorProductIds(String deviceId) {
+    public static @Nullable Pair<Integer, Integer> parseDeviceIdToVendorProductIds(@Nullable String deviceId) {
         if (deviceId == null) {
             return null;
         }
@@ -1140,7 +1142,7 @@ public final class ParseUtil {
      * @param line A string in the form Foo [bar]
      * @return A pair separating the String before the square brackets and within them if found, null otherwise
      */
-    public static Pair<String, String> parseLspciMachineReadable(String line) {
+    public static @Nullable Pair<String, String> parseLspciMachineReadable(String line) {
         Matcher matcher = LSPCI_MACHINE_READABLE.matcher(line);
         if (matcher.matches()) {
             return new Pair<>(matcher.group(1), matcher.group(2));
@@ -1243,7 +1245,7 @@ public final class ParseUtil {
      * @return a 4-element int array for {@link #parseUtAddrV6toIP}
      * @throws IllegalArgumentException if the array holds fewer than 18 bytes
      */
-    public static int[] parseIPv6BytesToIntArray(byte[] address) {
+    public static int[] parseIPv6BytesToIntArray(byte @Nullable [] address) {
         if (address == null || address.length < 18) {
             throw new IllegalArgumentException("address must have at least 18 elements");
         }
@@ -1536,8 +1538,21 @@ public final class ParseUtil {
      * @param value The input string value.
      * @return The input value if it is non-empty; otherwise, {@code Constants.UNKNOWN}.
      */
-    public static String getStringValueOrUnknown(String value) {
+    public static String getStringValueOrUnknown(@Nullable String value) {
         return (value == null || value.isEmpty()) ? Constants.UNKNOWN : value;
+    }
+
+    /**
+     * Returns the given string value if it is non-null; otherwise, returns an empty string.
+     * <p>
+     * Unlike {@link #getStringValueOrUnknown}, an empty input is returned unchanged rather than replaced, so this is
+     * the normalizer for values whose absent form is an empty string rather than {@code Constants.UNKNOWN}.
+     *
+     * @param value The input string value.
+     * @return The input value if it is non-null; otherwise, an empty string.
+     */
+    public static String getStringValueOrEmpty(@Nullable String value) {
+        return value == null ? "" : value;
     }
 
     /**
@@ -1609,7 +1624,7 @@ public final class ParseUtil {
      * @param now         the moment to resolve the missing year against
      * @return the epoch time in milliseconds since January 1, 1970, UTC. Returns {@code 0} if parsing fails.
      */
-    public static long parseYearlessDateToEpoch(String dateString, String datePattern, LocalDateTime now) {
+    public static long parseYearlessDateToEpoch(@Nullable String dateString, String datePattern, LocalDateTime now) {
         if (dateString == null || dateString.isEmpty() || datePattern.isEmpty()) {
             return 0;
         }
@@ -1639,7 +1654,7 @@ public final class ParseUtil {
      * @return the decoded string up to (but not including) the first NUL byte, or an empty string if the array is null
      *         or empty
      */
-    public static String decodeNulTerminated(byte[] bytes, Charset charset) {
+    public static String decodeNulTerminated(byte @Nullable [] bytes, Charset charset) {
         if (bytes == null || bytes.length == 0) {
             return "";
         }
@@ -1650,7 +1665,7 @@ public final class ParseUtil {
         return new String(bytes, 0, len, charset);
     }
 
-    private static LocalDateTime parseWithDefaultYear(String dateString, String datePattern, int year) {
+    private static @Nullable LocalDateTime parseWithDefaultYear(String dateString, String datePattern, int year) {
         try {
             // STRICT, because the default SMART style silently clamps February 29 to the 28th in a non-leap year
             // instead of rejecting it, which would resolve a genuine leap day to the wrong date rather than letting

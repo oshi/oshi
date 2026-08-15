@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -57,7 +58,7 @@ public final class ExceptionUtil {
      * @param <T> the type of result supplied
      */
     @FunctionalInterface
-    public interface ThrowingSupplier<T> {
+    public interface ThrowingSupplier<T extends @Nullable Object> {
         /**
          * Gets a result.
          *
@@ -144,7 +145,7 @@ public final class ExceptionUtil {
      * @param defaultValue the value to return on failure
      * @return the supplier's result or the default value
      */
-    public static <T> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue) {
+    public static <T extends @Nullable Object> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue) {
         try {
             return supplier.get();
         } catch (Throwable t) {
@@ -164,8 +165,8 @@ public final class ExceptionUtil {
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
-    public static <T> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log, String msg,
-            Object... args) {
+    public static <T extends @Nullable Object> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log,
+            String msg, Object... args) {
         return getOrDefault(supplier, defaultValue, log, LogLevel.DEBUG, msg, args);
     }
 
@@ -182,8 +183,8 @@ public final class ExceptionUtil {
      * @param args         the arguments filling the {} placeholders, if any
      * @return the supplier's result or the default value
      */
-    public static <T> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log, LogLevel level,
-            String msg, Object... args) {
+    public static <T extends @Nullable Object> T getOrDefault(ThrowingSupplier<T> supplier, T defaultValue, Logger log,
+            LogLevel level, String msg, Object... args) {
         try {
             return supplier.get();
         } catch (Throwable t) {
@@ -414,7 +415,8 @@ public final class ExceptionUtil {
      * @param args     the arguments filling the {} placeholders, if any
      * @return an Optional containing the result, or empty on failure
      */
-    public static <T> Optional<T> getOptional(ThrowingSupplier<T> supplier, Logger log, String msg, Object... args) {
+    public static <T> Optional<T> getOptional(ThrowingSupplier<? extends @Nullable T> supplier, Logger log, String msg,
+            Object... args) {
         return getOptional(supplier, log, LogLevel.DEBUG, msg, args);
     }
 
@@ -430,8 +432,8 @@ public final class ExceptionUtil {
      * @param args     the arguments filling the {} placeholders, if any
      * @return an Optional containing the result, or empty on failure
      */
-    public static <T> Optional<T> getOptional(ThrowingSupplier<T> supplier, Logger log, LogLevel level, String msg,
-            Object... args) {
+    public static <T> Optional<T> getOptional(ThrowingSupplier<? extends @Nullable T> supplier, Logger log,
+            LogLevel level, String msg, Object... args) {
         try {
             return Optional.ofNullable(supplier.get());
         } catch (Throwable t) {

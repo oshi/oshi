@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -314,9 +315,10 @@ public final class GlobalConfig {
      * Get the property associated with the given key.
      *
      * @param key The property key
-     * @return The property value if it exists, or null otherwise
+     * @return The property value if it exists, or {@code null} otherwise. Unlike the other overloads, this one
+     *         distinguishes an absent property from one explicitly set to an empty value.
      */
-    public static String get(String key) {
+    public static @Nullable String get(String key) {
         return CONFIG.getProperty(key);
     }
 
@@ -374,7 +376,7 @@ public final class GlobalConfig {
      * @param key The property key
      * @param val The new value
      */
-    public static void set(String key, Object val) {
+    public static void set(String key, @Nullable Object val) {
         if (val == null) {
             CONFIG.remove(key);
         } else {
@@ -420,7 +422,7 @@ public final class GlobalConfig {
          * @param property The property name
          */
         public PropertyException(String property) {
-            super("Invalid property: \"" + property + "\" = " + GlobalConfig.get(property, null));
+            super("Invalid property: \"" + property + "\" = " + GlobalConfig.get(property));
         }
 
         /**

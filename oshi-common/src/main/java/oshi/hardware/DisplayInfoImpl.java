@@ -132,62 +132,62 @@ public class DisplayInfoImpl implements DisplayInfo {
 
     @Override
     public String getManufacturerID() {
-        return this.synthetic ? this.manufacturerID : EdidUtil.getManufacturerID(this.edid);
+        return this.synthetic ? this.manufacturerID : EdidUtil.getManufacturerID(cachedEdid());
     }
 
     @Override
     public String getProductID() {
-        return this.synthetic ? this.productID : EdidUtil.getProductID(this.edid);
+        return this.synthetic ? this.productID : EdidUtil.getProductID(cachedEdid());
     }
 
     @Override
     public String getSerialNo() {
-        return this.synthetic ? this.serialNo : EdidUtil.getSerialNo(this.edid);
+        return this.synthetic ? this.serialNo : EdidUtil.getSerialNo(cachedEdid());
     }
 
     @Override
     public byte getWeek() {
-        return this.synthetic ? this.week : EdidUtil.getWeek(this.edid);
+        return this.synthetic ? this.week : EdidUtil.getWeek(cachedEdid());
     }
 
     @Override
     public int getYear() {
-        return this.synthetic ? this.year : EdidUtil.getYear(this.edid);
+        return this.synthetic ? this.year : EdidUtil.getYear(cachedEdid());
     }
 
     @Override
     public String getVersion() {
-        return this.synthetic ? this.version : EdidUtil.getVersion(this.edid);
+        return this.synthetic ? this.version : EdidUtil.getVersion(cachedEdid());
     }
 
     @Override
     public boolean isDigital() {
-        return this.synthetic ? this.digital : EdidUtil.isDigital(this.edid);
+        return this.synthetic ? this.digital : EdidUtil.isDigital(cachedEdid());
     }
 
     @Override
     public int getHcm() {
-        return this.synthetic ? this.hcm : EdidUtil.getHcm(this.edid);
+        return this.synthetic ? this.hcm : EdidUtil.getHcm(cachedEdid());
     }
 
     @Override
     public int getVcm() {
-        return this.synthetic ? this.vcm : EdidUtil.getVcm(this.edid);
+        return this.synthetic ? this.vcm : EdidUtil.getVcm(cachedEdid());
     }
 
     @Override
     public String getPreferredResolution() {
-        return this.synthetic ? this.preferredResolution : EdidUtil.getPreferredResolution(this.edid);
+        return this.synthetic ? this.preferredResolution : EdidUtil.getPreferredResolution(cachedEdid());
     }
 
     @Override
     public String getModel() {
-        return this.synthetic ? this.model : EdidUtil.getModel(this.edid);
+        return this.synthetic ? this.model : EdidUtil.getModel(cachedEdid());
     }
 
     @Override
     public String getProductSerialNumber() {
-        return this.synthetic ? this.productSerialNumber : EdidUtil.getProductSerialNumber(this.edid);
+        return this.synthetic ? this.productSerialNumber : EdidUtil.getProductSerialNumber(cachedEdid());
     }
 
     private byte[] synthesizeEdid() {
@@ -234,7 +234,7 @@ public class DisplayInfoImpl implements DisplayInfo {
         // For a real EDID, defer to the full EdidUtil rendering of the existing bytes. For a synthetic instance, format
         // directly from the decoded fields so toString never triggers (and re-decodes) a synthesized EDID.
         if (!this.synthetic) {
-            return EdidUtil.toString(this.edid);
+            return EdidUtil.toString(cachedEdid());
         }
         StringBuilder sb = new StringBuilder();
         sb.append("  Manuf. ID=").append(this.manufacturerID);

@@ -889,9 +889,7 @@ public interface CentralProcessor {
         public ProcessorIdentifier(String cpuVendor, String cpuName, String cpuFamily, String cpuModel,
                 String cpuStepping, String processorID, boolean cpu64bit, long vendorFreq,
                 @Nullable String microarchitecture) {
-            // Normalized to empty rather than kept null, so the field matches its non-null declaration; both are
-            // treated as absent by the isBlank check in queryMicroarchitecture.
-            this.derivedMicroarchitecture = microarchitecture == null ? "" : microarchitecture;
+            this.derivedMicroarchitecture = ParseUtil.getStringValueOrEmpty(microarchitecture);
             this.cpuVendor = cpuVendor.startsWith("0x") ? queryVendorFromImplementer(cpuVendor) : cpuVendor;
             this.cpuName = cpuName;
             this.cpuFamily = cpuFamily;
@@ -1078,9 +1076,7 @@ public interface CentralProcessor {
                 arch = this.derivedMicroarchitecture;
             }
 
-            // Spelled out rather than using Util.isBlank so that NullAway can see arch is non-null on this path;
-            // it cannot look through a helper for the null half of the check. Util.isBlank is the same test.
-            return arch == null || arch.isEmpty() ? Constants.UNKNOWN : arch;
+            return ParseUtil.getStringValueOrUnknown(arch);
         }
 
         private String queryVendorFromImplementer(String cpuVendor) {

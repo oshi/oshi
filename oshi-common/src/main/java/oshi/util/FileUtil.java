@@ -26,6 +26,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -446,7 +447,7 @@ public final class FileUtil {
      * @param file The file to read
      * @return The symlink name, or null if the read failed
      */
-    public static String readSymlinkTarget(File file) {
+    public static @Nullable String readSymlinkTarget(File file) {
         try {
             return Files.readSymbolicLink(Paths.get(file.getAbsolutePath())).toString();
         } catch (IOException e) {
@@ -460,7 +461,7 @@ public final class FileUtil {
      * @param path The full path string
      * @return The file name, or empty string if path is null or empty
      */
-    public static String getFileName(String path) {
+    public static String getFileName(@Nullable String path) {
         if (path == null || path.isEmpty()) {
             return "";
         }

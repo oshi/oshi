@@ -278,12 +278,13 @@ constants both shortened it and made Sonar stop reporting `S5843` at all, so the
 expected to declare one, and matching the annotation of the class you are modeling yours on is the
 right default.
 
-**Nullability.** `oshi.hardware` and `oshi.software.os` are `@NullMarked` (jSpecify) via their
-`package-info.java`, so **every type usage in a signature in those two packages is non-null unless
-you annotate it `@Nullable`**. `@NullMarked` does not extend to subpackages, and no other package is
-marked yet — Phase 2 of [#3593](https://github.com/oshi/oshi/issues/3593) covers `oshi.util` and
-`oshi.ffm`. Adding an annotation to an unmarked package is harmless but proves nothing, since an
-unmarked package makes no claim either way.
+**Nullability.** `oshi.hardware`, `oshi.software.os`, and `oshi.util` are `@NullMarked` (jSpecify)
+via their `package-info.java`, so **every type usage in a signature in those packages is non-null
+unless you annotate it `@Nullable`**. `@NullMarked` does not extend to subpackages, so
+`oshi.util.tuples`, `oshi.util.driver`, and the platform packages are still unmarked, as is
+`oshi.ffm`; see [#3593](https://github.com/oshi/oshi/issues/3593) for the remaining phases. Adding
+an annotation to an unmarked package is harmless but proves nothing, since an unmarked package
+makes no claim either way.
 
 **This is enforced, not documentation.** NullAway runs in the `error-prone` profile with
 `OnlyNullMarked=true` and `JSpecifyMode=true`, at ERROR severity, so a violation inside a marked
@@ -294,12 +295,23 @@ marking a package is a commitment to fixing every finding in it, so mark one pac
 run `./mvnw -Perror-prone clean install` before assuming the marking is free.
 
 Three findings are worth recognizing on sight. *Assigning `@Nullable` expression to `@NonNull`
-field* — normalize at the assignment (`x == null ? "" : x`), do not annotate the field. *Parameter
-is `@NonNull`, but overridden method's parameter is `@Nullable`* — an override cannot narrow a
-parameter, so repeat the interface's `@Nullable` on it; this is the one that reaches test stubs.
-*Dereferenced expression is `@Nullable`* — NullAway cannot see through a helper, so
-`Util.isBlank(s)` does not establish that `s` is non-null on the following line; spell out
-`s == null || s.isEmpty()` where the flow depends on it.
+field* — normalize at the assignment, do not annotate the field. *Parameter is `@NonNull`, but
+overridden method's parameter is `@Nullable`* — an override cannot narrow a parameter, so repeat
+the interface's `@Nullable` on it; this is the one that reaches test stubs. *Dereferenced
+expression is `@Nullable`* — NullAway cannot see through a predicate, so `Util.isBlank(s)` does not
+establish that `s` is non-null on the following line.
+
+**Normalize with `ParseUtil.getStringValueOrUnknown` / `getStringValueOrEmpty` rather than an
+inline ternary.** They take a `@Nullable String` and return a non-null one — `Constants.UNKNOWN`
+for a blank input, and `""` for a null one respectively — so the guarantee lives in the return type
+the analyzer already reads. That is why they work where `Util.isBlank` does not: a predicate would
+need a `@Contract` annotation, a normalizer needs nothing. Use them for the value case and keep
+`Util.isBlank` for the branch case.
+
+In test sources, assert rather than suppress: NullAway runs with
+`HandleTestAssertionLibraries=true`, so JUnit's `assertNotNull` narrows a nullable for the rest of
+the method. Hamcrest's `assertThat(x, is(notNullValue()))` does **not** — it reads as an ordinary
+call, so convert those to `assertNotNull` where the following line dereferences `x`.
 
 Do not reach for `@Nullable` to make a null return legal: the convention is a **sentinel, not a
 null** — `Constants.UNKNOWN` or `""` for strings, an empty collection or array, and `0`/`-1`/`NaN`

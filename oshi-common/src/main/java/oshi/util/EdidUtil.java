@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -479,7 +480,7 @@ public final class EdidUtil {
      * @param resolution The preferred resolution as a {@code WIDTHxHEIGHT} string (e.g. {@code "2560x1440"}); a string
      *                   without an {@code 'x'} separator leaves the descriptor unchanged
      */
-    public static void setPreferredResolution(byte[] edid, String resolution) {
+    public static void setPreferredResolution(byte[] edid, @Nullable String resolution) {
         if (resolution == null) {
             return;
         }
@@ -593,7 +594,7 @@ public final class EdidUtil {
      * @param packed the packed manufacturer id
      * @return the three-letter code, or {@code null} if any field is not an A-Z letter
      */
-    public static String decodeManufacturerId(long packed) {
+    public static @Nullable String decodeManufacturerId(long packed) {
         int v = (int) packed;
         int[] codes = { (v >> 10) & 0x1F, (v >> 5) & 0x1F, v & 0x1F };
         StringBuilder sb = new StringBuilder(3);
@@ -630,9 +631,11 @@ public final class EdidUtil {
      *         be decoded
      */
     @SuppressWarnings("java:S107")
-    public static oshi.hardware.DisplayInfo synthesizeDisplayInfo(Long legacyManufacturerId, Integer modelNumber,
-            Integer serialNumber, Integer week, Integer year, String model, String productSerial, Long displayWidth,
-            Long displayHeight, String fallbackName, Double screenWidthMm, Double screenHeightMm, String displayName) {
+    public static oshi.hardware.@Nullable DisplayInfo synthesizeDisplayInfo(@Nullable Long legacyManufacturerId,
+            @Nullable Integer modelNumber, @Nullable Integer serialNumber, @Nullable Integer week,
+            @Nullable Integer year, @Nullable String model, @Nullable String productSerial, @Nullable Long displayWidth,
+            @Nullable Long displayHeight, @Nullable String fallbackName, @Nullable Double screenWidthMm,
+            @Nullable Double screenHeightMm, @Nullable String displayName) {
         if (legacyManufacturerId == null) {
             return null;
         }
