@@ -4,10 +4,17 @@
  */
 package oshi.driver.common.windows.registry;
 
+import static oshi.driver.common.windows.registry.PerfCounterValues.counterList;
+import static oshi.driver.common.windows.registry.PerfCounterValues.intValue;
+import static oshi.driver.common.windows.registry.PerfCounterValues.longValue;
+import static oshi.driver.common.windows.registry.PerfCounterValues.stringValue;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
@@ -38,8 +45,9 @@ public final class ProcessPerformanceData {
      * @return A map with Process ID as the key and a {@link ProcessPerfCounterBlock} object populated with performance
      *         counter information, or null if processData is null.
      */
-    public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids,
-            Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData) {
+    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            @Nullable Collection<Integer> pids,
+            @Nullable Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData) {
         if (processData == null) {
             return null;
         }
@@ -48,10 +56,10 @@ public final class ProcessPerformanceData {
 
         Map<Integer, ProcessPerfCounterBlock> processMap = new HashMap<>();
         for (Map<ProcessPerformanceProperty, Object> processInstanceMap : processInstanceMaps) {
-            int pid = ((Integer) processInstanceMap.get(ProcessPerformanceProperty.IDPROCESS)).intValue();
-            String name = (String) processInstanceMap.get(ProcessPerformanceProperty.NAME);
+            int pid = intValue(processInstanceMap, ProcessPerformanceProperty.IDPROCESS);
+            String name = stringValue(processInstanceMap, ProcessPerformanceProperty.NAME);
             if ((pids == null || pids.contains(pid)) && !"_Total".equals(name)) {
-                long ctime = (Long) processInstanceMap.get(ProcessPerformanceProperty.ELAPSEDTIME);
+                long ctime = longValue(processInstanceMap, ProcessPerformanceProperty.ELAPSEDTIME);
                 if (ctime > now) {
                     ctime = ParseUtil.filetimeToUtcMs(ctime, false);
                 }
@@ -59,15 +67,16 @@ public final class ProcessPerformanceData {
                 if (upTime < 1L) {
                     upTime = 1L;
                 }
-                processMap.put(pid, new ProcessPerfCounterBlock(name,
-                        (Integer) processInstanceMap.get(ProcessPerformanceProperty.CREATINGPROCESSID),
-                        (Integer) processInstanceMap.get(ProcessPerformanceProperty.PRIORITYBASE),
-                        (Long) processInstanceMap.get(ProcessPerformanceProperty.WORKINGSETPRIVATE),
-                        (Long) processInstanceMap.get(ProcessPerformanceProperty.WORKINGSET), ctime, upTime,
-                        (Long) processInstanceMap.get(ProcessPerformanceProperty.IOREADBYTESPERSEC),
-                        (Long) processInstanceMap.get(ProcessPerformanceProperty.IOWRITEBYTESPERSEC),
-                        Integer.toUnsignedLong(
-                                (Integer) processInstanceMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC))));
+                processMap.put(pid,
+                        new ProcessPerfCounterBlock(name,
+                                intValue(processInstanceMap, ProcessPerformanceProperty.CREATINGPROCESSID),
+                                intValue(processInstanceMap, ProcessPerformanceProperty.PRIORITYBASE),
+                                longValue(processInstanceMap, ProcessPerformanceProperty.WORKINGSETPRIVATE),
+                                longValue(processInstanceMap, ProcessPerformanceProperty.WORKINGSET), ctime, upTime,
+                                longValue(processInstanceMap, ProcessPerformanceProperty.IOREADBYTESPERSEC),
+                                longValue(processInstanceMap, ProcessPerformanceProperty.IOWRITEBYTESPERSEC),
+                                Integer.toUnsignedLong(
+                                        intValue(processInstanceMap, ProcessPerformanceProperty.PAGEFAULTSPERSEC))));
             }
         }
         return processMap;
@@ -81,8 +90,9 @@ public final class ProcessPerformanceData {
      * @return A map with Process ID as the key and a {@link ProcessPerfCounterBlock} object populated with performance
      *         counter information, or null if instanceValues is null.
      */
-    public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids,
-            Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues) {
+    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+            @Nullable Collection<Integer> pids,
+            @Nullable Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues) {
         if (instanceValues == null) {
             return null;
         }
@@ -90,15 +100,15 @@ public final class ProcessPerformanceData {
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ProcessPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
-        List<Long> pidList = valueMap.get(ProcessPerformanceProperty.IDPROCESS);
-        List<Long> ppidList = valueMap.get(ProcessPerformanceProperty.CREATINGPROCESSID);
-        List<Long> priorityList = valueMap.get(ProcessPerformanceProperty.PRIORITYBASE);
-        List<Long> ioReadList = valueMap.get(ProcessPerformanceProperty.IOREADBYTESPERSEC);
-        List<Long> ioWriteList = valueMap.get(ProcessPerformanceProperty.IOWRITEBYTESPERSEC);
-        List<Long> privateWorkingSetList = valueMap.get(ProcessPerformanceProperty.WORKINGSETPRIVATE);
-        List<Long> workingSetList = valueMap.get(ProcessPerformanceProperty.WORKINGSET);
-        List<Long> elapsedTimeList = valueMap.get(ProcessPerformanceProperty.ELAPSEDTIME);
-        List<Long> pageFaultsList = valueMap.get(ProcessPerformanceProperty.PAGEFAULTSPERSEC);
+        List<Long> pidList = counterList(valueMap, ProcessPerformanceProperty.IDPROCESS);
+        List<Long> ppidList = counterList(valueMap, ProcessPerformanceProperty.CREATINGPROCESSID);
+        List<Long> priorityList = counterList(valueMap, ProcessPerformanceProperty.PRIORITYBASE);
+        List<Long> ioReadList = counterList(valueMap, ProcessPerformanceProperty.IOREADBYTESPERSEC);
+        List<Long> ioWriteList = counterList(valueMap, ProcessPerformanceProperty.IOWRITEBYTESPERSEC);
+        List<Long> privateWorkingSetList = counterList(valueMap, ProcessPerformanceProperty.WORKINGSETPRIVATE);
+        List<Long> workingSetList = counterList(valueMap, ProcessPerformanceProperty.WORKINGSET);
+        List<Long> elapsedTimeList = counterList(valueMap, ProcessPerformanceProperty.ELAPSEDTIME);
+        List<Long> pageFaultsList = counterList(valueMap, ProcessPerformanceProperty.PAGEFAULTSPERSEC);
 
         for (int inst = 0; inst < instances.size(); inst++) {
             int pid = pidList.get(inst).intValue();

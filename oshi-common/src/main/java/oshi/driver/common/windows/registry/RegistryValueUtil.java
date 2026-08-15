@@ -4,6 +4,8 @@
  */
 package oshi.driver.common.windows.registry;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ParseUtil;
 
@@ -27,7 +29,7 @@ public final class RegistryValueUtil {
      * @param val the raw registry value, or {@code null}
      * @return the value as a String, or {@code null} if the value is {@code null} or an unsupported type
      */
-    public static String registryValueToString(Object val) {
+    public static @Nullable String registryValueToString(@Nullable Object val) {
         // REG_SZ / REG_EXPAND_SZ
         if (val instanceof String) {
             return ((String) val).trim();
@@ -51,7 +53,7 @@ public final class RegistryValueUtil {
      * @param val the raw registry value, or {@code null}
      * @return the value as a long, or {@code 0} if the value is {@code null} or an unsupported type
      */
-    public static long registryValueToLong(Object val) {
+    public static long registryValueToLong(@Nullable Object val) {
         if (val == null) {
             return 0L;
         }
