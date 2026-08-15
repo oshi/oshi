@@ -66,7 +66,7 @@ public class SystemInfoTest {
     @Test
     void testPlatformEnum() {
         assertThat("Unsupported OS", PlatformEnum.getCurrentPlatform(), is(not(PlatformEnum.UNKNOWN)));
-        main(null);
+        main(new String[0]);
     }
 
     public static void main(String[] args) {

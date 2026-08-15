@@ -128,4 +128,31 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- The main compile targets release 8, which predates JPMS and therefore excludes
+                 module-info.java. NullAway reads @NullMarked from the module declaration, so under this
+                 profile the whole module compiles at release 9 with module-info.java included; the
+                 released jar is unaffected, still built at release 8 by the default profile. -->
+            <id>error-prone</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-compile</id>
+                                <configuration>
+                                    <release>9</release>
+                                    <excludes combine.self="override" />
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

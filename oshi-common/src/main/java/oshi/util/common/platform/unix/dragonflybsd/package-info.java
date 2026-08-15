@@ -5,4 +5,7 @@
 /**
  * Provides utilities for DragonFly BSD
  */
+@NullMarked
 package oshi.util.common.platform.unix.dragonflybsd;
+
+import org.jspecify.annotations.NullMarked;

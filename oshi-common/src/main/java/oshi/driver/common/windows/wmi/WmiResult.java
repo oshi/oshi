@@ -4,6 +4,8 @@
  */
 package oshi.driver.common.windows.wmi;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Common interface for WMI query results, abstracting JNA and FFM implementations.
  *
@@ -23,8 +25,9 @@ public interface WmiResult<T extends Enum<T>> {
      *
      * @param property the property enum constant
      * @param index    the row index
-     * @return the value
+     * @return the value, or {@code null} if the property was not set on this row
      */
+    @Nullable
     Object getValue(T property, int index);
 
     /**

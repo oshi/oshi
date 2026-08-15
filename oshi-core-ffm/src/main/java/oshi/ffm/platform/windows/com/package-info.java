@@ -7,4 +7,7 @@
  * bindings for OLE32, WMI interfaces (IWbemLocator, IWbemServices, IEnumWbemClassObject, IWbemClassObject), and
  * supporting types (GUID, VARIANT, BSTR).
  */
+@NullUnmarked
 package oshi.ffm.platform.windows.com;
+
+import org.jspecify.annotations.NullUnmarked;

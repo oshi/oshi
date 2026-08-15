@@ -5,4 +5,7 @@
 /**
  * Provides FFM access to system libraries and cross-platform utilities
  */
+@NullMarked
 package oshi.ffm;
+
+import org.jspecify.annotations.NullMarked;

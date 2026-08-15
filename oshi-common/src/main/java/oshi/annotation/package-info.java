@@ -5,4 +5,7 @@
 /**
  * Provides useful annotation for oshi project.
  */
+@NullMarked
 package oshi.annotation;
+
+import org.jspecify.annotations.NullMarked;

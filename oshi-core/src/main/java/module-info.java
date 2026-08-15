@@ -1,3 +1,5 @@
+import org.jspecify.annotations.NullMarked;
+
 /**
  * JNA-based native implementation of the OSHI API for JDK 8+.
  * <p>
@@ -17,7 +19,7 @@
  *
  * @see oshi.SystemInfo
  */
-module com.github.oshi {
+@NullMarked module com.github.oshi {
     // API
     exports oshi;
     exports oshi.util.gpu;
@@ -39,6 +41,7 @@ module com.github.oshi {
     opens oshi.jna.platform.unix to com.sun.jna;
 
     // dependencies
+    requires static org.jspecify;
     requires transitive com.github.oshi.common;
     requires transitive com.sun.jna;
     requires transitive com.sun.jna.platform;

@@ -5,4 +5,7 @@
 /**
  * Provides utilities shared across the GPU JNA and FFM implementations
  */
+@NullMarked
 package oshi.util.common.gpu;
+
+import org.jspecify.annotations.NullMarked;

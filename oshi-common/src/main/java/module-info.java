@@ -1,3 +1,5 @@
+import org.jspecify.annotations.NullMarked;
+
 /**
  * Common OSHI API interfaces, abstract base classes, annotations, and utilities shared by all OSHI implementations.
  * <p>
@@ -17,7 +19,7 @@
  * {@code oshi.util.ProcUtil}), or other non-native techniques.</li>
  * </ol>
  */
-module com.github.oshi.common {
+@NullMarked module com.github.oshi.common {
     exports oshi.annotation;
     exports oshi.annotation.concurrent;
     exports oshi.driver.common.mac;

@@ -1,3 +1,5 @@
+import org.jspecify.annotations.NullMarked;
+
 /**
  * FFM-based native implementation of the OSHI API for JDK 25+.
  * <p>
@@ -17,7 +19,7 @@
  *
  * @see oshi.ffm.SystemInfo
  */
-module com.github.oshi.ffm {
+@NullMarked module com.github.oshi.ffm {
     // API
     exports oshi.ffm;
     exports oshi.ffm.util;
@@ -32,6 +34,7 @@ module com.github.oshi.ffm {
     provides oshi.spi.SystemInfoProvider with oshi.ffm.SystemInfo;
 
     // dependencies
+    requires static org.jspecify;
     requires transitive com.github.oshi.common;
     requires transitive java.desktop;
     requires transitive org.slf4j;
