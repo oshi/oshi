@@ -143,14 +143,14 @@ public final class AixComputerSystem extends AbstractComputerSystem {
     }
 
     static final class LsattrStrings {
-        private final @Nullable String biosVendor;
-        private final @Nullable String biosPlatformVersion;
-        private final @Nullable String biosVersion;
+        private final String biosVendor;
+        private final String biosPlatformVersion;
+        private final String biosVersion;
 
-        private final @Nullable String manufacturer;
-        private final @Nullable String model;
-        private final @Nullable String serialNumber;
-        private final @Nullable String uuid;
+        private final String manufacturer;
+        private final String model;
+        private final String serialNumber;
+        private final String uuid;
 
         private LsattrStrings(@Nullable String biosVendor, @Nullable String biosPlatformVersion,
                 @Nullable String biosVersion, @Nullable String manufacturer, @Nullable String model,
@@ -165,37 +165,30 @@ public final class AixComputerSystem extends AbstractComputerSystem {
             this.uuid = ParseUtil.getStringValueOrUnknown(uuid);
         }
 
-        @Nullable
         String biosVendor() {
             return biosVendor;
         }
 
-        @Nullable
         String biosPlatformVersion() {
             return biosPlatformVersion;
         }
 
-        @Nullable
         String biosVersion() {
             return biosVersion;
         }
 
-        @Nullable
         String manufacturer() {
             return manufacturer;
         }
 
-        @Nullable
         String model() {
             return model;
         }
 
-        @Nullable
         String serialNumber() {
             return serialNumber;
         }
 
-        @Nullable
         String uuid() {
             return uuid;
         }

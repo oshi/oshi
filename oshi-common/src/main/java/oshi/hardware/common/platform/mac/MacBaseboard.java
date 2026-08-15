@@ -66,13 +66,18 @@ public abstract class MacBaseboard extends AbstractBaseboard {
     protected Quartet<String, String, String, String> queryPlatform() {
         Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> result = ioKitProvider()
                 .withMatchingService("IOPlatformExpertDevice", entry -> {
-                    String mfr = decodeProperty(entry.getByteArrayProperty("manufacturer"));
-                    String mdl = decodeProperty(entry.getByteArrayProperty("board-id"));
+                    String mfr = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("manufacturer"),
+                            StandardCharsets.UTF_8);
+                    String mdl = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("board-id"),
+                            StandardCharsets.UTF_8);
                     if (Util.isBlank(mdl)) {
-                        mdl = decodeProperty(entry.getByteArrayProperty("model-number"));
+                        mdl = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("model-number"),
+                                StandardCharsets.UTF_8);
                     }
-                    String ver = decodeProperty(entry.getByteArrayProperty("version"));
-                    String sn = decodeProperty(entry.getByteArrayProperty("mlb-serial-number"));
+                    String ver = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("version"),
+                            StandardCharsets.UTF_8);
+                    String sn = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("mlb-serial-number"),
+                            StandardCharsets.UTF_8);
                     if (Util.isBlank(sn)) {
                         sn = entry.getStringProperty("IOPlatformSerialNumber");
                     }
@@ -86,9 +91,5 @@ public abstract class MacBaseboard extends AbstractBaseboard {
         return new Quartet<>(mfr == null || mfr.isEmpty() ? "Apple Inc." : mfr,
                 ParseUtil.getStringValueOrUnknown(result.getB()), ParseUtil.getStringValueOrUnknown(result.getC()),
                 ParseUtil.getStringValueOrUnknown(result.getD()));
-    }
-
-    private static @Nullable String decodeProperty(byte @Nullable [] data) {
-        return data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
     }
 }

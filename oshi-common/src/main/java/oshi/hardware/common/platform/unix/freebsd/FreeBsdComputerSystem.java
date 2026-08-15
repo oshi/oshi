@@ -29,27 +29,27 @@ import oshi.util.tuples.Quintet;
 @Immutable
 public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String>> manufModelSerialUuidVers = memoize(
+    private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
             this::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getA());
+        return manufModelSerialUuidVers.get().getA();
     }
 
     @Override
     public String getModel() {
-        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getB());
+        return manufModelSerialUuidVers.get().getB();
     }
 
     @Override
     public String getSerialNumber() {
-        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getC());
+        return manufModelSerialUuidVers.get().getC();
     }
 
     @Override
     public String getHardwareUUID() {
-        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getD());
+        return manufModelSerialUuidVers.get().getD();
     }
 
     @Override
@@ -59,10 +59,8 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new UnixBaseboard(ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getA()),
-                ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getB()),
-                ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getC()),
-                ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getE()));
+        return new UnixBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),
+                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());
     }
 
     /**
@@ -73,7 +71,7 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
      */
     protected abstract String queryHostUuid();
 
-    private Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> readDmiDecode() {
+    private Quintet<String, String, String, String, String> readDmiDecode() {
         // Only works with root permissions but it's all we've got
         Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
                 ExecutingCommand.runNative("dmidecode -t system"));
