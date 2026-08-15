@@ -20,27 +20,27 @@ import oshi.util.Constants;
 @ThreadSafe
 public abstract class AbstractPowerSource implements PowerSource {
 
-    private String name;
-    private String deviceName;
-    private double remainingCapacityPercent;
-    private double timeRemainingEstimated;
-    private double timeRemainingInstant;
-    private double powerUsageRate;
-    private double voltage;
-    private double amperage;
-    private boolean powerOnLine;
-    private boolean charging;
-    private boolean discharging;
-    private CapacityUnits capacityUnits;
-    private int currentCapacity;
-    private int maxCapacity;
-    private int designCapacity;
-    private int cycleCount;
-    private String chemistry;
-    private @Nullable LocalDate manufactureDate;
-    private String manufacturer;
-    private String serialNumber;
-    private double temperature;
+    private volatile String name;
+    private volatile String deviceName;
+    private volatile double remainingCapacityPercent;
+    private volatile double timeRemainingEstimated;
+    private volatile double timeRemainingInstant;
+    private volatile double powerUsageRate;
+    private volatile double voltage;
+    private volatile double amperage;
+    private volatile boolean powerOnLine;
+    private volatile boolean charging;
+    private volatile boolean discharging;
+    private volatile CapacityUnits capacityUnits;
+    private volatile int currentCapacity;
+    private volatile int maxCapacity;
+    private volatile int designCapacity;
+    private volatile int cycleCount;
+    private volatile String chemistry;
+    private volatile @Nullable LocalDate manufactureDate;
+    private volatile String manufacturer;
+    private volatile String serialNumber;
+    private volatile double temperature;
 
     /**
      * Creates an AbstractPowerSource with the given parameters.

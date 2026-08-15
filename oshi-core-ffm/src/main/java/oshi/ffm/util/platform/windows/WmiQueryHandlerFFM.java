@@ -8,7 +8,6 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,10 +50,10 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
     private volatile int wmiTimeout = globalTimeout;
 
     // Cache failed wmi classes
-    private final Set<String> failedWmiClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<String> failedWmiClassNames = ConcurrentHashMap.newKeySet();
 
     // Preferred threading model
-    private int comThreading = Ole32FFM.COINIT_MULTITHREADED;
+    private volatile int comThreading = Ole32FFM.COINIT_MULTITHREADED;
 
     // Track initialization of Security
     private volatile boolean securityInitialized = false;

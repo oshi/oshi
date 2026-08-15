@@ -14,7 +14,6 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.DisplayInfoImpl;
@@ -56,15 +55,35 @@ public final class EdidUtil {
      * @param edid The EDID byte array
      * @return The manufacturer ID
      */
-    @SuppressForbidden(reason = "customized base 2 parsing not in Util class")
     public static String getManufacturerID(byte[] edid) {
-        // Bytes 8-9 are manufacturer ID in 3 5-bit characters.
-        String temp = String.format(Locale.ROOT, "%8s%8s", Integer.toBinaryString(edid[MANUFACTURER_ID_OFFSET] & 0xFF),
-                Integer.toBinaryString(edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF)).replace(' ', '0');
-        LOG.debug("Manufacurer ID: {}", temp);
-        return String.format(Locale.ROOT, "%s%s%s", (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),
-                (char) (64 + Integer.parseInt(temp.substring(6, 11), 2)),
-                (char) (64 + Integer.parseInt(temp.substring(11, 16), 2))).replace("@", "");
+        int packedId = ((edid[MANUFACTURER_ID_OFFSET] & 0xFF) << 8) | (edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF);
+        LOG.debug("Manufacturer ID bytes: {}", packedId);
+        return manufacturerLetters(packedId);
+    }
+
+    /**
+     * Decodes the letters packed into the manufacturer ID of a real EDID.
+     * <p>
+     * The three letters are three five-bit codes in the low 15 bits, most significant first, in which {@code 1} is
+     * {@code 'A'}. A code of zero is not a letter; a manufacturer with a two-letter ID leaves one empty, and it is
+     * dropped rather than rendered. Everything above bit 14 is ignored.
+     * <p>
+     * This is the lenient reader, for bits that came from hardware. {@link #decodeManufacturerId(long)} is the strict
+     * one, which rejects the whole ID if any code is not a letter, and is used to validate a synthesized display.
+     *
+     * @param packedId the manufacturer ID in its low 15 bits. Taken as an {@code int} so the caller composing it from
+     *                 EDID bytes 8 and 9 need not cast; the width beyond those 15 bits carries no meaning
+     * @return the manufacturer's letters, at most three of them
+     */
+    static String manufacturerLetters(int packedId) {
+        StringBuilder letters = new StringBuilder(3);
+        for (int shift = 10; shift >= 0; shift -= 5) {
+            int code = (packedId >> shift) & 0x1F;
+            if (code != 0) {
+                letters.append((char) ('A' - 1 + code));
+            }
+        }
+        return letters.toString();
     }
 
     /**
