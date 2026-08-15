@@ -4,6 +4,8 @@
  */
 package oshi.util.platform.mac;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.CoreFoundation;
 import com.sun.jna.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -30,7 +32,7 @@ public final class CFUtil {
      * @param result Pointer to the CFString
      * @return a CFString or "unknown" if it has no value
      */
-    public static String cfPointerToString(Pointer result) {
+    public static String cfPointerToString(@Nullable Pointer result) {
         return cfPointerToString(result, true);
     }
 
@@ -41,7 +43,7 @@ public final class CFUtil {
      * @param returnUnknown Whether to return the "unknown" string
      * @return a CFString including a possible empty one if {@code returnUnknown} is false, or "unknown" if it is true
      */
-    public static String cfPointerToString(Pointer result, boolean returnUnknown) {
+    public static String cfPointerToString(@Nullable Pointer result, boolean returnUnknown) {
         String s = "";
         if (result != null) {
             CFStringRef cfs = new CFStringRef(result);
@@ -63,7 +65,7 @@ public final class CFUtil {
      * @param key  the string key to look up
      * @return the value as a {@link CFDictionaryRef}, or {@code null} if the key is absent
      */
-    public static CFDictionaryRef getDictionary(CFDictionaryRef dict, String key) {
+    public static @Nullable CFDictionaryRef getDictionary(CFDictionaryRef dict, String key) {
         CFStringRef k = CFStringRef.createCFString(key);
         try {
             Pointer v = CF.CFDictionaryGetValue(dict, k);
@@ -82,7 +84,7 @@ public final class CFUtil {
      * @param key  the string key to look up
      * @return the value as a {@link String}, or {@code null} if the key is absent
      */
-    public static String getString(CFDictionaryRef dict, String key) {
+    public static @Nullable String getString(CFDictionaryRef dict, String key) {
         CFStringRef k = CFStringRef.createCFString(key);
         try {
             Pointer v = CF.CFDictionaryGetValue(dict, k);
@@ -102,7 +104,7 @@ public final class CFUtil {
      * @param key  the string key to look up
      * @return the value as a {@link Long}, or {@code null} if the key is absent
      */
-    public static Long getLong(CFDictionaryRef dict, String key) {
+    public static @Nullable Long getLong(CFDictionaryRef dict, String key) {
         CFStringRef k = CFStringRef.createCFString(key);
         try {
             Pointer v = CF.CFDictionaryGetValue(dict, k);

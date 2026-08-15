@@ -6,6 +6,8 @@ package oshi.ffm.util.platform.mac;
 
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
@@ -69,7 +71,7 @@ public final class CFUtilFFM {
      * @param key  the string key to look up
      * @return the value as a {@link CFDictionaryRef}, or {@code null} if the key is absent
      */
-    public static CFDictionaryRef getDictionary(CFDictionaryRef dict, String key) {
+    public static @Nullable CFDictionaryRef getDictionary(CFDictionaryRef dict, String key) {
         try (CFStringRef k = CFStringRef.createCFString(key)) {
             MemorySegment v = dict.getValue(k);
             return v == null || v.equals(MemorySegment.NULL) ? null : new CFDictionaryRef(v);
@@ -85,7 +87,7 @@ public final class CFUtilFFM {
      * @param key  the string key to look up
      * @return the value as a {@link String}, or {@code null} if the key is absent
      */
-    public static String getString(CFDictionaryRef dict, String key) {
+    public static @Nullable String getString(CFDictionaryRef dict, String key) {
         try (CFStringRef k = CFStringRef.createCFString(key)) {
             MemorySegment v = dict.getValue(k);
             return v == null || v.equals(MemorySegment.NULL) ? null : CFStringRef.stringValue(v);
@@ -102,7 +104,7 @@ public final class CFUtilFFM {
      * @param key  the string key to look up
      * @return the value as a {@link Long}, or {@code null} if the key is absent
      */
-    public static Long getLong(CFDictionaryRef dict, String key) {
+    public static @Nullable Long getLong(CFDictionaryRef dict, String key) {
         try (CFStringRef k = CFStringRef.createCFString(key)) {
             MemorySegment v = dict.getValue(k);
             return v == null || v.equals(MemorySegment.NULL) ? null : CFNumberRef.longValue(v);

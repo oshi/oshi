@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2022 The OSHI Project Contributors
+ * Copyright 2020-2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
 package oshi.driver.mac.disk;
@@ -7,6 +7,8 @@ package oshi.driver.mac.disk;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.mac.SystemB;
@@ -48,7 +50,7 @@ public final class Fsstat {
         return mountPointMap;
     }
 
-    private static int queryFsstat(Statfs[] buf, int bufsize, int flags) {
+    private static int queryFsstat(Statfs @Nullable [] buf, int bufsize, int flags) {
         return SystemB.INSTANCE.getfsstat64(buf, bufsize, flags);
     }
 

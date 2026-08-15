@@ -22,6 +22,7 @@ import static oshi.util.LogLevel.TRACE;
 
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +64,7 @@ public final class IOKitUtilFFM {
      *
      * @return a handle to the IORoot. Callers should release when finished.
      */
-    public static IORegistryEntry getRoot() {
+    public static @Nullable IORegistryEntry getRoot() {
         return getOrDefault(() -> {
             int masterPort = getMasterPort();
             MemorySegment root = IORegistryGetRootEntry(masterPort);
@@ -78,7 +79,7 @@ public final class IOKitUtilFFM {
      * @param serviceName The service name to match
      * @return a handle to an IOService if successful, {@code null} if failed. Callers should release when finished.
      */
-    public static IOService getMatchingService(String serviceName) {
+    public static @Nullable IOService getMatchingService(String serviceName) {
         return callInArenaOrDefault(arena -> {
             MemorySegment nameStr = arena.allocateFrom(serviceName);
             MemorySegment dict = IOServiceMatching(nameStr);
@@ -95,7 +96,7 @@ public final class IOKitUtilFFM {
      * @param matchingDictionary The dictionary to match. This method will consume a reference to the dictionary.
      * @return a handle to an IOService if successful, {@code null} if failed. Callers should release when finished.
      */
-    public static IOService getMatchingService(MemorySegment matchingDictionary) {
+    public static @Nullable IOService getMatchingService(MemorySegment matchingDictionary) {
         return getOrDefault(() -> {
             int masterPort = getMasterPort();
             MemorySegment service = IOServiceGetMatchingService(masterPort, matchingDictionary);
@@ -110,7 +111,7 @@ public final class IOKitUtilFFM {
      * @param serviceName The service name to match
      * @return a handle to an IOIterator if successful, {@code null} if failed. Callers should release when finished.
      */
-    public static IOIterator getMatchingServices(String serviceName) {
+    public static @Nullable IOIterator getMatchingServices(String serviceName) {
         return callInArenaOrDefault(arena -> {
             MemorySegment nameStr = arena.allocateFrom(serviceName);
             MemorySegment dict = IOServiceMatching(nameStr);
@@ -127,7 +128,7 @@ public final class IOKitUtilFFM {
      * @param matchingDictionary The dictionary to match. This method will consume a reference to the dictionary.
      * @return a handle to an IOIterator if successful, {@code null} if failed. Callers should release when finished.
      */
-    public static IOIterator getMatchingServices(MemorySegment matchingDictionary) {
+    public static @Nullable IOIterator getMatchingServices(MemorySegment matchingDictionary) {
         return callInArenaOrDefault(arena -> {
             int masterPort = getMasterPort();
             MemorySegment iteratorSeg = arena.allocate(ADDRESS);
@@ -151,7 +152,7 @@ public final class IOKitUtilFFM {
      * @param bsdName The bsd name of the registry entry
      * @return The dictionary ref if successful, {@code null} if failed. Callers should release when finished.
      */
-    public static MemorySegment getBSDNameMatchingDict(String bsdName) {
+    public static @Nullable MemorySegment getBSDNameMatchingDict(String bsdName) {
         return callInArenaOrDefault(arena -> {
             int masterPort = getMasterPort();
             MemorySegment bsdNameStr = arena.allocateFrom(bsdName);
