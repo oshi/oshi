@@ -6,6 +6,7 @@ package oshi.software.os.unix.freebsd;
 
 import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,7 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
     private static final FreeBsdLibc LIBC = FreeBsdLibc.INSTANCE;
 
     @Override
-    protected String queryDomainName() {
+    protected @Nullable String queryDomainName() {
         try (Addrinfo hint = new Addrinfo()) {
             hint.ai_flags = CLibrary.AI_CANONNAME;
             String hostname = getHostName();
@@ -53,7 +54,7 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
     }
 
     @Override
-    protected String queryHostName() {
+    protected @Nullable String queryHostName() {
         byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
         if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {
             return null;

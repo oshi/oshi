@@ -9,6 +9,7 @@ import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.HOST_NAME_MAX;
 
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +28,7 @@ public class OpenBsdNetworkParamsFFM extends OpenBsdNetworkParams {
     private static final Logger LOG = LoggerFactory.getLogger(OpenBsdNetworkParamsFFM.class);
 
     @Override
-    protected String queryHostName() {
+    protected @Nullable String queryHostName() {
         return callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (0 != PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {

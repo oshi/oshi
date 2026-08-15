@@ -34,6 +34,7 @@ import static oshi.util.SystemInfoHelper.printUsbDevices;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -81,7 +82,7 @@ public class SystemInfoTest {
                 is(true));
     }
 
-    public static void main(String[] args) {
+    public static void main(String @Nullable [] args) {
         logger.info("------------------------------------------------------------------------");
         logger.info("Using FFM");
         logger.info("------------------------------------------------------------------------");

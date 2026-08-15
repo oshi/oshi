@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_protocol_t;
 
@@ -26,7 +28,7 @@ public final class AixInternetProtocolStatsJNA extends AixInternetProtocolStats 
             defaultExpiration());
 
     @Override
-    protected TcpStats queryTcpStats() {
+    protected @Nullable TcpStats queryTcpStats() {
         for (perfstat_protocol_t stat : ipstats.get()) {
             if ("tcp".equals(Native.toString(stat.name))) {
                 return new TcpStats(stat.u.tcp.established, stat.u.tcp.initiated, stat.u.tcp.accepted,
@@ -38,7 +40,7 @@ public final class AixInternetProtocolStatsJNA extends AixInternetProtocolStats 
     }
 
     @Override
-    protected UdpStats queryUdpStats() {
+    protected @Nullable UdpStats queryUdpStats() {
         for (perfstat_protocol_t stat : ipstats.get()) {
             if ("udp".equals(Native.toString(stat.name))) {
                 return new UdpStats(stat.u.udp.opackets, stat.u.udp.ipackets, stat.u.udp.no_socket, stat.u.udp.ierrors);

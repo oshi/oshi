@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatProtocolFFM;
 import oshi.software.common.os.unix.aix.AixInternetProtocolStats;
@@ -23,7 +25,7 @@ public final class AixInternetProtocolStatsFFM extends AixInternetProtocolStats 
             defaultExpiration());
 
     @Override
-    protected TcpStats queryTcpStats() {
+    protected @Nullable TcpStats queryTcpStats() {
         for (PerfstatProtocolFFM.Protocol stat : ipstats.get()) {
             if ("tcp".equals(stat.name)) {
                 return new TcpStats(stat.tcpEstablished, stat.tcpInitiated, stat.tcpAccepted, stat.tcpDropped,
@@ -34,7 +36,7 @@ public final class AixInternetProtocolStatsFFM extends AixInternetProtocolStats 
     }
 
     @Override
-    protected UdpStats queryUdpStats() {
+    protected @Nullable UdpStats queryUdpStats() {
         for (PerfstatProtocolFFM.Protocol stat : ipstats.get()) {
             if ("udp".equals(stat.name)) {
                 return new UdpStats(stat.udpOpackets, stat.udpIpackets, stat.udpNoSocket, stat.udpIerrors);

@@ -4,6 +4,8 @@
  */
 package oshi.software.common.os.unix.openbsd;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
@@ -37,5 +39,5 @@ public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
      *
      * @return the native host name, or {@code null} to fall back to the InetAddress lookup
      */
-    protected abstract String queryHostName();
+    protected abstract @Nullable String queryHostName();
 }

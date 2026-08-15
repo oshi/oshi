@@ -52,4 +52,27 @@ class ApplicationInfoTest {
         assertThat(app.toString(), containsString("MyApp"));
         assertThat(app.toString(), containsString("Acme"));
     }
+
+    /**
+     * The getters each document an empty string for a value the platform did not report, so the constructor normalizes
+     * rather than storing what it was handed. A Windows registry key with no DisplayVersion or Publisher used to reach
+     * callers as null from getVersion() or getVendor().
+     */
+    @Test
+    void testAbsentStringsAreNormalizedToEmpty() {
+        ApplicationInfo app = new ApplicationInfo(null, null, null, 0L, null);
+
+        assertThat(app.getName(), is(""));
+        assertThat(app.getVersion(), is(""));
+        assertThat(app.getVendor(), is(""));
+    }
+
+    @Test
+    void testPresentStringsArePassedThrough() {
+        ApplicationInfo app = new ApplicationInfo("App", "1.0", "Vendor", 0L, null);
+
+        assertThat(app.getName(), is("App"));
+        assertThat(app.getVersion(), is("1.0"));
+        assertThat(app.getVendor(), is("Vendor"));
+    }
 }

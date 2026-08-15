@@ -232,7 +232,8 @@ public class MacOSProcessFFM extends MacOSProcess {
             MemorySegment passwdStruct = ForeignFunctions.getStructFromNativePointer(pwuid, PASSWD, arena);
             if (passwdStruct != null) {
                 MemorySegment nameAddress = passwdStruct.get(ADDRESS, PASSWD.byteOffset(groupElement("pw_name")));
-                this.user = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
+                String pwName = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
+                this.user = pwName == null ? this.userID : pwName;
             } else {
                 this.user = this.userID;
             }
@@ -243,7 +244,8 @@ public class MacOSProcessFFM extends MacOSProcess {
             MemorySegment groupStruct = ForeignFunctions.getStructFromNativePointer(grgid, GROUP, arena);
             if (groupStruct != null) {
                 MemorySegment nameAddress = groupStruct.get(ADDRESS, GROUP.byteOffset(groupElement("gr_name")));
-                this.group = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
+                String grName = ForeignFunctions.getStringFromNativePointer(nameAddress, arena);
+                this.group = grName == null ? this.groupID : grName;
             } else {
                 this.group = this.groupID;
             }

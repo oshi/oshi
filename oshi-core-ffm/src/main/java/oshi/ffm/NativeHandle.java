@@ -10,6 +10,7 @@ import java.lang.foreign.MemorySegment;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +47,11 @@ public final class NativeHandle implements AutoCloseable {
         void close(MemorySegment handle) throws Throwable;
     }
 
-    private final MemorySegment handle;
+    private final @Nullable MemorySegment handle;
     private final ThrowingCloser closer;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private NativeHandle(MemorySegment handle, ThrowingCloser closer) {
+    private NativeHandle(@Nullable MemorySegment handle, ThrowingCloser closer) {
         this.handle = handle;
         this.closer = Objects.requireNonNull(closer, "closer");
     }
@@ -62,7 +63,7 @@ public final class NativeHandle implements AutoCloseable {
      * @param closer the function to call to release the handle
      * @return a new {@code NativeHandle}
      */
-    public static NativeHandle of(MemorySegment handle, ThrowingCloser closer) {
+    public static NativeHandle of(@Nullable MemorySegment handle, ThrowingCloser closer) {
         return new NativeHandle(handle, closer);
     }
 
@@ -71,7 +72,7 @@ public final class NativeHandle implements AutoCloseable {
      *
      * @return the handle, which may be {@code null} or {@link MemorySegment#NULL}
      */
-    public MemorySegment get() {
+    public @Nullable MemorySegment get() {
         return handle;
     }
 
@@ -90,8 +91,9 @@ public final class NativeHandle implements AutoCloseable {
      */
     @Override
     public void close() {
-        if (!isNull() && closed.compareAndSet(false, true)) {
-            runOrLog(() -> closer.close(handle), LOG, "Failed to close native handle");
+        MemorySegment open = this.handle;
+        if (open != null && !isNull() && closed.compareAndSet(false, true)) {
+            runOrLog(() -> closer.close(open), LOG, "Failed to close native handle");
         }
     }
 }

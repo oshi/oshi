@@ -12,6 +12,7 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,7 +90,7 @@ public final class OpenBsdSysctlUtilFFM {
      * @param mib MIB array identifying the sysctl
      * @return an auto-arena {@link MemorySegment} containing the result on success; {@code null} otherwise
      */
-    public static MemorySegment sysctl(int[] mib) {
+    public static @Nullable MemorySegment sysctl(int[] mib) {
         return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlMib(arena, mib, oldp, oldlenp), LOG,
                 Arrays.toString(mib));
     }

@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.unix.freebsd;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Memory;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -33,7 +35,7 @@ public class FreeBsdCentralProcessorJNA extends FreeBsdCentralProcessor {
     }
 
     @Override
-    protected long[] queryCpTimes(String name) {
+    protected long @Nullable [] queryCpTimes(String name) {
         try (Memory p = BsdSysctlUtil.sysctl(name)) {
             if (p == null) {
                 return null;

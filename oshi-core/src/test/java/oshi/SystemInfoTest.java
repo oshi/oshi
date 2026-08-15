@@ -33,6 +33,7 @@ import static oshi.util.SystemInfoHelper.printUsbDevices;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.JRE;
@@ -69,7 +70,7 @@ public class SystemInfoTest { // NOSONAR java:S5786
      *
      * @param args the arguments (unused)
      */
-    public static void main(String[] args) {
+    public static void main(String @Nullable [] args) {
 
         logger.info("------------------------------------------------------------------------");
         logger.info("Using JNA");

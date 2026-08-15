@@ -4,6 +4,8 @@
  */
 package oshi.hardware.common.platform.unix.aix;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractHWDiskStore;
 
@@ -74,5 +76,5 @@ public abstract class AixHWDiskStore extends AbstractHWDiskStore {
      *
      * @return stats POJO, or {@code null} if no entry was found for this disk name
      */
-    protected abstract DiskStats queryStats();
+    protected abstract @Nullable DiskStats queryStats();
 }

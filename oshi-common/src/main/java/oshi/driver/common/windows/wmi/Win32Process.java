@@ -93,10 +93,10 @@ public class Win32Process {
      * Returns process info.
      *
      * @param h    An instantiated {@link WmiQueryExecutor}.
-     * @param pids Process IDs to query.
+     * @param pids Process IDs to query, or {@code null} to query all processes.
      * @return Information on the provided processes.
      */
-    public static WmiResult<ProcessXPProperty> queryProcesses(WmiQueryExecutor h, Collection<Integer> pids) {
+    public static WmiResult<ProcessXPProperty> queryProcesses(WmiQueryExecutor h, @Nullable Collection<Integer> pids) {
         WmiQuery<ProcessXPProperty> processQueryXP = new WmiQuery<>(buildWmiClassNameWithPidFilter(pids),
                 ProcessXPProperty.class);
         return h.queryWMI(processQueryXP);

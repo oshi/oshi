@@ -6,6 +6,8 @@ package oshi.software.os.unix.openbsd;
 
 import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -22,7 +24,7 @@ public class OpenBsdNetworkParamsJNA extends OpenBsdNetworkParams {
     private static final OpenBsdLibc LIBC = OpenBsdLibc.INSTANCE;
 
     @Override
-    protected String queryHostName() {
+    protected @Nullable String queryHostName() {
         byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
         if (0 != LIBC.gethostname(hostnameBuffer, hostnameBuffer.length)) {
             return null;

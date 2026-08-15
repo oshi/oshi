@@ -41,7 +41,7 @@ public final class AixHWDiskStoreJNA extends AixHWDiskStore {
     }
 
     @Override
-    protected DiskStats queryStats() {
+    protected @Nullable DiskStats queryStats() {
         for (perfstat_disk_t stat : diskStats.get()) {
             if (Native.toString(stat.name).equals(this.getName())) {
                 DiskStats out = new DiskStats();

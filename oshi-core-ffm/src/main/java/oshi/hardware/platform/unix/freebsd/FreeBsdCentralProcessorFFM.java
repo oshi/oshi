@@ -10,6 +10,7 @@ import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public class FreeBsdCentralProcessorFFM extends FreeBsdCentralProcessor {
     }
 
     @Override
-    protected long[] queryCpTimes(String name) {
+    protected long @Nullable [] queryCpTimes(String name) {
         MemorySegment buf = BsdSysctlUtilFFM.sysctl(name);
         if (buf == null) {
             return null;

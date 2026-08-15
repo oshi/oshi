@@ -121,10 +121,26 @@ public abstract class ForeignFunctions {
     protected static final SymbolLookup SYMBOL_LOOKUP = SymbolLookup.loaderLookup();
 
     /** The size in bytes of the C {@code long} type on this platform. */
-    public static final long NATIVE_LONG_SIZE = LINKER.canonicalLayouts().get("long").byteSize();
+    public static final long NATIVE_LONG_SIZE = canonicalSize("long");
 
     /** The size in bytes of the C {@code size_t} type on this platform. */
-    public static final long NATIVE_SIZE_T_SIZE = LINKER.canonicalLayouts().get("size_t").byteSize();
+    public static final long NATIVE_SIZE_T_SIZE = canonicalSize("size_t");
+
+    /**
+     * Looks up the byte size of a C type in the linker's canonical layouts.
+     *
+     * @param cType the C type name
+     * @return the type's size in bytes
+     * @throws IllegalStateException if this linker defines no canonical layout for the type, which would mean the
+     *                               platform is one the FFM implementation cannot describe
+     */
+    private static long canonicalSize(String cType) {
+        MemoryLayout layout = LINKER.canonicalLayouts().get(cType);
+        if (layout == null) {
+            throw new IllegalStateException("Linker defines no canonical layout for C type " + cType);
+        }
+        return layout.byteSize();
+    }
 
     /** The size in bytes of a native pointer on this platform. */
     public static final long NATIVE_POINTER_SIZE = ValueLayout.ADDRESS.byteSize();
@@ -487,12 +503,13 @@ public abstract class ForeignFunctions {
     /**
      * Reinterpret a raw native pointer as a struct of the given layout, scoped to the provided arena.
      *
-     * @param pointer the native pointer
+     * @param pointer the native pointer, which may be {@code null}
      * @param layout  the struct layout
      * @param arena   the arena to scope the resulting segment to
      * @return a memory segment over the struct, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static MemorySegment getStructFromNativePointer(MemorySegment pointer, StructLayout layout, Arena arena) {
+    public static @Nullable MemorySegment getStructFromNativePointer(@Nullable MemorySegment pointer,
+            StructLayout layout, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
@@ -502,11 +519,11 @@ public abstract class ForeignFunctions {
     /**
      * Read a null-terminated UTF-8 string from a raw native pointer.
      *
-     * @param pointer the native pointer
+     * @param pointer the native pointer, which may be {@code null}
      * @param arena   the arena to scope the reinterpreted segment to
      * @return the Java string, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static String getStringFromNativePointer(MemorySegment pointer, Arena arena) {
+    public static @Nullable String getStringFromNativePointer(@Nullable MemorySegment pointer, Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
@@ -517,12 +534,13 @@ public abstract class ForeignFunctions {
     /**
      * Copy {@code length} bytes from a raw native pointer into a Java byte array.
      *
-     * @param pointer the native pointer
+     * @param pointer the native pointer, which may be {@code null}
      * @param length  the number of bytes to copy
      * @param arena   the arena to scope the reinterpreted segment to
      * @return the byte array, or {@code null} if the pointer is null or {@link MemorySegment#NULL}
      */
-    public static byte[] getByteArrayFromNativePointer(MemorySegment pointer, long length, Arena arena) {
+    public static byte @Nullable [] getByteArrayFromNativePointer(@Nullable MemorySegment pointer, long length,
+            Arena arena) {
         if (pointer == null || pointer.equals(MemorySegment.NULL)) {
             return null;
         }
@@ -597,7 +615,8 @@ public abstract class ForeignFunctions {
         return (int) ERRNO_HANDLE.get(callState, 0);
     }
 
-    private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t, Object... args) {
+    private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t,
+            @Nullable Object... args) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
         ExceptionUtil.logAtLevel(logger, level, message, t, args);

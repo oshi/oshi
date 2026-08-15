@@ -10,6 +10,7 @@ import static oshi.ffm.ForeignFunctions.getErrno;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public final class BsdSysctlUtilFFM {
      * @param name name of the sysctl
      * @return an auto-arena {@link MemorySegment} containing the result on success; {@code null} otherwise
      */
-    public static MemorySegment sysctl(String name) {
+    public static @Nullable MemorySegment sysctl(String name) {
         return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp), LOG, name);
     }
 

@@ -11,6 +11,8 @@ import java.net.NetworkInterface;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.aix.perfstat.PerfstatNetInterfaceFFM;
 import oshi.hardware.NetworkIF;
@@ -44,7 +46,7 @@ public final class AixNetworkIFFFM extends AixNetworkIF {
     }
 
     @Override
-    protected IfStats queryStats() {
+    protected @Nullable IfStats queryStats() {
         for (PerfstatNetInterfaceFFM.NetInterface stat : netstats.get()) {
             if (stat.name.equals(this.getName())) {
                 IfStats out = new IfStats();

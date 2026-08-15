@@ -15,6 +15,7 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -156,7 +157,7 @@ public final class SysctlFFM {
      * @param name name of the sysctl, for logging
      * @return an auto-arena {@link MemorySegment} containing the result on success; {@code null} otherwise
      */
-    public static MemorySegment sysctl(SysctlOp op, Logger log, Object name) {
+    public static @Nullable MemorySegment sysctl(SysctlOp op, Logger log, Object name) {
         return callInArenaOrDefault(arena -> {
             MemorySegment sizeSeg = arena.allocate(SIZE_T);
             if (!op.invoke(arena, MemorySegment.NULL, sizeSeg)) {
