@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
@@ -35,7 +37,7 @@ public final class ThreadPerformanceDataJNA {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information if successful, or null otherwise.
      */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
         Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtilJNA
                 .readPerfDataFromRegistry(ThreadPerformanceData.THREAD, ThreadPerformanceProperty.class);
         return ThreadPerformanceData.buildThreadMapFromRegistry(pids, threadData);
@@ -48,7 +50,8 @@ public final class ThreadPerformanceDataJNA {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information.
      */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            Collection<Integer> pids) {
         return buildThreadMapFromPerfCounters(pids, null, -1);
     }
 
@@ -61,8 +64,8 @@ public final class ThreadPerformanceDataJNA {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information.
      */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids,
-            String procName, int threadNum) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            Collection<Integer> pids, String procName, int threadNum) {
         if (PerfmonDisabled.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }

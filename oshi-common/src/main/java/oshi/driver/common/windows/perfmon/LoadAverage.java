@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.IdleProcessorTimeProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
@@ -27,7 +29,7 @@ public abstract class LoadAverage {
     }
 
     // Daemon thread for Load Average
-    private Thread loadAvgThread = null;
+    private @Nullable Thread loadAvgThread = null;
 
     private final double[] loadAverages = new double[] { -1d, -1d, -1d };
     private static final double[] EXP_WEIGHT = new double[] {

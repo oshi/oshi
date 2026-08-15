@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_disk_t;
 
@@ -66,7 +68,7 @@ public final class AixHWDiskStoreJNA extends AixHWDiskStore {
         List<AixHWDiskStoreJNA> storeList = new ArrayList<>();
         for (perfstat_disk_t disk : diskStats.get()) {
             String storeName = Native.toString(disk.name);
-            Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
+            Pair<@Nullable String, @Nullable String> ms = Lscfg.queryModelSerial(storeName);
             String model = ms.getA() == null ? Native.toString(disk.description) : ms.getA();
             String serial = ParseUtil.getStringValueOrUnknown(ms.getB());
             storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));

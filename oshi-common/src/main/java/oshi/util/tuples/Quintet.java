@@ -4,6 +4,8 @@
  */
 package oshi.util.tuples;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -16,7 +18,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * @param <E> Type of the fifth element
  */
 @ThreadSafe
-public class Quintet<A, B, C, D, E> {
+public class Quintet<A extends @Nullable Object, B extends @Nullable Object, C extends @Nullable Object, D extends @Nullable Object, E extends @Nullable Object> {
 
     private final A a;
     private final B b;

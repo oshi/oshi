@@ -6,6 +6,8 @@ package oshi.driver.common.windows.perfmon;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 
 /**
@@ -16,7 +18,7 @@ import oshi.annotation.concurrent.Immutable;
 public final class PerfCounter {
 
     private final String object;
-    private final String instance;
+    private final @Nullable String instance;
     private final String counter;
     private final boolean baseCounter;
 
@@ -30,10 +32,10 @@ public final class PerfCounter {
      * Creates a PerfCounter.
      *
      * @param objectName   the PDH object name
-     * @param instanceName the instance name
+     * @param instanceName the instance name, or {@code null} for a counter with no instance filter
      * @param counterName  the counter name (may end with _Base for SecondValue)
      */
-    public PerfCounter(String objectName, String instanceName, String counterName) {
+    public PerfCounter(String objectName, @Nullable String instanceName, String counterName) {
         this.object = objectName;
         this.instance = instanceName;
         this.baseCounter = counterName.endsWith(BASE_SUFFIX);
@@ -55,7 +57,7 @@ public final class PerfCounter {
      *
      * @return Returns the instance.
      */
-    public String getInstance() {
+    public @Nullable String getInstance() {
         return instance;
     }
 

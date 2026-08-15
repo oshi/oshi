@@ -6,6 +6,8 @@ package oshi.driver.common.unix.aix;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -36,7 +38,8 @@ public final class Lscfg {
      * @param lscfg The output of a previous call to {@code lscfg -vp}
      * @return A triplet with backplane model, serial number, and version
      */
-    public static Triplet<String, String, String> queryBackplaneModelSerialVersion(List<String> lscfg) {
+    public static Triplet<@Nullable String, @Nullable String, @Nullable String> queryBackplaneModelSerialVersion(
+            List<String> lscfg) {
         final String planeMarker = "WAY BACKPLANE";
         final String modelMarker = "Part Number";
         final String serialMarker = "Serial Number";
@@ -81,7 +84,7 @@ public final class Lscfg {
      * @param device The disk to get the model and serial from
      * @return A pair containing the model and serial number for the device, or null if not found
      */
-    public static Pair<String, String> queryModelSerial(String device) {
+    public static Pair<@Nullable String, @Nullable String> queryModelSerial(String device) {
         return parseModelSerial(ExecutingCommand.runNative("lscfg -vl " + device), device);
     }
 
@@ -92,7 +95,7 @@ public final class Lscfg {
      * @param device The disk the output describes
      * @return A pair containing the model and serial number for the device, either of which may be null if not found
      */
-    public static Pair<String, String> parseModelSerial(List<String> lscfg, String device) {
+    public static Pair<@Nullable String, @Nullable String> parseModelSerial(List<String> lscfg, String device) {
         String modelMarker = "Machine Type and Model";
         String serialMarker = "Serial Number";
         String model = null;

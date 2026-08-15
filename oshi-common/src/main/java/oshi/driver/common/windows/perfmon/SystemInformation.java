@@ -10,6 +10,8 @@ import static oshi.driver.common.windows.perfmon.PerfmonConstants.WIN32_PERF_RAW
 import java.util.Collections;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -25,16 +27,16 @@ public final class SystemInformation {
         /** Context switches per second. */
         CONTEXTSWITCHESPERSEC(null, "Context Switches/sec");
 
-        private final String instance;
+        private final @Nullable String instance;
         private final String counter;
 
-        ContextSwitchProperty(String instance, String counter) {
+        ContextSwitchProperty(@Nullable String instance, String counter) {
             this.instance = instance;
             this.counter = counter;
         }
 
         @Override
-        public String getInstance() {
+        public @Nullable String getInstance() {
             return instance;
         }
 
@@ -51,16 +53,16 @@ public final class SystemInformation {
         /** Processor queue length. */
         PROCESSORQUEUELENGTH(null, "Processor Queue Length");
 
-        private final String instance;
+        private final @Nullable String instance;
         private final String counter;
 
-        ProcessorQueueLengthProperty(String instance, String counter) {
+        ProcessorQueueLengthProperty(@Nullable String instance, String counter) {
             this.instance = instance;
             this.counter = counter;
         }
 
         @Override
-        public String getInstance() {
+        public @Nullable String getInstance() {
             return instance;
         }
 

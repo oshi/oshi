@@ -6,6 +6,7 @@ package oshi.driver.common.unix.aix;
 
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +58,7 @@ public final class PsInfo {
      * @param psinfo a populated {@link AixPsInfo} containing the offset pointers
      * @return a triplet of {@code (argc, argv, envp)}, or {@code null} if the psinfo is unusable
      */
-    public static Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AixPsInfo psinfo) {
+    public static @Nullable Triplet<Integer, Long, Long> queryArgsEnvAddrs(int pid, AixPsInfo psinfo) {
         if (psinfo != null) {
             int argc = psinfo.pr_argc;
             // Must have at least one argc (the command itself) so failure here means exit

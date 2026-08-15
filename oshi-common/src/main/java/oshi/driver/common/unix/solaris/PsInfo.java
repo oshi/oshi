@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public final class PsInfo {
      * @param pid the process ID
      * @return populated {@link SolarisPsInfo}, or {@code null} if the file isn't readable
      */
-    public static SolarisPsInfo queryPsInfo(int pid) {
+    public static @Nullable SolarisPsInfo queryPsInfo(int pid) {
         String path = String.format(Locale.ROOT, "/proc/%d/psinfo", pid);
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(path);
         if (buff == null || buff.remaining() == 0) {
@@ -62,7 +63,7 @@ public final class PsInfo {
      * @param tid the thread ID (lwpid)
      * @return populated {@link SolarisLwpsInfo}, or {@code null} if not readable
      */
-    public static SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
+    public static @Nullable SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
         ByteBuffer buff = FileUtil
                 .readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid));
         if (buff == null || buff.remaining() == 0) {
@@ -82,7 +83,7 @@ public final class PsInfo {
      * @param pid the process ID
      * @return populated {@link SolarisPrUsage}, or {@code null} if not readable
      */
-    public static SolarisPrUsage queryPrUsage(int pid) {
+    public static @Nullable SolarisPrUsage queryPrUsage(int pid) {
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/usage", pid));
         if (buff == null || buff.remaining() == 0) {
             return null;
@@ -102,7 +103,7 @@ public final class PsInfo {
      * @param tid the thread ID
      * @return populated {@link SolarisPrUsage}, or {@code null} if not readable
      */
-    public static SolarisPrUsage queryPrUsage(int pid, int tid) {
+    public static @Nullable SolarisPrUsage queryPrUsage(int pid, int tid) {
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/usage", pid, tid));
         if (buff == null || buff.remaining() == 0) {
             return null;

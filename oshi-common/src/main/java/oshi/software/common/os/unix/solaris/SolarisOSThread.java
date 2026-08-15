@@ -10,6 +10,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.driver.common.unix.solaris.PsInfo;
 import oshi.driver.common.unix.solaris.SolarisLwpsInfo;
 import oshi.driver.common.unix.solaris.SolarisPrUsage;
@@ -37,11 +39,11 @@ public abstract class SolarisOSThread extends AbstractOSThread {
         updateAttributes();
     }
 
-    private SolarisLwpsInfo queryLwpsInfo() {
+    private @Nullable SolarisLwpsInfo queryLwpsInfo() {
         return PsInfo.queryLwpsInfo(this.getOwningProcessId(), this.getThreadId());
     }
 
-    private SolarisPrUsage queryPrUsage() {
+    private @Nullable SolarisPrUsage queryPrUsage() {
         return PsInfo.queryPrUsage(this.getOwningProcessId(), this.getThreadId());
     }
 
