@@ -22,6 +22,12 @@ public final class Win32ProcessFFM extends Win32Process {
     private Win32ProcessFFM() {
     }
 
+    /**
+     * Queries the command lines of the given processes.
+     *
+     * @param pidsToQuery the process IDs to query, or {@code null} to query all processes
+     * @return a {@link WmiResult} of the command line for each matching process
+     */
     public static WmiResult<CommandLineProperty> queryCommandLines(@Nullable Set<Integer> pidsToQuery) {
         return Win32Process.queryCommandLines(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()),
                 pidsToQuery);

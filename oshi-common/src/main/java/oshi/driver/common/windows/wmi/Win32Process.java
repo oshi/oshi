@@ -67,7 +67,7 @@ public class Win32Process {
      * @param pids Process IDs to filter, or {@code null} to query all processes
      * @return the WMI class name with WHERE clause appended if pids is non-null
      */
-    public static String buildWmiClassNameWithPidFilter(Collection<Integer> pids) {
+    public static String buildWmiClassNameWithPidFilter(@Nullable Collection<Integer> pids) {
         if (pids == null || pids.isEmpty()) {
             return WIN32_PROCESS;
         }

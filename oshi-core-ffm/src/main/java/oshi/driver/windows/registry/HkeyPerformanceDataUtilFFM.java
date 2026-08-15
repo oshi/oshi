@@ -89,8 +89,9 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
      * @return A triplet containing the results. The first element maps the input enum to the counter values where the
      *         first enum will contain the instance name as a {@link String}, and the remaining values will either be
      *         {@link Long}, {@link Integer}, or {@code null} depending on whether the specified enum counter was
-     *         present and the size of the counter value. The second element is a timestamp in 100nSec increments
-     *         (Windows 1601 Epoch) while the third element is a timestamp in milliseconds since the 1970 Epoch.
+     *         present and the size of the counter value, or {@code null} if the object could not be read. The second
+     *         element is a timestamp in 100nSec increments (Windows 1601 Epoch) while the third element is a timestamp
+     *         in milliseconds since the 1970 Epoch.
      */
     public static <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
             String objectName, Class<T> counterEnum) {
