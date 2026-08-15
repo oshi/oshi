@@ -149,7 +149,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
          * Creates a {@link UsbDevice}.
          *
          * @param name             the device name
-         * @param vendor           the vendor name, or {@code null} if the platform did not report one
+         * @param vendor           the vendor name, or an empty string if the platform did not report one
          * @param vendorId         the vendor ID
          * @param productId        the product ID
          * @param serialNumber     the serial number

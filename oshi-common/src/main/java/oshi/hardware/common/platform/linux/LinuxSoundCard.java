@@ -14,7 +14,9 @@ import org.jspecify.annotations.Nullable;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.linux.ProcPath;
 
 /**
@@ -66,11 +68,12 @@ class LinuxSoundCard extends AbstractSoundCard {
      * lines of the file and retrieves the first line.
      *
      * @param asoundPath The path to the asound directory
-     * @return The complete name of the ALSA driver currently residing in our machine
+     * @return The complete name of the ALSA driver currently residing in our machine, or {@link Constants#UNKNOWN} if
+     *         the version file is empty or absent
      */
     static String getSoundCardVersion(String asoundPath) {
         String driverVersion = FileUtil.getStringFromFile(new File(asoundPath, "version").getPath());
-        return driverVersion.isEmpty() ? "not available" : driverVersion;
+        return ParseUtil.getStringValueOrUnknown(driverVersion);
     }
 
     /**
