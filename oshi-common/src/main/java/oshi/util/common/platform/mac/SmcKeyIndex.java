@@ -96,7 +96,7 @@ public final class SmcKeyIndex {
      * @param mask       an additional test each candidate key must pass
      * @return the matching keys in index order, or {@code null} if the index could not be read
      */
-    public static @Nullable List<String> findKeys(int keyCount, IntFunction<String> keyAtIndex, String prefix,
+    public static @Nullable List<String> findKeys(int keyCount, IntFunction<@Nullable String> keyAtIndex, String prefix,
             Predicate<String> mask) {
         if (keyCount <= 0 || keyCount > MAX_KEY_COUNT) {
             LOG.debug("Implausible SMC key count {}; skipping key discovery.", keyCount);
@@ -106,7 +106,7 @@ public final class SmcKeyIndex {
         // substitutes a neighbour for an unreadable probe, which can move the landing point past the block entirely,
         // and the scan skips an unreadable index outright. Track failures through one wrapper so no path is missed.
         boolean[] readFailed = new boolean[1];
-        IntFunction<String> tracked = i -> {
+        IntFunction<@Nullable String> tracked = i -> {
             String key = keyAtIndex.apply(i);
             if (key == null) {
                 readFailed[0] = true;
@@ -156,7 +156,7 @@ public final class SmcKeyIndex {
      * @param prefix     the prefix to locate
      * @return that index, or {@code -1} if the index could not be read
      */
-    private static int lowerBound(int keyCount, IntFunction<String> keyAtIndex, String prefix) {
+    private static int lowerBound(int keyCount, IntFunction<@Nullable String> keyAtIndex, String prefix) {
         int lo = 0;
         int hi = keyCount;
         while (lo < hi) {
@@ -185,7 +185,7 @@ public final class SmcKeyIndex {
      * @param keyCount   the number of keys in the index, bounding the outward walk
      * @return a key name, or {@code null} if nothing nearby could be read
      */
-    private static @Nullable String probe(IntFunction<String> keyAtIndex, int index, int keyCount) {
+    private static @Nullable String probe(IntFunction<@Nullable String> keyAtIndex, int index, int keyCount) {
         String key = keyAtIndex.apply(index);
         if (key != null) {
             return key;

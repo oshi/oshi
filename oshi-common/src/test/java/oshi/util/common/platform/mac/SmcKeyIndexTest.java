@@ -31,7 +31,7 @@ class SmcKeyIndexTest {
     private static final String[] SORTED = { "#KEY", "ALI0", "F0Ac", "TB0T", "TC0P", "TCMb", "TCMz", "Tf00", "Tf11",
             "Tg0W", "Tg0X", "Tg0e", "Tg0f", "Tg1g", "Tg1h", "Th00", "Tp01", "Tp09", "VP0C", "zSPc" };
 
-    private static IntFunction<String> lookup(String[] keys) {
+    private static IntFunction<@Nullable String> lookup(String[] keys) {
         return i -> i >= 0 && i < keys.length ? keys[i] : null;
     }
 
@@ -102,7 +102,7 @@ class SmcKeyIndexTest {
     void testTransientFailureIsRecovered() {
         // Fails the first read of one index, then succeeds: the retry must recover the full block.
         Set<Integer> failedOnce = new HashSet<>();
-        IntFunction<String> flaky = i -> i == 12 && failedOnce.add(i) ? null : SORTED[i];
+        IntFunction<@Nullable String> flaky = i -> i == 12 && failedOnce.add(i) ? null : SORTED[i];
         assertThat(SmcKeyIndex.findKeys(SORTED.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey),
                 contains("Tg0W", "Tg0X", "Tg0e", "Tg0f", "Tg1g", "Tg1h"));
     }
@@ -110,7 +110,7 @@ class SmcKeyIndexTest {
     @Test
     void testPermanentFailureMidScanSkipsOnlyThatKey() {
         // Index 12 is Tg0f. Skipping rather than stopping preserves Tg1g/Tg1h, which a break would have discarded.
-        IntFunction<String> flaky = i -> i == 12 ? null : SORTED[i];
+        IntFunction<@Nullable String> flaky = i -> i == 12 ? null : SORTED[i];
         assertThat(SmcKeyIndex.findKeys(SORTED.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey),
                 contains("Tg0W", "Tg0X", "Tg0e", "Tg1g", "Tg1h"));
     }
@@ -120,7 +120,7 @@ class SmcKeyIndexTest {
         // The only Tg key is unreadable and the next key ends the block. Reporting empty would be cached as "this
         // machine has no GPU sensors" and would disable the sensor for the JVM lifetime.
         String[] keys = { "TB0T", "Tg0f", "Th00", "Tp01" };
-        IntFunction<String> flaky = i -> i == 1 ? null : keys[i];
+        IntFunction<@Nullable String> flaky = i -> i == 1 ? null : keys[i];
         assertThat("An unreadable sole match must not be cached as a confirmed absence",
                 SmcKeyIndex.findKeys(keys.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey), is(nullValue()));
     }
@@ -133,7 +133,7 @@ class SmcKeyIndexTest {
         // have recovered Tg0f and returned a non-empty list. A permanently failing index cannot tell the two apart.
         String[] keys = { "TB0T", "TCMb", "Tg0f", "Th00" };
         Set<Integer> failedOnce = new HashSet<>();
-        IntFunction<String> flaky = i -> i == 2 && failedOnce.add(i) ? null : keys[i];
+        IntFunction<@Nullable String> flaky = i -> i == 2 && failedOnce.add(i) ? null : keys[i];
         assertThat("A search that skipped the block on a failed read must not report a confirmed absence",
                 SmcKeyIndex.findKeys(keys.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey), is(nullValue()));
     }
@@ -149,7 +149,7 @@ class SmcKeyIndexTest {
     @Test
     void testFailedProbeDuringSearchIsRetriedAtNeighbour() {
         // A permanently unreadable index during the binary search descends via a neighbour instead of aborting.
-        IntFunction<String> flaky = i -> i == SORTED.length / 2 ? null : SORTED[i];
+        IntFunction<@Nullable String> flaky = i -> i == SORTED.length / 2 ? null : SORTED[i];
         assertThat(SmcKeyIndex.findKeys(SORTED.length, flaky, "Tg", SmcKeyIndex::isGpuTemperatureKey),
                 is(notNullValue()));
     }
