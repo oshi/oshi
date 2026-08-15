@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.Rectangle;
 import java.util.Arrays;
@@ -78,6 +79,7 @@ class XwininfoParsingTest {
 
         // Check rectangle for Terminal: 800x600 at +100+200
         Rectangle termRect = windows.get("0x1400003");
+        assertNotNull(termRect);
         assertThat(termRect.width, is(800));
         assertThat(termRect.height, is(600));
         assertThat(termRect.x, is(100));
@@ -85,6 +87,7 @@ class XwininfoParsingTest {
 
         // Check negative coordinate
         Rectangle noNameRect = windows.get("0x1800003");
+        assertNotNull(noNameRect);
         assertThat(noNameRect.y, is(-10));
     }
 

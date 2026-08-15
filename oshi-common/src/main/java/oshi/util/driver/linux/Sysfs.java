@@ -4,6 +4,8 @@
  */
 package oshi.util.driver.linux;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -25,7 +27,7 @@ public final class Sysfs {
      *
      * @return The vendor if available, null otherwise
      */
-    public static String querySystemVendor() {
+    public static @Nullable String querySystemVendor() {
         final String sysVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "sys_vendor").trim();
         if (!sysVendor.isEmpty()) {
             return sysVendor;
@@ -38,7 +40,7 @@ public final class Sysfs {
      *
      * @return The model if available, null otherwise
      */
-    public static String queryProductModel() {
+    public static @Nullable String queryProductModel() {
         final String productName = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_name").trim();
         final String productVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + "product_version").trim();
         if (productName.isEmpty()) {
@@ -59,7 +61,7 @@ public final class Sysfs {
      *
      * @return The serial number if available, null otherwise
      */
-    public static String queryProductSerial() {
+    public static @Nullable String queryProductSerial() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root, or use privileged read fallback
         String serial = PrivilegedUtil.getStringFromFilePrivileged(SysPath.DMI_ID + "product_serial");
@@ -74,7 +76,7 @@ public final class Sysfs {
      *
      * @return The UUID if available, null otherwise
      */
-    public static String queryUUID() {
+    public static @Nullable String queryUUID() {
         // These sysfs files accessible by root, or can be chmod'd at boot time
         // to enable access without root, or use privileged read fallback
         String uuid = PrivilegedUtil.getStringFromFilePrivileged(SysPath.DMI_ID + "product_uuid");
@@ -89,7 +91,7 @@ public final class Sysfs {
      *
      * @return The board vendor if available, null otherwise
      */
-    public static String queryBoardVendor() {
+    public static @Nullable String queryBoardVendor() {
         final String boardVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_vendor").trim();
         if (!boardVendor.isEmpty()) {
             return boardVendor;
@@ -102,7 +104,7 @@ public final class Sysfs {
      *
      * @return The board model if available, null otherwise
      */
-    public static String queryBoardModel() {
+    public static @Nullable String queryBoardModel() {
         final String boardName = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_name").trim();
         if (!boardName.isEmpty()) {
             return boardName;
@@ -115,7 +117,7 @@ public final class Sysfs {
      *
      * @return The board version if available, null otherwise
      */
-    public static String queryBoardVersion() {
+    public static @Nullable String queryBoardVersion() {
         final String boardVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + "board_version").trim();
         if (!boardVersion.isEmpty()) {
             return boardVersion;
@@ -128,7 +130,7 @@ public final class Sysfs {
      *
      * @return The board serial number if available, null otherwise
      */
-    public static String queryBoardSerial() {
+    public static @Nullable String queryBoardSerial() {
         // Board serial is also root-only, use privileged read fallback
         final String boardSerial = PrivilegedUtil.getStringFromFilePrivileged(SysPath.DMI_ID + "board_serial").trim();
         if (!boardSerial.isEmpty()) {
@@ -142,7 +144,7 @@ public final class Sysfs {
      *
      * @return The bios vendor if available, null otherwise
      */
-    public static String queryBiosVendor() {
+    public static @Nullable String queryBiosVendor() {
         final String biosVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_vendor").trim();
         if (biosVendor.isEmpty()) {
             return biosVendor;
@@ -155,7 +157,7 @@ public final class Sysfs {
      *
      * @return The bios description if available, null otherwise
      */
-    public static String queryBiosDescription() {
+    public static @Nullable String queryBiosDescription() {
         final String modalias = FileUtil.getStringFromFile(SysPath.DMI_ID + "modalias").trim();
         if (!modalias.isEmpty()) {
             return modalias;
@@ -169,7 +171,7 @@ public final class Sysfs {
      * @param biosRevision A revision string to append
      * @return The bios version if available, null otherwise
      */
-    public static String queryBiosVersion(String biosRevision) {
+    public static @Nullable String queryBiosVersion(@Nullable String biosRevision) {
         final String biosVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_version").trim();
         if (!biosVersion.isEmpty()) {
             return biosVersion + (Util.isBlank(biosRevision) ? "" : " (revision " + biosRevision + ")");
@@ -182,7 +184,7 @@ public final class Sysfs {
      *
      * @return The bios release date if available, null otherwise
      */
-    public static String queryBiosReleaseDate() {
+    public static @Nullable String queryBiosReleaseDate() {
         final String biosDate = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_date").trim();
         if (!biosDate.isEmpty()) {
             return ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);

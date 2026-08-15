@@ -33,6 +33,7 @@ class DiskStatsTest {
         Map<String, Map<IoStat, Long>> map = DiskStats.parseDiskStats(diskstats);
         assertThat(map.keySet(), containsInAnyOrder("sda", "sda1"));
         Map<IoStat, Long> sda = map.get("sda");
+        assertNotNull(sda);
         assertThat(sda.get(IoStat.MAJOR), is(8L));
         assertThat(sda.get(IoStat.READS), is(100L));
         assertThat(sda.get(IoStat.READS_SECTOR), is(2000L));
@@ -40,7 +41,9 @@ class DiskStatsTest {
         assertThat(sda.get(IoStat.WRITES_SECTOR), is(4000L));
         // NAME is used as the map key, not stored in the per-device map
         assertThat(sda.containsKey(IoStat.NAME), is(false));
-        assertThat(map.get("sda1").get(IoStat.READS), is(40L));
+        Map<IoStat, Long> sda1 = map.get("sda1");
+        assertNotNull(sda1);
+        assertThat(sda1.get(IoStat.READS), is(40L));
     }
 
     @Test

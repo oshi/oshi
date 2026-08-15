@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.GlobalConfig;
@@ -31,16 +32,16 @@ class SmcKeyCacheTest {
     private static final List<String> FALLBACK = Collections.unmodifiableList(Arrays.asList("Tg05", "Tg0D"));
 
     /** A discovery function that records how many times it ran. */
-    private static final class CountingDiscovery implements Supplier<List<String>> {
+    private static final class CountingDiscovery implements Supplier<@Nullable List<String>> {
         private final AtomicInteger calls = new AtomicInteger();
-        private final List<String> result;
+        private final @Nullable List<String> result;
 
-        private CountingDiscovery(List<String> result) {
+        private CountingDiscovery(@Nullable List<String> result) {
             this.result = result;
         }
 
         @Override
-        public List<String> get() {
+        public @Nullable List<String> get() {
             calls.incrementAndGet();
             return result;
         }

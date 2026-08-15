@@ -16,6 +16,7 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,7 @@ public final class SmcKeyIndex {
      * @param mask       an additional test each candidate key must pass
      * @return the matching keys in index order, or {@code null} if the index could not be read
      */
-    public static List<String> findKeys(int keyCount, IntFunction<String> keyAtIndex, String prefix,
+    public static @Nullable List<String> findKeys(int keyCount, IntFunction<String> keyAtIndex, String prefix,
             Predicate<String> mask) {
         if (keyCount <= 0 || keyCount > MAX_KEY_COUNT) {
             LOG.debug("Implausible SMC key count {}; skipping key discovery.", keyCount);
@@ -184,7 +185,7 @@ public final class SmcKeyIndex {
      * @param keyCount   the number of keys in the index, bounding the outward walk
      * @return a key name, or {@code null} if nothing nearby could be read
      */
-    private static String probe(IntFunction<String> keyAtIndex, int index, int keyCount) {
+    private static @Nullable String probe(IntFunction<String> keyAtIndex, int index, int keyCount) {
         String key = keyAtIndex.apply(index);
         if (key != null) {
             return key;
@@ -212,7 +213,7 @@ public final class SmcKeyIndex {
      * @param key the four-character SMC key
      * @return true if the key matches the GPU temperature naming convention
      */
-    public static boolean isGpuTemperatureKey(String key) {
+    public static boolean isGpuTemperatureKey(@Nullable String key) {
         return key != null && GPU_TEMPERATURE_KEY.matcher(key).matches();
     }
 
@@ -222,7 +223,7 @@ public final class SmcKeyIndex {
      * @param key the four-character SMC key
      * @return true if the key matches the fan current-speed naming convention
      */
-    public static boolean isFanSpeedKey(String key) {
+    public static boolean isFanSpeedKey(@Nullable String key) {
         return key != null && FAN_SPEED_KEY.matcher(key).matches();
     }
 
@@ -260,7 +261,7 @@ public final class SmcKeyIndex {
      * @param fanCount   the count from {@code FNum}, or 0 if that read failed
      * @return the keys to read, or {@code null} if the answer is not yet known
      */
-    public static List<String> reconcileFanKeys(List<String> discovered, long fanCount) {
+    public static @Nullable List<String> reconcileFanKeys(@Nullable List<String> discovered, long fanCount) {
         if (discovered != null && !discovered.isEmpty()) {
             if (fanCount > 0 && discovered.size() != fanCount) {
                 LOG.debug("Found {} fan speed keys {} but FNum reports {} fans; using the discovered keys.",
@@ -286,7 +287,7 @@ public final class SmcKeyIndex {
      * @param csv the configured value, which may be null or empty
      * @return the keys, never null
      */
-    public static List<String> parseConfiguredKeys(String csv) {
+    public static List<String> parseConfiguredKeys(@Nullable String csv) {
         if (csv == null || csv.trim().isEmpty()) {
             return Collections.emptyList();
         }

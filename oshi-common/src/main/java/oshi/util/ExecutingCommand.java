@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public final class ExecutingCommand {
      *                         process.
      * @return A list of Strings representing the result of the command, or empty string if the command failed
      */
-    public static List<String> runNative(String[] cmdToRunWithArgs, String[] envp) {
+    public static List<String> runNative(String[] cmdToRunWithArgs, String @Nullable [] envp) {
         Process p = null;
         try {
             p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);

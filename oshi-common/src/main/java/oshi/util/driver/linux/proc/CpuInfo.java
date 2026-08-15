@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
 import oshi.util.FileUtil;
@@ -30,7 +32,7 @@ public final class CpuInfo {
      *
      * @return The manufacturer if known, null otherwise
      */
-    public static String queryCpuManufacturer() {
+    public static @Nullable String queryCpuManufacturer() {
         return queryCpuManufacturer(FileUtil.readFile(CPUINFO));
     }
 
@@ -40,7 +42,7 @@ public final class CpuInfo {
      * @param cpuInfo lines from /proc/cpuinfo
      * @return The manufacturer if known, null otherwise
      */
-    static String queryCpuManufacturer(List<String> cpuInfo) {
+    static @Nullable String queryCpuManufacturer(List<String> cpuInfo) {
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
                 int part = ParseUtil.parseLastInt(line, 0);
@@ -81,7 +83,7 @@ public final class CpuInfo {
      * @return A quartet of strings for manufacturer, model, version, and serial number. Each one may be null if
      *         unknown.
      */
-    public static Quartet<String, String, String, String> queryBoardInfo() {
+    public static Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> queryBoardInfo() {
         return queryBoardInfo(FileUtil.readFile(CPUINFO));
     }
 
@@ -91,7 +93,8 @@ public final class CpuInfo {
      * @param cpuInfo lines from /proc/cpuinfo
      * @return A quartet of strings for manufacturer, model, version, and serial number
      */
-    static Quartet<String, String, String, String> queryBoardInfo(List<String> cpuInfo) {
+    static Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> queryBoardInfo(
+            List<String> cpuInfo) {
         String pcManufacturer = null;
         String pcModel = null;
         String pcVersion = null;

@@ -4,6 +4,8 @@
  */
 package oshi.util.driver.linux;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
 import oshi.util.linux.SysPath;
@@ -22,7 +24,7 @@ public final class Devicetree {
      *
      * @return The model if available, null otherwise
      */
-    public static String queryModel() {
+    public static @Nullable String queryModel() {
         String modelStr = FileUtil.getStringFromFile(SysPath.MODEL);
         if (!modelStr.isEmpty()) {
             return modelStr.replace("Machine: ", "");

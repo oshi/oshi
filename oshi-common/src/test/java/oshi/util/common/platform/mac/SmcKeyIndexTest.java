@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.IntFunction;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -34,7 +35,7 @@ class SmcKeyIndexTest {
         return i -> i >= 0 && i < keys.length ? keys[i] : null;
     }
 
-    private static List<String> findTg(String[] keys) {
+    private static @Nullable List<String> findTg(String[] keys) {
         return SmcKeyIndex.findKeys(keys.length, lookup(keys), "Tg", SmcKeyIndex::isGpuTemperatureKey);
     }
 

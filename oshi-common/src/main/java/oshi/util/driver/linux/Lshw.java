@@ -6,6 +6,8 @@ package oshi.util.driver.linux;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -20,11 +22,12 @@ public final class Lshw {
     private Lshw() {
     }
 
-    private static final String MODEL;
-    private static final String SERIAL;
-    private static final String UUID;
+    private static final @Nullable String MODEL;
+    private static final @Nullable String SERIAL;
+    private static final @Nullable String UUID;
     static {
-        Triplet<String, String, String> info = parseSystemInfo(ExecutingCommand.runPrivilegedNative("lshw -C system"));
+        Triplet<@Nullable String, @Nullable String, @Nullable String> info = parseSystemInfo(
+                ExecutingCommand.runPrivilegedNative("lshw -C system"));
         MODEL = info.getA();
         SERIAL = info.getB();
         UUID = info.getC();
@@ -36,7 +39,7 @@ public final class Lshw {
      * @param lines output of {@code lshw -C system}
      * @return triplet of (model, serial, uuid), with null for missing values
      */
-    static Triplet<String, String, String> parseSystemInfo(List<String> lines) {
+    static Triplet<@Nullable String, @Nullable String, @Nullable String> parseSystemInfo(List<String> lines) {
         String model = null;
         String serial = null;
         String uuid = null;
@@ -62,7 +65,7 @@ public final class Lshw {
      *
      * @return The model if available, null otherwise
      */
-    public static String queryModel() {
+    public static @Nullable String queryModel() {
         return MODEL;
     }
 
@@ -71,7 +74,7 @@ public final class Lshw {
      *
      * @return The serial number if available, null otherwise
      */
-    public static String querySerialNumber() {
+    public static @Nullable String querySerialNumber() {
         return SERIAL;
     }
 
@@ -80,7 +83,7 @@ public final class Lshw {
      *
      * @return The UUID if available, null otherwise
      */
-    public static String queryUUID() {
+    public static @Nullable String queryUUID() {
         return UUID;
     }
 
