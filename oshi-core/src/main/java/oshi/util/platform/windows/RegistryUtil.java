@@ -15,6 +15,7 @@ import com.sun.jna.platform.win32.WinReg;
 import com.sun.jna.platform.win32.WinReg.HKEY;
 
 import oshi.driver.common.windows.registry.RegistryValueUtil;
+import oshi.util.ParseUtil;
 
 /**
  * Utility for reading values from the Windows Registry.
@@ -56,7 +57,7 @@ public final class RegistryUtil {
             // registryGetValue(root, path, key) re-opened the key with the default view, ignoring accessFlag.
             Map<String, Object> values = Advapi32Util.registryGetValues(root, path, accessFlag);
             // A null key requests the (Default) value, which registryGetValues stores under the empty name.
-            String valueName = key == null ? "" : key;
+            String valueName = ParseUtil.getStringValueOrEmpty(key);
             Object value = values.get(valueName);
             if (value == null) {
                 // Registry value names are case-insensitive; fall back to a case-insensitive match.

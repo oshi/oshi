@@ -210,7 +210,7 @@ public final class MacInstalledApps {
             } else if (startsWith(dictInner, vOpen, TAG_ARRAY_OPEN)) {
                 String inner = extractBalancedInner(dictInner, vOpen, TAG_ARRAY_OPEN, TAG_ARRAY_CLOSE);
                 String parsed = inner == null ? null : parseStringArray(inner);
-                val = parsed == null ? "" : parsed;
+                val = ParseUtil.getStringValueOrEmpty(parsed);
                 pos = dictInner.indexOf(TAG_ARRAY_CLOSE, vOpen) + TAG_ARRAY_CLOSE.length();
             } else {
                 // other irrelevant tags: go to next tag

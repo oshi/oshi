@@ -33,7 +33,6 @@ import oshi.driver.windows.wmi.Win32VideoControllerJNA;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.platform.windows.WindowsGraphicsCard;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.gpu.DxgiUtilJNA;
@@ -197,11 +196,10 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
                 String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
                         "");
 
-                GraphicsCard card = new WindowsGraphicsCardJNA(Util.isBlank(name) ? Constants.UNKNOWN : name,
-                        Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
-                        Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
-                        Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram, luidPrefix, lhmParent,
-                        pciBusNumber, pciBusId);
+                GraphicsCard card = new WindowsGraphicsCardJNA(ParseUtil.getStringValueOrUnknown(name),
+                        ParseUtil.getStringValueOrUnknown(deviceId), ParseUtil.getStringValueOrUnknown(vendor),
+                        ParseUtil.getStringValueOrUnknown(versionInfo), vram, luidPrefix, lhmParent, pciBusNumber,
+                        pciBusId);
                 // Remove dxgiMatch from remainingDxgi only after the card is successfully
                 // constructed. This ensures that if earlier registry reads in this try block
                 // throw a Win32Exception, dxgiMatch remains in remainingDxgi and is still

@@ -11,7 +11,6 @@ import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.common.platform.mac.MacFirmware;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quintet;
@@ -103,11 +102,9 @@ final class MacFirmwareFFM extends MacFirmware {
                 }
             }
         }
-        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(name) ? Constants.UNKNOWN : name,
-                Util.isBlank(description) ? Constants.UNKNOWN : description,
-                Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+        return new Quintet<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(name),
+                ParseUtil.getStringValueOrUnknown(description), ParseUtil.getStringValueOrUnknown(version),
+                ParseUtil.getStringValueOrUnknown(releaseDate));
     }
 
 }

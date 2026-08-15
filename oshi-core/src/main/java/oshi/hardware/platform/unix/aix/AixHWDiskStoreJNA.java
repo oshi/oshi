@@ -21,6 +21,7 @@ import oshi.driver.common.unix.aix.Lspv;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.platform.unix.aix.AixHWDiskStore;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -67,7 +68,7 @@ public final class AixHWDiskStoreJNA extends AixHWDiskStore {
             String storeName = Native.toString(disk.name);
             Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
             String model = ms.getA() == null ? Native.toString(disk.description) : ms.getA();
-            String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();
+            String serial = ParseUtil.getStringValueOrUnknown(ms.getB());
             storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));
         }
         return storeList.stream()

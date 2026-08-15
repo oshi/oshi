@@ -16,7 +16,6 @@ import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 
 /**
  * Hardware data obtained from lsattr
@@ -152,14 +151,14 @@ public final class AixComputerSystem extends AbstractComputerSystem {
 
         private LsattrStrings(String biosVendor, String biosPlatformVersion, String biosVersion, String manufacturer,
                 String model, String serialNumber, String uuid) {
-            this.biosVendor = Util.isBlank(biosVendor) ? Constants.UNKNOWN : biosVendor;
-            this.biosPlatformVersion = Util.isBlank(biosPlatformVersion) ? Constants.UNKNOWN : biosPlatformVersion;
-            this.biosVersion = Util.isBlank(biosVersion) ? Constants.UNKNOWN : biosVersion;
+            this.biosVendor = ParseUtil.getStringValueOrUnknown(biosVendor);
+            this.biosPlatformVersion = ParseUtil.getStringValueOrUnknown(biosPlatformVersion);
+            this.biosVersion = ParseUtil.getStringValueOrUnknown(biosVersion);
 
-            this.manufacturer = Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer;
-            this.model = Util.isBlank(model) ? Constants.UNKNOWN : model;
-            this.serialNumber = Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber;
-            this.uuid = Util.isBlank(uuid) ? Constants.UNKNOWN : uuid;
+            this.manufacturer = ParseUtil.getStringValueOrUnknown(manufacturer);
+            this.model = ParseUtil.getStringValueOrUnknown(model);
+            this.serialNumber = ParseUtil.getStringValueOrUnknown(serialNumber);
+            this.uuid = ParseUtil.getStringValueOrUnknown(uuid);
         }
 
         String biosVendor() {

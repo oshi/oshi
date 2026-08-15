@@ -37,7 +37,7 @@ import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.mac.MacHWDiskStore;
-import oshi.util.Constants;
+import oshi.util.ParseUtil;
 
 /**
  * Mac hard disk FFM implementation.
@@ -217,7 +217,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                                                 Integer bsdMinor = current.getIntegerProperty("BSD Minor");
                                                 String uuid = current.getStringProperty("UUID");
                                                 partitions.add(new HWPartition(partBsdName, name, type,
-                                                        uuid == null ? Constants.UNKNOWN : uuid, label,
+                                                        ParseUtil.getStringValueOrUnknown(uuid), label,
                                                         size == null ? 0L : size, bsdMajor == null ? 0 : bsdMajor,
                                                         bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                             }

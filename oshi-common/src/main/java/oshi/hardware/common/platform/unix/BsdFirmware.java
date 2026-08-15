@@ -14,7 +14,6 @@ import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -68,7 +67,7 @@ public abstract class BsdFirmware extends AbstractFirmware {
     }
 
     private static String unknownIfBlank(String value) {
-        return Util.isBlank(value) ? Constants.UNKNOWN : value;
+        return ParseUtil.getStringValueOrUnknown(value);
     }
 
     /**

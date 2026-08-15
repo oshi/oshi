@@ -45,6 +45,7 @@ import oshi.ffm.util.platform.mac.SysctlUtilFFM;
 import oshi.software.common.os.mac.MacFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileSystemUtil;
+import oshi.util.ParseUtil;
 
 /**
  * The Mac File System contains {@link oshi.software.os.OSFileStore}s which are a storage pool, device, partition,
@@ -178,8 +179,8 @@ public class MacFileSystemFFM extends MacFileSystem {
                         }
 
                         fsList.add(new MacOSFileStoreFFM(name, volume, name, path, options.toString(),
-                                uuid == null ? "" : uuid, isLocal, "", description, type, file.getFreeSpace(),
-                                file.getUsableSpace(), file.getTotalSpace(), ffree, files));
+                                ParseUtil.getStringValueOrEmpty(uuid), isLocal, "", description, type,
+                                file.getFreeSpace(), file.getUsableSpace(), file.getTotalSpace(), ffree, files));
                     }
                 }
             }

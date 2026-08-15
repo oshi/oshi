@@ -285,15 +285,17 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
             String vgName, String lvName, String dmName, String devnode, String sysname, String sysPath, String fsType,
             String fsUuid, String fsLabel, long size, int major, int minor) {
         if (isLogicalVolume(dmUuid) && !Util.isBlank(vgName) && !Util.isBlank(lvName)) {
-            store.getMutablePartitionList().add(new HWPartition(getPartitionNameForDmDevice(vgName, lvName), sysname,
-                    fsType == null ? PARTITION : fsType, fsUuid == null ? "" : fsUuid, fsLabel == null ? "" : fsLabel,
-                    size, major, minor, getMountPointOfDmDevice(vgName, lvName)));
+            store.getMutablePartitionList()
+                    .add(new HWPartition(getPartitionNameForDmDevice(vgName, lvName), sysname,
+                            fsType == null ? PARTITION : fsType, ParseUtil.getStringValueOrEmpty(fsUuid),
+                            ParseUtil.getStringValueOrEmpty(fsLabel), size, major, minor,
+                            getMountPointOfDmDevice(vgName, lvName)));
         } else if (isEncryptedVolume(dmUuid)) {
             String name = getDmDevicePath(dmName, devnode);
             store.getMutablePartitionList()
                     .add(new HWPartition(name, sysname, fsType == null ? PARTITION : fsType,
-                            fsUuid == null ? "" : fsUuid, fsLabel == null ? "" : fsLabel, size, major, minor,
-                            getMountPointForDmDevice(mountsMap, dmName, devnode, sysPath)));
+                            ParseUtil.getStringValueOrEmpty(fsUuid), ParseUtil.getStringValueOrEmpty(fsLabel), size,
+                            major, minor, getMountPointForDmDevice(mountsMap, dmName, devnode, sysPath)));
         }
     }
 

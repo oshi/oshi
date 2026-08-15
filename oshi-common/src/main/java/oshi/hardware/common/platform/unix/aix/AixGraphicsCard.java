@@ -14,7 +14,6 @@ import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.AbstractGraphicsCard;
 import oshi.util.Constants;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 
 /**
  * Graphics Card info obtained from lscfg
@@ -60,8 +59,7 @@ public final class AixGraphicsCard extends AbstractGraphicsCard {
                 } else if (s.contains("Level")) {
                     versionInfo.add(s.replaceAll("\\.\\.+", "="));
                 } else if (s.startsWith("Hardware Location Code")) {
-                    cardList.add(new AixGraphicsCard(name, Constants.UNKNOWN,
-                            Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
+                    cardList.add(new AixGraphicsCard(name, Constants.UNKNOWN, ParseUtil.getStringValueOrUnknown(vendor),
                             versionInfo.isEmpty() ? Constants.UNKNOWN : String.join(",", versionInfo), 0L));
                     display = false;
                 }

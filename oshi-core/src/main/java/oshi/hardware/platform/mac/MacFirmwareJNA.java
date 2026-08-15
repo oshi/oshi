@@ -12,7 +12,6 @@ import com.sun.jna.platform.mac.IOKitUtil;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.mac.MacFirmware;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quintet;
@@ -111,10 +110,8 @@ final class MacFirmwareJNA extends MacFirmware {
                 platformExpert.release();
             }
         }
-        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(name) ? Constants.UNKNOWN : name,
-                Util.isBlank(description) ? Constants.UNKNOWN : description,
-                Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+        return new Quintet<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(name),
+                ParseUtil.getStringValueOrUnknown(description), ParseUtil.getStringValueOrUnknown(version),
+                ParseUtil.getStringValueOrUnknown(releaseDate));
     }
 }

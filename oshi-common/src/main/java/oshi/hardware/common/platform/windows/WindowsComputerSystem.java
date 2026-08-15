@@ -20,6 +20,7 @@ import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
 
@@ -72,8 +73,7 @@ public abstract class WindowsComputerSystem extends AbstractComputerSystem {
             manufacturer = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MANUFACTURER, 0);
             model = WmiUtil.getString(win32ComputerSystem, ComputerSystemProperty.MODEL, 0);
         }
-        return new Pair<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(model) ? Constants.UNKNOWN : model);
+        return new Pair<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(model));
     }
 
     private Pair<String, String> querySystemSerialNumberUUID() {
