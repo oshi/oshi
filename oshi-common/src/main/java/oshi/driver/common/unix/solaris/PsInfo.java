@@ -41,7 +41,7 @@ public final class PsInfo {
     public static @Nullable SolarisPsInfo queryPsInfo(int pid) {
         String path = String.format(Locale.ROOT, "/proc/%d/psinfo", pid);
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(path);
-        if (buff == null || buff.remaining() == 0) {
+        if (buff.remaining() == 0) {
             // Short-lived processes (e.g. test forks) commonly disappear from /proc
             // between enumeration and read. Logging at debug avoids CI noise.
             LOG.debug("psinfo file empty or unreadable for pid {} ({})", pid, path);
@@ -66,7 +66,7 @@ public final class PsInfo {
     public static @Nullable SolarisLwpsInfo queryLwpsInfo(int pid, int tid) {
         ByteBuffer buff = FileUtil
                 .readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid));
-        if (buff == null || buff.remaining() == 0) {
+        if (buff.remaining() == 0) {
             return null;
         }
         try {
@@ -85,7 +85,7 @@ public final class PsInfo {
      */
     public static @Nullable SolarisPrUsage queryPrUsage(int pid) {
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/usage", pid));
-        if (buff == null || buff.remaining() == 0) {
+        if (buff.remaining() == 0) {
             return null;
         }
         try {
@@ -105,7 +105,7 @@ public final class PsInfo {
      */
     public static @Nullable SolarisPrUsage queryPrUsage(int pid, int tid) {
         ByteBuffer buff = FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/usage", pid, tid));
-        if (buff == null || buff.remaining() == 0) {
+        if (buff.remaining() == 0) {
             return null;
         }
         try {

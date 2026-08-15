@@ -78,7 +78,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                     }
                     // wrapped only to release the native handle on close
                     try (var _ = NativeHandle.of(key, Advapi32FFM::RegCloseKey)) {
-                        byte[] edid = queryEdidFromKey(key, edidName, arena);
+                        byte @Nullable [] edid = queryEdidFromKey(key, edidName, arena);
                         if (edid != null) {
                             displays.add(new WindowsDisplayFFM(edid));
                         }

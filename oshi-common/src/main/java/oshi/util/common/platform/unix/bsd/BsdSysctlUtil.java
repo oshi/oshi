@@ -52,7 +52,7 @@ public final class BsdSysctlUtil {
      */
     public static String sysctl(String name, String def) {
         String v = ExecutingCommand.getFirstAnswer(SYSCTL_N + name);
-        if (null == v || v.isEmpty()) {
+        if (v.isEmpty()) {
             return def;
         }
         return v;

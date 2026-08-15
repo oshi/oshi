@@ -15,6 +15,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,6 +52,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
         if (!HAS_UDEV) {
             return LinuxPowerSource.getPowerSources();
         }
+        @Nullable
         List<PowerSource> psList = callInArenaOrDefault(arena -> {
             List<PowerSource> result = new ArrayList<>();
             MemorySegment udev = UdevFunctions.udev_new();

@@ -257,9 +257,6 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     public OSThread getCurrentThread() {
         final int tid = getThreadId();
         OSProcess proc = getCurrentProcess();
-        if (proc == null) {
-            return new WindowsOSThreadFFM(0, tid, null, null);
-        }
         return proc.getThreadDetails().stream().filter(t -> t.getThreadId() == tid).findFirst()
                 .orElseGet(() -> new WindowsOSThreadFFM(proc.getProcessID(), tid, null, null));
     }

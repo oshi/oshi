@@ -4,6 +4,7 @@
  */
 package oshi.metrics;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -60,7 +61,7 @@ public class FileSystemMetrics implements MeterBinder {
             String mount = fs.getMount();
             String type = fs.getType();
             String opts = fs.getOptions();
-            String mode = opts != null && java.util.Arrays.asList(opts.split(",")).contains("rw") ? "rw" : "ro";
+            String mode = Arrays.asList(opts.split(",")).contains("rw") ? "rw" : "ro";
 
             // system.filesystem.usage — UpDownCounter (Gauge), unit "By", attr: state, device, mount, type, mode
             Gauge.builder(FS_USAGE, fs, f -> {

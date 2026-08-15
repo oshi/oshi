@@ -91,7 +91,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
     protected List<String> queryArguments() {
         // NetBSD provides command line via /proc filesystem
         byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        if (cmdBytes != null && cmdBytes.length > 0) {
+        if (cmdBytes.length > 0) {
             return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
         }
         return Collections.emptyList();

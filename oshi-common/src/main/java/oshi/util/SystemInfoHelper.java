@@ -396,8 +396,7 @@ public final class SystemInfoHelper {
             long usable = fs.getUsableSpace();
             long total = fs.getTotalSpace();
             String fmt = " %s (%s) [%s] %s of %s free (%.1f%%), %s of %s files free (%.1f%%) is %s "
-                    + (fs.getLogicalVolume() != null && !fs.getLogicalVolume().isEmpty() ? "[%s]" : "%s")
-                    + " and is mounted at %s";
+                    + (fs.getLogicalVolume().isEmpty() ? "%s" : "[%s]") + " and is mounted at %s";
             lines.add(String.format(Locale.ROOT, fmt, fs.getName(),
                     fs.getDescription().isEmpty() ? "file system" : fs.getDescription(), fs.getType(),
                     FormatUtil.formatBytes(usable), FormatUtil.formatBytes(fs.getTotalSpace()), 100d * usable / total,

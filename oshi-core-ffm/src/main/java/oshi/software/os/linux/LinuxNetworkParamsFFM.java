@@ -12,6 +12,7 @@ import java.lang.foreign.ValueLayout;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,7 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
 
     @Override
     public String getHostName() {
+        @Nullable
         String hostname = callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (0 == PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
@@ -49,6 +51,7 @@ final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
             LOG.warn("Unknown host exception when getting address of local host", e);
             return "";
         }
+        @Nullable
         String domainName = callInArenaOrDefault(arena -> {
             // Build hints: ai_flags = AI_CANONNAME, rest zero
             MemorySegment hints = arena.allocate(LinuxLibcFunctions.ADDRINFO_LAYOUT);

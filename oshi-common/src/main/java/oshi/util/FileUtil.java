@@ -193,7 +193,7 @@ public final class FileUtil {
      *
      *
      * @param filename The file to read
-     * @return A bytebuffer representing the file if read was successful; null otherwise
+     * @return A bytebuffer over the file's content, empty if it could not be read
      */
     public static ByteBuffer readAllBytesAsBuffer(String filename) {
         byte[] bytes = readAllBytes(filename, false);
@@ -395,7 +395,7 @@ public final class FileUtil {
     }
 
     private static boolean readPropertiesFromClassLoader(String propsFilename, Properties archProps,
-            ClassLoader loader) {
+            @Nullable ClassLoader loader) {
         if (loader == null) {
             return false;
         }

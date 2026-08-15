@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.Printer.PrinterStatus;
 import oshi.util.ExecutingCommand;
@@ -151,7 +153,7 @@ public final class Lpstat {
      * @param line a single line from {@code lpstat -p}
      * @return the parsed status
      */
-    public static PrinterStatus parseStatus(String line) {
+    public static PrinterStatus parseStatus(@Nullable String line) {
         if (line == null) {
             return PrinterStatus.UNKNOWN;
         }
@@ -174,7 +176,7 @@ public final class Lpstat {
      * @param line a single line from {@code lpstat -p}
      * @return the reason string, or empty string if none
      */
-    public static String parseStatusReason(String line) {
+    public static String parseStatusReason(@Nullable String line) {
         if (line == null) {
             return "";
         }
@@ -188,7 +190,7 @@ public final class Lpstat {
      * @param uri the device URI
      * @return true if the URI indicates a local printer
      */
-    public static boolean isLocalUri(String uri) {
+    public static boolean isLocalUri(@Nullable String uri) {
         if (uri == null) {
             return false;
         }
