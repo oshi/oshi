@@ -24,7 +24,9 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class NetBsdCentralProcessor extends BsdCentralProcessor {
-    private static final Pattern KEY_VALUE = Pattern.compile("\\s*=\\s*");
+    // Possessive quantifiers: whitespace can never match the "=" that follows it, so the engine never needs to
+    // give characters back. Behaviorally identical, and linear rather than super-linear on a long run of spaces.
+    private static final Pattern KEY_VALUE = Pattern.compile("\\s*+=\\s*+");
 
     private static final int CPUSTATES = 5;
     private static final int CP_USER = 0;

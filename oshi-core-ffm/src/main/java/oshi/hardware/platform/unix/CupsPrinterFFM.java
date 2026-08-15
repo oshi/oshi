@@ -68,9 +68,6 @@ public final class CupsPrinterFFM extends CupsPrinter {
                     MemorySegment dest = destsArray.asSlice(offset, CupsFunctions.CUPS_DEST_T.byteSize());
 
                     MemorySegment namePtr = (MemorySegment) CupsFunctions.CUPS_DEST_NAME.get(dest, 0L);
-                    if (namePtr == null || namePtr.equals(MemorySegment.NULL)) {
-                        continue;
-                    }
                     String name = ForeignFunctions.getStringFromNativePointer(namePtr, arena);
                     if (name == null) {
                         continue;

@@ -29,6 +29,7 @@ public class DisplayInfoImpl implements DisplayInfo {
 
     // For a real EDID this is set in the constructor and the field getters parse it on demand; for a synthetic instance
     // it starts null and is lazily populated by getEdid() from the field values below.
+    @SuppressWarnings("java:S3077") // the array reference is swapped wholesale, never mutated in place
     private volatile byte @Nullable [] edid;
 
     // Populated only for a synthetic instance; for a real instance the getters derive these from the EDID bytes, and
