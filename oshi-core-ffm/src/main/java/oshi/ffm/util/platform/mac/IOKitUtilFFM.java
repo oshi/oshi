@@ -158,7 +158,7 @@ public final class IOKitUtilFFM {
             MemorySegment bsdNameStr = arena.allocateFrom(bsdName);
             MemorySegment result = IOBSDNameMatching(masterPort, 0, bsdNameStr);
             deallocatePort(masterPort);
-            return result;
+            return result.equals(MemorySegment.NULL) ? null : result;
         }, LOG, TRACE, "Failed to get BSD name matching dictionary", null);
     }
 
