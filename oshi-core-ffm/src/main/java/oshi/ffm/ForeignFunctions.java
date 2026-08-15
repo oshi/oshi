@@ -584,11 +584,11 @@ public abstract class ForeignFunctions {
      *
      * @param lib        the symbol lookup
      * @param symbol     the symbol name
-     * @param resLayout  the return layout
+     * @param resLayout  the return layout, or {@code null} for a void function
      * @param argLayouts the argument layouts
      * @return the method handle
      */
-    public static MethodHandle downcall(SymbolLookup lib, String symbol, MemoryLayout resLayout,
+    public static MethodHandle downcall(SymbolLookup lib, String symbol, @Nullable MemoryLayout resLayout,
             MemoryLayout... argLayouts) {
         MemorySegment sym = lib.findOrThrow(symbol);
         FunctionDescriptor fd = (resLayout == null) ? FunctionDescriptor.ofVoid(argLayouts)

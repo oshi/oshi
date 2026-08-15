@@ -1299,7 +1299,7 @@ public final class ParseUtil {
      * @param defaultValue default value to return if parse fails
      * @return The corresponding int value
      */
-    public static int hexStringToInt(String hexString, int defaultValue) {
+    public static int hexStringToInt(@Nullable String hexString, int defaultValue) {
         if (hexString != null) {
             try {
                 if (hexString.startsWith("0x")) {
@@ -1322,7 +1322,7 @@ public final class ParseUtil {
      * @param defaultValue default value to return if parse fails
      * @return The corresponding long value
      */
-    public static long hexStringToLong(String hexString, long defaultValue) {
+    public static long hexStringToLong(@Nullable String hexString, long defaultValue) {
         if (hexString != null) {
             try {
                 if (hexString.startsWith("0x")) {

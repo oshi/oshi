@@ -59,7 +59,7 @@ public final class DrmEdid {
             File edidFile = new File(connector, "edid");
             if (edidFile.exists() && edidFile.length() >= 128) {
                 byte[] edid = FileUtil.readAllBytes(edidFile.getPath(), false);
-                if (edid != null && edid.length >= 128) {
+                if (edid.length >= 128) {
                     displays.add(edid);
                 }
             }

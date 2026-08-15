@@ -21,6 +21,7 @@ import java.lang.foreign.MemorySegment;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +83,7 @@ final class MacNetworkParamsFFM extends MacNetworkParams {
 
     @Override
     public String getHostName() {
+        @Nullable
         String hostname = callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (gethostname(buf, HOST_NAME_MAX + 1L) == 0) {

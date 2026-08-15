@@ -40,7 +40,7 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     protected List<String> queryArguments() {
         // DragonFlyBSD provides command line via /proc filesystem
         byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        if (cmdBytes != null && cmdBytes.length > 0) {
+        if (cmdBytes.length > 0) {
             return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
         }
         return Collections.emptyList();

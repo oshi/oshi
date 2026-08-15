@@ -61,8 +61,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
             }
         }
         String machine = BsdSysctlUtil.sysctl("hw.machine", "");
-        boolean cpu64bit = (machine != null && machine.contains("64"))
-                || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
+        boolean cpu64bit = machine.contains("64") || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuFreq);
