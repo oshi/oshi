@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.ToIntFunction;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,13 +52,13 @@ public final class AdlUtilJNA {
     // -------------------------------------------------------------------------
 
     private static final class Holder {
-        static final AdlLibrary LIB;
+        static final @Nullable AdlLibrary LIB;
         static final boolean LIBRARY_LOADED;
         // Strong reference prevents GC of the callback while ADL holds a native function pointer to it.
         // Uses raw Pointer (not Memory) because ADL frees the native allocation directly via C free().
         // Memory's destructor would double-free the same address.
         @SuppressWarnings("unused")
-        static final AdlMallocCallback MALLOC_CB;
+        static final @Nullable AdlMallocCallback MALLOC_CB;
 
         static {
             AdlLibrary lib = null;
@@ -108,12 +109,13 @@ public final class AdlUtilJNA {
      *
      * @return the ADL context pointer if initialization succeeded, or {@code null} if it failed
      */
-    private static Pointer adlInit() {
-        if (!Holder.LIBRARY_LOADED) {
+    private static @Nullable Pointer adlInit() {
+        AdlLibrary lib = Holder.LIB;
+        if (!Holder.LIBRARY_LOADED || lib == null) {
             return null;
         }
         PointerByReference ctxRef = new PointerByReference();
-        int ret = Holder.LIB.ADL2_Main_Control_Create(Holder.MALLOC_CB, 1, ctxRef);
+        int ret = lib.ADL2_Main_Control_Create(Holder.MALLOC_CB, 1, ctxRef);
         if (ret == Adl.ADL_OK) {
             return ctxRef.getValue();
         }
@@ -128,7 +130,10 @@ public final class AdlUtilJNA {
      * @param context the ADL context pointer returned by {@link #adlInit()}
      */
     private static void adlUninit(Pointer context) {
-        Holder.LIB.ADL2_Main_Control_Destroy(context);
+        AdlLibrary lib = Holder.LIB;
+        if (lib != null) {
+            lib.ADL2_Main_Control_Destroy(context);
+        }
     }
 
     /**
@@ -157,9 +162,13 @@ public final class AdlUtilJNA {
         }
     }
 
-    private static Map<Integer, Integer> enumerateAdapters(Pointer ctx) {
+    private static @Nullable Map<Integer, Integer> enumerateAdapters(Pointer ctx) {
+        AdlLibrary lib = Holder.LIB;
+        if (lib == null) {
+            return null;
+        }
         IntByReference numRef = new IntByReference();
-        if (Holder.LIB.ADL2_Adapter_NumberOfAdapters_Get(ctx, numRef) != Adl.ADL_OK) {
+        if (lib.ADL2_Adapter_NumberOfAdapters_Get(ctx, numRef) != Adl.ADL_OK) {
             return null;
         }
         int num = numRef.getValue();
@@ -170,7 +179,7 @@ public final class AdlUtilJNA {
         for (AdapterInfo info : infos) {
             info.iSize = info.size();
         }
-        if (Holder.LIB.ADL2_Adapter_AdapterInfo_Get(ctx, infos, infos[0].size() * num) != Adl.ADL_OK) {
+        if (lib.ADL2_Adapter_AdapterInfo_Get(ctx, infos, infos[0].size() * num) != Adl.ADL_OK) {
             return null;
         }
         Map<Integer, Integer> map = new HashMap<>();
@@ -191,10 +200,14 @@ public final class AdlUtilJNA {
     }
 
     private static boolean supportsOverdriveVersion(Pointer context, int adapterIndex, int minVersion) {
+        AdlLibrary lib = Holder.LIB;
+        if (lib == null) {
+            return false;
+        }
         IntByReference supported = new IntByReference();
         IntByReference enabled = new IntByReference();
         IntByReference version = new IntByReference();
-        if (Holder.LIB.ADL2_Overdrive_Caps(context, adapterIndex, supported, enabled, version) == Adl.ADL_OK) {
+        if (lib.ADL2_Overdrive_Caps(context, adapterIndex, supported, enabled, version) == Adl.ADL_OK) {
             return supported.getValue() != 0 && version.getValue() >= minVersion;
         }
         return false;
@@ -246,8 +259,9 @@ public final class AdlUtilJNA {
         if (adapterIndex < 0) {
             return -1d;
         }
+        AdlLibrary lib = Holder.LIB;
         Pointer ctx = adlInit();
-        if (ctx == null) {
+        if (ctx == null || lib == null) {
             return -1d;
         }
         try {
@@ -255,7 +269,7 @@ public final class AdlUtilJNA {
                 return -1d;
             }
             IntByReference temp = new IntByReference();
-            if (Holder.LIB.ADL2_OverdriveN_Temperature_Get(ctx, adapterIndex, Adl.ADL_OVERDRIVE_TEMPERATURE_EDGE,
+            if (lib.ADL2_OverdriveN_Temperature_Get(ctx, adapterIndex, Adl.ADL_OVERDRIVE_TEMPERATURE_EDGE,
                     temp) == Adl.ADL_OK) {
                 return temp.getValue() / 1000.0;
             }
@@ -276,8 +290,9 @@ public final class AdlUtilJNA {
         if (adapterIndex < 0) {
             return -1L;
         }
+        AdlLibrary lib = Holder.LIB;
         Pointer ctx = adlInit();
-        if (ctx == null) {
+        if (ctx == null || lib == null) {
             return -1L;
         }
         try {
@@ -285,7 +300,7 @@ public final class AdlUtilJNA {
                 return -1L;
             }
             ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
-            if (Holder.LIB.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
+            if (lib.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
                 perf.read();
                 return clock.applyAsInt(perf) / 100L;
             }
@@ -326,8 +341,9 @@ public final class AdlUtilJNA {
         if (adapterIndex < 0) {
             return -1d;
         }
+        AdlLibrary lib = Holder.LIB;
         Pointer ctx = adlInit();
-        if (ctx == null) {
+        if (ctx == null || lib == null) {
             return -1d;
         }
         try {
@@ -337,7 +353,7 @@ public final class AdlUtilJNA {
                 return -1d;
             }
             IntByReference power = new IntByReference();
-            if (Holder.LIB.ADL2_Overdrive6_CurrentPower_Get(ctx, adapterIndex, 0, power) == Adl.ADL_OK) {
+            if (lib.ADL2_Overdrive6_CurrentPower_Get(ctx, adapterIndex, 0, power) == Adl.ADL_OK) {
                 return power.getValue() / 256.0;
             }
             return -1d;
@@ -356,8 +372,9 @@ public final class AdlUtilJNA {
         if (adapterIndex < 0) {
             return -1d;
         }
+        AdlLibrary lib = Holder.LIB;
         Pointer ctx = adlInit();
-        if (ctx == null) {
+        if (ctx == null || lib == null) {
             return -1d;
         }
         try {
@@ -365,7 +382,7 @@ public final class AdlUtilJNA {
                 return -1d;
             }
             ADLODNFanControl fan = new ADLODNFanControl();
-            if (Holder.LIB.ADL2_OverdriveN_FanControl_Get(ctx, adapterIndex, fan) == Adl.ADL_OK) {
+            if (lib.ADL2_OverdriveN_FanControl_Get(ctx, adapterIndex, fan) == Adl.ADL_OK) {
                 fan.read();
                 if (fan.iFanControlMode == Adl.ADL_FAN_SPEED_MODE_PERCENT) {
                     return fan.iCurrentFanSpeed;

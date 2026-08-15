@@ -100,7 +100,7 @@ public abstract class WindowsGpuStats implements GpuStats {
      * @param pciBusId the PCI bus ID
      * @return the device handle string, or null
      */
-    protected abstract String nvmlFindDevice(String pciBusId);
+    protected abstract @Nullable String nvmlFindDevice(String pciBusId);
 
     /**
      * Finds an NVML device by name.
@@ -108,7 +108,7 @@ public abstract class WindowsGpuStats implements GpuStats {
      * @param gpuName the GPU name
      * @return the device handle string, or null
      */
-    protected abstract String nvmlFindDeviceByName(String gpuName);
+    protected abstract @Nullable String nvmlFindDeviceByName(String gpuName);
 
     /**
      * Gets the GPU temperature via NVML.

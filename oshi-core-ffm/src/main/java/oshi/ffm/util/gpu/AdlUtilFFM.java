@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,19 +72,19 @@ public final class AdlUtilFFM {
     private static final long FAN_CURRENT_SPEED_OFFSET = 12;
 
     private static final boolean AVAILABLE;
-    private static final MethodHandle ADL2_MAIN_CONTROL_CREATE;
-    private static final MethodHandle ADL2_MAIN_CONTROL_DESTROY;
-    private static final MethodHandle ADL2_ADAPTER_NUMBER_OF_ADAPTERS_GET;
-    private static final MethodHandle ADL2_ADAPTER_ADAPTER_INFO_GET;
-    private static final MethodHandle ADL2_OVERDRIVE_CAPS;
-    private static final MethodHandle ADL2_OVERDRIVEN_TEMPERATURE_GET;
-    private static final MethodHandle ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET;
-    private static final MethodHandle ADL2_OVERDRIVEN_FAN_CONTROL_GET;
-    private static final MethodHandle ADL2_OVERDRIVE6_CURRENT_POWER_GET;
+    private static final @Nullable MethodHandle ADL2_MAIN_CONTROL_CREATE;
+    private static final @Nullable MethodHandle ADL2_MAIN_CONTROL_DESTROY;
+    private static final @Nullable MethodHandle ADL2_ADAPTER_NUMBER_OF_ADAPTERS_GET;
+    private static final @Nullable MethodHandle ADL2_ADAPTER_ADAPTER_INFO_GET;
+    private static final @Nullable MethodHandle ADL2_OVERDRIVE_CAPS;
+    private static final @Nullable MethodHandle ADL2_OVERDRIVEN_TEMPERATURE_GET;
+    private static final @Nullable MethodHandle ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET;
+    private static final @Nullable MethodHandle ADL2_OVERDRIVEN_FAN_CONTROL_GET;
+    private static final @Nullable MethodHandle ADL2_OVERDRIVE6_CURRENT_POWER_GET;
     // Upcall stub for malloc callback
-    private static final MemorySegment MALLOC_STUB;
+    private static final @Nullable MemorySegment MALLOC_STUB;
     // Native C malloc, so memory handed to ADL can be released by ADL's free()
-    private static final MethodHandle MALLOC;
+    private static final @Nullable MethodHandle MALLOC;
 
     static {
         boolean available = false;
@@ -171,24 +172,27 @@ public final class AdlUtilFFM {
      */
     @SuppressWarnings("unused")
     private static MemorySegment adlMalloc(int size) {
-        if (size <= 0 || MALLOC == null) {
+        MethodHandle malloc = MALLOC;
+        if (size <= 0 || malloc == null) {
             return MemorySegment.NULL;
         }
         try {
             // Allocate from the C heap (not a JVM Arena) so the pointer ADL later passes to free() is valid.
-            return (MemorySegment) MALLOC.invokeExact((long) size);
+            return (MemorySegment) malloc.invokeExact((long) size);
         } catch (Throwable _) {
             return MemorySegment.NULL;
         }
     }
 
-    private static MemorySegment adlInit(Arena arena) {
-        if (!AVAILABLE) {
+    private static @Nullable MemorySegment adlInit(Arena arena) {
+        MethodHandle create = ADL2_MAIN_CONTROL_CREATE;
+        MemorySegment mallocStub = MALLOC_STUB;
+        if (!AVAILABLE || create == null || mallocStub == null) {
             return null;
         }
         return getOrDefault(() -> {
             MemorySegment ctxRef = arena.allocate(ADDRESS);
-            int ret = (int) ADL2_MAIN_CONTROL_CREATE.invokeExact(MALLOC_STUB, 1, ctxRef);
+            int ret = (int) create.invokeExact(mallocStub, 1, ctxRef);
             if (ret == ADL_OK) {
                 return ctxRef.get(ADDRESS, 0);
             }
@@ -198,11 +202,15 @@ public final class AdlUtilFFM {
     }
 
     private static void adlUninit(MemorySegment context) {
+        MethodHandle destroy = ADL2_MAIN_CONTROL_DESTROY;
+        if (destroy == null) {
+            return;
+        }
         // Block lambda (not an expression lambda) so invokeExact() on this void handle is in a statement context and
         // its return type is inferred as void; an expression lambda infers Object -> WrongMethodTypeException (#3422).
         // The suppression on the next line stops S1602 collapsing the block back to the buggy expression form.
         runOrLog(() -> { // NOSONAR java:S1602 - block form required; expression lambda miscompiles void invokeExact
-            ADL2_MAIN_CONTROL_DESTROY.invokeExact(context);
+            destroy.invokeExact(context);
         }, LOG, "ADL uninit failed");
     }
 
@@ -224,10 +232,15 @@ public final class AdlUtilFFM {
         }
     }
 
-    private static Map<Integer, Integer> enumerateAdapters(MemorySegment ctx, Arena arena) {
+    private static @Nullable Map<Integer, Integer> enumerateAdapters(MemorySegment ctx, Arena arena) {
+        MethodHandle numAdaptersGet = ADL2_ADAPTER_NUMBER_OF_ADAPTERS_GET;
+        MethodHandle adapterInfoGet = ADL2_ADAPTER_ADAPTER_INFO_GET;
+        if (numAdaptersGet == null || adapterInfoGet == null) {
+            return null;
+        }
         return getOrDefault(() -> {
             MemorySegment numRef = arena.allocate(JAVA_INT);
-            if ((int) ADL2_ADAPTER_NUMBER_OF_ADAPTERS_GET.invokeExact(ctx, numRef) != ADL_OK) {
+            if ((int) numAdaptersGet.invokeExact(ctx, numRef) != ADL_OK) {
                 return null;
             }
             int num = numRef.get(JAVA_INT, 0);
@@ -246,7 +259,7 @@ public final class AdlUtilFFM {
             for (int i = 0; i < num; i++) {
                 infos.set(JAVA_INT, (long) i * ADAPTER_INFO_SIZE, ADAPTER_INFO_SIZE);
             }
-            if ((int) ADL2_ADAPTER_ADAPTER_INFO_GET.invokeExact(ctx, infos, (int) totalInfoSize) != ADL_OK) {
+            if ((int) adapterInfoGet.invokeExact(ctx, infos, (int) totalInfoSize) != ADL_OK) {
                 return null;
             }
             Map<Integer, Integer> map = new HashMap<>();
@@ -273,11 +286,15 @@ public final class AdlUtilFFM {
 
     private static boolean supportsOverdriveVersion(MemorySegment context, int adapterIndex, Arena arena,
             int minVersion) {
+        MethodHandle capsGet = ADL2_OVERDRIVE_CAPS;
+        if (capsGet == null) {
+            return false;
+        }
         return getBooleanOrDefault(() -> {
             MemorySegment supported = arena.allocate(JAVA_INT);
             MemorySegment enabled = arena.allocate(JAVA_INT);
             MemorySegment version = arena.allocate(JAVA_INT);
-            if ((int) ADL2_OVERDRIVE_CAPS.invokeExact(context, adapterIndex, supported, enabled, version) == ADL_OK) {
+            if ((int) capsGet.invokeExact(context, adapterIndex, supported, enabled, version) == ADL_OK) {
                 return supported.get(JAVA_INT, 0) != 0 && version.get(JAVA_INT, 0) >= minVersion;
             }
             return false;
@@ -328,7 +345,8 @@ public final class AdlUtilFFM {
      * @return the temperature, or -1 on failure
      */
     public static double getTemperature(int adapterIndex) {
-        if (adapterIndex < 0) {
+        MethodHandle tempGet = ADL2_OVERDRIVEN_TEMPERATURE_GET;
+        if (adapterIndex < 0 || tempGet == null) {
             return -1d;
         }
         return callInArenaDoubleOrDefault(arena -> {
@@ -341,8 +359,7 @@ public final class AdlUtilFFM {
                     return -1d;
                 }
                 MemorySegment temp = arena.allocate(JAVA_INT);
-                if ((int) ADL2_OVERDRIVEN_TEMPERATURE_GET.invokeExact(ctx, adapterIndex, ADL_OVERDRIVE_TEMPERATURE_EDGE,
-                        temp) == ADL_OK) {
+                if ((int) tempGet.invokeExact(ctx, adapterIndex, ADL_OVERDRIVE_TEMPERATURE_EDGE, temp) == ADL_OK) {
                     return temp.get(JAVA_INT, 0) / 1000.0;
                 }
             } finally {
@@ -361,7 +378,8 @@ public final class AdlUtilFFM {
      * @return the clock in MHz, or -1 if unavailable
      */
     private static long performanceClockMhz(int adapterIndex, long clockOffset, String what) {
-        if (adapterIndex < 0) {
+        MethodHandle perfGet = ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET;
+        if (adapterIndex < 0 || perfGet == null) {
             return -1L;
         }
         return callInArenaLongOrDefault(arena -> {
@@ -374,7 +392,7 @@ public final class AdlUtilFFM {
                     return -1L;
                 }
                 MemorySegment perf = arena.allocate(PERF_STATUS_SIZE);
-                if ((int) ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
+                if ((int) perfGet.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
                     return perf.get(JAVA_INT, clockOffset) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
                 }
             } finally {
@@ -411,7 +429,8 @@ public final class AdlUtilFFM {
      * @return the power draw in watts, or -1 on failure
      */
     public static double getPowerDraw(int adapterIndex) {
-        if (adapterIndex < 0) {
+        MethodHandle powerGet = ADL2_OVERDRIVE6_CURRENT_POWER_GET;
+        if (adapterIndex < 0 || powerGet == null) {
             return -1d;
         }
         return callInArenaDoubleOrDefault(arena -> {
@@ -426,7 +445,7 @@ public final class AdlUtilFFM {
                     return -1d;
                 }
                 MemorySegment power = arena.allocate(JAVA_INT);
-                if ((int) ADL2_OVERDRIVE6_CURRENT_POWER_GET.invokeExact(ctx, adapterIndex, 0, power) == ADL_OK) {
+                if ((int) powerGet.invokeExact(ctx, adapterIndex, 0, power) == ADL_OK) {
                     return power.get(JAVA_INT, 0) / 256.0;
                 }
             } finally {
@@ -443,7 +462,8 @@ public final class AdlUtilFFM {
      * @return the fan speed percentage, or -1 on failure
      */
     public static double getFanSpeedPercent(int adapterIndex) {
-        if (adapterIndex < 0) {
+        MethodHandle fanGet = ADL2_OVERDRIVEN_FAN_CONTROL_GET;
+        if (adapterIndex < 0 || fanGet == null) {
             return -1d;
         }
         return callInArenaDoubleOrDefault(arena -> {
@@ -456,7 +476,7 @@ public final class AdlUtilFFM {
                     return -1d;
                 }
                 MemorySegment fan = arena.allocate(FAN_CONTROL_SIZE);
-                if ((int) ADL2_OVERDRIVEN_FAN_CONTROL_GET.invokeExact(ctx, adapterIndex, fan) == ADL_OK) {
+                if ((int) fanGet.invokeExact(ctx, adapterIndex, fan) == ADL_OK) {
                     int mode = fan.get(JAVA_INT, FAN_CONTROL_MODE_OFFSET);
                     if (mode == ADL_FAN_SPEED_MODE_PERCENT) {
                         return fan.get(JAVA_INT, FAN_CURRENT_SPEED_OFFSET);

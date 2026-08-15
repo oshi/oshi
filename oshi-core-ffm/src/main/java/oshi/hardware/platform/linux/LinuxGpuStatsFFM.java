@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.gpu.NvmlUtilFFM;
 import oshi.hardware.common.platform.linux.LinuxGpuStats;
@@ -24,12 +26,12 @@ final class LinuxGpuStatsFFM extends LinuxGpuStats {
     }
 
     @Override
-    protected String nvmlFindDevice(String busId) {
+    protected @Nullable String nvmlFindDevice(String busId) {
         return NvmlUtilFFM.findDevice(busId);
     }
 
     @Override
-    protected String nvmlFindDeviceByName(String name) {
+    protected @Nullable String nvmlFindDeviceByName(String name) {
         return NvmlUtilFFM.findDeviceByName(name);
     }
 

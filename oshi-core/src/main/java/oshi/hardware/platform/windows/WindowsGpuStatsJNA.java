@@ -7,6 +7,8 @@ package oshi.hardware.platform.windows;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuAdapterMemoryProperty;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
@@ -50,12 +52,12 @@ final class WindowsGpuStatsJNA extends WindowsGpuStats {
     }
 
     @Override
-    protected String nvmlFindDevice(String pciBusId) {
+    protected @Nullable String nvmlFindDevice(String pciBusId) {
         return NvmlUtilJNA.findDevice(pciBusId);
     }
 
     @Override
-    protected String nvmlFindDeviceByName(String gpuName) {
+    protected @Nullable String nvmlFindDeviceByName(String gpuName) {
         return NvmlUtilJNA.findDeviceByName(gpuName);
     }
 

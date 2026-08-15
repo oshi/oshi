@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -237,7 +238,7 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
      * @param value the registry value object
      * @return the VRAM size in bytes, or 0 if the value type is unrecognised
      */
-    static long registryValueToVram(Object value) {
+    static long registryValueToVram(@Nullable Object value) {
         return DxgiUtil.registryValueToVram(value);
     }
 
