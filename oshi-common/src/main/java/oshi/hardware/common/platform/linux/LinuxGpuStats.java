@@ -7,6 +7,8 @@ package oshi.hardware.common.platform.linux;
 import java.io.File;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GpuTicks;
@@ -90,7 +92,7 @@ public abstract class LinuxGpuStats implements GpuStats {
      * @param busId PCI bus ID
      * @return device identifier string, or {@code null}
      */
-    protected abstract String nvmlFindDevice(String busId);
+    protected abstract @Nullable String nvmlFindDevice(String busId);
 
     /**
      * Finds the NVML device by GPU name.
@@ -98,7 +100,7 @@ public abstract class LinuxGpuStats implements GpuStats {
      * @param name GPU name
      * @return device identifier string, or {@code null}
      */
-    protected abstract String nvmlFindDeviceByName(String name);
+    protected abstract @Nullable String nvmlFindDeviceByName(String name);
 
     /**
      * Returns VRAM used in bytes via NVML, or -1.
@@ -153,14 +155,14 @@ public abstract class LinuxGpuStats implements GpuStats {
     // -------------------------------------------------------------------------
 
     // Cached NVML device id; null means not yet resolved, empty string means unavailable
-    private String nvmlDeviceId;
+    private @Nullable String nvmlDeviceId;
 
     /**
      * Resolves the NVML device identifier, caching the result.
      *
      * @return device identifier, or {@code null} if unavailable
      */
-    protected String findNvmlDevice() {
+    protected @Nullable String findNvmlDevice() {
         if (nvmlDeviceId != null) {
             return nvmlDeviceId.isEmpty() ? null : nvmlDeviceId;
         }

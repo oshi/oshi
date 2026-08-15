@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,6 +36,7 @@ class DxgiUtilTest {
         List<DxgiAdapterInfo> adapters = Arrays.asList(arc, igpu);
 
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0x8086, 0x56A0, "Intel Arc A770");
+        assertNotNull(match);
         assertThat("Should match Arc A770 by vendor+device ID", match, is(notNullValue()));
         assertThat(match.getDedicatedVideoMemory(), is(16L * 1024 * 1024 * 1024));
     }
@@ -62,6 +64,7 @@ class DxgiUtilTest {
         List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
 
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0, 0, "Intel Arc A770 Graphics");
+        assertNotNull(match);
         assertThat("Should match by normalized name after stripping (R)/(TM)", match, is(notNullValue()));
         assertThat(match.getDedicatedVideoMemory(), is(16L * 1024 * 1024 * 1024));
     }

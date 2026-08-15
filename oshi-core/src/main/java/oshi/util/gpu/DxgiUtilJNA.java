@@ -6,6 +6,8 @@ package oshi.util.gpu;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
 import oshi.driver.common.windows.gpu.DxgiUtil;
@@ -38,7 +40,7 @@ public final class DxgiUtilJNA {
      * @param adapterName adapter name from the registry {@code DriverDesc} value
      * @return best-matching adapter, or {@code null}
      */
-    public static DxgiAdapterInfo findMatch(List<DxgiAdapterInfo> adapters, int vendorId, int deviceId,
+    public static @Nullable DxgiAdapterInfo findMatch(List<DxgiAdapterInfo> adapters, int vendorId, int deviceId,
             String adapterName) {
         return DxgiUtil.findMatch(adapters, vendorId, deviceId, adapterName);
     }
