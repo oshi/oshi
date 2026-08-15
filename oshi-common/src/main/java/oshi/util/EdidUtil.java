@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.DisplayInfo;
+import oshi.hardware.DisplayInfoImpl;
 
 /**
  * EDID parsing utility.
@@ -608,10 +610,10 @@ public final class EdidUtil {
     }
 
     /**
-     * Builds a synthetic {@link oshi.hardware.DisplayInfo DisplayInfo} from individual display properties, for displays
-     * that report their attributes without providing an EDID (such as Apple Silicon built-in panels). Fields that are
-     * absent are defaulted; the result is flagged synthetic so callers can distinguish it from a real EDID via
-     * {@link oshi.hardware.DisplayInfo#isEdidSynthetic()}.
+     * Builds a synthetic {@link DisplayInfo} from individual display properties, for displays that report their
+     * attributes without providing an EDID (such as Apple Silicon built-in panels). Fields that are absent are
+     * defaulted; the result is flagged synthetic so callers can distinguish it from a real EDID via
+     * {@link DisplayInfo#isEdidSynthetic()}.
      *
      * @param legacyManufacturerId packed manufacturer id, or {@code null}
      * @param modelNumber          the 16-bit model/product number, or {@code null}
@@ -627,11 +629,10 @@ public final class EdidUtil {
      * @param screenWidthMm        physical width in mm, or {@code null}
      * @param screenHeightMm       physical height in mm, or {@code null}
      * @param displayName          the localized display name, or {@code null}
-     * @return a synthetic {@link oshi.hardware.DisplayInfo DisplayInfo}, or {@code null} if the manufacturer id can not
-     *         be decoded
+     * @return a synthetic {@link DisplayInfo}, or {@code null} if the manufacturer id can not be decoded
      */
     @SuppressWarnings("java:S107")
-    public static oshi.hardware.@Nullable DisplayInfo synthesizeDisplayInfo(@Nullable Long legacyManufacturerId,
+    public static @Nullable DisplayInfo synthesizeDisplayInfo(@Nullable Long legacyManufacturerId,
             @Nullable Integer modelNumber, @Nullable Integer serialNumber, @Nullable Integer week,
             @Nullable Integer year, @Nullable String model, @Nullable String productSerial, @Nullable Long displayWidth,
             @Nullable Long displayHeight, @Nullable String fallbackName, @Nullable Double screenWidthMm,
@@ -665,8 +666,8 @@ public final class EdidUtil {
         if (serialDescriptor == null && serialNumber != null) {
             serialDescriptor = serialNo;
         }
-        return new oshi.hardware.DisplayInfoImpl(manufacturer, product, serialNo, wk, yr, "1.4", true, hcm, vcm,
-                resolution, modelName == null ? "" : modelName, serialDescriptor == null ? "" : serialDescriptor);
+        return new DisplayInfoImpl(manufacturer, product, serialNo, wk, yr, "1.4", true, hcm, vcm, resolution,
+                modelName == null ? "" : modelName, serialDescriptor == null ? "" : serialDescriptor);
     }
 
     /**
