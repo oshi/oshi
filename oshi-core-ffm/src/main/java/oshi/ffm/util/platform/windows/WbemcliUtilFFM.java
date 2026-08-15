@@ -38,6 +38,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,7 +133,7 @@ public final class WbemcliUtilFFM {
      */
     public static class WmiResult<T extends Enum<T>> {
 
-        private final Map<T, List<Object>> propertyMap;
+        private final Map<T, List<@Nullable Object>> propertyMap;
         private final Map<T, Integer> vtTypeMap;
         private final Map<T, Integer> cimTypeMap;
         private int resultCount;
@@ -158,10 +159,11 @@ public final class WbemcliUtilFFM {
          *
          * @param property the property enum constant
          * @param index    the row index
-         * @return the value object
+         * @return the value object, or {@code null} if the property was not set on this row
          */
-        public Object getValue(T property, int index) {
-            return propertyMap.get(property).get(index);
+        public @Nullable Object getValue(T property, int index) {
+            List<@Nullable Object> values = propertyMap.get(property);
+            return values == null ? null : values.get(index);
         }
 
         /**
@@ -171,7 +173,7 @@ public final class WbemcliUtilFFM {
          * @return the VT type code
          */
         public int getVtType(T property) {
-            return vtTypeMap.get(property);
+            return vtTypeMap.getOrDefault(property, 0);
         }
 
         /**
@@ -181,7 +183,7 @@ public final class WbemcliUtilFFM {
          * @return the CIM type code
          */
         public int getCIMType(T property) {
-            return cimTypeMap.get(property);
+            return cimTypeMap.getOrDefault(property, WbemcliFFM.CIM_EMPTY);
         }
 
         /**
@@ -201,12 +203,13 @@ public final class WbemcliUtilFFM {
          * @param property the property enum constant
          * @param value    the value (may be null)
          */
-        public void add(int vtType, int cimType, T property, Object value) {
-            propertyMap.get(property).add(value);
-            if (vtType != VT_NULL && vtType != VT_EMPTY && vtTypeMap.get(property) == 0) {
+        public void add(int vtType, int cimType, T property, @Nullable Object value) {
+            propertyMap.computeIfAbsent(property, k -> new ArrayList<>()).add(value);
+            if (vtType != VT_NULL && vtType != VT_EMPTY && vtTypeMap.getOrDefault(property, 0) == 0) {
                 vtTypeMap.put(property, vtType);
             }
-            if (cimType != WbemcliFFM.CIM_EMPTY && cimTypeMap.get(property) == WbemcliFFM.CIM_EMPTY) {
+            if (cimType != WbemcliFFM.CIM_EMPTY
+                    && cimTypeMap.getOrDefault(property, WbemcliFFM.CIM_EMPTY) == WbemcliFFM.CIM_EMPTY) {
                 cimTypeMap.put(property, cimType);
             }
         }

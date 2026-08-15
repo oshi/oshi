@@ -47,6 +47,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -279,7 +280,7 @@ public final class Advapi32UtilFFM {
      *         REG_SZ/REG_EXPAND_SZ), or null if unsupported
      * @throws Throwable if the native call fails
      */
-    public static Object registryGetValue(MemorySegment hKey, String valueName) throws Throwable {
+    public static @Nullable Object registryGetValue(MemorySegment hKey, String valueName) throws Throwable {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment lpType = arena.allocate(JAVA_INT);
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
@@ -312,7 +313,7 @@ public final class Advapi32UtilFFM {
      * @return The value object (Integer for REG_DWORD, Long for REG_QWORD, byte[] for REG_BINARY, String for
      *         REG_SZ/REG_EXPAND_SZ), or null on failure
      */
-    public static Object registryGetValue(MemorySegment rootKey, String keyPath, String valueName) {
+    public static @Nullable Object registryGetValue(MemorySegment rootKey, String keyPath, String valueName) {
         return callInArenaOrDefault(arena -> {
             MemorySegment phkResult = arena.allocate(ADDRESS);
             int rc = RegOpenKeyEx(rootKey, toWideString(arena, keyPath), 0, KEY_READ, phkResult);
@@ -509,7 +510,7 @@ public final class Advapi32UtilFFM {
      *
      * @return the event log name, or null if unavailable
      */
-    public static String querySystemLog() {
+    public static @Nullable String querySystemLog() {
         String systemLog = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_EVENTLOG, "System");
         if (systemLog.isEmpty()) {
             return null;

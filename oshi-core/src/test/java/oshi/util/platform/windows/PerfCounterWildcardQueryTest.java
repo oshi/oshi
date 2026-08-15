@@ -22,6 +22,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.driver.common.windows.wmi.WmiResult;
@@ -61,7 +62,7 @@ class PerfCounterWildcardQueryTest {
         }
 
         @Override
-        public Object getValue(Prop property, int index) {
+        public @Nullable Object getValue(Prop property, int index) {
             List<Object> v = values.get(property);
             return v == null || index >= v.size() ? null : v.get(index);
         }

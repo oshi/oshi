@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +66,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
             + " Will not attempt to query it again. Error was {}";
 
     // Factory to create this or a subclass
-    private static Class<? extends WmiQueryHandlerFFM> customClass = null;
+    private static @Nullable Class<? extends WmiQueryHandlerFFM> customClass = null;
 
     /**
      * Creates a new WmiQueryHandlerFFM instance.
@@ -256,7 +257,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
             }
 
             @Override
-            public Object getValue(T property, int index) {
+            public @Nullable Object getValue(T property, int index) {
                 return ffmResult.getValue(property, index);
             }
 
@@ -282,7 +283,7 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
      * @param rowProcessor  processor to populate result object from WMI row
      * @return list of result objects, empty list if query fails
      */
-    public <T> List<T> queryWMI(String wmiClassName, String whereClause, Supplier<T> resultFactory,
+    public <T> List<T> queryWMI(String wmiClassName, @Nullable String whereClause, Supplier<T> resultFactory,
             TriConsumer<MemorySegment, Arena, T> rowProcessor) {
         return queryWMI(WbemcliFFM.DEFAULT_NAMESPACE, wmiClassName, whereClause, resultFactory, rowProcessor);
     }
@@ -298,8 +299,8 @@ public class WmiQueryHandlerFFM implements WmiQueryExecutor {
      * @param rowProcessor  processor to populate result object from WMI row
      * @return list of result objects, empty list if query fails
      */
-    public <T> List<T> queryWMI(String namespace, String wmiClassName, String whereClause, Supplier<T> resultFactory,
-            TriConsumer<MemorySegment, Arena, T> rowProcessor) {
+    public <T> List<T> queryWMI(String namespace, String wmiClassName, @Nullable String whereClause,
+            Supplier<T> resultFactory, TriConsumer<MemorySegment, Arena, T> rowProcessor) {
         if (failedWmiClassNames.contains(wmiClassName)) {
             return new ArrayList<>();
         }

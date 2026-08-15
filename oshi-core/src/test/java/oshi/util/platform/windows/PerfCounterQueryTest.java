@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_DATETIME;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT16;
@@ -21,6 +22,7 @@ import static oshi.driver.common.windows.wmi.WmiConstants.VT_I4;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -64,7 +66,7 @@ class PerfCounterQueryTest {
         }
 
         @Override
-        public Object getValue(Prop property, int index) {
+        public @Nullable Object getValue(Prop property, int index) {
             return values.get(property);
         }
 
@@ -139,7 +141,8 @@ class PerfCounterQueryTest {
         assertThat("OSType is a small enumeration value", values.get(OsProp.OSTYPE), is(greaterThan(0L)));
         assertThat("A running system has processes", values.get(OsProp.NUMBEROFPROCESSES), is(greaterThan(0L)));
         assertThat("Free memory is reported in kilobytes", values.get(OsProp.FREEPHYSICALMEMORY), is(greaterThan(0L)));
-        long boot = values.get(OsProp.LASTBOOTUPTIME);
+        Long boot = values.get(OsProp.LASTBOOTUPTIME);
+        assertNotNull(boot);
         assertThat("Boot time is a plausible epoch millisecond value in the past", boot,
                 is(both(greaterThan(946684800000L)).and(lessThanOrEqualTo(System.currentTimeMillis()))));
     }

@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +81,7 @@ public final class PerfCounterWildcardQuery {
      *         {@code propertyEnum} on success, or an empty list and empty map if both PDH and WMI queries failed.
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValues(
-            Class<T> propertyEnum, String perfObject, String perfWmiClass, String customFilter) {
+            Class<T> propertyEnum, String perfObject, String perfWmiClass, @Nullable String customFilter) {
         if (FAILED_QUERY_CACHE.isEmpty()
                 || (!PERF_DISABLE_ALL_ON_FAILURE && !FAILED_QUERY_CACHE.contains(perfObject))) {
             Pair<List<String>, Map<T, List<Long>>> instancesAndValuesMap = queryInstancesAndValuesFromPDH(propertyEnum,
@@ -130,7 +131,7 @@ public final class PerfCounterWildcardQuery {
      *         {@code propertyEnum} on success, or an empty list and empty map if the PDH query failed.
      */
     public static <T extends Enum<T>> Pair<List<String>, Map<T, List<Long>>> queryInstancesAndValuesFromPDH(
-            Class<T> propertyEnum, String perfObject, String customFilter) {
+            Class<T> propertyEnum, String perfObject, @Nullable String customFilter) {
         T[] props = propertyEnum.getEnumConstants();
         if (props.length < 2) {
             throw new IllegalArgumentException("Enum " + propertyEnum.getName()
@@ -138,9 +139,9 @@ public final class PerfCounterWildcardQuery {
         }
         // Lowercase the filter (matching the built-in default below) since instance names are compared
         // case-insensitively via toLowerCase at the wildcardMatch call.
-        String instanceFilter = (Util.isBlank(customFilter)
-                ? ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter()
-                : customFilter).toLowerCase(Locale.ROOT);
+        String defaultFilter = ((PdhCounterWildcardProperty) propertyEnum.getEnumConstants()[0]).getCounter();
+        String instanceFilter = (customFilter == null || customFilter.isEmpty() ? defaultFilter : customFilter)
+                .toLowerCase(Locale.ROOT);
         // Localize the perfObject using different variable for the EnumObjectItems
         // Will still use unlocalized perfObject for the query
         String perfObjectLocalized = PerfCounterQuery.localizeIfNeeded(perfObject, true);
@@ -183,7 +184,7 @@ public final class PerfCounterWildcardQuery {
                 for (int i = 1; i < props.length; i++) {
                     T prop = props[i];
                     List<Long> values = new ArrayList<>();
-                    for (PerfCounter counter : counterListMap.get(prop)) {
+                    for (PerfCounter counter : counterListMap.getOrDefault(prop, Collections.emptyList())) {
                         values.add(pdhQueryHandler.queryCounter(counter));
                     }
                     valuesMap.put(prop, values);
