@@ -474,7 +474,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
         if (split.length > 1) {
-            split = PARENTHESES.split(split[1]);
+            split = split[1].split("[()]");
             if (split.length > 0) {
                 versionId = split[0].trim();
             }
