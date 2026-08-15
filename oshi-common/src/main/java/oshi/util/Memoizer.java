@@ -7,6 +7,8 @@ package oshi.util;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -62,7 +64,7 @@ public final class Memoizer {
      * @param ttlNanos Time in nanoseconds to retain calculation. If negative, retain indefinitely.
      * @return A memoized version of the supplier
      */
-    public static <T> Supplier<T> memoize(Supplier<T> original, long ttlNanos) {
+    public static <T extends @Nullable Object> Supplier<T> memoize(Supplier<T> original, long ttlNanos) {
         // Adapted from Guava's ExpiringMemoizingSupplier
         return new Supplier<T>() {
             private final Supplier<T> delegate = original;
@@ -98,7 +100,7 @@ public final class Memoizer {
      * @param original The {@link Supplier} to memoize
      * @return A memoized version of the supplier
      */
-    public static <T> Supplier<T> memoize(Supplier<T> original) {
+    public static <T extends @Nullable Object> Supplier<T> memoize(Supplier<T> original) {
         return memoize(original, -1L);
     }
 }

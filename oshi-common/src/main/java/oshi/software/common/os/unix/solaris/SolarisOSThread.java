@@ -24,8 +24,8 @@ import oshi.util.Util;
  */
 public abstract class SolarisOSThread extends AbstractOSThread {
 
-    private final Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
-    private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
+    private final Supplier<@Nullable SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
+    private final Supplier<@Nullable SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     /**
      * Constructs a new {@code SolarisOSThread}.

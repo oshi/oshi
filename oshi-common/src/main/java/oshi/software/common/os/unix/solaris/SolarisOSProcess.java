@@ -38,8 +38,8 @@ import oshi.util.tuples.Pair;
  */
 public abstract class SolarisOSProcess extends AbstractProcOSProcess {
 
-    private final Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
-    private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
+    private final Supplier<@Nullable SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
+    private final Supplier<@Nullable SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private volatile long minorFaults;
     private volatile long majorFaults;
@@ -68,7 +68,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
      *
      * @return the parsed {@link SolarisPsInfo}, or {@code null} if it could not be read
      */
-    protected SolarisPsInfo getPsInfo() {
+    protected @Nullable SolarisPsInfo getPsInfo() {
         return psinfo.get();
     }
 

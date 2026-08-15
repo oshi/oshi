@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,8 @@ public final class PsInfoJNA {
      * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields
      * @return A quartet containing the argc, argv, envp and dmodel values, or null if unable to read
      */
-    public static Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid, SolarisPsInfo psinfo) {
+    public static @Nullable Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid,
+            @Nullable SolarisPsInfo psinfo) {
         if (psinfo != null) {
             int argc = psinfo.pr_argc;
             // Must have at least one argc (the command itself) so failure here means exit
@@ -78,7 +80,7 @@ public final class PsInfoJNA {
      * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields
      * @return A pair containing a list of the arguments and a map of environment variables
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, SolarisPsInfo psinfo) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable SolarisPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
