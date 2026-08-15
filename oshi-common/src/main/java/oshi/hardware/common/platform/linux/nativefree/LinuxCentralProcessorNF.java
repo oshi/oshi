@@ -6,6 +6,8 @@ package oshi.hardware.common.platform.linux.nativefree;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 import oshi.util.ExecutingCommand;
@@ -34,7 +36,7 @@ public final class LinuxCentralProcessorNF extends LinuxCentralProcessor {
     }
 
     @Override
-    protected List<String> enumerateCpuSyspathsViaUdev() {
+    protected @Nullable List<String> enumerateCpuSyspathsViaUdev() {
         // No udev; the base falls back to a sysfs directory scan
         return null;
     }

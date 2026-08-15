@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +63,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      * Create a Processor
      */
     protected AbstractCentralProcessor() {
-        Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> processorLists = initProcessorCounts();
+        Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> processorLists = initProcessorCounts();
         // Populate logical processor lists.
         this.logicalProcessors = Collections.unmodifiableList(processorLists.getA());
         if (processorLists.getB() == null) {
@@ -94,7 +95,7 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
      *
      * @return Lists of initialized Logical Processors, Physical Processors, Processor Caches, and Feature Flags.
      */
-    protected abstract Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts();
+    protected abstract Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts();
 
     /**
      * Updates logical and physical processor counts and arrays

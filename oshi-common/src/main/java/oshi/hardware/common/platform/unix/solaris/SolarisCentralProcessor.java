@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
@@ -28,7 +30,7 @@ import oshi.util.tuples.Quartet;
 public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         // Defensive copy: the base appends a fallback entry, so don't assume the subclass returned a mutable list
         List<LogicalProcessor> logProcs = new ArrayList<>(queryLogicalProcessors());
         if (logProcs.isEmpty()) {
