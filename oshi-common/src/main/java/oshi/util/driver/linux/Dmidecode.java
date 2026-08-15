@@ -7,6 +7,8 @@ package oshi.util.driver.linux;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -63,7 +65,7 @@ public final class Dmidecode {
      *
      * @return The serial number if available, null otherwise
      */
-    public static String querySerialNumber() {
+    public static @Nullable String querySerialNumber() {
         return querySerialNumber(ExecutingCommand.runPrivilegedNative("dmidecode -t system"));
     }
 
@@ -73,7 +75,7 @@ public final class Dmidecode {
      * @param lines output of {@code dmidecode -t system}
      * @return The serial number if available, null otherwise
      */
-    static String querySerialNumber(List<String> lines) {
+    static @Nullable String querySerialNumber(List<String> lines) {
         String marker = "Serial Number:";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
@@ -88,7 +90,7 @@ public final class Dmidecode {
      *
      * @return The UUID if available, null otherwise
      */
-    public static String queryUUID() {
+    public static @Nullable String queryUUID() {
         return queryUUID(ExecutingCommand.runPrivilegedNative("dmidecode -t system"));
     }
 
@@ -98,7 +100,7 @@ public final class Dmidecode {
      * @param lines output of {@code dmidecode -t system}
      * @return The UUID if available, null otherwise
      */
-    static String queryUUID(List<String> lines) {
+    static @Nullable String queryUUID(List<String> lines) {
         String marker = "UUID:";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
@@ -113,7 +115,7 @@ public final class Dmidecode {
      *
      * @return The a pair containing the name and revision if available, null values in the pair otherwise
      */
-    public static Pair<String, String> queryBiosNameRev() {
+    public static Pair<@Nullable String, @Nullable String> queryBiosNameRev() {
         return queryBiosNameRev(ExecutingCommand.runPrivilegedNative("dmidecode -t bios"));
     }
 
@@ -123,7 +125,7 @@ public final class Dmidecode {
      * @param lines output of {@code dmidecode -t bios}
      * @return A pair containing the name and revision if available, null values in the pair otherwise
      */
-    static Pair<String, String> queryBiosNameRev(List<String> lines) {
+    static Pair<@Nullable String, @Nullable String> queryBiosNameRev(List<String> lines) {
         String biosName = null;
         String revision = null;
 

@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.Rectangle;
 import java.util.Arrays;
@@ -70,12 +71,15 @@ class XwininfoTest {
 
         // Verify rectangle bounds (x, y, width, height)
         Rectangle terminal = windowMap.get("0x1400003");
+        assertNotNull(terminal);
         assertThat(terminal.x, is(100));
         assertThat(terminal.y, is(200));
         assertThat(terminal.width, is(800));
         assertThat(terminal.height, is(600));
 
         Rectangle firefox = windowMap.get("0x1600003");
+
+        assertNotNull(firefox);
         assertThat(firefox.x, is(50));
         assertThat(firefox.y, is(75));
         assertThat(firefox.width, is(1024));
@@ -83,6 +87,7 @@ class XwininfoTest {
 
         // Negative coordinates
         Rectangle anonymous = windowMap.get("0x1800003");
+        assertNotNull(anonymous);
         assertThat(anonymous.x, is(-10));
         assertThat(anonymous.y, is(30));
         assertThat(anonymous.width, is(640));
@@ -131,6 +136,7 @@ class XwininfoTest {
 
         assertThat(windowMap, aMapWithSize(1));
         Rectangle rect = windowMap.get("0x2000001");
+        assertNotNull(rect);
         assertThat(rect.x, is(0));
         assertThat(rect.y, is(0));
         assertThat(rect.width, is(320));

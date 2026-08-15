@@ -7,6 +7,7 @@ package oshi.util.common.platform.mac;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public final class SmcKeyCache {
     private final Object lock = new Object();
 
     /** Only ever assigned an unmodifiable list, so the volatile write safely publishes an immutable value. */
-    private volatile List<String> keys; // NOSONAR java:S3077 - published value is immutable
+    private volatile @Nullable List<String> keys; // NOSONAR java:S3077 - published value is immutable
 
     /**
      * Creates a key cache.
@@ -58,7 +59,7 @@ public final class SmcKeyCache {
      *                  once per completed resolution.
      * @return the keys, never null
      */
-    public List<String> get(Supplier<List<String>> discovery) {
+    public List<String> get(Supplier<@Nullable List<String>> discovery) {
         List<String> resolved = keys;
         if (resolved != null) {
             return resolved;

@@ -22,6 +22,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
 import oshi.util.Constants;
@@ -364,7 +366,7 @@ public final class ProcessStat {
      *         <p>
      *         If the process doesn't exist, returns null.
      */
-    public static Triplet<String, Character, Map<PidStat, Long>> getPidStats(int pid) {
+    public static @Nullable Triplet<String, Character, Map<PidStat, Long>> getPidStats(int pid) {
         String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, pid));
         if (stat.isEmpty()) {
             // If pid doesn't exist
@@ -394,7 +396,7 @@ public final class ProcessStat {
      *         <p>
      *         If the process doesn't exist, returns null.
      */
-    public static Map<PidStatM, Long> getPidStatM(int pid) {
+    public static @Nullable Map<PidStatM, Long> getPidStatM(int pid) {
         String statm = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STATM, pid));
         if (statm.isEmpty()) {
             // If pid doesn't exist

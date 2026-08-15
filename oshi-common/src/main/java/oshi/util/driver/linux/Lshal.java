@@ -6,6 +6,8 @@ package oshi.util.driver.linux;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -24,7 +26,7 @@ public final class Lshal {
      *
      * @return The serial number if available, null otherwise
      */
-    public static String querySerialNumber() {
+    public static @Nullable String querySerialNumber() {
         return querySerialNumber(ExecutingCommand.runNative("lshal"));
     }
 
@@ -34,7 +36,7 @@ public final class Lshal {
      * @param lines output of {@code lshal}
      * @return The serial number if available, null otherwise
      */
-    static String querySerialNumber(List<String> lines) {
+    static @Nullable String querySerialNumber(List<String> lines) {
         String marker = "system.hardware.serial =";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
@@ -49,7 +51,7 @@ public final class Lshal {
      *
      * @return The UUID if available, null otherwise
      */
-    public static String queryUUID() {
+    public static @Nullable String queryUUID() {
         return queryUUID(ExecutingCommand.runNative("lshal"));
     }
 
@@ -59,7 +61,7 @@ public final class Lshal {
      * @param lines output of {@code lshal}
      * @return The UUID if available, null otherwise
      */
-    static String queryUUID(List<String> lines) {
+    static @Nullable String queryUUID(List<String> lines) {
         String marker = "system.hardware.uuid =";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {

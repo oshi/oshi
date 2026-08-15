@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -69,7 +70,8 @@ class CpuInfoTest {
 
     @Test
     void testQueryBoardInfoRaspberryPi() {
-        Quartet<String, String, String, String> info = CpuInfo.queryBoardInfo(CPUINFO_ARM);
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
+                .queryBoardInfo(CPUINFO_ARM);
         assertThat(info.getA(), is("Sony UK")); // manufacturer from revision digit '0'
         assertThat(info.getB(), is("BCM2835")); // model from Hardware
         assertThat(info.getC(), is("a020d3")); // version from Revision
@@ -79,21 +81,24 @@ class CpuInfoTest {
     @Test
     void testQueryBoardInfoEgoman() {
         List<String> egoman = Arrays.asList("Revision\t: a120d3");
-        Quartet<String, String, String, String> info = CpuInfo.queryBoardInfo(egoman);
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
+                .queryBoardInfo(egoman);
         assertThat(info.getA(), is("Egoman"));
     }
 
     @Test
     void testQueryBoardInfoUnknownManufacturer() {
         List<String> unknown = Arrays.asList("Revision\t: a920d3");
-        Quartet<String, String, String, String> info = CpuInfo.queryBoardInfo(unknown);
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
+                .queryBoardInfo(unknown);
         assertThat(info.getA(), is(Constants.UNKNOWN));
     }
 
     @Test
     void testQueryBoardInfoX86() {
         // x86 doesn't have Hardware/Revision/Serial
-        Quartet<String, String, String, String> info = CpuInfo.queryBoardInfo(CPUINFO_X86);
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
+                .queryBoardInfo(CPUINFO_X86);
         assertThat(info.getA(), is(nullValue()));
         assertThat(info.getB(), is(nullValue()));
         assertThat(info.getC(), is(nullValue()));
@@ -102,7 +107,8 @@ class CpuInfoTest {
 
     @Test
     void testQueryBoardInfoEmpty() {
-        Quartet<String, String, String, String> info = CpuInfo.queryBoardInfo(Collections.emptyList());
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
+                .queryBoardInfo(Collections.emptyList());
         assertThat(info.getA(), is(nullValue()));
     }
 
@@ -137,7 +143,8 @@ class CpuInfoTest {
 
         @Test
         void testQueryBoardInfoAccessors() {
-            Quartet<String, String, String, String> info = CpuInfo.queryBoardInfo();
+            Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
+                    .queryBoardInfo();
             assertDoesNotThrow(info::getA);
             assertDoesNotThrow(info::getB);
             assertDoesNotThrow(info::getC);

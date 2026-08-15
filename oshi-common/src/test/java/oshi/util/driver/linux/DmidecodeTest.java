@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -60,14 +61,14 @@ class DmidecodeTest {
 
     @Test
     void testQueryBiosNameRev() {
-        Pair<String, String> result = Dmidecode.queryBiosNameRev(BIOS_OUTPUT);
+        Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev(BIOS_OUTPUT);
         assertThat(result.getA(), is("SMBIOS 2.7"));
         assertThat(result.getB(), is("2.5"));
     }
 
     @Test
     void testQueryBiosNameRevEmpty() {
-        Pair<String, String> result = Dmidecode.queryBiosNameRev(Collections.emptyList());
+        Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev(Collections.emptyList());
         assertThat(result.getA(), is(nullValue()));
         assertThat(result.getB(), is(nullValue()));
     }
@@ -75,7 +76,7 @@ class DmidecodeTest {
     @Test
     void testQueryBiosNameRevNoRevision() {
         List<String> noRev = Arrays.asList("SMBIOS 3.0 present.", "Handle 0x0000, DMI type 0, 24 bytes");
-        Pair<String, String> result = Dmidecode.queryBiosNameRev(noRev);
+        Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev(noRev);
         assertThat(result.getA(), is("SMBIOS 3.0"));
         assertThat(result.getB(), is(nullValue()));
     }
@@ -83,7 +84,7 @@ class DmidecodeTest {
     @Test
     void testQueryBiosNameRevLowercaseVariant() {
         List<String> lowerCase = Arrays.asList("SMBIOS 3.1 present.", "\tbios revision: 1.2");
-        Pair<String, String> result = Dmidecode.queryBiosNameRev(lowerCase);
+        Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev(lowerCase);
         assertThat(result.getA(), is("SMBIOS 3.1"));
         assertThat(result.getB(), is("1.2"));
     }
@@ -104,7 +105,7 @@ class DmidecodeTest {
 
         @Test
         void testQueryBiosNameRevReturnsPair() {
-            Pair<String, String> result = Dmidecode.queryBiosNameRev();
+            Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev();
             assertThat(result, notNullValue());
         }
     }

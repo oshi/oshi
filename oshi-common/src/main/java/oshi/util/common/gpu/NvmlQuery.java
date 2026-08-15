@@ -8,6 +8,8 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -119,7 +121,7 @@ public final class NvmlQuery {
      * @param fragment the fragment to match
      * @return the matching bus ID, or {@code null} if none matched or the fragment was blank
      */
-    public static String matchBusId(Set<String> busIds, String fragment) {
+    public static @Nullable String matchBusId(Set<String> busIds, @Nullable String fragment) {
         if (fragment == null || fragment.isEmpty()) {
             return null;
         }

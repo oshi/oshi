@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.common.gpu.NvmlQuery.NvmlScope;
@@ -27,12 +28,12 @@ class NvmlQueryTest {
 
     /** A scope that records its lifecycle calls and hands out a fixed handle. */
     private static final class FakeScope implements NvmlScope<String> {
-        private final String handle;
+        private final @Nullable String handle;
         private final boolean initSucceeds;
         private int inits;
         private int uninits;
 
-        FakeScope(String handle, boolean initSucceeds) {
+        FakeScope(@Nullable String handle, boolean initSucceeds) {
             this.handle = handle;
             this.initSucceeds = initSucceeds;
         }

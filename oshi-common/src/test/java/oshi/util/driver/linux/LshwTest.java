@@ -17,6 +17,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -39,7 +40,7 @@ class LshwTest {
 
     @Test
     void testParseSystemInfo() {
-        Triplet<String, String, String> result = Lshw.parseSystemInfo(SYSTEM_OUTPUT);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> result = Lshw.parseSystemInfo(SYSTEM_OUTPUT);
         assertThat(result.getA(), is("PowerEdge R720"));
         assertThat(result.getB(), is("ABC1234"));
         assertThat(result.getC(), is("4C4C4544-0044-4810-8031-B4C04F333132"));
@@ -47,7 +48,8 @@ class LshwTest {
 
     @Test
     void testParseSystemInfoEmpty() {
-        Triplet<String, String, String> result = Lshw.parseSystemInfo(Collections.emptyList());
+        Triplet<@Nullable String, @Nullable String, @Nullable String> result = Lshw
+                .parseSystemInfo(Collections.emptyList());
         assertThat(result.getA(), is(nullValue()));
         assertThat(result.getB(), is(nullValue()));
         assertThat(result.getC(), is(nullValue()));
@@ -56,7 +58,7 @@ class LshwTest {
     @Test
     void testParseSystemInfoPartial() {
         List<String> partial = Arrays.asList("       product: MyServer");
-        Triplet<String, String, String> result = Lshw.parseSystemInfo(partial);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> result = Lshw.parseSystemInfo(partial);
         assertThat(result.getA(), is("MyServer"));
         assertThat(result.getB(), is(nullValue()));
         assertThat(result.getC(), is(nullValue()));
