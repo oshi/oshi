@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,7 +107,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
      *
      * @return the code name
      */
-    protected String parseCodeName() {
+    protected @Nullable String parseCodeName() {
         Properties verProps = FileUtil.readPropertiesFromFilename(MACOS_VERSIONS_PROPERTIES);
         String codeName = null;
         if (this.major > 10) {

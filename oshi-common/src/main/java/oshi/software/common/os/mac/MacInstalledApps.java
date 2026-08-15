@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,8 +98,8 @@ public final class MacInstalledApps {
                             version = Constants.UNKNOWN;
                         }
 
-                        appInfoSet.add(new ApplicationInfo(dictValues.get("_name"), version, vendor, lastModifiedEpoch,
-                                additionalInfo));
+                        appInfoSet.add(new ApplicationInfo(ParseUtil.getStringValueOrUnknown(dictValues.get("_name")),
+                                version, vendor, lastModifiedEpoch, additionalInfo));
                     } catch (Exception e) {
                         LOG.trace("Unable to parse dict values: {}", dictValues, e);
                     }
@@ -223,7 +224,7 @@ public final class MacInstalledApps {
         return map;
     }
 
-    static String parseStringArray(String arrayInner) {
+    static @Nullable String parseStringArray(String arrayInner) {
         int lt = arrayInner.indexOf('<');
         if (lt >= 0 && startsWith(arrayInner, lt, TAG_STRING_OPEN)) {
             String inner = extractSimpleInner(arrayInner, lt, TAG_STRING_OPEN, TAG_STRING_CLOSE);
@@ -249,7 +250,7 @@ public final class MacInstalledApps {
         return s.substring(start + openTag.length(), end);
     }
 
-    private static String extractBalancedInner(String s, int openPos, String openTag, String closeTag) {
+    private static @Nullable String extractBalancedInner(String s, int openPos, String openTag, String closeTag) {
         int pos = openPos;
         if (!startsWith(s, pos, openTag)) {
             return null;
@@ -300,7 +301,7 @@ public final class MacInstalledApps {
                 .replace("&apos;", "'");
     }
 
-    private static String readStringValue(String xml, String keyName) {
+    private static @Nullable String readStringValue(String xml, String keyName) {
         int i = xml.indexOf("<key>" + keyName + "</key>");
         if (i > 0) {
             i = xml.indexOf(TAG_STRING_OPEN, i);

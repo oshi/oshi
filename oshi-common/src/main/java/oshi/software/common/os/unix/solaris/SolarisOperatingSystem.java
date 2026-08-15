@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOperatingSystem;
 import oshi.software.os.InternetProtocolStats;
@@ -70,7 +72,7 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         List<OSProcess> procs = getProcessListFromProcfs(pid);
         if (procs.isEmpty()) {
             return null;

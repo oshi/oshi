@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
@@ -94,7 +96,7 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
      * @param localOnly   if true, only return local file systems
      * @return list of matching file stores
      */
-    public List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    public List<OSFileStore> getFileStoreMatching(@Nullable String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data

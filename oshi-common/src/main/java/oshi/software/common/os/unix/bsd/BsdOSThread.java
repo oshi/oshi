@@ -7,6 +7,8 @@ package oshi.software.common.os.unix.bsd;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSThread;
 import oshi.software.os.OSProcess;
@@ -65,7 +67,9 @@ public abstract class BsdOSThread extends AbstractOSThread {
     protected synchronized boolean updateAttributes(Map<BsdPsThreadKeyword, String> threadMap) {
         // Thread id: lwp (FreeBSD), tid (OpenBSD/DragonFly), or lid (NetBSD)
         this.threadId = ParseUtil.parseIntOrDefault(threadIdValue(threadMap), 0);
-        this.state = BsdOSProcess.getStateFromOutput(threadMap.get(BsdPsThreadKeyword.STATE).charAt(0));
+        String stateValue = ParseUtil.getStringValueOrEmpty(threadMap.get(BsdPsThreadKeyword.STATE));
+        // An absent state column falls through to OTHER rather than failing the whole update
+        this.state = BsdOSProcess.getStateFromOutput(stateValue.isEmpty() ? ' ' : stateValue.charAt(0));
         // Name: tdname (FreeBSD), args (OpenBSD/NetBSD), or absent (DragonFly leaves the default empty string)
         if (threadMap.containsKey(BsdPsThreadKeyword.TDNAME)) {
             this.name = threadMap.get(BsdPsThreadKeyword.TDNAME);
@@ -111,7 +115,7 @@ public abstract class BsdOSThread extends AbstractOSThread {
         return true;
     }
 
-    private static String threadIdValue(Map<BsdPsThreadKeyword, String> threadMap) {
+    private static @Nullable String threadIdValue(Map<BsdPsThreadKeyword, String> threadMap) {
         if (threadMap.containsKey(BsdPsThreadKeyword.LWP)) {
             return threadMap.get(BsdPsThreadKeyword.LWP);
         }

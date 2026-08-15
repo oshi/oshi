@@ -10,6 +10,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.Locale;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
@@ -133,7 +135,7 @@ public abstract class AbstractOSThread implements OSThread {
     }
 
     @Override
-    public double getThreadCpuLoadBetweenTicks(OSThread priorSnapshot) {
+    public double getThreadCpuLoadBetweenTicks(@Nullable OSThread priorSnapshot) {
         if (priorSnapshot != null && owningProcessId == priorSnapshot.getOwningProcessId()
                 && getThreadId() == priorSnapshot.getThreadId() && getUpTime() > priorSnapshot.getUpTime()) {
             return (getUserTime() - priorSnapshot.getUserTime() + getKernelTime() - priorSnapshot.getKernelTime())

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +106,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     }
 
     @Override
-    protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
+    protected boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
         if (!super.updateAttributes(pcb, wts)) {
             return false;
         }

@@ -49,11 +49,11 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
     private final Supplier<Pair<List<String>, Map<String, String>>> cmdEnv = memoize(this::queryCommandlineEnvironment);
 
     // Populated by the subclass updateAttributes()
-    protected volatile String commandLineBackup;
-    protected volatile String user;
-    protected volatile String userID;
-    protected volatile String group;
-    protected volatile String groupID;
+    protected volatile String commandLineBackup = "";
+    protected volatile String user = "";
+    protected volatile String userID = "";
+    protected volatile String group = "";
+    protected volatile String groupID = "";
     protected volatile long residentSetSize;
     protected volatile long privateResidentMemory;
 

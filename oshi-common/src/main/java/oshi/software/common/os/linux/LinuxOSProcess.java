@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,8 +88,8 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     private final Supplier<String> user = memoize(this::queryUser);
     private final Supplier<String> group = memoize(this::queryGroup);
 
-    private volatile String userID;
-    private volatile String groupID;
+    private volatile String userID = "";
+    private volatile String groupID = "";
     private volatile long residentSetSize;
     private volatile long privateResidentMemory;
     private volatile long minorFaults;
@@ -325,7 +326,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
      *
      * @return a two-element array {@code {voluntary, involuntary}}, or {@code null} if unavailable
      */
-    protected long[] queryContextSwitches() {
+    protected long @Nullable [] queryContextSwitches() {
         return null;
     }
 

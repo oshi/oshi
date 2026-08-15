@@ -18,6 +18,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
@@ -216,7 +218,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param wts WTS info for this process, or null if unavailable
      * @return true if the process is valid after the update
      */
-    protected boolean updateAttributes(ProcessPerfCounterBlock pcb, WtsInfo wts) {
+    protected boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
         if (pcb == null) {
             this.state = INVALID;
             return false;

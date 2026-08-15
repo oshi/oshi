@@ -27,6 +27,7 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,7 +98,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
      * @param path the mount path to query
      * @return array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure
      */
-    protected abstract long[] queryStatvfs(String path);
+    protected abstract long @Nullable [] queryStatvfs(String path);
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
@@ -144,7 +145,8 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         return uuidMap;
     }
 
-    List<OSFileStore> getFileStoreMatching(String nameToMatch, Map<String, String> uuidMap, boolean localOnly) {
+    List<OSFileStore> getFileStoreMatching(@Nullable String nameToMatch, Map<String, String> uuidMap,
+            boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
 
         Map<String, String> labelMap = queryLabelMap();
@@ -283,7 +285,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
      * @return the server address from the {@code addr=} or {@code mountaddr=} field, or {@code null} if neither is
      *         present
      */
-    static String parseNfsAddr(String options) {
+    static @Nullable String parseNfsAddr(String options) {
         Matcher m = NFS_ADDR_PATTERN.matcher(options);
         return m.find() ? m.group(1) : null;
     }

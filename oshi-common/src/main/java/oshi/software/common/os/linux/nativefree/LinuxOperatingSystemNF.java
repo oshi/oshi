@@ -7,6 +7,8 @@ package oshi.software.common.os.linux.nativefree;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.linux.LinuxOperatingSystem;
 import oshi.software.os.FileSystem;
@@ -73,7 +75,7 @@ public class LinuxOperatingSystemNF extends LinuxOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         OSProcess proc = createOSProcess(pid);
         if (!proc.getState().equals(State.INVALID)) {
             return proc;
