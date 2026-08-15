@@ -8,6 +8,8 @@ import java.io.File;
 import java.net.NetworkInterface;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.FileUtil;
@@ -60,14 +62,11 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
      * @param fallback the value to return when {@code model} is blank (typically the interface name)
      * @return {@code "vendor model"}, {@code "model"}, or {@code fallback}
      */
-    protected static String formatModel(String vendor, String model, String fallback) {
-        if (!Util.isBlank(model)) {
-            if (!Util.isBlank(vendor)) {
-                return vendor + " " + model;
-            }
-            return model;
+    protected static String formatModel(@Nullable String vendor, @Nullable String model, String fallback) {
+        if (model == null || model.isEmpty()) {
+            return fallback;
         }
-        return fallback;
+        return Util.isBlank(vendor) ? model : vendor + " " + model;
     }
 
     @Override

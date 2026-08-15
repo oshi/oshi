@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
@@ -22,7 +24,7 @@ import oshi.hardware.common.AbstractUsbDevice;
 public final class LinuxUsbDevice extends AbstractUsbDevice {
 
     private LinuxUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
+            @Nullable String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         super(name, vendor, vendorId, productId, serialNumber, uniqueDeviceId, connectedDevices);
     }
 
@@ -43,20 +45,25 @@ public final class LinuxUsbDevice extends AbstractUsbDevice {
         List<String> usbControllers = new ArrayList<>();
         for (UdevUsbDevice device : rawDevices) {
             String syspath = device.getSyspath();
-            if (device.getProduct() != null) {
-                nameMap.put(syspath, device.getProduct());
+            String product = device.getProduct();
+            if (product != null) {
+                nameMap.put(syspath, product);
             }
-            if (device.getManufacturer() != null) {
-                vendorMap.put(syspath, device.getManufacturer());
+            String manufacturer = device.getManufacturer();
+            if (manufacturer != null) {
+                vendorMap.put(syspath, manufacturer);
             }
-            if (device.getVendorId() != null) {
-                vendorIdMap.put(syspath, device.getVendorId());
+            String vendorId = device.getVendorId();
+            if (vendorId != null) {
+                vendorIdMap.put(syspath, vendorId);
             }
-            if (device.getProductId() != null) {
-                productIdMap.put(syspath, device.getProductId());
+            String productId = device.getProductId();
+            if (productId != null) {
+                productIdMap.put(syspath, productId);
             }
-            if (device.getSerial() != null) {
-                serialMap.put(syspath, device.getSerial());
+            String serial = device.getSerial();
+            if (serial != null) {
+                serialMap.put(syspath, serial);
             }
             String parent = device.getParentSyspath();
             if (parent == null) {

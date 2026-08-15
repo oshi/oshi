@@ -12,6 +12,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.util.Constants;
@@ -53,7 +55,7 @@ public abstract class FreeBsdPowerSource extends AbstractPowerSource {
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            int psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
         super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
@@ -98,7 +100,8 @@ public abstract class FreeBsdPowerSource extends AbstractPowerSource {
                 double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage, double psAmperage,
                 boolean psPowerOnLine, boolean psCharging, boolean psDischarging, CapacityUnits psCapacityUnits,
                 int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity, int psCycleCount, String psChemistry,
-                LocalDate psManufactureDate, String psManufacturer, String psSerialNumber, double psTemperature);
+                @Nullable LocalDate psManufactureDate, String psManufacturer, String psSerialNumber,
+                double psTemperature);
     }
 
     /**
@@ -127,6 +130,7 @@ public abstract class FreeBsdPowerSource extends AbstractPowerSource {
         int psMaxCapacity = 1;
         int psDesignCapacity = 1;
         int psCycleCount = -1;
+        @Nullable
         LocalDate psManufactureDate = null;
         double psTemperature = 0d;
 

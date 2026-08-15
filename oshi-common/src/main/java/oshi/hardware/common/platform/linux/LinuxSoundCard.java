@@ -9,10 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractSoundCard;
+import oshi.util.Constants;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.linux.ProcPath;
 
 /**
@@ -32,7 +36,7 @@ class LinuxSoundCard extends AbstractSoundCard {
      * @param name          The name
      * @param codec         The codec
      */
-    LinuxSoundCard(String kernelVersion, String name, String codec) {
+    LinuxSoundCard(@Nullable String kernelVersion, String name, @Nullable String codec) {
         super(kernelVersion, name, codec);
     }
 
@@ -64,11 +68,12 @@ class LinuxSoundCard extends AbstractSoundCard {
      * lines of the file and retrieves the first line.
      *
      * @param asoundPath The path to the asound directory
-     * @return The complete name of the ALSA driver currently residing in our machine
+     * @return The complete name of the ALSA driver currently residing in our machine, or {@link Constants#UNKNOWN} if
+     *         the version file is empty or absent
      */
     static String getSoundCardVersion(String asoundPath) {
         String driverVersion = FileUtil.getStringFromFile(new File(asoundPath, "version").getPath());
-        return driverVersion.isEmpty() ? "not available" : driverVersion;
+        return ParseUtil.getStringValueOrUnknown(driverVersion);
     }
 
     /**
@@ -81,7 +86,7 @@ class LinuxSoundCard extends AbstractSoundCard {
      * @param cardDir The sound card directory
      * @return The name of the codec
      */
-    static String getCardCodec(File cardDir) {
+    static @Nullable String getCardCodec(File cardDir) {
         String cardCodec = "";
         File[] cardFiles = cardDir.listFiles();
         if (cardFiles != null) {

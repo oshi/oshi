@@ -8,6 +8,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.PowerSource;
 import oshi.util.Constants;
@@ -35,7 +37,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     private int designCapacity;
     private int cycleCount;
     private String chemistry;
-    private LocalDate manufactureDate;
+    private @Nullable LocalDate manufactureDate;
     private String manufacturer;
     private String serialNumber;
     private double temperature;
@@ -69,7 +71,7 @@ public abstract class AbstractPowerSource implements PowerSource {
             double timeRemainingEstimated, double timeRemainingInstant, double powerUsageRate, double voltage,
             double amperage, boolean powerOnLine, boolean charging, boolean discharging, CapacityUnits capacityUnits,
             int currentCapacity, int maxCapacity, int designCapacity, int cycleCount, String chemistry,
-            LocalDate manufactureDate, String manufacturer, String serialNumber, double temperature) {
+            @Nullable LocalDate manufactureDate, String manufacturer, String serialNumber, double temperature) {
         super();
         this.name = name;
         this.deviceName = deviceName;
@@ -180,7 +182,7 @@ public abstract class AbstractPowerSource implements PowerSource {
     }
 
     @Override
-    public LocalDate getManufactureDate() {
+    public @Nullable LocalDate getManufactureDate() {
         return this.manufactureDate;
     }
 

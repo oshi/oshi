@@ -16,6 +16,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.SoundCard;
+import oshi.util.Constants;
 
 class BsdSoundCardTest {
 
@@ -67,7 +68,7 @@ class BsdSoundCardTest {
         List<SoundCard> cards = BsdSoundCard.parseDmesg(dmesg);
         assertThat(cards, hasSize(1));
         assertThat(cards.get(0).getName(), is("Intel Audio"));
-        // No codec line found, map.get returns null
-        assertThat(cards.get(0).getCodec(), is((String) null));
+        // No codec line found; the absent value is normalized to the unknown sentinel
+        assertThat(cards.get(0).getCodec(), is(Constants.UNKNOWN));
     }
 }

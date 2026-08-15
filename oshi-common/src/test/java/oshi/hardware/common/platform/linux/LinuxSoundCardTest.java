@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.SoundCard;
+import oshi.util.Constants;
 
 class LinuxSoundCardTest {
 
@@ -79,7 +80,7 @@ class LinuxSoundCardTest {
     @Test
     void testGetSoundCardVersionMissing(@TempDir Path tempDir) {
         String version = LinuxSoundCard.getSoundCardVersion(tempDir.resolve("asound").toString());
-        assertThat(version, is("not available"));
+        assertThat(version, is(Constants.UNKNOWN));
     }
 
     // -------------------------------------------------------------------------

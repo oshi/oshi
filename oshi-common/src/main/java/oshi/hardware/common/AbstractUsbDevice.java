@@ -10,8 +10,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.UsbDevice;
+import oshi.util.ParseUtil;
 
 /**
  * A USB device
@@ -31,21 +34,21 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * Creates an AbstractUsbDevice with the given parameters.
      *
      * @param name             the device name
-     * @param vendor           the vendor name
+     * @param vendor           the vendor name, or {@code null} if the platform did not report one
      * @param vendorId         the vendor ID
      * @param productId        the product ID
      * @param serialNumber     the serial number
-     * @param uniqueDeviceId   the unique device ID
+     * @param uniqueDeviceId   the unique device ID, or {@code null} if the platform did not report one
      * @param connectedDevices the list of connected child devices
      */
-    protected AbstractUsbDevice(String name, String vendor, String vendorId, String productId, String serialNumber,
-            String uniqueDeviceId, List<UsbDevice> connectedDevices) {
+    protected AbstractUsbDevice(String name, @Nullable String vendor, String vendorId, String productId,
+            String serialNumber, @Nullable String uniqueDeviceId, List<UsbDevice> connectedDevices) {
         this.name = name;
-        this.vendor = vendor;
+        this.vendor = ParseUtil.getStringValueOrEmpty(vendor);
         this.vendorId = vendorId;
         this.productId = productId;
         this.serialNumber = serialNumber;
-        this.uniqueDeviceId = uniqueDeviceId;
+        this.uniqueDeviceId = ParseUtil.getStringValueOrEmpty(uniqueDeviceId);
         this.connectedDevices = Collections.unmodifiableList(connectedDevices);
     }
 
@@ -121,7 +124,7 @@ public abstract class AbstractUsbDevice implements UsbDevice {
      * @param factory      constructs the platform-specific {@link UsbDevice} from the resolved fields
      * @return the assembled device, with its connected devices populated recursively
      */
-    protected static UsbDevice buildDeviceTree(String id, String vid, String pid, Map<String, String> nameMap,
+    protected static UsbDevice buildDeviceTree(@Nullable String id, String vid, String pid, Map<String, String> nameMap,
             Map<String, String> vendorMap, Map<String, String> vendorIdMap, Map<String, String> productIdMap,
             Map<String, String> serialMap, Map<String, List<String>> hubMap, UsbDeviceFactory factory) {
         String vendorId = vendorIdMap.getOrDefault(id, vid);
@@ -146,16 +149,16 @@ public abstract class AbstractUsbDevice implements UsbDevice {
          * Creates a {@link UsbDevice}.
          *
          * @param name             the device name
-         * @param vendor           the vendor name
+         * @param vendor           the vendor name, or an empty string if the platform did not report one
          * @param vendorId         the vendor ID
          * @param productId        the product ID
          * @param serialNumber     the serial number
-         * @param uniqueDeviceId   the unique device ID
+         * @param uniqueDeviceId   the unique device ID, or {@code null} if the platform did not report one
          * @param connectedDevices the connected child devices
          * @return the created device
          */
         UsbDevice create(String name, String vendor, String vendorId, String productId, String serialNumber,
-                String uniqueDeviceId, List<UsbDevice> connectedDevices);
+                @Nullable String uniqueDeviceId, List<UsbDevice> connectedDevices);
     }
 
     @Override
