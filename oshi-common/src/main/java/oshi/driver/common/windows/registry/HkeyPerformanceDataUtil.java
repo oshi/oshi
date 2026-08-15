@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +80,7 @@ public abstract class HkeyPerformanceDataUtil {
      *         mapping counter enum values to their index as the second element, if the lookup is successful; null
      *         otherwise.
      */
-    protected static <T extends Enum<T> & PdhCounterWildcardProperty> Pair<Integer, EnumMap<T, Integer>> getCounterIndices(
+    protected static <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Pair<Integer, EnumMap<T, Integer>> getCounterIndices(
             String objectName, Class<T> counterEnum, Map<String, Integer> counterIndexMap) {
         Integer counterIndex = counterIndexMap.get(objectName);
         if (counterIndex == null) {

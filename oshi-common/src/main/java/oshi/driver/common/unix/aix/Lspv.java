@@ -153,7 +153,12 @@ public final class Lspv {
             // All maps should have same keys
             String name = entry.getKey();
             String type = typeMap.get(name);
-            long size = ppSize * ppMap.get(name);
+            Integer physicalPartitions = ppMap.get(name);
+            if (type == null || physicalPartitions == null) {
+                // The maps are filled together from one lspv run; a gap means its output was inconsistent
+                continue;
+            }
+            long size = ppSize * physicalPartitions;
             Pair<Integer, Integer> majMin = majMinMap.get(name);
             int major = majMin == null ? ParseUtil.getFirstIntValue(name) : majMin.getA();
             int minor = majMin == null ? ParseUtil.getFirstIntValue(name) : majMin.getB();

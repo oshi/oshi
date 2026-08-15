@@ -4,10 +4,18 @@
  */
 package oshi.driver.common.windows.registry;
 
+import static oshi.driver.common.windows.registry.PerfCounterValues.counterList;
+import static oshi.driver.common.windows.registry.PerfCounterValues.intValue;
+import static oshi.driver.common.windows.registry.PerfCounterValues.longValue;
+import static oshi.driver.common.windows.registry.PerfCounterValues.pointerValue;
+import static oshi.driver.common.windows.registry.PerfCounterValues.stringValue;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
@@ -38,8 +46,9 @@ public final class ThreadPerformanceData {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information, or null if threadData is null.
      */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids,
-            Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            @Nullable Collection<Integer> pids,
+            @Nullable Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData) {
         if (threadData == null) {
             return null;
         }
@@ -49,33 +58,28 @@ public final class ThreadPerformanceData {
 
         Map<Integer, ThreadPerfCounterBlock> threadMap = new HashMap<>();
         for (Map<ThreadPerformanceProperty, Object> threadInstanceMap : threadInstanceMaps) {
-            Integer pid = (Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDPROCESS);
-            int tid = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.IDTHREAD)).intValue();
+            int pid = intValue(threadInstanceMap, ThreadPerformanceProperty.IDPROCESS);
+            int tid = intValue(threadInstanceMap, ThreadPerformanceProperty.IDTHREAD);
             // TID 0 is never a real thread -- thread IDs come from the same pool as PIDs -- so never key the map
             // on it; 0 is the "ID Thread" sentinel the perf-counter path can report for the _Total aggregate or
             // an exiting thread.
             if (tid != 0 && (pids == null || pids.contains(pid)) && pid > 0) {
-                String name = (String) threadInstanceMap.get(ThreadPerformanceProperty.NAME);
-                long upTime = (perfTime100nSec - (Long) threadInstanceMap.get(ThreadPerformanceProperty.ELAPSEDTIME))
+                String name = stringValue(threadInstanceMap, ThreadPerformanceProperty.NAME);
+                long upTime = (perfTime100nSec - longValue(threadInstanceMap, ThreadPerformanceProperty.ELAPSEDTIME))
                         / 10_000L;
                 if (upTime < 1) {
                     upTime = 1;
                 }
-                long user = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTUSERTIME)).longValue()
-                        / 10_000L;
-                long kernel = ((Long) threadInstanceMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME))
-                        .longValue() / 10_000L;
-                int priority = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.PRIORITYCURRENT)).intValue();
-                int threadState = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADSTATE)).intValue();
-                int threadWaitReason = ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.THREADWAITREASON))
-                        .intValue();
+                long user = longValue(threadInstanceMap, ThreadPerformanceProperty.PERCENTUSERTIME) / 10_000L;
+                long kernel = longValue(threadInstanceMap, ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME) / 10_000L;
+                int priority = intValue(threadInstanceMap, ThreadPerformanceProperty.PRIORITYCURRENT);
+                int threadState = intValue(threadInstanceMap, ThreadPerformanceProperty.THREADSTATE);
+                int threadWaitReason = intValue(threadInstanceMap, ThreadPerformanceProperty.THREADWAITREASON);
                 // Start address is pointer sized when fetched from registry, so this could be
                 // either Integer (uint32) or Long depending on OS bitness
-                Object addr = threadInstanceMap.get(ThreadPerformanceProperty.STARTADDRESS);
-                long startAddr = addr.getClass().equals(Long.class) ? (Long) addr
-                        : Integer.toUnsignedLong((Integer) addr);
-                long contextSwitches = Integer.toUnsignedLong(
-                        ((Integer) threadInstanceMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC)));
+                long startAddr = pointerValue(threadInstanceMap, ThreadPerformanceProperty.STARTADDRESS);
+                long contextSwitches = Integer
+                        .toUnsignedLong(intValue(threadInstanceMap, ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC));
                 threadMap.put(tid, new ThreadPerfCounterBlock(name, tid, pid, now - upTime, user, kernel, priority,
                         threadState, threadWaitReason, startAddr, contextSwitches));
             }
@@ -91,8 +95,9 @@ public final class ThreadPerformanceData {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information, or null if instanceValues is null.
      */
-    public static Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids,
-            Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            @Nullable Collection<Integer> pids,
+            @Nullable Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues) {
         if (instanceValues == null) {
             return null;
         }
@@ -100,16 +105,16 @@ public final class ThreadPerformanceData {
         long now = System.currentTimeMillis(); // 1970 epoch
         List<String> instances = instanceValues.getA();
         Map<ThreadPerformanceProperty, List<Long>> valueMap = instanceValues.getB();
-        List<Long> tidList = valueMap.get(ThreadPerformanceProperty.IDTHREAD);
-        List<Long> pidList = valueMap.get(ThreadPerformanceProperty.IDPROCESS);
-        List<Long> userList = valueMap.get(ThreadPerformanceProperty.PERCENTUSERTIME); // 100-nsec
-        List<Long> kernelList = valueMap.get(ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME); // 100-nsec
-        List<Long> startTimeList = valueMap.get(ThreadPerformanceProperty.ELAPSEDTIME); // filetime
-        List<Long> priorityList = valueMap.get(ThreadPerformanceProperty.PRIORITYCURRENT);
-        List<Long> stateList = valueMap.get(ThreadPerformanceProperty.THREADSTATE);
-        List<Long> waitReasonList = valueMap.get(ThreadPerformanceProperty.THREADWAITREASON);
-        List<Long> startAddrList = valueMap.get(ThreadPerformanceProperty.STARTADDRESS);
-        List<Long> contextSwitchesList = valueMap.get(ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC);
+        List<Long> tidList = counterList(valueMap, ThreadPerformanceProperty.IDTHREAD);
+        List<Long> pidList = counterList(valueMap, ThreadPerformanceProperty.IDPROCESS);
+        List<Long> userList = counterList(valueMap, ThreadPerformanceProperty.PERCENTUSERTIME); // 100-nsec
+        List<Long> kernelList = counterList(valueMap, ThreadPerformanceProperty.PERCENTPRIVILEGEDTIME); // 100-nsec
+        List<Long> startTimeList = counterList(valueMap, ThreadPerformanceProperty.ELAPSEDTIME); // filetime
+        List<Long> priorityList = counterList(valueMap, ThreadPerformanceProperty.PRIORITYCURRENT);
+        List<Long> stateList = counterList(valueMap, ThreadPerformanceProperty.THREADSTATE);
+        List<Long> waitReasonList = counterList(valueMap, ThreadPerformanceProperty.THREADWAITREASON);
+        List<Long> startAddrList = counterList(valueMap, ThreadPerformanceProperty.STARTADDRESS);
+        List<Long> contextSwitchesList = counterList(valueMap, ThreadPerformanceProperty.CONTEXTSWITCHESPERSEC);
 
         int nameIndex = 0;
         for (int inst = 0; inst < instances.size(); inst++) {

@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
@@ -36,7 +38,8 @@ public final class ProcessPerformanceDataFFM {
      * @return A map with Process ID as the key and a {@link ProcessPerfCounterBlock} object populated with performance
      *         counter information if successful, or null otherwise.
      */
-    public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
+    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            Collection<Integer> pids) {
         Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
         if (PERFDATA) {
             processData = HkeyPerformanceDataUtilFFM.readPerfDataFromRegistry(ProcessPerformanceData.PROCESS,
@@ -52,7 +55,8 @@ public final class ProcessPerformanceDataFFM {
      * @return A map with Process ID as the key and a {@link ProcessPerfCounterBlock} object populated with performance
      *         counter information.
      */
-    public static Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
+    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+            Collection<Integer> pids) {
         if (PerfmonDisabledFFM.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }

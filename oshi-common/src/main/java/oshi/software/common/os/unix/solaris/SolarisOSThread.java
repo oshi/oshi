@@ -10,6 +10,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.driver.common.unix.solaris.PsInfo;
 import oshi.driver.common.unix.solaris.SolarisLwpsInfo;
 import oshi.driver.common.unix.solaris.SolarisPrUsage;
@@ -22,8 +24,8 @@ import oshi.util.Util;
  */
 public abstract class SolarisOSThread extends AbstractOSThread {
 
-    private final Supplier<SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
-    private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
+    private final Supplier<@Nullable SolarisLwpsInfo> lwpsinfo = memoize(this::queryLwpsInfo, defaultExpiration());
+    private final Supplier<@Nullable SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     /**
      * Constructs a new {@code SolarisOSThread}.
@@ -37,11 +39,11 @@ public abstract class SolarisOSThread extends AbstractOSThread {
         updateAttributes();
     }
 
-    private SolarisLwpsInfo queryLwpsInfo() {
+    private @Nullable SolarisLwpsInfo queryLwpsInfo() {
         return PsInfo.queryLwpsInfo(this.getOwningProcessId(), this.getThreadId());
     }
 
-    private SolarisPrUsage queryPrUsage() {
+    private @Nullable SolarisPrUsage queryPrUsage() {
         return PsInfo.queryPrUsage(this.getOwningProcessId(), this.getThreadId());
     }
 

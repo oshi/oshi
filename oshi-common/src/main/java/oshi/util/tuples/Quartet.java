@@ -4,6 +4,8 @@
  */
 package oshi.util.tuples;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -15,7 +17,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * @param <D> Type of the fourth element
  */
 @ThreadSafe
-public class Quartet<A, B, C, D> {
+public class Quartet<A extends @Nullable Object, B extends @Nullable Object, C extends @Nullable Object, D extends @Nullable Object> {
 
     private final A a;
     private final B b;

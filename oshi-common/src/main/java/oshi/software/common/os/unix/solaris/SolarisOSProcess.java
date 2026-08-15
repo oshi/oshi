@@ -19,6 +19,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.driver.common.unix.solaris.PsInfo;
 import oshi.driver.common.unix.solaris.SolarisPrUsage;
 import oshi.driver.common.unix.solaris.SolarisPsInfo;
@@ -36,8 +38,8 @@ import oshi.util.tuples.Pair;
  */
 public abstract class SolarisOSProcess extends AbstractProcOSProcess {
 
-    private final Supplier<SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
-    private final Supplier<SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
+    private final Supplier<@Nullable SolarisPsInfo> psinfo = memoize(this::queryPsInfo, defaultExpiration());
+    private final Supplier<@Nullable SolarisPrUsage> prusage = memoize(this::queryPrUsage, defaultExpiration());
 
     private volatile long minorFaults;
     private volatile long majorFaults;
@@ -53,11 +55,11 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
         super(pid);
     }
 
-    private SolarisPsInfo queryPsInfo() {
+    private @Nullable SolarisPsInfo queryPsInfo() {
         return PsInfo.queryPsInfo(this.getProcessID());
     }
 
-    private SolarisPrUsage queryPrUsage() {
+    private @Nullable SolarisPrUsage queryPrUsage() {
         return PsInfo.queryPrUsage(this.getProcessID());
     }
 
@@ -66,7 +68,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
      *
      * @return the parsed {@link SolarisPsInfo}, or {@code null} if it could not be read
      */
-    protected SolarisPsInfo getPsInfo() {
+    protected @Nullable SolarisPsInfo getPsInfo() {
         return psinfo.get();
     }
 

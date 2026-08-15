@@ -4,6 +4,8 @@
  */
 package oshi.util.tuples;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -14,7 +16,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * @param <C> Type of the third element
  */
 @ThreadSafe
-public class Triplet<A, B, C> {
+public class Triplet<A extends @Nullable Object, B extends @Nullable Object, C extends @Nullable Object> {
 
     private final A a;
     private final B b;

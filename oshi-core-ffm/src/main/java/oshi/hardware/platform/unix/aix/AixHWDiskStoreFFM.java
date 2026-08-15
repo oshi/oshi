@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Ls;
 import oshi.driver.common.unix.aix.Lscfg;
@@ -64,7 +66,7 @@ public final class AixHWDiskStoreFFM extends AixHWDiskStore {
         List<AixHWDiskStoreFFM> storeList = new ArrayList<>();
         for (PerfstatDiskFFM.Disk disk : diskStats.get()) {
             String storeName = disk.name;
-            Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
+            Pair<@Nullable String, @Nullable String> ms = Lscfg.queryModelSerial(storeName);
             String model = ms.getA() == null ? disk.description : ms.getA();
             String serial = ParseUtil.getStringValueOrUnknown(ms.getB());
             storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));

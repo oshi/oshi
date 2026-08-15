@@ -4,6 +4,8 @@
  */
 package oshi.util.tuples;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -13,7 +15,7 @@ import oshi.annotation.concurrent.ThreadSafe;
  * @param <B> Type of the second element
  */
 @ThreadSafe
-public class Pair<A, B> {
+public class Pair<A extends @Nullable Object, B extends @Nullable Object> {
 
     private final A a;
     private final B b;

@@ -6,6 +6,7 @@ package oshi.util.platform.windows;
 
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +84,7 @@ public final class RegistryUtil {
      * @param accessFlag the access flag
      * @return the registry value as a string
      */
-    public static String getStringValue(WinReg.HKEY root, String path, String key, int accessFlag) {
+    public static @Nullable String getStringValue(WinReg.HKEY root, String path, String key, int accessFlag) {
         Object val = getRegistryValueOrNull(root, path, key, accessFlag);
         return RegistryValueUtil.registryValueToString(val);
     }
