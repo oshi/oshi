@@ -50,6 +50,7 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +125,7 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
         }, fdList, LOG, TRACE, "Failed to query file descriptor list");
     }
 
-    private static IPConnection queryIPConnection(int pid, int fd, Arena arena) {
+    private static @Nullable IPConnection queryIPConnection(int pid, int fd, Arena arena) {
         return getOrDefault(() -> {
             MemorySegment socketInfo = arena.allocate(SOCKET_FD_INFO);
             int ret = proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, socketInfo, (int) SOCKET_FD_INFO.byteSize());

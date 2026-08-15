@@ -7,6 +7,7 @@ package oshi.hardware.platform.mac;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +95,8 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param childEntryName The name of the child entry to search in, or null to search directly in the service
      * @return List of Display objects found using this service
      */
-    private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName, String childEntryName) {
+    private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
+            @Nullable String childEntryName) {
         List<Display> displays = new ArrayList<>();
 
         IOIterator serviceIterator = IOKitUtil.getMatchingServices(serviceName);
@@ -214,7 +216,7 @@ final class MacDisplayJNA extends AbstractDisplay {
 
     // Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with
     // native resolution and device name from the framebuffer node and CoreGraphics.
-    private static DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
+    private static @Nullable DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
         CFDictionaryRef product = CFUtil.getDictionary(attrs, "ProductAttributes");
         if (product == null) {
             return null;
@@ -280,7 +282,7 @@ final class MacDisplayJNA extends AbstractDisplay {
     }
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.
-    private static String getLocalizedDisplayName(int targetDisplayId) {
+    private static @Nullable String getLocalizedDisplayName(int targetDisplayId) {
         return ExceptionUtil.getOrDefault(() -> {
             ObjCRuntime objc = ObjCRuntime.INSTANCE;
             // Autorelease pool is thread-local; concurrent callers each get their own pool
@@ -293,7 +295,7 @@ final class MacDisplayJNA extends AbstractDisplay {
         }, null, LOG, "Failed to get localized display name");
     }
 
-    private static String queryLocalizedDisplayName(ObjCRuntime objc, int targetDisplayId) {
+    private static @Nullable String queryLocalizedDisplayName(ObjCRuntime objc, int targetDisplayId) {
         Pointer nsScreenClass = objc.objc_getClass("NSScreen");
         if (nsScreenClass == null) {
             return null;

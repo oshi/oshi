@@ -23,7 +23,7 @@ public interface IOKitProvider {
      * @param extractor   function applied to the matched entry; receives a non-null {@link RegistryEntry}
      * @return the extracted value, or {@code null} if the service was not found
      */
-    <T extends @Nullable Object> T withMatchingService(String serviceName, Function<RegistryEntry, T> extractor);
+    <T> @Nullable T withMatchingService(String serviceName, Function<RegistryEntry, @Nullable T> extractor);
 
     /**
      * Iterates all IORegistry services matching a class name, invoking a consumer for each entry. Entries and the

@@ -18,6 +18,8 @@ import static oshi.software.os.InternetProtocolStats.TcpState.NONE;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Memory;
 import com.sun.jna.platform.mac.SystemB.InSockInfo;
 import com.sun.jna.platform.mac.SystemB.ProcFdInfo;
@@ -78,7 +80,7 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
         return fdList;
     }
 
-    private static IPConnection queryIPConnection(int pid, int fd) {
+    private static @Nullable IPConnection queryIPConnection(int pid, int fd) {
         try (CloseableSocketFdInfo si = new CloseableSocketFdInfo()) {
             int ret = SystemB.INSTANCE.proc_pidfdinfo(pid, fd, PROC_PIDFDSOCKETINFO, si, si.size());
             if (si.size() == ret && (si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6)) {

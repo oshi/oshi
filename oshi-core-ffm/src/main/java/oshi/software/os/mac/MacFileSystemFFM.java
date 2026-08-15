@@ -28,6 +28,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class MacFileSystemFFM extends MacFileSystem {
     }
 
     // Called by MacOSFileStore
-    static List<OSFileStore> getFileStoreMatching(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getFileStoreMatching(@Nullable String nameToMatch, boolean localOnly) {
         List<OSFileStore> fsList = new ArrayList<>();
         return callInArenaOrDefault(arena -> {
             // Use getfsstat to find fileSystems
