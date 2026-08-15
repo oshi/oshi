@@ -30,6 +30,7 @@ import oshi.util.tuples.Quartet;
  * sysctl backend and the {@code vmstat} parsing are supplied by the subclasses.
  */
 public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
+    private static final Pattern COLON_SPACE = Pattern.compile(": ");
 
     private final Supplier<Pair<Long, Long>> vmStats = memoize(this::queryVmStats, defaultExpiration());
 
@@ -126,7 +127,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
                 }
             }
             if (s.startsWith("cpu")) {
-                String[] ss = s.trim().split(": ", -1);
+                String[] ss = COLON_SPACE.split(s.trim(), -1);
                 if (ss.length == 2 && ss[1].split(",").length > 3) {
                     featureFlags.add(ss[1]);
                 }

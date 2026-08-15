@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,8 @@ import oshi.util.tuples.Triplet;
  */
 @ThreadSafe
 public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
+    private static final Pattern PARENTHESES = Pattern.compile("[()]");
+    private static final Pattern COMMA_SPACE = Pattern.compile(", ");
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxOperatingSystem.class);
 
@@ -307,9 +310,9 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
             if (line.startsWith("VERSION=")) {
                 LOG.debug(OS_RELEASE_LOG, line);
                 line = line.replace("VERSION=", "").replaceAll(DOUBLE_QUOTES, "").trim();
-                String[] split = line.split("[()]");
+                String[] split = PARENTHESES.split(line);
                 if (split.length <= 1) {
-                    split = line.split(", ");
+                    split = COMMA_SPACE.split(line);
                 }
                 if (split.length > 0) {
                     versionId = split[0].trim();
@@ -471,7 +474,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
         if (split.length > 1) {
-            split = split[1].split("[()]");
+            split = PARENTHESES.split(split[1]);
             if (split.length > 0) {
                 versionId = split[0].trim();
             }

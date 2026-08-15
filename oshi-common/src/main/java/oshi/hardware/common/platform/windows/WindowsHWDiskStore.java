@@ -28,6 +28,7 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
+    private static final Pattern WHITESPACE_CHAR = Pattern.compile("\\s");
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStore.class);
 
@@ -213,7 +214,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      * @return The first space-delimited value
      */
     protected static String getIndexFromName(String s) {
-        return s.split("\\s", 2)[0];
+        return WHITESPACE_CHAR.split(s, 2)[0];
     }
 
     /**

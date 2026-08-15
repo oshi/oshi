@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.NetworkParams;
@@ -21,6 +22,7 @@ import oshi.util.ParseUtil;
  */
 @ThreadSafe
 public abstract class AbstractNetworkParams implements NetworkParams {
+    private static final Pattern SERVER_VALUE_DELIM = Pattern.compile("[ \t#;]");
 
     /**
      * Default constructor.
@@ -68,7 +70,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
             if (line.startsWith(key)) {
                 String value = line.substring(key.length()).replaceFirst("^[ \t]+", "");
                 if (!value.isEmpty() && value.charAt(0) != '#' && value.charAt(0) != ';') {
-                    String val = value.split("[ \t#;]", 2)[0];
+                    String val = SERVER_VALUE_DELIM.split(value, 2)[0];
                     servers.add(val);
                 }
             }
