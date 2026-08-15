@@ -56,7 +56,7 @@ public class Win32LogicalDisk {
      * @param localOnly   whether to only search local drives
      * @return the WMI class name with WHERE clause appended
      */
-    public static String buildWmiClassNameWithWhere(String nameToMatch, boolean localOnly) {
+    public static String buildWmiClassNameWithWhere(@Nullable String nameToMatch, boolean localOnly) {
         StringBuilder wmiClassName = new StringBuilder(WIN32_LOGICAL_DISK);
         boolean where = false;
         if (localOnly) {

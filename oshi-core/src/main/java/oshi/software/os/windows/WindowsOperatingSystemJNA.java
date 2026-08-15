@@ -91,7 +91,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     /*
      * Windows event log name
      */
-    private static final Supplier<String> SYSTEM_LOG = memoize(WindowsOperatingSystemJNA::querySystemLog,
+    private static final Supplier<@Nullable String> SYSTEM_LOG = memoize(WindowsOperatingSystemJNA::querySystemLog,
             TimeUnit.HOURS.toNanos(1));
 
     private static final long BOOTTIME = querySystemBootTime();

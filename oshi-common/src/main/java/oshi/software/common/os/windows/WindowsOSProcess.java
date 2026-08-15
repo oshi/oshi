@@ -65,7 +65,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private final Supplier<List<String>> args = memoize(this::queryArguments);
     private final Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
             this::queryCwdCommandlineEnvironment);
-    private final AtomicReference<Map<Integer, ThreadPerfCounterBlock>> tcb = new AtomicReference<>();
+    private final AtomicReference<@Nullable Map<Integer, ThreadPerfCounterBlock>> tcb = new AtomicReference<>();
 
     private volatile long workingSetSize;
     private volatile long privateWorkingSetSize;
@@ -80,7 +80,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param os            the os
      * @param processMap    the processMap
      * @param processWtsMap the processWtsMap
-     * @param threadMap     the threadMap
+     * @param threadMap     the threadMap, or {@code null} if the thread details have not been queried
      */
     protected WindowsOSProcess(int pid, OperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
             Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
