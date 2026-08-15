@@ -5,4 +5,7 @@
 /**
  * FFM bindings for AIX-specific native libraries (libc thread/process IDs, {@code libperfstat}).
  */
+@NullUnmarked
 package oshi.ffm.platform.unix.aix;
+
+import org.jspecify.annotations.NullUnmarked;

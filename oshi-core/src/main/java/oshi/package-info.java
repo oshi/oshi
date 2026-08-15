@@ -60,4 +60,7 @@
  * This approach trades some coverage (not all information is available without native access) for compatibility with
  * restricted JVM environments.
  */
+@NullMarked
 package oshi;
+
+import org.jspecify.annotations.NullMarked;

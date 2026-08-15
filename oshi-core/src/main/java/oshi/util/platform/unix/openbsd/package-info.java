@@ -5,4 +5,7 @@
 /**
  * Provides utilities for OpenBSD
  */
+@NullMarked
 package oshi.util.platform.unix.openbsd;
+
+import org.jspecify.annotations.NullMarked;

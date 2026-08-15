@@ -5,4 +5,7 @@
 /**
  * Provides FFM bindings for cross-platform native libraries.
  */
+@NullUnmarked
 package oshi.ffm.common;
+
+import org.jspecify.annotations.NullUnmarked;

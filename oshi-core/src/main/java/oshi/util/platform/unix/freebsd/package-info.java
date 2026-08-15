@@ -5,4 +5,7 @@
 /**
  * Provides utilities for FreeBSD
  */
+@NullMarked
 package oshi.util.platform.unix.freebsd;
+
+import org.jspecify.annotations.NullMarked;

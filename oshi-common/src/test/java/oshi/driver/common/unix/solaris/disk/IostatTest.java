@@ -7,6 +7,7 @@ package oshi.driver.common.unix.solaris.disk;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -76,6 +77,7 @@ class IostatTest {
         assertThat(result.size(), is(2));
 
         Quintet<String, String, String, String, Long> cmdk0 = result.get("cmdk0");
+        assertNotNull(cmdk0, "cmdk0 missing");
         assertThat(cmdk0.getA(), is("VBOX HARDDISK"));
         assertThat(cmdk0.getB(), is(""));
         assertThat(cmdk0.getC(), is(""));
@@ -83,6 +85,7 @@ class IostatTest {
         assertThat(cmdk0.getE(), is(21474836480L));
 
         Quintet<String, String, String, String, Long> sd0 = result.get("sd0");
+        assertNotNull(sd0, "sd0 missing");
         assertThat(sd0.getA(), is(""));
         assertThat(sd0.getB(), is("ATA"));
         assertThat(sd0.getC(), is("Samsung SSD 860"));

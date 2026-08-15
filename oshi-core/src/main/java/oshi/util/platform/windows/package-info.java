@@ -5,4 +5,7 @@
 /**
  * Provides utilities for Windows.
  */
+@NullMarked
 package oshi.util.platform.windows;
+
+import org.jspecify.annotations.NullMarked;

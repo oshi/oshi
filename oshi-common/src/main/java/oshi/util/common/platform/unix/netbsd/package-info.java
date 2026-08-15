@@ -5,4 +5,7 @@
 /**
  * Provides utilities for NetBSD
  */
+@NullMarked
 package oshi.util.common.platform.unix.netbsd;
+
+import org.jspecify.annotations.NullMarked;

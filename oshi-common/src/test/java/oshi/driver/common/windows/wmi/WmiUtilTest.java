@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 class WmiUtilTest {
@@ -77,6 +78,9 @@ class WmiUtilTest {
     }
 
     @Test
+    // The constructor's parameters are non-null and it enforces that with requireNonNull. This test exists to prove
+    // the enforcement, so it has to pass the nulls the type system otherwise rules out.
+    @SuppressWarnings("NullAway")
     void testWmiQueryNullValidation() {
         assertThrows(NullPointerException.class, () -> new WmiQuery<>(null, "Class", TestProp.class));
         assertThrows(NullPointerException.class, () -> new WmiQuery<>("NS", null, TestProp.class));
@@ -86,9 +90,9 @@ class WmiUtilTest {
     private static class MockWmiResult<T extends Enum<T>> implements WmiResult<T> {
         private final int cimType;
         private final int vtType;
-        private final Object value;
+        private final @Nullable Object value;
 
-        MockWmiResult(int cimType, int vtType, Object value) {
+        MockWmiResult(int cimType, int vtType, @Nullable Object value) {
             this.cimType = cimType;
             this.vtType = vtType;
             this.value = value;
@@ -100,7 +104,7 @@ class WmiUtilTest {
         }
 
         @Override
-        public Object getValue(T property, int index) {
+        public @Nullable Object getValue(T property, int index) {
             return value;
         }
 

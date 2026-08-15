@@ -5,4 +5,7 @@
 /**
  * Provides utilities for Solaris
  */
+@NullMarked
 package oshi.util.platform.unix.solaris;
+
+import org.jspecify.annotations.NullMarked;

@@ -5,4 +5,7 @@
 /**
  * FFM bindings for DragonFly BSD-specific libc functions.
  */
+@NullUnmarked
 package oshi.ffm.platform.unix.dragonflybsd;
+
+import org.jspecify.annotations.NullUnmarked;

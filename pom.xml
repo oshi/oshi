@@ -1237,8 +1237,12 @@
                                 <arg>-Xlint:-options</arg>
                                 <!-- javac's default -Xmaxwarns is 100 per module; Error Prone's findings are
                                 javac warnings, so without this a module with more findings than that silently
-                                drops the rest with no indication anything was truncated. -->
+                                drops the rest with no indication anything was truncated. -Xmaxerrs is the same
+                                cap for the checks raised to ERROR, NullAway among them, and truncates just as
+                                silently: a survey of oshi-common reported exactly 100 findings until it was set. -->
                                 <arg>-Xmaxwarns</arg>
+                                <arg>100000</arg>
+                                <arg>-Xmaxerrs</arg>
                                 <arg>100000</arg>
                                 <arg>-XDcompilePolicy=simple</arg>
                                 <arg>--should-stop=ifError=FLOW</arg>
@@ -1270,7 +1274,7 @@
                                 74-site backlog was drained; every log call now passes the throwable rather than
                                 its message, so it is back at the plugin's default ERROR. Note the severity token
                                 Error Prone accepts is WARN, not WARNING. -->
-                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</arg>
+                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR -Xep:NullAway:WARN -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>
                                 <path>

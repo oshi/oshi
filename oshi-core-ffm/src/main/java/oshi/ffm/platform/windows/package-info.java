@@ -5,4 +5,7 @@
 /**
  * Provides Windows-specific Foreign Function and Memory (FFM) API implementations.
  */
+@NullUnmarked
 package oshi.ffm.platform.windows;
+
+import org.jspecify.annotations.NullUnmarked;

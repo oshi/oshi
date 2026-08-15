@@ -5,4 +5,7 @@
 /**
  * Utility classes for optional vendor GPU library integration (NVML, ADL).
  */
+@NullMarked
 package oshi.util.gpu;
+
+import org.jspecify.annotations.NullMarked;

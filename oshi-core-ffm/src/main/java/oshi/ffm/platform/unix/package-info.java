@@ -5,4 +5,7 @@
 /**
  * Provides FFM access to system libraries for Unix-like systems.
  */
+@NullUnmarked
 package oshi.ffm.platform.unix;
+
+import org.jspecify.annotations.NullUnmarked;

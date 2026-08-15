@@ -5,4 +5,7 @@
 /**
  * Provides utilities for macOS.
  */
+@NullMarked
 package oshi.util.platform.mac;
+
+import org.jspecify.annotations.NullMarked;

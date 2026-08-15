@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.unix.BsdCentralProcessor;
 import oshi.util.ExecutingCommand;
@@ -174,7 +176,7 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
      * @param cpTimeStr the sysctl output string
      * @return array of [user, nice, sys, intr, idle] tick values
      */
-    static long[] parseCpTime(String cpTimeStr) {
+    static long[] parseCpTime(@Nullable String cpTimeStr) {
         long[] ticks = new long[CPUSTATES];
         if (cpTimeStr == null || cpTimeStr.isEmpty()) {
             return ticks;
