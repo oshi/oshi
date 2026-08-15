@@ -108,9 +108,8 @@
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-        <!-- Groundwork for jSpecify nullability annotations: NullAway (the Error Prone check that
-        will enforce them) requires Error Prone as its host platform. Only wired up behind the
-        error-prone profile for now; see pom.xml profile "error-prone". -->
+        <!-- Host platform for NullAway, the Error Prone check that enforces the jSpecify nullability
+        annotations. Wired up behind the error-prone profile; see pom.xml profile "error-prone". -->
         <error-prone.version>2.50.0</error-prone.version>
         <!-- Error Prone plugin adding SLF4J-specific checks (placeholder/argument agreement, constant format
         strings, logger field shape). Registers itself through META-INF/services, so it only needs to be on the
@@ -1215,11 +1214,11 @@
             </properties>
         </profile>
         <profile>
-            <!-- Groundwork for jSpecify nullability annotations: wires Error Prone into the
-            compiler, the host platform NullAway (an Error Prone check) will use to enforce
-            jSpecify annotations once those land. ERROR-severity findings block the build (javac's
-            own default behavior); WARNING-severity findings don't, and accumulate for ongoing
-            triage. Requires JDK 21+ to run (independent of the release target being compiled) and
+            <!-- Wires Error Prone into the compiler, the host platform NullAway (an Error Prone
+            check) uses to enforce the jSpecify nullability annotations. NullAway runs at ERROR, so
+            a signature that contradicts its annotations blocks the build; the codebase reports zero
+            findings as of #3636. WARNING-severity findings from other checks don't block, and
+            accumulate for ongoing triage. Requires JDK 21+ to run (independent of the release target being compiled) and
             the JPMS add-exports/add-opens flags in .mvn/jvm.config. oshi-benchmark opts out (see
             its own pom.xml) - its maven-compiler-plugin config forks a separate javac process for
             its JDK toolchain, and a forked invocation doesn't preserve a multi-option -Xplugin
@@ -1274,7 +1273,7 @@
                                 74-site backlog was drained; every log call now passes the throwable rather than
                                 its message, so it is back at the plugin's default ERROR. Note the severity token
                                 Error Prone accepts is WARN, not WARNING. -->
-                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR -Xep:NullAway:WARN -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</arg>
+                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>
                                 <path>
