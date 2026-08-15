@@ -41,7 +41,7 @@ public abstract class WindowsGpuStats implements GpuStats {
 
     private boolean closed;
 
-    private @Nullable String cachedNvmlDevice;
+    private volatile @Nullable String cachedNvmlDevice;
     private int cachedAdlIndex = Integer.MIN_VALUE;
     private @Nullable GpuTicks prevUtilTicks;
 

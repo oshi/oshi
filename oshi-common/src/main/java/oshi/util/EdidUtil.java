@@ -14,7 +14,6 @@ import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.SuppressForbidden;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.DisplayInfoImpl;
@@ -56,15 +55,12 @@ public final class EdidUtil {
      * @param edid The EDID byte array
      * @return The manufacturer ID
      */
-    @SuppressForbidden(reason = "customized base 2 parsing not in Util class")
     public static String getManufacturerID(byte[] edid) {
-        // Bytes 8-9 are manufacturer ID in 3 5-bit characters.
-        String temp = String.format(Locale.ROOT, "%8s%8s", Integer.toBinaryString(edid[MANUFACTURER_ID_OFFSET] & 0xFF),
-                Integer.toBinaryString(edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF)).replace(' ', '0');
-        LOG.debug("Manufacurer ID: {}", temp);
-        return String.format(Locale.ROOT, "%s%s%s", (char) (64 + Integer.parseInt(temp.substring(1, 6), 2)),
-                (char) (64 + Integer.parseInt(temp.substring(6, 11), 2)),
-                (char) (64 + Integer.parseInt(temp.substring(11, 16), 2))).replace("@", "");
+        // Bytes 8-9 are the manufacturer ID: bit 15 is reserved, then three 5-bit letters, 1 = 'A'.
+        int id = ((edid[MANUFACTURER_ID_OFFSET] & 0xFF) << 8) | (edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF);
+        LOG.debug("Manufacturer ID: {}", id);
+        return String.format(Locale.ROOT, "%s%s%s", (char) (64 + ((id >> 10) & 0x1F)), (char) (64 + ((id >> 5) & 0x1F)),
+                (char) (64 + (id & 0x1F))).replace("@", "");
     }
 
     /**

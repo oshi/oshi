@@ -5,7 +5,6 @@
 package oshi.util.platform.windows;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
@@ -46,10 +45,10 @@ public class WmiQueryHandler implements WmiQueryExecutor {
     private volatile int wmiTimeout = globalTimeout;
 
     // Cache failed wmi classes
-    private final Set<String> failedWmiClassNames = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    private final Set<String> failedWmiClassNames = ConcurrentHashMap.newKeySet();
 
     // Preferred threading model
-    private int comThreading = Ole32.COINIT_MULTITHREADED;
+    private volatile int comThreading = Ole32.COINIT_MULTITHREADED;
 
     // Track initialization of Security
     private volatile boolean securityInitialized = false;
