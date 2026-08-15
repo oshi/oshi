@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -37,28 +39,29 @@ public final class AixComputerSystem extends AbstractComputerSystem {
 
     @Override
     public String getManufacturer() {
-        return lsattrStrings.get().manufacturer;
+        return ParseUtil.getStringValueOrUnknown(lsattrStrings.get().manufacturer);
     }
 
     @Override
     public String getModel() {
-        return lsattrStrings.get().model;
+        return ParseUtil.getStringValueOrUnknown(lsattrStrings.get().model);
     }
 
     @Override
     public String getSerialNumber() {
-        return lsattrStrings.get().serialNumber;
+        return ParseUtil.getStringValueOrUnknown(lsattrStrings.get().serialNumber);
     }
 
     @Override
     public String getHardwareUUID() {
-        return lsattrStrings.get().uuid;
+        return ParseUtil.getStringValueOrUnknown(lsattrStrings.get().uuid);
     }
 
     @Override
     public Firmware createFirmware() {
-        return new AixFirmware(lsattrStrings.get().biosVendor, lsattrStrings.get().biosPlatformVersion,
-                lsattrStrings.get().biosVersion);
+        return new AixFirmware(ParseUtil.getStringValueOrUnknown(lsattrStrings.get().biosVendor),
+                ParseUtil.getStringValueOrUnknown(lsattrStrings.get().biosPlatformVersion),
+                ParseUtil.getStringValueOrUnknown(lsattrStrings.get().biosVersion));
     }
 
     @Override
@@ -140,17 +143,18 @@ public final class AixComputerSystem extends AbstractComputerSystem {
     }
 
     static final class LsattrStrings {
-        private final String biosVendor;
-        private final String biosPlatformVersion;
-        private final String biosVersion;
+        private final @Nullable String biosVendor;
+        private final @Nullable String biosPlatformVersion;
+        private final @Nullable String biosVersion;
 
-        private final String manufacturer;
-        private final String model;
-        private final String serialNumber;
-        private final String uuid;
+        private final @Nullable String manufacturer;
+        private final @Nullable String model;
+        private final @Nullable String serialNumber;
+        private final @Nullable String uuid;
 
-        private LsattrStrings(String biosVendor, String biosPlatformVersion, String biosVersion, String manufacturer,
-                String model, String serialNumber, String uuid) {
+        private LsattrStrings(@Nullable String biosVendor, @Nullable String biosPlatformVersion,
+                @Nullable String biosVersion, @Nullable String manufacturer, @Nullable String model,
+                @Nullable String serialNumber, @Nullable String uuid) {
             this.biosVendor = ParseUtil.getStringValueOrUnknown(biosVendor);
             this.biosPlatformVersion = ParseUtil.getStringValueOrUnknown(biosPlatformVersion);
             this.biosVersion = ParseUtil.getStringValueOrUnknown(biosVersion);
@@ -161,30 +165,37 @@ public final class AixComputerSystem extends AbstractComputerSystem {
             this.uuid = ParseUtil.getStringValueOrUnknown(uuid);
         }
 
+        @Nullable
         String biosVendor() {
             return biosVendor;
         }
 
+        @Nullable
         String biosPlatformVersion() {
             return biosPlatformVersion;
         }
 
+        @Nullable
         String biosVersion() {
             return biosVersion;
         }
 
+        @Nullable
         String manufacturer() {
             return manufacturer;
         }
 
+        @Nullable
         String model() {
             return model;
         }
 
+        @Nullable
         String serialNumber() {
             return serialNumber;
         }
 
+        @Nullable
         String uuid() {
             return uuid;
         }

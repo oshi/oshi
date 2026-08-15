@@ -8,6 +8,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
@@ -25,7 +27,7 @@ final class LinuxBaseboard extends AbstractBaseboard {
     private final Supplier<String> model = memoize(this::queryModel);
     private final Supplier<String> version = memoize(this::queryVersion);
     private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
-    private final Supplier<Quartet<String, String, String, String>> manufacturerModelVersionSerial = memoize(
+    private final Supplier<Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String>> manufacturerModelVersionSerial = memoize(
             CpuInfo::queryBoardInfo);
 
     @Override

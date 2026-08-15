@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.ParseUtil;
@@ -62,8 +64,8 @@ public abstract class MacBaseboard extends AbstractBaseboard {
      * @return a quartet of manufacturer, model, version, serial number
      */
     protected Quartet<String, String, String, String> queryPlatform() {
-        Quartet<String, String, String, String> result = ioKitProvider().withMatchingService("IOPlatformExpertDevice",
-                entry -> {
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> result = ioKitProvider()
+                .withMatchingService("IOPlatformExpertDevice", entry -> {
                     String mfr = decodeProperty(entry.getByteArrayProperty("manufacturer"));
                     String mdl = decodeProperty(entry.getByteArrayProperty("board-id"));
                     if (Util.isBlank(mdl)) {
@@ -74,17 +76,19 @@ public abstract class MacBaseboard extends AbstractBaseboard {
                     if (Util.isBlank(sn)) {
                         sn = entry.getStringProperty("IOPlatformSerialNumber");
                     }
-                    return new Quartet<>(mfr, mdl, ver, sn);
+                    return new Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String>(mfr, mdl,
+                            ver, sn);
                 });
         if (result == null) {
             result = new Quartet<>(null, null, null, null);
         }
-        return new Quartet<>(Util.isBlank(result.getA()) ? "Apple Inc." : result.getA(),
+        String mfr = result.getA();
+        return new Quartet<>(mfr == null || mfr.isEmpty() ? "Apple Inc." : mfr,
                 ParseUtil.getStringValueOrUnknown(result.getB()), ParseUtil.getStringValueOrUnknown(result.getC()),
                 ParseUtil.getStringValueOrUnknown(result.getD()));
     }
 
-    private static String decodeProperty(byte[] data) {
+    private static @Nullable String decodeProperty(byte @Nullable [] data) {
         return data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
     }
 }

@@ -9,10 +9,11 @@ import static oshi.util.Memoizer.memoize;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractComputerSystem;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.tuples.Quartet;
 
 /**
@@ -63,20 +64,22 @@ public abstract class MacComputerSystem extends AbstractComputerSystem {
      * @return a quartet of manufacturer, model, serial number, UUID
      */
     protected Quartet<String, String, String, String> platformExpert() {
-        Quartet<String, String, String, String> result = ioKitProvider().withMatchingService("IOPlatformExpertDevice",
-                entry -> {
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> result = ioKitProvider()
+                .withMatchingService("IOPlatformExpertDevice", entry -> {
                     byte[] data = entry.getByteArrayProperty("manufacturer");
                     String mfr = data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
                     data = entry.getByteArrayProperty("model");
                     String mdl = data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
                     String sn = entry.getStringProperty("IOPlatformSerialNumber");
                     String uuid = entry.getStringProperty("IOPlatformUUID");
-                    return new Quartet<>(mfr, mdl, sn, uuid);
+                    return new Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String>(mfr, mdl,
+                            sn, uuid);
                 });
         if (result == null) {
             result = new Quartet<>(null, null, null, null);
         }
-        return new Quartet<>(Util.isBlank(result.getA()) ? "Apple Inc." : result.getA(),
+        String mfr = result.getA();
+        return new Quartet<>(mfr == null || mfr.isEmpty() ? "Apple Inc." : mfr,
                 ParseUtil.getStringValueOrUnknown(result.getB()), ParseUtil.getStringValueOrUnknown(result.getC()),
                 ParseUtil.getStringValueOrUnknown(result.getD()));
     }

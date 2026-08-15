@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -27,27 +29,27 @@ import oshi.util.tuples.Quintet;
 @Immutable
 public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
+    private final Supplier<Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String>> manufModelSerialUuidVers = memoize(
             this::readDmiDecode);
 
     @Override
     public String getManufacturer() {
-        return manufModelSerialUuidVers.get().getA();
+        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getA());
     }
 
     @Override
     public String getModel() {
-        return manufModelSerialUuidVers.get().getB();
+        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getB());
     }
 
     @Override
     public String getSerialNumber() {
-        return manufModelSerialUuidVers.get().getC();
+        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getC());
     }
 
     @Override
     public String getHardwareUUID() {
-        return manufModelSerialUuidVers.get().getD();
+        return ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getD());
     }
 
     @Override
@@ -57,8 +59,10 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new UnixBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),
-                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());
+        return new UnixBaseboard(ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getA()),
+                ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getB()),
+                ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getC()),
+                ParseUtil.getStringValueOrUnknown(manufModelSerialUuidVers.get().getE()));
     }
 
     /**
@@ -69,9 +73,9 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
      */
     protected abstract String queryHostUuid();
 
-    private Quintet<String, String, String, String, String> readDmiDecode() {
+    private Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> readDmiDecode() {
         // Only works with root permissions but it's all we've got
-        Quintet<String, String, String, String, String> dmi = parseDmiDecode(
+        Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
                 ExecutingCommand.runNative("dmidecode -t system"));
         String manufacturer = dmi.getA();
         String model = dmi.getB();
@@ -97,7 +101,8 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
      * @param dmidecode the lines emitted by {@code dmidecode -t system}
      * @return a {@link Quintet} of manufacturer, model, serial number, UUID, and version
      */
-    static Quintet<String, String, String, String, String> parseDmiDecode(List<String> dmidecode) {
+    static Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> parseDmiDecode(
+            List<String> dmidecode) {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;

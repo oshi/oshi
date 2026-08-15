@@ -8,6 +8,8 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.wmi.Win32Bios;
 import oshi.driver.common.windows.wmi.Win32Bios.BiosSerialProperty;
@@ -34,8 +36,10 @@ public abstract class WindowsComputerSystem extends AbstractComputerSystem {
     protected WindowsComputerSystem() {
     }
 
-    private final Supplier<Pair<String, String>> manufacturerModel = memoize(this::queryManufacturerModel);
-    private final Supplier<Pair<String, String>> serialNumberUUID = memoize(this::querySystemSerialNumberUUID);
+    private final Supplier<Pair<@Nullable String, @Nullable String>> manufacturerModel = memoize(
+            this::queryManufacturerModel);
+    private final Supplier<Pair<@Nullable String, @Nullable String>> serialNumberUUID = memoize(
+            this::querySystemSerialNumberUUID);
 
     /**
      * Returns the WMI query executor for this platform.
@@ -46,25 +50,25 @@ public abstract class WindowsComputerSystem extends AbstractComputerSystem {
 
     @Override
     public String getManufacturer() {
-        return manufacturerModel.get().getA();
+        return ParseUtil.getStringValueOrUnknown(manufacturerModel.get().getA());
     }
 
     @Override
     public String getModel() {
-        return manufacturerModel.get().getB();
+        return ParseUtil.getStringValueOrUnknown(manufacturerModel.get().getB());
     }
 
     @Override
     public String getSerialNumber() {
-        return serialNumberUUID.get().getA();
+        return ParseUtil.getStringValueOrUnknown(serialNumberUUID.get().getA());
     }
 
     @Override
     public String getHardwareUUID() {
-        return serialNumberUUID.get().getB();
+        return ParseUtil.getStringValueOrUnknown(serialNumberUUID.get().getB());
     }
 
-    private Pair<String, String> queryManufacturerModel() {
+    private Pair<@Nullable String, @Nullable String> queryManufacturerModel() {
         String manufacturer = null;
         String model = null;
         WmiResult<ComputerSystemProperty> win32ComputerSystem = Win32ComputerSystem
@@ -76,7 +80,7 @@ public abstract class WindowsComputerSystem extends AbstractComputerSystem {
         return new Pair<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(model));
     }
 
-    private Pair<String, String> querySystemSerialNumberUUID() {
+    private Pair<@Nullable String, @Nullable String> querySystemSerialNumberUUID() {
         String serialNumber = null;
         String uuid = null;
         WmiResult<ComputerSystemProductProperty> win32ComputerSystemProduct = Win32ComputerSystemProduct
@@ -98,6 +102,7 @@ public abstract class WindowsComputerSystem extends AbstractComputerSystem {
         return new Pair<>(serialNumber, uuid);
     }
 
+    @Nullable
     String querySerialFromBios() {
         WmiResult<BiosSerialProperty> serialNum = Win32Bios.querySerialNumber(getWmiQueryExecutor());
         if (serialNum.getResultCount() > 0) {
