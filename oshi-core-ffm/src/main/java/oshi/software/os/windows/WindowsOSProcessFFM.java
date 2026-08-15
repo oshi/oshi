@@ -79,7 +79,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpersFFM.IsWindows7OrGreater();
 
     public WindowsOSProcessFFM(int pid, WindowsOperatingSystemFFM os, Map<Integer, ProcessPerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+            Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid, os, processMap, processWtsMap, threadMap);
     }
 
@@ -156,7 +156,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     }
 
     @Override
-    protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
         Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
         if (threads == null || threads.isEmpty()) {
             threads = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
@@ -230,7 +230,7 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
         return pair != null ? pair : defaultPair();
     }
 
-    private Pair<String, String> getTokenAccountInfo(MemorySegment hToken, int tokenInfoClass, Arena arena)
+    private @Nullable Pair<String, String> getTokenAccountInfo(MemorySegment hToken, int tokenInfoClass, Arena arena)
             throws Throwable {
         MemorySegment returnLength = arena.allocate(JAVA_INT);
         Advapi32FFM.GetTokenInformation(hToken, tokenInfoClass, MemorySegment.NULL, 0, returnLength);

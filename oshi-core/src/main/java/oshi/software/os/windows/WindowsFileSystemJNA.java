@@ -11,6 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
@@ -129,7 +131,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
      * @param volumeToMatch an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted volumes
      */
-    static List<OSFileStore> getLocalVolumes(String volumeToMatch) {
+    static List<OSFileStore> getLocalVolumes(@Nullable String volumeToMatch) {
         List<OSFileStore> fs;
         String volume;
         String strFsType;
@@ -216,7 +218,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
      * @param localOnly   Whether to only search local drives
      * @return A list of {@link OSFileStore} objects representing all network mounted volumes
      */
-    static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getWmiVolumes(@Nullable String nameToMatch, boolean localOnly) {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();

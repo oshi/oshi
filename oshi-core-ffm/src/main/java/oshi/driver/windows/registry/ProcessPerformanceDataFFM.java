@@ -39,7 +39,7 @@ public final class ProcessPerformanceDataFFM {
      *         counter information if successful, or null otherwise.
      */
     public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
-            Collection<Integer> pids) {
+            @Nullable Collection<Integer> pids) {
         Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
         if (PERFDATA) {
             processData = HkeyPerformanceDataUtilFFM.readPerfDataFromRegistry(ProcessPerformanceData.PROCESS,
@@ -56,7 +56,7 @@ public final class ProcessPerformanceDataFFM {
      *         counter information.
      */
     public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
-            Collection<Integer> pids) {
+            @Nullable Collection<Integer> pids) {
         if (PerfmonDisabledFFM.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }

@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.oneOf;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -84,11 +85,11 @@ class WindowsOperatingSystemFFMTest {
             return queryDescendantProcesses(parentPid);
         }
 
-        private Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCountersForTest() {
+        private @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCountersForTest() {
             return buildProcessMapFromPerfCounters(null);
         }
 
-        private Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCountersForTest() {
+        private @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCountersForTest() {
             return buildThreadMapFromPerfCounters(null);
         }
 

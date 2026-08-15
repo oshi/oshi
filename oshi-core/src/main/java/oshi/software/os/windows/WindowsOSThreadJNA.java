@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
@@ -18,7 +20,7 @@ import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 @ThreadSafe
 public class WindowsOSThreadJNA extends oshi.software.common.os.windows.WindowsOSThread {
 
-    public WindowsOSThreadJNA(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
+    public WindowsOSThreadJNA(int pid, int tid, @Nullable String procName, @Nullable ThreadPerfCounterBlock pcb) {
         super(pid, tid, procName, pcb);
     }
 

@@ -65,7 +65,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     private final Supplier<List<String>> args = memoize(this::queryArguments);
     private final Supplier<Triplet<String, String, Map<String, String>>> cwdCmdEnv = memoize(
             this::queryCwdCommandlineEnvironment);
-    private final AtomicReference<Map<Integer, ThreadPerfCounterBlock>> tcb = new AtomicReference<>();
+    private final AtomicReference<@Nullable Map<Integer, ThreadPerfCounterBlock>> tcb = new AtomicReference<>();
 
     private volatile long workingSetSize;
     private volatile long privateWorkingSetSize;
@@ -80,10 +80,10 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param os            the os
      * @param processMap    the processMap
      * @param processWtsMap the processWtsMap
-     * @param threadMap     the threadMap
+     * @param threadMap     the threadMap, or {@code null} if the thread details have not been queried
      */
     protected WindowsOSProcess(int pid, OperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+            Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid);
         this.os = os;
         this.bitness = os.getBitness();
@@ -302,7 +302,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      *
      * @param tcb the thread performance counter block map
      */
-    protected void setTcb(Map<Integer, ThreadPerfCounterBlock> tcb) {
+    protected void setTcb(@Nullable Map<Integer, ThreadPerfCounterBlock> tcb) {
         this.tcb.set(tcb);
     }
 
@@ -312,7 +312,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param pids the set of process IDs to match
      * @return a map of thread ID to thread performance counter block
      */
-    protected abstract Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids);
+    protected abstract @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids);
 
     /**
      * Queries the command line for this process.

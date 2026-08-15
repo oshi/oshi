@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,14 +63,14 @@ public final class ProcessWtsDataFFM {
      * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
      * @return A map with Process ID as the key and a {@link WtsInfo} object populated with data.
      */
-    public static Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids) {
+    public static Map<Integer, WtsInfo> queryProcessWtsMap(@Nullable Collection<Integer> pids) {
         if (IS_WINDOWS7_OR_GREATER) {
             return queryProcessWtsMapFromWTS(pids);
         }
         return queryProcessWtsMapFromWMI(pids);
     }
 
-    private static Map<Integer, WtsInfo> queryProcessWtsMapFromWTS(Collection<Integer> pids) {
+    private static Map<Integer, WtsInfo> queryProcessWtsMapFromWTS(@Nullable Collection<Integer> pids) {
         Set<Integer> pidSet = pids != null ? new HashSet<>(pids) : null;
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         return callInArenaOrDefault(arena -> {
@@ -113,7 +114,7 @@ public final class ProcessWtsDataFFM {
         }, LOG, ERROR, "Failed to enumerate Processes via WTS", wtsMap);
     }
 
-    static Map<Integer, WtsInfo> queryProcessWtsMapFromWMI(Collection<Integer> pids) {
+    static Map<Integer, WtsInfo> queryProcessWtsMapFromWMI(@Nullable Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         WmiResult<ProcessXPProperty> processWmiResult = Win32ProcessFFM.queryProcesses(pids);
         for (int i = 0; i < processWmiResult.getResultCount(); i++) {

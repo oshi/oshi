@@ -91,7 +91,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     /*
      * Windows event log name
      */
-    private static final Supplier<String> SYSTEM_LOG = memoize(WindowsOperatingSystemJNA::querySystemLog,
+    private static final Supplier<@Nullable String> SYSTEM_LOG = memoize(WindowsOperatingSystemJNA::querySystemLog,
             TimeUnit.HOURS.toNanos(1));
 
     private static final long BOOTTIME = querySystemBootTime();
@@ -110,23 +110,26 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             .memoize(WindowsInstalledAppsJNA::queryInstalledApps, installedAppsExpiration());
 
     @Override
-    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
     }
 
     @Override
-    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+    protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
             @Nullable Collection<Integer> pids) {
         return ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
     }
 
     @Override
-    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
     }
 
     @Override
-    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            @Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids);
     }
 
@@ -377,7 +380,7 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
         }
     }
 
-    private static String querySystemLog() {
+    private static @Nullable String querySystemLog() {
         String systemLog = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_EVENTLOG, "System");
         if (systemLog.isEmpty()) {
             // Use faster boot time approximation

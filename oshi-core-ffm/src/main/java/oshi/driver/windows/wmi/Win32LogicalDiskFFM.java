@@ -6,6 +6,8 @@ package oshi.driver.windows.wmi;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk.LogicalDiskProperty;
@@ -17,7 +19,7 @@ public final class Win32LogicalDiskFFM extends Win32LogicalDisk {
     private Win32LogicalDiskFFM() {
     }
 
-    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {
+    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(@Nullable String nameToMatch, boolean localOnly) {
         return Win32LogicalDisk.queryLogicalDisk(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()),
                 nameToMatch, localOnly);
     }

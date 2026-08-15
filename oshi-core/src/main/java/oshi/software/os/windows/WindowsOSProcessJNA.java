@@ -64,7 +64,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     private static final boolean IS_WINDOWS7_OR_GREATER = VersionHelpers.IsWindows7OrGreater();
 
     public WindowsOSProcessJNA(int pid, WindowsOperatingSystemJNA os, Map<Integer, ProcessPerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+            Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid, os, processMap, processWtsMap, threadMap);
     }
 
@@ -143,7 +143,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     }
 
     @Override
-    protected Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
         Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
         if (threads == null || threads.isEmpty()) {
             threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
