@@ -438,8 +438,8 @@ class EdidUtilTest {
     void testManufacturerLetters() {
         assertThat("AUO", EdidUtil.manufacturerLetters((1 << 10) | (21 << 5) | 15), is("AUO"));
         assertThat("first and last letter", EdidUtil.manufacturerLetters((1 << 10) | (26 << 5) | 26), is("AZZ"));
-        assertThat("reserved high bit is ignored", EdidUtil.manufacturerLetters(0x8000 | (1 << 10) | (21 << 5) | 15),
-                is("AUO"));
+        assertThat("everything above bit 14 is ignored",
+                EdidUtil.manufacturerLetters(0xFFFF8000 | (1 << 10) | (21 << 5) | 15), is("AUO"));
     }
 
     /**

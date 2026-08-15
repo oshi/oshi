@@ -64,14 +64,15 @@ public final class EdidUtil {
     /**
      * Decodes the letters packed into the manufacturer ID of a real EDID.
      * <p>
-     * Bytes 8 and 9 hold, from the most significant bit down: one reserved bit, then three five-bit letter codes in
-     * which {@code 1} is {@code 'A'}. A code of zero is not a letter; a manufacturer with a two-letter ID leaves one
-     * empty, and it is dropped rather than rendered.
+     * The three letters are three five-bit codes in the low 15 bits, most significant first, in which {@code 1} is
+     * {@code 'A'}. A code of zero is not a letter; a manufacturer with a two-letter ID leaves one empty, and it is
+     * dropped rather than rendered. Everything above bit 14 is ignored.
      * <p>
-     * This is the lenient reader, for bytes that came from hardware. {@link #decodeManufacturerId(long)} is the strict
+     * This is the lenient reader, for bits that came from hardware. {@link #decodeManufacturerId(long)} is the strict
      * one, which rejects the whole ID if any code is not a letter, and is used to validate a synthesized display.
      *
-     * @param packedId the two manufacturer ID bytes, most significant first
+     * @param packedId the manufacturer ID in its low 15 bits. Taken as an {@code int} so the caller composing it from
+     *                 EDID bytes 8 and 9 need not cast; the width beyond those 15 bits carries no meaning
      * @return the manufacturer's letters, at most three of them
      */
     static String manufacturerLetters(int packedId) {
