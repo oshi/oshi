@@ -19,6 +19,7 @@ import oshi.driver.unix.aix.perfstat.PerfstatDiskFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.common.platform.unix.aix.AixHWDiskStore;
 import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -65,7 +66,7 @@ public final class AixHWDiskStoreFFM extends AixHWDiskStore {
             String storeName = disk.name;
             Pair<String, String> ms = Lscfg.queryModelSerial(storeName);
             String model = ms.getA() == null ? disk.description : ms.getA();
-            String serial = ms.getB() == null ? Constants.UNKNOWN : ms.getB();
+            String serial = ParseUtil.getStringValueOrUnknown(ms.getB());
             storeList.add(createStore(storeName, model, serial, disk.size << 20, diskStats, majMinMap));
         }
         return storeList.stream()

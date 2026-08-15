@@ -34,6 +34,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.mac.MacFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.FileSystemUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CFUtil;
 import oshi.util.platform.mac.SysctlUtil;
 
@@ -164,7 +165,7 @@ public class MacFileSystemJNA extends MacFileSystem {
                     }
 
                     fsList.add(new MacOSFileStoreJNA(name, volume, name, path, options.toString(),
-                            uuid == null ? "" : uuid, isLocal, "", description, type, file.getFreeSpace(),
+                            ParseUtil.getStringValueOrEmpty(uuid), isLocal, "", description, type, file.getFreeSpace(),
                             file.getUsableSpace(), file.getTotalSpace(), fs[f].f_ffree, fs[f].f_files));
                 }
                 daVolumeNameKey.release();

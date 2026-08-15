@@ -24,7 +24,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.linux.LinuxHWDiskStore;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 
@@ -88,7 +87,7 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                         devSerial = device.getPropertyValue(DM_UUID);
                                         devModel = getModelForDmDevice(devSerial);
                                         store = new LinuxHWDiskStoreJNA(devnode, devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize, "Virtual");
+                                                ParseUtil.getStringValueOrUnknown(devSerial), devSize, "Virtual");
                                         String vgName = device.getPropertyValue(DM_VG_NAME);
                                         String lvName = device.getPropertyValue(DM_LV_NAME);
                                         addDeviceMapperPartition(store, mountsMap, devSerial, vgName, lvName,
@@ -102,8 +101,8 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
                                                 ParseUtil.parseIntOrDefault(device.getPropertyValue(MINOR), 0));
                                     } else {
                                         store = new LinuxHWDiskStoreJNA(devnode,
-                                                devModel == null ? Constants.UNKNOWN : devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize,
+                                                ParseUtil.getStringValueOrUnknown(devModel),
+                                                ParseUtil.getStringValueOrUnknown(devSerial), devSize,
                                                 detectDiskType(device));
                                     }
                                     if (storeToUpdate == null) {

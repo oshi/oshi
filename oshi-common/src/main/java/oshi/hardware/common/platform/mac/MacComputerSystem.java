@@ -11,7 +11,6 @@ import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractComputerSystem;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
@@ -78,8 +77,7 @@ public abstract class MacComputerSystem extends AbstractComputerSystem {
             result = new Quartet<>(null, null, null, null);
         }
         return new Quartet<>(Util.isBlank(result.getA()) ? "Apple Inc." : result.getA(),
-                Util.isBlank(result.getB()) ? Constants.UNKNOWN : result.getB(),
-                Util.isBlank(result.getC()) ? Constants.UNKNOWN : result.getC(),
-                Util.isBlank(result.getD()) ? Constants.UNKNOWN : result.getD());
+                ParseUtil.getStringValueOrUnknown(result.getB()), ParseUtil.getStringValueOrUnknown(result.getC()),
+                ParseUtil.getStringValueOrUnknown(result.getD()));
     }
 }

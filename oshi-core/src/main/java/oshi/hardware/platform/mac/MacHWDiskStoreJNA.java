@@ -37,7 +37,7 @@ import oshi.driver.mac.disk.Fsstat;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.mac.MacHWDiskStore;
-import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CFUtil;
 
 /**
@@ -208,7 +208,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                                 Integer bsdMinor = sdService.getIntegerProperty("BSD Minor");
                                 String uuid = sdService.getStringProperty("UUID");
                                 partitions.add(new HWPartition(partBsdName, name, type,
-                                        uuid == null ? Constants.UNKNOWN : uuid, label, size == null ? 0L : size,
+                                        ParseUtil.getStringValueOrUnknown(uuid), label, size == null ? 0L : size,
                                         bsdMajor == null ? 0 : bsdMajor, bsdMinor == null ? 0 : bsdMinor, mountPoint));
                                 // iterate
                                 sdService.release();

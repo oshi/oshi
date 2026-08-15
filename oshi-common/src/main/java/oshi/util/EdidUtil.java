@@ -667,7 +667,7 @@ public final class EdidUtil {
             serialDescriptor = serialNo;
         }
         return new DisplayInfoImpl(manufacturer, product, serialNo, wk, yr, "1.4", true, hcm, vcm, resolution,
-                modelName == null ? "" : modelName, serialDescriptor == null ? "" : serialDescriptor);
+                ParseUtil.getStringValueOrEmpty(modelName), ParseUtil.getStringValueOrEmpty(serialDescriptor));
     }
 
     /**

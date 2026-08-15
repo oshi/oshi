@@ -34,7 +34,6 @@ import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
 import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.platform.windows.WindowsGraphicsCard;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
@@ -131,11 +130,10 @@ final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
                     String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(Util.isBlank(name) ? "" : name),
                             "");
 
-                    GraphicsCard card = new WindowsGraphicsCardFFM(Util.isBlank(name) ? Constants.UNKNOWN : name,
-                            Util.isBlank(deviceId) ? Constants.UNKNOWN : deviceId,
-                            Util.isBlank(vendor) ? Constants.UNKNOWN : vendor,
-                            Util.isBlank(versionInfo) ? Constants.UNKNOWN : versionInfo, vram, luidPrefix, lhmParent,
-                            pciBusNumber, pciBusId);
+                    GraphicsCard card = new WindowsGraphicsCardFFM(ParseUtil.getStringValueOrUnknown(name),
+                            ParseUtil.getStringValueOrUnknown(deviceId), ParseUtil.getStringValueOrUnknown(vendor),
+                            ParseUtil.getStringValueOrUnknown(versionInfo), vram, luidPrefix, lhmParent, pciBusNumber,
+                            pciBusId);
                     if (dxgiMatch != null) {
                         remainingDxgi.remove(dxgiMatch);
                     }

@@ -192,9 +192,8 @@ public abstract class WindowsGraphicsCard extends AbstractGraphicsCard {
 
             // pciBusNumber and pciBusId are not available via WMI; ADL and NVML correlation are skipped for cards
             // enumerated through this path.
-            GraphicsCard card = factory.create(Util.isBlank(name) ? Constants.UNKNOWN : name, deviceId,
-                    Util.isBlank(vendor) ? Constants.UNKNOWN : vendor, versionInfo, vram, luidPrefix, lhmParent, -1,
-                    "");
+            GraphicsCard card = factory.create(ParseUtil.getStringValueOrUnknown(name), deviceId,
+                    ParseUtil.getStringValueOrUnknown(vendor), versionInfo, vram, luidPrefix, lhmParent, -1, "");
 
             // Remove dxgiMatch only after the card is successfully constructed, matching the registry path's defensive
             // pattern so that a failure during construction leaves the match available for subsequent entries.

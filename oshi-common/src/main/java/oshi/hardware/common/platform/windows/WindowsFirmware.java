@@ -15,8 +15,7 @@ import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.common.AbstractFirmware;
-import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -78,10 +77,8 @@ public abstract class WindowsFirmware extends AbstractFirmware {
             version = WmiUtil.getString(win32BIOS, BiosProperty.VERSION, 0);
             releaseDate = WmiUtil.getDateString(win32BIOS, BiosProperty.RELEASEDATE, 0);
         }
-        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(name) ? Constants.UNKNOWN : name,
-                Util.isBlank(description) ? Constants.UNKNOWN : description,
-                Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(releaseDate) ? Constants.UNKNOWN : releaseDate);
+        return new Quintet<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(name),
+                ParseUtil.getStringValueOrUnknown(description), ParseUtil.getStringValueOrUnknown(version),
+                ParseUtil.getStringValueOrUnknown(releaseDate));
     }
 }

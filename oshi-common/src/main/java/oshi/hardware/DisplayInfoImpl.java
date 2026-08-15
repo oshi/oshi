@@ -105,10 +105,10 @@ public class DisplayInfoImpl implements DisplayInfo {
         this.vcm = vcm;
         // Normalize absent values to empty so no getter returns null, matching the DisplayInfo contract and the
         // unknown-is-empty convention the rest of the API follows.
-        this.serialNo = serialNo == null ? "" : serialNo;
-        this.preferredResolution = preferredResolution == null ? "" : preferredResolution;
-        this.model = model == null ? "" : model;
-        this.productSerialNumber = productSerialNumber == null ? "" : productSerialNumber;
+        this.serialNo = ParseUtil.getStringValueOrEmpty(serialNo);
+        this.preferredResolution = ParseUtil.getStringValueOrEmpty(preferredResolution);
+        this.model = ParseUtil.getStringValueOrEmpty(model);
+        this.productSerialNumber = ParseUtil.getStringValueOrEmpty(productSerialNumber);
     }
 
     @Override

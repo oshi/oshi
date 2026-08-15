@@ -22,7 +22,6 @@ import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.linux.LinuxHWDiskStore;
-import oshi.util.Constants;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 
@@ -105,7 +104,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                         devSerial = UdevFunctions.getPropertyValue(device, DM_UUID, arena);
                                         devModel = getModelForDmDevice(devSerial);
                                         store = new LinuxHWDiskStoreFFM(devnode, devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize, "Virtual");
+                                                ParseUtil.getStringValueOrUnknown(devSerial), devSize, "Virtual");
                                         addDeviceMapperPartition(store, mountsMap, devSerial,
                                                 UdevFunctions.getPropertyValue(device, DM_VG_NAME, arena),
                                                 UdevFunctions.getPropertyValue(device, DM_LV_NAME, arena),
@@ -124,8 +123,8 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                                         UdevFunctions.getPropertyValue(device, MINOR, arena), 0));
                                     } else {
                                         store = new LinuxHWDiskStoreFFM(devnode,
-                                                devModel == null ? Constants.UNKNOWN : devModel,
-                                                devSerial == null ? Constants.UNKNOWN : devSerial, devSize,
+                                                ParseUtil.getStringValueOrUnknown(devModel),
+                                                ParseUtil.getStringValueOrUnknown(devSerial), devSize,
                                                 detectDiskType(device, arena));
                                     }
                                     if (storeToUpdate == null) {
@@ -156,8 +155,9 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
                                             String fsUuid = UdevFunctions.getPropertyValue(device, ID_FS_UUID, arena);
                                             String fsLabel = UdevFunctions.getPropertyValue(device, ID_FS_LABEL, arena);
                                             store.getMutablePartitionList().add(new HWPartition(name, sysname,
-                                                    fsType == null ? PARTITION : fsType, fsUuid == null ? "" : fsUuid,
-                                                    fsLabel == null ? "" : fsLabel,
+                                                    fsType == null ? PARTITION : fsType,
+                                                    ParseUtil.getStringValueOrEmpty(fsUuid),
+                                                    ParseUtil.getStringValueOrEmpty(fsLabel),
                                                     ParseUtil.parseLongOrDefault(
                                                             UdevFunctions.getSysattrValue(device, SIZE, arena), 0L)
                                                             * SECTORSIZE,

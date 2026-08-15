@@ -15,7 +15,7 @@ import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.Constants;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Quartet;
 
@@ -75,8 +75,7 @@ public abstract class WindowsBaseboard extends AbstractBaseboard {
             version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
             serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
         }
-        return new Quartet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
-                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
+        return new Quartet<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(model),
+                ParseUtil.getStringValueOrUnknown(version), ParseUtil.getStringValueOrUnknown(serialNumber));
     }
 }

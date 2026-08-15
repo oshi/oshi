@@ -85,10 +85,9 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(uuid)) {
             uuid = queryHostUuid();
         }
-        return new Quintet<>(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-                Util.isBlank(model) ? Constants.UNKNOWN : model,
-                Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber,
-                Util.isBlank(uuid) ? Constants.UNKNOWN : uuid, Util.isBlank(version) ? Constants.UNKNOWN : version);
+        return new Quintet<>(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(model),
+                ParseUtil.getStringValueOrUnknown(serialNumber), ParseUtil.getStringValueOrUnknown(uuid),
+                ParseUtil.getStringValueOrUnknown(version));
     }
 
     /**

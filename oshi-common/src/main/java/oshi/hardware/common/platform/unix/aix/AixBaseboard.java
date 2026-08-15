@@ -10,8 +10,7 @@ import java.util.function.Supplier;
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.unix.aix.Lscfg;
 import oshi.hardware.common.AbstractBaseboard;
-import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -27,9 +26,9 @@ public final class AixBaseboard extends AbstractBaseboard {
 
     AixBaseboard(Supplier<List<String>> lscfg) {
         Triplet<String, String, String> msv = Lscfg.queryBackplaneModelSerialVersion(lscfg.get());
-        this.model = Util.isBlank(msv.getA()) ? Constants.UNKNOWN : msv.getA();
-        this.serialNumber = Util.isBlank(msv.getB()) ? Constants.UNKNOWN : msv.getB();
-        this.version = Util.isBlank(msv.getC()) ? Constants.UNKNOWN : msv.getC();
+        this.model = ParseUtil.getStringValueOrUnknown(msv.getA());
+        this.serialNumber = ParseUtil.getStringValueOrUnknown(msv.getB());
+        this.version = ParseUtil.getStringValueOrUnknown(msv.getC());
     }
 
     @Override
