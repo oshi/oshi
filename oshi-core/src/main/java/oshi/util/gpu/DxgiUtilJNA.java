@@ -51,7 +51,7 @@ public final class DxgiUtilJNA {
      * @param value the registry value object
      * @return the VRAM size in bytes, or 0 if the value type is unrecognised
      */
-    public static long registryValueToVram(Object value) {
+    public static long registryValueToVram(@Nullable Object value) {
         return DxgiUtil.registryValueToVram(value);
     }
 
@@ -61,7 +61,7 @@ public final class DxgiUtilJNA {
      * @param name the raw adapter name, may be {@code null}
      * @return normalized name, never {@code null}
      */
-    public static String normalizeName(String name) {
+    public static String normalizeName(@Nullable String name) {
         return DxgiUtil.normalizeName(name);
     }
 }

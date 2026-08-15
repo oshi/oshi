@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,7 +145,7 @@ public final class NvmlUtilFFM {
      * @param arena  allocates the PCI info struct
      * @return the modern and legacy bus IDs, or {@code null} if the PCI info could not be read
      */
-    private static Pair<String, String> readBusIds(MemorySegment handle, Arena arena) {
+    private static @Nullable Pair<String, String> readBusIds(MemorySegment handle, Arena arena) {
         MemorySegment pciSeg = arena.allocate(NvmlFunctions.PCI_INFO_LAYOUT);
         if (NvmlFunctions.deviceGetPciInfo(handle, pciSeg) != NvmlFunctions.NVML_SUCCESS) {
             return null;
@@ -160,7 +161,7 @@ public final class NvmlUtilFFM {
      * @param arena  allocates the name buffer
      * @return the name, or {@code null} if it could not be read
      */
-    private static String readName(MemorySegment handle, Arena arena) {
+    private static @Nullable String readName(MemorySegment handle, Arena arena) {
         MemorySegment nameSeg = arena.allocate(NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE);
         if (NvmlFunctions.deviceGetName(handle, nameSeg,
                 NvmlFunctions.NVML_DEVICE_NAME_BUFFER_SIZE) != NvmlFunctions.NVML_SUCCESS) {
@@ -175,7 +176,7 @@ public final class NvmlUtilFFM {
      *
      * @return set of PCI bus ID strings, or {@code null} on NVML error
      */
-    private static Set<String> enumerateDeviceBusIds() {
+    private static @Nullable Set<String> enumerateDeviceBusIds() {
         try (Arena arena = Arena.ofConfined()) {
             Set<String> ids = new HashSet<>();
             boolean enumerated = forEachDevice(arena, handle -> {
@@ -196,7 +197,7 @@ public final class NvmlUtilFFM {
         }
     }
 
-    private static MemorySegment acquireHandleByBusId(String pciBusId, Arena arena) {
+    private static @Nullable MemorySegment acquireHandleByBusId(String pciBusId, Arena arena) {
         String needle = pciBusId.toLowerCase(Locale.ROOT);
         MemorySegment[] found = new MemorySegment[1];
         forEachDevice(arena, handle -> {
@@ -211,7 +212,7 @@ public final class NvmlUtilFFM {
         return found[0];
     }
 
-    private static MemorySegment acquireHandleByName(String gpuName, Arena arena) {
+    private static @Nullable MemorySegment acquireHandleByName(String gpuName, Arena arena) {
         String needle = gpuName.toLowerCase(Locale.ROOT);
         MemorySegment[] found = new MemorySegment[1];
         forEachDevice(arena, handle -> {
@@ -327,7 +328,7 @@ public final class NvmlUtilFFM {
      * @param pciBusId PCI bus ID fragment
      * @return matched PCI bus ID string, or {@code null} if not found
      */
-    public static String findDevice(String pciBusId) {
+    public static @Nullable String findDevice(@Nullable String pciBusId) {
         if (!NvmlFunctions.isAvailable() || pciBusId == null || pciBusId.isEmpty()) {
             return null;
         }
@@ -347,7 +348,7 @@ public final class NvmlUtilFFM {
      * @param gpuName GPU name string
      * @return PCI bus ID string, or {@code null} if not found
      */
-    public static String findDeviceByName(String gpuName) {
+    public static @Nullable String findDeviceByName(@Nullable String gpuName) {
         if (!NvmlFunctions.isAvailable() || gpuName == null || gpuName.isEmpty()) {
             return null;
         }
@@ -379,7 +380,7 @@ public final class NvmlUtilFFM {
         }
     }
 
-    private static String emptyToNull(String value) {
+    private static @Nullable String emptyToNull(String value) {
         return value.isEmpty() ? null : value;
     }
 
@@ -389,17 +390,18 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return utilization percentage or -1
      */
-    public static double getGpuUtilization(String deviceId) {
+    public static double getGpuUtilization(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readUtilization, -1d);
     }
 
     /**
      * Returns total VRAM in bytes, or -1 if unavailable.
      *
-     * @param deviceId stable device identifier returned by {@link #findDevice} or {@link #findDeviceByName}
+     * @param deviceId stable device identifier returned by {@link #findDevice} or {@link #findDeviceByName}, or
+     *                 {@code null} if neither matched a device
      * @return total bytes or -1
      */
-    public static long getVramTotal(String deviceId) {
+    public static long getVramTotal(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readVramTotal, -1L);
     }
 
@@ -409,7 +411,7 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return bytes used or -1
      */
-    public static long getVramUsed(String deviceId) {
+    public static long getVramUsed(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readVramUsed, -1L);
     }
 
@@ -419,7 +421,7 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return temperature in °C or -1
      */
-    public static double getTemperature(String deviceId) {
+    public static double getTemperature(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readTemperature, -1d);
     }
 
@@ -429,7 +431,7 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return power in watts or -1
      */
-    public static double getPowerDraw(String deviceId) {
+    public static double getPowerDraw(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readPowerDraw, -1d);
     }
 
@@ -439,7 +441,7 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return core clock in MHz or -1
      */
-    public static long getCoreClockMhz(String deviceId) {
+    public static long getCoreClockMhz(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, device -> readClock(device, NvmlFunctions.NVML_CLOCK_GRAPHICS), -1L);
     }
 
@@ -449,7 +451,7 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return memory clock in MHz or -1
      */
-    public static long getMemoryClockMhz(String deviceId) {
+    public static long getMemoryClockMhz(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, device -> readClock(device, NvmlFunctions.NVML_CLOCK_MEM), -1L);
     }
 
@@ -459,7 +461,7 @@ public final class NvmlUtilFFM {
      * @param deviceId stable device identifier
      * @return fan speed percentage or -1
      */
-    public static double getFanSpeedPercent(String deviceId) {
+    public static double getFanSpeedPercent(@Nullable String deviceId) {
         return NvmlQuery.query(deviceId, SCOPE, NvmlUtilFFM::readFanSpeed, -1d);
     }
 }

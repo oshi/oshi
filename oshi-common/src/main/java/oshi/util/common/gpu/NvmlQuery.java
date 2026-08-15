@@ -75,7 +75,7 @@ public final class NvmlQuery {
      * @param sentinel the value denoting an unavailable metric
      * @return the metric, or {@code sentinel}
      */
-    public static <H, R> R query(String deviceId, NvmlScope<H> scope, Function<H, R> reader, R sentinel) {
+    public static <H, R> R query(@Nullable String deviceId, NvmlScope<H> scope, Function<H, R> reader, R sentinel) {
         if (deviceId == null || deviceId.isEmpty()) {
             return sentinel;
         }

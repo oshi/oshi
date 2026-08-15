@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.linux;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.linux.LinuxGpuStats;
 import oshi.util.gpu.NvmlUtilJNA;
@@ -24,12 +26,12 @@ final class LinuxGpuStatsJNA extends LinuxGpuStats {
     }
 
     @Override
-    protected String nvmlFindDevice(String busId) {
+    protected @Nullable String nvmlFindDevice(String busId) {
         return NvmlUtilJNA.findDevice(busId);
     }
 
     @Override
-    protected String nvmlFindDeviceByName(String name) {
+    protected @Nullable String nvmlFindDeviceByName(String name) {
         return NvmlUtilJNA.findDeviceByName(name);
     }
 

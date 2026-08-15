@@ -61,10 +61,10 @@ public final class DxgiUtil {
      * Converts a registry value (REG_QWORD as Long, REG_DWORD as Integer, or REG_BINARY as byte[]) to a VRAM size in
      * bytes. REG_BINARY is interpreted as little-endian.
      *
-     * @param value the registry value object
+     * @param value the registry value object, may be {@code null}
      * @return the VRAM size in bytes, or 0 if the value type is unrecognised
      */
-    public static long registryValueToVram(Object value) {
+    public static long registryValueToVram(@Nullable Object value) {
         if (value instanceof Long) {
             return (long) value;
         } else if (value instanceof Integer) {
@@ -87,7 +87,7 @@ public final class DxgiUtil {
      * @param name the raw adapter name, may be {@code null}
      * @return normalized name, never {@code null}
      */
-    public static String normalizeName(String name) {
+    public static String normalizeName(@Nullable String name) {
         if (name == null) {
             return "";
         }
