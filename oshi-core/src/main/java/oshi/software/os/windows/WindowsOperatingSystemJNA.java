@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -109,33 +110,34 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             .memoize(WindowsInstalledAppsJNA::queryInstalledApps, installedAppsExpiration());
 
     @Override
-    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(Collection<Integer> pids) {
+    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(@Nullable Collection<Integer> pids) {
         return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
     }
 
     @Override
-    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(Collection<Integer> pids) {
+    protected Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+            @Nullable Collection<Integer> pids) {
         return ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
     }
 
     @Override
-    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
+    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(@Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
     }
 
     @Override
-    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(Collection<Integer> pids) {
+    protected Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(@Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids);
     }
 
     @Override
-    protected Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids) {
+    protected Map<Integer, WtsInfo> queryProcessWtsMap(@Nullable Collection<Integer> pids) {
         return ProcessWtsData.queryProcessWtsMap(pids);
     }
 
     @Override
     protected OSProcess createOSProcess(int pid, Map<Integer, ProcessPerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+            Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
         return new WindowsOSProcessJNA(pid, this, processMap, processWtsMap, threadMap);
     }
 
