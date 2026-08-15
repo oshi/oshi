@@ -111,7 +111,7 @@ public class LinuxOperatingSystemNF extends LinuxOperatingSystem {
         // /proc/loadavg format: "load1 load5 load15 running/total lastpid"
         String loadavg = FileUtil.getStringFromFile(ProcPath.LOADAVG);
         if (!loadavg.isEmpty()) {
-            String[] split = loadavg.split("\\s+", -1);
+            String[] split = ParseUtil.whitespaces.split(loadavg, -1);
             if (split.length >= 4) {
                 String[] runTotal = split[3].split("/", -1);
                 if (runTotal.length == 2) {

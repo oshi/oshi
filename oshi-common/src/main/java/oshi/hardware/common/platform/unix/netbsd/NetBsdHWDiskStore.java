@@ -49,7 +49,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
         // Get list of disks from sysctl
         // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
-        String[] devices = BsdSysctlUtil.sysctl("hw.disknames", "").trim().split("\\s+", -1);
+        String[] devices = ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("hw.disknames", "").trim(), -1);
         NetBsdHWDiskStore store;
         for (String diskName : devices) {
             // Try disklabel first (works for physical disks, not wedges)

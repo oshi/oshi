@@ -92,7 +92,8 @@ public abstract class BsdFirmware extends AbstractFirmware {
                 releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(ParseUtil.parseLastString(line));
                 String afterVendor = line.split("vendor", -1)[1].trim();
                 int versionIdx = afterVendor.indexOf(" version ");
-                vendor = versionIdx > 0 ? afterVendor.substring(0, versionIdx) : afterVendor.split("\\s+", -1)[0];
+                vendor = versionIdx > 0 ? afterVendor.substring(0, versionIdx)
+                        : ParseUtil.whitespaces.split(afterVendor, -1)[0];
             }
         }
         return new Triplet<>(vendor, version, releaseDate);

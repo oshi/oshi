@@ -102,7 +102,7 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
         // UDP6, udplite6 stats
         for (int line = lines.size() - 1; line >= 0 && foundUDPv6StatsCount < 4; line--) {
             if (lines.get(line).startsWith(UDP6)) {
-                String[] parts = lines.get(line).split("\\s+", -1);
+                String[] parts = ParseUtil.whitespaces.split(lines.get(line), -1);
                 switch (parts[0]) {
                     case "Udp6InDatagrams":
                         inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);

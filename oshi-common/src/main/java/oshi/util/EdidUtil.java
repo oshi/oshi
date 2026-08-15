@@ -251,7 +251,7 @@ public final class EdidUtil {
         for (byte[] b : getDescriptors(edid)) {
             if (getDescriptorType(b) == MONITOR_NAME_TYPE) {
                 // The model name is the final whitespace-delimited token of the monitor-name descriptor
-                String[] tokens = getDescriptorText(b).split("\\s+", -1);
+                String[] tokens = ParseUtil.whitespaces.split(getDescriptorText(b), -1);
                 return tokens[tokens.length - 1].trim();
             }
         }

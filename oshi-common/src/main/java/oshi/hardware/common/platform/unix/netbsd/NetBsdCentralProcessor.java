@@ -92,9 +92,9 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         long interrupts = 0L;
         for (String line : vmstat) {
             if (line.endsWith("CPU context switches")) {
-                contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
+                contextSwitches = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
             } else if (line.endsWith("device interrupts")) {
-                interrupts = ParseUtil.parseLongOrDefault(line.trim().split("\\s+", -1)[0], 0L);
+                interrupts = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
             }
         }
         return new Pair<>(contextSwitches, interrupts);

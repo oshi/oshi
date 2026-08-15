@@ -12,6 +12,7 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.Printer.PrinterStatus;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * Utility to parse printer information from {@code lpstat} and {@code lpoptions} commands. Shared fallback path for
@@ -103,7 +104,7 @@ public final class Lpstat {
         String currentPrinter = null;
         for (String line : lines) {
             if (line.startsWith("printer ")) {
-                String[] parts = line.split("\\s+", -1);
+                String[] parts = ParseUtil.whitespaces.split(line, -1);
                 if (parts.length >= 2) {
                     currentPrinter = parts[1];
                 }

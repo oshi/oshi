@@ -392,7 +392,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
         }
         List<String> osDescriptors = FileUtil.readFile(filename);
         if (!osDescriptors.isEmpty()) {
-            String[] splittedLine = osDescriptors.get(0).split("\\D+", -1);
+            String[] splittedLine = ParseUtil.notDigits.split(osDescriptors.get(0), -1);
             return ParseUtil.parseLongOrDefault(splittedLine[index], 0L);
         }
         return 0L;
