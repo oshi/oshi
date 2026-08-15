@@ -4,6 +4,8 @@
  */
 package oshi.software.os.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,7 +131,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
      * @param volumeToMatch an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted volumes
      */
-    static List<OSFileStore> getLocalVolumes(String volumeToMatch) {
+    static List<OSFileStore> getLocalVolumes(@Nullable String volumeToMatch) {
         List<OSFileStore> fs;
         String volume;
         String strFsType;
@@ -216,7 +218,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
      * @param localOnly   Whether to only search local drives
      * @return A list of {@link OSFileStore} objects representing all network mounted volumes
      */
-    static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getWmiVolumes(@Nullable String nameToMatch, boolean localOnly) {
         long free;
         long total;
         List<OSFileStore> fs = new ArrayList<>();

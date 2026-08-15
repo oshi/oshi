@@ -4,6 +4,8 @@
  */
 package oshi.driver.windows.registry;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +49,7 @@ public final class ProcessWtsData {
      * @param pids An optional collection of process IDs to filter the list to. May be null for no filtering.
      * @return A map with Process ID as the key and a {@link WtsInfo} object populated with data.
      */
-    public static Map<Integer, WtsInfo> queryProcessWtsMap(Collection<Integer> pids) {
+    public static Map<Integer, WtsInfo> queryProcessWtsMap(@Nullable Collection<Integer> pids) {
         if (IS_WINDOWS7_OR_GREATER) {
             // Get processes from WTS
             return queryProcessWtsMapFromWTS(pids);
@@ -57,7 +59,7 @@ public final class ProcessWtsData {
         return queryProcessWtsMapFromPerfMon(pids);
     }
 
-    private static Map<Integer, WtsInfo> queryProcessWtsMapFromWTS(Collection<Integer> pids) {
+    private static Map<Integer, WtsInfo> queryProcessWtsMapFromWTS(@Nullable Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         try (CloseableIntByReference pCount = new CloseableIntByReference(0);
                 CloseablePointerByReference ppProcessInfo = new CloseablePointerByReference();
@@ -91,7 +93,7 @@ public final class ProcessWtsData {
         return wtsMap;
     }
 
-    static Map<Integer, WtsInfo> queryProcessWtsMapFromPerfMon(Collection<Integer> pids) {
+    static Map<Integer, WtsInfo> queryProcessWtsMapFromPerfMon(@Nullable Collection<Integer> pids) {
         Map<Integer, WtsInfo> wtsMap = new HashMap<>();
         WmiResult<ProcessXPProperty> processWmiResult = Win32Process
                 .queryProcesses(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()), pids);

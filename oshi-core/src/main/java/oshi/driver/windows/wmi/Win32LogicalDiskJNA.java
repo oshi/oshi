@@ -4,6 +4,8 @@
  */
 package oshi.driver.windows.wmi;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -17,7 +19,7 @@ public final class Win32LogicalDiskJNA extends Win32LogicalDisk {
     private Win32LogicalDiskJNA() {
     }
 
-    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(String nameToMatch, boolean localOnly) {
+    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(@Nullable String nameToMatch, boolean localOnly) {
         return Win32LogicalDisk.queryLogicalDisk(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()),
                 nameToMatch, localOnly);
     }

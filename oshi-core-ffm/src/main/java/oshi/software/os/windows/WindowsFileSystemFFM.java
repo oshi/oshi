@@ -4,6 +4,8 @@
  */
 package oshi.software.os.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -141,7 +143,7 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
      * @param volumeToMatch an optional string to filter match, null otherwise
      * @return A list of {@link OSFileStore} objects representing all local mounted volumes
      */
-    static List<OSFileStore> getLocalVolumes(String volumeToMatch) {
+    static List<OSFileStore> getLocalVolumes(@Nullable String volumeToMatch) {
         List<OSFileStore> fs = new ArrayList<>();
 
         try (Arena arena = Arena.ofConfined()) {
@@ -260,7 +262,7 @@ public class WindowsFileSystemFFM extends WindowsFileSystem {
      * @param localOnly   whether to only search local drives
      * @return A list of {@link OSFileStore} objects representing all WMI volumes
      */
-    static List<OSFileStore> getWmiVolumes(String nameToMatch, boolean localOnly) {
+    static List<OSFileStore> getWmiVolumes(@Nullable String nameToMatch, boolean localOnly) {
         List<OSFileStore> fs = new ArrayList<>();
         var drives = Win32LogicalDiskFFM.queryLogicalDisk(nameToMatch, localOnly);
 

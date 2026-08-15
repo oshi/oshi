@@ -37,7 +37,7 @@ public final class ThreadPerformanceDataFFM {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information if successful, or null otherwise.
      */
-    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(Collection<Integer> pids) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(@Nullable Collection<Integer> pids) {
         Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtilFFM
                 .readPerfDataFromRegistry(ThreadPerformanceData.THREAD, ThreadPerformanceProperty.class);
         return ThreadPerformanceData.buildThreadMapFromRegistry(pids, threadData);
@@ -51,7 +51,7 @@ public final class ThreadPerformanceDataFFM {
      *         counter information.
      */
     public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
-            Collection<Integer> pids) {
+            @Nullable Collection<Integer> pids) {
         return buildThreadMapFromPerfCounters(pids, null, -1);
     }
 
@@ -65,7 +65,7 @@ public final class ThreadPerformanceDataFFM {
      *         counter information.
      */
     public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
-            Collection<Integer> pids, @Nullable String procName, int threadNum) {
+            @Nullable Collection<Integer> pids, @Nullable String procName, int threadNum) {
         if (PerfmonDisabledFFM.PERF_PROC_DISABLED) {
             return Collections.emptyMap();
         }

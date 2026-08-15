@@ -83,7 +83,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param threadMap     the threadMap
      */
     protected WindowsOSProcess(int pid, OperatingSystem os, Map<Integer, ProcessPerfCounterBlock> processMap,
-            Map<Integer, WtsInfo> processWtsMap, Map<Integer, ThreadPerfCounterBlock> threadMap) {
+            Map<Integer, WtsInfo> processWtsMap, @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
         super(pid);
         this.os = os;
         this.bitness = os.getBitness();
@@ -302,7 +302,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      *
      * @param tcb the thread performance counter block map
      */
-    protected void setTcb(Map<Integer, ThreadPerfCounterBlock> tcb) {
+    protected void setTcb(@Nullable Map<Integer, ThreadPerfCounterBlock> tcb) {
         this.tcb.set(tcb);
     }
 
@@ -312,7 +312,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param pids the set of process IDs to match
      * @return a map of thread ID to thread performance counter block
      */
-    protected abstract Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids);
+    protected abstract @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids);
 
     /**
      * Queries the command line for this process.

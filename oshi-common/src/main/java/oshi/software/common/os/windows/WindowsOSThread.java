@@ -13,6 +13,8 @@ import static oshi.software.os.OSProcess.State.STOPPED;
 import static oshi.software.os.OSProcess.State.SUSPENDED;
 import static oshi.software.os.OSProcess.State.WAITING;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.software.common.AbstractOSThread;
@@ -31,7 +33,7 @@ public abstract class WindowsOSThread extends AbstractOSThread {
      * @param procName the procName
      * @param pcb      the pcb
      */
-    protected WindowsOSThread(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
+    protected WindowsOSThread(int pid, int tid, @Nullable String procName, @Nullable ThreadPerfCounterBlock pcb) {
         super(pid);
         this.threadId = tid;
         updateAttributes(procName, pcb);
@@ -53,7 +55,7 @@ public abstract class WindowsOSThread extends AbstractOSThread {
      * @param pcb      the thread performance counter block, or null if unavailable
      * @return true if the thread is valid after the update
      */
-    protected boolean updateAttributes(String procName, ThreadPerfCounterBlock pcb) {
+    protected boolean updateAttributes(@Nullable String procName, @Nullable ThreadPerfCounterBlock pcb) {
         if (pcb == null) {
             this.state = INVALID;
             return false;

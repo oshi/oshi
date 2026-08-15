@@ -4,6 +4,8 @@
  */
 package oshi.software.os.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +20,7 @@ import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 @ThreadSafe
 public class WindowsOSThreadFFM extends oshi.software.common.os.windows.WindowsOSThread {
 
-    public WindowsOSThreadFFM(int pid, int tid, String procName, ThreadPerfCounterBlock pcb) {
+    public WindowsOSThreadFFM(int pid, int tid, @Nullable String procName, @Nullable ThreadPerfCounterBlock pcb) {
         super(pid, tid, procName, pcb);
     }
 

@@ -4,6 +4,8 @@
  */
 package oshi.software.os.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -84,11 +86,11 @@ class WindowsOperatingSystemFFMTest {
             return queryDescendantProcesses(parentPid);
         }
 
-        private Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCountersForTest() {
+        private @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCountersForTest() {
             return buildProcessMapFromPerfCounters(null);
         }
 
-        private Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCountersForTest() {
+        private @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCountersForTest() {
             return buildThreadMapFromPerfCounters(null);
         }
 

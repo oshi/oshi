@@ -4,6 +4,8 @@
  */
 package oshi.driver.common.windows.wmi;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
@@ -76,7 +78,7 @@ public class Win32LogicalDisk {
      * @param localOnly   Whether to only search local drives
      * @return Logical Disk Information
      */
-    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(WmiQueryExecutor h, String nameToMatch,
+    public static WmiResult<LogicalDiskProperty> queryLogicalDisk(WmiQueryExecutor h, @Nullable String nameToMatch,
             boolean localOnly) {
         WmiQuery<LogicalDiskProperty> logicalDiskQuery = new WmiQuery<>(
                 buildWmiClassNameWithWhere(nameToMatch, localOnly), LogicalDiskProperty.class);

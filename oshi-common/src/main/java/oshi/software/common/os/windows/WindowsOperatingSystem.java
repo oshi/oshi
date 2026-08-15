@@ -52,16 +52,16 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
     /*
      * Cache full process stats queries. The second query only populates if the first one returns nothing.
      */
-    private final Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = memoize(
+    private final Supplier<@Nullable Map<Integer, ProcessPerfCounterBlock>> processMapFromRegistry = memoize(
             () -> buildProcessMapFromRegistry(null), defaultExpiration());
-    private final Supplier<Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = memoize(
+    private final Supplier<@Nullable Map<Integer, ProcessPerfCounterBlock>> processMapFromPerfCounters = memoize(
             () -> buildProcessMapFromPerfCounters(null), defaultExpiration());
     /*
      * Cache full thread stats queries. Only used if USE_PROCSTATE_SUSPENDED is set true.
      */
-    private final Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = memoize(
+    private final Supplier<@Nullable Map<Integer, ThreadPerfCounterBlock>> threadMapFromRegistry = memoize(
             () -> buildThreadMapFromRegistry(null), defaultExpiration());
-    private final Supplier<Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = memoize(
+    private final Supplier<@Nullable Map<Integer, ThreadPerfCounterBlock>> threadMapFromPerfCounters = memoize(
             () -> buildThreadMapFromPerfCounters(null), defaultExpiration());
 
     /**
@@ -70,7 +70,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of process ID to performance counter block, or {@code null} if the registry data is unavailable
      */
-    protected abstract Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+    protected abstract @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
             @Nullable Collection<Integer> pids);
 
     /**
@@ -79,7 +79,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of process ID to performance counter block
      */
-    protected abstract Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+    protected abstract @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
             @Nullable Collection<Integer> pids);
 
     /**
@@ -88,7 +88,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of thread ID to performance counter block, or {@code null} if the registry data is unavailable
      */
-    protected abstract Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+    protected abstract @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
             @Nullable Collection<Integer> pids);
 
     /**
@@ -97,7 +97,7 @@ public abstract class WindowsOperatingSystem extends AbstractOperatingSystem {
      * @param pids An optional collection of process IDs to filter the results to, or {@code null} for all processes
      * @return A map of thread ID to performance counter block
      */
-    protected abstract Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+    protected abstract @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
             @Nullable Collection<Integer> pids);
 
     /**
