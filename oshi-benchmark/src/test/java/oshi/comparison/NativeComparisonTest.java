@@ -443,12 +443,17 @@ class NativeComparisonTest {
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
         assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
         assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
-        // Context switches: both use getrusage, snapshots taken at different times
-        assertWithinRatio(ffm.getContextSwitches(), jna.getContextSwitches(), 0.2, "process.contextSwitches");
-        assertWithinRatio(ffm.getVoluntaryContextSwitches(), jna.getVoluntaryContextSwitches(), 0.2,
-                "process.voluntaryContextSwitches");
-        assertWithinRatio(ffm.getInvoluntaryContextSwitches(), jna.getInvoluntaryContextSwitches(), 0.2,
-                "process.involuntaryContextSwitches");
+        // Context switches are cumulative and the FFM snapshot is taken second, so it cannot be the lower of the
+        // two - the same shape as the kernel and user time assertions above. A ratio bound is unusable here: a JVM
+        // accumulates thousands of switches per second, and this test runs on one only seconds old, so 20% amounts
+        // to requiring the two snapshots be under half a second apart. An OpenIndiana run measured 2708 against
+        // 3496. Ordering still catches the wrong-field or wrong-process binding this is here to detect.
+        assertThat(ffm.getContextSwitches()).as("process.contextSwitches")
+                .isGreaterThanOrEqualTo(jna.getContextSwitches());
+        assertThat(ffm.getVoluntaryContextSwitches()).as("process.voluntaryContextSwitches")
+                .isGreaterThanOrEqualTo(jna.getVoluntaryContextSwitches());
+        assertThat(ffm.getInvoluntaryContextSwitches()).as("process.involuntaryContextSwitches")
+                .isGreaterThanOrEqualTo(jna.getInvoluntaryContextSwitches());
     }
 
     @Test

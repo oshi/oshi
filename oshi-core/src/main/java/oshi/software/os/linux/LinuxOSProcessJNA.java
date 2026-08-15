@@ -7,6 +7,8 @@ package oshi.software.os.linux;
 import static com.sun.jna.platform.unix.Resource.RLIMIT_NOFILE;
 import static oshi.jna.platform.unix.CLibrary.RUSAGE_SELF;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -25,7 +27,7 @@ public class LinuxOSProcessJNA extends LinuxOSProcess {
     }
 
     @Override
-    protected long[] queryContextSwitches() {
+    protected long @Nullable [] queryContextSwitches() {
         LinuxLibc.Rusage rusage = new LinuxLibc.Rusage();
         if (0 == LinuxLibc.INSTANCE.getrusage(RUSAGE_SELF, rusage)) {
             return new long[] { rusage.ru_nvcsw.longValue(), rusage.ru_nivcsw.longValue() };

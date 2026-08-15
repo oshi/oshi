@@ -155,7 +155,7 @@ public final class WhoJNA {
                                         ttyPointer = ttyPtr.getValue();
                                     }
                                 }
-                                if (nativeValue(ttyPointer) != 0) {
+                                if (ttyPointer != null && nativeValue(ttyPointer) != 0) {
                                     try {
                                         tty = ttyPointer.getString(0);
                                     } finally {
@@ -172,7 +172,7 @@ public final class WhoJNA {
                                         remoteHostPointer = remoteHostPtr.getValue();
                                     }
                                 }
-                                if (nativeValue(remoteHostPointer) != 0) {
+                                if (remoteHostPointer != null && nativeValue(remoteHostPointer) != 0) {
                                     try {
                                         remoteHost = remoteHostPointer.getString(0);
                                     } finally {

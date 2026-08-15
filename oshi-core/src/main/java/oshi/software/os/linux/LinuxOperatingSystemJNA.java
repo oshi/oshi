@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -119,7 +120,7 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
     }
 
     @Override
-    public OSProcess getProcess(int pid) {
+    public @Nullable OSProcess getProcess(int pid) {
         OSProcess proc = createOSProcess(pid);
         if (!proc.getState().equals(State.INVALID)) {
             return proc;

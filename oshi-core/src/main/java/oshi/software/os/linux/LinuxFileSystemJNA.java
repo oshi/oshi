@@ -4,6 +4,7 @@
  */
 package oshi.software.os.linux;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ public class LinuxFileSystemJNA extends LinuxFileSystem {
     private static final Logger LOG = LoggerFactory.getLogger(LinuxFileSystemJNA.class);
 
     @Override
-    protected long[] queryStatvfs(String path) {
+    protected long @Nullable [] queryStatvfs(String path) {
         try {
             LibC.Statvfs vfsStat = new LibC.Statvfs();
             if (0 == LibC.INSTANCE.statvfs(path, vfsStat)) {

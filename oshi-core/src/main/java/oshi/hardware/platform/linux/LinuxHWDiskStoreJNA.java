@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,7 @@ public final class LinuxHWDiskStoreJNA extends LinuxHWDiskStore {
         return getDisks(null);
     }
 
-    static List<HWDiskStore> getDisks(LinuxHWDiskStore storeToUpdate) {
+    static List<HWDiskStore> getDisks(@Nullable LinuxHWDiskStore storeToUpdate) {
         if (!HAS_UDEV) {
             LOG.warn("Disk Store information requires libudev, which is not present.");
             return Collections.emptyList();
