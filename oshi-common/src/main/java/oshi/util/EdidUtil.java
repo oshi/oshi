@@ -56,11 +56,33 @@ public final class EdidUtil {
      * @return The manufacturer ID
      */
     public static String getManufacturerID(byte[] edid) {
-        // Bytes 8-9 are the manufacturer ID: bit 15 is reserved, then three 5-bit letters, 1 = 'A'.
-        int id = ((edid[MANUFACTURER_ID_OFFSET] & 0xFF) << 8) | (edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF);
-        LOG.debug("Manufacturer ID: {}", id);
-        return String.format(Locale.ROOT, "%s%s%s", (char) (64 + ((id >> 10) & 0x1F)), (char) (64 + ((id >> 5) & 0x1F)),
-                (char) (64 + (id & 0x1F))).replace("@", "");
+        int packedId = ((edid[MANUFACTURER_ID_OFFSET] & 0xFF) << 8) | (edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF);
+        LOG.debug("Manufacturer ID bytes: {}", packedId);
+        return manufacturerLetters(packedId);
+    }
+
+    /**
+     * Decodes the letters packed into the manufacturer ID of a real EDID.
+     * <p>
+     * Bytes 8 and 9 hold, from the most significant bit down: one reserved bit, then three five-bit letter codes in
+     * which {@code 1} is {@code 'A'}. A code of zero is not a letter; a manufacturer with a two-letter ID leaves one
+     * empty, and it is dropped rather than rendered.
+     * <p>
+     * This is the lenient reader, for bytes that came from hardware. {@link #decodeManufacturerId(long)} is the strict
+     * one, which rejects the whole ID if any code is not a letter, and is used to validate a synthesized display.
+     *
+     * @param packedId the two manufacturer ID bytes, most significant first
+     * @return the manufacturer's letters, at most three of them
+     */
+    static String manufacturerLetters(int packedId) {
+        StringBuilder letters = new StringBuilder(3);
+        for (int shift = 10; shift >= 0; shift -= 5) {
+            int code = (packedId >> shift) & 0x1F;
+            if (code != 0) {
+                letters.append((char) ('A' - 1 + code));
+            }
+        }
+        return letters.toString();
     }
 
     /**

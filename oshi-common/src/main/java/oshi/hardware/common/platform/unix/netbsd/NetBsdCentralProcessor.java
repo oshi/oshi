@@ -25,7 +25,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class NetBsdCentralProcessor extends BsdCentralProcessor {
     // Possessive quantifiers: whitespace can never match the "=" that follows it, so the engine never needs to
-    // give characters back. Behaviorally identical, and linear rather than super-linear on a long run of spaces.
+    // give characters back. Behaviorally identical, with no backtracking to do.
     private static final Pattern KEY_VALUE = Pattern.compile("\\s*+=\\s*+");
 
     private static final int CPUSTATES = 5;

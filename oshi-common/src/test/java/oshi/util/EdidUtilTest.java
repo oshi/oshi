@@ -429,4 +429,27 @@ class EdidUtilTest {
         assertThat(info.getSerialNo(), is("FD626D62"));
         assertThat(info.getProductSerialNumber(), is("ABC123"));
     }
+
+    /**
+     * The three letter codes are packed five bits each, most significant first, with {@code 1} meaning {@code 'A'}.
+     * "AUO" is the manufacturer in the fixture above: A=1, U=21, O=15.
+     */
+    @Test
+    void testManufacturerLetters() {
+        assertThat("AUO", EdidUtil.manufacturerLetters((1 << 10) | (21 << 5) | 15), is("AUO"));
+        assertThat("first and last letter", EdidUtil.manufacturerLetters((1 << 10) | (26 << 5) | 26), is("AZZ"));
+        assertThat("reserved high bit is ignored", EdidUtil.manufacturerLetters(0x8000 | (1 << 10) | (21 << 5) | 15),
+                is("AUO"));
+    }
+
+    /**
+     * A zero code is not a letter. A manufacturer with a shorter ID leaves one empty, and it is dropped rather than
+     * rendered as the character below 'A'.
+     */
+    @Test
+    void testManufacturerLettersDropsEmptyCodes() {
+        assertThat("trailing code empty", EdidUtil.manufacturerLetters((1 << 10) | (21 << 5)), is("AU"));
+        assertThat("leading code empty", EdidUtil.manufacturerLetters((21 << 5) | 15), is("UO"));
+        assertThat("all codes empty", EdidUtil.manufacturerLetters(0), is(""));
+    }
 }
