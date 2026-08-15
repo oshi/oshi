@@ -46,7 +46,8 @@ public final class PsInfoJNA {
      * {@link SolarisPsInfo}.
      *
      * @param pid    The process ID
-     * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields
+     * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields, or {@code null}
+     *               if it could not be read
      * @return A quartet containing the argc, argv, envp and dmodel values, or null if unable to read
      */
     public static @Nullable Quartet<Integer, Long, Long, Byte> queryArgsEnvAddrs(int pid,
@@ -77,8 +78,10 @@ public final class PsInfoJNA {
      * Read the argument and environment strings from process address space
      *
      * @param pid    the process id
-     * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields
-     * @return A pair containing a list of the arguments and a map of environment variables
+     * @param psinfo A populated {@link SolarisPsInfo} containing the offset pointers for these fields, or {@code null}
+     *               if it could not be read
+     * @return A pair containing a list of the arguments and a map of environment variables, both empty if the process
+     *         information was unavailable
      */
     public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable SolarisPsInfo psinfo) {
         List<String> args = new ArrayList<>();
