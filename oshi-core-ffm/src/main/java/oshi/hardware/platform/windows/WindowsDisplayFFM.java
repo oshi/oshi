@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.util.ExceptionUtil.getOrDefault;
@@ -88,7 +90,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         return displays;
     }
 
-    private static byte[] queryEdidFromKey(MemorySegment key, MemorySegment edidName, Arena arena) {
+    private static byte @Nullable [] queryEdidFromKey(MemorySegment key, MemorySegment edidName, Arena arena) {
         return getOrDefault(() -> {
             MemorySegment pType = arena.allocate(JAVA_INT);
             MemorySegment lpcbData = arena.allocate(JAVA_INT);

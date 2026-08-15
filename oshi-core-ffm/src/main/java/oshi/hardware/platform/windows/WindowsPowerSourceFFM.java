@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
@@ -71,7 +73,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            int psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
         super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,

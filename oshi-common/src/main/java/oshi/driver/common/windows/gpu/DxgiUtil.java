@@ -38,7 +38,7 @@ public final class DxgiUtil {
      * @return best-matching adapter, or {@code null}
      */
     public static @Nullable DxgiAdapterInfo findMatch(List<DxgiAdapterInfo> adapters, int vendorId, int deviceId,
-            String adapterName) {
+            @Nullable String adapterName) {
         if (vendorId != 0 && deviceId != 0) {
             for (DxgiAdapterInfo a : adapters) {
                 if (a.getVendorId() == vendorId && a.getDeviceId() == deviceId) {
@@ -117,7 +117,7 @@ public final class DxgiUtil {
      * @param locationInfo the LocationInformation registry value
      * @return PCI bus number, or -1 if not parseable
      */
-    public static int parsePciBusNumber(String locationInfo) {
+    public static int parsePciBusNumber(@Nullable String locationInfo) {
         if (locationInfo == null || locationInfo.isEmpty()) {
             return -1;
         }
@@ -138,7 +138,7 @@ public final class DxgiUtil {
      * @param locationInfo the LocationInformation registry value
      * @return PCI device number, or -1 if not parseable
      */
-    public static int parsePciDevice(String locationInfo) {
+    public static int parsePciDevice(@Nullable String locationInfo) {
         if (locationInfo == null || locationInfo.isEmpty()) {
             return -1;
         }
@@ -159,7 +159,7 @@ public final class DxgiUtil {
      * @param locationInfo the LocationInformation registry value
      * @return PCI function number, or -1 if not parseable
      */
-    public static int parsePciFunction(String locationInfo) {
+    public static int parsePciFunction(@Nullable String locationInfo) {
         if (locationInfo == null || locationInfo.isEmpty()) {
             return -1;
         }
@@ -181,7 +181,7 @@ public final class DxgiUtil {
      * @param locationInfo the LocationInformation registry value
      * @return PCI bus ID string, or empty string if not parseable
      */
-    public static String buildPciBusId(String locationInfo) {
+    public static String buildPciBusId(@Nullable String locationInfo) {
         int bus = parsePciBusNumber(locationInfo);
         int device = parsePciDevice(locationInfo);
         int function = parsePciFunction(locationInfo);

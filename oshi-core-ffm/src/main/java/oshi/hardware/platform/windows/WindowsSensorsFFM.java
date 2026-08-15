@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import java.util.Objects;
 import java.util.function.BiFunction;
 
@@ -35,7 +37,8 @@ final class WindowsSensorsFFM extends WindowsSensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensorsFFM.class);
 
     @Override
-    protected WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName, String sensorType,
+    protected @Nullable WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName,
+            String sensorType,
             boolean searchCpu) {
         return getOhmSensors(typeToQuery, typeName, sensorType, (h, ohmHardware) -> {
             String cpuIdentifier = selectOhmCpuIdentifier(ohmHardware, searchCpu);
@@ -46,7 +49,8 @@ final class WindowsSensorsFFM extends WindowsSensors {
         });
     }
 
-    private static WmiResult<ValueProperty> getOhmSensors(String typeToQuery, String typeName, String sensorType,
+    private static @Nullable WmiResult<ValueProperty> getOhmSensors(String typeToQuery, String typeName,
+            String sensorType,
             BiFunction<WmiQueryHandlerFFM, WmiResult<IdentifierProperty>, WmiResult<ValueProperty>> querySensorFunction) {
         WmiQueryHandlerFFM h = Objects.requireNonNull(WmiQueryHandlerFFM.createInstance());
         boolean comInit = false;

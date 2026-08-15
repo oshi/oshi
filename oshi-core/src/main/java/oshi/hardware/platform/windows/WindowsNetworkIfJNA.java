@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import java.net.NetworkInterface;
 import java.util.List;
 
@@ -59,11 +61,11 @@ public class WindowsNetworkIfJNA extends WindowsNetworkIF {
     }
 
     @Override
-    protected IfStats queryStats() {
+    protected @Nullable IfStats queryStats() {
         return isVistaOrGreater() ? queryStatsVista() : queryStatsLegacy();
     }
 
-    private IfStats queryStatsVista() {
+    private @Nullable IfStats queryStatsVista() {
         // MIB_IFROW2 requires Vista (6.0) or later.
         try (CloseableMibIfRow2 ifRow = new CloseableMibIfRow2()) {
             ifRow.InterfaceIndex = queryNetworkInterface().getIndex();
@@ -91,7 +93,7 @@ public class WindowsNetworkIfJNA extends WindowsNetworkIF {
         }
     }
 
-    private IfStats queryStatsLegacy() {
+    private @Nullable IfStats queryStatsLegacy() {
         // Pre-Vista MIB_IFROW: a narrower field set with unsigned 32-bit counters widened to long. Physical medium
         // type, connector-present, alias, and oper-status are not available and keep their IfStats defaults.
         try (CloseableMibIfRow ifRow = new CloseableMibIfRow()) {

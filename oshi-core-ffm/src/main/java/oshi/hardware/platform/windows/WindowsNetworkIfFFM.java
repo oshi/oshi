@@ -4,6 +4,8 @@
  */
 package oshi.hardware.platform.windows;
 
+import org.jspecify.annotations.Nullable;
+
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.util.LogLevel.ERROR;
 
@@ -44,7 +46,7 @@ public final class WindowsNetworkIfFFM extends WindowsNetworkIF {
     }
 
     @Override
-    protected IfStats queryStats() {
+    protected @Nullable IfStats queryStats() {
         // FFM targets JDK 25+ which requires Vista+; use GetIfEntry2 directly
         return callInArenaOrDefault(arena -> {
             MemorySegment ifRow = arena.allocate(IPHlpAPIFFM.MIB_IF_ROW2_SIZE);

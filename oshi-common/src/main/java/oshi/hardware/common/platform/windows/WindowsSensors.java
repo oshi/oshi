@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.BiPredicate;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -313,7 +314,7 @@ public abstract class WindowsSensors extends AbstractSensors {
      * @param searchCpu   whether to search for a {@code cpu} identifier (vs. using the first)
      * @return the sensor values, or {@code null} if unavailable
      */
-    protected abstract WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName,
+    protected abstract @Nullable WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName,
             String sensorType, boolean searchCpu);
 
     /**
