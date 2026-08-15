@@ -110,7 +110,8 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
             .memoize(WindowsInstalledAppsJNA::queryInstalledApps, installedAppsExpiration());
 
     @Override
-    protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
     }
 
@@ -121,12 +122,14 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     }
 
     @Override
-    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
     }
 
     @Override
-    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            @Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids);
     }
 

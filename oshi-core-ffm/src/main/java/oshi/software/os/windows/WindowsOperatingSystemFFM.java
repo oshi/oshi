@@ -265,7 +265,8 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     @Override
-    protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         return ProcessPerformanceDataFFM.buildProcessMapFromRegistry(pids);
     }
 
@@ -276,12 +277,14 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     @Override
-    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
     }
 
     @Override
-    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(@Nullable Collection<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            @Nullable Collection<Integer> pids) {
         return ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids);
     }
 

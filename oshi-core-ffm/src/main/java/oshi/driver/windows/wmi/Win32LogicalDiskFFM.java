@@ -4,9 +4,9 @@
  */
 package oshi.driver.windows.wmi;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Objects;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.wmi.Win32LogicalDisk;

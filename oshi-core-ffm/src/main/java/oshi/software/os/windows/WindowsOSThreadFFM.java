@@ -4,11 +4,11 @@
  */
 package oshi.software.os.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;

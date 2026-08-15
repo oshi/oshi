@@ -4,13 +4,12 @@
  */
 package oshi.driver.windows.registry;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,8 +4,6 @@
  */
 package oshi.software.os.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import static java.lang.foreign.MemorySegment.NULL;
 import static java.lang.foreign.ValueLayout.JAVA_CHAR;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
@@ -23,6 +21,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessInformation.HandleCountProperty;

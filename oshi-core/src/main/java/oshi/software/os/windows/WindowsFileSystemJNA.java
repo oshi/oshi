@@ -4,14 +4,14 @@
  */
 package oshi.software.os.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Kernel32;

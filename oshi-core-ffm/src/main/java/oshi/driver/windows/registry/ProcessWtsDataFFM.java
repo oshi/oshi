@@ -4,8 +4,6 @@
  */
 package oshi.driver.windows.registry;
 
-import org.jspecify.annotations.Nullable;
-
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
@@ -32,6 +30,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

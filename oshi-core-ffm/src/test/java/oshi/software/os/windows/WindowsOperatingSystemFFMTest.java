@@ -4,8 +4,6 @@
  */
 package oshi.software.os.windows;
 
-import org.jspecify.annotations.Nullable;
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
@@ -15,6 +13,7 @@ import static org.hamcrest.Matchers.oneOf;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
 import org.junit.jupiter.api.condition.EnabledOnOs;

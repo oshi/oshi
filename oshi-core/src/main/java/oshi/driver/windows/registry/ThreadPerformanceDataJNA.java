@@ -36,7 +36,8 @@ public final class ThreadPerformanceDataJNA {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information if successful, or null otherwise.
      */
-    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(@Nullable Collection<Integer> pids) {
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            @Nullable Collection<Integer> pids) {
         Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData = HkeyPerformanceDataUtilJNA
                 .readPerfDataFromRegistry(ThreadPerformanceData.THREAD, ThreadPerformanceProperty.class);
         return ThreadPerformanceData.buildThreadMapFromRegistry(pids, threadData);
