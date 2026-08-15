@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -83,9 +85,9 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
     private static SmbiosStrings readSmbios() {
         EnumMap<SmbType, Map<String, String>> smbTypesMap = parseSmbios(ExecutingCommand.runNative("smbios"));
 
-        Map<String, String> smbTypeBIOSMap = smbTypesMap.get(SMB_TYPE_BIOS);
-        Map<String, String> smbTypeSystemMap = smbTypesMap.get(SMB_TYPE_SYSTEM);
-        Map<String, String> smbTypeBaseboardMap = smbTypesMap.get(SMB_TYPE_BASEBOARD);
+        Map<String, String> smbTypeBIOSMap = smbTypesMap.getOrDefault(SMB_TYPE_BIOS, new HashMap<>());
+        Map<String, String> smbTypeSystemMap = smbTypesMap.getOrDefault(SMB_TYPE_SYSTEM, new HashMap<>());
+        Map<String, String> smbTypeBaseboardMap = smbTypesMap.getOrDefault(SMB_TYPE_BASEBOARD, new HashMap<>());
 
         final String serialNumMarker = "Serial Number";
         // If we get to end and haven't assigned, use fallback
@@ -95,7 +97,7 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
         return new SmbiosStrings(smbTypeBIOSMap, smbTypeSystemMap, smbTypeBaseboardMap);
     }
 
-    private static SmbType getSmbType(String checkLine) {
+    private static @Nullable SmbType getSmbType(String checkLine) {
         for (SmbType smbType : SmbType.values()) {
             if (checkLine.contains(smbType.name())) {
                 return smbType;
@@ -168,7 +170,7 @@ public class SolarisComputerSystem extends AbstractComputerSystem {
             if (smbTypeId != null && colonDelimiterIndex >= 0) {
                 String key = checkLine.substring(0, colonDelimiterIndex).trim();
                 String val = checkLine.substring(colonDelimiterIndex + 1).trim();
-                smbTypesMap.get(smbTypeId).put(key, val);
+                smbTypesMap.computeIfAbsent(smbTypeId, k -> new HashMap<>()).put(key, val);
             }
         }
         return smbTypesMap;

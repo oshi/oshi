@@ -6,6 +6,8 @@ package oshi.hardware.common.platform.unix.freebsd;
 
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.unix.BsdFirmware;
 import oshi.util.ExecutingCommand;
@@ -19,7 +21,7 @@ import oshi.util.tuples.Triplet;
 public class FreeBsdFirmware extends BsdFirmware {
 
     @Override
-    protected Triplet<String, String, String> readFirmware() {
+    protected Triplet<@Nullable String, @Nullable String, @Nullable String> readFirmware() {
         // Only works with root permissions but it's all we've got
         return parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
     }
@@ -31,7 +33,7 @@ public class FreeBsdFirmware extends BsdFirmware {
      * @param dmidecode the lines emitted by {@code dmidecode -t bios}
      * @return a {@link Triplet} of manufacturer, version, and release date
      */
-    static Triplet<String, String, String> parseDmiDecode(List<String> dmidecode) {
+    static Triplet<@Nullable String, @Nullable String, @Nullable String> parseDmiDecode(List<String> dmidecode) {
         String manufacturer = null;
         String version = null;
         String releaseDate = "";

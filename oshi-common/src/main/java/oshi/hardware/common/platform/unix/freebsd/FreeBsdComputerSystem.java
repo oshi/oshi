@@ -9,6 +9,8 @@ import static oshi.util.Memoizer.memoize;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -71,7 +73,7 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     private Quintet<String, String, String, String, String> readDmiDecode() {
         // Only works with root permissions but it's all we've got
-        Quintet<String, String, String, String, String> dmi = parseDmiDecode(
+        Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
                 ExecutingCommand.runNative("dmidecode -t system"));
         String manufacturer = dmi.getA();
         String model = dmi.getB();
@@ -97,7 +99,8 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
      * @param dmidecode the lines emitted by {@code dmidecode -t system}
      * @return a {@link Quintet} of manufacturer, model, serial number, UUID, and version
      */
-    static Quintet<String, String, String, String, String> parseDmiDecode(List<String> dmidecode) {
+    static Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> parseDmiDecode(
+            List<String> dmidecode) {
         String manufacturer = null;
         String model = null;
         String serialNumber = null;

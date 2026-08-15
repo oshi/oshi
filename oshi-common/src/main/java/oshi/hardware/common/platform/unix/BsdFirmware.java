@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
@@ -27,7 +29,8 @@ import oshi.util.tuples.Triplet;
 public abstract class BsdFirmware extends AbstractFirmware {
     private static final Pattern VENDOR = Pattern.compile("vendor");
 
-    private final Supplier<Triplet<String, String, String>> manufVersRelease = memoize(this::queryFirmware);
+    private final Supplier<Triplet<@Nullable String, @Nullable String, @Nullable String>> manufVersRelease = memoize(
+            this::queryFirmware);
 
     /**
      * Default constructor.
@@ -37,17 +40,17 @@ public abstract class BsdFirmware extends AbstractFirmware {
 
     @Override
     public String getManufacturer() {
-        return manufVersRelease.get().getA();
+        return ParseUtil.getStringValueOrUnknown(manufVersRelease.get().getA());
     }
 
     @Override
     public String getVersion() {
-        return manufVersRelease.get().getB();
+        return ParseUtil.getStringValueOrUnknown(manufVersRelease.get().getB());
     }
 
     @Override
     public String getReleaseDate() {
-        return manufVersRelease.get().getC();
+        return ParseUtil.getStringValueOrUnknown(manufVersRelease.get().getC());
     }
 
     /**
@@ -59,16 +62,16 @@ public abstract class BsdFirmware extends AbstractFirmware {
      *
      * @return a {@link Triplet} of manufacturer, version, and release date
      */
-    protected Triplet<String, String, String> readFirmware() {
+    protected Triplet<@Nullable String, @Nullable String, @Nullable String> readFirmware() {
         return parseDmesg(ExecutingCommand.runNative("dmesg"));
     }
 
-    private Triplet<String, String, String> queryFirmware() {
-        Triplet<String, String, String> dmi = readFirmware();
+    private Triplet<@Nullable String, @Nullable String, @Nullable String> queryFirmware() {
+        Triplet<@Nullable String, @Nullable String, @Nullable String> dmi = readFirmware();
         return new Triplet<>(unknownIfBlank(dmi.getA()), unknownIfBlank(dmi.getB()), unknownIfBlank(dmi.getC()));
     }
 
-    private static String unknownIfBlank(String value) {
+    private static String unknownIfBlank(@Nullable String value) {
         return ParseUtil.getStringValueOrUnknown(value);
     }
 
@@ -80,7 +83,7 @@ public abstract class BsdFirmware extends AbstractFirmware {
      * @param dmesg the lines emitted by {@code dmesg}
      * @return a {@link Triplet} of vendor, version, and release date
      */
-    static Triplet<String, String, String> parseDmesg(List<String> dmesg) {
+    static Triplet<@Nullable String, @Nullable String, @Nullable String> parseDmesg(List<String> dmesg) {
         String version = null;
         String vendor = null;
         String releaseDate = "";

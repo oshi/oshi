@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractFirmware;
 import oshi.util.Constants;
@@ -42,7 +44,7 @@ final class LinuxFirmware extends AbstractFirmware {
 
     private final Supplier<VcGenCmdStrings> vcGenCmd = memoize(LinuxFirmware::queryVcGenCmd);
 
-    private final Supplier<Pair<String, String>> biosNameRev = memoize(Dmidecode::queryBiosNameRev);
+    private final Supplier<Pair<@Nullable String, @Nullable String>> biosNameRev = memoize(Dmidecode::queryBiosNameRev);
 
     @Override
     public String getManufacturer() {
@@ -143,13 +145,14 @@ final class LinuxFirmware extends AbstractFirmware {
     }
 
     static final class VcGenCmdStrings {
-        private final String releaseDate;
-        private final String manufacturer;
-        private final String version;
-        private final String name;
-        private final String description;
+        private final @Nullable String releaseDate;
+        private final @Nullable String manufacturer;
+        private final @Nullable String version;
+        private final @Nullable String name;
+        private final @Nullable String description;
 
-        VcGenCmdStrings(String releaseDate, String manufacturer, String version, String name, String description) {
+        VcGenCmdStrings(@Nullable String releaseDate, @Nullable String manufacturer, @Nullable String version,
+                @Nullable String name, @Nullable String description) {
             this.releaseDate = releaseDate;
             this.manufacturer = manufacturer;
             this.version = version;
@@ -157,22 +160,27 @@ final class LinuxFirmware extends AbstractFirmware {
             this.description = description;
         }
 
+        @Nullable
         String getReleaseDate() {
             return releaseDate;
         }
 
+        @Nullable
         String getManufacturer() {
             return manufacturer;
         }
 
+        @Nullable
         String getVersion() {
             return version;
         }
 
+        @Nullable
         String getName() {
             return name;
         }
 
+        @Nullable
         String getDescription() {
             return description;
         }
