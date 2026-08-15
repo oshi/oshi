@@ -42,7 +42,7 @@ public final class ExceptionUtil {
      * @param t     the throwable to log
      * @param args  the arguments filling the {} placeholders, if any
      */
-    public static void logAtLevel(Logger log, LogLevel level, String msg, Throwable t, Object... args) {
+    public static void logAtLevel(Logger log, LogLevel level, String msg, Throwable t, @Nullable Object... args) {
         // Append the throwable itself; SLF4J takes a trailing throwable as the cause rather than a substitution
         // argument, so it is logged with its stack trace instead of being formatted into the message. Copy into an
         // Object[] explicitly: a caller may pass a typed array (e.g. String[]) for the varargs, and a copy keeping

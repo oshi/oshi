@@ -75,6 +75,9 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
             }
             long written = size.get(SIZE_T, 0);
             byte[] bytes = getByteArrayFromNativePointer(buf, written, arena);
+            if (bytes == null) {
+                return Collections.<String>emptyList();
+            }
             return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(bytes));
         }, LOG, WARN, "queryArguments failed", Collections.<String>emptyList());
     }
@@ -98,6 +101,9 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
             }
             long written = size.get(SIZE_T, 0);
             byte[] bytes = getByteArrayFromNativePointer(buf, written, arena);
+            if (bytes == null) {
+                return Collections.<String, String>emptyMap();
+            }
             return Collections.unmodifiableMap(ParseUtil.parseByteArrayToStringMap(bytes));
         }, LOG, WARN, "queryEnvironmentVariables failed", Collections.<String, String>emptyMap());
     }

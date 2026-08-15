@@ -4,6 +4,7 @@
  */
 package oshi.util.platform.mac;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,7 +111,7 @@ public final class SysctlUtil {
      * @return An allocated memory buffer containing the result on success, null otherwise. Its value on failure is
      *         undefined.
      */
-    public static Memory sysctl(String name) {
+    public static @Nullable Memory sysctl(String name) {
         return SysctlUtilJNA.sysctl(
                 (oldp, oldlenp) -> SystemB.INSTANCE.sysctlbyname(name, oldp, oldlenp, null, size_t.ZERO), name, LOG,
                 LogLevel.WARN);

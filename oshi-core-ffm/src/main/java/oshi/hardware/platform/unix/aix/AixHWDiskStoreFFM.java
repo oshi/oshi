@@ -39,7 +39,7 @@ public final class AixHWDiskStoreFFM extends AixHWDiskStore {
     }
 
     @Override
-    protected DiskStats queryStats() {
+    protected @Nullable DiskStats queryStats() {
         for (PerfstatDiskFFM.Disk stat : diskStats.get()) {
             if (stat.name.equals(this.getName())) {
                 DiskStats out = new DiskStats();

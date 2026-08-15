@@ -11,6 +11,8 @@ import static oshi.util.Memoizer.memoize;
 import java.lang.foreign.MemorySegment;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.software.common.os.unix.freebsd.FreeBsdInternetProtocolStats;
@@ -83,11 +85,11 @@ public class FreeBsdInternetProtocolStatsFFM extends FreeBsdInternetProtocolStat
         return new UdpStats(snd6, rcv6, 0L, 0L);
     }
 
-    private static MemorySegment queryTcpstat() {
+    private static @Nullable MemorySegment queryTcpstat() {
         return BsdSysctlUtilFFM.sysctl("net.inet.tcp.stats");
     }
 
-    private static MemorySegment queryUdpstat() {
+    private static @Nullable MemorySegment queryUdpstat() {
         return BsdSysctlUtilFFM.sysctl("net.inet.udp.stats");
     }
 }

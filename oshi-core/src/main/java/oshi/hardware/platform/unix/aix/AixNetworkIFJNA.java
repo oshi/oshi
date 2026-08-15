@@ -11,6 +11,8 @@ import java.net.NetworkInterface;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Native;
 import com.sun.jna.platform.unix.aix.Perfstat.perfstat_netinterface_t;
 
@@ -47,7 +49,7 @@ public final class AixNetworkIFJNA extends AixNetworkIF {
     }
 
     @Override
-    protected IfStats queryStats() {
+    protected @Nullable IfStats queryStats() {
         for (perfstat_netinterface_t stat : netstats.get()) {
             if (Native.toString(stat.name).equals(this.getName())) {
                 IfStats out = new IfStats();

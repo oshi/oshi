@@ -75,7 +75,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * @param name the sysctl name
      * @return the values as a {@code long[]}, or {@code null} if the query failed
      */
-    protected abstract long[] queryCpTimes(String name);
+    protected abstract long @Nullable [] queryCpTimes(String name);
 
     /**
      * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.

@@ -14,6 +14,7 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,7 +115,7 @@ public final class SysctlUtilFFM {
      * @return An allocated memory buffer containing the result on success, null otherwise. Its value on failure is
      *         undefined.
      */
-    public static MemorySegment sysctl(String name) {
+    public static @Nullable MemorySegment sysctl(String name) {
         return SysctlFFM.sysctl((arena, oldp, oldlenp) -> sysctlbyname(arena, name, oldp, oldlenp, true), LOG, name);
     }
 

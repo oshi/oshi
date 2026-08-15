@@ -15,6 +15,8 @@ import static oshi.jna.platform.unix.NetBsdLibc.KERN_CP_TIME;
 
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Memory;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -83,7 +85,10 @@ public class NetBsdCentralProcessorJNA extends NetBsdCentralProcessor {
      * @param m A buffer containing the array of 64-bit values.
      * @return The array
      */
-    private static long[] cpTimeToTicks(Memory m) {
+    private static long[] cpTimeToTicks(@Nullable Memory m) {
+        if (m == null) {
+            return new long[0];
+        }
         int arraySize = (int) (m.size() / 8L);
         return m.getLongArray(0, arraySize);
     }

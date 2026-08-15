@@ -6,6 +6,8 @@ package oshi.hardware.common.platform.unix.aix;
 
 import java.net.NetworkInterface;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
 
@@ -63,5 +65,5 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
      *
      * @return stats POJO, or {@code null} if no entry was found for this interface name
      */
-    protected abstract IfStats queryStats();
+    protected abstract @Nullable IfStats queryStats();
 }

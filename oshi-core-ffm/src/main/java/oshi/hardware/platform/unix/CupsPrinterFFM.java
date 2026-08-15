@@ -72,6 +72,9 @@ public final class CupsPrinterFFM extends CupsPrinter {
                         continue;
                     }
                     String name = ForeignFunctions.getStringFromNativePointer(namePtr, arena);
+                    if (name == null) {
+                        continue;
+                    }
                     int isDefaultInt = (int) CupsFunctions.CUPS_DEST_IS_DEFAULT.get(dest, 0L);
                     boolean isDefault = isDefaultInt != 0;
                     int numOptions = (int) CupsFunctions.CUPS_DEST_NUM_OPTIONS.get(dest, 0L);

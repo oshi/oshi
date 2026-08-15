@@ -13,6 +13,7 @@ import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.HOST_NAME_MAX;
 
 import java.lang.foreign.MemorySegment;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
     private static final Logger LOG = LoggerFactory.getLogger(FreeBsdNetworkParamsFFM.class);
 
     @Override
-    protected String queryDomainName() {
+    protected @Nullable String queryDomainName() {
         String hostname = getHostName();
         if (hostname == null || hostname.isEmpty()) {
             return "";
@@ -60,7 +61,7 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
     }
 
     @Override
-    protected String queryHostName() {
+    protected @Nullable String queryHostName() {
         return callInArenaOrDefault(arena -> {
             MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
             if (0 != PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {

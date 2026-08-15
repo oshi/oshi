@@ -4,6 +4,7 @@
  */
 package oshi.jna.util;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 
 import com.sun.jna.Memory;
@@ -48,7 +49,7 @@ public final class SysctlUtilJNA {
          * @param oldlenp in/out size of {@code oldp}
          * @return 0 on success; nonzero on failure (with {@code errno} set)
          */
-        int call(Pointer oldp, size_t.ByReference oldlenp);
+        int call(@Nullable Pointer oldp, size_t.ByReference oldlenp);
     }
 
     /**
@@ -162,7 +163,7 @@ public final class SysctlUtilJNA {
      * @return An allocated memory buffer containing the result on success, {@code null} otherwise. Its value on failure
      *         is undefined.
      */
-    public static Memory sysctl(SysctlCall call, Object name, Logger log, LogLevel level) {
+    public static @Nullable Memory sysctl(SysctlCall call, Object name, Logger log, LogLevel level) {
         try (CloseableSizeTByReference size = new CloseableSizeTByReference()) {
             if (0 != call.call(null, size)) {
                 logFailure(log, level, name);

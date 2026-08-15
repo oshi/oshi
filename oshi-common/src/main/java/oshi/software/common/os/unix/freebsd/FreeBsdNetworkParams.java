@@ -4,8 +4,11 @@
  */
 package oshi.software.common.os.unix.freebsd;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.software.common.AbstractNetworkParams;
 import oshi.util.ExecutingCommand;
+import oshi.util.ParseUtil;
 
 /**
  * Abstract base for the FreeBSD NetworkParams. Resolves the host and domain names and the default gateways from command
@@ -15,7 +18,7 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getDomainName() {
-        return queryDomainName();
+        return ParseUtil.getStringValueOrEmpty(queryDomainName());
     }
 
     @Override
@@ -40,7 +43,7 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
      *
      * @return the resolved canonical domain name, or {@code ""} on failure
      */
-    protected abstract String queryDomainName();
+    protected abstract @Nullable String queryDomainName();
 
     /**
      * Returns the hostname via the subclass's gethostname binding, or {@code null} to fall back to the InetAddress
@@ -48,5 +51,5 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
      *
      * @return the native hostname, or {@code null} to fall back to the InetAddress lookup
      */
-    protected abstract String queryHostName();
+    protected abstract @Nullable String queryHostName();
 }

@@ -4,6 +4,7 @@
  */
 package oshi.driver.unix;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public final class ProcAddressSpaceReader implements AutoCloseable {
      * @param pageSize the memory page size in bytes
      * @return a reader, or {@code null} if the address space could not be opened (e.g. insufficient permission)
      */
-    public static ProcAddressSpaceReader open(CLibrary libc, int pid, long pageSize) {
+    public static @Nullable ProcAddressSpaceReader open(CLibrary libc, int pid, long pageSize) {
         String procas = "/proc/" + pid + "/as";
         int fd = libc.open(procas, 0);
         if (fd < 0) {

@@ -6,6 +6,7 @@ package oshi.util.platform.unix.netbsd;
 
 import java.util.Arrays;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -112,7 +113,7 @@ public final class NetBsdSysctlUtil {
      * @return An allocated memory buffer containing the result on success, null otherwise. Its value on failure is
      *         undefined.
      */
-    public static Memory sysctl(int[] name) {
+    public static @Nullable Memory sysctl(int[] name) {
         return SysctlUtilJNA.sysctl(
                 (oldp, oldlenp) -> NetBsdLibc.INSTANCE.sysctl(name, name.length, oldp, oldlenp, null, size_t.ZERO),
                 Arrays.toString(name), LOG, LogLevel.ERROR);

@@ -8,6 +8,8 @@ import static oshi.jna.platform.unix.OpenBsdLibc.CTL_KERN;
 import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME;
 import static oshi.jna.platform.unix.OpenBsdLibc.KERN_CPTIME2;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 
@@ -70,10 +72,13 @@ public class OpenBsdCentralProcessorJNA extends OpenBsdCentralProcessor {
      * @param force64bit True if the buffer is filled with 64-bit longs, false if native long sized values
      * @return The array
      */
-    private static long[] cpTimeToTicks(Memory m, boolean force64bit) {
+    private static long[] cpTimeToTicks(@Nullable Memory m, boolean force64bit) {
+        if (m == null) {
+            return new long[0];
+        }
         long longBytes = force64bit ? 8L : Native.LONG_SIZE;
-        int arraySize = m == null ? 0 : (int) (m.size() / longBytes);
-        if (force64bit && m != null) {
+        int arraySize = (int) (m.size() / longBytes);
+        if (force64bit) {
             return m.getLongArray(0, arraySize);
         }
         long[] ticks = new long[arraySize];

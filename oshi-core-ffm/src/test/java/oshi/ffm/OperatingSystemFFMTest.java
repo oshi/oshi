@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class OperatingSystemFFMTest {
     void testCurrentProcessOpenFileLimits() {
         OperatingSystem os = new SystemInfo().getOperatingSystem();
         OSProcess process = os.getProcess(os.getProcessId());
-        assertThat("Current process shouldn't be null", process, is(notNullValue()));
+        assertNotNull(process, "Current process shouldn\'t be null");
         long softLimit = process.getSoftOpenFileLimit();
         long hardLimit = process.getHardOpenFileLimit();
         assertThat("Soft open file limit for current process should be positive", softLimit, is(greaterThan(0L)));

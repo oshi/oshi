@@ -7,6 +7,8 @@ package oshi.hardware.platform.unix.freebsd;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.hardware.PowerSource;
@@ -22,7 +24,7 @@ public final class FreeBsdPowerSourceFFM extends FreeBsdPowerSource {
             double psTimeRemainingEstimated, double psTimeRemainingInstant, double psPowerUsageRate, double psVoltage,
             double psAmperage, boolean psPowerOnLine, boolean psCharging, boolean psDischarging,
             CapacityUnits psCapacityUnits, int psCurrentCapacity, int psMaxCapacity, int psDesignCapacity,
-            int psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
+            int psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
             String psSerialNumber, double psTemperature) {
         super(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
                 psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,

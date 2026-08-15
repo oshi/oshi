@@ -4,6 +4,8 @@
  */
 package oshi.software.common.os.unix.aix;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractInternetProtocolStats;
 
@@ -31,12 +33,12 @@ public abstract class AixInternetProtocolStats extends AbstractInternetProtocolS
      *
      * @return populated {@link TcpStats}, or {@code null} if the {@code tcp} entry was not found
      */
-    protected abstract TcpStats queryTcpStats();
+    protected abstract @Nullable TcpStats queryTcpStats();
 
     /**
      * Returns the UDP stats from the subclass's perfstat data source.
      *
      * @return populated {@link UdpStats}, or {@code null} if the {@code udp} entry was not found
      */
-    protected abstract UdpStats queryUdpStats();
+    protected abstract @Nullable UdpStats queryUdpStats();
 }

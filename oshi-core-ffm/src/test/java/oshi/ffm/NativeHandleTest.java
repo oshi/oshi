@@ -72,6 +72,8 @@ class NativeHandleTest {
     }
 
     @Test
+    // Deliberately passes null for a @NonNull parameter: the point of the test is that of() rejects it.
+    @SuppressWarnings("NullAway")
     void testNullCloserThrows() {
         MemorySegment segment = MemorySegment.ofAddress(0x1);
         assertThrows(NullPointerException.class, () -> NativeHandle.of(segment, null));

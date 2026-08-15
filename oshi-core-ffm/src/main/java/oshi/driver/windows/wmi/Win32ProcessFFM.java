@@ -33,7 +33,7 @@ public final class Win32ProcessFFM extends Win32Process {
                 pidsToQuery);
     }
 
-    public static WmiResult<ProcessXPProperty> queryProcesses(Collection<Integer> pids) {
+    public static WmiResult<ProcessXPProperty> queryProcesses(@Nullable Collection<Integer> pids) {
         return Win32Process.queryProcesses(Objects.requireNonNull(WmiQueryExecutorFFM.createInstance()), pids);
     }
 }
