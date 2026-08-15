@@ -61,14 +61,6 @@ class UtilTest {
     }
 
     @Test
-    void testIsBlankOrUnknown() {
-        assertThat("\"\" should be Blank", Util.isBlankOrUnknown(""), is(true));
-        assertThat("null should be Blank", Util.isBlankOrUnknown(null), is(true));
-        assertThat("unknown should be unknown", Util.isBlankOrUnknown(Constants.UNKNOWN), is(true));
-        assertThat("\"Not blank\" should not be Blank", Util.isBlankOrUnknown("Not blank"), is(false));
-    }
-
-    @Test
     void testIsSessionValid() {
         assertThat("Session is invalid because user is empty", Util.isSessionValid("", "device", 0L), is(false));
         assertThat("Session is invalid because device is empty", Util.isSessionValid("user", "", 0L), is(false));

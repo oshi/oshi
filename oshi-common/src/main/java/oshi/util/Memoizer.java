@@ -66,7 +66,8 @@ public final class Memoizer {
         // Adapted from Guava's ExpiringMemoizingSupplier
         return new Supplier<T>() {
             private final Supplier<T> delegate = original;
-            @SuppressWarnings("java:S3077") // holder is swapped wholesale, never mutated in place
+            // NullAway.Init: populated lazily on first get(); a non-zero expirationNanos implies it has been set
+            @SuppressWarnings({ "java:S3077", "NullAway.Init" }) // holder is swapped wholesale, never mutated in place
             private volatile T value;
             private volatile long expirationNanos;
 

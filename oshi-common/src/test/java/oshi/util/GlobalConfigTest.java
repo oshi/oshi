@@ -8,6 +8,7 @@ import static java.lang.String.format;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 import static oshi.util.GlobalConfig.clear;
 import static oshi.util.GlobalConfig.get;
@@ -22,6 +23,7 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Properties;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -194,34 +196,40 @@ class GlobalConfigTest {
             return new GlobalConfigAsserter(property);
         }
 
-        GlobalConfigAsserter assertThat(Object expected, Object def) {
+        GlobalConfigAsserter assertThat(@Nullable Object expected, @Nullable Object def) {
             assertThat(failureMessage(def), expected, def);
             return this;
         }
 
-        GlobalConfigAsserter assertThat(String message, Object expected, Object def) {
-            if (def instanceof String) {
+        GlobalConfigAsserter assertThat(String message, @Nullable Object expected, @Nullable Object def) {
+            if (def == null) {
+                // No default supplied: exercise the single-argument overload, which is the only one that can
+                // report an absent property as null
+                assertThat(message, get(property), is(expected));
+            } else if (def instanceof String) {
                 assertThat(message, get(property, (String) def), is(expected));
             } else if (def instanceof Boolean) {
                 assertThat(message, get(property, (boolean) def), is(expected));
             } else if (def instanceof Integer) {
                 assertThat(message, get(property, (Integer) def), is(expected));
             } else if (def instanceof Double) {
-                assertThat(message, get(property, (Double) def), is(closeTo((Double) expected, EPSILON)));
+                Double expectedDouble = (Double) expected;
+                assertNotNull(expectedDouble, message);
+                assertThat(message, get(property, (Double) def), is(closeTo(expectedDouble, EPSILON)));
             }
             return this;
         }
 
-        GlobalConfigAsserter assertDefaultThat(Object expected, Object def) {
+        GlobalConfigAsserter assertDefaultThat(@Nullable Object expected, @Nullable Object def) {
             assertThat(defaultFailureMessage(def), expected, def);
             return this;
         }
 
-        private String failureMessage(Object def) {
+        private String failureMessage(@Nullable Object def) {
             return format(Locale.ROOT, "property: %s value for def: %s should be", property, def);
         }
 
-        private String defaultFailureMessage(Object def) {
+        private String defaultFailureMessage(@Nullable Object def) {
             return format(Locale.ROOT, "Property: %s default value def: %s should be", PROPERTY, def);
         }
     }

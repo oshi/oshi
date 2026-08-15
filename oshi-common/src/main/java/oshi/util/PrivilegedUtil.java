@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,7 +60,7 @@ public final class PrivilegedUtil {
      * @param allowlistConfig Comma-separated list of allowed entries
      * @return A Set of trimmed allowlist entries, or empty set if input is null/empty
      */
-    static Set<String> parseAllowlist(String allowlistConfig) {
+    static Set<String> parseAllowlist(@Nullable String allowlistConfig) {
         if (allowlistConfig == null || allowlistConfig.trim().isEmpty()) {
             return Collections.emptySet();
         }
@@ -75,7 +76,7 @@ public final class PrivilegedUtil {
      * @param allowlist Set of allowed command names or paths
      * @return true if the command is in the allowlist, false otherwise
      */
-    public static boolean isCommandAllowed(String command, Set<String> allowlist) {
+    public static boolean isCommandAllowed(@Nullable String command, @Nullable Set<String> allowlist) {
         if (command == null || command.trim().isEmpty() || allowlist == null || allowlist.isEmpty()) {
             return false;
         }
@@ -115,7 +116,7 @@ public final class PrivilegedUtil {
      * @param allowlist Set of allowed file paths or glob patterns
      * @return true if the file path matches an entry in the allowlist, false otherwise
      */
-    public static boolean isFileAllowed(String filePath, Set<String> allowlist) {
+    public static boolean isFileAllowed(@Nullable String filePath, @Nullable Set<String> allowlist) {
         if (filePath == null || filePath.trim().isEmpty() || allowlist == null || allowlist.isEmpty()) {
             return false;
         }

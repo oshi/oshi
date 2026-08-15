@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
@@ -332,6 +333,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoMinimalFields() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null, null,
                 null, null, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getManufacturerID(), is("APP"));
         assertThat(info.getProductID(), is("0"));
         assertThat(info.getSerialNo(), is("00000000"));
@@ -347,6 +349,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoFullFields() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, 0xa050, 0x12345678, 10, 2023, "Retina", "ABC123",
                 3456L, 2234L, "disp0 (Built-in Display)", 344.2, 222.5, "Built-in Retina Display");
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getManufacturerID(), is("APP"));
         assertThat(info.getProductID(), is("a050"));
         assertThat(info.getSerialNo(), is("12345678"));
@@ -364,6 +367,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoFallbackName() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null,
                 "disp0 (Built-in Display)", null, null, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getModel(), is("disp0 (Built-in Display)"));
     }
 
@@ -371,6 +375,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoDisplayNamePreferred() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null,
                 "disp0 (Built-in Display)", null, null, "Built-in Retina Display");
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getModel(), is("Built-in Retina Display"));
     }
 
@@ -378,6 +383,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoEmptyResolutionWhenDimensionsZero() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, 0L, 0L, null,
                 null, null, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         // No resolution could be derived, but DisplayInfo getters never return null
         assertThat(info.getPreferredResolution(), is(""));
     }
@@ -386,6 +392,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoAbsentStringsAreEmptyNotNull() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null, null,
                 null, null, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         // Nothing was supplied but no getter returns null, and toString renders no "null"
         assertThat(info.getSerialNo(), is("00000000"));
         assertThat(info.getPreferredResolution(), is(""));
@@ -398,6 +405,7 @@ class EdidUtilTest {
     void testSynthesizeDisplayInfoDimensionRounding() {
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, null, null, null, null, null, null, null, null,
                 344.2, 225.9, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getHcm(), is(34));
         assertThat(info.getVcm(), is(23));
     }
@@ -407,6 +415,7 @@ class EdidUtilTest {
         // When productSerial is null but serialNumber is present, the numeric serial populates both fields
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, 0xFD626D62, null, null, null, null, null, null,
                 null, null, null, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getSerialNo(), is("FD626D62"));
         assertThat(info.getProductSerialNumber(), is("FD626D62"));
     }
@@ -416,6 +425,7 @@ class EdidUtilTest {
         // When productSerial is explicitly provided, it takes precedence over the numeric fallback
         DisplayInfo info = EdidUtil.synthesizeDisplayInfo(0x610L, null, 0xFD626D62, null, null, null, "ABC123", null,
                 null, null, null, null, null);
+        assertNotNull(info, "synthesizeDisplayInfo returned null");
         assertThat(info.getSerialNo(), is("FD626D62"));
         assertThat(info.getProductSerialNumber(), is("ABC123"));
     }

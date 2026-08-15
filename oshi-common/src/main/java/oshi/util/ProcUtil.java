@@ -56,17 +56,18 @@ public final class ProcUtil {
 
         List<String> lines = FileUtil.readFile(procFile);
         String previousKey = null;
-        String[] statNames = null;
+        String[] statNames = new String[0];
 
         for (String line : lines) {
             String[] parts = ParseUtil.whitespaces.split(line);
-            if (parts.length == 0) {
-                continue;
-            }
 
             // This would happen if the line starts with whitespace
-            if (parts[0].isEmpty()) {
+            if (parts.length > 0 && parts[0].isEmpty()) {
                 parts = Arrays.copyOfRange(parts, 1, parts.length);
+            }
+            // Recheck after the shift: an empty line splits to a single empty element, which leaves nothing behind
+            if (parts.length == 0) {
+                continue;
             }
 
             String key = parts[0].substring(0, parts[0].length() - 1);
