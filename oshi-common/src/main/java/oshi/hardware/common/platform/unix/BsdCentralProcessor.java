@@ -18,6 +18,8 @@ import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -54,7 +56,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
     protected abstract Pair<Long, Long> queryVmStats();
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         List<String> dmesg = ExecutingCommand.runNative("dmesg");
         Pair<Map<Integer, Integer>, Map<Integer, Integer>> topology = parseTopology(dmesg);
         Map<Integer, Integer> coreMap = topology.getA();
@@ -163,7 +165,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
         }
     }
 
-    static ProcessorCache parseCacheStr(String cacheStr) {
+    static @Nullable ProcessorCache parseCacheStr(String cacheStr) {
         String[] split = ParseUtil.whitespaces.split(cacheStr.trim(), -1);
         if (split.length > 3) {
             switch (split[split.length - 1]) {

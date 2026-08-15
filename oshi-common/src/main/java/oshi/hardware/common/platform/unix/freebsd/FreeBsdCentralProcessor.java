@@ -15,6 +15,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.hardware.common.AbstractCentralProcessor;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -254,7 +256,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         List<LogicalProcessor> logProcs = parseTopology();
         // Force at least one processor
         if (logProcs.isEmpty()) {

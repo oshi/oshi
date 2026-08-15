@@ -8,6 +8,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Abstracts IOKit registry operations so that iteration logic can be shared between JNA and FFM implementations.
  */
@@ -21,7 +23,7 @@ public interface IOKitProvider {
      * @param extractor   function applied to the matched entry; receives a non-null {@link RegistryEntry}
      * @return the extracted value, or {@code null} if the service was not found
      */
-    <T> T withMatchingService(String serviceName, Function<RegistryEntry, T> extractor);
+    <T extends @Nullable Object> T withMatchingService(String serviceName, Function<RegistryEntry, T> extractor);
 
     /**
      * Iterates all IORegistry services matching a class name, invoking a consumer for each entry. Entries and the

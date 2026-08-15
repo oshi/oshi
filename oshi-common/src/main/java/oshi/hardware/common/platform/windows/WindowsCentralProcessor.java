@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.windows;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorFrequencyProperty;
@@ -34,7 +37,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     /** Default constructor. */
     protected WindowsCentralProcessor() {
         // Store the initial query and start the memoizer expiration
-        if (USE_CPU_UTILITY) {
+        if (USE_CPU_UTILITY && processorUtilityCounters != null) {
             setInitialUtilityCounters(processorUtilityCounters.get().getB());
         }
     }
@@ -42,7 +45,9 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Populated by initProcessorCounts, which the parent constructor calls before this class's field initializers
     // run; that ordering rules out an AtomicReference holder (its initializer would not have run yet), so this stays
     // a volatile reference to a swap-published immutable snapshot, for which volatile publication is sufficient.
-    private volatile Map<String, Integer> numaNodeProcToLogicalProcMap; // NOSONAR java:S3077
+    // Assigned by buildNumaNodeProcMap during initProcessorCounts, which the superclass constructor calls before
+    // this class's field initializers would run, so it must not be given one. Read through the getter.
+    private volatile @Nullable Map<String, Integer> numaNodeProcToLogicalProcMap; // NOSONAR java:S3077
 
     /** Whether to use legacy Processor counters rather than Processor Information counters. */
     protected static final boolean USE_LEGACY_SYSTEM_COUNTERS = GlobalConfig
@@ -58,10 +63,10 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     // Previous sample for utility base multiplier calculation
     private final AtomicReference<Map<ProcessorUtilityTickCountProperty, List<Long>>> initialUtilityCounters = new AtomicReference<>();
     // Lazily initialized
-    private Long utilityBaseMultiplier;
+    private @Nullable Long utilityBaseMultiplier;
 
     // This tick query is memoized to enforce a minimum elapsed time for determining the capacity base multiplier
-    private final Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
+    private final @Nullable Supplier<Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>>> processorUtilityCounters = USE_CPU_UTILITY
             ? memoize(this::queryProcessorCapacityCounters, TimeUnit.MILLISECONDS.toNanos(300L))
             : null;
 
@@ -109,7 +114,8 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return the map
      */
     protected Map<String, Integer> getNumaNodeProcToLogicalProcMap() {
-        return this.numaNodeProcToLogicalProcMap;
+        Map<String, Integer> map = this.numaNodeProcToLogicalProcMap;
+        return map == null ? Collections.emptyMap() : map;
     }
 
     /**
@@ -280,7 +286,8 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
         return queryNTPower(2); // Current is field index 2
     }
 
-    private long[] mapPercentToFreqs(List<String> instances, List<Long> percentList, long maxFreq) {
+    private long @Nullable [] mapPercentToFreqs(List<String> instances, @Nullable List<Long> percentList,
+            long maxFreq) {
         if (instances.isEmpty() || percentList == null) {
             return null;
         }
@@ -336,7 +343,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
         List<Long> initSystemUtility = null;
         List<Long> initProcessorUtility = null;
         List<Long> initProcessorUtilityBase = null;
-        if (USE_CPU_UTILITY) {
+        if (USE_CPU_UTILITY && processorUtilityCounters != null) {
             Pair<List<String>, Map<ProcessorUtilityTickCountProperty, List<Long>>> instanceValuePair = processorUtilityCounters
                     .get();
             instances = instanceValuePair.getA();
@@ -401,20 +408,18 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @param initProcessorUtilityBase initial processor utility base, may be null
      * @return the processed tick array
      */
-    protected long[][] processTickData(List<String> instances, List<Long> systemList, List<Long> userList,
-            List<Long> irqList, List<Long> softIrqList, List<Long> idleList, List<Long> baseList,
-            List<Long> systemUtility, List<Long> processorUtility, List<Long> processorUtilityBase,
-            List<Long> initSystemList, List<Long> initUserList, List<Long> initBase, List<Long> initSystemUtility,
-            List<Long> initProcessorUtility, List<Long> initProcessorUtilityBase) {
+    protected long[][] processTickData(List<String> instances, @Nullable List<Long> systemList,
+            @Nullable List<Long> userList, @Nullable List<Long> irqList, @Nullable List<Long> softIrqList,
+            @Nullable List<Long> idleList, @Nullable List<Long> baseList, @Nullable List<Long> systemUtility,
+            @Nullable List<Long> processorUtility, @Nullable List<Long> processorUtilityBase,
+            @Nullable List<Long> initSystemList, @Nullable List<Long> initUserList, @Nullable List<Long> initBase,
+            @Nullable List<Long> initSystemUtility, @Nullable List<Long> initProcessorUtility,
+            @Nullable List<Long> initProcessorUtilityBase) {
 
         int ncpu = getLogicalProcessorCount();
         long[][] ticks = new long[ncpu][TickType.values().length];
         if (instances.isEmpty() || systemList == null || userList == null || irqList == null || softIrqList == null
-                || idleList == null
-                || (USE_CPU_UTILITY && (baseList == null || systemUtility == null || processorUtility == null
-                        || processorUtilityBase == null || initSystemList == null || initUserList == null
-                        || initBase == null || initSystemUtility == null || initProcessorUtility == null
-                        || initProcessorUtilityBase == null))) {
+                || idleList == null) {
             return ticks;
         }
         int size = instances.size();
@@ -422,12 +427,11 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
                 || idleList.size() < size) {
             return ticks;
         }
-        if (USE_CPU_UTILITY && (baseList.size() < size || systemUtility.size() < size || processorUtility.size() < size
-                || processorUtilityBase.size() < size || initSystemList.size() < size || initUserList.size() < size
-                || initBase.size() < size || initSystemUtility.size() < size || initProcessorUtility.size() < size
-                || initProcessorUtilityBase.size() < size)) {
-            return ticks;
-        }
+        // The utility counters only refine the ticks read above. If any of them is missing or short, report the
+        // raw ticks rather than nothing; previously an absent utility counter discarded the whole sample.
+        boolean utilityAvailable = USE_CPU_UTILITY
+                && hasAll(size, baseList, systemUtility, processorUtility, processorUtilityBase, initSystemList,
+                        initUserList, initBase, initSystemUtility, initProcessorUtility, initProcessorUtilityBase);
         for (int i = 0; i < instances.size(); i++) {
             String instance = instances.get(i);
             int cpu;
@@ -448,7 +452,10 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             ticks[cpu][TickType.SOFTIRQ.getIndex()] = softIrqList.get(i);
             ticks[cpu][TickType.IDLE.getIndex()] = idleList.get(i);
 
-            if (USE_CPU_UTILITY) {
+            if (utilityAvailable && baseList != null && initBase != null && processorUtilityBase != null
+                    && initProcessorUtilityBase != null && processorUtility != null && initProcessorUtility != null
+                    && systemUtility != null && initSystemUtility != null && initUserList != null
+                    && initSystemList != null) {
                 long deltaT = baseList.get(i) - initBase.get(i);
                 if (deltaT > 0) {
                     long deltaBase = processorUtilityBase.get(i) - initProcessorUtilityBase.get(i);
@@ -480,5 +487,21 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             ticks[cpu][TickType.IDLE.getIndex()] /= 10_000L;
         }
         return ticks;
+    }
+
+    /**
+     * Reports whether every one of the given counter lists was read and holds at least {@code size} values.
+     *
+     * @param size  the number of processor instances to be indexed
+     * @param lists the counter lists to check
+     * @return true if all are present and long enough
+     */
+    private static boolean hasAll(int size, @Nullable List<Long>... lists) {
+        for (List<Long> list : lists) {
+            if (list == null || list.size() < size) {
+                return false;
+            }
+        }
+        return true;
     }
 }

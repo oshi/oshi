@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +152,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      *
      * @return the vendor string
      */
-    protected String platformExpert() {
+    protected @Nullable String platformExpert() {
         String manufacturer = ioKitProvider().withMatchingService("IOPlatformExpertDevice", entry -> {
             byte[] data = entry.getByteArrayProperty("manufacturer");
             return data != null ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : null;
@@ -168,8 +169,8 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @return a map of physical processor numbers to a pair of ({@code compatible}, {@code cluster-type}). Either
      *         element may be {@code null} if that property is absent from the node.
      */
-    protected Map<Integer, Pair<String, String>> queryCoreProperties() {
-        Map<Integer, Pair<String, String>> coreProperties = new HashMap<>();
+    protected Map<Integer, Pair<@Nullable String, @Nullable String>> queryCoreProperties() {
+        Map<Integer, Pair<@Nullable String, @Nullable String>> coreProperties = new HashMap<>();
         ioKitProvider().forEachMatchingService("IOPlatformDevice", entry -> {
             String name = entry.getName();
             if (name != null) {
@@ -191,7 +192,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param data the raw property value, possibly null
      * @return the decoded string, or null if {@code data} was null
      */
-    private static String ioRegString(byte[] data) {
+    private static @Nullable String ioRegString(byte @Nullable [] data) {
         return data == null ? null : new String(data, StandardCharsets.UTF_8).replace('\0', ' ').trim();
     }
 
@@ -225,7 +226,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @return a map from core key to efficiency class, containing every key in {@code coreKeys}
      */
     static Map<Integer, Integer> deriveEfficiencyClasses(List<Integer> coreKeys,
-            Map<Integer, Pair<String, String>> coreProperties, int topPerfLevelCores) {
+            Map<Integer, Pair<@Nullable String, @Nullable String>> coreProperties, int topPerfLevelCores) {
         Map<Integer, Integer> efficiencyMap = new HashMap<>();
         // Strategy 1 and 2: cluster-type, directly and then propagated to cores sharing a codename
         Map<String, Integer> classByCodename = new HashMap<>();
@@ -304,7 +305,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param properties the core's properties, possibly null
      * @return 1 for a performance cluster, 0 for an efficiency cluster, or null if not recognized
      */
-    private static Integer clusterTypeClass(Pair<String, String> properties) {
+    private static @Nullable Integer clusterTypeClass(@Nullable Pair<@Nullable String, @Nullable String> properties) {
         String clusterType = properties == null ? null : properties.getB();
         if (clusterType == null || clusterType.isEmpty()) {
             return null;
@@ -322,7 +323,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param properties the core's properties, possibly null
      * @return the codename, e.g. {@code avalanche}, or null if absent
      */
-    private static String codename(Pair<String, String> properties) {
+    private static @Nullable String codename(@Nullable Pair<@Nullable String, @Nullable String> properties) {
         String compatible = properties == null ? null : properties.getA();
         if (compatible == null) {
             return null;
@@ -339,7 +340,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @param physicalProcessors the physical processors, whose ID strings hold the IORegistry {@code compatible} value
      * @return the description, or null if no Apple core codename was found
      */
-    static String deriveMicroarchitecture(List<PhysicalProcessor> physicalProcessors) {
+    static @Nullable String deriveMicroarchitecture(List<PhysicalProcessor> physicalProcessors) {
         // Sorting keys, ordering distinct codenames by descending efficiency class and then by core number
         Map<String, Pair<Integer, Integer>> codenames = new LinkedHashMap<>();
         for (PhysicalProcessor processor : physicalProcessors) {
@@ -480,7 +481,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         int logicalProcessorCount = sysctlInt("hw.logicalcpu", 1);
         int physicalProcessorCount = sysctlInt("hw.physicalcpu", 1);
         int physicalPackageCount = sysctlInt("hw.packages", 1);
@@ -492,14 +493,14 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(i, coreId, pkgId));
             pkgCoreKeys.add((pkgId << 16) + coreId);
         }
-        Map<Integer, Pair<String, String>> coreProps = queryCoreProperties();
+        Map<Integer, Pair<@Nullable String, @Nullable String>> coreProps = queryCoreProperties();
         int perflevels = sysctlIntNoWarn("hw.nperflevels", 1);
         int topPerfLevelCores = sysctlIntNoWarn("hw.perflevel0.physicalcpu", 0);
         List<Integer> coreKeys = pkgCoreKeys.stream().sorted().collect(Collectors.toList());
         Map<Integer, Integer> efficiencyMap = deriveEfficiencyClasses(coreKeys, coreProps, topPerfLevelCores);
         List<PhysicalProcessor> physProcs = new ArrayList<>(coreKeys.size());
         for (Integer k : coreKeys) {
-            Pair<String, String> props = coreProps.get(k);
+            Pair<@Nullable String, @Nullable String> props = coreProps.get(k);
             String compat = props == null || props.getA() == null ? "" : props.getA().toLowerCase(Locale.ROOT);
             physProcs.add(new PhysicalProcessor(k >> 16, k & 0xffff, efficiencyMap.getOrDefault(k, 0), compat));
         }

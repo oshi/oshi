@@ -10,6 +10,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.Lssrad;
 import oshi.hardware.common.AbstractCentralProcessor;
@@ -123,7 +125,7 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         PartitionInfo info = queryPartitionInfo();
         int physProcs = (int) info.vcpusMax;
         if (physProcs < 1) {

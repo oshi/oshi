@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -260,7 +261,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     @Override
-    protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+    protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         // Attempt to read from sysfs
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> topology = readTopologyWithUdev();
         // This sometimes fails so fall back to CPUID
@@ -306,7 +307,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      *
      * @return the CPU syspaths from udev, or {@code null} if udev is unavailable
      */
-    protected abstract List<String> enumerateCpuSyspathsViaUdev();
+    protected abstract @Nullable List<String> enumerateCpuSyspathsViaUdev();
 
     /**
      * Enumerates the sysfs paths of all CPUs, preferring udev and falling back to a sysfs directory scan.
@@ -374,7 +375,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @return a LogicalProcessor for the given syspath
      */
     protected static LogicalProcessor getLogicalProcessorFromSyspath(String syspath, Set<ProcessorCache> caches,
-            String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
+            @Nullable String modAlias, Map<Integer, Integer> coreEfficiencyMap, Map<Integer, String> modAliasMap) {
         int processor = ParseUtil.getFirstIntValue(syspath);
         int coreId = FileUtil.getIntFromFile(syspath + "/topology/core_id");
         int pkgId = FileUtil.getIntFromFile(syspath + "/topology/physical_package_id");
@@ -774,7 +775,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      * @param cpuidLines the output lines from {@code cpuid -1r}
      * @return the processor ID string (edx + eax), or {@code null} if not found
      */
-    static String parseCpuidOutput(List<String> cpuidLines) {
+    static @Nullable String parseCpuidOutput(List<String> cpuidLines) {
         for (String checkLine : cpuidLines) {
             if (checkLine.contains("eax=") && checkLine.trim().startsWith("0x00000001")) {
                 String eax = "";
@@ -786,7 +787,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                         edx = ParseUtil.removeMatchingString(register, "edx=0x");
                     }
                 }
-                if (!eax.isEmpty() && !edx.isEmpty()) {
+                if (eax != null && edx != null && !eax.isEmpty() && !edx.isEmpty()) {
                     return edx + eax;
                 }
             }
