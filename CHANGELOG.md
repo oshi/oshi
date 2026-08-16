@@ -1,9 +1,7 @@
 # 7.5.0 (in progress)
 
-##### Bug Fixes and Improvements
+##### New Features
 
-* [#3589](https://github.com/oshi/oshi/pull/3589): Ship `oshi-dist` as a single `.zip`, excluding `oshi-demo` and its `jfreechart` and `jackson` dependencies, and attach it to each GitHub release. Test-javadoc jars and `oshi-benchmark` are no longer published - [@dbwiddis](https://github.com/dbwiddis).
-* [#3611](https://github.com/oshi/oshi/pull/3611), [#3612](https://github.com/oshi/oshi/pull/3612): Log exceptions with their stack trace and cause chain rather than substituting `getMessage()` into the log text, and attach the underlying failure as the cause of the `InstantiationException` from `AbstractNetworkIF` and the `UnsatisfiedLinkError` from `ForeignFunctions.dlopenWithFlags`. Two Windows logs that had been losing their argument now report it - [@dbwiddis](https://github.com/dbwiddis).
 * [#3614](https://github.com/oshi/oshi/pull/3614),
   [#3615](https://github.com/oshi/oshi/pull/3615),
   [#3618](https://github.com/oshi/oshi/pull/3618),
@@ -24,8 +22,12 @@
   [#3633](https://github.com/oshi/oshi/pull/3633),
   [#3634](https://github.com/oshi/oshi/pull/3634),
   [#3635](https://github.com/oshi/oshi/pull/3635),
-  [#3636](https://github.com/oshi/oshi/pull/3636): Adopt [jSpecify](https://jspecify.dev/) nullability annotations project-wide and enforce them in continuous integration with [NullAway](https://github.com/uber/NullAway), so every type in a signature is non-null unless it is annotated `@Nullable`. The public API packages and the `oshi.util` tree carry the marking in their `package-info.java`, where every consumer sees it; the implementation packages are marked on their modules; the native mapping packages opt out. The `org.jspecify:jspecify` dependency is optional and compile-time only. Adds `ParseUtil.getStringValueOrEmpty` and removes the unused `Util.isBlankOrUnknown`.
-  As part of the sweep, stating each contract explicitly surfaced implementations that did not honor it. Reads of incomplete platform output are hardened: an empty line in a `/proc` statistics file, an AIX logical volume missing its type or partition count, a BSD `ps` line missing its process state, and a Solaris system with no SMBIOS section of a given type no longer throw, and Windows CPU ticks are no longer reported as all zero when an optional processor utility counter is unavailable. The following user-facing behavior changed - [@dbwiddis](https://github.com/dbwiddis):
+  [#3636](https://github.com/oshi/oshi/pull/3636): Adopt [JSpecify](https://jspecify.dev/) nullability annotations project-wide and enforce them in continuous integration with [NullAway](https://github.com/uber/NullAway), so every type in a signature is non-null unless it is annotated `@Nullable`. A method not annotated `@Nullable` is now a checked guarantee rather than an aspiration, and a null check against one is dead code you can delete. The public API packages and the `oshi.util` tree carry the marking in their `package-info.java`, where every consumer sees it, including on a Java 8 or classpath build; the implementation packages are marked on their module descriptors; the native mapping packages under `oshi.jna` and `oshi.ffm.platform` opt out, because nullability there is the operating system's to state rather than OSHI's. The `org.jspecify:jspecify` dependency is optional and compile-time only, so it does not reach your runtime classpath. See the [FAQ](FAQ.md#nullability-nullmarked-nullable) for what this does and does not promise - [@dbwiddis](https://github.com/dbwiddis).
+* [#3615](https://github.com/oshi/oshi/pull/3615): Add `ParseUtil.getStringValueOrEmpty`, which normalizes a nullable string to `""`, alongside the existing `getStringValueOrUnknown` - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Behavior Changes
+
+* [#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): Stating each nullability contract explicitly during the JSpecify sweep surfaced implementations that did not honor it. Values that were documented as unreadable but returned `null` now return the sentinel the rest of the API uses. The following user-facing behavior changed - [@dbwiddis](https://github.com/dbwiddis):
   * `DisplayInfo`'s preferred resolution, model and product serial number return an empty string rather than `null`
     for a synthesized display such as the Apple Silicon built-in panel.
   * `SoundCard.getDriverVersion()` and `getCodec()` return `Constants.UNKNOWN` rather than `null` when the platform
@@ -40,6 +42,21 @@
   * A macOS process whose passwd or group entry cannot be read reports its numeric user and group id through the
     FFM implementation, matching JNA.
 * [#3616](https://github.com/oshi/oshi/pull/3616): Report a disk's model or serial number, and a macOS partition's UUID, as `Constants.UNKNOWN` when it reads as an empty string, matching every other unreadable value. Affects AIX disks whose `lscfg` serial field is blank, and the Linux device-mapper and macOS equivalents. Partition filesystem UUIDs and labels are unchanged - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Removals
+
+These are all outside the semver-guaranteed API, which covers `oshi.hardware`, `oshi.software.os` and types annotated `@PublicApi`. They are listed because removing them can break a compile.
+
+* [#3608](https://github.com/oshi/oshi/pull/3608): Remove 14 `*JNA` and `*FFM` classes from `oshi.driver.windows.wmi` that only redeclared the static methods of their `oshi.driver.common.windows.wmi` base classes verbatim. Call the base class of the same name instead - [@dbwiddis](https://github.com/dbwiddis).
+* [#3615](https://github.com/oshi/oshi/pull/3615): Remove `Util.isBlankOrUnknown`, which had no callers. Use `Constants.UNKNOWN.equals(s)` or one of the `ParseUtil` normalizers - [@dbwiddis](https://github.com/dbwiddis).
+* [#3617](https://github.com/oshi/oshi/pull/3617): Remove the unused `ParseUtil.slash` constant. As a single-character separator it was also a pessimization: `String.split` takes a fast path for one non-metacharacter that a precompiled `Pattern` does not - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug Fixes and Improvements
+
+* [#3589](https://github.com/oshi/oshi/pull/3589): Ship `oshi-dist` as a single `.zip`, excluding `oshi-demo` and its `jfreechart` and `jackson` dependencies, and attach it to each GitHub release. Test-javadoc jars and `oshi-benchmark` are no longer published - [@dbwiddis](https://github.com/dbwiddis).
+* [#3611](https://github.com/oshi/oshi/pull/3611), [#3612](https://github.com/oshi/oshi/pull/3612): Log exceptions with their stack trace and cause chain rather than substituting `getMessage()` into the log text, and attach the underlying failure as the cause of the `InstantiationException` from `AbstractNetworkIF` and the `UnsatisfiedLinkError` from `ForeignFunctions.dlopenWithFlags`. Two Windows logs that had been losing their argument now report it - [@dbwiddis](https://github.com/dbwiddis).
+* [#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): Harden reads of incomplete platform output, found while stating the nullability contracts above. An empty line in a `/proc` statistics file, an AIX logical volume missing its type or partition count, a BSD `ps` line missing its process state, and a Solaris system with no SMBIOS section of a given type no longer throw. Windows CPU ticks are no longer reported as all zero when an optional processor utility counter is unavailable - [@dbwiddis](https://github.com/dbwiddis).
+* [#3639](https://github.com/oshi/oshi/pull/3639): Fix a race in the Windows GPU utilization calculation, which tested its cached previous tick sample for null and then dereferenced it in a second read, so a concurrent poll could throw a `NullPointerException`. That sample and the cached ADL adapter index are now `volatile`, as a `@ThreadSafe` class requires - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.4.0 (2026-07-08), 7.4.1 (2026-07-18), 7.4.2 (2026-07-24), 7.4.3 (2026-07-31), 7.4.4 (2026-08-06)
 
