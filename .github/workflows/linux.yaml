@@ -67,7 +67,7 @@ jobs:
       - name: Verify SLF4J 1.7 API compatibility
         run: ./mvnw -Pverify-slf4j-17 clean compile
 
-  # Error Prone: groundwork for jSpecify nullability annotations (NullAway, the Error Prone
+  # Error Prone: groundwork for JSpecify nullability annotations (NullAway, the Error Prone
   # check that will enforce them once added, needs Error Prone wired in first). ERROR-severity
   # findings fail this job (javac's own default behavior); WARNING-severity findings don't, and
   # accumulate for ongoing triage.

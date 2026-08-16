@@ -114,7 +114,7 @@ jobs:
       - name: Verify SLF4J 1.7 API compatibility
         run: ./mvnw -Pverify-slf4j-17 clean compile
 
-  # Error Prone, including NullAway, which enforces the jSpecify nullability annotations over
+  # Error Prone, including NullAway, which enforces the JSpecify nullability annotations over
   # @NullMarked packages only. ERROR-severity findings block the PR (javac's own default
   # behavior); WARNING-severity findings don't, and accumulate for ongoing triage. NullAway is
   # ERROR, so a nullability violation fails here. -DskipTests skips test execution but not test

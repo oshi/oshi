@@ -207,7 +207,7 @@
             invocation doesn't preserve a multi-option -Xplugin value as one token the way
             in-process compilation does elsewhere in the reactor, breaking Error Prone's own
             "-Xep:Check:OFF"-style flags. Not worth extra plumbing for a JMH-only module that never
-            carries jSpecify annotations - restore the plain compilerArgs baseline instead. -->
+            carries JSpecify annotations - restore the plain compilerArgs baseline instead. -->
             <id>error-prone</id>
             <build>
                 <plugins>

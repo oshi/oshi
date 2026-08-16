@@ -108,7 +108,7 @@
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.15.0</maven-compiler-plugin.version>
-        <!-- Host platform for NullAway, the Error Prone check that enforces the jSpecify nullability
+        <!-- Host platform for NullAway, the Error Prone check that enforces the JSpecify nullability
         annotations. Wired up behind the error-prone profile; see pom.xml profile "error-prone". -->
         <error-prone.version>2.50.0</error-prone.version>
         <!-- Error Prone plugin adding SLF4J-specific checks (placeholder/argument agreement, constant format
@@ -152,7 +152,7 @@
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
         <spotless-plugin.version>3.9.0</spotless-plugin.version>
         <jlibrehardwaremonitor.version>1.0.6</jlibrehardwaremonitor.version>
-        <!-- jSpecify nullability annotations (@NullMarked/@Nullable). Compile-time metadata only: declared
+        <!-- JSpecify nullability annotations (@NullMarked/@Nullable). Compile-time metadata only: declared
         optional so it stays off consumers' transitive classpath, and imported optionally by OSGi. Four
         annotation classes, no transitive dependencies, Java 8 bytecode, Apache 2.0. -->
         <jspecify.version>1.0.1</jspecify.version>
@@ -1215,7 +1215,7 @@
         </profile>
         <profile>
             <!-- Wires Error Prone into the compiler, the host platform NullAway (an Error Prone
-            check) uses to enforce the jSpecify nullability annotations. NullAway runs at ERROR, so
+            check) uses to enforce the JSpecify nullability annotations. NullAway runs at ERROR, so
             a signature that contradicts its annotations blocks the build; the codebase reports zero
             findings as of #3636. WARNING-severity findings from other checks don't block, and
             accumulate for ongoing triage. Requires JDK 21+ to run (independent of the release target being compiled) and
@@ -1223,7 +1223,7 @@
             its own pom.xml) - its maven-compiler-plugin config forks a separate javac process for
             its JDK toolchain, and a forked invocation doesn't preserve a multi-option -Xplugin
             value as one token the way in-process compilation does, breaking Error Prone's own
-            "-Xep:Check:OFF"-style flags; it's also JMH-only and never carries jSpecify
+            "-Xep:Check:OFF"-style flags; it's also JMH-only and never carries JSpecify
             annotations, so it isn't worth the extra plumbing to fix. -->
             <id>error-prone</id>
             <build>
