@@ -9,6 +9,7 @@ import static oshi.util.Memoizer.slowExpiration;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -22,6 +23,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
+import oshi.util.VirtualizationDetector;
 
 /**
  * Common fields or methods used by platform-specific implementations of HardwareAbstractionLayer
@@ -51,9 +53,18 @@ public abstract class AbstractHardwareAbstractionLayer implements HardwareAbstra
 
     private final Supplier<List<UsbDevice>> usbDevicesTree = memoize(this::createUsbDevices, slowExpiration());
 
+    // Memoized permanently: a machine does not stop being virtualized while the JVM runs, and the MAC pass
+    // enumerates network interfaces, which is not cheap to repeat on every call.
+    private final Supplier<Optional<String>> virtualization = memoize(() -> VirtualizationDetector.identify(this));
+
     @Override
     public ComputerSystem getComputerSystem() {
         return computerSystem.get();
+    }
+
+    @Override
+    public Optional<String> getVirtualization() {
+        return virtualization.get();
     }
 
     /**

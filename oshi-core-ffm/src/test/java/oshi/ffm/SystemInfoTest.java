@@ -30,6 +30,7 @@ import static oshi.util.SystemInfoHelper.printSensors;
 import static oshi.util.SystemInfoHelper.printServices;
 import static oshi.util.SystemInfoHelper.printSoundCards;
 import static oshi.util.SystemInfoHelper.printUsbDevices;
+import static oshi.util.SystemInfoHelper.printVirtualization;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -101,6 +102,9 @@ public class SystemInfoTest {
 
         logger.info("Checking computer system...");
         printComputerSystem(lines, hal.getComputerSystem());
+
+        logger.info("Checking virtualization...");
+        printVirtualization(lines, hal);
 
         logger.info("Checking Processor...");
         printProcessor(lines, hal.getProcessor());

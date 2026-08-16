@@ -20,8 +20,9 @@ import oshi.annotation.concurrent.Immutable;
  * class in the {@code oshi-demo} module for an example approach.
  * <p>
  * <b>VM detection:</b> Virtual machine environments can often be identified by examining the
- * {@link #getManufacturer()}, {@link #getModel()}, and {@link Firmware} values. See the {@code DetectVM} class in the
- * {@code oshi-demo} module for an example.
+ * {@link #getManufacturer()}, {@link #getModel()}, and {@link Firmware} values.
+ * {@link HardwareAbstractionLayer#getVirtualization()} does this for you, combining those values with the processor's
+ * CPUID vendor string and network interface MAC addresses.
  */
 @PublicApi
 @Immutable
