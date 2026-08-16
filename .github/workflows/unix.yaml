@@ -21,8 +21,6 @@ jobs:
   testfreebsd:
     name: Test JDK 25, FreeBSD
     runs-on: ubuntu-24.04
-    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
-    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -32,6 +30,10 @@ jobs:
         id: test-freebsd
         uses: vmactions/freebsd-vm@83b151f58c6047089f4c80eb5ba2039d158ce093 # v1
         with:
+          # Caching the base image is a slower copy of a download that happens anyway: restoring
+          # it measured 54s against 48s to fetch from source, and a miss also uploads ~970 MB.
+          # Only prepared images earn their space, by skipping work rather than moving bytes.
+          disable-cache: true
           usesh: true
           copyback: true
           prepare: |
@@ -53,8 +55,6 @@ jobs:
   # to Codecov under the `openbsd` flag.
   testopenbsd:
     runs-on: ubuntu-24.04
-    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
-    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
     timeout-minutes: 30
     name: Test JDK 25, OpenBSD
     steps:
@@ -69,6 +69,9 @@ jobs:
           usesh: false
           mem: 2048
           copyback: true
+          # Skips pkg_add on later runs. This mirror has shown the widest download variance in
+          # the matrix, measured at 1.6, 10.0 and 11.2 minutes across three runs.
+          cache-after-prepare: true
           prepare: |
             pkg_add curl
             pkg_add jdk%25
@@ -92,8 +95,6 @@ jobs:
   testopenindiana:
     name: Test JDK 25, OpenIndiana
     runs-on: ubuntu-24.04
-    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
-    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -109,11 +110,29 @@ jobs:
           # thread fan-out that drives the native-memory OOMs.
           cpu: 2
           copyback: true
+          # Reboots the guest between prepare and run, discarding the ZFS ARC that pkg install
+          # fills before the build starts. Also caches the prepared image, skipping pkg install
+          # on later runs.
+          cache-after-prepare: true
           prepare: |
+            # ZFS ARC defaults to ~69% of RAM and is kernel memory, so it starves allocations
+            # while swap -s still reports gigabytes free. Capping it is what stops the
+            # intermittent OOMs; /etc/system is the supported knob and applies on the reboot
+            # cache-after-prepare performs.
+            echo "set zfs:zfs_arc_max = 2147483648" >> /etc/system
             pkg install openjdk25
           run: |
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
+            # An uncapped run is indistinguishable from a capped one until it OOMs, so fail
+            # loudly rather than silently losing the cap.
+            ARC_CMAX=$(kstat -p zfs:0:arcstats:c_max 2>/dev/null | awk '{print $2}')
+            echo "ARC cap: arc_c_max=${ARC_CMAX} size=$(kstat -p zfs:0:arcstats:size 2>/dev/null | awk '{print $2}')"
+            if [ "$ARC_CMAX" != "2147483648" ]; then
+              echo "ERROR: ZFS ARC is not capped (expected 2147483648); /etc/system did not take"
+              grep -i arc /etc/system || echo "  (no arc lines in /etc/system)"
+              exit 1
+            fi
             # illumos OOMs here are native memory (thread stacks + GC/JIT/metaspace),
             # not Java heap. Cap every native pool that grows with thread fan-out and
             # use SerialGC (no parallel GC threads/structures) to keep the footprint flat.
@@ -141,8 +160,6 @@ jobs:
   testdragonflybsd:
     name: Test JDK 21, DragonFly BSD
     runs-on: ubuntu-24.04
-    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
-    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -152,6 +169,9 @@ jobs:
         id: test-dragonflybsd
         uses: vmactions/dragonflybsd-vm@bc8ccbaa091ce3624c93f2dc328ae48129b07580 # v1
         with:
+          # See the FreeBSD job: caching a base image costs more than it saves. These also have
+          # no pr.yaml counterpart, so nothing could restore them in the first place.
+          disable-cache: true
           release: "6.4.2"
           usesh: true
           copyback: true
@@ -177,8 +197,6 @@ jobs:
   testnetbsd:
     name: Test JDK 21, NetBSD (no JNA)
     runs-on: ubuntu-24.04
-    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
-    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -188,6 +206,9 @@ jobs:
         id: test-netbsd
         uses: vmactions/netbsd-vm@00081e82b14bc40114eb97f32b4455306828516b # v1
         with:
+          # See the FreeBSD job: caching a base image costs more than it saves. These also have
+          # no pr.yaml counterpart, so nothing could restore them in the first place.
+          disable-cache: true
           release: "10.1"
           usesh: true
           copyback: true
@@ -213,8 +234,6 @@ jobs:
   testnetbsdjna:
     name: Test JDK 21, NetBSD (JNA)
     runs-on: ubuntu-24.04
-    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
-    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -224,6 +243,9 @@ jobs:
         id: test-netbsd-jna
         uses: vmactions/netbsd-vm@00081e82b14bc40114eb97f32b4455306828516b # v1
         with:
+          # See the FreeBSD job: caching a base image costs more than it saves. These also have
+          # no pr.yaml counterpart, so nothing could restore them in the first place.
+          disable-cache: true
           release: "10.1"
           usesh: true
           copyback: true
