@@ -34,10 +34,13 @@ import static oshi.util.SystemInfoHelper.printVirtualization;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
@@ -46,7 +49,9 @@ import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.hardware.ComputerSystem;
 import oshi.hardware.HardwareAbstractionLayer;
+import oshi.hardware.NetworkIF;
 import oshi.software.os.OperatingSystem;
 import oshi.util.PlatformEnum;
 
@@ -81,6 +86,29 @@ public class SystemInfoTest {
         // This suite only runs on JDK 25+ where the FFM API is present, so the provider must report available.
         assertThat("FFM provider should be available when java.lang.foreign is present", new SystemInfo().isAvailable(),
                 is(true));
+    }
+
+    /**
+     * Asserts that a GitHub-hosted runner, which is a virtual machine, is detected as one.
+     * <p>
+     * {@code RUNNER_ENVIRONMENT} is set to {@code github-hosted} by Actions itself, so this covers every hosted job
+     * without per-workflow configuration and picks up new ones for free. It cannot run unconditionally: OSHI's tests
+     * must also pass on physical hardware, where an empty result is the correct answer. The workflows set
+     * {@code OSHI_BARE_METAL_RUNNER} on the one hosted runner that is not a guest.
+     */
+    @Test
+    @EnabledIfEnvironmentVariable(named = "RUNNER_ENVIRONMENT", matches = "github-hosted")
+    @DisabledIfEnvironmentVariable(named = "OSHI_BARE_METAL_RUNNER", matches = "true")
+    void testVirtualizationDetected() {
+        HardwareAbstractionLayer hal = new SystemInfo().getHardware();
+        ComputerSystem cs = hal.getComputerSystem();
+        // Report the signatures on failure, so the fix is to add whichever one is missing from the tables
+        assertThat(
+                "Runner is virtualized but no signature matched. CPU vendor: '"
+                        + hal.getProcessor().getProcessorIdentifier().getVendor() + "', manufacturer: '"
+                        + cs.getManufacturer() + "', model: '" + cs.getModel() + "', MACs: "
+                        + hal.getNetworkIFs().stream().map(NetworkIF::getMacaddr).collect(Collectors.joining(", ")),
+                hal.getVirtualization().isPresent(), is(true));
     }
 
     public static void main(String @Nullable [] args) {

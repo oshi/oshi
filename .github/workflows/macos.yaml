@@ -24,10 +24,18 @@ jobs:
         java: [21, 25, 26]
         os: [macos-14, macos-15, macos-26]
         include:
+          # Apple's licensing only permits macOS guests on Apple hardware, and GitHub satisfies it on Intel by
+          # running physical machines: this runner reports itself as a Macmini6,2, where the Apple Silicon runners
+          # report the VirtualMac2,1 of a Virtualization.framework guest. It is therefore the one hosted runner
+          # where SystemInfoTest#testVirtualizationDetected cannot pass. Drop this flag with the runner itself.
           - java: 21
             os: 'macos-26-intel'
+            bareMetal: 'true'
       fail-fast: false
     name: JDK ${{ matrix.java }}, ${{ matrix.os }}
+
+    env:
+      OSHI_BARE_METAL_RUNNER: ${{ matrix.bareMetal }}
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

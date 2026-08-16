@@ -95,11 +95,20 @@ class VirtualizationDetectorTest {
         assertThat(VirtualizationDetector.matchSystem("Microsoft Corporation", "Virtual Machine", table),
                 is(Optional.of("Microsoft Hyper-V")));
         assertThat(VirtualizationDetector.matchSystem("Xen", "HVM domU", table), is(Optional.of("Xen")));
+        // Apple Virtualization guest, as reported by the Apple Silicon GitHub Actions runners
+        assertThat(VirtualizationDetector.matchSystem("Apple Inc.", "VirtualMac2,1", table),
+                is(Optional.of("Apple Virtualization")));
+        // The Hyper-V model carries a UEFI version suffix on Azure Linux, so this cannot be an equality test
+        assertThat(
+                VirtualizationDetector.matchSystem("Microsoft Corporation",
+                        "Virtual Machine (version: Hyper-V UEFI Release v4.1)", table),
+                is(Optional.of("Microsoft Hyper-V")));
         assertThat(VirtualizationDetector.matchSystem("Parallels Software International Inc.",
                 "Parallels Virtual" + " Platform", table), is(Optional.of("Parallels")));
         // Physical hardware matches nothing
         assertThat(VirtualizationDetector.matchSystem("Dell Inc.", "PowerEdge R740", table), is(Optional.empty()));
         assertThat(VirtualizationDetector.matchSystem("Apple Inc.", "MacBookPro18,3", table), is(Optional.empty()));
+        assertThat(VirtualizationDetector.matchSystem("Apple Inc.", "Macmini6,2", table), is(Optional.empty()));
         assertThat(VirtualizationDetector.matchSystem("", "", table), is(Optional.empty()));
     }
 
