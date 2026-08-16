@@ -278,21 +278,35 @@ constants both shortened it and made Sonar stop reporting `S5843` at all, so the
 expected to declare one, and matching the annotation of the class you are modeling yours on is the
 right default.
 
-**Nullability.** `oshi.hardware`, `oshi.software.os`, and `oshi.util` are `@NullMarked` (jSpecify)
-via their `package-info.java`, so **every type usage in a signature in those packages is non-null
-unless you annotate it `@Nullable`**. `@NullMarked` does not extend to subpackages, so
-`oshi.util.tuples`, `oshi.util.driver`, and the platform packages are still unmarked, as is
-`oshi.ffm`; see [#3593](https://github.com/oshi/oshi/issues/3593) for the remaining phases. Adding
-an annotation to an unmarked package is harmless but proves nothing, since an unmarked package
-makes no claim either way.
+**Nullability.** Every package in `oshi-common`, `oshi-core` and `oshi-core-ffm` is `@NullMarked`
+(JSpecify), so **every type usage in a signature is non-null unless you annotate it `@Nullable`**.
+`@NullMarked` does not extend to subpackages, so the marking is applied at two levels. The API
+packages — `oshi`, `oshi.hardware`, `oshi.software.os`, `oshi.util` and its subpackages, `oshi.spi`,
+`oshi.annotation` and `oshi.ffm` — carry it in their `package-info.java`, which is the only form a
+consumer sees on a Java 8 or classpath build. Everything behind them is marked on the three
+`module-info.java` descriptors, which a consumer sees only on the module path; those packages are
+internal either way. The native mapping packages under `oshi.jna` and `oshi.ffm.platform` are
+explicitly `@NullUnmarked` — they mirror C structs and libraries, where nullability is the operating
+system's to state, not OSHI's. Their *utility* neighbours (`oshi.jna.util`, `oshi.util.platform.*`)
+are marked. `oshi-metrics` is not marked: it implements Micrometer interfaces that carry no
+nullability annotations of their own. New packages are expected to be marked; a new one under
+`oshi.jna` or `oshi.ffm.platform` gets the opt-out `package-info.java` its siblings have.
 
 **This is enforced, not documentation.** NullAway runs in the `error-prone` profile with
 `OnlyNullMarked=true` and `JSpecifyMode=true`, at ERROR severity, so a violation inside a marked
 package fails the build — in main *and* test sources, since `-DskipTests` skips execution but not
 compilation. `OnlyNullMarked=true` means the analysis follows the marking, not the module list:
 mark a package and it is checked, everywhere, with no build-file change. That cuts both ways —
-marking a package is a commitment to fixing every finding in it, so mark one package at a time and
-run `./mvnw -Perror-prone clean install` before assuming the marking is free.
+marking a package is a commitment to fixing every finding in it, so add one marking at a time and
+run `./mvnw -Perror-prone clean install` before assuming it is free.
+
+**The module-level marking is only enforced because the `error-prone` profile changes how
+`module-info.java` is compiled.** `oshi-common` and `oshi-core` normally *exclude* it from the
+release-8 compile and build it separately at release 9, so NullAway — which runs during the main
+compile — would never read the module declaration. Under the profile, those two modules compile
+whole at release 9 with `module-info.java` included. Do not "simplify" that duplicated compiler
+configuration away: it silently switches off nullness checking for every implementation package.
+The shipped artifacts are unaffected, since the release build does not use the profile.
 
 Three findings are worth recognizing on sight. *Assigning `@Nullable` expression to `@NonNull`
 field* — normalize at the assignment, do not annotate the field. *Parameter is `@NonNull`, but
