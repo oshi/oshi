@@ -68,10 +68,12 @@ public final class WhoFFM {
                         String device = LinuxLibcFunctions.utmpxLine(ut);
                         String host = ParseUtil.parseUtAddrV6toIP(LinuxLibcFunctions.utmpxAddrV6(ut));
                         long loginTime = LinuxLibcFunctions.utmpxLoginTime(ut);
-                        if (!isSessionValid(user, device, loginTime)) {
-                            return oshi.util.driver.linux.Who.queryWho();
+                        // The utmpx table is not reentrant. A session ending while this loop runs can hand
+                        // back a partially written entry, so drop that one rather than abandoning a read
+                        // whose other entries are fine.
+                        if (isSessionValid(user, device, loginTime)) {
+                            whoList.add(new OSSession(user, device, loginTime, host));
                         }
-                        whoList.add(new OSSession(user, device, loginTime, host));
                     }
                 }
             } finally {
