@@ -29,8 +29,6 @@
 --add-opens
   com.github.oshi/oshi.hardware.platform.unix.dragonflybsd=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.util.platform.unix.dragonflybsd=org.junit.platform.commons
---add-opens
   com.github.oshi/oshi.util.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.util.platform.unix.netbsd=org.junit.platform.commons
