@@ -72,6 +72,24 @@ class WmiUtilTest {
     }
 
     @Test
+    void testGetBooleanValid() {
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_BOOLEAN, WmiConstants.VT_BOOL, true);
+        assertThat(WmiUtil.getBoolean(result, TestProp.ID, 0), is(true));
+    }
+
+    @Test
+    void testGetBooleanNull() {
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_BOOLEAN, WmiConstants.VT_BOOL, null);
+        assertThat(WmiUtil.getBoolean(result, TestProp.ID, 0), is(false));
+    }
+
+    @Test
+    void testGetBooleanWrongType() {
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_I4, 42);
+        assertThrows(ClassCastException.class, () -> WmiUtil.getBoolean(result, TestProp.ID, 0));
+    }
+
+    @Test
     void testGetFloat() {
         WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_REAL32, WmiConstants.VT_R4, 3.14f);
         assertThat(WmiUtil.getFloat(result, TestProp.SIZE, 0), is(3.14f));

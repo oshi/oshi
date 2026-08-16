@@ -19,6 +19,8 @@ public final class WmiConstants {
     public static final int CIM_REAL32 = 4;
     /** CIM type for string. */
     public static final int CIM_STRING = 8;
+    /** CIM type for boolean. */
+    public static final int CIM_BOOLEAN = 11;
     /** CIM type for unsigned 16-bit integer. */
     public static final int CIM_UINT16 = 18;
     /** CIM type for unsigned 32-bit integer. */
@@ -37,4 +39,6 @@ public final class WmiConstants {
     public static final int VT_R4 = 4;
     /** Variant type for BSTR (string). */
     public static final int VT_BSTR = 8;
+    /** Variant type for boolean. */
+    public static final int VT_BOOL = 11;
 }
