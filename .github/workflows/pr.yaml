@@ -197,6 +197,9 @@ jobs:
   # the FreeBSD-specific classes.
   testfreebsd:
     runs-on: ubuntu-24.04
+    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
+    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
+    timeout-minutes: 30
     name: Test JDK 25, FreeBSD
     needs: changes
     permissions:
@@ -232,6 +235,9 @@ jobs:
   # OpenBSD VM, JDK 25. Same pattern as FreeBSD above.
   testopenbsd:
     runs-on: ubuntu-24.04
+    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
+    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
+    timeout-minutes: 30
     name: Test JDK 25, OpenBSD
     needs: changes
     permissions:
@@ -274,6 +280,9 @@ jobs:
   # don't exhaust illumos's native-memory pool.
   testopenindiana:
     runs-on: ubuntu-24.04
+    # Bound a hung guest. These normally finish well inside this; NetBSD has been seen
+    # wedged for over an hour, which the 6-hour GitHub default lets burn a runner.
+    timeout-minutes: 30
     name: Test JDK 25, OpenIndiana
     needs: changes
     permissions:
