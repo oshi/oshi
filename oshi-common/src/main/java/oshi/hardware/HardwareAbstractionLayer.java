@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OperatingSystem;
 import oshi.util.VirtualizationDetector;
 
 /**
@@ -181,8 +182,7 @@ public interface HardwareAbstractionLayer {
      * <p>
      * An empty result means no known signature was found. That is not proof the machine is physical: a hypervisor may
      * hide itself, and the signature tables only cover platforms OSHI knows about. Containers are reported alongside
-     * hypervisors; for resource limits imposed on a container, see
-     * {@link oshi.software.os.OperatingSystem#getCgroupInfo()}.
+     * hypervisors; for resource limits imposed on a container, see {@link OperatingSystem#getCgroupInfo()}.
      *
      * @return The name of the virtualization platform if one was identified, otherwise an empty {@link Optional}.
      */

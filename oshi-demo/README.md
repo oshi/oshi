@@ -43,7 +43,7 @@ jbang diskstore@oshi/oshi
 |-------|-------------|
 | `Json` | Dumps all system information as JSON |
 | `OshiGui` | Swing GUI with CPU, memory, disk, network panels |
-| `DetectVM` | Detects virtual machine environments |
+| `DetectVM` | Detects virtualization and container platforms |
 | `ComputerID` | Generates a unique hardware-based machine identifier |
 | `DiskStoreForPath` | Shows which disk store backs a given file path |
 | `OshiHTTPServer` | Simple HTTP server exposing system info |

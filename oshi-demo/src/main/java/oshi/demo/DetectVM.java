@@ -11,7 +11,7 @@ import oshi.annotation.SuppressForbidden;
 import oshi.hardware.HardwareAbstractionLayer;
 
 /**
- * Uses OSHI to attempt to identify whether the user is on a Virtual Machine
+ * Uses OSHI to attempt to identify the virtualization or container platform the user is running on
  */
 public class DetectVM {
 
@@ -22,27 +22,28 @@ public class DetectVM {
     }
 
     /**
-     * Entry point, executing the {@link #identifyVM} method.
+     * Entry point, demonstrating {@link HardwareAbstractionLayer#getVirtualization()}.
      *
      * @param args Arguments, ignored.
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
-        String vmString = identifyVM();
+        Optional<String> virtualization = new SystemInfo().getHardware().getVirtualization();
 
-        if (vmString.isEmpty()) {
-            System.out.println("You do not appear to be on a Virtual Machine.");
+        if (virtualization.isPresent()) {
+            System.out.println("You appear to be on a virtualization or container platform: " + virtualization.get());
         } else {
-            System.out.println("You appear to be on a VM: " + vmString);
+            // An empty result is not proof of physical hardware, only that no known signature matched
+            System.out.println("No virtualization or container platform was detected.");
         }
     }
 
     /**
-     * The function attempts to identify which Virtual Machine (VM) based on common VM signatures in the CPU vendor
-     * string, computer model, and MAC address.
+     * The function attempts to identify the virtualization or container platform based on common signatures in the CPU
+     * vendor string, computer manufacturer and model, and MAC address.
      *
-     * @return A string indicating the machine's virtualization info if it can be determined, or an empty string
-     *         otherwise.
+     * @return A string naming the platform if it can be determined, or an empty string otherwise. The name may be a
+     *         container runtime such as {@code LXC} rather than a hypervisor.
      * @deprecated Use {@link HardwareAbstractionLayer#getVirtualization()}, which this method delegates to. It
      *             distinguishes "no signature found" from a detected platform without overloading the empty string.
      */
