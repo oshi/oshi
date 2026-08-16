@@ -145,10 +145,11 @@ jobs:
     permissions:
       contents: read
     strategy:
-      # Latest LTS (JDK 25) across all three OSes — this is the coverage + JNA==FFM
-      # row (uploads linux/macos/windows flags). The version floor/ceiling checks
-      # (JDK 21 and 26) run on ubuntu only; an OS-specific bug that is also
-      # JDK-version-specific in a way ubuntu wouldn't catch is vanishingly rare.
+      # Latest LTS (JDK 25) across all three OSes — the row that uploads the
+      # linux/macos/windows coverage flags and runs the JNA/FFM comparison tests.
+      # The version floor/ceiling checks (JDK 21 and 26) run on ubuntu only; an
+      # OS-specific bug that is also JDK-version-specific in a way ubuntu wouldn't
+      # catch is vanishingly rare.
       matrix:
         include:
           - os: ubuntu-latest
@@ -165,7 +166,7 @@ jobs:
             java: 25
             coverage-flag: windows
       fail-fast: false
-    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
+    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -196,7 +197,7 @@ jobs:
   # the FreeBSD-specific classes.
   testfreebsd:
     runs-on: ubuntu-24.04
-    name: Test JDK 25, FreeBSD (+ JNA==FFM)
+    name: Test JDK 25, FreeBSD
     needs: changes
     permissions:
       contents: read
@@ -231,7 +232,7 @@ jobs:
   # OpenBSD VM, JDK 25. Same pattern as FreeBSD above.
   testopenbsd:
     runs-on: ubuntu-24.04
-    name: Test JDK 25, OpenBSD (+ JNA==FFM)
+    name: Test JDK 25, OpenBSD
     needs: changes
     permissions:
       contents: read
@@ -269,7 +270,7 @@ jobs:
   # don't exhaust illumos's native-memory pool.
   testopenindiana:
     runs-on: ubuntu-24.04
-    name: Test JDK 25, OpenIndiana (+ JNA==FFM)
+    name: Test JDK 25, OpenIndiana
     needs: changes
     permissions:
       contents: read
