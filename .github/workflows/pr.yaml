@@ -254,9 +254,13 @@ jobs:
           prepare: |
             pkg_add curl
             pkg_add jdk%25
-            pkg_add maven
           run: |
-            mvn test -Paggregate-coverage -B
+            # The packaged mvn found its own JVM; the wrapper needs to be told. Glob the version
+            # so a jdk package bump doesn't silently break this.
+            export JAVA_HOME=$(ls -d /usr/local/jdk-* | tail -1)
+            export PATH=$JAVA_HOME/bin:$PATH
+            java -version
+            ./mvnw test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
