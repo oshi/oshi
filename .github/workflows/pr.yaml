@@ -145,10 +145,11 @@ jobs:
     permissions:
       contents: read
     strategy:
-      # Latest LTS (JDK 25) across all three OSes — this is the coverage + JNA==FFM
-      # row (uploads linux/macos/windows flags). The version floor/ceiling checks
-      # (JDK 21 and 26) run on ubuntu only; an OS-specific bug that is also
-      # JDK-version-specific in a way ubuntu wouldn't catch is vanishingly rare.
+      # Latest LTS (JDK 25) across all three OSes — the row that uploads the
+      # linux/macos/windows coverage flags and runs the JNA/FFM comparison tests.
+      # The version floor/ceiling checks (JDK 21 and 26) run on ubuntu only; an
+      # OS-specific bug that is also JDK-version-specific in a way ubuntu wouldn't
+      # catch is vanishingly rare.
       matrix:
         include:
           - os: ubuntu-latest
@@ -165,7 +166,7 @@ jobs:
             java: 25
             coverage-flag: windows
       fail-fast: false
-    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}${{ contains(matrix.java, '25') && ' (+ JNA==FFM)' || '' }}
+    name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -196,7 +197,8 @@ jobs:
   # the FreeBSD-specific classes.
   testfreebsd:
     runs-on: ubuntu-24.04
-    name: Test JDK 25, FreeBSD (+ JNA==FFM)
+    timeout-minutes: 30
+    name: Test JDK 25, FreeBSD
     needs: changes
     permissions:
       contents: read
@@ -211,6 +213,10 @@ jobs:
         id: test-freebsd
         uses: vmactions/freebsd-vm@83b151f58c6047089f4c80eb5ba2039d158ce093 # v1
         with:
+          # Caching the base image is a slower copy of a download that happens anyway: restoring
+          # it measured 54s against 48s to fetch from source, and a miss also uploads ~970 MB.
+          # Only prepared images earn their space, by skipping work rather than moving bytes.
+          disable-cache: true
           usesh: true
           copyback: true
           prepare: |
@@ -231,7 +237,8 @@ jobs:
   # OpenBSD VM, JDK 25. Same pattern as FreeBSD above.
   testopenbsd:
     runs-on: ubuntu-24.04
-    name: Test JDK 25, OpenBSD (+ JNA==FFM)
+    timeout-minutes: 30
+    name: Test JDK 25, OpenBSD
     needs: changes
     permissions:
       contents: read
@@ -250,12 +257,19 @@ jobs:
           usesh: false
           mem: 2048
           copyback: true
+          # Skips pkg_add on later runs. This mirror has shown the widest download variance in
+          # the matrix, measured at 1.6, 10.0 and 11.2 minutes across three runs.
+          cache-after-prepare: true
           prepare: |
             pkg_add curl
             pkg_add jdk%25
-            pkg_add maven
           run: |
-            mvn test -Paggregate-coverage -B
+            # The packaged mvn found its own JVM; the wrapper needs to be told. Glob the version
+            # so a jdk package bump doesn't silently break this.
+            export JAVA_HOME=$(ls -d /usr/local/jdk-* | tail -1)
+            export PATH=$JAVA_HOME/bin:$PATH
+            java -version
+            ./mvnw test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
@@ -269,7 +283,8 @@ jobs:
   # don't exhaust illumos's native-memory pool.
   testopenindiana:
     runs-on: ubuntu-24.04
-    name: Test JDK 25, OpenIndiana (+ JNA==FFM)
+    timeout-minutes: 30
+    name: Test JDK 25, OpenIndiana
     needs: changes
     permissions:
       contents: read
@@ -290,11 +305,29 @@ jobs:
           # thread fan-out that drives the native-memory OOMs.
           cpu: 2
           copyback: true
+          # Reboots the guest between prepare and run, discarding the ZFS ARC that pkg install
+          # fills before the build starts. Also caches the prepared image, skipping pkg install
+          # on later runs.
+          cache-after-prepare: true
           prepare: |
+            # ZFS ARC defaults to ~69% of RAM and is kernel memory, so it starves allocations
+            # while swap -s still reports gigabytes free. Capping it is what stops the
+            # intermittent OOMs; /etc/system is the supported knob and applies on the reboot
+            # cache-after-prepare performs.
+            echo "set zfs:zfs_arc_max = 2147483648" >> /etc/system
             pkg install openjdk25
           run: |
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
+            # An uncapped run is indistinguishable from a capped one until it OOMs, so fail
+            # loudly rather than silently losing the cap.
+            ARC_CMAX=$(kstat -p zfs:0:arcstats:c_max 2>/dev/null | awk '{print $2}')
+            echo "ARC cap: arc_c_max=${ARC_CMAX} size=$(kstat -p zfs:0:arcstats:size 2>/dev/null | awk '{print $2}')"
+            if [ "$ARC_CMAX" != "2147483648" ]; then
+              echo "ERROR: ZFS ARC is not capped (expected 2147483648); /etc/system did not take"
+              grep -i arc /etc/system || echo "  (no arc lines in /etc/system)"
+              exit 1
+            fi
             # illumos OOMs here are native memory (thread stacks + GC/JIT/metaspace),
             # not Java heap. Cap every native pool that grows with thread fan-out and
             # use SerialGC (no parallel GC threads/structures) to keep the footprint flat.
