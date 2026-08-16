@@ -4,6 +4,7 @@
  */
 package oshi.driver.common.windows.wmi;
 
+import static oshi.driver.common.windows.wmi.WmiConstants.CIM_BOOLEAN;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_DATETIME;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_REAL32;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_REFERENCE;
@@ -12,6 +13,7 @@ import static oshi.driver.common.windows.wmi.WmiConstants.CIM_STRING;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT16;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT32;
 import static oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT64;
+import static oshi.driver.common.windows.wmi.WmiConstants.VT_BOOL;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_I4;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_R4;
@@ -236,6 +238,26 @@ public final class WmiUtil {
             return (int) o;
         }
         throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "32-bit integer",
+                result.getCIMType(property), result.getVtType(property)));
+    }
+
+    /**
+     * Gets a Boolean value from a WmiResult.
+     *
+     * @param <T>      the property enum type
+     * @param result   The WmiResult from which to fetch the value
+     * @param property The property (column) to fetch
+     * @param index    The index (row) to fetch
+     * @return The stored value if non-null, {@code false} otherwise
+     */
+    public static <T extends Enum<T>> boolean getBoolean(WmiResult<T> result, T property, int index) {
+        Object o = result.getValue(property, index);
+        if (o == null) {
+            return false;
+        } else if (result.getCIMType(property) == CIM_BOOLEAN && result.getVtType(property) == VT_BOOL) {
+            return (boolean) o;
+        }
+        throw new ClassCastException(String.format(Locale.ROOT, CLASS_CAST_MSG, property.name(), "Boolean",
                 result.getCIMType(property), result.getVtType(property)));
     }
 

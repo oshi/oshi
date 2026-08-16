@@ -41,21 +41,13 @@ final class WindowsPrinterFFM extends WindowsPrinter {
             String description = WmiUtil.getString(result, PrinterProperty.DESCRIPTION, i);
             int statusCode = WmiUtil.getUint16(result, PrinterProperty.PRINTERSTATUS, i);
             int errorState = WmiUtil.getUint16(result, PrinterProperty.DETECTEDERRORSTATE, i);
-            boolean isDefault = getBooleanValue(result, PrinterProperty.DEFAULT, i);
-            boolean isLocal = getBooleanValue(result, PrinterProperty.LOCAL, i);
+            boolean isDefault = WmiUtil.getBoolean(result, PrinterProperty.DEFAULT, i);
+            boolean isLocal = WmiUtil.getBoolean(result, PrinterProperty.LOCAL, i);
             String portName = WmiUtil.getString(result, PrinterProperty.PORTNAME, i);
 
             printers.add(new WindowsPrinterFFM(name, driverName, description, parseStatus(statusCode, errorState),
                     parseErrorState(errorState), isDefault, isLocal, portName));
         }
         return printers;
-    }
-
-    private static boolean getBooleanValue(WmiResult<PrinterProperty> result, PrinterProperty property, int index) {
-        Object o = result.getValue(property, index);
-        if (o instanceof Boolean bool) {
-            return bool;
-        }
-        return false;
     }
 }
