@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import oshi.hardware.BluetoothDevice;
@@ -24,6 +25,7 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
+import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PhysicalMemory;
@@ -95,6 +97,19 @@ public final class SystemInfoHelper {
         lines.add("Apps: ");
         for (int i = 0; i < 5 && i < installedApplications.size(); i++) {
             lines.add(" " + installedApplications.get(i).toString());
+        }
+    }
+
+    /**
+     * Prints the detected virtualization platform to the output lines, if one was detected.
+     *
+     * @param lines the output list
+     * @param hal   the hardware abstraction layer
+     */
+    public static void printVirtualization(List<String> lines, HardwareAbstractionLayer hal) {
+        Optional<String> virtualization = hal.getVirtualization();
+        if (virtualization.isPresent()) {
+            lines.add("Virtualization: " + virtualization.get());
         }
     }
 

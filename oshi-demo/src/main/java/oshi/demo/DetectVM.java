@@ -4,20 +4,14 @@
  */
 package oshi.demo;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Properties;
+import java.util.Optional;
 
 import oshi.SystemInfo;
 import oshi.annotation.SuppressForbidden;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.NetworkIF;
-import oshi.util.FileUtil;
 
 /**
- * Uses OSHI to attempt to identify whether the user is on a Virtual Machine
+ * Uses OSHI to attempt to identify the virtualization or container platform the user is running on
  */
 public class DetectVM {
 
@@ -27,93 +21,36 @@ public class DetectVM {
     private DetectVM() {
     }
 
-    private static final String OSHI_VM_MAC_ADDR_PROPERTIES = "oshi.vmmacaddr.properties";
-    private static final Properties vmMacAddressProps = FileUtil
-            .readPropertiesFromFilename(OSHI_VM_MAC_ADDR_PROPERTIES);
-
-    // Constant for CPU vendor string
-    private static final Map<String, String> vmVendor = new HashMap<>();
-    static {
-        vmVendor.put("bhyve bhyve", "bhyve");
-        vmVendor.put("KVMKVMKVM", "KVM");
-        vmVendor.put("TCGTCGTCGTCG", "QEMU");
-        vmVendor.put("Microsoft Hv", "Microsoft Hyper-V or Windows Virtual PC");
-        vmVendor.put("lrpepyh vr", "Parallels");// (endianness mismatch of "prl hyperv ")
-        vmVendor.put("VMwareVMware", "VMware");
-        vmVendor.put("XenVMMXenVMM", "Xen HVM");
-        vmVendor.put("ACRNACRNACRN", "Project ACRN");
-        vmVendor.put("QNXQVMBSQG", "QNX Hypervisor");
-    }
-
-    private static final String[] vmModelArray = new String[] { "Linux KVM", "Linux lguest", "OpenVZ", "Qemu",
-            "Microsoft Virtual PC", "VMWare", "linux-vserver", "Xen", "FreeBSD Jail", "VirtualBox", "Parallels",
-            "Linux Containers", "LXC" };
-
     /**
-     * Entry point, executing the {@link #identifyVM} method.
+     * Entry point, demonstrating {@link HardwareAbstractionLayer#getVirtualization()}.
      *
      * @param args Arguments, ignored.
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
     public static void main(String[] args) {
-        String vmString = identifyVM();
+        Optional<String> virtualization = new SystemInfo().getHardware().getVirtualization();
 
-        if (vmString.isEmpty()) {
-            System.out.println("You do not appear to be on a Virtual Machine.");
+        if (virtualization.isPresent()) {
+            System.out.println("You appear to be on a virtualization or container platform: " + virtualization.get());
         } else {
-            System.out.println("You appear to be on a VM: " + vmString);
+            // An empty result is not proof of physical hardware, only that no known signature matched
+            System.out.println("No virtualization or container platform was detected.");
         }
     }
 
     /**
-     * The function attempts to identify which Virtual Machine (VM) based on common VM signatures in MAC address and
-     * computer model.
+     * The function attempts to identify the virtualization or container platform based on common signatures in the CPU
+     * vendor string, computer manufacturer and model, and MAC address.
      *
-     * @return A string indicating the machine's virtualization info if it can be determined, or an emptry string
-     *         otherwise.
+     * @return A string naming the platform if it can be determined, or an empty string otherwise. The name may be a
+     *         container runtime such as {@code LXC} rather than a hypervisor.
+     * @deprecated Use {@link HardwareAbstractionLayer#getVirtualization()}, which this method delegates to. It
+     *             distinguishes "no signature found" from a detected platform without overloading the empty string.
      */
+    @Deprecated
     public static String identifyVM() {
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hw = si.getHardware();
-        // Check CPU Vendor
-        String vendor = hw.getProcessor().getProcessorIdentifier().getVendor().trim();
-        if (vmVendor.containsKey(vendor)) {
-            return vmVendor.get(vendor);
-        }
-
-        // Try well known MAC addresses
-        List<NetworkIF> nifs = hw.getNetworkIFs();
-        for (NetworkIF nif : nifs) {
-            // Filter out virtual adapters/switches that lack a physical connector
-            if (!nif.isConnectorPresent()) {
-                continue;
-            }
-            String mac = nif.getMacaddr().toUpperCase(Locale.ROOT);
-            // Sanitize to only hex digits
-            String cleanMac = mac.replaceAll("[^0-9A-F]", "");
-            if (cleanMac.length() >= 6) {
-                // Extract OUI (first 6 hex digits) and format as XX:XX:XX
-                String oui = String.format(Locale.ROOT, "%s:%s:%s", cleanMac.substring(0, 2), cleanMac.substring(2, 4),
-                        cleanMac.substring(4, 6));
-                if (vmMacAddressProps.containsKey(oui)) {
-                    return vmMacAddressProps.getProperty(oui);
-                }
-            }
-        }
-
-        // Try well known models
-        String model = hw.getComputerSystem().getModel();
-        for (String vm : vmModelArray) {
-            if (model.contains(vm)) {
-                return vm;
-            }
-        }
-        String manufacturer = hw.getComputerSystem().getManufacturer();
-        if ("Microsoft Corporation".equals(manufacturer) && "Virtual Machine".equals(model)) {
-            return "Microsoft Hyper-V";
-        }
-
-        // Couldn't find VM, return empty string
-        return "";
+        HardwareAbstractionLayer hw = new SystemInfo().getHardware();
+        Optional<String> virtualization = hw.getVirtualization();
+        return virtualization.isPresent() ? virtualization.get() : "";
     }
 }

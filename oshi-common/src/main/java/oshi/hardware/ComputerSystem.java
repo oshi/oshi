@@ -16,12 +16,16 @@ import oshi.annotation.concurrent.Immutable;
  * <p>
  * <b>Unique machine identifier:</b> The {@link #getHardwareUUID()} value can be combined with other fields (such as
  * processor ID and serial number) to construct a machine fingerprint. Note that the UUID value
- * {@code 03000200-0400-0500-0006-000700080009} is a known placeholder that is not unique. See the {@code ComputerID}
- * class in the {@code oshi-demo} module for an example approach.
+ * {@code 03000200-0400-0500-0006-000700080009} is a known placeholder that is not unique. A shared fleet may also
+ * report one fixed UUID across many machines without it looking like a placeholder: GitHub Actions' Intel macOS runners
+ * all report {@code 4203018E-580F-C1B5-9525-B745CECA79EB}, alongside per-machine serial numbers. Treat a fingerprint as
+ * advisory rather than an identity. See the {@code ComputerID} class in the {@code oshi-demo} module for an example
+ * approach.
  * <p>
- * <b>VM detection:</b> Virtual machine environments can often be identified by examining the
- * {@link #getManufacturer()}, {@link #getModel()}, and {@link Firmware} values. See the {@code DetectVM} class in the
- * {@code oshi-demo} module for an example.
+ * <b>VM detection:</b> {@link HardwareAbstractionLayer#getVirtualization()} identifies a virtualized environment for
+ * you, reading {@link #getManufacturer()} and {@link #getModel()} along with the processor's CPUID vendor string and
+ * network interface MAC addresses. The {@link Firmware} values are a further hint it does not consult, and are worth
+ * examining by hand when a platform goes undetected.
  */
 @PublicApi
 @Immutable

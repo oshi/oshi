@@ -6,9 +6,12 @@ package oshi.hardware;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.software.os.OperatingSystem;
+import oshi.util.VirtualizationDetector;
 
 /**
  * A hardware abstraction layer. Provides access to hardware items such as processors, memory, battery, and disks.
@@ -170,5 +173,20 @@ public interface HardwareAbstractionLayer {
      */
     default List<BluetoothDevice> getBluetoothDevices() {
         return Collections.emptyList();
+    }
+
+    /**
+     * Attempts to identify the virtualized or containerized environment this machine is running in, by looking for
+     * signatures a hypervisor leaves in the processor's CPUID vendor string, the computer system's manufacturer and
+     * model, and the OUIs of network interface MAC addresses.
+     * <p>
+     * An empty result means no known signature was found. That is not proof the machine is physical: a hypervisor may
+     * hide itself, and the signature tables only cover platforms OSHI knows about. Containers are reported alongside
+     * hypervisors; for resource limits imposed on a container, see {@link OperatingSystem#getCgroupInfo()}.
+     *
+     * @return The name of the virtualization platform if one was identified, otherwise an empty {@link Optional}.
+     */
+    default Optional<String> getVirtualization() {
+        return VirtualizationDetector.identify(this);
     }
 }

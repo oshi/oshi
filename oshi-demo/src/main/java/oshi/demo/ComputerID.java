@@ -29,10 +29,13 @@ public class ComputerID {
     private ComputerID() {
     }
 
-    /** UUIDs that are known to be non-unique across systems. */
-    public static final List<String> NON_UNIQUE_UUIDS = Collections
-            .unmodifiableList(Arrays.asList("03000200-0400-0500-0006-000700080009",
-                    "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF", "00000000-0000-0000-0000-000000000000"));
+    /**
+     * UUIDs that are known to be non-unique across systems. The first three are self-evidently placeholders; the last
+     * is not, and is shared by every Intel macOS runner in GitHub Actions' fleet.
+     */
+    public static final List<String> NON_UNIQUE_UUIDS = Collections.unmodifiableList(
+            Arrays.asList("03000200-0400-0500-0006-000700080009", "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF",
+                    "00000000-0000-0000-0000-000000000000", "4203018E-580F-C1B5-9525-B745CECA79EB"));
 
     /**
      * Entry point.
