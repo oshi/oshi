@@ -63,16 +63,22 @@ public final class WhoFFM {
                         long tvSec = ut.get(JAVA_LONG, UTMPX.byteOffset(UT_TV_SEC));
                         int tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV_USEC));
                         long loginTime = tvSec * 1000L + tvUsec / 1000L;
-                        if (!isSessionValid(user, device, loginTime)) {
-                            return oshi.util.driver.unix.Who.queryWho();
+                        // The utmpx table is not reentrant. A session ending while this loop runs can hand
+                        // back a partially written entry, so drop that one rather than abandoning a read
+                        // whose other entries are fine.
+                        if (isSessionValid(user, device, loginTime)) {
+                            whoList.add(new OSSession(user, device, loginTime, host));
                         }
-                        whoList.add(new OSSession(user, device, loginTime, host));
                     }
                 }
             } finally {
                 endutxent();
             }
         } catch (Throwable _) {
+            return oshi.util.driver.unix.Who.queryWho();
+        }
+        // Only fall back to the who command when the native read yielded nothing at all.
+        if (whoList.isEmpty()) {
             return oshi.util.driver.unix.Who.queryWho();
         }
         return whoList;

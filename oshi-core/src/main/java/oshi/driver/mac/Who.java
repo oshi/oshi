@@ -47,16 +47,21 @@ public final class Who {
                     String device = Native.toString(ut.ut_line, StandardCharsets.UTF_8);
                     String host = Native.toString(ut.ut_host, StandardCharsets.UTF_8);
                     long loginTime = ut.ut_tv.tv_sec.longValue() * 1000L + ut.ut_tv.tv_usec / 1000L;
-                    // Sanity check. If errors, default to who command line
-                    if (!isSessionValid(user, device, loginTime)) {
-                        return oshi.util.driver.unix.Who.queryWho();
+                    // The utmpx table is not reentrant. A session ending while this loop runs can hand
+                    // back a partially written entry, so drop that one rather than abandoning a read
+                    // whose other entries are fine.
+                    if (isSessionValid(user, device, loginTime)) {
+                        whoList.add(new OSSession(user, device, loginTime, host));
                     }
-                    whoList.add(new OSSession(user, device, loginTime, host));
                 }
             }
         } finally {
             // Close
             SYS.endutxent();
+        }
+        // Only fall back to the who command when the native read yielded nothing at all.
+        if (whoList.isEmpty()) {
+            return oshi.util.driver.unix.Who.queryWho();
         }
         return whoList;
     }
