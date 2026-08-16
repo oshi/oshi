@@ -84,8 +84,15 @@ class WmiUtilTest {
     }
 
     @Test
-    void testGetBooleanWrongType() {
-        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_I4, 42);
+    void testGetBooleanWrongCimType() {
+        // Boolean payload, so only the CIM metadata is wrong and the throw cannot come from the cast
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_UINT32, WmiConstants.VT_BOOL, true);
+        assertThrows(ClassCastException.class, () -> WmiUtil.getBoolean(result, TestProp.ID, 0));
+    }
+
+    @Test
+    void testGetBooleanWrongVtType() {
+        WmiResult<TestProp> result = new MockWmiResult<>(WmiConstants.CIM_BOOLEAN, WmiConstants.VT_I4, true);
         assertThrows(ClassCastException.class, () -> WmiUtil.getBoolean(result, TestProp.ID, 0));
     }
 
