@@ -278,9 +278,8 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: openbsd
 
-  # OpenIndiana (illumos/Solaris) VM, JDK 25. Same pattern as FreeBSD/OpenBSD above.
-  # Bumped VM RAM and capped JVM heap so back-to-back module test runs (JNA + FFM)
-  # don't exhaust illumos's native-memory pool.
+  # OpenIndiana (illumos/Solaris) VM, JDK 25. Same pattern as FreeBSD/OpenBSD above, plus the
+  # libumem preload that keeps illumos malloc off the break -- see the run: script below.
   testopenindiana:
     runs-on: ubuntu-24.04
     timeout-minutes: 30
@@ -299,48 +298,60 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@52f16d4534fe3edd9d9621621c238398d4d2a698 # v1
         with:
-          mem: 12288
-          # Cap below the runner's core count: shrinks libumem's per-CPU arenas and
-          # the JVM common ForkJoinPool (OSHI .parallel() streams), reducing the
-          # thread fan-out that drives the native-memory OOMs.
+          # Sizing only, matching unix.yaml: the guest peaks at 1.5 GiB across a full test run, and
+          # 12288 left only ~4 GB of the runner's 16 GB for the host, QEMU, and the runner agent.
+          mem: 8192
+          # Two of the runner's four cores, which is what the parallelism caps below assume.
           cpu: 2
           copyback: true
-          # Reboots the guest between prepare and run, discarding the ZFS ARC that pkg install
-          # fills before the build starts. Also caches the prepared image, skipping pkg install
-          # on later runs.
-          cache-after-prepare: true
+          # Deliberately uncached: this is the largest image in the matrix and the Actions cache is
+          # one 10 GB pool shared repo-wide. See unix.yaml for the measurements.
+          disable-cache: true
           prepare: |
-            # ZFS ARC defaults to ~69% of RAM and is kernel memory, so it starves allocations
-            # while swap -s still reports gigabytes free. Capping it is what stops the
-            # intermittent OOMs; /etc/system is the supported knob and applies on the reboot
-            # cache-after-prepare performs.
-            echo "set zfs:zfs_arc_max = 2147483648" >> /etc/system
             pkg install openjdk25
           run: |
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            # An uncapped run is indistinguishable from a capped one until it OOMs, so fail
-            # loudly rather than silently losing the cap.
-            ARC_CMAX=$(kstat -p zfs:0:arcstats:c_max 2>/dev/null | awk '{print $2}')
-            echo "ARC cap: arc_c_max=${ARC_CMAX} size=$(kstat -p zfs:0:arcstats:size 2>/dev/null | awk '{print $2}')"
-            if [ "$ARC_CMAX" != "2147483648" ]; then
-              echo "ERROR: ZFS ARC is not capped (expected 2147483648); /etc/system did not take"
-              grep -i arc /etc/system || echo "  (no arc lines in /etc/system)"
+            # Fixes the intermittent "Native memory allocation (malloc) failed" crashes: illumos
+            # libc malloc grows the break, and the JVM randomly reserves the compressed class space
+            # somewhere in the low 3 GB -- capping the C heap at wherever it landed. libumem's mmap
+            # backend never touches the break. See unix.yaml for the full mechanism; backend=mmap is
+            # the load-bearing half, since libumem's own default heap source is sbrk.
+            export LD_PRELOAD_64=libumem.so.1
+            export UMEM_OPTIONS=backend=mmap
+            # A green run cannot confirm the preload, and silently losing it would just restore the
+            # old failure rate. LD_PRELOAD_64 is inherited, so this covers the forked test JVMs too.
+            if LD_DEBUG=files java -version 2>&1 | grep -q libumem; then
+              echo "libumem preloaded, ${UMEM_OPTIONS}"
+            else
+              echo "ERROR: libumem was not preloaded; the malloc fix is not in effect"
               exit 1
             fi
-            # illumos OOMs here are native memory (thread stacks + GC/JIT/metaspace),
-            # not Java heap. Cap every native pool that grows with thread fan-out and
-            # use SerialGC (no parallel GC threads/structures) to keep the footprint flat.
-            # _JAVA_OPTIONS reaches the Maven JVM and the forked test JVM alike.
-            export _JAVA_OPTIONS="-Xmx1g -Xss512k -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:+UseSerialGC"
-            # OpenIndiana-only: same parallelism cap as unix.yaml. illumos
-            # libumem reserves per-CPU arenas; vthread-style unbounded fan-out
-            # on blocking JNA exec calls trips Native memory allocation OOMs.
-            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
-              -Djunit.parallel.executor-service=FORK_JOIN_POOL \
-              -Djunit.parallel.strategy=fixed \
-              -Djunit.parallel.fixed.parallelism=1 \
-              -Djunit.parallel.fixed.max-pool-size=2
+            # _JAVA_OPTIONS reaches the Maven JVM and the forked test JVMs alike.
+            export _JAVA_OPTIONS="-Xmx1g"
+            # OpenIndiana-only: same parallelism cap as unix.yaml, holding test concurrency to one
+            # on a two-core guest.
+            #
+            # The `if` form rather than `cmd; rc=$?` so this stays correct whether or not the
+            # harness runs this script under `set -e`.
+            if ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
+                -Djunit.parallel.executor-service=FORK_JOIN_POOL \
+                -Djunit.parallel.strategy=fixed \
+                -Djunit.parallel.fixed.parallelism=1 \
+                -Djunit.parallel.fixed.max-pool-size=2; then
+              MVN_RC=0
+            else
+              MVN_RC=$?
+            fi
+            if [ "$MVN_RC" -ne 0 ]; then
+              # Read any crash dump inside the guest: a nonzero exit here stops `copyback`, so the
+              # guest filesystem is discarded before a later step could upload the file.
+              echo "===== swap -s ====="; swap -s || true
+              find . -name 'hs_err_pid*.log' -type f | while read -r f; do
+                echo "===== $f ====="; cat "$f"
+              done
+            fi
+            exit $MVN_RC
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
