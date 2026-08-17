@@ -147,7 +147,7 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
     // FreeMibTable returns void, hence the null return layout, as for WTSFreeMemory.
     private static final MethodHandle FreeMibTable = downcall(IPHlpAPI, "FreeMibTable", null, ADDRESS);
 
-    // MIB_IPFORWARD_TABLE2 { ULONG NumEntries; MIB_IPFORWARD_ROW2 Table[ANY_SIZE]; }
+    // A MIB_IPFORWARD_TABLE2 is a ULONG entry count followed by the row array.
     // MIB_IPFORWARD_ROW2 is 8-byte aligned because NET_LUID is a ULONG64, so the row array begins at offset 8
     // rather than immediately after the 4-byte NumEntries.
     public static final long OFFSET_IPFORWARD_TABLE2_NUM_ENTRIES = 0;

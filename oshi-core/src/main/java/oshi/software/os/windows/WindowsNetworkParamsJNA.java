@@ -4,6 +4,10 @@
  */
 package oshi.software.os.windows;
 
+import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET;
+import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET6;
+import static com.sun.jna.platform.win32.IPHlpAPI.AF_UNSPEC;
+
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -101,7 +105,7 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     @Override
     protected List<RouteRow> queryRouteRows() {
         try (CloseablePointerByReference tableRef = new CloseablePointerByReference()) {
-            int ret = IPHlpAPI.INSTANCE.GetIpForwardTable2((short) IPHlpAPI.AF_UNSPEC, tableRef);
+            int ret = IPHlpAPI.INSTANCE.GetIpForwardTable2((short) AF_UNSPEC, tableRef);
             if (ret != WinError.NO_ERROR) {
                 LOG.error("Failed to get the IP forward table. Error code: {}", ret);
                 return new ArrayList<>();
@@ -141,10 +145,10 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     }
 
     private static byte[] addressBytes(SOCKADDR_INET address) {
-        if (address.si_family == IPHlpAPI.AF_INET) {
+        if (address.si_family == AF_INET) {
             // sin_addr occupies the same four bytes the IPv6 arm uses for sin6_flowinfo, in network order
             return ParseUtil.parseIntToIP(address.ipv4AddrOrFlowInfo);
-        } else if (address.si_family == IPHlpAPI.AF_INET6) {
+        } else if (address.si_family == AF_INET6) {
             return Arrays.copyOf(address.ipv6Addr, 16);
         }
         return new byte[0];

@@ -1246,19 +1246,30 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getA(), is(new byte[] { 10, 0, 0, 1 }));
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getB(), is(-1));
         assertThat(ParseUtil.parseRouteDestination("129.70.163.176", false).getB(), is(-1));
-        // A stated but unparseable prefix stays unknown. It must not fall through to the octet-count inference, which
-        // would silently turn malformed input into a plausible-looking /8.
-        assertThat(ParseUtil.parseRouteDestination("10/foo", false).getA(), is(new byte[] { 10, 0, 0, 0 }));
-        assertThat(ParseUtil.parseRouteDestination("10/foo", false).getB(), is(-1));
-        assertThat(ParseUtil.parseRouteDestination("10/-1", false).getB(), is(-1));
-        assertThat(ParseUtil.parseRouteDestination("192.168.122/", false).getB(), is(-1));
         assertThat(ParseUtil.parseRouteDestination("::1%1", true).getB(), is(-1));
         // IPv6 with an inline prefix
         assertThat(ParseUtil.parseRouteDestination("fe80::/10", true).getB(), is(10));
         assertThat(ParseUtil.parseRouteDestination("2601:601:d47c:3090::/64", true).getB(), is(64));
         // A prefix wider than the address is clamped
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1/99", false).getB(), is(32));
-        // Header, banner and separator tokens are not addresses, which is how they are skipped
+    }
+
+    /**
+     * Test parseRouteDestination keeping a stated but unparseable prefix unknown rather than inferring one
+     */
+    @Test
+    void testParseRouteDestinationMalformedPrefix() {
+        assertThat(ParseUtil.parseRouteDestination("10/foo", false).getA(), is(new byte[] { 10, 0, 0, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("10/foo", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("10/-1", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("192.168.122/", false).getB(), is(-1));
+    }
+
+    /**
+     * Test parseRouteDestination rejecting the header, banner and separator lines it is used to skip
+     */
+    @Test
+    void testParseRouteDestinationRejectsNonAddresses() {
         assertThat(ParseUtil.parseRouteDestination("Destination", false).getA(), is(new byte[0]));
         assertThat(ParseUtil.parseRouteDestination("Destination", false).getB(), is(-1));
         assertThat(ParseUtil.parseRouteDestination("Destination/Mask", true).getA(), is(new byte[0]));

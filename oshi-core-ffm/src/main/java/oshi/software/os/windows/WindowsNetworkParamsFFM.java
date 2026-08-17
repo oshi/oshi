@@ -54,7 +54,7 @@ public final class WindowsNetworkParamsFFM extends WindowsNetworkParams {
             }
             MemorySegment table = pTable.get(ADDRESS, 0);
             // The table is allocated by the system, so it must be released with FreeMibTable however this exits
-            try (NativeHandle handle = NativeHandle.of(table, IPHlpAPIFFM::FreeMibTable)) {
+            try (var _ = NativeHandle.of(table, IPHlpAPIFFM::FreeMibTable)) {
                 return readRows(table);
             }
         } catch (Throwable e) { // NOSONAR java:S1181 - an FFM downcall can throw any Throwable
