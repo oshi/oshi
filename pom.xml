@@ -1014,11 +1014,15 @@
                 <configuration>
                     <publishingServerId>central</publishingServerId>
                     <autoPublish>true</autoPublish>
-                    <!-- Local-only JMH harness with no consumer value; keeping it out of the release also
-                    keeps us under Sonatype's per-organization monthly publishing limits. Matched on
-                    artifactId only, and silent when it matches, so verify the staged bundle after edits. -->
+                    <!-- Artifacts with no consumer value on Central; keeping them out of the release also keeps
+                    us under Sonatype's per-organization monthly publishing limits. oshi-benchmark is a local-only
+                    JMH harness. oshi-dist is a convenience bundle of jars that Central already serves
+                    individually, and is attached to each GitHub release by dist-release.yaml, which is now its
+                    only distribution point. Matched on artifactId only, and silent when it matches, so verify
+                    the staged bundle after edits. -->
                     <excludeArtifacts>
                         <excludeArtifact>oshi-benchmark</excludeArtifact>
+                        <excludeArtifact>oshi-dist</excludeArtifact>
                     </excludeArtifacts>
                 </configuration>
             </plugin>

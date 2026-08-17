@@ -1,5 +1,7 @@
 # 7.5.1 (in progress)
 
+* The `oshi-dist` zip is no longer published to Maven Central; download it from the [GitHub release](https://github.com/oshi/oshi/releases) instead - [@dbwiddis](https://github.com/dbwiddis).
+
 * Your contribution here!
 
 # 7.5.0 (2026-08-16)

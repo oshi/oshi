@@ -67,9 +67,9 @@ Very little in the API is nullable, because OSHI reports a value it could not re
 - collections and arrays become empty rather than `null`,
 - numbers become `0`, `-1`, or `Double.NaN` depending on which is out of the value's legitimate range.
 
-Prefer testing for those over a null check. The handful of genuinely nullable API members — such as `OperatingSystem.getProcess(int)` for a process that is not running, and `PowerSource.getManufactureDate()` for a battery that does not report one — are annotated `@Nullable` and say so in their Javadoc. Nullable *parameters* are more common, and mark an argument as optional: passing `null` for the `filter` and `sort` arguments of `OperatingSystem.getProcesses(Predicate, Comparator, int)` requests no filtering and no sorting.
+Prefer testing for those over a null check; an existing null check on a member that is not `@Nullable` is dead code. The handful of genuinely nullable API members — such as `OperatingSystem.getProcess(int)` for a process that is not running, and `PowerSource.getManufactureDate()` for a battery that does not report one — are annotated `@Nullable` and say so in their Javadoc. Nullable *parameters* are more common, and mark an argument as optional: passing `null` for the `filter` and `sort` arguments of `OperatingSystem.getProcesses(Predicate, Comparator, int)` requests no filtering and no sorting.
 
-These are not just comments: OSHI's own build runs [NullAway](https://github.com/uber/NullAway) over the marked packages in `@NullMarked`-only, JSpecify mode, at `ERROR` severity, so a violation fails the build. So a method not annotated `@Nullable` in a marked package is a checked guarantee rather than an aspiration, and a null check on one is dead code you can delete.
+OSHI's own build enforces all of this: [NullAway](https://github.com/uber/NullAway) runs over the marked packages in `@NullMarked`-only, JSpecify mode, at `ERROR` severity, so a violation fails the build. The annotations are a checked guarantee rather than an aspiration.
 
 The `org.jspecify:jspecify` dependency is compile-time metadata only. It is declared `optional` in Maven and `requires static` in the module descriptor, so it does not reach your runtime classpath, and you do not need it on your own compile classpath unless you want to run a null-checking analyzer against OSHI's signatures yourself.
 

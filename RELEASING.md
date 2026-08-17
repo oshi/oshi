@@ -138,8 +138,10 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
       gh release upload oshi-parent-x.x.x target/checkout/oshi-dist/target/oshi-dist-x.x.x.zip
       ```
     * The rebuilt jars are functionally identical to Central's but not byte-identical: the manifest
-      carries a `Build-Time` and no `project.build.outputTimestamp` is set, so checksums differ. The
-      zip is also on Central, which remains the authoritative copy.
+      carries a `Build-Time` and no `project.build.outputTimestamp` is set, so checksums differ.
+      Central remains authoritative for the individual jars, but starting with 7.5.1 the zip itself
+      is no longer published there (see `excludeArtifacts` in the parent pom), so **this release
+      asset is its only distribution point** — confirm the upload succeeded before announcing.
 
 ### Ongoing Maintenance
 

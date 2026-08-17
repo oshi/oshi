@@ -14,7 +14,7 @@ Starting with version 6.12.0, OSHI was split from a single `oshi-core` artifact 
 - **`oshi-core`** — JNA-based implementation (depends on `oshi-common`).
 - **`oshi-core-ffm`** — FFM-based implementation (depends on `oshi-common`, requires JDK 25+).
 
-Both `oshi-core` and `oshi-core-ffm` declare a transitive dependency on `oshi-common`, so dependency managers resolve it automatically. If you use raw JAR files, you must include `oshi-common` on the classpath alongside your chosen implementation module. All needed JARs are available in the [oshi-dist](https://repo1.maven.org/maven2/com/github/oshi/oshi-dist/) zip file on Maven Central, also attached to each [GitHub release](https://github.com/oshi/oshi/releases).
+Both `oshi-core` and `oshi-core-ffm` declare a transitive dependency on `oshi-common`, so dependency managers resolve it automatically. If you use raw JAR files, you must include `oshi-common` on the classpath alongside your chosen implementation module. All needed JARs are available in the `oshi-dist` zip file attached to each [GitHub release](https://github.com/oshi/oshi/releases). Prior to 7.4.4, the release assets do not include that zip; download those versions [from Maven Central](https://repo1.maven.org/maven2/com/github/oshi/oshi-dist/) instead.
 
 ---
 
