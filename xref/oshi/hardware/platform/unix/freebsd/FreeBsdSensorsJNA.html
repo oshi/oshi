@@ -35,27 +35,26 @@
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">return</strong> queryKldloadCoretemp();
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_comment">     * If user has loaded coretemp module via kldload coretemp, sysctl call will return temperature</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_comment">     *</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_comment">     * @return Temperature if successful, otherwise NaN</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * If user has loaded coretemp module via kldload coretemp, sysctl call will return temperature</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @return Temperature if successful, otherwise NaN</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> queryKldloadCoretemp() {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          String name = <span class="jxr_string">"dev.cpu.%d.temperature"</span>;
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">try</strong> (CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(FreeBsdLibc.INT_SIZE)) {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <strong class="jxr_keyword">int</strong> cpu = 0;
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <strong class="jxr_keyword">double</strong> sumTemp = 0d;
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>              <strong class="jxr_keyword">try</strong> (Memory p = <strong class="jxr_keyword">new</strong> Memory(size.longValue())) {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  <strong class="jxr_keyword">while</strong> (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(Locale.ROOT, name, cpu), p, size, <strong class="jxr_keyword">null</strong>,
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                          size_t.ZERO)) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                      sumTemp += p.getInt(0) / 10d - 273.15;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                      cpu++;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  }
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">return</strong> cpu &gt; 0 ? sumTemp / cpu : Double.NaN;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">try</strong> (CloseableSizeTByReference size = <strong class="jxr_keyword">new</strong> CloseableSizeTByReference(FreeBsdLibc.INT_SIZE)) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">int</strong> cpu = 0;
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <strong class="jxr_keyword">double</strong> sumTemp = 0d;
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              <strong class="jxr_keyword">try</strong> (Memory p = <strong class="jxr_keyword">new</strong> Memory(size.longValue())) {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>                  <strong class="jxr_keyword">while</strong> (0 == FreeBsdLibc.INSTANCE.sysctlbyname(String.format(Locale.ROOT, <span class="jxr_string">"dev.cpu.%d.temperature"</span>, cpu),
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                          p, size, <strong class="jxr_keyword">null</strong>, size_t.ZERO)) {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                      sumTemp += p.getInt(0) / 10d - 273.15;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                      cpu++;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">return</strong> cpu &gt; 0 ? sumTemp / cpu : Double.NaN;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

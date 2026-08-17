@@ -55,7 +55,7 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">boolean</strong> diskFound = false;
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">for</strong> (String line : output) {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>              <strong class="jxr_keyword">if</strong> (split.length &lt; 7 || !split[0].equals(getName())) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                  <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>              }
@@ -90,12 +90,12 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">if</strong> (kernDisks.isEmpty()) {
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">return</strong> diskList;
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(kernDisks));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          List&lt;String&gt; devices = Arrays.asList(ParseUtil.whitespaces.split(kernDisks, -1));
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>  
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          List&lt;String&gt; iostat = ExecutingCommand.runNative(<span class="jxr_string">"iostat -Ix"</span>);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">for</strong> (String line : iostat) {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">if</strong> (split.length &gt; 6 &amp;&amp; devices.contains(split[0])) {
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>                  Triplet&lt;String, String, Long&gt; storeInfo = diskInfoMap.get(split[0]);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  T store = (storeInfo == <strong class="jxr_keyword">null</strong>) ? factory.create(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)

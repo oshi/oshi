@@ -72,11 +72,11 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">if</strong> (disknames.isEmpty()) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">return</strong> diskList;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          String[] devices = disknames.split(<span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          String[] devices = disknames.split(<span class="jxr_string">","</span>, -1);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          T store;
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          String diskName;
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">for</strong> (String device : devices) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              diskName = device.split(<span class="jxr_string">":"</span>)[0];
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              diskName = device.split(<span class="jxr_string">":"</span>, -1)[0];
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">if</strong> (diskName.isEmpty()) {
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              }
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">boolean</strong> diskFound = false;
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">for</strong> (String line : iostat.get()) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 6 &amp;&amp; split[0].equals(getName())) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>                 diskFound = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                 <strong class="jxr_keyword">this</strong>.readBytes = ParseUtil.parseMultipliedToLongs(split[1]);

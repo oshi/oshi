@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          mib = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[] { CTL_HW, HW_MACHINE };
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          String machine = sysctl(mib, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">boolean</strong> cpu64bit = machine != <strong class="jxr_keyword">null</strong> &amp;&amp; machine.contains(<span class="jxr_string">"64"</span>)
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">boolean</strong> cpu64bit = (machine != <strong class="jxr_keyword">null</strong> &amp;&amp; machine.contains(<span class="jxr_string">"64"</span>))
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                  || ExecutingCommand.getFirstAnswer(<span class="jxr_string">"uname -m"</span>).trim().contains(<span class="jxr_string">"64"</span>);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          String processorID = String.format(Locale.ROOT, <span class="jxr_string">"%08x%08x"</span>, cpufeature, cpuid);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
@@ -97,9 +97,9 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>  
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">static</strong> Triplet&lt;Integer, Integer, Integer&gt; cpuidToFamilyModelStepping(<strong class="jxr_keyword">int</strong> cpuid) {
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>          <em class="jxr_comment">// family is bits 27:20 | 11:8</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">int</strong> family = cpuid &gt;&gt; 16 &amp; 0xff0 | cpuid &gt;&gt; 8 &amp; 0xf;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">int</strong> family = ((cpuid &gt;&gt; 16) &amp; 0xff0) | ((cpuid &gt;&gt; 8) &amp; 0xf);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>          <em class="jxr_comment">// model is bits 19:16 | 7:4</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">int</strong> model = cpuid &gt;&gt; 12 &amp; 0xf0 | cpuid &gt;&gt; 4 &amp; 0xf;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">int</strong> model = ((cpuid &gt;&gt; 12) &amp; 0xf0) | ((cpuid &gt;&gt; 4) &amp; 0xf);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          <em class="jxr_comment">// stepping is bits 3:0</em>
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          <strong class="jxr_keyword">int</strong> stepping = cpuid &amp; 0xf;
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(family, model, stepping);
@@ -129,9 +129,9 @@
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">long</strong> interrupts = 0L;
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">for</strong> (String line : vmstat) {
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>             <strong class="jxr_keyword">if</strong> (line.endsWith(<span class="jxr_string">"cpu context switches"</span>)) {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 contextSwitches = ParseUtil.parseLongOrDefault(line.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0L);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 contextSwitches = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.endsWith(<span class="jxr_string">"interrupts"</span>)) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 interrupts = ParseUtil.parseLongOrDefault(line.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>)[0], 0L);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 interrupts = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(line.trim(), -1)[0], 0L);
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>             }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         }
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(contextSwitches, interrupts);

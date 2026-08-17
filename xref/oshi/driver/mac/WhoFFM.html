@@ -71,21 +71,27 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                          <strong class="jxr_keyword">long</strong> tvSec = ut.get(JAVA_LONG, UTMPX.byteOffset(UT_TV_SEC));
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                          <strong class="jxr_keyword">int</strong> tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV_USEC));
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                          <strong class="jxr_keyword">long</strong> loginTime = tvSec * 1000L + tvUsec / 1000L;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                          <strong class="jxr_keyword">if</strong> (!isSessionValid(user, device, loginTime)) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                              <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          whoList.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(user, device, loginTime, host));
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  endutxent();
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> whoList;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                          <em class="jxr_comment">// The utmpx table is not reentrant. A session ending while this loop runs can hand</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                          <em class="jxr_comment">// back a partially written entry, so drop that one rather than abandoning a read</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          <em class="jxr_comment">// whose other entries are fine.</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          <strong class="jxr_keyword">if</strong> (isSessionValid(user, device, loginTime)) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                              whoList.add(<strong class="jxr_keyword">new</strong> <a name="OSSession" href="../../../oshi/software/os/OSSession.html#OSSession">OSSession</a>(user, device, loginTime, host));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  endutxent();
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_comment">// Only fall back to the who command when the native read yielded nothing at all.</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">if</strong> (whoList.isEmpty()) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> oshi.util.driver.unix.Who.queryWho();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">return</strong> whoList;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

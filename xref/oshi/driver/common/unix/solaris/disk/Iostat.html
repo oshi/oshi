@@ -81,10 +81,10 @@
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; mountNames.size() &amp;&amp; i &lt; mountPoints.size(); i++) {
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>              <em class="jxr_comment">// Map disk</em>
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              disk = mountNames.get(i);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              String[] diskSplit = disk.split(<span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              String[] diskSplit = disk.split(<span class="jxr_string">","</span>, -1);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">if</strong> (diskSplit.length &gt;= 5 &amp;&amp; !DEVICE_HEADER.equals(diskSplit[0])) {
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>                  String mount = mountPoints.get(i);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  String[] mountSplit = mount.split(<span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  String[] mountSplit = mount.split(<span class="jxr_string">","</span>, -1);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                  <strong class="jxr_keyword">if</strong> (mountSplit.length &gt;= 5 &amp;&amp; !DEVICE_HEADER.equals(mountSplit[4])) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                      deviceMap.put(diskSplit[0], mountSplit[4]);
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                  }
@@ -124,7 +124,7 @@
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             <em class="jxr_comment">// The -r switch enables comma delimited for easy parsing!</em>
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             <em class="jxr_comment">// No guarantees on which line the results appear so we'll nest</em>
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>             <em class="jxr_comment">// a loop iterating on the comma splits</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             String[] split = line.split(<span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             String[] split = line.split(<span class="jxr_string">","</span>, -1);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             <strong class="jxr_keyword">for</strong> (String keyValue : split) {
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                 keyValue = keyValue.trim();
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>                 <em class="jxr_comment">// If entry is tne name of a disk, this is beginning of new</em>
@@ -155,9 +155,9 @@
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                     product = keyValue.replace(<span class="jxr_string">"Product:"</span>, <span class="jxr_string">""</span>).trim();
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (keyValue.startsWith(<span class="jxr_string">"Size:"</span>)) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>                     <em class="jxr_comment">// Size: 1.23GB &lt;1227563008 bytes&gt;</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                     String[] bytes = keyValue.split(<span class="jxr_string">"&lt;"</span>);
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>                     String[] bytes = keyValue.split(<span class="jxr_string">"&lt;"</span>, -1);
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>                     <strong class="jxr_keyword">if</strong> (bytes.length &gt; 1) {
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                         bytes = ParseUtil.whitespaces.split(bytes[1]);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>                         bytes = ParseUtil.whitespaces.split(bytes[1], -1);
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                         size = ParseUtil.parseLongOrDefault(bytes[0], 0L);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                     }
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>                 }

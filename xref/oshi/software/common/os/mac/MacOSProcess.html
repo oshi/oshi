@@ -73,11 +73,11 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Pair&lt;List&lt;String&gt;, Map&lt;String, String&gt;&gt;&gt; argsEnviron = memoize(
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">this</strong>::queryArgsAndEnvironment);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String currentWorkingDirectory;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String user;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String userID;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String group;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String groupID;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String currentWorkingDirectory = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String user = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String userID = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String group = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> String groupID = <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> residentSetSize;
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> memoryFootprint;
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">volatile</strong> <strong class="jxr_keyword">long</strong> openFiles;

@@ -26,7 +26,7 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> NetworkIF MINIMAL = <strong class="jxr_keyword">new</strong> NetworkIF() {
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>          @Override
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>          <strong class="jxr_keyword">public</strong> NetworkInterface queryNetworkInterface() {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"not exercised by this test"</span>);
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>          }
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>          @Override
@@ -138,7 +138,7 @@
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> NetworkIF OVERRIDING = <strong class="jxr_keyword">new</strong> NetworkIF() {
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         @Override
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         <strong class="jxr_keyword">public</strong> NetworkInterface queryNetworkInterface() {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UnsupportedOperationException(<span class="jxr_string">"not exercised by this test"</span>);
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         }
 <a class="jxr_linenumber" name="L135" href="#L135">135</a> 
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>         @Override

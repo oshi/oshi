@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         Map&lt;String, Map&lt;IoStat, Long&gt;&gt; diskStatMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         IoStat[] enumArray = IoStat.<strong class="jxr_keyword">class</strong>.getEnumConstants();
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">for</strong> (String stat : diskStats) {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>             String[] split = ParseUtil.whitespaces.split(stat.trim());
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             String[] split = ParseUtil.whitespaces.split(stat.trim(), -1);
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>             Map&lt;IoStat, Long&gt; statMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(IoStat.<strong class="jxr_keyword">class</strong>);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>             String name = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; enumArray.length &amp;&amp; i &lt; split.length; i++) {

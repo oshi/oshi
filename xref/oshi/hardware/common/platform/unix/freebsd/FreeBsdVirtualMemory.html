@@ -134,7 +134,7 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * @return the bytes used on this swap device</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseSwapUsed(String swapInfoRow) {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         String[] split = ParseUtil.whitespaces.split(swapInfoRow);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         String[] split = ParseUtil.whitespaces.split(swapInfoRow, -1);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>         <strong class="jxr_keyword">if</strong> (split.length &lt; 5) {
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>             <strong class="jxr_keyword">return</strong> 0L;
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>         }

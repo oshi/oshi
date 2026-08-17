@@ -117,7 +117,7 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryBootTime() {
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// Boot time will be the first consecutive string of digits.</em>
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n kern.boottime"</span>).split(<span class="jxr_string">","</span>)[0].replaceAll(<span class="jxr_string">"&#92;&#92;D"</span>, <span class="jxr_string">""</span>),
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n kern.boottime"</span>).split(<span class="jxr_string">","</span>, -1)[0].replaceAll(<span class="jxr_string">"&#92;&#92;D"</span>, <span class="jxr_string">""</span>),
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>                 System.currentTimeMillis() / 1000);
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
 <a class="jxr_linenumber" name="L115" href="#L115">115</a> 

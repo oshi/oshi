@@ -83,13 +83,13 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">for</strong> (String line : disklabelLines) {
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">if</strong> (line.contains(TOTAL_MARKER)) {
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>                  <em class="jxr_comment">// Parse as long to avoid int overflow for disks larger than ~2 TiB at 512-byte sectors.</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  totalSectors = ParseUtil.parseLongOrDefault(line.split(TOTAL_MARKER)[1].trim(), 1L);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  totalSectors = ParseUtil.parseLongOrDefault(line.split(TOTAL_MARKER, -1)[1].trim(), 1L);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(BPS_MARKER)) {
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>                  bytesPerSector = ParseUtil.getFirstIntValue(line);
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(LABEL_MARKER)) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  label = line.split(LABEL_MARKER)[1].trim();
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  label = line.split(LABEL_MARKER, -1)[1].trim();
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(DUID_MARKER)) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  duid = line.split(DUID_MARKER)[1].trim();
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  duid = line.split(DUID_MARKER, -1)[1].trim();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>              }
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              <strong class="jxr_keyword">if</strong> (line.trim().indexOf(':') == 1) {
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                  <em class="jxr_comment">// Partition rows have a single letter followed by a colon:</em>
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         List&lt;HWPartition&gt; partitions = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">for</strong> (String line : dfLines) {
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"/dev/"</span> + diskName)) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 5) {
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>                     String name = split[0].substring(5 + diskName.length());
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>                     Pair&lt;Integer, Integer&gt; majorMinor = majorMinorLookup.apply(diskName, name);

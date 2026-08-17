@@ -71,9 +71,9 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                              versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                  }
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <em class="jxr_comment">// Parse this line</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">for</strong> (String s : split) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      String[] keyVal = s.split(<span class="jxr_string">"="</span>);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      String[] keyVal = s.split(<span class="jxr_string">"="</span>, -1);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                      <strong class="jxr_keyword">if</strong> (keyVal.length &gt; 1) {
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                          <strong class="jxr_keyword">if</strong> (keyVal[0].equals(<span class="jxr_string">"class"</span>) &amp;&amp; keyVal[1].length() &gt;= 4) {
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                              <em class="jxr_comment">// class=0x030000</em>
@@ -110,7 +110,7 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>                     vendorId.isEmpty() ? Constants.UNKNOWN : vendorId,
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> cardList;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(cardList);
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
 <a class="jxr_linenumber" name="L107" href="#L107">107</a> }
 </pre>

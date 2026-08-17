@@ -77,7 +77,7 @@
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                  thread.start();
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>              }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              logger.error(<span class="jxr_string">"Server Connection error: {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              logger.error(<span class="jxr_string">"Server Connection error"</span>, e);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
@@ -144,13 +144,13 @@
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                 logger.debug(<span class="jxr_string">"Data {} returned"</span>, fileRequested);
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>             }
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         } <strong class="jxr_keyword">catch</strong> (IOException ioe) {
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>             logger.error(<span class="jxr_string">"Server error: {}"</span>, ioe.getMessage());
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>             logger.error(<span class="jxr_string">"Server error"</span>, ioe);
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>                 <em class="jxr_comment">// close socket connection, defined for this thread</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>                 connect.close();
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>             } <strong class="jxr_keyword">catch</strong> (Exception e) {
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 logger.error(<span class="jxr_string">"Error closing connection: {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 logger.error(<span class="jxr_string">"Error closing connection"</span>, e);
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             }
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>             logger.debug(<span class="jxr_string">"Connection closed."</span>);
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         }

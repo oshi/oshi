@@ -18,140 +18,143 @@
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.greaterThan;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.lessThanOrEqualTo;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertThrows;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_DATETIME;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT16;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT32;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT64;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.VT_I4;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.EnumMap;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertNotNull;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertThrows;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_DATETIME;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT16;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT32;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT64;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.VT_I4;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.EnumMap;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * Tests the CIM type conversions in the WMI value mapping.</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * A real query returns whichever CIM type the queried performance class happens to use, so on hardware only one of the</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * four conversions is ever reached. Stubbing the result reaches all of them, and the unsupported-type path too.</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * Windows only, unlike the wildcard equivalent: {@link PerfCounterQuery} caches</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * {@code VersionHelpers.IsWindowsVistaOrGreater()} in a static field, so the class cannot be loaded on another OS.</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  @EnabledOnOs(OS.WINDOWS)
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <strong class="jxr_keyword">class</strong> <a name="PerfCounterQueryTest" href="../../../../oshi/util/platform/windows/PerfCounterQueryTest.html#PerfCounterQueryTest">PerfCounterQueryTest</a> {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> enum Prop {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          U16, U32, U64, WHEN;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <em class="jxr_javadoccomment">/** A single-row WMI result stub. */</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> StubResult <strong class="jxr_keyword">implements</strong> WmiResult&lt;Prop&gt; {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Prop, Integer&gt; cimTypes = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Prop, Integer&gt; vtTypes = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Prop, Object&gt; values = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> rows;
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">private</strong> StubResult put(Prop p, <strong class="jxr_keyword">int</strong> cim, <strong class="jxr_keyword">int</strong> vt, Object value) {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              cimTypes.put(p, cim);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              vtTypes.put(p, vt);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              values.put(p, value);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              rows = 1;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          @Override
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getResultCount() {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">return</strong> rows;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          @Override
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">public</strong> Object getValue(Prop property, <strong class="jxr_keyword">int</strong> index) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">return</strong> values.get(property);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          @Override
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getVtType(Prop property) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">return</strong> vtTypes.getOrDefault(property, 0);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          @Override
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCIMType(Prop property) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              <strong class="jxr_keyword">return</strong> cimTypes.getOrDefault(property, 0);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_comment">// One value per supported CIM type. WMI reports UINT64 as a string and datetimes in CIM format.</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> StubResult oneRow() {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> StubResult().put(Prop.U16, CIM_UINT16, VT_I4, 16).put(Prop.U32, CIM_UINT32, VT_I4, 32)
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  .put(Prop.U64, CIM_UINT64, VT_BSTR, <span class="jxr_string">"64"</span>)
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  .put(Prop.WHEN, CIM_DATETIME, VT_BSTR, <span class="jxr_string">"20240115143000.000000+000"</span>);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      @Test
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">void</strong> testEachCimTypeIsConverted() {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          Map&lt;Prop, Long&gt; values = PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, oneRow());
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertThat(<span class="jxr_string">"UINT16 widens to long"</span>, values.get(Prop.U16), is(16L));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(<span class="jxr_string">"UINT32 widens unsigned"</span>, values.get(Prop.U32), is(32L));
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(<span class="jxr_string">"UINT64 is parsed from its string form"</span>, values.get(Prop.U64), is(64L));
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(<span class="jxr_string">"DATETIME becomes epoch milliseconds"</span>, values.get(Prop.WHEN), is(1705329000000L));
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      @Test
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">void</strong> testUnsignedIntegersAreNotSignExtended() {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <em class="jxr_comment">// 0xFFFFFFFF arrives as -1 in a 32-bit slot; as an unsigned CIM_UINT32 it must read as 4294967295.</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         StubResult result = <strong class="jxr_keyword">new</strong> StubResult().put(Prop.U16, CIM_UINT16, VT_I4, 0).put(Prop.U32, CIM_UINT32, VT_I4, -1)
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 .put(Prop.U64, CIM_UINT64, VT_BSTR, <span class="jxr_string">"0"</span>)
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 .put(Prop.WHEN, CIM_DATETIME, VT_BSTR, <span class="jxr_string">"20240115143000.000000+000"</span>);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, result).get(Prop.U32), is(4294967295L));
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Test
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">void</strong> testAnUnsupportedCimTypeIsRejected() {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">// CIM_SINT32 is a type the mapping does not convert; it must fail loudly rather than silently drop the value.</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         StubResult result = <strong class="jxr_keyword">new</strong> StubResult().put(Prop.U16, 3, VT_I4, 1);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertThrows(ClassCastException.<strong class="jxr_keyword">class</strong>, () -&gt; PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, result));
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     @Test
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">void</strong> testNoRowsYieldsAnEmptyMap() {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertThat(PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, <strong class="jxr_keyword">new</strong> StubResult()).isEmpty(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> <em class="jxr_javadoccomment">     * The properties of {@code Win32_OperatingSystem} that this mapping converts, one per supported CIM type. Chosen</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     * because a single real class covers all four, so no string property is present to hit the unsupported-type throw.</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     <strong class="jxr_keyword">private</strong> enum OsProp {
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         OSTYPE, NUMBEROFPROCESSES, FREEPHYSICALMEMORY, LASTBOOTUPTIME;
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * Runs the real query, rather than a stub, against a class that genuinely holds all four types.</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * The stubbed tests above encode assumptions about how WMI represents each type -- that a UINT64 arrives as a</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * string in a BSTR, that a DATETIME arrives in CIM format. The production code assumes the same, so those tests and</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * the code could agree with each other and both be wrong. This one takes the assumption out of the loop.</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>     @Test
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     <strong class="jxr_keyword">void</strong> testAgainstRealWmiDataCoveringEveryType() {
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         Map&lt;OsProp, Long&gt; values = PerfCounterQuery.queryValuesFromWMI(OsProp.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"Win32_OperatingSystem"</span>);
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         assertThat(<span class="jxr_string">"Win32_OperatingSystem should always return a row"</span>, values.keySet(),
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 containsInAnyOrder(OsProp.values()));
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         assertThat(<span class="jxr_string">"OSType is a small enumeration value"</span>, values.get(OsProp.OSTYPE), is(greaterThan(0L)));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(<span class="jxr_string">"A running system has processes"</span>, values.get(OsProp.NUMBEROFPROCESSES), is(greaterThan(0L)));
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThat(<span class="jxr_string">"Free memory is reported in kilobytes"</span>, values.get(OsProp.FREEPHYSICALMEMORY), is(greaterThan(0L)));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">long</strong> boot = values.get(OsProp.LASTBOOTUPTIME);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(<span class="jxr_string">"Boot time is a plausible epoch millisecond value in the past"</span>, boot,
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>                 is(both(greaterThan(946684800000L)).and(lessThanOrEqualTo(System.currentTimeMillis()))));
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     }
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> }
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment"> * Tests the CIM type conversions in the WMI value mapping.</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment"> * A real query returns whichever CIM type the queried performance class happens to use, so on hardware only one of the</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment"> * four conversions is ever reached. Stubbing the result reaches all of them, and the unsupported-type path too.</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment"> * Windows only, unlike the wildcard equivalent: {@link PerfCounterQuery} caches</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment"> * {@code VersionHelpers.IsWindowsVistaOrGreater()} in a static field, so the class cannot be loaded on another OS.</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  @EnabledOnOs(OS.WINDOWS)
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <strong class="jxr_keyword">class</strong> <a name="PerfCounterQueryTest" href="../../../../oshi/util/platform/windows/PerfCounterQueryTest.html#PerfCounterQueryTest">PerfCounterQueryTest</a> {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">private</strong> enum Prop {
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          U16, U32, U64, WHEN;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <em class="jxr_javadoccomment">/** A single-row WMI result stub. */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> StubResult <strong class="jxr_keyword">implements</strong> WmiResult&lt;Prop&gt; {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Prop, Integer&gt; cimTypes = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Prop, Integer&gt; vtTypes = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;Prop, Object&gt; values = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> rows;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">private</strong> StubResult put(Prop p, <strong class="jxr_keyword">int</strong> cim, <strong class="jxr_keyword">int</strong> vt, Object value) {
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              cimTypes.put(p, cim);
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              vtTypes.put(p, vt);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              values.put(p, value);
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              rows = 1;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>;
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          @Override
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getResultCount() {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">return</strong> rows;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          @Override
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">public</strong> @Nullable Object getValue(Prop property, <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">return</strong> values.get(property);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          @Override
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getVtType(Prop property) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">return</strong> vtTypes.getOrDefault(property, 0);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          @Override
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getCIMType(Prop property) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">return</strong> cimTypes.getOrDefault(property, 0);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_comment">// One value per supported CIM type. WMI reports UINT64 as a string and datetimes in CIM format.</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> StubResult oneRow() {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> StubResult().put(Prop.U16, CIM_UINT16, VT_I4, 16).put(Prop.U32, CIM_UINT32, VT_I4, 32)
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  .put(Prop.U64, CIM_UINT64, VT_BSTR, <span class="jxr_string">"64"</span>)
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                  .put(Prop.WHEN, CIM_DATETIME, VT_BSTR, <span class="jxr_string">"20240115143000.000000+000"</span>);
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      }
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      @Test
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">void</strong> testEachCimTypeIsConverted() {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          Map&lt;Prop, Long&gt; values = PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, oneRow());
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(<span class="jxr_string">"UINT16 widens to long"</span>, values.get(Prop.U16), is(16L));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(<span class="jxr_string">"UINT32 widens unsigned"</span>, values.get(Prop.U32), is(32L));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertThat(<span class="jxr_string">"UINT64 is parsed from its string form"</span>, values.get(Prop.U64), is(64L));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertThat(<span class="jxr_string">"DATETIME becomes epoch milliseconds"</span>, values.get(Prop.WHEN), is(1705329000000L));
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     @Test
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">void</strong> testUnsignedIntegersAreNotSignExtended() {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <em class="jxr_comment">// 0xFFFFFFFF arrives as -1 in a 32-bit slot; as an unsigned CIM_UINT32 it must read as 4294967295.</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         StubResult result = <strong class="jxr_keyword">new</strong> StubResult().put(Prop.U16, CIM_UINT16, VT_I4, 0).put(Prop.U32, CIM_UINT32, VT_I4, -1)
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 .put(Prop.U64, CIM_UINT64, VT_BSTR, <span class="jxr_string">"0"</span>)
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 .put(Prop.WHEN, CIM_DATETIME, VT_BSTR, <span class="jxr_string">"20240115143000.000000+000"</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertThat(PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, result).get(Prop.U32), is(4294967295L));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Test
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">void</strong> testAnUnsupportedCimTypeIsRejected() {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// CIM_SINT32 is a type the mapping does not convert; it must fail loudly rather than silently drop the value.</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         StubResult result = <strong class="jxr_keyword">new</strong> StubResult().put(Prop.U16, 3, VT_I4, 1);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertThrows(ClassCastException.<strong class="jxr_keyword">class</strong>, () -&gt; PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, result));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Test
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">void</strong> testNoRowsYieldsAnEmptyMap() {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertThat(PerfCounterQuery.mapValuesFromResult(Prop.<strong class="jxr_keyword">class</strong>, <strong class="jxr_keyword">new</strong> StubResult()).isEmpty(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * The properties of {@code Win32_OperatingSystem} that this mapping converts, one per supported CIM type. Chosen</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * because a single real class covers all four, so no string property is present to hit the unsupported-type throw.</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">private</strong> enum OsProp {
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         OSTYPE, NUMBEROFPROCESSES, FREEPHYSICALMEMORY, LASTBOOTUPTIME;
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * Runs the real query, rather than a stub, against a class that genuinely holds all four types.</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * The stubbed tests above encode assumptions about how WMI represents each type -- that a UINT64 arrives as a</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * string in a BSTR, that a DATETIME arrives in CIM format. The production code assumes the same, so those tests and</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * the code could agree with each other and both be wrong. This one takes the assumption out of the loop.</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     @Test
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">void</strong> testAgainstRealWmiDataCoveringEveryType() {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         Map&lt;OsProp, Long&gt; values = PerfCounterQuery.queryValuesFromWMI(OsProp.<strong class="jxr_keyword">class</strong>, <span class="jxr_string">"Win32_OperatingSystem"</span>);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         assertThat(<span class="jxr_string">"Win32_OperatingSystem should always return a row"</span>, values.keySet(),
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 containsInAnyOrder(OsProp.values()));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThat(<span class="jxr_string">"OSType is a small enumeration value"</span>, values.get(OsProp.OSTYPE), is(greaterThan(0L)));
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         assertThat(<span class="jxr_string">"A running system has processes"</span>, values.get(OsProp.NUMBEROFPROCESSES), is(greaterThan(0L)));
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(<span class="jxr_string">"Free memory is reported in kilobytes"</span>, values.get(OsProp.FREEPHYSICALMEMORY), is(greaterThan(0L)));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Long boot = values.get(OsProp.LASTBOOTUPTIME);
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         assertNotNull(boot);
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(<span class="jxr_string">"Boot time is a plausible epoch millisecond value in the past"</span>, boot,
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 is(both(greaterThan(946684800000L)).and(lessThanOrEqualTo(System.currentTimeMillis()))));
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

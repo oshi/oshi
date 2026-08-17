@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_comment">// Intentionally retained though never read: holds a strong reference to the disk stores so the GC cannot clear</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <em class="jxr_comment">// the WeakReferences that Micrometer's FunctionCounter keeps to them (see bindTo). Removing this would silently</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_comment">// break the disk metrics after a garbage collection.</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @SuppressWarnings(<span class="jxr_string">"java:S1068"</span>) <em class="jxr_comment">// intentionally unused field — see above</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @SuppressWarnings({ <span class="jxr_string">"java:S1068"</span>, <span class="jxr_string">"UnusedVariable"</span> }) <em class="jxr_comment">// intentionally unused field — see above</em>
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> List&lt;HWDiskStore&gt; diskStores;
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_javadoccomment">/**</em>

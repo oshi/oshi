@@ -71,27 +71,30 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * @param msg   the log message, with {@code {}} placeholders for the arguments</em>
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * @param args  the arguments to substitute into the message</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> logAtLevel(Logger log, <a name="LogLevel" href="../../oshi/util/LogLevel.html#LogLevel">LogLevel</a> level, String msg, Object... args) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">switch</strong> (level) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">case</strong> ERROR:
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  log.error(msg, args);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">case</strong> WARN:
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  log.warn(msg, args);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_comment">// Forwarding the caller's message is the entire point of this method, so the format string cannot be a constant</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <em class="jxr_comment">// here; the callers are the ones that must pass one.</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      @SuppressWarnings(<span class="jxr_string">"Slf4jFormatShouldBeConst"</span>)
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> logAtLevel(Logger log, <a name="LogLevel" href="../../oshi/util/LogLevel.html#LogLevel">LogLevel</a> level, String msg, Object... args) {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">switch</strong> (level) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">case</strong> ERROR:
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  log.error(msg, args);
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">case</strong> INFO:
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  log.info(msg, args);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">case</strong> WARN:
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  log.warn(msg, args);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">case</strong> TRACE:
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  log.trace(msg, args);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">case</strong> INFO:
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  log.info(msg, args);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">case</strong> DEBUG:
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <strong class="jxr_keyword">default</strong>:
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  log.debug(msg, args);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">case</strong> TRACE:
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  log.trace(msg, args);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              <strong class="jxr_keyword">case</strong> DEBUG:
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              <strong class="jxr_keyword">default</strong>:
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  log.debug(msg, args);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

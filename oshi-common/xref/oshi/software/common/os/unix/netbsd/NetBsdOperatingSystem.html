@@ -46,7 +46,7 @@
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          String family = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.ostype"</span>, <span class="jxr_string">"NetBSD"</span>);
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>          String version = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          String versionInfo = BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.version"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          String buildNumber = versionInfo.split(<span class="jxr_string">":"</span>)[0].replace(family, <span class="jxr_string">""</span>).replace(version, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          String buildNumber = versionInfo.split(<span class="jxr_string">":"</span>, -1)[0].replace(family, <span class="jxr_string">""</span>).replace(version, <span class="jxr_string">""</span>).trim();
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(family, <strong class="jxr_keyword">new</strong> OSVersionInfo(version, <strong class="jxr_keyword">null</strong>, buildNumber));
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
@@ -111,7 +111,7 @@
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getProcessId() {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// RuntimeMXBean name format is "pid@hostname"</em>
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         String name = ManagementFactory.getRuntimeMXBean().getName();
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">return</strong> ParseUtil.parseIntOrDefault(name.split(<span class="jxr_string">"@"</span>)[0], -1);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">return</strong> ParseUtil.parseIntOrDefault(name.split(<span class="jxr_string">"@"</span>, -1)[0], -1);
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
 <a class="jxr_linenumber" name="L108" href="#L108">108</a> 
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Override
@@ -133,7 +133,7 @@
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryBootTime() {
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         <em class="jxr_comment">// Boot time will be the first consecutive string of digits.</em>
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>         <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n kern.boottime"</span>).split(<span class="jxr_string">","</span>)[0].replaceAll(<span class="jxr_string">"&#92;&#92;D"</span>, <span class="jxr_string">""</span>),
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n kern.boottime"</span>).split(<span class="jxr_string">","</span>, -1)[0].replaceAll(<span class="jxr_string">"&#92;&#92;D"</span>, <span class="jxr_string">""</span>),
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>                 System.currentTimeMillis() / 1000);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
 <a class="jxr_linenumber" name="L131" href="#L131">131</a> }

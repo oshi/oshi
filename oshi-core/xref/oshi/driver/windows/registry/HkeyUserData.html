@@ -92,7 +92,7 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                      }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                      sessions.add(<strong class="jxr_keyword">new</strong> OSSession(name, device, loginTime, host));
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                  } <strong class="jxr_keyword">catch</strong> (Win32Exception ex) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                      LOG.warn(<span class="jxr_string">"Error querying SID {} from registry: {}"</span>, sidKey, ex.getMessage());
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                      LOG.warn(<span class="jxr_string">"Error querying SID {} from registry"</span>, sidKey, ex);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                  }
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>              }
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          }

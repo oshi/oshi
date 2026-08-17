@@ -21,9 +21,9 @@
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.driver.windows.wmi.MSFTStorageFFM;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.VersionHelpersFFM;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.windows.com.FfmComException;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
@@ -50,14 +50,14 @@
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>              comInit = h.initCOM();
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>              <em class="jxr_comment">// Query Storage Pools first, so we can skip other queries if we have no pools</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>              WmiResult&lt;StoragePoolProperty&gt; sp = MSFTStorageFFM.queryStoragePools(h);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>              WmiResult&lt;StoragePoolProperty&gt; sp = MSFTStorage.queryStoragePools(h);
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">if</strong> (sp.getResultCount() == 0) {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>                  <strong class="jxr_keyword">return</strong> Collections.emptyList();
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>              }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <strong class="jxr_keyword">return</strong> buildFromWmi(sp, MSFTStorageFFM.queryVirtualDisks(h), MSFTStorageFFM.queryPhysicalDisks(h),
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                      MSFTStorageFFM.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupFFM::<strong class="jxr_keyword">new</strong>);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <strong class="jxr_keyword">return</strong> buildFromWmi(sp, MSFTStorage.queryVirtualDisks(h), MSFTStorage.queryPhysicalDisks(h),
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                      MSFTStorage.queryStoragePoolPhysicalDisks(h), WindowsLogicalVolumeGroupFFM::<strong class="jxr_keyword">new</strong>);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          } <strong class="jxr_keyword">catch</strong> (<a name="FfmComException" href="../../../../oshi/ffm/platform/windows/com/FfmComException.html#FfmComException">FfmComException</a> e) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              LOG.warn(<span class="jxr_string">"COM exception: {}"</span>, e.getMessage());
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              LOG.warn(<span class="jxr_string">"COM exception"</span>, e);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">return</strong> Collections.emptyList();
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          } <strong class="jxr_keyword">finally</strong> {
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">if</strong> (comInit) {

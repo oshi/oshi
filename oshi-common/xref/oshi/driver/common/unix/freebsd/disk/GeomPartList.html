@@ -104,7 +104,7 @@
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>                  }
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <em class="jxr_comment">// If we don't have a valid partition, don't parse anything until we do.</em>
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>                  <strong class="jxr_keyword">if</strong> (partName != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                      String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>                     <strong class="jxr_keyword">if</strong> (split.length &gt;= 2) {
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>                         <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"Mediasize:"</span>)) {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>                             size = ParseUtil.parseLongOrDefault(split[1], 0L);

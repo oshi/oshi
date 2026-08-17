@@ -75,7 +75,7 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">void</strong> testGetOrDefaultWithLogging() {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          String result = ExceptionUtil.getOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"test error"</span>);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          }, <span class="jxr_string">"fallback"</span>, LOG, <span class="jxr_string">"Operation failed: {}"</span>);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          }, <span class="jxr_string">"fallback"</span>, LOG, <span class="jxr_string">"Operation failed"</span>);
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertThat(result, is(equalTo(<span class="jxr_string">"fallback"</span>)));
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>  
@@ -105,7 +105,7 @@
 <a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">void</strong> testGetIntOrDefaultWithLogging() {
 <a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">int</strong> result = ExceptionUtil.getIntOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L99" href="#L99">99</a>              <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         }, 0, LOG, <span class="jxr_string">"Int op failed: {}"</span>);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         }, 0, LOG, <span class="jxr_string">"Int op failed"</span>);
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertThat(result, is(0));
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
 <a class="jxr_linenumber" name="L103" href="#L103">103</a> 
@@ -135,7 +135,7 @@
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">void</strong> testGetLongOrDefaultWithLogging() {
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         <strong class="jxr_keyword">long</strong> result = ExceptionUtil.getLongOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         }, 0L, LOG, <span class="jxr_string">"Long op failed: {}"</span>);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         }, 0L, LOG, <span class="jxr_string">"Long op failed"</span>);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>         assertThat(result, is(0L));
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     }
 <a class="jxr_linenumber" name="L133" href="#L133">133</a> 
@@ -165,7 +165,7 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">void</strong> testGetBooleanOrDefaultWithLogging() {
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">boolean</strong> result = ExceptionUtil.getBooleanOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         }, <strong class="jxr_keyword">true</strong>, LOG, <span class="jxr_string">"Bool op failed: {}"</span>);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         }, <strong class="jxr_keyword">true</strong>, LOG, <span class="jxr_string">"Bool op failed"</span>);
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertThat(result, is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> 
@@ -195,7 +195,7 @@
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">void</strong> testGetDoubleOrDefaultWithLogging() {
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">double</strong> result = ExceptionUtil.getDoubleOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         }, -1d, LOG, <span class="jxr_string">"Double op failed: {}"</span>);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         }, -1d, LOG, <span class="jxr_string">"Double op failed"</span>);
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>         assertThat(result, is(-1d));
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>     }
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> 
@@ -218,7 +218,7 @@
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">void</strong> testGetOptionalReturnsEmptyOnException() {
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         Optional&lt;String&gt; result = ExceptionUtil.getOptional(() -&gt; {
 <a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         }, LOG, <span class="jxr_string">"Optional op failed: {}"</span>);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         }, LOG, <span class="jxr_string">"Optional op failed"</span>);
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>         assertThat(result.isPresent(), is(false));
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>     }
 <a class="jxr_linenumber" name="L216" href="#L216">216</a> 
@@ -241,7 +241,7 @@
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">void</strong> testGetOptionalIntReturnsEmptyOnException() {
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>         OptionalInt result = ExceptionUtil.getOptionalInt(() -&gt; {
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         }, LOG, <span class="jxr_string">"OptionalInt op failed: {}"</span>);
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         }, LOG, <span class="jxr_string">"OptionalInt op failed"</span>);
 <a class="jxr_linenumber" name="L237" href="#L237">237</a>         assertThat(result.isPresent(), is(false));
 <a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
 <a class="jxr_linenumber" name="L239" href="#L239">239</a> 
@@ -258,7 +258,7 @@
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     <strong class="jxr_keyword">void</strong> testGetOptionalLongReturnsEmptyOnException() {
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>         OptionalLong result = ExceptionUtil.getOptionalLong(() -&gt; {
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"fail"</span>);
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         }, LOG, <span class="jxr_string">"OptionalLong op failed: {}"</span>);
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         }, LOG, <span class="jxr_string">"OptionalLong op failed"</span>);
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertThat(result.isPresent(), is(false));
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
 <a class="jxr_linenumber" name="L256" href="#L256">256</a> 
@@ -298,7 +298,7 @@
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>     <strong class="jxr_keyword">void</strong> testRunOrLogHandlesException() {
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>         assertDoesNotThrow(() -&gt; ExceptionUtil.runOrLog(() -&gt; {
 <a class="jxr_linenumber" name="L292" href="#L292">292</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"test error"</span>);
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>         }, LOG, <span class="jxr_string">"RunOrLog failed: {}"</span>));
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         }, LOG, <span class="jxr_string">"RunOrLog failed"</span>));
 <a class="jxr_linenumber" name="L294" href="#L294">294</a>     }
 <a class="jxr_linenumber" name="L295" href="#L295">295</a> 
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>     <em class="jxr_comment">// -- Edge cases --</em>
@@ -317,7 +317,7 @@
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">void</strong> testGetOrDefaultWithTraceLevel() {
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>         String result = ExceptionUtil.getOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> RuntimeException(<span class="jxr_string">"trace test"</span>);
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         }, <span class="jxr_string">"fallback"</span>, LOG, LogLevel.TRACE, <span class="jxr_string">"Trace-level failure: {}"</span>);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         }, <span class="jxr_string">"fallback"</span>, LOG, LogLevel.TRACE, <span class="jxr_string">"Trace-level failure"</span>);
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>         assertThat(result, is(equalTo(<span class="jxr_string">"fallback"</span>)));
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>     }
 <a class="jxr_linenumber" name="L315" href="#L315">315</a> 
@@ -398,77 +398,87 @@
 <a class="jxr_linenumber" name="L390" href="#L390">390</a>                 <em class="jxr_comment">// Intentional: exercises the exception-logging path at each level. The stack trace this logs is</em>
 <a class="jxr_linenumber" name="L391" href="#L391">391</a>                 <em class="jxr_comment">// expected test output, not a real failure.</em>
 <a class="jxr_linenumber" name="L392" href="#L392">392</a>                 <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"expected test exception, stack trace is intentional"</span>);
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>             }, <span class="jxr_string">"no exception"</span>, LOG, level, <span class="jxr_string">"failed: {}"</span>);
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             }, <span class="jxr_string">"no exception"</span>, LOG, level, <span class="jxr_string">"failed"</span>);
 <a class="jxr_linenumber" name="L394" href="#L394">394</a>             assertThat(result, is(<span class="jxr_string">"no exception"</span>));
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>         }
 <a class="jxr_linenumber" name="L396" href="#L396">396</a>     }
 <a class="jxr_linenumber" name="L397" href="#L397">397</a> 
 <a class="jxr_linenumber" name="L398" href="#L398">398</a>     @Test
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>     <strong class="jxr_keyword">void</strong> testLogAtLevelPassesThrowableMessageAndThrowable() {
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>     <strong class="jxr_keyword">void</strong> testLogAtLevelPassesOnlyTheThrowable() {
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>         Throwable t = <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, <span class="jxr_string">"Failed: {}"</span>, t);
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, <span class="jxr_string">"Failed"</span>, t);
 <a class="jxr_linenumber" name="L403" href="#L403">403</a>         assertThat(<span class="jxr_string">"Dispatched to the method matching the level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"warn"</span>));
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <em class="jxr_comment">// The message fills the placeholder; the trailing throwable is left for SLF4J to pull out as the cause</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         assertThat(<span class="jxr_string">"Throwable message then throwable"</span>, recorder.arguments(), arrayContaining(<span class="jxr_string">"boom"</span>, t));
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>     }
-<a class="jxr_linenumber" name="L407" href="#L407">407</a> 
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>     @Test
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>     <strong class="jxr_keyword">void</strong> testLogAtLevelPutsCallerArgumentsBeforeTheThrowableMessage() {
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>         Throwable t = <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.DEBUG, <span class="jxr_string">"Failed to read {} of {}: {}"</span>, t, <span class="jxr_string">"key"</span>, 42);
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         assertThat(<span class="jxr_string">"Dispatched to the method matching the level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"debug"</span>));
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>         <em class="jxr_comment">// Caller arguments fill the leading placeholders in order, then the exception message, then the cause</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>         assertThat(<span class="jxr_string">"Caller args, exception message, throwable"</span>, recorder.arguments(),
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>                 arrayContaining(<span class="jxr_string">"key"</span>, 42, <span class="jxr_string">"boom"</span>, t));
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <em class="jxr_comment">// Only the throwable is appended, for SLF4J to pull out as the cause. Its message is not passed</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <em class="jxr_comment">// separately: doing so would print it inline and again in the stack trace the backend renders.</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         assertThat(<span class="jxr_string">"Throwable only"</span>, recorder.arguments(), arrayContaining(t));
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>     }
+<a class="jxr_linenumber" name="L408" href="#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>     @Test
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>     <strong class="jxr_keyword">void</strong> testLogAtLevelPutsCallerArgumentsBeforeTheThrowable() {
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         Throwable t = <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.DEBUG, <span class="jxr_string">"Failed to read {} of {}"</span>, t, <span class="jxr_string">"key"</span>, 42);
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         assertThat(<span class="jxr_string">"Dispatched to the method matching the level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"debug"</span>));
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <em class="jxr_comment">// Caller arguments fill the placeholders in order, then the throwable as the cause</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         assertThat(<span class="jxr_string">"Caller args then throwable"</span>, recorder.arguments(), arrayContaining(<span class="jxr_string">"key"</span>, 42, t));
 <a class="jxr_linenumber" name="L417" href="#L417">417</a>     }
 <a class="jxr_linenumber" name="L418" href="#L418">418</a> 
 <a class="jxr_linenumber" name="L419" href="#L419">419</a>     @Test
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>     <strong class="jxr_keyword">void</strong> testGetOrDefaultForwardsArgumentsOnFailure() {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>     <strong class="jxr_keyword">void</strong> testLogAtLevelAcceptsATypedArgumentArray() {
 <a class="jxr_linenumber" name="L421" href="#L421">421</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         String result = ExceptionUtil.getOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>         }, <span class="jxr_string">"fallback"</span>, recorder.logger(), <span class="jxr_string">"Lookup of {} failed: {}"</span>, <span class="jxr_string">"someKey"</span>);
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>         assertThat(<span class="jxr_string">"Returns the default"</span>, result, is(<span class="jxr_string">"fallback"</span>));
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>         assertThat(<span class="jxr_string">"Defaults to debug"</span>, recorder.onlyCall(), is(<span class="jxr_string">"debug"</span>));
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>         assertThat(<span class="jxr_string">"Argument precedes the exception message"</span>, recorder.arguments(),
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>                 arrayContaining(is(<span class="jxr_string">"someKey"</span>), is(<span class="jxr_string">"boom"</span>), instanceOf(IllegalStateException.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         Throwable t = <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <em class="jxr_comment">// Passing a typed array for the varargs parameter is legal Java, so the copy must widen to Object[]:</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <em class="jxr_comment">// a copy keeping the String[] component type would throw ArrayStoreException on appending the throwable.</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <em class="jxr_comment">// The cast only tells javac the array is meant to be spread; at runtime this is still a String[].</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>         String[] args = <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span> };
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, <span class="jxr_string">"Failed to read {} of {}"</span>, t, (Object[]) args);
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         assertThat(<span class="jxr_string">"Caller args then throwable"</span>, recorder.arguments(), arrayContaining(<span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span>, t));
 <a class="jxr_linenumber" name="L429" href="#L429">429</a>     }
 <a class="jxr_linenumber" name="L430" href="#L430">430</a> 
 <a class="jxr_linenumber" name="L431" href="#L431">431</a>     @Test
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">void</strong> testGetLongOrDefaultForwardsArgumentsAtExplicitLevel() {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">void</strong> testGetOrDefaultForwardsArgumentsOnFailure() {
 <a class="jxr_linenumber" name="L433" href="#L433">433</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">long</strong> result = ExceptionUtil.getLongOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         String result = ExceptionUtil.getOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         }, -1L, recorder.logger(), LogLevel.WARN, <span class="jxr_string">"Read of {}/{} failed: {}"</span>, <span class="jxr_string">"path"</span>, <span class="jxr_string">"value"</span>);
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         assertThat(<span class="jxr_string">"Returns the default"</span>, result, is(-1L));
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         assertThat(<span class="jxr_string">"Honors the explicit level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"warn"</span>));
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         assertThat(<span class="jxr_string">"Both arguments precede the exception message"</span>, recorder.arguments(),
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 arrayContaining(is(<span class="jxr_string">"path"</span>), is(<span class="jxr_string">"value"</span>), is(<span class="jxr_string">"boom"</span>), instanceOf(IllegalStateException.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         }, <span class="jxr_string">"fallback"</span>, recorder.logger(), <span class="jxr_string">"Lookup of {} failed"</span>, <span class="jxr_string">"someKey"</span>);
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>         assertThat(<span class="jxr_string">"Returns the default"</span>, result, is(<span class="jxr_string">"fallback"</span>));
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         assertThat(<span class="jxr_string">"Defaults to debug"</span>, recorder.onlyCall(), is(<span class="jxr_string">"debug"</span>));
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         assertThat(<span class="jxr_string">"Argument precedes the throwable"</span>, recorder.arguments(),
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 arrayContaining(is(<span class="jxr_string">"someKey"</span>), instanceOf(IllegalStateException.<strong class="jxr_keyword">class</strong>)));
 <a class="jxr_linenumber" name="L441" href="#L441">441</a>     }
 <a class="jxr_linenumber" name="L442" href="#L442">442</a> 
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>     @Test
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">void</strong> testNoArgumentCallsAreUnchanged() {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">void</strong> testGetLongOrDefaultForwardsArgumentsAtExplicitLevel() {
 <a class="jxr_linenumber" name="L445" href="#L445">445</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>         String result = ExceptionUtil.getOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">long</strong> result = ExceptionUtil.getLongOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L447" href="#L447">447</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         }, <span class="jxr_string">"fallback"</span>, recorder.logger(), <span class="jxr_string">"Failed: {}"</span>);
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         assertThat(<span class="jxr_string">"Returns the default"</span>, result, is(<span class="jxr_string">"fallback"</span>));
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         <em class="jxr_comment">// Adding the varargs parameter must not change what an existing zero-argument call logs</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         assertThat(<span class="jxr_string">"Exception message then throwable"</span>, recorder.arguments(),
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>                 arrayContaining(is(<span class="jxr_string">"boom"</span>), instanceOf(IllegalStateException.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         }, -1L, recorder.logger(), LogLevel.WARN, <span class="jxr_string">"Read of {}/{} failed"</span>, <span class="jxr_string">"path"</span>, <span class="jxr_string">"value"</span>);
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         assertThat(<span class="jxr_string">"Returns the default"</span>, result, is(-1L));
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         assertThat(<span class="jxr_string">"Honors the explicit level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"warn"</span>));
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         assertThat(<span class="jxr_string">"Both arguments precede the throwable"</span>, recorder.arguments(),
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>                 arrayContaining(is(<span class="jxr_string">"path"</span>), is(<span class="jxr_string">"value"</span>), instanceOf(IllegalStateException.<strong class="jxr_keyword">class</strong>)));
 <a class="jxr_linenumber" name="L453" href="#L453">453</a>     }
 <a class="jxr_linenumber" name="L454" href="#L454">454</a> 
 <a class="jxr_linenumber" name="L455" href="#L455">455</a>     @Test
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">void</strong> testSuccessfulCallLogsNothing() {
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">void</strong> testNoArgumentCallsAreUnchanged() {
 <a class="jxr_linenumber" name="L457" href="#L457">457</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         String result = ExceptionUtil.getOrDefault(() -&gt; <span class="jxr_string">"ok"</span>, <span class="jxr_string">"fallback"</span>, recorder.logger(), <span class="jxr_string">"Failed for {}: {}"</span>,
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>                 <span class="jxr_string">"key"</span>);
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>         assertThat(<span class="jxr_string">"Returns the supplied value"</span>, result, is(<span class="jxr_string">"ok"</span>));
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         assertThat(<span class="jxr_string">"Nothing logged on the success path"</span>, recorder.calls(), is(empty()));
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     }
-<a class="jxr_linenumber" name="L463" href="#L463">463</a> }
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>         String result = ExceptionUtil.getOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         }, <span class="jxr_string">"fallback"</span>, recorder.logger(), <span class="jxr_string">"Failed"</span>);
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         assertThat(<span class="jxr_string">"Returns the default"</span>, result, is(<span class="jxr_string">"fallback"</span>));
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         <em class="jxr_comment">// Adding the varargs parameter must not change what an existing zero-argument call logs</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         assertThat(<span class="jxr_string">"Throwable only"</span>, recorder.arguments(), arrayContaining(instanceOf(IllegalStateException.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     }
+<a class="jxr_linenumber" name="L465" href="#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     @Test
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     <strong class="jxr_keyword">void</strong> testSuccessfulCallLogsNothing() {
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         String result = ExceptionUtil.getOrDefault(() -&gt; <span class="jxr_string">"ok"</span>, <span class="jxr_string">"fallback"</span>, recorder.logger(), <span class="jxr_string">"Failed for {}"</span>, <span class="jxr_string">"key"</span>);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         assertThat(<span class="jxr_string">"Returns the supplied value"</span>, result, is(<span class="jxr_string">"ok"</span>));
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         assertThat(<span class="jxr_string">"Nothing logged on the success path"</span>, recorder.calls(), is(empty()));
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>     }
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

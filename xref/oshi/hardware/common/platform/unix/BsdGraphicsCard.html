@@ -113,7 +113,7 @@
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>                     productId.isEmpty() ? UNKNOWN_PCI_ID : productId, vendorId.isEmpty() ? UNKNOWN_PCI_ID : vendorId,
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>                     versionInfo.isEmpty() ? Constants.UNKNOWN : versionInfo, 0L));
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         }
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">return</strong> cardList;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <strong class="jxr_keyword">return</strong> Collections.unmodifiableList(cardList);
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>     }
 <a class="jxr_linenumber" name="L110" href="#L110">110</a> }
 </pre>

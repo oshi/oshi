@@ -89,7 +89,7 @@
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                      <strong class="jxr_keyword">int</strong> major = 0;
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>                      <strong class="jxr_keyword">int</strong> minor = 0;
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                      <strong class="jxr_keyword">if</strong> (devStr.contains(<span class="jxr_string">":"</span>)) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                          String[] majMin = devStr.split(<span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                          String[] majMin = devStr.split(<span class="jxr_string">":"</span>, -1);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                          major = ParseUtil.parseIntOrDefault(majMin[0], 0);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>                          minor = ParseUtil.parseIntOrDefault(majMin[1], 0);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>                      }

@@ -158,7 +158,7 @@
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>                 <strong class="jxr_keyword">if</strong> (0 &lt; SystemB.INSTANCE.proc_pidpath(getProcessID(), buf, PROC_PIDPATHINFO_MAXSIZE)) {
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>                     <strong class="jxr_keyword">this</strong>.path = buf.getString(0).trim();
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>                     <em class="jxr_comment">// Overwrite name with last part of path</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>                     String[] pathSplit = <strong class="jxr_keyword">this</strong>.path.split(<span class="jxr_string">"/"</span>);
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>                     String[] pathSplit = <strong class="jxr_keyword">this</strong>.path.split(<span class="jxr_string">"/"</span>, -1);
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                     <strong class="jxr_keyword">if</strong> (pathSplit.length &gt; 0) {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>                         <strong class="jxr_keyword">this</strong>.name = pathSplit[pathSplit.length - 1];
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>                     }
@@ -191,7 +191,7 @@
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>             <strong class="jxr_keyword">this</strong>.bitness = (taskAllInfo.pbsd.pbi_flags &amp; P_LP64) == 0 ? 32 : 64;
 <a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">this</strong>.majorFaults = taskAllInfo.ptinfo.pti_pageins;
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>             <em class="jxr_comment">// testing using getrusage confirms pti_faults includes both major and minor</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">this</strong>.minorFaults = taskAllInfo.ptinfo.pti_faults - taskAllInfo.ptinfo.pti_pageins; <em class="jxr_comment">// NOSONAR java:S2184</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">this</strong>.minorFaults = taskAllInfo.ptinfo.pti_faults - <strong class="jxr_keyword">this</strong>.majorFaults; <em class="jxr_comment">// NOSONAR java:S2184</em>
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>             <em class="jxr_comment">// getrusage(RUSAGE_SELF) aggregates across all threads for current process</em>
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>             <strong class="jxr_keyword">if</strong> (getProcessID() == <strong class="jxr_keyword">this</strong>.os.getProcessId()) {
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>                 SystemB.Rusage rusage = <strong class="jxr_keyword">new</strong> SystemB.Rusage();

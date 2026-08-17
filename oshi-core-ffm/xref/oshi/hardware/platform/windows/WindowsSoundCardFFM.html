@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>              }
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">return</strong> soundCards;
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          } <strong class="jxr_keyword">catch</strong> (Throwable t) { <em class="jxr_comment">// NOSONAR java:S1181</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              LOG.debug(<span class="jxr_string">"Failed to enumerate sound card registry keys: {}"</span>, t.getMessage());
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>              LOG.debug(<span class="jxr_string">"Failed to enumerate sound card registry keys"</span>, t);
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>              <strong class="jxr_keyword">return</strong> soundCards;
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">for</strong> (String key : keys) {
@@ -73,7 +73,7 @@
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                      <strong class="jxr_keyword">throw</strong> e;
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>              } <strong class="jxr_keyword">catch</strong> (Throwable t) { <em class="jxr_comment">// NOSONAR java:S1181</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  LOG.debug(<span class="jxr_string">"Failed to read sound card registry key {}: {}"</span>, key, t.getMessage());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  LOG.debug(<span class="jxr_string">"Failed to read sound card registry key {}"</span>, key, t);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>              }
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>          }
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> soundCards;

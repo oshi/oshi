@@ -91,7 +91,7 @@
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          Map&lt;String, String&gt; userMap = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          <em class="jxr_comment">// see man 5 passwd for the fields</em>
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">for</strong> (String entry : passwd) {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              String[] split = entry.split(<span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              String[] split = entry.split(<span class="jxr_string">":"</span>, -1);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>              <strong class="jxr_keyword">if</strong> (split.length &gt; 2) {
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>                  String userName = split[0];
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>                  String uid = split[2];
@@ -121,7 +121,7 @@
 <a class="jxr_linenumber" name="L113" href="#L113">113</a>         Map&lt;String, String&gt; groupMap = <strong class="jxr_keyword">new</strong> ConcurrentHashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// see man 5 group for the fields</em>
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">for</strong> (String entry : group) {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             String[] split = entry.split(<span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             String[] split = entry.split(<span class="jxr_string">":"</span>, -1);
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">if</strong> (split.length &gt; 2) {
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>                 String groupName = split[0];
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>                 String gid = split[2];

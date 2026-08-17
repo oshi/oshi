@@ -110,7 +110,7 @@
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <em class="jxr_comment">// UDP6, udplite6 stats</em>
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> line = lines.size() - 1; line &gt;= 0 &amp;&amp; foundUDPv6StatsCount &lt; 4; line--) {
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>             <strong class="jxr_keyword">if</strong> (lines.get(line).startsWith(UDP6)) {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 String[] parts = lines.get(line).split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 String[] parts = ParseUtil.whitespaces.split(lines.get(line), -1);
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <strong class="jxr_keyword">switch</strong> (parts[0]) {
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>                     <strong class="jxr_keyword">case</strong> <span class="jxr_string">"Udp6InDatagrams"</span>:
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>                         inDatagrams = ParseUtil.parseLongOrDefault(parts[1], 0L);
@@ -152,7 +152,7 @@
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>         List&lt;IPConnection&gt; conns = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">for</strong> (String s : FileUtil.readFile(ProcPath.NET + <span class="jxr_string">"/"</span> + protocol + (ipver == 6 ? <span class="jxr_string">"6"</span> : <span class="jxr_string">""</span>))) {
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>             <strong class="jxr_keyword">if</strong> (s.indexOf(':') &gt;= 0) {
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 String[] split = ParseUtil.whitespaces.split(s.trim());
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>                 String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>                 <strong class="jxr_keyword">if</strong> (split.length &gt; 9) {
 <a class="jxr_linenumber" name="L149" href="#L149">149</a>                     Pair&lt;byte[], Integer&gt; lAddr = parseIpAddr(split[1]);
 <a class="jxr_linenumber" name="L150" href="#L150">150</a>                     Pair&lt;byte[], Integer&gt; fAddr = parseIpAddr(split[2]);

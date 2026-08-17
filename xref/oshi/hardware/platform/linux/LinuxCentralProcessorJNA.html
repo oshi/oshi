@@ -17,78 +17,79 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev.UdevContext;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev.UdevEnumerate;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev.UdevListEntry;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.proc.AuxvJNA;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.linux.LinuxCentralProcessor;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.LinuxLibc;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOperatingSystemJNA;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.linux.proc.Auxv;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment"> * JNA-based Linux central processor implementation. Extends {@link LinuxCentralProcessor}, supplying the udev CPU</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * enumeration and native library calls.</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxCentralProcessorJNA" href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessorJNA.html#LinuxCentralProcessorJNA">LinuxCentralProcessorJNA</a> <strong class="jxr_keyword">extends</strong> <a name="LinuxCentralProcessor" href="../../../../oshi/hardware/common/platform/linux/LinuxCentralProcessor.html#LinuxCentralProcessor">LinuxCentralProcessor</a> {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessorJNA.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <a name="LinuxCentralProcessorJNA" href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessorJNA.html#LinuxCentralProcessorJNA">LinuxCentralProcessorJNA</a>() {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">super</strong>(LinuxOperatingSystemJNA.hz());
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Override
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">protected</strong> List&lt;String&gt; enumerateCpuSyspathsViaUdev() {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">if</strong> (!HAS_UDEV) {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          UdevContext udev = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">if</strong> (udev == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              List&lt;String&gt; syspaths = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>              UdevEnumerate enumerate = udev.enumerateNew();
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">if</strong> (enumerate == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>                  enumerate.addMatchSubsystem(<span class="jxr_string">"cpu"</span>);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  enumerate.scanDevices();
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  <strong class="jxr_keyword">for</strong> (UdevListEntry entry = enumerate.getListEntry(); entry != <strong class="jxr_keyword">null</strong>; entry = entry.getNext()) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                      syspaths.add(entry.getName());
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  enumerate.unref();
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">return</strong> syspaths;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <em class="jxr_comment">// Any udev failure falls back to the shared sysfs scan</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              LOG.warn(<span class="jxr_string">"Error enumerating CPUs via udev, falling back to sysfs"</span>, e);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              udev.unref();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Override
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryHwcap() {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> AuxvJNA.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      @Override
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">return</strong> LinuxLibc.INSTANCE.getloadavg(loadavg, nelem);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  }
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.slf4j.Logger;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.slf4j.LoggerFactory;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev.UdevContext;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev.UdevEnumerate;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> com.sun.jna.platform.linux.Udev.UdevListEntry;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.driver.linux.proc.AuxvJNA;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.linux.LinuxCentralProcessor;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.jna.platform.linux.LinuxLibc;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.linux.LinuxOperatingSystemJNA;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.linux.proc.Auxv;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * JNA-based Linux central processor implementation. Extends {@link LinuxCentralProcessor}, supplying the udev CPU</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> * enumeration and native library calls.</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxCentralProcessorJNA" href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessorJNA.html#LinuxCentralProcessorJNA">LinuxCentralProcessorJNA</a> <strong class="jxr_keyword">extends</strong> <a name="LinuxCentralProcessor" href="../../../../oshi/hardware/common/platform/linux/LinuxCentralProcessor.html#LinuxCentralProcessor">LinuxCentralProcessor</a> {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessorJNA.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <a name="LinuxCentralProcessorJNA" href="../../../../oshi/hardware/platform/linux/LinuxCentralProcessorJNA.html#LinuxCentralProcessorJNA">LinuxCentralProcessorJNA</a>() {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">super</strong>(LinuxOperatingSystemJNA.hz());
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Override
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">protected</strong> @Nullable List&lt;String&gt; enumerateCpuSyspathsViaUdev() {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">if</strong> (!HAS_UDEV) {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          UdevContext udev = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">if</strong> (udev == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              List&lt;String&gt; syspaths = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>              UdevEnumerate enumerate = udev.enumerateNew();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">if</strong> (enumerate == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  enumerate.addMatchSubsystem(<span class="jxr_string">"cpu"</span>);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  enumerate.scanDevices();
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  <strong class="jxr_keyword">for</strong> (UdevListEntry entry = enumerate.getListEntry(); entry != <strong class="jxr_keyword">null</strong>; entry = entry.getNext()) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                      syspaths.add(entry.getName());
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  }
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  enumerate.unref();
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">return</strong> syspaths;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          } <strong class="jxr_keyword">catch</strong> (RuntimeException e) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <em class="jxr_comment">// Any udev failure falls back to the shared sysfs scan</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              LOG.warn(<span class="jxr_string">"Error enumerating CPUs via udev, falling back to sysfs"</span>, e);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              udev.unref();
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      @Override
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryHwcap() {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> AuxvJNA.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      @Override
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">return</strong> LinuxLibc.INSTANCE.getloadavg(loadavg, nelem);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

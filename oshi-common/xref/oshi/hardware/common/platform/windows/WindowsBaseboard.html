@@ -23,7 +23,7 @@
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiUtil;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractBaseboard;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  
@@ -83,11 +83,10 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>              version = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.VERSION, 0);
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              serialNumber = WmiUtil.getString(win32BaseBoard, BaseBoardProperty.SERIALNUMBER, 0);
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(Util.isBlank(manufacturer) ? Constants.UNKNOWN : manufacturer,
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  Util.isBlank(model) ? Constants.UNKNOWN : model, Util.isBlank(version) ? Constants.UNKNOWN : version,
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  Util.isBlank(serialNumber) ? Constants.UNKNOWN : serialNumber);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(ParseUtil.getStringValueOrUnknown(manufacturer), ParseUtil.getStringValueOrUnknown(model),
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  ParseUtil.getStringValueOrUnknown(version), ParseUtil.getStringValueOrUnknown(serialNumber));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

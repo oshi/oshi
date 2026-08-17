@@ -68,7 +68,7 @@
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          List&lt;Double&gt; allTemps = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          List&lt;Integer&gt; fanRPMs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">for</strong> (String line : systatLines) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">if</strong> (split.length &gt; 1) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <strong class="jxr_keyword">if</strong> (split[0].contains(<span class="jxr_string">"cpu"</span>)) {
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                      <strong class="jxr_keyword">if</strong> (split[0].contains(<span class="jxr_string">"temp0"</span>)) {
@@ -145,7 +145,7 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">int</strong> maxCapacity = 1;
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">int</strong> designCapacity = 1;
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">for</strong> (String line : systatLines) {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>             String[] split = ParseUtil.whitespaces.split(line);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>             String[] split = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>             <strong class="jxr_keyword">if</strong> (split.length &gt; 1 &amp;&amp; split[0].startsWith(name)) {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>                 <strong class="jxr_keyword">if</strong> (split[0].contains(<span class="jxr_string">"volt0"</span>) || (split[0].contains(<span class="jxr_string">"volt"</span>) &amp;&amp; line.contains(<span class="jxr_string">"current"</span>))) {
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>                     voltage = ParseUtil.parseDoubleOrDefault(split[1], -1d);

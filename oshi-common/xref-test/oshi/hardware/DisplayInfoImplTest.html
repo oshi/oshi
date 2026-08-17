@@ -182,7 +182,22 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>         DisplayInfo reparsed = <strong class="jxr_keyword">new</strong> DisplayInfoImpl(info.getEdid());
 <a class="jxr_linenumber" name="L175" href="#L175">175</a>         assertThat(<span class="jxr_string">"reparsed productSerialNumber"</span>, reparsed.getProductSerialNumber(), is(<span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>     }
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> 
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     @Test
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">void</strong> testSyntheticNullableFieldsReportedAsEmpty() {
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_comment">// Every nullable constructor argument is normalized to an empty string, so no getter breaks the non-null</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <em class="jxr_comment">// DisplayInfo contract and toString never renders "null"</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         DisplayInfo info = <strong class="jxr_keyword">new</strong> DisplayInfoImpl(<span class="jxr_string">"APP"</span>, <span class="jxr_string">"a050"</span>, <strong class="jxr_keyword">null</strong>, (byte) 0, 1990, <span class="jxr_string">"1.4"</span>, <strong class="jxr_keyword">true</strong>, 0, 0, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>,
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>                 <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         assertThat(<span class="jxr_string">"serialNo"</span>, info.getSerialNo(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         assertThat(<span class="jxr_string">"preferredResolution"</span>, info.getPreferredResolution(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         assertThat(<span class="jxr_string">"model"</span>, info.getModel(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         assertThat(<span class="jxr_string">"productSerialNumber"</span>, info.getProductSerialNumber(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         assertThat(<span class="jxr_string">"toString has no null"</span>, info.toString(), not(containsString(<span class="jxr_string">"null"</span>)));
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <em class="jxr_comment">// The EDID synthesized from those absent values is still well formed</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         assertThat(<span class="jxr_string">"edid length"</span>, info.getEdid().length, is(128));
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     }
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -131,7 +131,7 @@
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>             available = <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>             LOG.debug(<span class="jxr_string">"NVML library loaded via FFM"</span>);
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>         } <strong class="jxr_keyword">catch</strong> (Throwable t) {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>             LOG.debug(<span class="jxr_string">"NVML library not available via FFM: {}"</span>, t.getMessage());
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>             LOG.debug(<span class="jxr_string">"NVML library not available via FFM"</span>, t);
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>         }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         nvmlInit_v2 = hInit;
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         nvmlShutdown = hShutdown;
@@ -163,7 +163,7 @@
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     * @return NVML return code</em>
 <a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> init() {
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> getIntOrDefault(() -&gt; (<strong class="jxr_keyword">int</strong>) nvmlInit_v2.invokeExact(), -1, LOG, <span class="jxr_string">"nvmlInit_v2 failed: {}"</span>);
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> getIntOrDefault(() -&gt; (<strong class="jxr_keyword">int</strong>) nvmlInit_v2.invokeExact(), -1, LOG, <span class="jxr_string">"nvmlInit_v2 failed"</span>);
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
 <a class="jxr_linenumber" name="L160" href="#L160">160</a> 
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>     <em class="jxr_javadoccomment">/**</em>
@@ -172,7 +172,7 @@
 <a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     * @return NVML return code</em>
 <a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> shutdown() {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> getIntOrDefault(() -&gt; (<strong class="jxr_keyword">int</strong>) nvmlShutdown.invokeExact(), -1, LOG, <span class="jxr_string">"nvmlShutdown failed: {}"</span>);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> getIntOrDefault(() -&gt; (<strong class="jxr_keyword">int</strong>) nvmlShutdown.invokeExact(), -1, LOG, <span class="jxr_string">"nvmlShutdown failed"</span>);
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_javadoccomment">/**</em>

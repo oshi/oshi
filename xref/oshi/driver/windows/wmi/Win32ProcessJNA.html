@@ -16,27 +16,35 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.Objects;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Set;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiQueryExecutorJNA;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32ProcessJNA" href="../../../../oshi/driver/windows/wmi/Win32ProcessJNA.html#Win32ProcessJNA">Win32ProcessJNA</a> <strong class="jxr_keyword">extends</strong> <a name="Win32Process" href="../../../../oshi/driver/common/windows/wmi/Win32Process.html#Win32Process">Win32Process</a> {
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">private</strong> <a name="Win32ProcessJNA" href="../../../../oshi/driver/windows/wmi/Win32ProcessJNA.html#Win32ProcessJNA">Win32ProcessJNA</a>() {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      }
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;CommandLineProperty&gt; queryCommandLines(Set&lt;Integer&gt; pidsToQuery) {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <strong class="jxr_keyword">return</strong> Win32Process.queryCommandLines(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()),
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>                  pidsToQuery);
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      }
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">return</strong> Win32Process.queryProcesses(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()), pids);
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      }
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  }
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.Win32Process.ProcessXPProperty;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.WmiResult;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.platform.windows.WmiQueryExecutorJNA;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="Win32ProcessJNA" href="../../../../oshi/driver/windows/wmi/Win32ProcessJNA.html#Win32ProcessJNA">Win32ProcessJNA</a> <strong class="jxr_keyword">extends</strong> <a name="Win32Process" href="../../../../oshi/driver/common/windows/wmi/Win32Process.html#Win32Process">Win32Process</a> {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <a name="Win32ProcessJNA" href="../../../../oshi/driver/windows/wmi/Win32ProcessJNA.html#Win32ProcessJNA">Win32ProcessJNA</a>() {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      }
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * Queries the command lines of the given processes.</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     * @param pidsToQuery the process IDs to query, or {@code null} to query all processes</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment">     * @return a {@link WmiResult} of the command line for each matching process</em>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;CommandLineProperty&gt; queryCommandLines(@Nullable Set&lt;Integer&gt; pidsToQuery) {
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <strong class="jxr_keyword">return</strong> Win32Process.queryCommandLines(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()),
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>                  pidsToQuery);
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;ProcessXPProperty&gt; queryProcesses(Collection&lt;Integer&gt; pids) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <strong class="jxr_keyword">return</strong> Win32Process.queryProcesses(Objects.requireNonNull(WmiQueryExecutorJNA.createInstance()), pids);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

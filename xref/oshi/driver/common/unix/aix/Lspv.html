@@ -54,7 +54,7 @@
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;HWPartition&gt; queryLogicalVolumes(String device, Map&lt;String, Pair&lt;Integer, Integer&gt;&gt; majMinMap) {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          <strong class="jxr_keyword">return</strong> PARTITION_CACHE.computeIfAbsent(device,
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>                  d -&gt; Collections.unmodifiableList(computeLogicalVolumes(d, majMinMap).stream()
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                          .sorted(Comparator.comparing(HWPartition::getMinor).thenComparing(HWPartition::getName))
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                          .sorted(Comparator.comparingInt(HWPartition::getMinor).thenComparing(HWPartition::getName))
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                          .collect(Collectors.toList())));
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>  
@@ -146,7 +146,7 @@
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>         Map&lt;String, String&gt; typeMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         Map&lt;String, Integer&gt; ppMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">for</strong> (String s : lspvP) {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>             String[] split = ParseUtil.whitespaces.split(s.trim());
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>             String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             <strong class="jxr_keyword">if</strong> (split.length &gt;= 6 &amp;&amp; <span class="jxr_string">"used"</span>.equals(split[1])) {
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>                 <em class="jxr_comment">// Region may have two words, so count from end</em>
 <a class="jxr_linenumber" name="L144" href="#L144">144</a>                 String name = split[split.length - 3];
@@ -161,15 +161,20 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>             <em class="jxr_comment">// All maps should have same keys</em>
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>             String name = entry.getKey();
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>             String type = typeMap.get(name);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <strong class="jxr_keyword">long</strong> size = ppSize * ppMap.get(name);
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             Pair&lt;Integer, Integer&gt; majMin = majMinMap.get(name);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>             <strong class="jxr_keyword">int</strong> major = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getA();
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">int</strong> minor = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getB();
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>             partitions.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name, name, type, <span class="jxr_string">""</span>, size, major, minor, mount));
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">return</strong> partitions;
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> }
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             Integer physicalPartitions = ppMap.get(name);
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">if</strong> (type == <strong class="jxr_keyword">null</strong> || physicalPartitions == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 <em class="jxr_comment">// The maps are filled together from one lspv run; a gap means its output was inconsistent</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>                 <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">long</strong> size = ppSize * physicalPartitions;
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             Pair&lt;Integer, Integer&gt; majMin = majMinMap.get(name);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">int</strong> major = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getA();
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">int</strong> minor = majMin == <strong class="jxr_keyword">null</strong> ? ParseUtil.getFirstIntValue(name) : majMin.getB();
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             partitions.add(<strong class="jxr_keyword">new</strong> <a name="HWPartition" href="../../../../../oshi/hardware/HWPartition.html#HWPartition">HWPartition</a>(name, name, type, <span class="jxr_string">""</span>, size, major, minor, mount));
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">return</strong> partitions;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

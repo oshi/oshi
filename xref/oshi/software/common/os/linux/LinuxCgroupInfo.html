@@ -222,7 +222,7 @@
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     <strong class="jxr_keyword">static</strong> String resolveV1ControllerPath(List&lt;String&gt; selfCgroup, String controller) {
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">for</strong> (String line : selfCgroup) {
 <a class="jxr_linenumber" name="L216" href="#L216">216</a>             <em class="jxr_comment">// v1 format: "hierarchy-id:controllers:path"</em>
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             String[] parts = line.split(<span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             String[] parts = line.split(<span class="jxr_string">":"</span>, -1);
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">if</strong> (parts.length &gt;= 3) {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                 String controllers = parts[1];
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>                 <strong class="jxr_keyword">if</strong> (controllers.isEmpty()) {
@@ -230,7 +230,7 @@
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>                 }
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                 String path = parts[2];
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>                 <em class="jxr_comment">// Exact match: split comma-separated controllers</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 <strong class="jxr_keyword">for</strong> (String c : controllers.split(<span class="jxr_string">","</span>)) {
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>                 <strong class="jxr_keyword">for</strong> (String c : controllers.split(<span class="jxr_string">","</span>, -1)) {
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>                     <strong class="jxr_keyword">if</strong> (c.equals(controller)) {
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>                         <strong class="jxr_keyword">if</strong> (path.startsWith(<span class="jxr_string">"/"</span>)) {
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>                             path = path.substring(1);
@@ -264,7 +264,7 @@
 <a class="jxr_linenumber" name="L256" href="#L256">256</a>         <strong class="jxr_keyword">if</strong> (cpuMax.isEmpty()) {
 <a class="jxr_linenumber" name="L257" href="#L257">257</a>             <strong class="jxr_keyword">return</strong> UNLIMITED;
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>         }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         String[] parts = cpuMax.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         String[] parts = ParseUtil.whitespaces.split(cpuMax, -1);
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">if</strong> (parts.length &gt;= 1) {
 <a class="jxr_linenumber" name="L261" href="#L261">261</a>             <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"max"</span>.equalsIgnoreCase(parts[0])) {
 <a class="jxr_linenumber" name="L262" href="#L262">262</a>                 <strong class="jxr_keyword">return</strong> UNLIMITED;
@@ -304,7 +304,7 @@
 <a class="jxr_linenumber" name="L296" href="#L296">296</a>         <strong class="jxr_keyword">if</strong> (cpuMax.isEmpty()) {
 <a class="jxr_linenumber" name="L297" href="#L297">297</a>             <strong class="jxr_keyword">return</strong> DEFAULT_CPU_PERIOD;
 <a class="jxr_linenumber" name="L298" href="#L298">298</a>         }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         String[] parts = cpuMax.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         String[] parts = ParseUtil.whitespaces.split(cpuMax, -1);
 <a class="jxr_linenumber" name="L300" href="#L300">300</a>         <strong class="jxr_keyword">if</strong> (parts.length &gt;= 2) {
 <a class="jxr_linenumber" name="L301" href="#L301">301</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseLongOrDefault(parts[1], DEFAULT_CPU_PERIOD);
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>         }
@@ -330,7 +330,7 @@
 <a class="jxr_linenumber" name="L322" href="#L322">322</a>         List&lt;String&gt; lines = FileUtil.readFile(basePath + <span class="jxr_string">"cpu.stat"</span>);
 <a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">for</strong> (String line : lines) {
 <a class="jxr_linenumber" name="L324" href="#L324">324</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"usage_usec"</span>)) {
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 String[] parts = line.split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>                 String[] parts = ParseUtil.whitespaces.split(line, -1);
 <a class="jxr_linenumber" name="L326" href="#L326">326</a>                 <strong class="jxr_keyword">if</strong> (parts.length &gt;= 2) {
 <a class="jxr_linenumber" name="L327" href="#L327">327</a>                     <strong class="jxr_keyword">long</strong> usec = ParseUtil.parseLongOrDefault(parts[1], 0L);
 <a class="jxr_linenumber" name="L328" href="#L328">328</a>                     <strong class="jxr_keyword">return</strong> usec * NANOSECONDS_PER_MICROSECOND;

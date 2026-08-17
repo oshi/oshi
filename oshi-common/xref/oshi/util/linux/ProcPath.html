@@ -69,50 +69,54 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PID_STATUS = PROC + <span class="jxr_string">"/%d/status"</span>;
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>      <em class="jxr_javadoccomment">/** Path to /proc/self/stat. */</em>
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SELF_STAT = PROC + <span class="jxr_string">"/self/stat"</span>;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_javadoccomment">/** Path to snmp. */</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SNMP = NET + <span class="jxr_string">"/snmp"</span>;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/** Path to snmp6. */</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SNMP6 = NET + <span class="jxr_string">"/snmp6"</span>;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <em class="jxr_javadoccomment">/** Path to stat. */</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String STAT = PROC + <span class="jxr_string">"/stat"</span>;
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/** Path to /proc/sys/fs/file nr. */</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYS_FS_FILE_NR = PROC + <span class="jxr_string">"/sys/fs/file-nr"</span>;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_javadoccomment">/** Path to /proc/sys/fs/file max. */</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYS_FS_FILE_MAX = PROC + <span class="jxr_string">"/sys/fs/file-max"</span>;
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/path. */</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_PATH = PROC + <span class="jxr_string">"/%d/task"</span>;
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/comm. */</em>
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_COMM = TASK_PATH + <span class="jxr_string">"/%d/comm"</span>;
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/status. */</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_STATUS = TASK_PATH + <span class="jxr_string">"/%d/status"</span>;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/stat. */</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_STAT = TASK_PATH + <span class="jxr_string">"/%d/stat"</span>;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_javadoccomment">/** Path to thread self. */</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String THREAD_SELF = PROC + <span class="jxr_string">"/thread-self"</span>;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_javadoccomment">/** Path to uptime. */</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UPTIME = PROC + <span class="jxr_string">"/uptime"</span>;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_javadoccomment">/** Path to version. */</em>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERSION = PROC + <span class="jxr_string">"/version"</span>;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_javadoccomment">/** Path to vmstat. */</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VMSTAT = PROC + <span class="jxr_string">"/vmstat"</span>;
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <em class="jxr_javadoccomment">/** Path to /proc/self/cgroup. */</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SELF_CGROUP = PROC + <span class="jxr_string">"/self/cgroup"</span>;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_javadoccomment">/** Path to filesystems. */</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String FILESYSTEMS = PROC + <span class="jxr_string">"/filesystems"</span>;
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> <a name="ProcPath" href="../../../oshi/util/linux/ProcPath.html#ProcPath">ProcPath</a>() {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryProcConfig() {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          String procPath = GlobalConfig.get(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"/proc"</span>);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <em class="jxr_comment">// Ensure prefix begins with path separator, but doesn't end with one</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         procPath = '/' + procPath.replaceAll(<span class="jxr_string">"/$|^/"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">new</strong> File(procPath).exists()) {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"The path does not exist"</span>);
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> procPath;
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_javadoccomment">/** Path to net/ipv6_route. Declared here rather than alphabetically because it derives from {@link #NET}. */</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String IPV6_ROUTE = NET + <span class="jxr_string">"/ipv6_route"</span>;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/** Path to net/route. Declared here rather than alphabetically because it derives from {@link #NET}. */</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String ROUTE = NET + <span class="jxr_string">"/route"</span>;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <em class="jxr_javadoccomment">/** Path to snmp. */</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SNMP = NET + <span class="jxr_string">"/snmp"</span>;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/** Path to snmp6. */</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SNMP6 = NET + <span class="jxr_string">"/snmp6"</span>;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <em class="jxr_javadoccomment">/** Path to stat. */</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String STAT = PROC + <span class="jxr_string">"/stat"</span>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <em class="jxr_javadoccomment">/** Path to /proc/sys/fs/file nr. */</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYS_FS_FILE_NR = PROC + <span class="jxr_string">"/sys/fs/file-nr"</span>;
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <em class="jxr_javadoccomment">/** Path to /proc/sys/fs/file max. */</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SYS_FS_FILE_MAX = PROC + <span class="jxr_string">"/sys/fs/file-max"</span>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/path. */</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_PATH = PROC + <span class="jxr_string">"/%d/task"</span>;
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/comm. */</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_COMM = TASK_PATH + <span class="jxr_string">"/%d/comm"</span>;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/status. */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_STATUS = TASK_PATH + <span class="jxr_string">"/%d/status"</span>;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_javadoccomment">/** Path to /proc/[pid]/task/stat. */</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String TASK_STAT = TASK_PATH + <span class="jxr_string">"/%d/stat"</span>;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_javadoccomment">/** Path to thread self. */</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String THREAD_SELF = PROC + <span class="jxr_string">"/thread-self"</span>;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_javadoccomment">/** Path to uptime. */</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UPTIME = PROC + <span class="jxr_string">"/uptime"</span>;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <em class="jxr_javadoccomment">/** Path to version. */</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VERSION = PROC + <span class="jxr_string">"/version"</span>;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_javadoccomment">/** Path to vmstat. */</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String VMSTAT = PROC + <span class="jxr_string">"/vmstat"</span>;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      <em class="jxr_javadoccomment">/** Path to /proc/self/cgroup. */</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String SELF_CGROUP = PROC + <span class="jxr_string">"/self/cgroup"</span>;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_javadoccomment">/** Path to filesystems. */</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String FILESYSTEMS = PROC + <span class="jxr_string">"/filesystems"</span>;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">private</strong> <a name="ProcPath" href="../../../oshi/util/linux/ProcPath.html#ProcPath">ProcPath</a>() {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryProcConfig() {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         String procPath = GlobalConfig.get(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"/proc"</span>);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// Ensure prefix begins with path separator, but doesn't end with one</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         procPath = '/' + procPath.replaceAll(<span class="jxr_string">"/$|^/"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <strong class="jxr_keyword">if</strong> (!<strong class="jxr_keyword">new</strong> File(procPath).exists()) {
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> GlobalConfig.PropertyException(GlobalConfig.OSHI_UTIL_PROC_PATH, <span class="jxr_string">"The path does not exist"</span>);
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">return</strong> procPath;
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

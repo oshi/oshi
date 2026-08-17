@@ -17,11 +17,11 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.nio.charset.StandardCharsets;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractComputerSystem;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractComputerSystem;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Quartet;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">/**</em>
@@ -72,25 +72,26 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * @return a quartet of manufacturer, model, serial number, UUID</em>
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">protected</strong> Quartet&lt;String, String, String, String&gt; platformExpert() {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          Quartet&lt;String, String, String, String&gt; result = ioKitProvider().withMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>,
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  entry -&gt; {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          Quartet&lt;@Nullable String, @Nullable String, @Nullable String, @Nullable String&gt; result = ioKitProvider()
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  .withMatchingService(<span class="jxr_string">"IOPlatformExpertDevice"</span>, entry -&gt; {
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>                      byte[] data = entry.getByteArrayProperty(<span class="jxr_string">"manufacturer"</span>);
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                      String mfr = data != <strong class="jxr_keyword">null</strong> ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>                      data = entry.getByteArrayProperty(<span class="jxr_string">"model"</span>);
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>                      String mdl = data != <strong class="jxr_keyword">null</strong> ? ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8) : <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>                      String sn = entry.getStringProperty(<span class="jxr_string">"IOPlatformSerialNumber"</span>);
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>                      String uuid = entry.getStringProperty(<span class="jxr_string">"IOPlatformUUID"</span>);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(mfr, mdl, sn, uuid);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  });
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">if</strong> (result == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              result = <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(Util.isBlank(result.getA()) ? <span class="jxr_string">"Apple Inc."</span> : result.getA(),
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  Util.isBlank(result.getB()) ? Constants.UNKNOWN : result.getB(),
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  Util.isBlank(result.getC()) ? Constants.UNKNOWN : result.getC(),
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  Util.isBlank(result.getD()) ? Constants.UNKNOWN : result.getD());
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;@Nullable String, @Nullable String, @Nullable String, @Nullable String&gt;(mfr, mdl,
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                              sn, uuid);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  });
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">if</strong> (result == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              result = <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(<strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          String mfr = result.getA();
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(mfr == <strong class="jxr_keyword">null</strong> || mfr.isEmpty() ? <span class="jxr_string">"Apple Inc."</span> : mfr,
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  ParseUtil.getStringValueOrUnknown(result.getB()), ParseUtil.getStringValueOrUnknown(result.getC()),
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  ParseUtil.getStringValueOrUnknown(result.getD()));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

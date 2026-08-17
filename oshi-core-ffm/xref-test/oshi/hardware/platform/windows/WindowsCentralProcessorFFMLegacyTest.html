@@ -71,7 +71,7 @@
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">long</strong> modernTotal = LongStream.of(modern).sum();
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>          assertThat(<span class="jxr_string">"legacy total ticks"</span>, legacyTotal, greaterThan(0L));
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>          <em class="jxr_comment">// Both measure cumulative CPU time since boot; a generous tolerance catches a rotted binding without flaking</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat((<strong class="jxr_keyword">double</strong>) legacyTotal, closeTo(modernTotal, modernTotal * 0.5));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat((<strong class="jxr_keyword">double</strong>) legacyTotal, closeTo((<strong class="jxr_keyword">double</strong>) modernTotal, modernTotal * 0.5));
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  }
 </pre>

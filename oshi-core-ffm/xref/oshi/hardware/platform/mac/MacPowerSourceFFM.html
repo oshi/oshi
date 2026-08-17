@@ -22,93 +22,95 @@
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.mac.CFUtilFFM;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.mac.MacPowerSource;
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> * A Power Source</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="MacPowerSourceFFM" href="../../../../oshi/hardware/platform/mac/MacPowerSourceFFM.html#MacPowerSourceFFM">MacPowerSourceFFM</a> <strong class="jxr_keyword">extends</strong> MacPowerSource {
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">public</strong> <a name="MacPowerSourceFFM" href="../../../../oshi/hardware/platform/mac/MacPowerSourceFFM.html#MacPowerSourceFFM">MacPowerSourceFFM</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, LocalDate psManufactureDate, String psManufacturer,
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  psManufacturer, psSerialNumber, psTemperature);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      @Override
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">protected</strong> List&lt;PowerSource&gt; queryPowerSources() {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">return</strong> getPowerSources();
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * Gets Battery Information.</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * @return An array of PowerSource objects representing batteries, etc.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;PowerSource&gt; getPowerSources() {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          CFStringRef nameKey = CFStringRef.createCFString(<span class="jxr_string">"Name"</span>);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          CFStringRef isPresentKey = CFStringRef.createCFString(<span class="jxr_string">"Is Present"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          CFStringRef currentCapacityKey = CFStringRef.createCFString(<span class="jxr_string">"Current Capacity"</span>);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          CFStringRef maxCapacityKey = CFStringRef.createCFString(<span class="jxr_string">"Max Capacity"</span>);
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">try</strong> (nameKey; isPresentKey; currentCapacityKey; maxCapacityKey) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              MemorySegment powerSourcesInfo = IOPSCopyPowerSourcesInfo();
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <em class="jxr_comment">// wrapped only to release the native CF object on close</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">try</strong> (<strong class="jxr_keyword">var</strong> _ = <strong class="jxr_keyword">new</strong> CFTypeRef(powerSourcesInfo)) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  CFArrayRef cfList = <strong class="jxr_keyword">new</strong> CFArrayRef(IOPSCopyPowerSourcesList(powerSourcesInfo));
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">try</strong> (cfList) {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated = IOPSGetTimeRemainingEstimate();
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      <strong class="jxr_keyword">int</strong> powerSourcesCount = cfList.getCount();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      List&lt;PowerSourceData&gt; sources = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(powerSourcesCount);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> ps = 0; ps &lt; powerSourcesCount; ps++) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                          MemorySegment pwrSrcPtr = cfList.getValueAtIndex(ps);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                          MemorySegment dictionary = IOPSGetPowerSourceDescription(powerSourcesInfo, pwrSrcPtr);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          @SuppressWarnings(<span class="jxr_string">"resource"</span>) <em class="jxr_comment">// borrowed ref from IOPSGetPowerSourceDescription</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          CFDictionaryRef dict = <strong class="jxr_keyword">new</strong> CFDictionaryRef(dictionary);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          MemorySegment result = dict.getValue(isPresentKey);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                          <strong class="jxr_keyword">if</strong> (!result.equals(MemorySegment.NULL) &amp;&amp; CFBooleanRef.booleanValue(result)) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                              result = dict.getValue(nameKey);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                              String psName = CFUtilFFM.cfPointerToString(result);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                              <strong class="jxr_keyword">double</strong> currentCapacity = 0d;
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                              <strong class="jxr_keyword">if</strong> (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                                  result = dict.getValue(currentCapacityKey);
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                                  currentCapacity = CFNumberRef.intValue(result);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                              }
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                              <strong class="jxr_keyword">double</strong> maxCapacity = 1d;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                              <strong class="jxr_keyword">if</strong> (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                                  result = dict.getValue(maxCapacityKey);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                                  maxCapacity = CFNumberRef.intValue(result);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                              }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                              sources.add(<strong class="jxr_keyword">new</strong> PowerSourceData(psName, currentCapacity, maxCapacity));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                          }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>                      }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>                      <strong class="jxr_keyword">return</strong> buildPowerSources(IOKitProviderFFM.INSTANCE, psTimeRemainingEstimated, sources,
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                              MacPowerSourceFFM::<strong class="jxr_keyword">new</strong>);
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  }
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>              }
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          } <strong class="jxr_keyword">catch</strong> (Throwable _) {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         }
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     }
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> }
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFArrayRef;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFNumberRef;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.ffm.util.platform.mac.CFUtilFFM;
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.PowerSource;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.mac.MacPowerSource;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment"> * A Power Source</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="MacPowerSourceFFM" href="../../../../oshi/hardware/platform/mac/MacPowerSourceFFM.html#MacPowerSourceFFM">MacPowerSourceFFM</a> <strong class="jxr_keyword">extends</strong> MacPowerSource {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <a name="MacPowerSourceFFM" href="../../../../oshi/hardware/platform/mac/MacPowerSourceFFM.html#MacPowerSourceFFM">MacPowerSourceFFM</a>(String psName, String psDeviceName, <strong class="jxr_keyword">double</strong> psRemainingCapacityPercent,
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated, <strong class="jxr_keyword">double</strong> psTimeRemainingInstant, <strong class="jxr_keyword">double</strong> psPowerUsageRate, <strong class="jxr_keyword">double</strong> psVoltage,
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <strong class="jxr_keyword">double</strong> psAmperage, <strong class="jxr_keyword">boolean</strong> psPowerOnLine, <strong class="jxr_keyword">boolean</strong> psCharging, <strong class="jxr_keyword">boolean</strong> psDischarging,
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              CapacityUnits psCapacityUnits, <strong class="jxr_keyword">int</strong> psCurrentCapacity, <strong class="jxr_keyword">int</strong> psMaxCapacity, <strong class="jxr_keyword">int</strong> psDesignCapacity,
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>              <strong class="jxr_keyword">int</strong> psCycleCount, String psChemistry, @Nullable LocalDate psManufactureDate, String psManufacturer,
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>              String psSerialNumber, <strong class="jxr_keyword">double</strong> psTemperature) {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">super</strong>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated, psTimeRemainingInstant,
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                  psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Override
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">protected</strong> List&lt;PowerSource&gt; queryPowerSources() {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">return</strong> getPowerSources();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * Gets Battery Information.</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @return An array of PowerSource objects representing batteries, etc.</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;PowerSource&gt; getPowerSources() {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          CFStringRef nameKey = CFStringRef.createCFString(<span class="jxr_string">"Name"</span>);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          CFStringRef isPresentKey = CFStringRef.createCFString(<span class="jxr_string">"Is Present"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          CFStringRef currentCapacityKey = CFStringRef.createCFString(<span class="jxr_string">"Current Capacity"</span>);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          CFStringRef maxCapacityKey = CFStringRef.createCFString(<span class="jxr_string">"Max Capacity"</span>);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">try</strong> (nameKey; isPresentKey; currentCapacityKey; maxCapacityKey) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              MemorySegment powerSourcesInfo = IOPSCopyPowerSourcesInfo();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <em class="jxr_comment">// wrapped only to release the native CF object on close</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">try</strong> (<strong class="jxr_keyword">var</strong> _ = <strong class="jxr_keyword">new</strong> CFTypeRef(powerSourcesInfo)) {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  CFArrayRef cfList = <strong class="jxr_keyword">new</strong> CFArrayRef(IOPSCopyPowerSourcesList(powerSourcesInfo));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">try</strong> (cfList) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      <strong class="jxr_keyword">double</strong> psTimeRemainingEstimated = IOPSGetTimeRemainingEstimate();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      <strong class="jxr_keyword">int</strong> powerSourcesCount = cfList.getCount();
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      List&lt;PowerSourceData&gt; sources = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(powerSourcesCount);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> ps = 0; ps &lt; powerSourcesCount; ps++) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                          MemorySegment pwrSrcPtr = cfList.getValueAtIndex(ps);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                          MemorySegment dictionary = IOPSGetPowerSourceDescription(powerSourcesInfo, pwrSrcPtr);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                          @SuppressWarnings(<span class="jxr_string">"resource"</span>) <em class="jxr_comment">// borrowed ref from IOPSGetPowerSourceDescription</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                          CFDictionaryRef dict = <strong class="jxr_keyword">new</strong> CFDictionaryRef(dictionary);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                          MemorySegment result = dict.getValue(isPresentKey);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          <strong class="jxr_keyword">if</strong> (!result.equals(MemorySegment.NULL) &amp;&amp; CFBooleanRef.booleanValue(result)) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                              result = dict.getValue(nameKey);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                              String psName = CFUtilFFM.cfPointerToString(result);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                              <strong class="jxr_keyword">double</strong> currentCapacity = 0d;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                              <strong class="jxr_keyword">if</strong> (dict.getValueIfPresent(currentCapacityKey, MemorySegment.NULL)) {
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>                                  result = dict.getValue(currentCapacityKey);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                                  currentCapacity = CFNumberRef.intValue(result);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>                              }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                              <strong class="jxr_keyword">double</strong> maxCapacity = 1d;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                              <strong class="jxr_keyword">if</strong> (dict.getValueIfPresent(maxCapacityKey, MemorySegment.NULL)) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                                  result = dict.getValue(maxCapacityKey);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                                  maxCapacity = CFNumberRef.intValue(result);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                              }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                              sources.add(<strong class="jxr_keyword">new</strong> PowerSourceData(psName, currentCapacity, maxCapacity));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                          }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                      }
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                      <strong class="jxr_keyword">return</strong> buildPowerSources(IOKitProviderFFM.INSTANCE, psTimeRemainingEstimated, sources,
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                              MacPowerSourceFFM::<strong class="jxr_keyword">new</strong>);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         } <strong class="jxr_keyword">catch</strong> (Throwable _) {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
