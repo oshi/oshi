@@ -1,4 +1,6 @@
-name: "CodeQL"
+# Security queries only. The code-quality half of CodeQL runs separately, from GitHub's managed
+# default setup ("Code Quality" in the Actions list), so the two rule sets do not overlap.
+name: "CodeQL Security"
 
 on:
   push:
@@ -12,6 +14,9 @@ on:
       - '**.yaml'
   schedule:
     - cron: '16 14 * * 1'
+  # Workflow changes are in paths-ignore above, so a PR that only edits this file never runs.
+  # Dispatch it on the branch to verify such a change before merging.
+  workflow_dispatch:
 
 # Default-deny at the workflow level; each job re-grants only what it needs.
 permissions: {}
@@ -20,6 +25,7 @@ jobs:
   analyze:
     name: Analyze
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       actions: read
       contents: read
@@ -37,18 +43,34 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
+        fetch-depth: 0
         persist-credentials: false
+
+    # Pin the toolchain to 25 so the java25 profile activates. Java extraction is build-traced:
+    # whatever Maven does not compile is not scanned, so on a lower JDK the [25,) modules are
+    # invisible to CodeQL rather than merely skipped.
+    - name: Setup Java
+      uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      with:
+        java-version: 25
+        distribution: 'zulu'
+        cache: 'maven'
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4
       with:
         languages: ${{ matrix.language }}
+        build-mode: manual
 
-    # Autobuild attempts to build any compiled languages  (C/C++, C#, or Java).
-    # If this step fails, then you should remove it and run the build manually (see below)
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4
+    # Autobuild is deliberately not used here. Its Java version heuristic reads the literal
+    # maven.compiler.release in each pom and takes the highest; oshi-core-ffm sets the property
+    # ${oshi.ffm.release} instead, which the heuristic cannot resolve, so it settled on the 17 from
+    # oshi-metrics, overrode JAVA_HOME to a 17 toolchain, and built a five-module reactor. That
+    # silently excluded oshi-core-ffm, oshi-benchmark, and oshi-dist from every scan. An explicit
+    # build keeps the reactor under our control.
+    - name: Build
+      run: ./mvnw -B -DskipTests clean compile
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4
