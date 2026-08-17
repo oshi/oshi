@@ -1,4 +1,8 @@
-# 7.5.0 (in progress)
+# 7.5.1 (in progress)
+
+* Your contribution here!
+
+# 7.5.0 (2026-08-16)
 
 ##### New Features
 
@@ -25,14 +29,13 @@
   [#3636](https://github.com/oshi/oshi/pull/3636): Adopt [JSpecify](https://jspecify.dev/) nullability annotations project-wide and enforce them in continuous integration with [NullAway](https://github.com/uber/NullAway), so every type in a signature is non-null unless it is annotated `@Nullable`. A method not annotated `@Nullable` is now a checked guarantee rather than an aspiration, and a null check against one is dead code you can delete. The public API packages and the `oshi.util` tree carry the marking in their `package-info.java`, where every consumer sees it, including on a Java 8 or classpath build; the implementation packages are marked on their module descriptors; the native mapping packages under `oshi.jna` and `oshi.ffm.platform` opt out, because nullability there is the operating system's to state rather than OSHI's. The `org.jspecify:jspecify` dependency is optional and compile-time only, so it does not reach your runtime classpath. See the [FAQ](FAQ.md#nullability-nullmarked-nullable) for what this does and does not promise - [@dbwiddis](https://github.com/dbwiddis).
 * [#3615](https://github.com/oshi/oshi/pull/3615): Add `ParseUtil.getStringValueOrEmpty`, which normalizes a nullable string to `""`, alongside the existing `getStringValueOrUnknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3641](https://github.com/oshi/oshi/pull/3641): Add `HardwareAbstractionLayer.getVirtualization()`, which identifies the hypervisor, container runtime or cloud platform hosting the system, promoting the long-standing `DetectVM` demo into the library. It returns an `Optional<String>` naming the platform, or an empty `Optional` when no signature matched - which means undetermined, not confirmed bare metal. Detection reads the processor's CPUID vendor string, the computer system's manufacturer and model, and network interface MAC address OUIs, in that order. The signature tables ship as the `oshi.vm.properties` and `oshi.vmmacaddr.properties` resources; placing a file of either name earlier on the classpath replaces that table, so you can teach OSHI about a platform it does not know - [@dbwiddis](https://github.com/dbwiddis).
-
-* [#3646](https://github.com/oshi/oshi/pull/3646), [#3647](https://github.com/oshi/oshi/pull/3647): Add `NetworkParams.getRoutes()`, which returns the operating system's routing table as a list of `IPRoute` objects covering both address families - [@dbwiddis](https://github.com/dbwiddis).
+* [#3646](https://github.com/oshi/oshi/pull/3646),
+  [#3647](https://github.com/oshi/oshi/pull/3647): Add `NetworkParams.getRoutes()`, which returns the operating system's routing table as a list of `IPRoute` objects covering both address families - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Behavior Changes
 
-* [#3646](https://github.com/oshi/oshi/pull/3646): `NetworkParams.getIpv6DefaultGateway()` on OpenBSD returns the IPv6 gateway. It previously omitted the `-inet6` flag and returned the IPv4 gateway - [@dbwiddis](https://github.com/dbwiddis).
-* [#3646](https://github.com/oshi/oshi/pull/3646): `NetworkParams` default gateways on AIX return an empty string when no default route is configured, matching the documented contract. They previously returned `Constants.UNKNOWN` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): Stating each nullability contract explicitly during the JSpecify sweep surfaced implementations that did not honor it. Values that were documented as unreadable but returned `null` now return the sentinel the rest of the API uses. The following user-facing behavior changed - [@dbwiddis](https://github.com/dbwiddis):
+* [#3646](https://github.com/oshi/oshi/pull/3646): `NetworkParams.getIpv6DefaultGateway()` on OpenBSD returns the IPv6 gateway. It previously omitted the `-inet6` flag and returned the IPv4 gateway. `NetworkParams` default gateways on AIX return an empty string when no default route is configured, matching the documented contract. They previously returned `Constants.UNKNOWN`.
+* [#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): Stating each nullability contract explicitly during the JSpecify sweep surfaced implementations that did not honor it. Values that were documented as unreadable but returned `null` now return the sentinel the rest of the API uses. The following user-facing behavior changed:
   * `DisplayInfo`'s preferred resolution, model and product serial number return an empty string rather than `null`
     for a synthesized display such as the Apple Silicon built-in panel.
   * `SoundCard.getDriverVersion()` and `getCodec()` return `Constants.UNKNOWN` rather than `null` when the platform
@@ -46,16 +49,8 @@
   * `NetworkParams.getDomainName()` returns an empty string rather than `null` on FreeBSD.
   * A macOS process whose passwd or group entry cannot be read reports its numeric user and group id through the
     FFM implementation, matching JNA.
-* [#3616](https://github.com/oshi/oshi/pull/3616): Report a disk's model or serial number, and a macOS partition's UUID, as `Constants.UNKNOWN` when it reads as an empty string, matching every other unreadable value. Affects AIX disks whose `lscfg` serial field is blank, and the Linux device-mapper and macOS equivalents. Partition filesystem UUIDs and labels are unchanged - [@dbwiddis](https://github.com/dbwiddis).
-* [#3641](https://github.com/oshi/oshi/pull/3641): `NetworkIF.isKnownVmMacAddr()` recognizes five more prefixes, so it now returns `true` for a VMware interface using the `00:1C:14` allocation and for Amazon Web Services and Google Cloud Platform instances. `oshi.demo.DetectVM.identifyVM()` is deprecated in favor of `HardwareAbstractionLayer.getVirtualization()`, and now returns curated product names rather than whichever raw signature happened to match - [@dbwiddis](https://github.com/dbwiddis).
-
-##### Removals
-
-These are all outside the semver-guaranteed API, which covers `oshi.hardware`, `oshi.software.os` and types annotated `@PublicApi`. They are listed because removing them can break a compile.
-
-* [#3608](https://github.com/oshi/oshi/pull/3608): Remove 14 `*JNA` and `*FFM` classes from `oshi.driver.windows.wmi` that only redeclared the static methods of their `oshi.driver.common.windows.wmi` base classes verbatim. Call the base class of the same name instead - [@dbwiddis](https://github.com/dbwiddis).
-* [#3615](https://github.com/oshi/oshi/pull/3615): Remove `Util.isBlankOrUnknown`, which had no callers. Use `Constants.UNKNOWN.equals(s)` or one of the `ParseUtil` normalizers - [@dbwiddis](https://github.com/dbwiddis).
-* [#3617](https://github.com/oshi/oshi/pull/3617): Remove the unused `ParseUtil.slash` constant. As a single-character separator it was also a pessimization: `String.split` takes a fast path for one non-metacharacter that a precompiled `Pattern` does not - [@dbwiddis](https://github.com/dbwiddis).
+* [#3616](https://github.com/oshi/oshi/pull/3616): Report a disk's model or serial number, and a macOS partition's UUID, as `Constants.UNKNOWN` when it reads as an empty string, matching every other unreadable value. Affects AIX disks whose `lscfg` serial field is blank, and the Linux device-mapper and macOS equivalents. Partition filesystem UUIDs and labels are unchanged.
+* [#3641](https://github.com/oshi/oshi/pull/3641): `NetworkIF.isKnownVmMacAddr()` recognizes five more prefixes, so it now returns `true` for a VMware interface using the `00:1C:14` allocation and for Amazon Web Services and Google Cloud Platform instances. `oshi.demo.DetectVM.identifyVM()` is deprecated in favor of `HardwareAbstractionLayer.getVirtualization()`, and now returns curated product names rather than whichever raw signature happened to match.
 
 ##### Bug Fixes and Improvements
 
