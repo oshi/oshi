@@ -1209,6 +1209,12 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseIpv6AddressToBytes("fe80:::1"), is(new byte[0]));
         assertThat(ParseUtil.parseIpv6AddressToBytes("fffff::1"), is(new byte[0]));
         assertThat(ParseUtil.parseIpv6AddressToBytes("::ffff:1.2.3"), is(new byte[0]));
+        // A trailing separator leaves an empty group
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1:2:3:4:5:6:7:"), is(new byte[0]));
+        // A non-hex character in a group
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fe80::zzzz"), is(new byte[0]));
+        // The "::" must stand for at least one all-zero group, so eight explicit groups around it do not fit
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1:2:3:4:5:6:7::8"), is(new byte[0]));
     }
 
     /**
@@ -1264,6 +1270,10 @@ class ParseUtilTest {
         // A discontiguous mask is not a prefix
         assertThat(ParseUtil.netmaskToPrefixLength("255.0.255.0"), is(-1));
         assertThat(ParseUtil.netmaskToPrefixLength("255.255.255.1"), is(-1));
+        // An IPv6 mask in text form takes the same path
+        assertThat(ParseUtil.netmaskToPrefixLength("ffff:ffff::"), is(32));
+        assertThat(ParseUtil.netmaskToPrefixLength("ffff:ffff:8000::"), is(33));
+        assertThat(ParseUtil.netmaskToPrefixLength("::"), is(0));
         // Not a mask at all
         assertThat(ParseUtil.netmaskToPrefixLength(""), is(-1));
         assertThat(ParseUtil.netmaskToPrefixLength("Mask"), is(-1));

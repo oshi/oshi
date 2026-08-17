@@ -261,6 +261,59 @@ class NetstatRouteTest {
     }
 
     /**
+     * OpenBSD is the only BSD publishing a route metric, in a Prio column, and the only platform whose interface sits
+     * in the eighth column. This layout is taken from the netstat documentation rather than captured, since no OpenBSD
+     * host was available; the header scan means a wrong default index self-corrects.
+     */
+    @Test
+    void testParseOpenBsdPrioMetric() {
+        List<String> openBsd = Arrays.asList("Routing tables", "", "Internet:",
+                "Destination        Gateway            Flags   Refs      Use   Mtu  Prio Iface",
+                "default            192.168.1.1        UGS        0        8     -     8 em0",
+                "224/4              127.0.0.1          URS        0        0 32768     8 lo0");
+        List<IPRoute> routes = NetstatRoute.parseRoutes(openBsd, false, 7, NO_INDICES);
+        assertThat(routes, hasSize(2));
+        assertThat(routes.get(0).getDestination(), is(new byte[] { 0, 0, 0, 0 }));
+        assertThat(routes.get(0).isGateway(), is(true));
+        assertThat(routes.get(0).getGateway(), is(new byte[] { -64, -88, 1, 1 }));
+        assertThat("The header should locate Iface in the eighth column", routes.get(0).getInterfaceName(), is("em0"));
+        assertThat("OpenBSD publishes a metric where the other BSDs do not", routes.get(0).getMetric(), is(8L));
+        assertThat(routes.get(1).getDestination(), is(new byte[] { -32, 0, 0, 0 }));
+        assertThat(routes.get(1).getPrefixLength(), is(4));
+        assertThat(routes.get(1).getMetric(), is(8L));
+    }
+
+    /** A header naming no interface column at all leaves the caller's default index in place. */
+    @Test
+    void testHeaderWithoutAnInterfaceColumn() {
+        List<String> lines = Arrays.asList("Destination        Gateway            Flags",
+                "default            10.0.0.1           UGSc                  en0");
+        List<IPRoute> routes = NetstatRoute.parseRoutes(lines, false, 3, NO_INDICES);
+        assertThat(routes, hasSize(1));
+        assertThat(routes.get(0).getInterfaceName(), is("en0"));
+    }
+
+    /** A line with enough columns but no flags field is not a route. */
+    @Test
+    void testLineWithoutAFlagsColumnIsSkipped() {
+        List<String> lines = Arrays.asList("10.0.0.1           10.0.0.254         1198                  en0",
+                "default            10.0.0.1           UGSc                  en0");
+        List<IPRoute> routes = NetstatRoute.parseRoutes(lines, false, 3, NO_INDICES);
+        assertThat("Only the row whose third column is a flags field should parse", routes, hasSize(1));
+        assertThat(routes.get(0).getDestination(), is(new byte[] { 0, 0, 0, 0 }));
+    }
+
+    /** A row shorter than the interface column reports no name rather than throwing. */
+    @Test
+    void testRowShorterThanTheInterfaceColumn() {
+        List<IPRoute> routes = NetstatRoute.parseRoutes(Collections.singletonList("default   10.0.0.1   UGSc"), false,
+                3, NO_INDICES);
+        assertThat(routes, hasSize(1));
+        assertThat(routes.get(0).getInterfaceName(), is(""));
+        assertThat(routes.get(0).getInterfaceIndex(), is(-1));
+    }
+
+    /**
      * Without a recognizable header the caller's default index is used, and a wrong index must degrade to an empty name
      * rather than reporting a reference count as an interface.
      */

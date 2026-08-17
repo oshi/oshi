@@ -47,6 +47,12 @@ class RouteTableTest {
             "20010db8112233440000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo", //
             "ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000002 00000000 00000001     eth0");
 
+    // Verbatim /proc/net/ipv6_route from a container given an IPv6 default route, which the capture above had none of.
+    // The matching `ip -6 route show` reported:
+    // default via 2001:db8::1 dev eth0 metric 1024
+    private static final List<String> PROC_NET_IPV6_ROUTE_GATEWAY = Collections.singletonList(
+            "00000000000000000000000000000000 00 00000000000000000000000000000000 00 20010db8000000000000000000000001 00000400 00000001 00000000 00000003     eth0");
+
     @Test
     void testParseIpv4Routes() {
         List<IPRoute> routes = RouteTable.parseIpv4Routes(PROC_NET_ROUTE, NO_INDICES);
@@ -110,6 +116,20 @@ class RouteTableTest {
     }
 
     @Test
+    void testParseIpv6GatewayRoute() {
+        List<IPRoute> routes = RouteTable.parseIpv6Routes(PROC_NET_IPV6_ROUTE_GATEWAY, NO_INDICES);
+        assertThat(routes, hasSize(1));
+        IPRoute def = routes.get(0);
+        assertThat(def.getDestination(), is(new byte[16]));
+        assertThat(def.getPrefixLength(), is(0));
+        assertThat("Flags 00000003 carries RTF_GATEWAY", def.isGateway(), is(true));
+        assertThat(def.getGateway(), is(ParseUtil.parseIpv6AddressToBytes("2001:db8::1")));
+        assertThat("Metric is hex: 00000400 is 1024", def.getMetric(), is(1024L));
+        assertThat(def.getInterfaceName(), is("eth0"));
+        assertThat(def.isHost(), is(false));
+    }
+
+    @Test
     void testInterfaceIndexLookup() {
         Map<String, Integer> indices = new HashMap<>();
         indices.put("eth0", 2);
@@ -123,5 +143,12 @@ class RouteTableTest {
         assertThat(RouteTable.parseIpv6Routes(Collections.emptyList(), NO_INDICES), hasSize(0));
         assertThat(RouteTable.parseIpv4Routes(Collections.singletonList("truncated\tline"), NO_INDICES), hasSize(0));
         assertThat(RouteTable.parseIpv6Routes(Collections.singletonList("not hex at all"), NO_INDICES), hasSize(0));
+        // A line with the right number of columns but a destination that is not thirty-two hex digits. This is how the
+        // IPv6 file rejects anything unexpected, since unlike the IPv4 one it has no header to skip. The token is
+        // exactly thirty-two characters so that it is rejected for not being hex rather than for its length.
+        assertThat(RouteTable.parseIpv6Routes(
+                Collections.singletonList(
+                        "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz 40 0 00 0 00000100 00000001 00000000 00000001 eth0"),
+                NO_INDICES), hasSize(0));
     }
 }
