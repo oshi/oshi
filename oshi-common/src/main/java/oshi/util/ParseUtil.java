@@ -1439,8 +1439,11 @@ public final class ParseUtil {
      * <p>
      * Recognizes the literal {@code default}, an address with an explicit prefix ({@code 2601:601:d47c:3090::/64}), an
      * abbreviated network with an explicit prefix ({@code 10.1/23}), and a bare address ({@code 10.0.0.1},
-     * {@code ::1%1}). A bare address states no prefix length; the caller supplies one from the route's flags or from a
-     * separate netmask column.
+     * {@code ::1%1}).
+     * <p>
+     * An IPv4 network abbreviated to fewer than four octets and carrying no explicit prefix, as DragonFly BSD prints
+     * {@code 192.168.122} for a {@code /24}, states its prefix through the octet count. A bare four-octet address
+     * states no prefix length; the caller supplies one from the route's flags or from a separate netmask column.
      *
      * @param destination the destination token
      * @param ipv6        whether the token belongs to an IPv6 routing table, which decides how {@code default} is
@@ -1465,6 +1468,20 @@ public final class ParseUtil {
             bytes = parseIpv6AddressToBytes(token);
         } else {
             bytes = parseIpv4AddressToBytes(token);
+            // Infer only when the token stated no prefix at all. Testing the separator rather than the parsed value
+            // matters because an unparseable suffix such as "10/foo" also yields -1, and that is malformed input which
+            // must stay unknown rather than silently acquiring an inferred prefix.
+            if (slash < 0 && bytes.length == 4) {
+                // An abbreviated IPv4 network states its prefix by how many octets it prints. netstat drops the
+                // trailing zero octets and the explicit length together, but only when the mask falls on an octet
+                // boundary, so "192.168.122" can only mean /24. A mask that does not is printed in full, as "10.1/23".
+                // Four octets state nothing: a host route takes its width from the H flag, and Solaris prints whole
+                // network addresses whose mask arrives in a separate column, so inferring /32 there would be wrong.
+                int octets = countChar(token, '.') + 1;
+                if (octets < 4) {
+                    prefix = octets * 8;
+                }
+            }
         }
         if (bytes.length == 0) {
             return new Pair<>(EMPTY_BYTE_ARRAY, -1);

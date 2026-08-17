@@ -26,7 +26,7 @@
 * [#3615](https://github.com/oshi/oshi/pull/3615): Add `ParseUtil.getStringValueOrEmpty`, which normalizes a nullable string to `""`, alongside the existing `getStringValueOrUnknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3641](https://github.com/oshi/oshi/pull/3641): Add `HardwareAbstractionLayer.getVirtualization()`, which identifies the hypervisor, container runtime or cloud platform hosting the system, promoting the long-standing `DetectVM` demo into the library. It returns an `Optional<String>` naming the platform, or an empty `Optional` when no signature matched - which means undetermined, not confirmed bare metal. Detection reads the processor's CPUID vendor string, the computer system's manufacturer and model, and network interface MAC address OUIs, in that order. The signature tables ship as the `oshi.vm.properties` and `oshi.vmmacaddr.properties` resources; placing a file of either name earlier on the classpath replaces that table, so you can teach OSHI about a platform it does not know - [@dbwiddis](https://github.com/dbwiddis).
 
-* [#3646](https://github.com/oshi/oshi/pull/3646): Add `NetworkParams.getRoutes()`, which returns the operating system's routing table as a list of `IPRoute` objects covering both address families - [@dbwiddis](https://github.com/dbwiddis).
+* [#3646](https://github.com/oshi/oshi/pull/3646), [#3647](https://github.com/oshi/oshi/pull/3647): Add `NetworkParams.getRoutes()`, which returns the operating system's routing table as a list of `IPRoute` objects covering both address families - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Behavior Changes
 
