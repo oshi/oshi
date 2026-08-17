@@ -4,9 +4,7 @@
  */
 package oshi.software.common.os.unix.openbsd;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
@@ -47,11 +45,8 @@ public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public List<NetworkParams.IPRoute> getRoutes() {
-        Map<String, Integer> ifIndexByName = queryInterfaceIndexByName();
-        List<NetworkParams.IPRoute> routes = new ArrayList<>(
-                NetstatRoute.queryRoutes("netstat -rn -f inet", false, IF_NAME_INDEX, ifIndexByName));
-        routes.addAll(NetstatRoute.queryRoutes("netstat -rn -f inet6", true, IF_NAME_INDEX, ifIndexByName));
-        return routes;
+        return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 
     /**

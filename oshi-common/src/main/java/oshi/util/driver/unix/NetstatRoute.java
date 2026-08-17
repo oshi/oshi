@@ -41,6 +41,26 @@ public final class NetstatRoute {
     }
 
     /**
+     * Queries both address families from a BSD-derived {@code netstat} and returns their routes as one list.
+     * <p>
+     * Each family is queried with its own explicitly-scoped command rather than reading a combined table, which removes
+     * any need to detect the section banner separating the two halves and makes the literal {@code default}
+     * unambiguous.
+     *
+     * @param ipv4Command        the command listing the IPv4 table
+     * @param ipv6Command        the command listing the IPv6 table
+     * @param defaultIfNameIndex the token index of the interface name, used when no column header is recognized
+     * @param ifIndexByName      a map of interface name to index; an empty map reports every index as -1
+     * @return the parsed routes for both families
+     */
+    public static List<IPRoute> queryRoutes(String ipv4Command, String ipv6Command, int defaultIfNameIndex,
+            Map<String, Integer> ifIndexByName) {
+        List<IPRoute> routes = new ArrayList<>(queryRoutes(ipv4Command, false, defaultIfNameIndex, ifIndexByName));
+        routes.addAll(queryRoutes(ipv6Command, true, defaultIfNameIndex, ifIndexByName));
+        return routes;
+    }
+
+    /**
      * Queries and parses a BSD-derived {@code netstat} routing table.
      *
      * @param command            the command to run, which must name a single address family
@@ -122,6 +142,21 @@ public final class NetstatRoute {
         return new IPRoute(destination, prefixLength, gateway, interfaceName,
                 indexOfInterface(interfaceName, ifIndexByName), metric, isGateway,
                 hostFlag || prefixLength == destination.length * 8);
+    }
+
+    /**
+     * Queries both address families from a Solaris {@code netstat -rnv} and returns their routes as one list.
+     *
+     * @param ipv4Command   the command listing the IPv4 table
+     * @param ipv6Command   the command listing the IPv6 table
+     * @param ifIndexByName a map of interface name to index; an empty map reports every index as -1
+     * @return the parsed routes for both families
+     */
+    public static List<IPRoute> querySolarisRoutes(String ipv4Command, String ipv6Command,
+            Map<String, Integer> ifIndexByName) {
+        List<IPRoute> routes = new ArrayList<>(querySolarisRoutes(ipv4Command, false, ifIndexByName));
+        routes.addAll(querySolarisRoutes(ipv6Command, true, ifIndexByName));
+        return routes;
     }
 
     /**

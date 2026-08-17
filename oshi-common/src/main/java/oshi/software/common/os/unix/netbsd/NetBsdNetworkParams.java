@@ -4,9 +4,7 @@
  */
 package oshi.software.common.os.unix.netbsd;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
@@ -35,10 +33,7 @@ public class NetBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public List<NetworkParams.IPRoute> getRoutes() {
-        Map<String, Integer> ifIndexByName = queryInterfaceIndexByName();
-        List<NetworkParams.IPRoute> routes = new ArrayList<>(
-                NetstatRoute.queryRoutes("netstat -rn -f inet", false, IF_NAME_INDEX, ifIndexByName));
-        routes.addAll(NetstatRoute.queryRoutes("netstat -rn -f inet6", true, IF_NAME_INDEX, ifIndexByName));
-        return routes;
+        return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 }

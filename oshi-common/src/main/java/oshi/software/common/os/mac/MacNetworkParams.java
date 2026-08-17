@@ -4,9 +4,7 @@
  */
 package oshi.software.common.os.mac;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
@@ -57,12 +55,7 @@ public abstract class MacNetworkParams extends AbstractNetworkParams {
 
     @Override
     public List<NetworkParams.IPRoute> getRoutes() {
-        // Selecting one family per invocation avoids having to detect the "Internet:"/"Internet6:" section banners
-        // that the combined table separates its two halves with.
-        Map<String, Integer> ifIndexByName = queryInterfaceIndexByName();
-        List<NetworkParams.IPRoute> routes = new ArrayList<>(
-                NetstatRoute.queryRoutes("netstat -rn -f inet", false, IF_NAME_INDEX, ifIndexByName));
-        routes.addAll(NetstatRoute.queryRoutes("netstat -rn -f inet6", true, IF_NAME_INDEX, ifIndexByName));
-        return routes;
+        return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 }
