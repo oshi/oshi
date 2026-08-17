@@ -104,71 +104,111 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@52f16d4534fe3edd9d9621621c238398d4d2a698 # v1
         with:
-          # The guest peaked at 1.5 GiB of virtual memory in use across a full test run, so 12288
-          # bought nothing and left only ~4 GB of the runner's 16 GB for the host, QEMU, and the
-          # runner agent. Guest-side allocation failures amid 10.5 GiB of guest-side free memory
-          # are consistent with host-side pressure, so give the host the slack instead.
+          # Sizing, not a fix for anything: the guest peaks at 1.5 GiB of virtual memory across a
+          # full test run, so 12288 bought nothing and left only ~4 GB of the runner's 16 GB for the
+          # host, QEMU, and the runner agent.
           mem: 8192
-          # Cap below the runner's core count: shrinks libumem's per-CPU arenas and
-          # the JVM common ForkJoinPool (OSHI .parallel() streams), reducing the
-          # thread fan-out that drives the native-memory OOMs.
+          # Also sizing. Two of the runner's four cores, which is what the parallelism caps below
+          # assume, and it bounds libumem's per-CPU allocator caches.
           cpu: 2
           copyback: true
-          # Reboots the guest between prepare and run, discarding the ZFS ARC that pkg install
-          # fills before the build starts. Also caches the prepared image, skipping pkg install
-          # on later runs.
-          cache-after-prepare: true
+          # This VM image is by far the largest in the matrix, and the Actions cache budget is one
+          # 10 GB pool shared with every other workflow in the repo, so caching it evicts the
+          # setup-java Maven caches that many more jobs depend on. It also buys less than it looks:
+          # the action's default cache stores a byte-identical copy of the image's public release
+          # assets (1956 MB either way), so it only trades the releases CDN for the cache CDN, and
+          # the restore itself measured 36-45 s. Prepared-image caching on top of that (which is
+          # what OpenBSD below uses, for its own reasons) would hold 2.5 GiB and additionally skip
+          # the ~2.5 min pkg install, at the cost of a stale multi-gigabyte entry every time this
+          # prepare script is edited. Not worth it here; flip disable-cache back off if the download
+          # and pkg install ever become the slow part of this matrix.
+          disable-cache: true
           prepare: |
-            # ZFS ARC defaults to ~69% of RAM and is kernel memory, so it starves allocations
-            # while swap -s still reports gigabytes free. Capping it is what stops the
-            # intermittent OOMs; /etc/system is the supported knob and applies on the reboot
-            # cache-after-prepare performs.
-            echo "set zfs:zfs_arc_max = 2147483648" >> /etc/system
             pkg install openjdk25
           run: |
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            # An uncapped run is indistinguishable from a capped one until it OOMs, so fail
-            # loudly rather than silently losing the cap.
-            ARC_CMAX=$(kstat -p zfs:0:arcstats:c_max 2>/dev/null | awk '{print $2}')
-            echo "ARC cap: arc_c_max=${ARC_CMAX} size=$(kstat -p zfs:0:arcstats:size 2>/dev/null | awk '{print $2}')"
-            if [ "$ARC_CMAX" != "2147483648" ]; then
-              echo "ERROR: ZFS ARC is not capped (expected 2147483648); /etc/system did not take"
-              grep -i arc /etc/system || echo "  (no arc lines in /etc/system)"
+            # THE FIX for the intermittent "Native memory allocation (malloc) failed" crashes that
+            # made this job fail a few percent of the time.
+            #
+            # They were never memory scarcity. They happened with ~6 GB of the guest's 8 GB free,
+            # failing allocations as small as 2,720 bytes, and every footprint knob tried against
+            # them -- a ZFS ARC cap, mem, cpu, -Xmx, MaxMetaspaceSize, ReservedCodeCacheSize,
+            # SerialGC, -Xss512k, -XX:-UseLargePages -- was verified still in place on runs that
+            # failed anyway. They are address-space collisions:
+            #
+            #   * illumos libc malloc grows the *break*. The java binary sits at 0x400000 and every
+            #     shared library at 0x7fff..., so the lowest other reservation in the address space
+            #     is the ceiling on how far the C heap can grow.
+            #   * The JVM's compressed class space wants a zero narrow-klass base, which requires a
+            #     reservation below 4 GB -- and below the 0xc0000000 compressed-oops heap, so
+            #     somewhere in the low 3 GB. JDK 25 *randomizes* where. Measured over 320 launches
+            #     on this image: uniform from 48 MB to 2864 MB, below 64 MB 0.6% of the time.
+            #   * junit-platform-maven-plugin passes --patch-module to patch test classes into the
+            #     module under test, and --patch-module disables CDS. So the oshi-common, oshi-core
+            #     and oshi-core-ffm test JVMs map no shared archive, and get that lone randomized
+            #     low reservation on every single run.
+            #
+            # Six JVMs per build land in the break's path, each with a ~0.6% chance of a ceiling too
+            # low to build under, which is exactly the failure rate that was observed. No JVM flag
+            # can move the reservation: of all 897 flags under both unlocks the only class space
+            # knob is CompressedClassSpaceSize, and -XX:-UseCompressedClassPointers was deprecated
+            # in 25.0. CompressedClassSpaceSize=3g does push the reservation above 4 GB, but only
+            # ~91% of the time, so it is not a fix either.
+            #
+            # So make the placement irrelevant instead. libumem's mmap backend never touches the
+            # break, and mmap is placed clear of it. Measured 0 failures in 64 jobs of a 16-way
+            # dispatch harness, against 3 in 16 in the same harness without it. backend=mmap is the
+            # load-bearing half: libumem's *default* heap source is sbrk, exactly like libc's.
+            export LD_PRELOAD_64=libumem.so.1
+            export UMEM_OPTIONS=backend=mmap
+            # A green run leaves no crash dump to confirm the preload from, and silently losing it
+            # would just restore the old failure rate, so check it directly. LD_PRELOAD_64 is
+            # inherited by every child process, so proving it here proves it for the forked test
+            # JVMs too.
+            if LD_DEBUG=files java -version 2>&1 | grep -q libumem; then
+              echo "libumem preloaded, ${UMEM_OPTIONS}"
+            else
+              echo "ERROR: libumem was not preloaded; the malloc fix is not in effect"
               exit 1
             fi
-            # illumos OOMs here are native memory (thread stacks + GC/JIT/metaspace),
-            # not Java heap. Cap every native pool that grows with thread fan-out and
-            # use SerialGC (no parallel GC threads/structures) to keep the footprint flat.
-            # _JAVA_OPTIONS reaches the Maven JVM and the forked test JVM alike.
-            export _JAVA_OPTIONS="-Xmx1g -Xss512k -XX:MaxMetaspaceSize=256m -XX:ReservedCodeCacheSize=128m -XX:+UseSerialGC"
+            # Back to the long-standing heap cap and nothing more. _JAVA_OPTIONS reaches the Maven
+            # JVM and the forked test JVMs alike.
+            export _JAVA_OPTIONS="-Xmx1g"
             java -version
-            # OpenIndiana-only: override the WORKER_THREAD_POOL default to a
-            # single-carrier fixed FORK_JOIN_POOL. illumos libumem reserves
-            # per-CPU arenas, and vthread-style unbounded fan-out on blocking
-            # JNA exec calls trips Native memory allocation OOMs.
-            ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
-              -Djunit.parallel.executor-service=FORK_JOIN_POOL \
-              -Djunit.parallel.strategy=fixed \
-              -Djunit.parallel.fixed.parallelism=1 \
-              -Djunit.parallel.fixed.max-pool-size=2
-      # The native-memory OOMs here are intermittent, and the JVM writes down exactly why in
-      # hs_err_pid*.log: rlimits, the full virtual memory map, reserved vs committed per pool, and
-      # swap state at the instant of failure. copyback brings it to the runner workspace, where it
-      # was then discarded with the job -- so every past investigation started from scratch.
-      # console-launcher.cmd.log is the forked test JVM's actual command line, which is the only
-      # direct evidence of what options that JVM (as opposed to Maven's) really received.
-      - name: Upload crash dumps
-        if: failure()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: openindiana-crash-dumps
-          if-no-files-found: ignore
-          retention-days: 14
-          path: |
-            **/hs_err_pid*.log
-            **/replay_pid*.log
-            **/target/junit-platform/console-launcher.*.log
+            # OpenIndiana-only: override the WORKER_THREAD_POOL default to a single-carrier fixed
+            # FORK_JOIN_POOL, holding test concurrency to one on a two-core guest.
+            #
+            # The `if` form rather than `cmd; rc=$?` so this stays correct whether or not the
+            # harness runs this script under `set -e`.
+            if ./mvnw clean test -Paggregate-coverage -B -Dmaven.gitcommitid.skip=true \
+                -Djunit.parallel.executor-service=FORK_JOIN_POOL \
+                -Djunit.parallel.strategy=fixed \
+                -Djunit.parallel.fixed.parallelism=1 \
+                -Djunit.parallel.fixed.max-pool-size=2; then
+              MVN_RC=0
+            else
+              MVN_RC=$?
+            fi
+            if [ "$MVN_RC" -ne 0 ]; then
+              # Dump any crash report from inside the guest, because nothing outside it can. When
+              # this script exits nonzero the step fails with "ssh exited with code 1" and the job
+              # goes straight to killing qemu, so `copyback` never runs and the guest filesystem is
+              # discarded before any later step -- including an `if: failure()` upload -- could see
+              # the file. Verified: such a step reported "No files were found".
+              #
+              # Whole file, not head or tail: the failure reason is at the top, but the rlimits and
+              # the physical and swap totals are in the S Y S T E M section at the very bottom.
+              echo "===== swap -s ====="; swap -s || true
+              find . -name 'hs_err_pid*.log' -type f | while read -r f; do
+                echo "===== $f ====="; cat "$f"
+              done
+            fi
+            exit $MVN_RC
+      # No crash-dump upload step here, because one cannot work: a dump only exists when the build
+      # failed, and a failed build makes the step above exit nonzero, which stops `copyback` from
+      # ever running -- so the guest and the dump are destroyed before an `if: failure()` step could
+      # reach them. The run: script cats the dump inside the guest instead.
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
