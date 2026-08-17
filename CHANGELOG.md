@@ -26,8 +26,12 @@
 * [#3615](https://github.com/oshi/oshi/pull/3615): Add `ParseUtil.getStringValueOrEmpty`, which normalizes a nullable string to `""`, alongside the existing `getStringValueOrUnknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3641](https://github.com/oshi/oshi/pull/3641): Add `HardwareAbstractionLayer.getVirtualization()`, which identifies the hypervisor, container runtime or cloud platform hosting the system, promoting the long-standing `DetectVM` demo into the library. It returns an `Optional<String>` naming the platform, or an empty `Optional` when no signature matched - which means undetermined, not confirmed bare metal. Detection reads the processor's CPUID vendor string, the computer system's manufacturer and model, and network interface MAC address OUIs, in that order. The signature tables ship as the `oshi.vm.properties` and `oshi.vmmacaddr.properties` resources; placing a file of either name earlier on the classpath replaces that table, so you can teach OSHI about a platform it does not know - [@dbwiddis](https://github.com/dbwiddis).
 
+* [#3643](https://github.com/oshi/oshi/pull/3643): Add `NetworkParams.getRoutes()`, which returns the operating system's routing table as a list of `IPRoute` objects covering both address families - [@dbwiddis](https://github.com/dbwiddis).
+
 ##### Behavior Changes
 
+* [#3643](https://github.com/oshi/oshi/pull/3643): `NetworkParams.getIpv6DefaultGateway()` on OpenBSD returns the IPv6 gateway. It previously omitted the `-inet6` flag and returned the IPv4 gateway - [@dbwiddis](https://github.com/dbwiddis).
+* [#3643](https://github.com/oshi/oshi/pull/3643): `NetworkParams` default gateways on AIX return an empty string when no default route is configured, matching the documented contract. They previously returned `Constants.UNKNOWN` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): Stating each nullability contract explicitly during the JSpecify sweep surfaced implementations that did not honor it. Values that were documented as unreadable but returned `null` now return the sentinel the rest of the API uses. The following user-facing behavior changed - [@dbwiddis](https://github.com/dbwiddis):
   * `DisplayInfo`'s preferred resolution, model and product serial number return an empty string rather than `null`
     for a synthesized display such as the Apple Silicon built-in panel.
