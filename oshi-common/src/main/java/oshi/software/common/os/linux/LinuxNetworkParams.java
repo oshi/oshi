@@ -4,12 +4,16 @@
  */
 package oshi.software.common.os.linux;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.proc.RouteTable;
 
 /**
  * Linux network parameters. Provides default gateway implementations via command line. Subclasses provide
@@ -74,5 +78,15 @@ public abstract class LinuxNetworkParams extends AbstractNetworkParams {
             }
         }
         return gateway;
+    }
+
+    @Override
+    public List<NetworkParams.IPRoute> getRoutes() {
+        // /proc and /sys are kernel interfaces rather than real disk, so reading them is cheaper than the process
+        // spawn the route command costs, and is not affected by net-tools being absent.
+        Map<String, Integer> ifIndexByName = queryInterfaceIndexByName();
+        List<NetworkParams.IPRoute> routes = new ArrayList<>(RouteTable.queryIpv4Routes(ifIndexByName));
+        routes.addAll(RouteTable.queryIpv6Routes(ifIndexByName));
+        return routes;
     }
 }
