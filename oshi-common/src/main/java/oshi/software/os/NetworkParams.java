@@ -13,6 +13,7 @@ import java.util.List;
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.hardware.NetworkIF;
 
 /**
  * Provides network parameters of the running operating system, including the hostname, domain name, DNS server
@@ -183,8 +184,7 @@ public interface NetworkParams {
         }
 
         /**
-         * Gets the index of the interface traffic matching this route leaves by, matching
-         * {@link oshi.hardware.NetworkIF#getIndex()}.
+         * Gets the index of the interface traffic matching this route leaves by, matching {@link NetworkIF#getIndex()}.
          *
          * @return The interface index, or -1 if it could not be determined.
          */
