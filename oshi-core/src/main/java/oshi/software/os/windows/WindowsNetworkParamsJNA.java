@@ -6,6 +6,7 @@ package oshi.software.os.windows;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -13,7 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.platform.win32.IPHlpAPI;
+import com.sun.jna.Pointer;
+import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
 import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
@@ -23,7 +25,12 @@ import com.sun.jna.platform.win32.WinError;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.jna.ByRef.CloseablePointerByReference;
+import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.MIB_IPFORWARD_ROW2;
+import oshi.jna.platform.windows.IPHlpAPI.SOCKADDR_INET;
 import oshi.software.common.os.windows.WindowsNetworkParams;
+import oshi.util.ParseUtil;
 
 /**
  * WindowsNetworkParamsJNA class.
@@ -89,5 +96,57 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
         } catch (Win32Exception e) {
             return super.getHostName();
         }
+    }
+
+    @Override
+    protected List<RouteRow> queryRouteRows() {
+        try (CloseablePointerByReference tableRef = new CloseablePointerByReference()) {
+            int ret = IPHlpAPI.INSTANCE.GetIpForwardTable2(IPHlpAPI.AF_UNSPEC, tableRef);
+            if (ret != WinError.NO_ERROR) {
+                LOG.error("Failed to get the IP forward table. Error code: {}", ret);
+                return new ArrayList<>();
+            }
+            Pointer table = tableRef.getValue();
+            try {
+                return readRows(table);
+            } finally {
+                IPHlpAPI.INSTANCE.FreeMibTable(table);
+            }
+        }
+    }
+
+    private static List<RouteRow> readRows(Pointer table) {
+        int numEntries = table.getInt(0);
+        if (numEntries <= 0) {
+            return new ArrayList<>();
+        }
+        // MIB_IPFORWARD_ROW2 is 8-byte aligned because NET_LUID is a ULONG64, so the row array begins at offset 8
+        // rather than immediately after the 4-byte NumEntries. Let JNA compute the row size rather than hardcoding
+        // it, so this stays correct if the structure is ever remapped.
+        int rowSize = new MIB_IPFORWARD_ROW2().size();
+        List<RouteRow> rows = new ArrayList<>(numEntries);
+        for (int i = 0; i < numEntries; i++) {
+            MIB_IPFORWARD_ROW2 row = Structure.newInstance(MIB_IPFORWARD_ROW2.class,
+                    table.share(8L + (long) i * rowSize));
+            row.read();
+            RouteRow out = new RouteRow();
+            out.destination = addressBytes(row.DestinationPrefix.Prefix);
+            out.prefixLength = row.DestinationPrefix.PrefixLength & 0xff;
+            out.nextHop = addressBytes(row.NextHop);
+            out.interfaceIndex = row.InterfaceIndex;
+            out.metric = ParseUtil.unsignedIntToLong(row.Metric);
+            rows.add(out);
+        }
+        return rows;
+    }
+
+    private static byte[] addressBytes(SOCKADDR_INET address) {
+        if (address.si_family == IPHlpAPI.AF_INET) {
+            // sin_addr occupies the same four bytes the IPv6 arm uses for sin6_flowinfo, in network order
+            return ParseUtil.parseIntToIP(address.ipv4AddrOrFlowInfo);
+        } else if (address.si_family == IPHlpAPI.AF_INET6) {
+            return Arrays.copyOf(address.ipv6Addr, 16);
+        }
+        return new byte[0];
     }
 }
