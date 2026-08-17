@@ -7,6 +7,7 @@ package oshi.comparison;
 import static org.assertj.core.api.Assertions.assertThat;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -695,6 +696,16 @@ class NativeComparisonTest {
         assertThat(ffm.getDnsServers()).isEqualTo(jna.getDnsServers());
         assertThat(ffm.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
         assertThat(ffm.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());
+        // Routing tables change far less often than connection tables, so an exact comparison is reasonable here.
+        // On Windows this is the only check that the JNA and FFM readings of MIB_IPFORWARD_ROW2 agree.
+        assertThat(routeKeys(ffm.getRoutes())).isEqualTo(routeKeys(jna.getRoutes()));
+    }
+
+    private static List<String> routeKeys(List<NetworkParams.IPRoute> routes) {
+        return routes.stream()
+                .map(r -> Arrays.toString(r.getDestination()) + "/" + r.getPrefixLength() + " via "
+                        + Arrays.toString(r.getGateway()) + " dev " + r.getInterfaceName())
+                .sorted().collect(Collectors.toList());
     }
 
     // ---- OS: Internet Protocol Stats ----

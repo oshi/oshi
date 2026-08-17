@@ -4,11 +4,15 @@
  */
 package oshi.software.common.os.unix.openbsd;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
+import oshi.util.driver.unix.NetstatRoute;
 
 /**
  * Abstract base for the OpenBSD NetworkParams. Holds the command-line gateway lookup and the host name fallback; the
@@ -16,6 +20,12 @@ import oshi.util.ExecutingCommand;
  */
 @ThreadSafe
 public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
+
+    /**
+     * OpenBSD prints the interface in the eighth column: Destination Gateway Flags Refs Use Mtu Prio Iface. The header
+     * scan corrects this if the layout differs on another release.
+     */
+    private static final int IF_NAME_INDEX = 7;
 
     @Override
     public String getHostName() {
@@ -30,7 +40,13 @@ public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -n get default"));
+        return searchGateway(ExecutingCommand.runNative("route -n get -inet6 default"));
+    }
+
+    @Override
+    public List<NetworkParams.IPRoute> getRoutes() {
+        return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 
     /**

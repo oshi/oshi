@@ -9,6 +9,7 @@ import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
@@ -135,5 +136,49 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
 
     public static int GetIfEntry2(MemorySegment pIfRow) throws Throwable {
         return (int) GetIfEntry2.invokeExact(pIfRow);
+    }
+
+    // GetIpForwardTable2 for the routing table. AF_UNSPEC returns both address families in one call.
+    public static final short AF_UNSPEC = 0;
+
+    private static final MethodHandle GetIpForwardTable2 = downcall(IPHlpAPI, "GetIpForwardTable2", JAVA_INT,
+            JAVA_SHORT, ADDRESS);
+
+    // FreeMibTable returns void, hence the null return layout, as for WTSFreeMemory.
+    private static final MethodHandle FreeMibTable = downcall(IPHlpAPI, "FreeMibTable", null, ADDRESS);
+
+    // MIB_IPFORWARD_TABLE2 { ULONG NumEntries; MIB_IPFORWARD_ROW2 Table[ANY_SIZE]; }
+    // MIB_IPFORWARD_ROW2 is 8-byte aligned because NET_LUID is a ULONG64, so the row array begins at offset 8
+    // rather than immediately after the 4-byte NumEntries.
+    public static final long OFFSET_IPFORWARD_TABLE2_NUM_ENTRIES = 0;
+    public static final long OFFSET_IPFORWARD_TABLE2_TABLE = 8;
+
+    // MIB_IPFORWARD_ROW2 is 104 bytes on 64-bit Windows.
+    // Layout: InterfaceLuid(8) InterfaceIndex(4) DestinationPrefix(32) NextHop(28) SitePrefixLength(1+3pad)
+    // ValidLifetime(4) PreferredLifetime(4) Metric(4) Protocol(4) Loopback(1) AutoconfigureAddress(1) Publish(1)
+    // Immortal(1) Age(4) Origin(4) = 104
+    //
+    // DestinationPrefix is an IP_ADDRESS_PREFIX: a SOCKADDR_INET(28) followed by a UINT8 PrefixLength, padded to 32.
+    // SOCKADDR_INET is a union of SOCKADDR_IN and SOCKADDR_IN6, 28 bytes with 4-byte alignment. Its IPv4 arm holds
+    // sin_addr at offset 4, where the IPv6 arm holds sin6_flowinfo; the IPv6 address itself is at offset 8.
+    // Unions are modelled by offset rather than MemoryLayout.unionLayout, which this codebase does not use.
+    public static final int MIB_IPFORWARD_ROW2_SIZE = 104;
+    public static final long OFFSET_ROUTE_INTERFACE_INDEX = 8;
+    public static final long OFFSET_ROUTE_DEST_FAMILY = 12;
+    public static final long OFFSET_ROUTE_DEST_IPV4 = 16;
+    public static final long OFFSET_ROUTE_DEST_IPV6 = 20;
+    public static final long OFFSET_ROUTE_PREFIX_LENGTH = 40;
+    public static final long OFFSET_ROUTE_NEXTHOP_FAMILY = 44;
+    public static final long OFFSET_ROUTE_NEXTHOP_IPV4 = 48;
+    public static final long OFFSET_ROUTE_NEXTHOP_IPV6 = 52;
+    public static final long OFFSET_ROUTE_METRIC = 84;
+
+    public static int GetIpForwardTable2(short family, MemorySegment pTable) throws Throwable {
+        return (int) GetIpForwardTable2.invokeExact(family, pTable);
+    }
+
+    public static void FreeMibTable(MemorySegment memory) throws Throwable {
+        // A void invokeExact must be a statement, not an expression, or it throws WrongMethodTypeException
+        FreeMibTable.invokeExact(memory);
     }
 }

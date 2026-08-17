@@ -8,8 +8,10 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.NetstatRoute;
 
 /**
  * Common Mac NetworkParams logic shared between the JNA and FFM implementations. The default-gateway lookups are
@@ -21,6 +23,9 @@ public abstract class MacNetworkParams extends AbstractNetworkParams {
     private static final String IPV6_ROUTE_HEADER = "Internet6:";
 
     private static final String DEFAULT_GATEWAY = "default";
+
+    /** macOS prints the interface in the fourth column: Destination Gateway Flags Netif Expire. */
+    private static final int IF_NAME_INDEX = 3;
 
     /** Default constructor. */
     protected MacNetworkParams() {
@@ -46,5 +51,11 @@ public abstract class MacNetworkParams extends AbstractNetworkParams {
             }
         }
         return "";
+    }
+
+    @Override
+    public List<NetworkParams.IPRoute> getRoutes() {
+        return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 }

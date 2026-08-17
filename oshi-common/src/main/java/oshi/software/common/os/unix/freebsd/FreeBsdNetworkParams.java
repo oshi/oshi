@@ -4,17 +4,27 @@
  */
 package oshi.software.common.os.unix.freebsd;
 
+import java.util.List;
+
 import org.jspecify.annotations.Nullable;
 
 import oshi.software.common.AbstractNetworkParams;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.NetstatRoute;
 
 /**
  * Abstract base for the FreeBSD NetworkParams. Resolves the host and domain names and the default gateways from command
  * output; the JNA and FFM subclasses supply the resolver calls.
+ * <p>
+ * DragonFly BSD uses this class too. Its {@code netstat} prints Refs and Use columns FreeBSD's does not, which the
+ * routing table parser absorbs by reading the interface column from the header rather than a fixed index.
  */
 public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
+
+    /** FreeBSD prints the interface in the fourth column: Destination Gateway Flags Netif Expire. */
+    private static final int IF_NAME_INDEX = 3;
 
     @Override
     public String getDomainName() {
@@ -35,6 +45,12 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
     @Override
     public String getIpv6DefaultGateway() {
         return searchGateway(ExecutingCommand.runNative("route -6 get default"));
+    }
+
+    @Override
+    public List<NetworkParams.IPRoute> getRoutes() {
+        return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 
     /**

@@ -447,6 +447,11 @@ public final class SystemInfoHelper {
      */
     public static void printNetworkParameters(List<String> lines, NetworkParams networkParams) {
         lines.add("Network parameters:\n " + networkParams.toString());
+        List<NetworkParams.IPRoute> routes = networkParams.getRoutes();
+        lines.add(" Routing table: " + routes.size() + " routes");
+        for (NetworkParams.IPRoute route : routes) {
+            lines.add("  " + route.toString());
+        }
     }
 
     /**

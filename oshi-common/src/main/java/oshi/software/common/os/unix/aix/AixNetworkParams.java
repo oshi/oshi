@@ -8,9 +8,10 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
-import oshi.util.Constants;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.NetstatRoute;
 
 /**
  * Abstract base for AIX NetworkParams. {@code netstat -rnf inet[6]} parsing is shared; only {@link #getHostName()}
@@ -21,6 +22,9 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
 
     /** AIX hostname maximum length, including the trailing NUL. {@code HOST_NAME_MAX = 255}. */
     protected static final int HOST_NAME_BUF_SIZE = 256;
+
+    /** AIX prints the interface in the sixth column: Destination Gateway Flags Refs Use If Exp Groups. */
+    private static final int IF_NAME_INDEX = 5;
 
     @Override
     public String getIpv4DefaultGateway() {
@@ -40,7 +44,7 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
      * Parses {@code netstat -rnf inet[6]} output to find the gateway of the {@code default} route.
      *
      * @param netstat the lines of {@code netstat -rnf inet[6]} output
-     * @return the default gateway address, or {@link Constants#UNKNOWN} if no default route is present
+     * @return the default gateway address, or an empty string if no default route is present
      */
     static String parseDefaultGateway(List<String> netstat) {
         for (String line : netstat) {
@@ -49,6 +53,12 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
                 return split[1];
             }
         }
-        return Constants.UNKNOWN;
+        return "";
+    }
+
+    @Override
+    public List<NetworkParams.IPRoute> getRoutes() {
+        return NetstatRoute.queryRoutes("netstat -rnf inet", "netstat -rnf inet6", IF_NAME_INDEX,
+                queryInterfaceIndexByName());
     }
 }
