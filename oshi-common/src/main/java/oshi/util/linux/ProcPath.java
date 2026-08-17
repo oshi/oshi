@@ -61,6 +61,10 @@ public final class ProcPath {
     public static final String PID_STATUS = PROC + "/%d/status";
     /** Path to /proc/self/stat. */
     public static final String SELF_STAT = PROC + "/self/stat";
+    /** Path to net/ipv6_route. Declared here rather than alphabetically because it derives from {@link #NET}. */
+    public static final String IPV6_ROUTE = NET + "/ipv6_route";
+    /** Path to net/route. Declared here rather than alphabetically because it derives from {@link #NET}. */
+    public static final String ROUTE = NET + "/route";
     /** Path to snmp. */
     public static final String SNMP = NET + "/snmp";
     /** Path to snmp6. */

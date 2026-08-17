@@ -5,15 +5,24 @@
 package oshi.software.common;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.regex.Pattern;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.NetworkParams;
+import oshi.util.ExceptionUtil;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
@@ -22,6 +31,9 @@ import oshi.util.ParseUtil;
  */
 @ThreadSafe
 public abstract class AbstractNetworkParams implements NetworkParams {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractNetworkParams.class);
+
     private static final Pattern SERVER_VALUE_DELIM = Pattern.compile("[ \t#;]");
 
     /**
@@ -97,6 +109,45 @@ public abstract class AbstractNetworkParams implements NetworkParams {
             }
         }
         return "";
+    }
+
+    /**
+     * Maps interface names to their indices, for the platforms whose routing table publishes only a name.
+     * <p>
+     * Enumerating the interfaces is not free, so callers should invoke this once per routing table read rather than
+     * once per route.
+     *
+     * @return a map of interface name to index, empty if the interfaces could not be enumerated
+     */
+    protected static Map<String, Integer> queryInterfaceIndexByName() {
+        Map<String, Integer> map = new HashMap<>();
+        for (NetworkInterface netIf : queryNetworkInterfaces()) {
+            map.put(netIf.getName(), netIf.getIndex());
+        }
+        return map;
+    }
+
+    /**
+     * Maps interface indices to their names, for the platforms whose routing table publishes only an index.
+     * <p>
+     * Enumerating the interfaces is not free, so callers should invoke this once per routing table read rather than
+     * once per route.
+     *
+     * @return a map of interface index to name, empty if the interfaces could not be enumerated
+     */
+    protected static Map<Integer, String> queryInterfaceNameByIndex() {
+        Map<Integer, String> map = new HashMap<>();
+        for (NetworkInterface netIf : queryNetworkInterfaces()) {
+            map.put(netIf.getIndex(), netIf.getName());
+        }
+        return map;
+    }
+
+    private static List<NetworkInterface> queryNetworkInterfaces() {
+        return ExceptionUtil.getOrDefault(() -> {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            return interfaces == null ? Collections.<NetworkInterface>emptyList() : Collections.list(interfaces);
+        }, Collections.<NetworkInterface>emptyList(), LOG, "Socket exception when retrieving interfaces");
     }
 
     @Override
