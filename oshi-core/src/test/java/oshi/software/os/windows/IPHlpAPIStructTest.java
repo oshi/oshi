@@ -52,10 +52,12 @@ class IPHlpAPIStructTest {
             buf.clear();
             buf.setLong(0, 0x1122334455667788L); // InterfaceLuid
             buf.setInt(8, 42); // OFFSET_ROUTE_INTERFACE_INDEX
-            buf.setShort(12, IPHlpAPI.AF_INET); // OFFSET_ROUTE_DEST_FAMILY
+            buf.setShort(12, (short) IPHlpAPI.AF_INET); // OFFSET_ROUTE_DEST_FAMILY
             buf.setInt(16, 0x0100007F); // OFFSET_ROUTE_DEST_IPV4
+            buf.setByte(20, (byte) 0x20); // OFFSET_ROUTE_DEST_IPV6
             buf.setByte(40, (byte) 24); // OFFSET_ROUTE_PREFIX_LENGTH
-            buf.setShort(44, IPHlpAPI.AF_INET6); // OFFSET_ROUTE_NEXTHOP_FAMILY
+            buf.setShort(44, (short) IPHlpAPI.AF_INET6); // OFFSET_ROUTE_NEXTHOP_FAMILY
+            buf.setInt(48, 0x0201A8C0); // OFFSET_ROUTE_NEXTHOP_IPV4
             buf.setByte(52, (byte) 0xfe); // OFFSET_ROUTE_NEXTHOP_IPV6
             buf.setInt(84, 256); // OFFSET_ROUTE_METRIC
 
@@ -63,14 +65,22 @@ class IPHlpAPIStructTest {
             row.read();
 
             assertThat(row.InterfaceIndex, is(42));
-            assertThat(row.DestinationPrefix.Prefix.si_family, is(IPHlpAPI.AF_INET));
+            assertThat(row.DestinationPrefix.Prefix.si_family, is((short) IPHlpAPI.AF_INET));
             assertThat(row.DestinationPrefix.Prefix.ipv4AddrOrFlowInfo, is(0x0100007F));
             assertThat("PrefixLength sits after the 28-byte union", row.DestinationPrefix.PrefixLength, is((byte) 24));
             assertThat("NextHop begins after the 32-byte IP_ADDRESS_PREFIX", row.NextHop.si_family,
-                    is(IPHlpAPI.AF_INET6));
+                    is((short) IPHlpAPI.AF_INET6));
             assertThat("The IPv6 arm's address begins 8 bytes into the union", row.NextHop.ipv6Addr[0],
                     is((byte) 0xfe));
             assertThat(row.Metric, is(256));
+
+            // Both unions carry both arms whatever the family says, so the two offsets the family selection does not
+            // exercise above are checked here. Reading them directly is what pins OFFSET_ROUTE_DEST_IPV6 and
+            // OFFSET_ROUTE_NEXTHOP_IPV4, which the backends use for the opposite family.
+            assertThat("The destination union's IPv6 arm sits at offset 20", row.DestinationPrefix.Prefix.ipv6Addr[0],
+                    is((byte) 0x20));
+            assertThat("The next hop union's IPv4 arm sits at offset 48", row.NextHop.ipv4AddrOrFlowInfo,
+                    is(0x0201A8C0));
         }
     }
 }

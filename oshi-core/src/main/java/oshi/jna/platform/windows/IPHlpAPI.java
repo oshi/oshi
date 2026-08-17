@@ -20,15 +20,6 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
 
     IPHlpAPI INSTANCE = Native.load("IPHlpAPI", IPHlpAPI.class, W32APIOptions.DEFAULT_OPTIONS);
 
-    /** Return both IPv4 and IPv6 routes from a single call. */
-    short AF_UNSPEC = 0;
-
-    /** {@code SOCKADDR_INET} address family for IPv4. */
-    short AF_INET = 2;
-
-    /** {@code SOCKADDR_INET} address family for IPv6. Note this is not the same value as on UNIX. */
-    short AF_INET6 = 23;
-
     /**
      * A union of {@code SOCKADDR_IN}, {@code SOCKADDR_IN6} and a bare {@code ADDRESS_FAMILY}, mapped as its largest arm
      * so the layout is 28 bytes with 4-byte alignment.
@@ -91,7 +82,8 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
      * Retrieves the IP route entries on the local computer. The table is allocated by the system and must be released
      * with {@link #FreeMibTable(Pointer)}.
      *
-     * @param Family {@link #AF_INET}, {@link #AF_INET6}, or {@link #AF_UNSPEC} for both
+     * @param Family the inherited {@link #AF_INET}, {@link #AF_INET6}, or {@link #AF_UNSPEC} for both, narrowed to the
+     *               {@code ADDRESS_FAMILY} this call declares
      * @param Table  receives a pointer to a {@code MIB_IPFORWARD_TABLE2}, whose {@code ULONG NumEntries} is followed by
      *               the row array. The rows are 8-byte aligned, so they begin at offset 8 rather than 4.
      * @return {@code NO_ERROR} on success

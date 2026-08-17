@@ -101,7 +101,7 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     @Override
     protected List<RouteRow> queryRouteRows() {
         try (CloseablePointerByReference tableRef = new CloseablePointerByReference()) {
-            int ret = IPHlpAPI.INSTANCE.GetIpForwardTable2(IPHlpAPI.AF_UNSPEC, tableRef);
+            int ret = IPHlpAPI.INSTANCE.GetIpForwardTable2((short) IPHlpAPI.AF_UNSPEC, tableRef);
             if (ret != WinError.NO_ERROR) {
                 LOG.error("Failed to get the IP forward table. Error code: {}", ret);
                 return new ArrayList<>();
