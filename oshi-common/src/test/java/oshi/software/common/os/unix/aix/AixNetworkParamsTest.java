@@ -12,8 +12,6 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.util.Constants;
-
 class AixNetworkParamsTest {
 
     @Test
@@ -33,11 +31,12 @@ class AixNetworkParamsTest {
         String gw = AixNetworkParams.parseDefaultGateway(Arrays.asList(//
                 "Destination      Gateway         Flags  Refs   Use  If  Exp  Groups", //
                 "127/8            127.0.0.1       U       3       0  lo0   -    -"));
-        assertThat(gw, is(Constants.UNKNOWN));
+        // The NetworkParams contract, and every other platform, reports an absent default route as an empty string
+        assertThat(gw, is(""));
     }
 
     @Test
     void testParseDefaultGatewayEmpty() {
-        assertThat(AixNetworkParams.parseDefaultGateway(Collections.emptyList()), is(Constants.UNKNOWN));
+        assertThat(AixNetworkParams.parseDefaultGateway(Collections.emptyList()), is(""));
     }
 }

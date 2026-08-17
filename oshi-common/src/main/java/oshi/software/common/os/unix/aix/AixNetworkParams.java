@@ -8,7 +8,6 @@ import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
-import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
@@ -40,7 +39,7 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
      * Parses {@code netstat -rnf inet[6]} output to find the gateway of the {@code default} route.
      *
      * @param netstat the lines of {@code netstat -rnf inet[6]} output
-     * @return the default gateway address, or {@link Constants#UNKNOWN} if no default route is present
+     * @return the default gateway address, or an empty string if no default route is present
      */
     static String parseDefaultGateway(List<String> netstat) {
         for (String line : netstat) {
@@ -49,6 +48,6 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
                 return split[1];
             }
         }
-        return Constants.UNKNOWN;
+        return "";
     }
 }
