@@ -60,6 +60,10 @@ jobs:
         id: test-nativefree-netbsd
         uses: vmactions/netbsd-vm@00081e82b14bc40114eb97f32b4455306828516b # v1
         with:
+          # Caching the base image is a slower copy of a download that happens anyway, and it
+          # spends a chunk of the repo's 10 GB cache budget that the prepared Unix images need.
+          # See the FreeBSD job in unix.yaml for the measurements.
+          disable-cache: true
           release: "10.1"
           usesh: true
           copyback: true
