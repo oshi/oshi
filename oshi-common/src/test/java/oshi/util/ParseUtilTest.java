@@ -1146,4 +1146,159 @@ class ParseUtilTest {
         assertThat(ParseUtil.decodeNulTerminated("test\0data".getBytes(StandardCharsets.US_ASCII),
                 StandardCharsets.US_ASCII), is("test"));
     }
+
+    /**
+     * Test parseIpv4AddressToBytes
+     */
+    @Test
+    void testParseIpv4AddressToBytes() {
+        assertThat(ParseUtil.parseIpv4AddressToBytes("10.0.0.1"), is(new byte[] { 10, 0, 0, 1 }));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("0.0.0.0"), is(new byte[] { 0, 0, 0, 0 }));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("255.255.255.255"), is(new byte[] { -1, -1, -1, -1 }));
+        // Abbreviated networks, as UNIX routing tables print them
+        assertThat(ParseUtil.parseIpv4AddressToBytes("10"), is(new byte[] { 10, 0, 0, 0 }));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("127"), is(new byte[] { 127, 0, 0, 0 }));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("10.1"), is(new byte[] { 10, 1, 0, 0 }));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("140.211.9"), is(new byte[] { -116, -45, 9, 0 }));
+        // Not addresses
+        assertThat(ParseUtil.parseIpv4AddressToBytes(""), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("link#14"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("Destination"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("--------------------"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("10.0.0.256"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("1.2.3.4.5"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("10."), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("10..1"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("-1.2.3.4"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv4AddressToBytes("0:11:32:c5:e:9b"), is(new byte[0]));
+    }
+
+    /**
+     * Test parseIpv6AddressToBytes
+     */
+    @Test
+    void testParseIpv6AddressToBytes() {
+        assertThat(ParseUtil.parseIpv6AddressToBytes("::"), is(new byte[16]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("::1"),
+                is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fe80::"),
+                is(new byte[] { -2, -128, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fe80::420f:c1ff:fecb:2a97"),
+                is(new byte[] { -2, -128, 0, 0, 0, 0, 0, 0, 66, 15, -63, -1, -2, -53, 42, -105 }));
+        // Uncompressed, all eight groups present
+        assertThat(ParseUtil.parseIpv6AddressToBytes("2601:601:d47c:3090:211:32ff:fec5:e9b"),
+                is(new byte[] { 38, 1, 6, 1, -44, 124, 48, -112, 2, 17, 50, -1, -2, -59, 14, -101 }));
+        // A trailing dotted quad stays sixteen bytes rather than collapsing to an IPv4 address
+        assertThat(ParseUtil.parseIpv6AddressToBytes("::ffff:1.2.3.4"),
+                is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 1, 2, 3, 4 }));
+        // Zone suffixes are stripped, numeric as AIX prints them and named as macOS does
+        assertThat(ParseUtil.parseIpv6AddressToBytes("::1%1"), is(ParseUtil.parseIpv6AddressToBytes("::1")));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fe80::%utun0"), is(ParseUtil.parseIpv6AddressToBytes("fe80::")));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fe80::420f:c1ff:fecb:2a97%en0"),
+                is(ParseUtil.parseIpv6AddressToBytes("fe80::420f:c1ff:fecb:2a97")));
+        // Unpadded MAC addresses from a macOS gateway column must not parse as IPv6
+        assertThat(ParseUtil.parseIpv6AddressToBytes("0:11:32:c5:e:9b"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("40:f:c1:cb:2a:97"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("d4:80:8b:1e:6b:b9"), is(new byte[0]));
+        // Other non-addresses
+        assertThat(ParseUtil.parseIpv6AddressToBytes(""), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("link#14"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("10.0.0.1"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1:2:3:4:5:6:7:8:9"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1::2::3"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fe80:::1"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("fffff::1"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("::ffff:1.2.3"), is(new byte[0]));
+    }
+
+    /**
+     * Test parseRouteDestination
+     */
+    @Test
+    void testParseRouteDestination() {
+        // The literal default, whose family the caller supplies
+        assertThat(ParseUtil.parseRouteDestination("default", false).getA(), is(new byte[] { 0, 0, 0, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("default", false).getB(), is(0));
+        assertThat(ParseUtil.parseRouteDestination("default", true).getA(), is(new byte[16]));
+        assertThat(ParseUtil.parseRouteDestination("default", true).getB(), is(0));
+        // Abbreviated network with an explicit prefix, as macOS and AIX print
+        assertThat(ParseUtil.parseRouteDestination("10/24", false).getA(), is(new byte[] { 10, 0, 0, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("10/24", false).getB(), is(24));
+        assertThat(ParseUtil.parseRouteDestination("127/8", false).getA(), is(new byte[] { 127, 0, 0, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("127/8", false).getB(), is(8));
+        assertThat(ParseUtil.parseRouteDestination("10.1/23", false).getA(), is(new byte[] { 10, 1, 0, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("10.1/23", false).getB(), is(23));
+        assertThat(ParseUtil.parseRouteDestination("140.211.9/24", false).getA(), is(new byte[] { -116, -45, 9, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("140.211.9/24", false).getB(), is(24));
+        // A bare address states no prefix; the caller decides from the flags or a netmask column
+        assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getA(), is(new byte[] { 10, 0, 0, 1 }));
+        assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("::1%1", true).getB(), is(-1));
+        // IPv6 with an inline prefix
+        assertThat(ParseUtil.parseRouteDestination("fe80::/10", true).getB(), is(10));
+        assertThat(ParseUtil.parseRouteDestination("2601:601:d47c:3090::/64", true).getB(), is(64));
+        // A prefix wider than the address is clamped
+        assertThat(ParseUtil.parseRouteDestination("10.0.0.1/99", false).getB(), is(32));
+        // Header, banner and separator tokens are not addresses, which is how they are skipped
+        assertThat(ParseUtil.parseRouteDestination("Destination", false).getA(), is(new byte[0]));
+        assertThat(ParseUtil.parseRouteDestination("Destination", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("Destination/Mask", true).getA(), is(new byte[0]));
+        assertThat(ParseUtil.parseRouteDestination("--------------------", false).getA(), is(new byte[0]));
+        assertThat(ParseUtil.parseRouteDestination("Routing", false).getA(), is(new byte[0]));
+        assertThat(ParseUtil.parseRouteDestination("IRE", false).getA(), is(new byte[0]));
+        assertThat(ParseUtil.parseRouteDestination("Table:", false).getA(), is(new byte[0]));
+        assertThat(ParseUtil.parseRouteDestination("", false).getA(), is(new byte[0]));
+    }
+
+    /**
+     * Test netmaskToPrefixLength
+     */
+    @Test
+    void testNetmaskToPrefixLength() {
+        assertThat(ParseUtil.netmaskToPrefixLength("255.255.255.255"), is(32));
+        assertThat(ParseUtil.netmaskToPrefixLength("255.255.255.248"), is(29));
+        assertThat(ParseUtil.netmaskToPrefixLength("255.255.255.0"), is(24));
+        assertThat(ParseUtil.netmaskToPrefixLength("255.255.254.0"), is(23));
+        assertThat(ParseUtil.netmaskToPrefixLength("255.0.0.0"), is(8));
+        assertThat(ParseUtil.netmaskToPrefixLength("0.0.0.0"), is(0));
+        // A discontiguous mask is not a prefix
+        assertThat(ParseUtil.netmaskToPrefixLength("255.0.255.0"), is(-1));
+        assertThat(ParseUtil.netmaskToPrefixLength("255.255.255.1"), is(-1));
+        // Not a mask at all
+        assertThat(ParseUtil.netmaskToPrefixLength(""), is(-1));
+        assertThat(ParseUtil.netmaskToPrefixLength("Mask"), is(-1));
+        assertThat(ParseUtil.netmaskToPrefixLength(new byte[0]), is(-1));
+        // Byte form, as Linux /proc/net/route supplies after hex decoding
+        assertThat(ParseUtil.netmaskToPrefixLength(new byte[] { -1, -1, -1, 0 }), is(24));
+        assertThat(ParseUtil.netmaskToPrefixLength(new byte[16]), is(0));
+    }
+
+    /**
+     * Test isRouteFlags
+     */
+    @Test
+    void testIsRouteFlags() {
+        // Real flag fields from macOS, AIX and Solaris output
+        assertThat(ParseUtil.isRouteFlags("U"), is(true));
+        assertThat(ParseUtil.isRouteFlags("UG"), is(true));
+        assertThat(ParseUtil.isRouteFlags("UH"), is(true));
+        assertThat(ParseUtil.isRouteFlags("UHSb"), is(true));
+        assertThat(ParseUtil.isRouteFlags("UGHS"), is(true));
+        assertThat(ParseUtil.isRouteFlags("UGScg"), is(true));
+        assertThat(ParseUtil.isRouteFlags("UHLWIir"), is(true));
+        // Columns a right-to-left scan passes on its way to the flags
+        assertThat(ParseUtil.isRouteFlags("0"), is(false));
+        assertThat(ParseUtil.isRouteFlags("1500"), is(false));
+        assertThat(ParseUtil.isRouteFlags("5666596"), is(false));
+        assertThat(ParseUtil.isRouteFlags("lo0"), is(false));
+        assertThat(ParseUtil.isRouteFlags("net0"), is(false));
+        assertThat(ParseUtil.isRouteFlags("en1"), is(false));
+        // Trailing decoration and separators
+        assertThat(ParseUtil.isRouteFlags(""), is(false));
+        assertThat(ParseUtil.isRouteFlags("-"), is(false));
+        assertThat(ParseUtil.isRouteFlags("=>"), is(false));
+        assertThat(ParseUtil.isRouteFlags("!"), is(false));
+        assertThat(ParseUtil.isRouteFlags("129.70.163.177"), is(false));
+        assertThat(ParseUtil.isRouteFlags("abcdefghijklm"), is(false));
+    }
 }

@@ -125,6 +125,10 @@ public final class ParseUtil {
     // CHECKSTYLE:OFF ConstantName - lowercase names on these are public API and cannot be renamed
     private static final Map<String, Long> multipliers;
 
+    // Shared "no address" return for the address parsers. A zero-length array has no state to mutate, so one
+    // instance is safe to hand out repeatedly.
+    private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
+
     // PDH timestamps are 1601 epoch, local time
     // Constants to convert to UTC millis
     private static final long EPOCH_DIFF = 11_644_473_600_000L;
@@ -1290,6 +1294,259 @@ public final class ParseUtil {
             // Shouldn't happen with length 4 or 16
             return Constants.UNKNOWN;
         }
+    }
+
+    /**
+     * Parses an IPv4 address in dotted-quad notation, accepting the abbreviated form UNIX routing tables use, in which
+     * trailing zero octets are omitted, so that {@code 127} means {@code 127.0.0.0}, {@code 10.1} means
+     * {@code 10.1.0.0} and {@code 140.211.9} means {@code 140.211.9.0}.
+     *
+     * @param address the address text, with any {@code /prefix} suffix already removed
+     * @return the four address bytes, or an empty array if the text is not one to four dot-separated decimal octets in
+     *         the range 0 to 255
+     */
+    public static byte[] parseIpv4AddressToBytes(String address) {
+        if (address.isEmpty()) {
+            return EMPTY_BYTE_ARRAY;
+        }
+        String[] parts = address.split("\\.", -1);
+        if (parts.length > 4) {
+            return EMPTY_BYTE_ARRAY;
+        }
+        byte[] bytes = new byte[4];
+        for (int i = 0; i < parts.length; i++) {
+            int octet = parseDecimalOctet(parts[i]);
+            if (octet < 0) {
+                return EMPTY_BYTE_ARRAY;
+            }
+            bytes[i] = (byte) octet;
+        }
+        return bytes;
+    }
+
+    private static int parseDecimalOctet(String part) {
+        // Reject an empty part, which is a leading, trailing or doubled dot, and reject any non-ASCII digit before
+        // parsing: parseIntOrDefault maps a malformed value to the default, which a valid "0" is indistinguishable
+        // from if the default is in range.
+        if (part.isEmpty() || part.length() > 3) {
+            return -1;
+        }
+        for (int i = 0; i < part.length(); i++) {
+            char c = part.charAt(i);
+            if (c < '0' || c > '9') {
+                return -1;
+            }
+        }
+        int octet = parseIntOrDefault(part, -1);
+        return octet > 255 ? -1 : octet;
+    }
+
+    /**
+     * Parses an IPv6 address in the text form of RFC 4291, including {@code ::} compression and a trailing IPv4-mapped
+     * dotted quad. Any {@code %zone} scope suffix is ignored, matching the default gateway getters, which also strip
+     * it, and which a byte array cannot represent in any case.
+     *
+     * @param address the address text, with any {@code /prefix} suffix already removed
+     * @return the sixteen address bytes, or an empty array if the text is not an IPv6 address
+     */
+    public static byte[] parseIpv6AddressToBytes(String address) {
+        int zoneIndex = address.indexOf('%');
+        String addr = zoneIndex < 0 ? address : address.substring(0, zoneIndex);
+        if (addr.isEmpty() || addr.indexOf(':') < 0) {
+            return EMPTY_BYTE_ARRAY;
+        }
+        int doubleColon = addr.indexOf("::");
+        if (doubleColon >= 0 && doubleColon != addr.lastIndexOf("::")) {
+            // More than one "::" cannot be resolved to a unique address
+            return EMPTY_BYTE_ARRAY;
+        }
+        byte[] bytes = new byte[16];
+        String head = doubleColon < 0 ? addr : addr.substring(0, doubleColon);
+        int headBytes = parseIpv6Groups(head, bytes, 0);
+        if (headBytes < 0) {
+            return EMPTY_BYTE_ARRAY;
+        }
+        if (doubleColon < 0) {
+            // Without compression every one of the eight groups must be present
+            return headBytes == 16 ? bytes : EMPTY_BYTE_ARRAY;
+        }
+        byte[] tail = new byte[16];
+        int tailBytes = parseIpv6Groups(addr.substring(doubleColon + 2), tail, 0);
+        // The "::" must stand for at least one all-zero group, so the two halves cannot fill all sixteen bytes
+        if (tailBytes < 0 || headBytes + tailBytes > 14) {
+            return EMPTY_BYTE_ARRAY;
+        }
+        System.arraycopy(tail, 0, bytes, 16 - tailBytes, tailBytes);
+        return bytes;
+    }
+
+    private static int parseIpv6Groups(String groups, byte[] dest, int offset) {
+        if (groups.isEmpty()) {
+            return 0;
+        }
+        String[] parts = groups.split(":", -1);
+        int pos = offset;
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if (part.isEmpty()) {
+                return -1;
+            }
+            if (i == parts.length - 1 && part.indexOf('.') >= 0) {
+                // A trailing dotted quad, as in "::ffff:1.2.3.4". Only the full four octets are valid here, so the
+                // abbreviation parseIpv4AddressToBytes allows must be rejected by counting separators.
+                byte[] v4 = parseIpv4AddressToBytes(part);
+                if (v4.length != 4 || countChar(part, '.') != 3 || pos + 4 > dest.length) {
+                    return -1;
+                }
+                System.arraycopy(v4, 0, dest, pos, 4);
+                return pos - offset + 4;
+            }
+            int group = parseHexGroup(part);
+            if (group < 0 || pos + 2 > dest.length) {
+                return -1;
+            }
+            dest[pos++] = (byte) (group >> 8);
+            dest[pos++] = (byte) group;
+        }
+        return pos - offset;
+    }
+
+    private static int parseHexGroup(String part) {
+        if (part.length() > 4) {
+            return -1;
+        }
+        for (int i = 0; i < part.length(); i++) {
+            char c = part.charAt(i);
+            if ((c < '0' || c > '9') && (c < 'a' || c > 'f') && (c < 'A' || c > 'F')) {
+                return -1;
+            }
+        }
+        return hexStringToInt(part, -1);
+    }
+
+    private static int countChar(String s, char c) {
+        int count = 0;
+        for (int i = 0; i < s.length(); i++) {
+            if (s.charAt(i) == c) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Parses a routing table destination token into its address bytes and the prefix length it states.
+     * <p>
+     * Recognizes the literal {@code default}, an address with an explicit prefix ({@code 2601:601:d47c:3090::/64}), an
+     * abbreviated network with an explicit prefix ({@code 10.1/23}), and a bare address ({@code 10.0.0.1},
+     * {@code ::1%1}). A bare address states no prefix length; the caller supplies one from the route's flags or from a
+     * separate netmask column.
+     *
+     * @param destination the destination token
+     * @param ipv6        whether the token belongs to an IPv6 routing table, which decides how {@code default} is
+     *                    interpreted
+     * @return a pair of the address bytes and the stated prefix length, which is 0 for {@code default} and -1 when the
+     *         token states none. The bytes are empty and the prefix length -1 when the token is not an address, which
+     *         is how header, banner and separator lines are recognized and skipped.
+     */
+    public static Pair<byte[], Integer> parseRouteDestination(String destination, boolean ipv6) {
+        String token = destination;
+        int prefix = -1;
+        int slash = token.indexOf('/');
+        if (slash >= 0) {
+            prefix = parseIntOrDefault(token.substring(slash + 1), -1);
+            token = token.substring(0, slash);
+        }
+        byte[] bytes;
+        if ("default".equals(token)) {
+            bytes = new byte[ipv6 ? 16 : 4];
+            prefix = 0;
+        } else if (token.indexOf(':') >= 0) {
+            bytes = parseIpv6AddressToBytes(token);
+        } else {
+            bytes = parseIpv4AddressToBytes(token);
+        }
+        if (bytes.length == 0) {
+            return new Pair<>(EMPTY_BYTE_ARRAY, -1);
+        }
+        int maxPrefix = bytes.length * 8;
+        return new Pair<>(bytes, prefix > maxPrefix ? maxPrefix : prefix);
+    }
+
+    /**
+     * Counts the leading one bits of a subnet mask, giving the equivalent CIDR prefix length.
+     *
+     * @param netmask the mask bytes, four for IPv4 or sixteen for IPv6
+     * @return the prefix length, or -1 if the array is empty or the mask's one bits are not contiguous
+     */
+    public static int netmaskToPrefixLength(byte[] netmask) {
+        if (netmask.length == 0) {
+            return -1;
+        }
+        int prefix = 0;
+        for (byte b : netmask) {
+            int value = b & 0xff;
+            int bits = 0;
+            while ((value & 0x80) != 0) {
+                bits++;
+                value = (value << 1) & 0xff;
+            }
+            prefix += bits;
+            if (bits < 8) {
+                break;
+            }
+        }
+        // A mask is only meaningful if its one bits are contiguous. Reconstruct it from the count and compare, which
+        // rejects a discontiguous mask such as 255.0.255.0 that the count alone would report as /8.
+        for (int i = 0; i < netmask.length; i++) {
+            int expected = 0;
+            for (int bit = 0; bit < 8; bit++) {
+                if (i * 8 + bit < prefix) {
+                    expected |= 0x80 >> bit;
+                }
+            }
+            if ((netmask[i] & 0xff) != expected) {
+                return -1;
+            }
+        }
+        return prefix;
+    }
+
+    /**
+     * Counts the leading one bits of a subnet mask in text form, such as the {@code 255.255.255.248} that Solaris
+     * {@code netstat -rnv} reports.
+     *
+     * @param netmask the mask in dotted-quad or IPv6 text form
+     * @return the prefix length, or -1 if the text is not a contiguous mask
+     */
+    public static int netmaskToPrefixLength(String netmask) {
+        return netmaskToPrefixLength(
+                netmask.indexOf(':') >= 0 ? parseIpv6AddressToBytes(netmask) : parseIpv4AddressToBytes(netmask));
+    }
+
+    /**
+     * Tests whether a token is a UNIX routing table flags field, that is, a short run of ASCII letters such as
+     * {@code UG}, {@code UHSb} or {@code UHLWIir}.
+     * <p>
+     * Used both to recognize a data row among header, banner and separator lines and, on Solaris, to locate the flags
+     * column when an empty column has collapsed under whitespace splitting. Note that an all-letter word such as
+     * {@code default} also satisfies this test, so callers must only apply it to columns where such a word cannot
+     * appear.
+     *
+     * @param token the token to test
+     * @return {@code true} if the token is one to twelve ASCII letters
+     */
+    public static boolean isRouteFlags(String token) {
+        if (token.isEmpty() || token.length() > 12) {
+            return false;
+        }
+        for (int i = 0; i < token.length(); i++) {
+            char c = token.charAt(i);
+            if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z')) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
