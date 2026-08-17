@@ -243,21 +243,69 @@ class NetstatRouteTest {
         assertThat(routes.get(1).getInterfaceName(), is("net0"));
     }
 
+    // Verbatim `netstat -rn -f inet` from DragonFly BSD 6.4 in CI. Note "192.168.122": DragonFly abbreviates a network
+    // whose mask falls on an octet boundary and omits the prefix entirely, where FreeBSD prints "192.168.122.0/24".
+    private static final List<String> DRAGONFLY_V4 = Arrays.asList("Routing tables", //
+            "", //
+            "Internet:", //
+            "Destination        Gateway            Flags    Refs      Use  Netif Expire", //
+            "default            192.168.122.2      UGSc       16        0 vtnet0       ", //
+            "127.0.0.1          127.0.0.1          UH          0        0    lo0       ", //
+            "192.168.122        link#1             UC          2        0 vtnet0       ", //
+            "192.168.122.2      52:55:c0:a8:7a:02  UHLW       17       58 vtnet0   1195");
+
+    // Verbatim `netstat -rn -f inet6` from the same host. Its header has no Refs or Use, so Netif sits at index 3
+    // rather than the 5 the IPv4 table uses on this very platform.
+    private static final List<String> DRAGONFLY_V6 = Arrays.asList("Routing tables", //
+            "", //
+            "Internet6:", //
+            "Destination                       Gateway                       Flags      Netif Expire", //
+            "::1                               ::1                           UH          lo0       ", //
+            "fe80::%vtnet0/64                  link#1                        UC       vtnet0       ", //
+            "ff01::/32                         ::1                           U           lo0       ");
+
     /**
-     * DragonFly BSD prints Refs and Use columns that macOS does not, putting Netif at index 5 rather than 3. The header
-     * scan should override the caller's default index, so the same parser serves both without a per-platform class.
+     * DragonFly BSD prints Refs and Use columns that macOS does not, putting Netif at index 5 rather than 3, and
+     * abbreviates an octet-aligned network without stating its prefix.
      */
     @Test
-    void testHeaderScanOverridesDefaultInterfaceIndex() {
-        List<String> dragonFly = Arrays.asList("Routing tables", //
-                "", //
-                "Internet:", //
-                "Destination        Gateway            Flags     Refs     Use   Netif Expire", //
-                "default            10.0.0.1           UGS         0        0     em0");
-        List<IPRoute> routes = NetstatRoute.parseRoutes(dragonFly, false, 3, NO_INDICES);
-        assertThat(routes, hasSize(1));
+    void testParseDragonFlyIpv4() {
+        List<IPRoute> routes = NetstatRoute.parseRoutes(DRAGONFLY_V4, false, 3, NO_INDICES);
+        assertThat(routes, hasSize(4));
         assertThat("The header should move the interface column from 3 to 5", routes.get(0).getInterfaceName(),
-                is("em0"));
+                is("vtnet0"));
+        assertThat(routes.get(0).getGateway(), is(new byte[] { -64, -88, 122, 2 }));
+
+        assertThat("A UH route with a gateway column but no G flag reports no gateway", routes.get(1).getGateway(),
+                is(new byte[0]));
+        assertThat(routes.get(1).getPrefixLength(), is(32));
+
+        IPRoute subnet = routes.get(2);
+        assertThat(subnet.getDestination(), is(new byte[] { -64, -88, 122, 0 }));
+        assertThat("192.168.122 abbreviates a /24 and must not report an unknown prefix", subnet.getPrefixLength(),
+                is(24));
+        assertThat(subnet.isHost(), is(false));
+        assertThat("link#1 is not a gateway", subnet.getGateway(), is(new byte[0]));
+
+        assertThat("A MAC in the gateway column must not leak out", routes.get(3).getGateway(), is(new byte[0]));
+        assertThat(routes.get(3).isHost(), is(true));
+    }
+
+    /** The IPv6 table on the same host puts the interface in a different column than its own IPv4 table. */
+    @Test
+    void testParseDragonFlyIpv6() {
+        List<IPRoute> routes = NetstatRoute.parseRoutes(DRAGONFLY_V6, true, 3, NO_INDICES);
+        assertThat(routes, hasSize(3));
+        assertThat(routes.get(0).getDestination(), is(ParseUtil.parseIpv6AddressToBytes("::1")));
+        assertThat(routes.get(0).getPrefixLength(), is(128));
+        assertThat(routes.get(0).getInterfaceName(), is("lo0"));
+
+        assertThat("The %vtnet0 zone should be stripped and the /64 kept", routes.get(1).getDestination(),
+                is(ParseUtil.parseIpv6AddressToBytes("fe80::")));
+        assertThat(routes.get(1).getPrefixLength(), is(64));
+        assertThat(routes.get(1).getInterfaceName(), is("vtnet0"));
+
+        assertThat(routes.get(2).getPrefixLength(), is(32));
     }
 
     /**

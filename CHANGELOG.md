@@ -32,6 +32,7 @@
 
 * [#3646](https://github.com/oshi/oshi/pull/3646): `NetworkParams.getIpv6DefaultGateway()` on OpenBSD returns the IPv6 gateway. It previously omitted the `-inet6` flag and returned the IPv4 gateway - [@dbwiddis](https://github.com/dbwiddis).
 * [#3646](https://github.com/oshi/oshi/pull/3646): `NetworkParams` default gateways on AIX return an empty string when no default route is configured, matching the documented contract. They previously returned `Constants.UNKNOWN` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3647](https://github.com/oshi/oshi/pull/3647): `NetworkParams.getRoutes()` reports the prefix length of an abbreviated IPv4 network on DragonFly BSD, which prints `192.168.122` for a `/24` rather than stating the prefix. It previously reported -1 for such a route - [@dbwiddis](https://github.com/dbwiddis).
 * [#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): Stating each nullability contract explicitly during the JSpecify sweep surfaced implementations that did not honor it. Values that were documented as unreadable but returned `null` now return the sentinel the rest of the API uses. The following user-facing behavior changed - [@dbwiddis](https://github.com/dbwiddis):
   * `DisplayInfo`'s preferred resolution, model and product serial number return an empty string rather than `null`
     for a synthesized display such as the Apple Silicon built-in panel.

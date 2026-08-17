@@ -1236,9 +1236,16 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseRouteDestination("10.1/23", false).getB(), is(23));
         assertThat(ParseUtil.parseRouteDestination("140.211.9/24", false).getA(), is(new byte[] { -116, -45, 9, 0 }));
         assertThat(ParseUtil.parseRouteDestination("140.211.9/24", false).getB(), is(24));
-        // A bare address states no prefix; the caller decides from the flags or a netmask column
+        // An abbreviated network with no explicit prefix states it through the octet count, as DragonFly BSD prints
+        assertThat(ParseUtil.parseRouteDestination("192.168.122", false).getA(), is(new byte[] { -64, -88, 122, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("192.168.122", false).getB(), is(24));
+        assertThat(ParseUtil.parseRouteDestination("10.1", false).getB(), is(16));
+        assertThat(ParseUtil.parseRouteDestination("10", false).getB(), is(8));
+        // A bare four-octet address states no prefix; the caller decides from the flags or a netmask column. Solaris
+        // prints whole network addresses this way and supplies the mask separately, so inferring /32 would be wrong.
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getA(), is(new byte[] { 10, 0, 0, 1 }));
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("129.70.163.176", false).getB(), is(-1));
         assertThat(ParseUtil.parseRouteDestination("::1%1", true).getB(), is(-1));
         // IPv6 with an inline prefix
         assertThat(ParseUtil.parseRouteDestination("fe80::/10", true).getB(), is(10));
