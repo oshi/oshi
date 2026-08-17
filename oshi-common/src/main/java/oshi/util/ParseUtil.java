@@ -1468,7 +1468,10 @@ public final class ParseUtil {
             bytes = parseIpv6AddressToBytes(token);
         } else {
             bytes = parseIpv4AddressToBytes(token);
-            if (prefix < 0 && bytes.length == 4) {
+            // Infer only when the token stated no prefix at all. Testing the separator rather than the parsed value
+            // matters because an unparseable suffix such as "10/foo" also yields -1, and that is malformed input which
+            // must stay unknown rather than silently acquiring an inferred prefix.
+            if (slash < 0 && bytes.length == 4) {
                 // An abbreviated IPv4 network states its prefix by how many octets it prints. netstat drops the
                 // trailing zero octets and the explicit length together, but only when the mask falls on an octet
                 // boundary, so "192.168.122" can only mean /24. A mask that does not is printed in full, as "10.1/23".

@@ -1246,6 +1246,12 @@ class ParseUtilTest {
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getA(), is(new byte[] { 10, 0, 0, 1 }));
         assertThat(ParseUtil.parseRouteDestination("10.0.0.1", false).getB(), is(-1));
         assertThat(ParseUtil.parseRouteDestination("129.70.163.176", false).getB(), is(-1));
+        // A stated but unparseable prefix stays unknown. It must not fall through to the octet-count inference, which
+        // would silently turn malformed input into a plausible-looking /8.
+        assertThat(ParseUtil.parseRouteDestination("10/foo", false).getA(), is(new byte[] { 10, 0, 0, 0 }));
+        assertThat(ParseUtil.parseRouteDestination("10/foo", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("10/-1", false).getB(), is(-1));
+        assertThat(ParseUtil.parseRouteDestination("192.168.122/", false).getB(), is(-1));
         assertThat(ParseUtil.parseRouteDestination("::1%1", true).getB(), is(-1));
         // IPv6 with an inline prefix
         assertThat(ParseUtil.parseRouteDestination("fe80::/10", true).getB(), is(10));
