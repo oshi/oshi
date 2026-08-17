@@ -104,7 +104,11 @@ jobs:
         id: test-openindiana
         uses: vmactions/openindiana-vm@52f16d4534fe3edd9d9621621c238398d4d2a698 # v1
         with:
-          mem: 12288
+          # The guest peaked at 1.5 GiB of virtual memory in use across a full test run, so 12288
+          # bought nothing and left only ~4 GB of the runner's 16 GB for the host, QEMU, and the
+          # runner agent. Guest-side allocation failures amid 10.5 GiB of guest-side free memory
+          # are consistent with host-side pressure, so give the host the slack instead.
+          mem: 8192
           # Cap below the runner's core count: shrinks libumem's per-CPU arenas and
           # the JVM common ForkJoinPool (OSHI .parallel() streams), reducing the
           # thread fan-out that drives the native-memory OOMs.
@@ -148,6 +152,23 @@ jobs:
               -Djunit.parallel.strategy=fixed \
               -Djunit.parallel.fixed.parallelism=1 \
               -Djunit.parallel.fixed.max-pool-size=2
+      # The native-memory OOMs here are intermittent, and the JVM writes down exactly why in
+      # hs_err_pid*.log: rlimits, the full virtual memory map, reserved vs committed per pool, and
+      # swap state at the instant of failure. copyback brings it to the runner workspace, where it
+      # was then discarded with the job -- so every past investigation started from scratch.
+      # console-launcher.cmd.log is the forked test JVM's actual command line, which is the only
+      # direct evidence of what options that JVM (as opposed to Maven's) really received.
+      - name: Upload crash dumps
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: openindiana-crash-dumps
+          if-no-files-found: ignore
+          retention-days: 14
+          path: |
+            **/hs_err_pid*.log
+            **/replay_pid*.log
+            **/target/junit-platform/console-launcher.*.log
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
