@@ -4,12 +4,16 @@
  */
 package oshi.software.common.os.unix.aix;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
+import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.NetstatRoute;
 
 /**
  * Abstract base for AIX NetworkParams. {@code netstat -rnf inet[6]} parsing is shared; only {@link #getHostName()}
@@ -20,6 +24,9 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
 
     /** AIX hostname maximum length, including the trailing NUL. {@code HOST_NAME_MAX = 255}. */
     protected static final int HOST_NAME_BUF_SIZE = 256;
+
+    /** AIX prints the interface in the sixth column: Destination Gateway Flags Refs Use If Exp Groups. */
+    private static final int IF_NAME_INDEX = 5;
 
     @Override
     public String getIpv4DefaultGateway() {
@@ -49,5 +56,14 @@ public abstract class AixNetworkParams extends AbstractNetworkParams {
             }
         }
         return "";
+    }
+
+    @Override
+    public List<NetworkParams.IPRoute> getRoutes() {
+        Map<String, Integer> ifIndexByName = queryInterfaceIndexByName();
+        List<NetworkParams.IPRoute> routes = new ArrayList<>(
+                NetstatRoute.queryRoutes("netstat -rnf inet", false, IF_NAME_INDEX, ifIndexByName));
+        routes.addAll(NetstatRoute.queryRoutes("netstat -rnf inet6", true, IF_NAME_INDEX, ifIndexByName));
+        return routes;
     }
 }
