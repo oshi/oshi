@@ -43,10 +43,6 @@ public abstract class WindowsNetworkParams extends AbstractNetworkParams {
         public int interfaceIndex = -1;
         /** The route metric. */
         public long metric = -1L;
-
-        /** Default constructor. */
-        public RouteRow() {
-        }
     }
 
     /**

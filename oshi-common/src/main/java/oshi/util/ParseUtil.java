@@ -1779,18 +1779,6 @@ public final class ParseUtil {
     }
 
     /**
-     * Checks if value exists in map for the given key or not and returns value or unknown based on it
-     *
-     * @param map A map of String key-value pairs
-     * @param key Fetch value for the given key
-     * @return Returns the value for the key if it exists in the map else it returns unknown
-     */
-    public static String getValueOrUnknown(Map<String, String> map, String key) {
-        String value = map.getOrDefault(key, "");
-        return value.isEmpty() ? Constants.UNKNOWN : value;
-    }
-
-    /**
      * Checks if a value exists in the map for the given key and returns the value or unknown based on it
      *
      * @param map A map where the keys can be of any type and the values are Strings.
