@@ -44,9 +44,12 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
     @Override
     public List<IPConnection> getConnections() {
         List<IPConnection> conns = new ArrayList<>();
-        int[] pids = new int[1024];
-        int numberOfProcesses = SystemB.INSTANCE.proc_listpids(PROC_ALL_PIDS, 0, pids, pids.length * INT_SIZE)
-                / INT_SIZE;
+        // Size the buffer from the kernel rather than a fixed cap. proc_listpids bounds its return by the buffer
+        // it was given, so an undersized buffer silently drops the connections of every process past the end.
+        // Pad, as MacOperatingSystem does, in case a process starts between the two calls.
+        int[] pids = new int[SystemB.INSTANCE.proc_listpids(PROC_ALL_PIDS, 0, null, 0) / INT_SIZE + 10];
+        int numberOfProcesses = Math.min(
+                SystemB.INSTANCE.proc_listpids(PROC_ALL_PIDS, 0, pids, pids.length * INT_SIZE) / INT_SIZE, pids.length);
         for (int i = 0; i < numberOfProcesses; i++) {
             // Handle off-by-one bug in proc_listpids where the size returned
             // is: SystemB.INT_SIZE * (pids + 1)

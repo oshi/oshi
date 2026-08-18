@@ -9,6 +9,7 @@ import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -784,6 +785,35 @@ class NativeComparisonTest {
             assertThat(c.getLocalPort()).as("localPort").isBetween(0, 0xffff);
             assertThat(c.getForeignPort()).as("foreignPort").isBetween(0, 0xffff);
             assertThat(c.getState()).as("state").isNotNull();
+        }
+
+        // State is deliberately absent from the tuple key above, since a connection may legitimately change state
+        // between the two reads. Compare it separately on the connections both sides saw, requiring only majority
+        // agreement: ordinary churn moves a few, while a misread struct field moves every one at once.
+        Map<String, InternetProtocolStats.TcpState> jnaStates = new HashMap<>();
+        for (InternetProtocolStats.IPConnection c : jnaConns) {
+            if (c.getType().startsWith("tcp")) {
+                jnaStates.put(c.getType() + ":" + c.getLocalPort() + ":" + c.getForeignPort(), c.getState());
+            }
+        }
+        int matched = 0;
+        int agreed = 0;
+        for (InternetProtocolStats.IPConnection c : ffmConns) {
+            if (c.getType().startsWith("tcp")) {
+                InternetProtocolStats.TcpState jnaState = jnaStates
+                        .get(c.getType() + ":" + c.getLocalPort() + ":" + c.getForeignPort());
+                if (jnaState != null) {
+                    matched++;
+                    if (jnaState == c.getState()) {
+                        agreed++;
+                    }
+                }
+            }
+        }
+        // Skip on a near-idle host, where too few TCP connections exist for the fraction to mean anything
+        if (matched >= 4) {
+            assertThat(agreed).as("TCP state agreement on %d shared connections", matched)
+                    .isGreaterThanOrEqualTo(matched / 2);
         }
     }
 

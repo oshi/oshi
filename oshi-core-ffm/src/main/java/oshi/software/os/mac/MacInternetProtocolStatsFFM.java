@@ -75,8 +75,11 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
     public List<IPConnection> getConnections() {
         List<IPConnection> conns = new ArrayList<>();
         return callInArenaOrDefault(arena -> {
-            // Match JNA approach: fixed-size buffer, single call
-            int bufferSize = 1024 * Integer.BYTES;
+            // Size the buffer from the kernel rather than a fixed cap. proc_listpids bounds its return by the
+            // buffer it was given, so an undersized buffer silently drops the connections of every process past
+            // the end. Pad, as MacOperatingSystem does, in case a process starts between the two calls.
+            int bufferSize = (proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / Integer.BYTES + 10)
+                    * Integer.BYTES;
             MemorySegment pidBuffer = arena.allocate(bufferSize);
             int bytes = proc_listpids(PROC_ALL_PIDS, 0, pidBuffer, bufferSize);
             int numProcs = Math.min(bytes / Integer.BYTES, bufferSize / Integer.BYTES);
