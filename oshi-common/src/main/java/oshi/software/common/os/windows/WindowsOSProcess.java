@@ -87,8 +87,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         super(pid);
         this.os = os;
         this.bitness = os.getBitness();
-        this.tcb.set(threadMap);
-        updateAttributes(processMap.get(pid), processWtsMap.get(pid));
+        updateAttributes(processMap.get(pid), processWtsMap.get(pid), threadMap);
     }
 
     /**
@@ -188,7 +187,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     public List<OSThread> getThreadDetails() {
         Map<Integer, ThreadPerfCounterBlock> threads = this.tcb.get();
         if (threads == null) {
-            threads = queryMatchingThreads(Collections.singleton(this.getProcessID()));
+            threads = queryMatchingThreads(Collections.singleton(this.getProcessID()), this.name);
         }
         if (threads == null) {
             threads = Collections.emptyMap();
@@ -212,13 +211,20 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     /**
      * Updates process attributes from performance counter and WTS data, then performs native-specific updates.
-     * Subclasses should call {@code super.updateAttributes(pcb, wts)} and then perform native handle-based updates.
+     * Subclasses should call {@code super.updateAttributes(pcb, wts, threadMap)} and then perform native handle-based
+     * updates.
      *
-     * @param pcb Performance counter block for this process, or null if unavailable
-     * @param wts WTS info for this process, or null if unavailable
+     * @param pcb       Performance counter block for this process, or null if unavailable
+     * @param wts       WTS info for this process, or null if unavailable
+     * @param threadMap Thread performance counter blocks for this process, or null if they were queried and none were
+     *                  found. Passed in rather than published beforehand so that one refresh's name, thread map and
+     *                  counters all become visible together. A caller that did not query must pass {@link #getTcb()},
+     *                  not null, which would discard the map it already holds.
      * @return true if the process is valid after the update
      */
-    protected synchronized boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
+    protected synchronized boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts,
+            @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
+        this.tcb.set(threadMap);
         if (pcb == null) {
             this.state = INVALID;
             return false;
@@ -262,15 +268,6 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Sets the process name. Used by subclasses to ensure the name is current before querying threads.
-     *
-     * @param name the process name to set
-     */
-    protected void setName(String name) {
-        this.name = name;
-    }
-
-    /**
      * Sets the process bitness. Used by subclasses to update after WOW64 check.
      *
      * @param bitness the bitness to set
@@ -289,30 +286,24 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Sets the process state. Used by subclasses to mark a process as invalid.
+     * Returns the thread performance counter blocks last published for this process.
      *
-     * @param state the state to set
+     * @return the thread counter block map, or {@code null} if none has been recorded
      */
-    protected void setState(State state) {
-        this.state = state;
-    }
-
-    /**
-     * Sets the thread counter block map. Used by subclasses during attribute updates.
-     *
-     * @param tcb the thread performance counter block map
-     */
-    protected void setTcb(@Nullable Map<Integer, ThreadPerfCounterBlock> tcb) {
-        this.tcb.set(tcb);
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> getTcb() {
+        return this.tcb.get();
     }
 
     /**
      * Queries thread performance data matching the given process IDs.
      *
-     * @param pids the set of process IDs to match
+     * @param pids     the set of process IDs to match
+     * @param procName the process name, supplied by the caller rather than read from this process, so a refresh can
+     *                 query threads against the name it just fetched without publishing it first
      * @return a map of thread ID to thread performance counter block
      */
-    protected abstract @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids);
+    protected abstract @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids,
+            String procName);
 
     /**
      * Queries the command line for this process.

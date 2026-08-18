@@ -109,20 +109,20 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
             pcbMap = ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
         }
         ProcessPerfCounterBlock pcb = pcbMap == null ? null : pcbMap.get(this.getProcessID());
-        if (USE_PROCSTATE_SUSPENDED) {
-            // Populate name from pcb before querying threads, since the fallback path uses getName()
-            if (pcb != null) {
-                setName(pcb.getName());
-            }
-            setTcb(queryMatchingThreads(pids));
-        }
+        // Query threads against the name just fetched, rather than publishing it to the field first so the callee
+        // can read it back. When this build does not query them, hand back the existing map so the writer republishes
+        // it unchanged rather than discarding it.
+        Map<Integer, ThreadPerfCounterBlock> threadMap = USE_PROCSTATE_SUSPENDED
+                ? queryMatchingThreads(pids, pcb == null ? getName() : pcb.getName())
+                : getTcb();
         Map<Integer, WtsInfo> wts = ProcessWtsDataFFM.queryProcessWtsMap(pids);
-        return updateAttributes(pcb, wts == null ? null : wts.get(this.getProcessID()));
+        return updateAttributes(pcb, wts == null ? null : wts.get(this.getProcessID()), threadMap);
     }
 
     @Override
-    protected synchronized boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
-        if (!super.updateAttributes(pcb, wts)) {
+    protected synchronized boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts,
+            @Nullable Map<Integer, ThreadPerfCounterBlock> threadMap) {
+        if (!super.updateAttributes(pcb, wts, threadMap)) {
             return false;
         }
 
@@ -156,10 +156,10 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     }
 
     @Override
-    protected @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids) {
+    protected @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids, String procName) {
         Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
         if (threads == null || threads.isEmpty()) {
-            threads = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids, this.getName(), -1);
+            threads = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids, procName, -1);
         }
         return threads;
     }
