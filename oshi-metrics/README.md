@@ -219,7 +219,9 @@ The three states partition the filesystem, so the `usage` gauges sum to `system.
 `utilization` gauges sum to 1.0. `free` is the space available to the calling process
 (`OSFileStore.getUsableSpace()`), and `reserved` is unused space that is not available to it: the superuser reserve
 many UNIX filesystems hold back (5% by default on ext4), or the caller's quota on Windows. Filesystems that reserve
-nothing at this layer, such as ZFS and APFS, report `reserved` as 0.
+nothing at this layer, such as ZFS and APFS, report `reserved` as 0. A filesystem's space is re-read as its gauges are
+sampled, once per filesystem per memoization window (300 ms by default) rather than once per gauge, so all of its
+gauges within a scrape report the same reading.
 
 ### [Network metrics](https://opentelemetry.io/docs/specs/semconv/system/system-metrics/#network-metrics)
 

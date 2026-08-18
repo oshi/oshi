@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
 
 import oshi.software.os.OSFileStore;
+import oshi.util.Memoizer;
 
 import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -37,6 +38,11 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * ({@link OSFileStore#getUsableSpace()}), and {@code reserved} is unused space that is not available to it: the
  * superuser reserve many UNIX filesystems hold back, or the caller's quota on Windows. Filesystems that reserve nothing
  * at this layer, such as ZFS and APFS, report {@code reserved} as 0.
+ *
+ * <p>
+ * A filesystem's space is re-read as its gauges are sampled, once per filesystem per
+ * {@link Memoizer#defaultExpiration()} window rather than once per gauge, so that all of its gauges within a scrape
+ * report the same reading.
  */
 public class FileSystemMetrics implements MeterBinder {
 
@@ -75,49 +81,50 @@ public class FileSystemMetrics implements MeterBinder {
             String mode = Arrays.asList(opts.split(",")).contains("rw") ? "rw" : "ro";
             Tags tags = Tags.of(DEVICE_KEY, fs.getVolume(), MOUNTPOINT_KEY, fs.getMount(), TYPE_KEY, fs.getType(),
                     MODE_KEY, mode);
+            // A bound OSFileStore is a snapshot taken when the binder was created, so it has to be refreshed as it is
+            // sampled. The seven gauges below share one memoized refresh, both to spare the filesystem six redundant
+            // queries per scrape and so that a single scrape reads one snapshot: the states can only be shown to
+            // partition the filesystem if they were all measured against the same reading of it.
+            Supplier<Boolean> refresh = Memoizer.memoize(fs::updateAttributes, Memoizer.defaultExpiration());
 
             // system.filesystem.usage — UpDownCounter (Gauge), unit "By", attr: state, device, mount, type, mode.
             // OSFileStore guarantees usable <= free <= total, so none of these differences can be negative and the
             // three states sum to the total.
-            registerUsage(registry, fs, tags, STATE_USED, f -> f.getTotalSpace() - f.getFreeSpace());
-            registerUsage(registry, fs, tags, STATE_FREE, OSFileStore::getUsableSpace);
-            registerUsage(registry, fs, tags, STATE_RESERVED, f -> f.getFreeSpace() - f.getUsableSpace());
+            registerUsage(registry, fs, tags, STATE_USED, refresh, f -> f.getTotalSpace() - f.getFreeSpace());
+            registerUsage(registry, fs, tags, STATE_FREE, refresh, OSFileStore::getUsableSpace);
+            registerUsage(registry, fs, tags, STATE_RESERVED, refresh, f -> f.getFreeSpace() - f.getUsableSpace());
 
             // system.filesystem.utilization — Gauge, unit "1", attr: state, device, mount, type, mode
-            registerUtilization(registry, fs, tags, STATE_USED,
+            registerUtilization(registry, fs, tags, STATE_USED, refresh,
                     f -> fraction(f.getTotalSpace() - f.getFreeSpace(), f.getTotalSpace()));
-            registerUtilization(registry, fs, tags, STATE_FREE, f -> fraction(f.getUsableSpace(), f.getTotalSpace()));
-            registerUtilization(registry, fs, tags, STATE_RESERVED,
+            registerUtilization(registry, fs, tags, STATE_FREE, refresh,
+                    f -> fraction(f.getUsableSpace(), f.getTotalSpace()));
+            registerUtilization(registry, fs, tags, STATE_RESERVED, refresh,
                     f -> fraction(f.getFreeSpace() - f.getUsableSpace(), f.getTotalSpace()));
 
             // system.filesystem.limit — UpDownCounter (Gauge), unit "By", attr: device, mount, type, mode
-            Gauge.builder(FS_LIMIT, fs, f -> {
-                f.updateAttributes();
-                return (double) f.getTotalSpace();
-            }).tags(tags).description("Total capacity of the filesystem").baseUnit("By").strongReference(true)
+            Gauge.builder(FS_LIMIT, fs, refreshing(refresh, OSFileStore::getTotalSpace)).tags(tags)
+                    .description("Total capacity of the filesystem").baseUnit("By").strongReference(true)
                     .register(registry);
         }
     }
 
     private static void registerUsage(MeterRegistry registry, OSFileStore fs, Tags tags, Tag state,
-            ToDoubleFunction<OSFileStore> bytes) {
-        Gauge.builder(FS_USAGE, fs, refreshing(bytes)).tags(tags.and(state)).description("Filesystem space usage")
-                .baseUnit("By").strongReference(true).register(registry);
+            Supplier<Boolean> refresh, ToDoubleFunction<OSFileStore> bytes) {
+        Gauge.builder(FS_USAGE, fs, refreshing(refresh, bytes)).tags(tags.and(state))
+                .description("Filesystem space usage").baseUnit("By").strongReference(true).register(registry);
     }
 
     private static void registerUtilization(MeterRegistry registry, OSFileStore fs, Tags tags, Tag state,
-            ToDoubleFunction<OSFileStore> ratio) {
-        Gauge.builder(FS_UTILIZATION, fs, refreshing(ratio)).tags(tags.and(state)).description("Filesystem utilization")
-                .strongReference(true).register(registry);
+            Supplier<Boolean> refresh, ToDoubleFunction<OSFileStore> ratio) {
+        Gauge.builder(FS_UTILIZATION, fs, refreshing(refresh, ratio)).tags(tags.and(state))
+                .description("Filesystem utilization").strongReference(true).register(registry);
     }
 
-    /*
-     * Each gauge re-reads the file store's space values when sampled, since a bound OSFileStore is otherwise a snapshot
-     * taken when the binder was created.
-     */
-    private static ToDoubleFunction<OSFileStore> refreshing(ToDoubleFunction<OSFileStore> value) {
+    private static ToDoubleFunction<OSFileStore> refreshing(Supplier<Boolean> refresh,
+            ToDoubleFunction<OSFileStore> value) {
         return f -> {
-            f.updateAttributes();
+            refresh.get();
             return value.applyAsDouble(f);
         };
     }

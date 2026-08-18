@@ -48,6 +48,23 @@ class FileSystemMetricsTest {
         }
     }
 
+    /** A file store that reports different space every time it is refreshed, as a busy one does. */
+    private static class VaryingOSFileStore extends AbstractOSFileStore {
+        private long free = 1000L;
+
+        VaryingOSFileStore() {
+            super("varying", "/dev/varying", "label", "/mnt/varying", "rw", "uuid", true, "lv", "Local Disk", "ext4",
+                    1000L, 900L, 10000L, 100L, 500L);
+        }
+
+        @Override
+        public boolean updateAttributes() {
+            this.free -= 100L;
+            updateSpace(this.free, this.free - 100L, 10000L);
+            return true;
+        }
+    }
+
     @BeforeEach
     void setUp() {
         registry = new SimpleMeterRegistry();
@@ -120,6 +137,17 @@ class FileSystemMetricsTest {
         assertEquals(0d, utilization("used"));
         assertEquals(0d, utilization("free"));
         assertEquals(0d, utilization("reserved"));
+    }
+
+    @Test
+    void allGaugesOfOneFilesystemShareASingleReading() {
+        // A filesystem whose space changes on every refresh would break the partition rule if each gauge refreshed
+        // separately: the states would be measured against four different readings. They share one memoized refresh
+        // per filesystem, which holds for 300 ms by default -- far longer than sampling four gauges in process.
+        OSFileStore fs = new VaryingOSFileStore();
+        new FileSystemMetrics(() -> Collections.singletonList(fs)).bindTo(registry);
+        assertEquals(limit(), usage("used") + usage("free") + usage("reserved"),
+                "usage states should sum to the limit even while the filesystem is changing");
     }
 
     @Test
