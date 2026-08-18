@@ -54,12 +54,12 @@ public interface WinPerfFFM {
             JAVA_SHORT.withName("Signature2"), JAVA_SHORT.withName("Signature3"), JAVA_INT.withName("LittleEndian"),
             JAVA_INT.withName("Version"), JAVA_INT.withName("Revision"), JAVA_INT.withName("TotalByteLength"),
             JAVA_INT.withName("HeaderLength"), JAVA_INT.withName("NumObjectTypes"), JAVA_INT.withName("DefaultObject"),
-            // 4 bytes padding for 8-byte alignment of LARGE_INTEGER fields
-            MemoryLayout.paddingLayout(4),
-            // SYSTEMTIME: 8 × WORD (16 bytes) — we only need the struct size, not individual fields
-            MemoryLayout.paddingLayout(16).withName("SystemTime"), JAVA_LONG.withName("PerfTime"),
-            JAVA_LONG.withName("PerfFreq"), JAVA_LONG.withName("PerfTime100nSec"),
-            JAVA_INT.withName("SystemNameLength"), JAVA_INT.withName("SystemNameOffset"));
+            // SYSTEMTIME: 8 x WORD (16 bytes) - we only need the struct size, not individual fields
+            MemoryLayout.paddingLayout(16).withName("SystemTime"),
+            // 4 bytes padding, so the LARGE_INTEGER fields that follow land on an 8-byte boundary
+            MemoryLayout.paddingLayout(4), JAVA_LONG.withName("PerfTime"), JAVA_LONG.withName("PerfFreq"),
+            JAVA_LONG.withName("PerfTime100nSec"), JAVA_INT.withName("SystemNameLength"),
+            JAVA_INT.withName("SystemNameOffset"));
 
     long PERF_DATA_BLOCK_HeaderLength = PERF_DATA_BLOCK
             .byteOffset(MemoryLayout.PathElement.groupElement("HeaderLength"));

@@ -9,31 +9,13 @@ import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.platform.windows.Advapi32FFM.RegQueryValueEx;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_MORE_DATA;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_SUCCESS;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_COUNTER_BLOCK_ByteLength;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_COUNTER_DEF_ByteLength;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_COUNTER_DEF_CounterNameTitleIndex;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_COUNTER_DEF_CounterOffset;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_COUNTER_DEF_CounterSize;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_DATA_BLOCK_HeaderLength;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_DATA_BLOCK_NumObjectTypes;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_DATA_BLOCK_PerfTime100nSec;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_INSTANCE_DEF_ByteLength;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_INSTANCE_DEF_NameOffset;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_OBJECT_TYPE_DefinitionLength;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_OBJECT_TYPE_HeaderLength;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_OBJECT_TYPE_NumCounters;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_OBJECT_TYPE_NumInstances;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_OBJECT_TYPE_ObjectNameTitleIndex;
-import static oshi.ffm.platform.windows.WinPerfFFM.PERF_OBJECT_TYPE_TotalByteLength;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.toWideString;
 import static oshi.util.ExceptionUtil.getOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.registry.HkeyPerformanceDataUtil;
+import oshi.driver.common.windows.registry.PerfDataBuffer;
 import oshi.ffm.platform.windows.WinRegFFM;
 import oshi.ffm.util.platform.windows.Advapi32UtilFFM;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -109,114 +91,30 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
         if (pPerfData == null) {
             return null;
         }
-        // Buffer is now successfully populated.
-        // See format at
-        // https://msdn.microsoft.com/en-us/library/windows/desktop/aa373105(v=vs.85).aspx
+        return parsePerfData(new SegmentPerfDataBuffer(pPerfData), objectIndex, enumIndexMap, counterEnum);
+    }
 
-        // Start with a data header (PERF_DATA_BLOCK)
-        // Then iterate one or more objects
-        // Each object contains
-        // [ ] Object Type header (PERF_OBJECT_TYPE)
-        // [ ][ ][ ] Multiple counter definitions (PERF_COUNTER_DEFINITION)
-        // Then after object(s), multiple:
-        // [ ] Instance Definition
-        // [ ] Instance name
-        // [ ] Counter Block
-        // [ ][ ][ ] Counter data for each definition above
+    /**
+     * Reads the performance data block through an FFM {@link MemorySegment}.
+     *
+     * @param segment The populated performance data block
+     */
+    private record SegmentPerfDataBuffer(MemorySegment segment) implements PerfDataBuffer {
 
-        // Store timestamp
-        long perfTime100nSec = pPerfData.get(JAVA_LONG, PERF_DATA_BLOCK_PerfTime100nSec); // 1601
-        long now = ParseUtil.filetimeToUtcMs(perfTime100nSec, false); // 1970
-
-        // Iterate object types.
-        long perfObjectOffset = pPerfData.get(JAVA_INT, PERF_DATA_BLOCK_HeaderLength);
-        int numObjectTypes = pPerfData.get(JAVA_INT, PERF_DATA_BLOCK_NumObjectTypes);
-        for (int obj = 0; obj < numObjectTypes; obj++) {
-            // Some counters will require multiple objects so we iterate until we find the
-            // right one. e.g. Process (230) is by itself but Thread (232) has Process
-            // object first
-            int objectNameTitleIndex = pPerfData.get(JAVA_INT,
-                    perfObjectOffset + PERF_OBJECT_TYPE_ObjectNameTitleIndex);
-            if (objectNameTitleIndex == objectIndex) {
-                // We found a matching object.
-
-                // Counter definitions start after the object header
-                long perfCounterOffset = perfObjectOffset
-                        + pPerfData.get(JAVA_INT, perfObjectOffset + PERF_OBJECT_TYPE_HeaderLength);
-                int numCounters = pPerfData.get(JAVA_INT, perfObjectOffset + PERF_OBJECT_TYPE_NumCounters);
-
-                // Iterate counter definitions and fill maps with counter offsets and sizes
-                Map<Integer, Integer> counterOffsetMap = new HashMap<>();
-                Map<Integer, Integer> counterSizeMap = new HashMap<>();
-                for (int counter = 0; counter < numCounters; counter++) {
-                    int counterNameTitleIndex = pPerfData.get(JAVA_INT,
-                            perfCounterOffset + PERF_COUNTER_DEF_CounterNameTitleIndex);
-                    int counterOffset = pPerfData.get(JAVA_INT, perfCounterOffset + PERF_COUNTER_DEF_CounterOffset);
-                    int counterSize = pPerfData.get(JAVA_INT, perfCounterOffset + PERF_COUNTER_DEF_CounterSize);
-                    counterOffsetMap.put(counterNameTitleIndex, counterOffset);
-                    counterSizeMap.put(counterNameTitleIndex, counterSize);
-                    // Increment for next Counter
-                    perfCounterOffset += pPerfData.get(JAVA_INT, perfCounterOffset + PERF_COUNTER_DEF_ByteLength);
-                }
-
-                // Instances start after all the object definitions. The DefinitionLength
-                // includes both the header and all the definitions.
-                long perfInstanceOffset = perfObjectOffset
-                        + pPerfData.get(JAVA_INT, perfObjectOffset + PERF_OBJECT_TYPE_DefinitionLength);
-                int numInstances = pPerfData.get(JAVA_INT, perfObjectOffset + PERF_OBJECT_TYPE_NumInstances);
-
-                // Iterate instances and fill map
-                T[] counterKeys = counterEnum.getEnumConstants();
-                List<Map<T, Object>> counterMaps = new ArrayList<>(numInstances);
-                for (int inst = 0; inst < numInstances; inst++) {
-                    int instanceByteLength = pPerfData.get(JAVA_INT, perfInstanceOffset + PERF_INSTANCE_DEF_ByteLength);
-                    int nameOffset = pPerfData.get(JAVA_INT, perfInstanceOffset + PERF_INSTANCE_DEF_NameOffset);
-                    long perfCounterBlockOffset = perfInstanceOffset + instanceByteLength;
-
-                    // Populate the enumMap
-                    Map<T, Object> counterMap = new EnumMap<>(counterEnum);
-                    // First enum index is the name, ignore the counter text which is used for other
-                    // purposes
-                    counterMap.put(counterKeys[0], readWideString(pPerfData.asSlice(perfInstanceOffset + nameOffset)));
-                    for (int i = 1; i < counterKeys.length; i++) {
-                        T key = counterKeys[i];
-                        int keyIndex = enumIndexMap.getOrDefault(key, -1);
-                        // All entries in size map have corresponding entry in offset map
-                        int size = counterSizeMap.getOrDefault(keyIndex, 0);
-                        Integer offset = counterOffsetMap.get(keyIndex);
-                        // Currently, only DWORDs (4 bytes) and ULONGLONGs (8 bytes) are used to provide
-                        // counter values.
-                        Object counterValue = offset == null ? null : switch (size) {
-                            case 4 -> pPerfData.get(JAVA_INT, perfCounterBlockOffset + offset);
-                            case 8 -> pPerfData.get(JAVA_LONG, perfCounterBlockOffset + offset);
-                            // If counter defined in enum isn't in registry, fail
-                            default -> null;
-                        };
-                        if (counterValue == null) {
-                            return null;
-                        }
-                        counterMap.put(key, counterValue);
-                    }
-                    counterMaps.add(counterMap);
-
-                    // counters at perfCounterBlockOffset + appropriate offset per enum
-                    // use pPerfData.getInt or getLong as determined by counter size
-                    // Currently, only DWORDs (4 bytes) and ULONGLONGs (8 bytes) are used to provide
-                    // counter values.
-
-                    // Increment to next instance
-                    perfInstanceOffset = perfCounterBlockOffset
-                            + pPerfData.get(JAVA_INT, perfCounterBlockOffset + PERF_COUNTER_BLOCK_ByteLength);
-                }
-                // We've found the necessary object and are done, no need to look at any other
-                // objects (shouldn't be any). Return results
-                return new Triplet<>(counterMaps, perfTime100nSec, now);
-            }
-            // Increment for next object
-            perfObjectOffset += pPerfData.get(JAVA_INT, perfObjectOffset + PERF_OBJECT_TYPE_TotalByteLength);
+        @Override
+        public int getInt(long offset) {
+            return this.segment.get(JAVA_INT, offset);
         }
-        // Failed, return null
-        return null;
+
+        @Override
+        public long getLong(long offset) {
+            return this.segment.get(JAVA_LONG, offset);
+        }
+
+        @Override
+        public String getWideString(long offset) {
+            return readWideString(this.segment.asSlice(offset));
+        }
     }
 
     /**
