@@ -287,7 +287,14 @@ public interface MacSystem {
             sequenceLayout(4, JAVA_INT).withName("insi_faddr"), // foreign host table entry
             sequenceLayout(4, JAVA_INT).withName("insi_laddr"), // local host table entry
             JAVA_BYTE.withName("insi_v4"), // type of service
-            sequenceLayout(9, JAVA_BYTE).withName("insi_v6") // type of service for IPv6
+            paddingLayout(3), // align insi_v6 to 4 byte boundary
+            structLayout(// insi_v6, not read but must be sized correctly: it terminates in_sockinfo
+                    JAVA_BYTE.withName("in6_hlim"), //
+                    paddingLayout(3), // align in6_cksum to 4 byte boundary
+                    JAVA_INT.withName("in6_cksum"), //
+                    JAVA_SHORT.withName("in6_ifindex"), //
+                    JAVA_SHORT.withName("in6_hops") //
+            ).withName("insi_v6") //
     );
     PathElement INSI_FPORT = groupElement("insi_fport");
     PathElement INSI_LPORT = groupElement("insi_lport");
@@ -297,13 +304,11 @@ public interface MacSystem {
 
     StructLayout TCP_SOCK_INFO = structLayout(//
             IN_SOCK_INFO.withName("tcpsi_ini"), //
-            paddingLayout(2), // align to 4 byte boundary
             JAVA_INT.withName("tcpsi_state"), //
             sequenceLayout(TSI_T_NTIMERS, JAVA_INT).withName("tcpsi_timer"), //
             JAVA_INT.withName("tcpsi_mss"), //
             JAVA_INT.withName("tcpsi_flags"), //
             JAVA_INT.withName("rfu_1"), //
-            paddingLayout(4), // align to 8 byte boundary
             JAVA_LONG.withName("tcpsi_tp") // opaque handle of TCP protocol control block
     );
     PathElement TCPSI_INI = groupElement("tcpsi_ini");

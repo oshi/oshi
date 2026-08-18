@@ -9,6 +9,7 @@ import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -785,6 +786,44 @@ class NativeComparisonTest {
             assertThat(c.getForeignPort()).as("foreignPort").isBetween(0, 0xffff);
             assertThat(c.getState()).as("state").isNotNull();
         }
+
+        // State is deliberately absent from the tuple key above, since a connection may legitimately change state
+        // between the two reads. Compare it separately on the connections both sides saw, requiring only majority
+        // agreement: ordinary churn moves a few, while a misread struct field moves every one at once.
+        Map<String, InternetProtocolStats.TcpState> jnaStates = new HashMap<>();
+        for (InternetProtocolStats.IPConnection c : jnaConns) {
+            if (c.getType().startsWith("tcp")) {
+                jnaStates.put(stateKey(c), c.getState());
+            }
+        }
+        int matched = 0;
+        int agreed = 0;
+        for (InternetProtocolStats.IPConnection c : ffmConns) {
+            if (c.getType().startsWith("tcp")) {
+                InternetProtocolStats.TcpState jnaState = jnaStates.get(stateKey(c));
+                if (jnaState != null) {
+                    matched++;
+                    if (jnaState == c.getState()) {
+                        agreed++;
+                    }
+                }
+            }
+        }
+        // Skip on a near-idle host, where too few TCP connections exist for the fraction to mean anything
+        if (matched >= 4) {
+            assertThat(agreed).as("TCP state agreement on %d shared connections", matched)
+                    .isGreaterThanOrEqualTo((matched + 1) / 2);
+        }
+    }
+
+    /**
+     * Full identity of a connection, for matching one implementation's rows against the other's. Ports alone are not
+     * unique: two sockets listening on the same port for different local addresses share type, local port and foreign
+     * port, so a key omitting the addresses would collide and compare a connection against a different one's state.
+     */
+    private static String stateKey(InternetProtocolStats.IPConnection c) {
+        return c.getType() + ":" + Arrays.toString(c.getLocalAddress()) + ":" + c.getLocalPort() + ":"
+                + Arrays.toString(c.getForeignAddress()) + ":" + c.getForeignPort();
     }
 
     // ---- OS: Sessions ----
