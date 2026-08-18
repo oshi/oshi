@@ -83,7 +83,7 @@ public abstract class WindowsNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         IfStats stats = queryStats();
         if (stats == null) {
             return false;

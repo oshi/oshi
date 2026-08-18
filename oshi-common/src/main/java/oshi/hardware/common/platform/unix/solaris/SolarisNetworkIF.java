@@ -43,7 +43,7 @@ public abstract class SolarisNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         // Initialize to a sane default value
         this.timeStamp = System.currentTimeMillis();
         IfStats stats = queryStats();
