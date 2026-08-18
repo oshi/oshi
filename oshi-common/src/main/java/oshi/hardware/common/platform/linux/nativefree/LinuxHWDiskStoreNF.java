@@ -118,7 +118,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         String devName = getName().replace(DevPath.DEV, "");
         String statStr = FileUtil.getStringFromFile(SYS_BLOCK + devName + "/" + STAT).trim();
         if (statStr.isEmpty()) {

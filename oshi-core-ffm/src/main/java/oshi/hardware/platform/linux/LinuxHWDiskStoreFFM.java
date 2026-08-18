@@ -187,7 +187,7 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         return !getDisks(this).isEmpty();
     }
 

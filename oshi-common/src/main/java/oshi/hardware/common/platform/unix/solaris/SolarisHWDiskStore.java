@@ -70,7 +70,7 @@ public abstract class SolarisHWDiskStore extends AbstractHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         this.timeStamp = System.currentTimeMillis();
         DiskStats stats = queryStats();
         if (stats == null) {

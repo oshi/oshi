@@ -111,7 +111,7 @@ public abstract class OpenBsdHWDiskStore extends AbstractHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         long now = System.currentTimeMillis();
         boolean diskFound = false;
         for (String line : iostat.get()) {
