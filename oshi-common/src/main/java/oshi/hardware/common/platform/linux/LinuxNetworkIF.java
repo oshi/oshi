@@ -90,7 +90,7 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         String name = SysPath.NET + getName();
         try {
             File ifDir = new File(name + "/statistics");

@@ -40,6 +40,11 @@ import oshi.annotation.concurrent.ThreadSafe;
  * {@link #getTimeRemainingEstimated()} returns {@code -1.0} (calculating) or {@code -2.0} (unlimited).
  * <p>
  * <b>Platform notes:</b> On Android and some embedded systems, the power source list may be empty.
+ * <p>
+ * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
+ * {@link #updateAttributes()} method may update attributes, and should externally synchronize such usage to ensure
+ * consistent calculations. Unlike the other refreshable types, a failed update leaves this power source unchanged:
+ * {@link #updateAttributes()} assigns nothing unless it finds a source matching this one's name.
  */
 @PublicApi
 @ThreadSafe

@@ -41,7 +41,7 @@ public final class NetBsdNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         // NetBSD netstat -bI <name> output:
         // Name Mtu Network Address Ibytes Obytes
         // wm0 1500 <Link> 52:54:00:12:34:56 689584214 13656411

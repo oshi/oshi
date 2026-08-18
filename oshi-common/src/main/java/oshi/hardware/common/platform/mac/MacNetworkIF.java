@@ -47,7 +47,7 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
      * @param data map of interface index to {@link IFdata}
      * @return {@code true} if this interface's index was present in the map
      */
-    protected boolean updateNetworkStats(Map<Integer, IFdata> data) {
+    protected synchronized boolean updateNetworkStats(Map<Integer, IFdata> data) {
         int index = queryNetworkInterface().getIndex();
         if (data.containsKey(index)) {
             IFdata ifData = data.get(index);
