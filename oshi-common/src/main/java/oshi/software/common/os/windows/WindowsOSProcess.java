@@ -185,16 +185,23 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        Map<Integer, ThreadPerfCounterBlock> threads = this.tcb.get();
+        // Take both fields in one lock hold so the map and the name labelling it come from the same refresh.
+        // Reading them separately would let a concurrent update place a snapshot boundary between them.
+        Map<Integer, ThreadPerfCounterBlock> threads;
+        String procName;
+        synchronized (this) {
+            threads = this.tcb.get();
+            procName = this.name;
+        }
         if (threads == null) {
-            threads = queryMatchingThreads(Collections.singleton(this.getProcessID()), this.name);
+            threads = queryMatchingThreads(Collections.singleton(this.getProcessID()), procName);
         }
         if (threads == null) {
             threads = Collections.emptyMap();
         }
         return threads.entrySet().stream().parallel()
                 .filter(entry -> entry.getValue().getOwningProcessID() == this.getProcessID())
-                .map(entry -> createOSThread(getProcessID(), entry.getKey(), this.name, entry.getValue()))
+                .map(entry -> createOSThread(getProcessID(), entry.getKey(), procName, entry.getValue()))
                 .collect(Collectors.toList());
     }
 
