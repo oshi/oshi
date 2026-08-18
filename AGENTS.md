@@ -125,13 +125,20 @@ Before opening a PR, run the whole gate as one command, and fold any spotless re
 same commit:
 
 ```sh
-./mvnw clean spotless:apply sortpom:sort checkstyle:check install forbiddenapis:check javadoc:javadoc
+./mvnw clean spotless:apply sortpom:sort checkstyle:check install forbiddenapis:check javadoc:javadoc -Paggregate-coverage
 ```
 
 Spotless first, because it shifts line numbers. `install` before `forbiddenapis:check` and
 `javadoc:javadoc`, because both need compiled classes — see the warning above. `checkstyle:check`
 must be named explicitly: it is only bound to a phase in the `checks` profile, which is not active
 by default. Add `-pl <modules> -am` to narrow the run to the modules you touched.
+
+⚠️ **`-Paggregate-coverage` is not optional if you renamed, moved or deleted anything the
+`oshi.comparison` tests reference.** `oshi-benchmark` sets `<maven.test.skip>true</maven.test.skip>`
+in its own pom, and `maven.test.skip` suppresses test *compilation*, not just execution — so a full
+green reactor build compiles **zero** of those test sources and cannot tell you they no longer
+build. Either `-Paggregate-coverage` or `-Pnative-comparison` turns them back on. This is how a PR
+deleting six driver classes reached CI with the comparison tests still importing them.
 
 ### Tests
 

@@ -43,19 +43,20 @@ import com.sun.jna.platform.win32.Winsvc;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.driver.windows.EnumWindows;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorJNA;
 import oshi.driver.windows.registry.HkeyUserData;
 import oshi.driver.windows.registry.NetSessionData;
-import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
 import oshi.driver.windows.registry.ProcessWtsData;
 import oshi.driver.windows.registry.SessionWtsData;
-import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 import oshi.driver.windows.wmi.Win32OperatingSystemJNA;
 import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
@@ -112,25 +113,25 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     @Override
     protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
             @Nullable Collection<Integer> pids) {
-        return ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
+        return ProcessPerformanceData.buildProcessMapFromRegistry(PerfCounterQueryExecutorJNA.INSTANCE, pids);
     }
 
     @Override
     protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
             @Nullable Collection<Integer> pids) {
-        return ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
+        return ProcessPerformanceData.buildProcessMapFromPerfCounters(PerfCounterQueryExecutorJNA.INSTANCE, pids);
     }
 
     @Override
     protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
             @Nullable Collection<Integer> pids) {
-        return ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
+        return ThreadPerformanceData.buildThreadMapFromRegistry(PerfCounterQueryExecutorJNA.INSTANCE, pids);
     }
 
     @Override
     protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
             @Nullable Collection<Integer> pids) {
-        return ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids);
+        return ThreadPerformanceData.buildThreadMapFromPerfCounters(PerfCounterQueryExecutorJNA.INSTANCE, pids);
     }
 
     @Override

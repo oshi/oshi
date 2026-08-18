@@ -12,7 +12,8 @@ import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorJNA;
 
 /**
  * JNA-based Windows OS thread implementation.
@@ -28,8 +29,8 @@ public class WindowsOSThreadJNA extends oshi.software.common.os.windows.WindowsO
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(getOwningProcessId());
         String procName = getProcName();
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids,
-                procName, getThreadId());
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData
+                .buildThreadMapFromPerfCounters(PerfCounterQueryExecutorJNA.INSTANCE, pids, procName, getThreadId());
         return updateAttributes(procName, threads == null ? null : threads.get(getThreadId()));
     }
 }

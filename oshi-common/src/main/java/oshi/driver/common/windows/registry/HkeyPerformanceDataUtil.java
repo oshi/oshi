@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -61,6 +62,13 @@ public abstract class HkeyPerformanceDataUtil {
     private static final long INSTANCE_DEF_NAME_OFFSET = 16;
 
     private static final long COUNTER_BLOCK_BYTE_LENGTH = 0;
+
+    /**
+     * Whether HKEY_PERFORMANCE_DATA may be read at all, per {@link GlobalConfig#OSHI_OS_WINDOWS_HKEYPERFDATA}. Lives
+     * here rather than on one caller because the setting governs the registry itself, and is documented as covering
+     * both processes and threads.
+     */
+    static final boolean PERFDATA = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true);
 
     /**
      * Registry key containing English counter name/index pairs.

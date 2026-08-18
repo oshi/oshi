@@ -5,6 +5,8 @@
 package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -14,9 +16,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
-import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorFFM;
+import oshi.util.GlobalConfig;
 import oshi.util.PlatformEnum;
 
 /**
@@ -31,11 +35,25 @@ class RegistryComparisonTest {
     // for a memory gauge while the other read captures a small allocation.
     private static final long ZERO_TOLERANCE_BYTES = 1024L * 1024L;
 
+    /**
+     * Every comparison here reads both backends, and each can be turned off independently: the registry through
+     * {@code oshi.os.windows.hkeyperfdata}, the counters through PerfProc detection. A disabled backend yields null or
+     * an empty map, which says nothing about whether the two agree, so skip instead of failing.
+     */
+    private static void assumeBothBackendsEnabled() {
+        assumeTrue(GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true),
+                "HKEY_PERFORMANCE_DATA disabled by oshi.os.windows.hkeyperfdata");
+        assumeFalse(PerfCounterQueryExecutorFFM.INSTANCE.isPerfProcDisabled(), "PerfProc counters disabled");
+    }
+
     @Test
     void testProcessData() {
+        assumeBothBackendsEnabled();
         // Registry first, then PerfCounters
-        Map<Integer, ProcessPerfCounterBlock> reg = ProcessPerformanceDataFFM.buildProcessMapFromRegistry(null);
-        Map<Integer, ProcessPerfCounterBlock> pdh = ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(null);
+        Map<Integer, ProcessPerfCounterBlock> reg = ProcessPerformanceData
+                .buildProcessMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, null);
+        Map<Integer, ProcessPerfCounterBlock> pdh = ProcessPerformanceData
+                .buildProcessMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, null);
         assertThat(reg).as("Registry process map").isNotNull().isNotEmpty();
         assertThat(pdh).as("PerfCounter process map").isNotNull().isNotEmpty();
 
@@ -78,9 +96,12 @@ class RegistryComparisonTest {
 
     @Test
     void testThreadData() {
+        assumeBothBackendsEnabled();
         // Registry first, then PerfCounters
-        Map<Integer, ThreadPerfCounterBlock> reg = ThreadPerformanceDataFFM.buildThreadMapFromRegistry(null);
-        Map<Integer, ThreadPerfCounterBlock> pdh = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(null);
+        Map<Integer, ThreadPerfCounterBlock> reg = ThreadPerformanceData
+                .buildThreadMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, null);
+        Map<Integer, ThreadPerfCounterBlock> pdh = ThreadPerformanceData
+                .buildThreadMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, null);
         assertThat(reg).as("Registry thread map").isNotNull().isNotEmpty();
         assertThat(pdh).as("PerfCounter thread map").isNotNull().isNotEmpty();
 

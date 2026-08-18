@@ -35,18 +35,19 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32OperatingSystem.OSVersionProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.BitnessProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorFFM;
 import oshi.driver.windows.registry.HkeyUserDataFFM;
 import oshi.driver.windows.registry.NetSessionDataFFM;
-import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
 import oshi.driver.windows.registry.ProcessWtsDataFFM;
 import oshi.driver.windows.registry.SessionWtsDataFFM;
-import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32OperatingSystemFFM;
 import oshi.driver.windows.wmi.Win32ProcessorFFM;
 import oshi.ffm.NativeHandle;
@@ -264,25 +265,25 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     @Override
     protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
             @Nullable Collection<Integer> pids) {
-        return ProcessPerformanceDataFFM.buildProcessMapFromRegistry(pids);
+        return ProcessPerformanceData.buildProcessMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, pids);
     }
 
     @Override
     protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
             @Nullable Collection<Integer> pids) {
-        return ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
+        return ProcessPerformanceData.buildProcessMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, pids);
     }
 
     @Override
     protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
             @Nullable Collection<Integer> pids) {
-        return ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
+        return ThreadPerformanceData.buildThreadMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, pids);
     }
 
     @Override
     protected @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
             @Nullable Collection<Integer> pids) {
-        return ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids);
+        return ThreadPerformanceData.buildThreadMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, pids);
     }
 
     @Override

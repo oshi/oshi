@@ -44,13 +44,14 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.common.windows.wmi.WmiUtil;
-import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorFFM;
 import oshi.driver.windows.registry.ProcessWtsDataFFM;
-import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
 import oshi.driver.windows.wmi.Win32ProcessCachedFFM;
 import oshi.driver.windows.wmi.Win32ProcessFFM;
 import oshi.ffm.NativeHandle;
@@ -103,10 +104,11 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(this.getProcessID());
         // Get data from the registry if possible
-        Map<Integer, ProcessPerfCounterBlock> pcbMap = ProcessPerformanceDataFFM.buildProcessMapFromRegistry(pids);
+        Map<Integer, ProcessPerfCounterBlock> pcbMap = ProcessPerformanceData
+                .buildProcessMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, pids);
         // otherwise performance counters with WMI backup
         if (pcbMap == null || pcbMap.isEmpty()) {
-            pcbMap = ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(pids);
+            pcbMap = ProcessPerformanceData.buildProcessMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, pids);
         }
         ProcessPerfCounterBlock pcb = pcbMap == null ? null : pcbMap.get(this.getProcessID());
         // Query threads against the name just fetched, rather than publishing it to the field first so the callee
@@ -157,9 +159,11 @@ public class WindowsOSProcessFFM extends WindowsOSProcess {
 
     @Override
     protected @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids, String procName) {
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataFFM.buildThreadMapFromRegistry(pids);
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData
+                .buildThreadMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, pids);
         if (threads == null || threads.isEmpty()) {
-            threads = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(pids, procName, -1);
+            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, pids,
+                    procName, -1);
         }
         return threads;
     }

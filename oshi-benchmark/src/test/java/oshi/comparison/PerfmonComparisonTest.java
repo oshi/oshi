@@ -29,6 +29,7 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityT
 import oshi.driver.common.windows.perfmon.ProcessorInformation.SystemTickCountProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ContextSwitchProperty;
 import oshi.driver.common.windows.perfmon.SystemInformation.ProcessorQueueLengthProperty;
+import oshi.driver.common.windows.perfmon.ThreadInformation;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.driver.windows.perfmon.GpuInformationFFM;
 import oshi.driver.windows.perfmon.GpuInformationJNA;
@@ -36,6 +37,8 @@ import oshi.driver.windows.perfmon.MemoryInformationFFM;
 import oshi.driver.windows.perfmon.MemoryInformationJNA;
 import oshi.driver.windows.perfmon.PagingFileFFM;
 import oshi.driver.windows.perfmon.PagingFileJNA;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorFFM;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorJNA;
 import oshi.driver.windows.perfmon.PhysicalDiskFFM;
 import oshi.driver.windows.perfmon.PhysicalDiskJNA;
 import oshi.driver.windows.perfmon.ProcessInformationFFM;
@@ -44,8 +47,6 @@ import oshi.driver.windows.perfmon.ProcessorInformationFFM;
 import oshi.driver.windows.perfmon.ProcessorInformationJNA;
 import oshi.driver.windows.perfmon.SystemInformationFFM;
 import oshi.driver.windows.perfmon.SystemInformationJNA;
-import oshi.driver.windows.perfmon.ThreadInformationFFM;
-import oshi.driver.windows.perfmon.ThreadInformationJNA;
 import oshi.util.PlatformEnum;
 import oshi.util.tuples.Pair;
 
@@ -170,18 +171,20 @@ class PerfmonComparisonTest {
 
     @Test
     void testThreadCounters() {
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> jna = ThreadInformationJNA.queryThreadCounters();
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> ffm = ThreadInformationFFM.queryThreadCounters();
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> jna = ThreadInformation
+                .queryThreadCounters(PerfCounterQueryExecutorJNA.INSTANCE);
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> ffm = ThreadInformation
+                .queryThreadCounters(PerfCounterQueryExecutorFFM.INSTANCE);
         assertThat(ffm.getB().keySet()).as("Thread counter keys").isEqualTo(jna.getB().keySet());
     }
 
     @Test
     void testThreadCountersFiltered() {
         // Exercise the filtered overload with a known process name
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> jna = ThreadInformationJNA
-                .queryThreadCounters("java", -1);
-        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> ffm = ThreadInformationFFM
-                .queryThreadCounters("java", -1);
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> jna = ThreadInformation
+                .queryThreadCounters(PerfCounterQueryExecutorJNA.INSTANCE, "java", -1);
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> ffm = ThreadInformation
+                .queryThreadCounters(PerfCounterQueryExecutorFFM.INSTANCE, "java", -1);
         assertThat(ffm.getB().keySet()).as("Filtered thread counter keys").isEqualTo(jna.getB().keySet());
         assertThat(ffm.getA().isEmpty()).as("Filtered thread instances empty").isEqualTo(jna.getA().isEmpty());
     }

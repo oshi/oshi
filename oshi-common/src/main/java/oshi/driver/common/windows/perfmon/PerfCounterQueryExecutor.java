@@ -7,7 +7,10 @@ package oshi.driver.common.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * Common interface for querying Windows performance counters, abstracting JNA and FFM implementations.
@@ -104,4 +107,17 @@ public interface PerfCounterQueryExecutor {
      * @return true if Windows 7+
      */
     boolean isWin7OrGreater();
+
+    /**
+     * Reads and parses a block of performance data straight from the registry, bypassing the performance counter
+     * subsystem.
+     *
+     * @param <T>         The counter enum type. Its first constant names the instance; the rest name counters.
+     * @param objectName  The counter object to fetch
+     * @param counterEnum Which counters to return data for
+     * @return A triplet of the per-instance counter maps, the timestamp in 100nSec units of the Windows 1601 epoch, and
+     *         the same timestamp in milliseconds of the 1970 epoch; or null if the object could not be read
+     */
+    <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
+            String objectName, Class<T> counterEnum);
 }

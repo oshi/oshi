@@ -11,6 +11,7 @@ import static oshi.driver.common.windows.registry.PerfCounterValues.pointerValue
 import static oshi.driver.common.windows.registry.PerfCounterValues.stringValue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,8 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.PerfCounterQueryExecutor;
+import oshi.driver.common.windows.perfmon.ThreadInformation;
 import oshi.driver.common.windows.perfmon.ThreadInformation.ThreadPerformanceProperty;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
@@ -46,7 +49,7 @@ public final class ThreadPerformanceData {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information, or null if threadData is null.
      */
-    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+    private static @Nullable Map<Integer, ThreadPerfCounterBlock> mapFromRegistryData(
             @Nullable Collection<Integer> pids,
             @Nullable Triplet<List<Map<ThreadPerformanceProperty, Object>>, Long, Long> threadData) {
         if (threadData == null) {
@@ -95,7 +98,7 @@ public final class ThreadPerformanceData {
      * @return A map with Thread ID as the key and a {@link ThreadPerfCounterBlock} object populated with performance
      *         counter information, or null if instanceValues is null.
      */
-    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+    private static @Nullable Map<Integer, ThreadPerfCounterBlock> mapFromCounterValues(
             @Nullable Collection<Integer> pids,
             @Nullable Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues) {
         if (instanceValues == null) {
@@ -143,5 +146,53 @@ public final class ThreadPerformanceData {
             }
         }
         return threadMap;
+    }
+
+    /**
+     * Reads thread performance data from the registry.
+     *
+     * @param executor The backend performing the native queries
+     * @param pids     Process IDs to filter to, or null for all
+     * @return A map of thread ID to counter block, or null if the read failed
+     */
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
+            PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids) {
+        if (!HkeyPerformanceDataUtil.PERFDATA) {
+            return null;
+        }
+        return mapFromRegistryData(pids, executor.readPerfDataFromRegistry(THREAD, ThreadPerformanceProperty.class));
+    }
+
+    /**
+     * Reads thread performance data for every thread from performance counters.
+     *
+     * @param executor The backend performing the native queries
+     * @param pids     Process IDs to filter to, or null for all
+     * @return A map of thread ID to counter block, or null if the read failed
+     */
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids) {
+        return buildThreadMapFromPerfCounters(executor, pids, null, -1);
+    }
+
+    /**
+     * Reads thread performance data from performance counters, optionally narrowed to one process.
+     *
+     * @param executor  The backend performing the native queries
+     * @param pids      Process IDs to filter to, or null for all
+     * @param procName  Limit the matches to threads of this process, or null for all
+     * @param threadNum Limit the matches to this thread, or -1 for all
+     * @return A map of thread ID to counter block, or null if the read failed
+     */
+    public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromPerfCounters(
+            PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids, @Nullable String procName,
+            int threadNum) {
+        if (executor.isPerfProcDisabled()) {
+            return Collections.emptyMap();
+        }
+        Pair<List<String>, Map<ThreadPerformanceProperty, List<Long>>> instanceValues = procName == null
+                || procName.isEmpty() ? ThreadInformation.queryThreadCounters(executor)
+                        : ThreadInformation.queryThreadCounters(executor, procName, threadNum);
+        return mapFromCounterValues(pids, instanceValues);
     }
 }
