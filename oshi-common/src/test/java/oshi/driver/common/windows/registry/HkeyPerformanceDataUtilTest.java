@@ -59,6 +59,7 @@ class HkeyPerformanceDataUtilTest {
     private static final int PROC_COUNTER = 780;
     private static final int TIME_COUNTER = 784;
     private static final long PERF_TIME = 133_000_000_000_000_000L;
+    private static final long PERF_TIME_MILLIS = 1_655_526_400_000L;
 
     /** Counters to extract; the first constant names the instance rather than a counter. */
     enum TestProperty implements PdhCounterWildcardProperty {
@@ -113,6 +114,10 @@ class HkeyPerformanceDataUtilTest {
      * reach it, and two instances, so it has to step by the counter block length to reach the second.
      */
     private static byte[] buildBlock() {
+        return buildBlock(4);
+    }
+
+    private static byte[] buildBlock(int firstCounterSize) {
         int decoyAt = PERF_DATA_BLOCK_SIZE;
         int decoyLen = OBJECT_HEADER_SIZE;
         int objAt = decoyAt + decoyLen;
@@ -143,7 +148,7 @@ class HkeyPerformanceDataUtilTest {
         // A 4-byte counter at block offset 8, and an 8-byte counter at block offset 16
         bb.putInt(defsAt + DEF_BYTE_LENGTH, COUNTER_DEF_SIZE);
         bb.putInt(defsAt + DEF_NAME_TITLE_INDEX, PROC_COUNTER);
-        bb.putInt(defsAt + DEF_COUNTER_SIZE, 4);
+        bb.putInt(defsAt + DEF_COUNTER_SIZE, firstCounterSize);
         bb.putInt(defsAt + DEF_COUNTER_OFFSET, 8);
         int def2 = defsAt + COUNTER_DEF_SIZE;
         bb.putInt(def2 + DEF_BYTE_LENGTH, COUNTER_DEF_SIZE);
@@ -180,6 +185,8 @@ class HkeyPerformanceDataUtilTest {
                 .parsePerfData(new ArrayBuffer(buildBlock()), WANTED_OBJECT, indexMap(), TestProperty.class);
         assertNotNull(result);
         assertEquals(PERF_TIME, result.getB());
+        // 1601 epoch 100nSec units converted to 1970 epoch milliseconds, stated rather than recomputed
+        assertEquals(PERF_TIME_MILLIS, result.getC());
 
         List<Map<TestProperty, Object>> instances = result.getA();
         assertEquals(2, instances.size());
@@ -197,6 +204,13 @@ class HkeyPerformanceDataUtilTest {
     @Test
     void testObjectNotPresentReturnsNull() {
         assertNull(HkeyPerformanceDataUtil.parsePerfData(new ArrayBuffer(buildBlock()), 999, indexMap(),
+                TestProperty.class));
+    }
+
+    @Test
+    void testUnsupportedCounterSizeReturnsNull() {
+        // Only 4- and 8-byte counters can be read; anything else abandons the object rather than guessing
+        assertNull(HkeyPerformanceDataUtil.parsePerfData(new ArrayBuffer(buildBlock(2)), WANTED_OBJECT, indexMap(),
                 TestProperty.class));
     }
 
