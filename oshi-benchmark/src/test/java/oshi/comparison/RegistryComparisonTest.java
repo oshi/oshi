@@ -14,9 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
-import oshi.driver.windows.registry.ProcessPerformanceDataFFM;
-import oshi.driver.windows.registry.ThreadPerformanceDataFFM;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorFFM;
 import oshi.util.PlatformEnum;
 
 /**
@@ -34,8 +35,10 @@ class RegistryComparisonTest {
     @Test
     void testProcessData() {
         // Registry first, then PerfCounters
-        Map<Integer, ProcessPerfCounterBlock> reg = ProcessPerformanceDataFFM.buildProcessMapFromRegistry(null);
-        Map<Integer, ProcessPerfCounterBlock> pdh = ProcessPerformanceDataFFM.buildProcessMapFromPerfCounters(null);
+        Map<Integer, ProcessPerfCounterBlock> reg = ProcessPerformanceData
+                .buildProcessMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, null);
+        Map<Integer, ProcessPerfCounterBlock> pdh = ProcessPerformanceData
+                .buildProcessMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, null);
         assertThat(reg).as("Registry process map").isNotNull().isNotEmpty();
         assertThat(pdh).as("PerfCounter process map").isNotNull().isNotEmpty();
 
@@ -79,8 +82,10 @@ class RegistryComparisonTest {
     @Test
     void testThreadData() {
         // Registry first, then PerfCounters
-        Map<Integer, ThreadPerfCounterBlock> reg = ThreadPerformanceDataFFM.buildThreadMapFromRegistry(null);
-        Map<Integer, ThreadPerfCounterBlock> pdh = ThreadPerformanceDataFFM.buildThreadMapFromPerfCounters(null);
+        Map<Integer, ThreadPerfCounterBlock> reg = ThreadPerformanceData
+                .buildThreadMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, null);
+        Map<Integer, ThreadPerfCounterBlock> pdh = ThreadPerformanceData
+                .buildThreadMapFromPerfCounters(PerfCounterQueryExecutorFFM.INSTANCE, null);
         assertThat(reg).as("Registry thread map").isNotNull().isNotEmpty();
         assertThat(pdh).as("PerfCounter thread map").isNotNull().isNotEmpty();
 
