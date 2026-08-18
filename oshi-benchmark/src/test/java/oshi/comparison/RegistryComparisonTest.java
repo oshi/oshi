@@ -5,6 +5,8 @@
 package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -18,6 +20,7 @@ import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
 import oshi.driver.common.windows.registry.ThreadPerformanceData;
 import oshi.driver.windows.perfmon.PerfCounterQueryExecutorFFM;
+import oshi.util.GlobalConfig;
 import oshi.util.PlatformEnum;
 
 /**
@@ -32,8 +35,20 @@ class RegistryComparisonTest {
     // for a memory gauge while the other read captures a small allocation.
     private static final long ZERO_TOLERANCE_BYTES = 1024L * 1024L;
 
+    /**
+     * Every comparison here reads both backends, and each can be turned off independently: the registry through
+     * {@code oshi.os.windows.hkeyperfdata}, the counters through PerfProc detection. A disabled backend yields null or
+     * an empty map, which says nothing about whether the two agree, so skip instead of failing.
+     */
+    private static void assumeBothBackendsEnabled() {
+        assumeTrue(GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true),
+                "HKEY_PERFORMANCE_DATA disabled by oshi.os.windows.hkeyperfdata");
+        assumeFalse(PerfCounterQueryExecutorFFM.INSTANCE.isPerfProcDisabled(), "PerfProc counters disabled");
+    }
+
     @Test
     void testProcessData() {
+        assumeBothBackendsEnabled();
         // Registry first, then PerfCounters
         Map<Integer, ProcessPerfCounterBlock> reg = ProcessPerformanceData
                 .buildProcessMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, null);
@@ -81,6 +96,7 @@ class RegistryComparisonTest {
 
     @Test
     void testThreadData() {
+        assumeBothBackendsEnabled();
         // Registry first, then PerfCounters
         Map<Integer, ThreadPerfCounterBlock> reg = ThreadPerformanceData
                 .buildThreadMapFromRegistry(PerfCounterQueryExecutorFFM.INSTANCE, null);
