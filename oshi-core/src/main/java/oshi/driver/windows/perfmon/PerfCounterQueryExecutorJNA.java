@@ -7,14 +7,18 @@ package oshi.driver.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.win32.VersionHelpers;
 
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.perfmon.PerfCounterQueryExecutor;
+import oshi.driver.windows.registry.HkeyPerformanceDataUtilJNA;
 import oshi.util.platform.windows.PerfCounterQuery;
 import oshi.util.platform.windows.PerfCounterWildcardQuery;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * JNA-based {@link PerfCounterQueryExecutor} implementation.
@@ -77,5 +81,11 @@ public final class PerfCounterQueryExecutorJNA implements PerfCounterQueryExecut
     @Override
     public boolean isWin7OrGreater() {
         return IS_WIN7_OR_GREATER;
+    }
+
+    @Override
+    public <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
+            String objectName, Class<T> counterEnum) {
+        return HkeyPerformanceDataUtilJNA.readPerfDataFromRegistry(objectName, counterEnum);
     }
 }

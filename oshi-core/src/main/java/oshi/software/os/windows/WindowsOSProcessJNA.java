@@ -31,14 +31,15 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
 import oshi.driver.common.windows.registry.WtsInfo;
 import oshi.driver.common.windows.wmi.Win32Process.CommandLineProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
-import oshi.driver.windows.registry.ProcessPerformanceDataJNA;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorJNA;
 import oshi.driver.windows.registry.ProcessWtsData;
-import oshi.driver.windows.registry.ThreadPerformanceDataJNA;
 import oshi.driver.windows.wmi.Win32ProcessCachedJNA;
 import oshi.driver.windows.wmi.Win32ProcessJNA;
 import oshi.jna.ByRef.CloseableHANDLEByReference;
@@ -88,10 +89,11 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     public boolean updateAttributes() {
         Set<Integer> pids = Collections.singleton(this.getProcessID());
         // Get data from the registry if possible
-        Map<Integer, ProcessPerfCounterBlock> pcbMap = ProcessPerformanceDataJNA.buildProcessMapFromRegistry(pids);
+        Map<Integer, ProcessPerfCounterBlock> pcbMap = ProcessPerformanceData
+                .buildProcessMapFromRegistry(PerfCounterQueryExecutorJNA.INSTANCE, pids);
         // otherwise performance counters with WMI backup
         if (pcbMap == null || pcbMap.isEmpty()) {
-            pcbMap = ProcessPerformanceDataJNA.buildProcessMapFromPerfCounters(pids);
+            pcbMap = ProcessPerformanceData.buildProcessMapFromPerfCounters(PerfCounterQueryExecutorJNA.INSTANCE, pids);
         }
         ProcessPerfCounterBlock pcb = pcbMap == null ? null : pcbMap.get(this.getProcessID());
         // Query threads against the name just fetched, rather than publishing it to the field first so the callee
@@ -144,9 +146,11 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
 
     @Override
     protected @Nullable Map<Integer, ThreadPerfCounterBlock> queryMatchingThreads(Set<Integer> pids, String procName) {
-        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(pids);
+        Map<Integer, ThreadPerfCounterBlock> threads = ThreadPerformanceData
+                .buildThreadMapFromRegistry(PerfCounterQueryExecutorJNA.INSTANCE, pids);
         if (threads == null || threads.isEmpty()) {
-            threads = ThreadPerformanceDataJNA.buildThreadMapFromPerfCounters(pids, procName, -1);
+            threads = ThreadPerformanceData.buildThreadMapFromPerfCounters(PerfCounterQueryExecutorJNA.INSTANCE, pids,
+                    procName, -1);
         }
         return threads;
     }

@@ -7,13 +7,17 @@ package oshi.driver.windows.perfmon;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.driver.common.windows.perfmon.PdhCounterProperty;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.perfmon.PerfCounterQueryExecutor;
+import oshi.driver.windows.registry.HkeyPerformanceDataUtilFFM;
 import oshi.ffm.platform.windows.VersionHelpersFFM;
 import oshi.ffm.util.platform.windows.PerfCounterQueryFFM;
 import oshi.ffm.util.platform.windows.PerfCounterWildcardQueryFFM;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * FFM-based {@link PerfCounterQueryExecutor} implementation.
@@ -77,5 +81,11 @@ public final class PerfCounterQueryExecutorFFM implements PerfCounterQueryExecut
     @Override
     public boolean isWin7OrGreater() {
         return IS_WIN7_OR_GREATER;
+    }
+
+    @Override
+    public <T extends Enum<T> & PdhCounterWildcardProperty> @Nullable Triplet<List<Map<T, Object>>, Long, Long> readPerfDataFromRegistry(
+            String objectName, Class<T> counterEnum) {
+        return HkeyPerformanceDataUtilFFM.readPerfDataFromRegistry(objectName, counterEnum);
     }
 }

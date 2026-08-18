@@ -19,21 +19,26 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.driver.common.windows.registry.ProcessPerfCounterBlock;
+import oshi.driver.common.windows.registry.ProcessPerformanceData;
 import oshi.driver.common.windows.registry.ThreadPerfCounterBlock;
+import oshi.driver.common.windows.registry.ThreadPerformanceData;
+import oshi.driver.windows.perfmon.PerfCounterQueryExecutorJNA;
 
 @EnabledOnOs(OS.WINDOWS)
 class RegistryDriversTest {
 
     @Test
     void testProcessPerformanceData() {
-        Map<Integer, ProcessPerfCounterBlock> processMap = ProcessPerformanceDataJNA.buildProcessMapFromRegistry(null);
+        Map<Integer, ProcessPerfCounterBlock> processMap = ProcessPerformanceData
+                .buildProcessMapFromRegistry(PerfCounterQueryExecutorJNA.INSTANCE, null);
         assertNotNull(processMap);
         assertThat("Process map should not be empty", processMap, is(not(anEmptyMap())));
     }
 
     @Test
     void testThreadPerformanceData() {
-        Map<Integer, ThreadPerfCounterBlock> threadMap = ThreadPerformanceDataJNA.buildThreadMapFromRegistry(null);
+        Map<Integer, ThreadPerfCounterBlock> threadMap = ThreadPerformanceData
+                .buildThreadMapFromRegistry(PerfCounterQueryExecutorJNA.INSTANCE, null);
         assertNotNull(threadMap);
         assertThat("Thread map should not be empty", threadMap, is(not(anEmptyMap())));
     }

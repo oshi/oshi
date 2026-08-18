@@ -10,6 +10,7 @@ import static oshi.driver.common.windows.registry.PerfCounterValues.longValue;
 import static oshi.driver.common.windows.registry.PerfCounterValues.stringValue;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +18,10 @@ import java.util.Map;
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.perfmon.PerfCounterQueryExecutor;
+import oshi.driver.common.windows.perfmon.ProcessInformation;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
+import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -34,6 +38,8 @@ public final class ProcessPerformanceData {
      */
     public static final String PROCESS = "Process";
 
+    private static final boolean PERFDATA = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true);
+
     private ProcessPerformanceData() {
     }
 
@@ -45,7 +51,7 @@ public final class ProcessPerformanceData {
      * @return A map with Process ID as the key and a {@link ProcessPerfCounterBlock} object populated with performance
      *         counter information, or null if processData is null.
      */
-    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+    private static @Nullable Map<Integer, ProcessPerfCounterBlock> mapFromRegistryData(
             @Nullable Collection<Integer> pids,
             @Nullable Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData) {
         if (processData == null) {
@@ -90,7 +96,7 @@ public final class ProcessPerformanceData {
      * @return A map with Process ID as the key and a {@link ProcessPerfCounterBlock} object populated with performance
      *         counter information, or null if instanceValues is null.
      */
-    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+    private static @Nullable Map<Integer, ProcessPerfCounterBlock> mapFromCounterValues(
             @Nullable Collection<Integer> pids,
             @Nullable Pair<List<String>, Map<ProcessPerformanceProperty, List<Long>>> instanceValues) {
         if (instanceValues == null) {
@@ -132,5 +138,36 @@ public final class ProcessPerformanceData {
             }
         }
         return processMap;
+    }
+
+    /**
+     * Reads process performance data from the registry.
+     *
+     * @param executor The backend performing the native queries
+     * @param pids     Process IDs to filter to, or null for all
+     * @return A map of process ID to counter block, or null if the read failed
+     */
+    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
+            PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids) {
+        Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
+        if (PERFDATA) {
+            processData = executor.readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);
+        }
+        return mapFromRegistryData(pids, processData);
+    }
+
+    /**
+     * Reads process performance data from performance counters.
+     *
+     * @param executor The backend performing the native queries
+     * @param pids     Process IDs to filter to, or null for all
+     * @return A map of process ID to counter block, or null if the read failed
+     */
+    public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromPerfCounters(
+            PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids) {
+        if (executor.isPerfProcDisabled()) {
+            return Collections.emptyMap();
+        }
+        return mapFromCounterValues(pids, ProcessInformation.queryProcessCounters(executor));
     }
 }
