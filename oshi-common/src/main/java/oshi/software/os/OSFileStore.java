@@ -17,6 +17,16 @@ import oshi.hardware.HWPartition;
  * File stores are obtained from the {@link FileSystem#getFileStores()} method. The {@link #getMount()} value can be
  * correlated with {@link HWPartition#getMountPoint()} to link file stores to their underlying hardware partitions and
  * disk stores.
+ * <p>
+ * Space values satisfy {@code 0 <= getUsableSpace() <= getFreeSpace() <= getTotalSpace()}. Most platforms read the
+ * three from separate queries, so on a filesystem whose capacity is computed rather than fixed they can describe
+ * adjacent instants; the ordering is restored by clamping downward, never reporting a value higher than the operating
+ * system reported it. See {@link #getFreeSpace()} and {@link #getUsableSpace()} for the difference between them.
+ * <p>
+ * Thread safe for the designed use of retrieving the most recent data. Users should be aware that the
+ * {@link #updateAttributes()} method may update attributes, and should externally synchronize such usage to ensure
+ * consistent calculations. For monitoring multiple file stores, it is more efficient to re-query the full list from
+ * {@link FileSystem#getFileStores()} than to update each file store individually.
  *
  * @see HWDiskStore
  * @see HWPartition

@@ -151,7 +151,7 @@ public abstract class AbstractOSFileStore implements OSFileStore {
      *
      * @param fileStore the source file store
      */
-    protected void updateFrom(OSFileStore fileStore) {
+    protected synchronized void updateFrom(OSFileStore fileStore) {
         this.logicalVolume = fileStore.getLogicalVolume();
         this.description = fileStore.getDescription();
         this.fsType = fileStore.getType();
@@ -169,7 +169,7 @@ public abstract class AbstractOSFileStore implements OSFileStore {
      * @param freeInodes  free inodes
      * @param totalInodes total inodes
      */
-    protected void updateSpaceAndInodes(long freeSpace, long usableSpace, long totalSpace, long freeInodes,
+    protected synchronized void updateSpaceAndInodes(long freeSpace, long usableSpace, long totalSpace, long freeInodes,
             long totalInodes) {
         setSpace(freeSpace, usableSpace, totalSpace);
         this.freeInodes = freeInodes;
@@ -183,7 +183,7 @@ public abstract class AbstractOSFileStore implements OSFileStore {
      * @param usableSpace usable space in bytes
      * @param totalSpace  total space in bytes
      */
-    protected void updateSpace(long freeSpace, long usableSpace, long totalSpace) {
+    protected synchronized void updateSpace(long freeSpace, long usableSpace, long totalSpace) {
         setSpace(freeSpace, usableSpace, totalSpace);
     }
 
@@ -200,9 +200,15 @@ public abstract class AbstractOSFileStore implements OSFileStore {
      * the error in the direction that overstates fullness rather than free capacity.
      */
     private void setSpace(long freeSpace, long usableSpace, long totalSpace) {
-        this.totalSpace = Math.max(0L, totalSpace);
-        this.freeSpace = Math.min(Math.max(0L, freeSpace), this.totalSpace);
-        this.usableSpace = Math.min(Math.max(0L, usableSpace), this.freeSpace);
+        // Clamp against locals rather than the fields being written. Reading back a volatile just assigned would make
+        // this a read-modify-write, and two concurrent refreshes could then interleave to produce a triple that
+        // violates the very ordering this method exists to guarantee.
+        long total = Math.max(0L, totalSpace);
+        long free = Math.min(Math.max(0L, freeSpace), total);
+        long usable = Math.min(Math.max(0L, usableSpace), free);
+        this.totalSpace = total;
+        this.freeSpace = free;
+        this.usableSpace = usable;
     }
 
     @Override

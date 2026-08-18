@@ -55,7 +55,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         try {
             @SuppressWarnings("resource") // CFAllocatorGetDefault returns a borrowed singleton
             CFAllocatorRef alloc = new CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());

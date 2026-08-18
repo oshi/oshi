@@ -82,7 +82,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         String index = null;
         List<HWPartition> partitions = getPartitions();
         if (!partitions.isEmpty()) {
