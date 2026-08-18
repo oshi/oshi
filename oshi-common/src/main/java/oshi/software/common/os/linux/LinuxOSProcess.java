@@ -302,7 +302,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         boolean result = updateAttributesFromProc();
         // getrusage reports more accurate context-switch counts than /proc, but only for the current process and only
         // when its /proc attributes were read successfully

@@ -55,7 +55,7 @@ public abstract class WindowsOSThread extends AbstractOSThread {
      * @param pcb      the thread performance counter block, or null if unavailable
      * @return true if the thread is valid after the update
      */
-    protected boolean updateAttributes(@Nullable String procName, @Nullable ThreadPerfCounterBlock pcb) {
+    protected synchronized boolean updateAttributes(@Nullable String procName, @Nullable ThreadPerfCounterBlock pcb) {
         if (pcb == null) {
             this.state = INVALID;
             return false;

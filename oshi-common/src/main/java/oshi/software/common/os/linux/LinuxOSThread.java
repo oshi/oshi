@@ -55,7 +55,7 @@ public class LinuxOSThread extends AbstractOSThread {
     // PROC_TASK_STAT_ORDERS
     @SuppressWarnings("EnumOrdinal")
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         this.name = FileUtil.getStringFromFile(
                 String.format(Locale.ROOT, ProcPath.TASK_COMM, this.getOwningProcessId(), this.threadId));
         Map<String, String> status = FileUtil.getKeyValueMapFromFile(

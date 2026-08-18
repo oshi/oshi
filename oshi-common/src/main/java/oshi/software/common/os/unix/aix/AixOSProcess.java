@@ -128,7 +128,7 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
      * @param cpuMem the quartet of (userTime, kernelTime, residentSetSize, privateResidentMemory)
      * @return {@code true} if attributes were updated
      */
-    protected boolean updateAttributes(Quartet<Long, Long, Long, Long> cpuMem) {
+    protected synchronized boolean updateAttributes(Quartet<Long, Long, Long, Long> cpuMem) {
         AixPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;

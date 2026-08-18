@@ -188,7 +188,7 @@ public class MacOSProcessFFM extends MacOSProcess {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         long now = System.currentTimeMillis();
         int pid = getProcessID();
         boolean updated = callInArenaBooleanOrDefault(arena -> {

@@ -30,7 +30,7 @@ public class AixOSThread extends AbstractOSThread {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         AixLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(getOwningProcessId(), getThreadId());
         if (lwpsinfo == null) {
             this.state = OSProcess.State.INVALID;
