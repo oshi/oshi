@@ -218,7 +218,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
      * @param wts WTS info for this process, or null if unavailable
      * @return true if the process is valid after the update
      */
-    protected boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
+    protected synchronized boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
         if (pcb == null) {
             this.state = INVALID;
             return false;

@@ -48,7 +48,7 @@ public abstract class SolarisOSThread extends AbstractOSThread {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         SolarisLwpsInfo info = lwpsinfo.get();
         if (info == null) {
             this.state = INVALID;

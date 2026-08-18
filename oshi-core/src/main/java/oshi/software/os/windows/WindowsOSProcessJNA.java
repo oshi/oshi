@@ -106,7 +106,7 @@ public class WindowsOSProcessJNA extends WindowsOSProcess {
     }
 
     @Override
-    protected boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
+    protected synchronized boolean updateAttributes(@Nullable ProcessPerfCounterBlock pcb, @Nullable WtsInfo wts) {
         if (!super.updateAttributes(pcb, wts)) {
             return false;
         }

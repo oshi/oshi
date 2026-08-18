@@ -151,7 +151,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         SolarisPsInfo info = psinfo.get();
         if (info == null) {
             this.state = INVALID;

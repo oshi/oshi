@@ -138,7 +138,7 @@ public class MacOSProcessJNA extends MacOSProcess {
     }
 
     @Override
-    public boolean updateAttributes() {
+    public synchronized boolean updateAttributes() {
         long now = System.currentTimeMillis();
         try (CloseableProcTaskAllInfo taskAllInfo = new CloseableProcTaskAllInfo()) {
             if (0 > SystemB.INSTANCE.proc_pidinfo(getProcessID(), PROC_PIDTASKALLINFO, 0, taskAllInfo,
