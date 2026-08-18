@@ -2,6 +2,8 @@
 
 * The `oshi-dist` zip is no longer published to Maven Central; download it from the [GitHub release](https://github.com/oshi/oshi/releases) instead - [@dbwiddis](https://github.com/dbwiddis).
 
+* `OSFileStore` now guarantees `0 <= getUsableSpace() <= getFreeSpace() <= getTotalSpace()` on every platform. The three values are read by separate queries, so on a ZFS dataset or a swap-backed `tmpfs` they could previously contradict each other; they are now clamped downward to restore the ordering - [@dbwiddis](https://github.com/dbwiddis).
+
 * Your contribution here!
 
 # 7.5.0 (2026-08-16)

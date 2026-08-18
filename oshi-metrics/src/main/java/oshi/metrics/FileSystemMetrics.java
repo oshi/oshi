@@ -66,7 +66,8 @@ public class FileSystemMetrics implements MeterBinder {
             // system.filesystem.usage — UpDownCounter (Gauge), unit "By", attr: state, device, mount, type, mode
             Gauge.builder(FS_USAGE, fs, f -> {
                 f.updateAttributes();
-                return Math.max(0L, f.getTotalSpace() - f.getUsableSpace());
+                // OSFileStore guarantees usable <= total, so the difference cannot be negative
+                return (double) (f.getTotalSpace() - f.getUsableSpace());
             }).tag(STATE_KEY, "used").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
                     .tag(MODE_KEY, mode).description("Filesystem space usage").baseUnit("By").strongReference(true)
                     .register(registry);
@@ -81,7 +82,7 @@ public class FileSystemMetrics implements MeterBinder {
             Gauge.builder(FS_UTILIZATION, fs, f -> {
                 f.updateAttributes();
                 return f.getTotalSpace() == 0 ? 0d
-                        : Math.max(0d, (double) (f.getTotalSpace() - f.getUsableSpace()) / f.getTotalSpace());
+                        : (double) (f.getTotalSpace() - f.getUsableSpace()) / f.getTotalSpace();
             }).tag(STATE_KEY, "used").tag(DEVICE_KEY, device).tag(MOUNTPOINT_KEY, mount).tag(TYPE_KEY, type)
                     .tag(MODE_KEY, mode).description("Filesystem utilization").strongReference(true).register(registry);
             Gauge.builder(FS_UTILIZATION, fs, f -> {
