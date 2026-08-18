@@ -7,11 +7,10 @@ package oshi.software.os.shared;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.notNullValue;
 
-import java.util.EnumSet;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,12 +23,6 @@ import oshi.util.PlatformEnum;
  * Test File System
  */
 class FileSystemTest {
-
-    // Platforms whose default file systems (ZFS on Solaris and on FreeBSD's CI runner) report dynamically computed
-    // total space that can fluctuate by a few MB between back-to-back queries due to pool/dataset metadata refresh.
-    // The "total space should not change after update" check below is skipped on these.
-    private static final Set<PlatformEnum> FLUCTUATING_TOTAL_SPACE = EnumSet.of(PlatformEnum.SOLARIS,
-            PlatformEnum.FREEBSD);
 
     /**
      * Test file system.
@@ -58,9 +51,7 @@ class FileSystemTest {
             assertThat("File store options shouldn't be empty", store.getOptions().isEmpty(), is(false));
             assertThat("File store mount shouldn't be null", store.getMount(), is(notNullValue()));
             assertThat("File store UUID shouldn't be null", store.getUUID(), is(notNullValue()));
-            assertThat("File store total space should be 0 or higher", store.getTotalSpace() >= 0, is(true));
-            assertThat("File store usable space should be 0 or higher", store.getUsableSpace() >= 0, is(true));
-            assertThat("File store free space should be 0 or higher", store.getFreeSpace() >= 0, is(true));
+            assertSpaceInvariant(store);
             if (PlatformEnum.getCurrentPlatform() != PlatformEnum.WINDOWS) {
                 assertThat("Number of free inodes should be 0 or higher on non-Windows systems",
                         store.getFreeInodes() >= 0, is(true));
@@ -70,23 +61,32 @@ class FileSystemTest {
                             store.getTotalInodes() >= store.getFreeInodes(), is(true));
                 }
             }
-            if (!store.getDescription().equals("Network drive")) {
-                assertThat(
-                        "File store's usable space should be less than or equal to the total space on non-network drives",
-                        store.getUsableSpace() <= store.getTotalSpace(), is(true));
-            }
-            // updateAttributes should succeed and total space should not change
+            // updateAttributes should succeed and leave the values consistent. Total space is deliberately not asserted
+            // to be unchanged: a ZFS dataset draws its capacity from its pool and a swap-backed tmpfs from free memory,
+            // so a genuine change between two queries is correct behavior rather than a defect.
             if (++updateCount <= 10) {
-                long totalBefore = store.getTotalSpace();
                 assertThat("File store updateAttributes should succeed for " + store.getMount(),
                         store.updateAttributes(), is(true));
-                if (!FLUCTUATING_TOTAL_SPACE.contains(PlatformEnum.getCurrentPlatform())) {
-                    assertThat("File store total space should not change after update", store.getTotalSpace(),
-                            is(totalBefore));
-                }
-                assertThat("File store usable space should remain valid after update", store.getUsableSpace(),
-                        greaterThanOrEqualTo(0L));
+                assertSpaceInvariant(store);
             }
         }
+    }
+
+    /*
+     * Asserts the ordering OSFileStore guarantees for its three space values on every platform and filesystem,
+     * including network drives and dynamically sized filesystems. AbstractOSFileStore enforces it on the way in, so
+     * this needs no per-platform exemptions.
+     */
+    private static void assertSpaceInvariant(OSFileStore store) {
+        String on = " on " + store.getMount();
+        assertThat("File store total space should be 0 or higher" + on, store.getTotalSpace(),
+                greaterThanOrEqualTo(0L));
+        assertThat("File store free space should be 0 or higher" + on, store.getFreeSpace(), greaterThanOrEqualTo(0L));
+        assertThat("File store usable space should be 0 or higher" + on, store.getUsableSpace(),
+                greaterThanOrEqualTo(0L));
+        assertThat("File store free space should not exceed total space" + on, store.getFreeSpace(),
+                lessThanOrEqualTo(store.getTotalSpace()));
+        assertThat("File store usable space should not exceed free space" + on, store.getUsableSpace(),
+                lessThanOrEqualTo(store.getFreeSpace()));
     }
 }

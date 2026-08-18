@@ -96,6 +96,40 @@ class AbstractOSFileStoreTest {
     }
 
     @Test
+    void testSpaceExceedingTotalIsClampedDown() {
+        // usable > total is reachable on ZFS, where a dataset's capacity is derived from its pool, and on a
+        // swap-backed tmpfs, where it is derived from free memory: total is sampled at a different instant than the
+        // other two values. Total stays as the OS reported it; the other two come down to meet it.
+        TestOSFileStore fs = new TestOSFileStore("TestFS", "/dev/sda1", "MyLabel", "/mnt/data", "rw", "1234-5678", true,
+                "lv0", "Local Disk", "zfs", 6000L, 5500L, 5000L, 100L, 500L);
+        assertThat(fs.getTotalSpace(), is(5000L));
+        assertThat(fs.getFreeSpace(), is(5000L));
+        assertThat(fs.getUsableSpace(), is(5000L));
+    }
+
+    @Test
+    void testUsableExceedingFreeIsClampedDown() {
+        // f_bavail underflowing past the superuser reserve on a full filesystem is the realistic source of this.
+        TestOSFileStore fs = createFileStore();
+        fs.callUpdateSpace(1000L, 4000L, 5000L);
+        assertThat(fs.getTotalSpace(), is(5000L));
+        assertThat(fs.getFreeSpace(), is(1000L));
+        assertThat(fs.getUsableSpace(), is(1000L));
+    }
+
+    @Test
+    void testNegativeSpaceIsFlooredAtZero() {
+        TestOSFileStore fs = createFileStore();
+        fs.callUpdateSpaceAndInodes(-1L, -2L, -3L, 200L, 1000L);
+        assertThat(fs.getTotalSpace(), is(0L));
+        assertThat(fs.getFreeSpace(), is(0L));
+        assertThat(fs.getUsableSpace(), is(0L));
+        // Inodes carry a documented -1 "unimplemented" sentinel and are not normalized
+        assertThat(fs.getFreeInodes(), is(200L));
+        assertThat(fs.getTotalInodes(), is(1000L));
+    }
+
+    @Test
     void testUpdateFrom() {
         TestOSFileStore fs = createFileStore();
         TestOSFileStore other = new TestOSFileStore("Other", "/dev/sdb1", "OtherLabel", "/mnt/other", "ro", "9999-0000",

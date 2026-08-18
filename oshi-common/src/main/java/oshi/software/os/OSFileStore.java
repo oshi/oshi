@@ -109,8 +109,13 @@ public interface OSFileStore {
 
     /**
      * Free space on the drive. This space is unallocated but may require elevated permissions to write.
+     * <p>
+     * The difference between this value and {@link #getUsableSpace()} is space the operating system has reserved: on
+     * many UNIX filesystems a percentage held back for the superuser, on Windows the caller's disk quota. It is zero on
+     * filesystems that reserve nothing at this layer, such as ZFS and APFS.
      *
      * @return Free space on the drive (in bytes)
+     * @see #getTotalSpace()
      */
     long getFreeSpace();
 
@@ -118,11 +123,19 @@ public interface OSFileStore {
      * Usable space on the drive. This is space available to unprivileged users.
      *
      * @return Usable space on the drive (in bytes)
+     * @see #getTotalSpace()
      */
     long getUsableSpace();
 
     /**
      * Total space/capacity of the drive.
+     * <p>
+     * This value and those from {@link #getFreeSpace()} and {@link #getUsableSpace()} always satisfy
+     * {@code 0 <= usable <= free <= total}. Most platforms obtain the three from separate queries, so on a filesystem
+     * whose capacity is computed rather than fixed — a ZFS dataset drawing on its pool, or a swap-backed {@code tmpfs}
+     * — they are readings from adjacent instants rather than one coherent snapshot, and may contradict each other.
+     * Where that happens the values are clamped downward to restore the ordering; none is ever reported higher than the
+     * operating system reported it.
      *
      * @return Total capacity of the drive (in bytes)
      */
