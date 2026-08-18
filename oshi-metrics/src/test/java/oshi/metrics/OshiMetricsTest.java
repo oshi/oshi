@@ -192,11 +192,15 @@ class OshiMetricsTest {
     void filesystemUsageRegistered() {
         Gauge used = registry.find("system.filesystem.usage").tag("system.filesystem.state", "used").gauge();
         Gauge free = registry.find("system.filesystem.usage").tag("system.filesystem.state", "free").gauge();
+        Gauge reserved = registry.find("system.filesystem.usage").tag("system.filesystem.state", "reserved").gauge();
         assertNotNull(used, "system.filesystem.usage{state=used} should be registered");
         assertNotNull(free, "system.filesystem.usage{state=free} should be registered");
-        // Some filesystems (e.g., tmpfs) may report 0; just verify non-negative
+        assertNotNull(reserved, "system.filesystem.usage{state=reserved} should be registered");
+        // Some filesystems (e.g., tmpfs) may report 0; just verify non-negative. The states are asserted to sum to the
+        // limit in FileSystemMetricsTest, against fixed values: a live filesystem's space moves between samples.
         assertTrue(used.value() >= 0, "Filesystem used should be non-negative");
         assertTrue(free.value() >= 0, "Filesystem free should be non-negative");
+        assertTrue(reserved.value() >= 0, "Filesystem reserved should be non-negative");
     }
 
     @Test
@@ -210,10 +214,15 @@ class OshiMetricsTest {
     void filesystemUtilizationRegistered() {
         Gauge used = registry.find("system.filesystem.utilization").tag("system.filesystem.state", "used").gauge();
         Gauge free = registry.find("system.filesystem.utilization").tag("system.filesystem.state", "free").gauge();
+        Gauge reserved = registry.find("system.filesystem.utilization").tag("system.filesystem.state", "reserved")
+                .gauge();
         assertNotNull(used, "system.filesystem.utilization{state=used} should be registered");
         assertNotNull(free, "system.filesystem.utilization{state=free} should be registered");
+        assertNotNull(reserved, "system.filesystem.utilization{state=reserved} should be registered");
         assertTrue(used.value() >= 0 && used.value() <= 1, "Filesystem utilization used should be in [0,1]");
         assertTrue(free.value() >= 0 && free.value() <= 1, "Filesystem utilization free should be in [0,1]");
+        assertTrue(reserved.value() >= 0 && reserved.value() <= 1,
+                "Filesystem utilization reserved should be in [0,1]");
     }
 
     @Test

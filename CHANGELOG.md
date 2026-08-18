@@ -1,10 +1,19 @@
 # 7.5.1 (in progress)
 
-* The `oshi-dist` zip is no longer published to Maven Central; download it from the [GitHub release](https://github.com/oshi/oshi/releases) instead - [@dbwiddis](https://github.com/dbwiddis).
+The `oshi-dist` zip is no longer published to Maven Central; download it from the
+[GitHub release](https://github.com/oshi/oshi/releases) instead.
 
-* `OSFileStore` now guarantees `0 <= getUsableSpace() <= getFreeSpace() <= getTotalSpace()` on every platform. The three values are read by separate queries, so on a ZFS dataset or a swap-backed `tmpfs` they could previously contradict each other; they are now clamped downward to restore the ordering - [@dbwiddis](https://github.com/dbwiddis).
+##### New Features
 
-* Your contribution here!
+* [#3652](https://github.com/oshi/oshi/pull/3652): `oshi-metrics` reports the OpenTelemetry `reserved` state for `system.filesystem.usage` and `system.filesystem.utilization`, alongside the existing `used` and `free`. The three states partition the filesystem, so the `usage` gauges sum to `system.filesystem.limit` and the `utilization` gauges sum to 1.0. `reserved` is unused space unavailable to the calling process: the superuser reserve many UNIX filesystems hold back, or the caller's disk quota on Windows - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Behavior Changes
+
+* [#3652](https://github.com/oshi/oshi/pull/3652): `oshi-metrics` computes the `used` state of `system.filesystem.usage` and `system.filesystem.utilization` as `total - free` rather than `total - usable`, so it no longer counts a filesystem's reserve as used; that space is now reported as `reserved`. Values drop by the reserve on filesystems that have one, such as ext4's default 5%, and are unchanged on ZFS and APFS, which reserve nothing at this layer - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Bug Fixes and Improvements
+
+* [#3651](https://github.com/oshi/oshi/pull/3651): `OSFileStore` now guarantees `0 <= getUsableSpace() <= getFreeSpace() <= getTotalSpace()` on every platform. The three values are read by separate queries, so on a ZFS dataset or a swap-backed `tmpfs` they could previously contradict each other; they are now clamped downward to restore the ordering - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 
