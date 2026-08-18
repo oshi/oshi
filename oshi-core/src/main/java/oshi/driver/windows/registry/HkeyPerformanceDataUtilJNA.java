@@ -4,9 +4,7 @@
  */
 package oshi.driver.windows.registry;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,18 +17,13 @@ import com.sun.jna.platform.win32.Advapi32;
 import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
-import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_BLOCK;
-import com.sun.jna.platform.win32.WinPerf.PERF_COUNTER_DEFINITION;
-import com.sun.jna.platform.win32.WinPerf.PERF_DATA_BLOCK;
-import com.sun.jna.platform.win32.WinPerf.PERF_INSTANCE_DEFINITION;
-import com.sun.jna.platform.win32.WinPerf.PERF_OBJECT_TYPE;
 import com.sun.jna.platform.win32.WinReg;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PdhCounterWildcardProperty;
 import oshi.driver.common.windows.registry.HkeyPerformanceDataUtil;
+import oshi.driver.common.windows.registry.PerfDataBuffer;
 import oshi.jna.ByRef.CloseableIntByReference;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
@@ -78,77 +71,35 @@ public final class HkeyPerformanceDataUtilJNA extends HkeyPerformanceDataUtil {
             if (pPerfData == null) {
                 return null;
             }
-            // Buffer is now successfully populated.
-
-            // Store timestamp
-            PERF_DATA_BLOCK perfData = new PERF_DATA_BLOCK(pPerfData.share(0));
-            long perfTime100nSec = perfData.PerfTime100nSec.getValue(); // 1601
-            long now = ParseUtil.filetimeToUtcMs(perfTime100nSec, false); // 1970
-
-            // Iterate object types.
-            long perfObjectOffset = perfData.HeaderLength;
-            for (int obj = 0; obj < perfData.NumObjectTypes; obj++) {
-                PERF_OBJECT_TYPE perfObject = new PERF_OBJECT_TYPE(pPerfData.share(perfObjectOffset));
-                if (perfObject.ObjectNameTitleIndex == objectIndex) {
-                    // We found a matching object.
-
-                    // Counter definitions start after the object header
-                    long perfCounterOffset = perfObjectOffset + perfObject.HeaderLength;
-                    // Iterate counter definitions and fill maps with counter offsets and sizes
-                    Map<Integer, Integer> counterOffsetMap = new HashMap<>();
-                    Map<Integer, Integer> counterSizeMap = new HashMap<>();
-                    for (int counter = 0; counter < perfObject.NumCounters; counter++) {
-                        PERF_COUNTER_DEFINITION perfCounter = new PERF_COUNTER_DEFINITION(
-                                pPerfData.share(perfCounterOffset));
-                        counterOffsetMap.put(perfCounter.CounterNameTitleIndex, perfCounter.CounterOffset);
-                        counterSizeMap.put(perfCounter.CounterNameTitleIndex, perfCounter.CounterSize);
-                        // Increment for next Counter
-                        perfCounterOffset += perfCounter.ByteLength;
-                    }
-
-                    // Instances start after all the object definitions.
-                    long perfInstanceOffset = perfObjectOffset + perfObject.DefinitionLength;
-
-                    // Iterate instances and fill map
-                    T[] counterKeys = counterEnum.getEnumConstants();
-                    List<Map<T, Object>> counterMaps = new ArrayList<>(perfObject.NumInstances);
-                    for (int inst = 0; inst < perfObject.NumInstances; inst++) {
-                        PERF_INSTANCE_DEFINITION perfInstance = new PERF_INSTANCE_DEFINITION(
-                                pPerfData.share(perfInstanceOffset));
-                        long perfCounterBlockOffset = perfInstanceOffset + perfInstance.ByteLength;
-                        // Populate the enumMap
-                        Map<T, Object> counterMap = new EnumMap<>(counterEnum);
-                        counterMap.put(counterKeys[0],
-                                pPerfData.getWideString(perfInstanceOffset + perfInstance.NameOffset));
-                        for (int i = 1; i < counterKeys.length; i++) {
-                            T key = counterKeys[i];
-                            int keyIndex = enumIndexMap.getOrDefault(key, -1);
-                            int size = counterSizeMap.getOrDefault(keyIndex, 0);
-                            Integer offset = counterOffsetMap.get(keyIndex);
-                            if (offset == null) {
-                                return null;
-                            }
-                            if (size == 4) {
-                                counterMap.put(key, pPerfData.getInt(perfCounterBlockOffset + offset));
-                            } else if (size == 8) {
-                                counterMap.put(key, pPerfData.getLong(perfCounterBlockOffset + offset));
-                            } else {
-                                return null;
-                            }
-                        }
-                        counterMaps.add(counterMap);
-
-                        // Increment to next instance
-                        perfInstanceOffset = perfCounterBlockOffset
-                                + new PERF_COUNTER_BLOCK(pPerfData.share(perfCounterBlockOffset)).ByteLength;
-                    }
-                    return new Triplet<>(counterMaps, perfTime100nSec, now);
-                }
-                // Increment for next object
-                perfObjectOffset += perfObject.TotalByteLength;
-            }
+            return parsePerfData(new MemoryPerfDataBuffer(pPerfData), objectIndex, enumIndexMap, counterEnum);
         }
-        return null;
+    }
+
+    /**
+     * Reads the performance data block through JNA's {@link Memory}.
+     */
+    private static final class MemoryPerfDataBuffer implements PerfDataBuffer {
+
+        private final Memory memory;
+
+        private MemoryPerfDataBuffer(Memory memory) {
+            this.memory = memory;
+        }
+
+        @Override
+        public int getInt(long offset) {
+            return this.memory.getInt(offset);
+        }
+
+        @Override
+        public long getLong(long offset) {
+            return this.memory.getLong(offset);
+        }
+
+        @Override
+        public String getWideString(long offset) {
+            return this.memory.getWideString(offset);
+        }
     }
 
     /**
