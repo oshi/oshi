@@ -21,7 +21,6 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PerfCounterQueryExecutor;
 import oshi.driver.common.windows.perfmon.ProcessInformation;
 import oshi.driver.common.windows.perfmon.ProcessInformation.ProcessPerformanceProperty;
-import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
@@ -37,8 +36,6 @@ public final class ProcessPerformanceData {
      * The performance object name for process counters.
      */
     public static final String PROCESS = "Process";
-
-    private static final boolean PERFDATA = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_HKEYPERFDATA, true);
 
     private ProcessPerformanceData() {
     }
@@ -150,7 +147,7 @@ public final class ProcessPerformanceData {
     public static @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
             PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids) {
         Triplet<List<Map<ProcessPerformanceProperty, Object>>, Long, Long> processData = null;
-        if (PERFDATA) {
+        if (HkeyPerformanceDataUtil.PERFDATA) {
             processData = executor.readPerfDataFromRegistry(PROCESS, ProcessPerformanceProperty.class);
         }
         return mapFromRegistryData(pids, processData);

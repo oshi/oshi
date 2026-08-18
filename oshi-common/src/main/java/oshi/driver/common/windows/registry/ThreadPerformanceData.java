@@ -157,6 +157,9 @@ public final class ThreadPerformanceData {
      */
     public static @Nullable Map<Integer, ThreadPerfCounterBlock> buildThreadMapFromRegistry(
             PerfCounterQueryExecutor executor, @Nullable Collection<Integer> pids) {
+        if (!HkeyPerformanceDataUtil.PERFDATA) {
+            return null;
+        }
         return mapFromRegistryData(pids, executor.readPerfDataFromRegistry(THREAD, ThreadPerformanceProperty.class));
     }
 
