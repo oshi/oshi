@@ -7,7 +7,6 @@ package oshi.hardware.common.platform.windows;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -47,7 +46,7 @@ class WindowsCentralProcessorTest {
     @Test
     void testAllFeaturesPresent() {
         List<String> all = WindowsCentralProcessor.queryFeatureFlags(f -> true);
-        assertEquals(44, all.size());
+        assertEquals(90, all.size());
         assertEquals(new HashSet<>(all).size(), all.size(), "feature names should be unique");
         for (String name : all) {
             assertTrue(name.startsWith("PF_"), name);
@@ -64,16 +63,17 @@ class WindowsCentralProcessorTest {
     }
 
     @Test
-    void testUndefinedValuesAreNeverQueried() {
-        // Windows defines 0-45 apart from 35 and 42; neither should reach the predicate
+    void testFeatureValuesAreContiguous() {
+        // The enum mirrors winnt.h, whose PF_ defines run 0 through 89 with no gaps
         Set<Integer> queried = new HashSet<>();
         WindowsCentralProcessor.queryFeatureFlags(f -> {
             queried.add(f);
             return false;
         });
-        assertTrue(queried.contains(34), "34 is defined and should be queried");
-        assertTrue(queried.contains(36), "36 is defined and should be queried");
-        assertFalse(queried.contains(35), "35 is not defined by Windows");
-        assertFalse(queried.contains(42), "42 is not defined by Windows");
+        Set<Integer> expected = new HashSet<>();
+        for (int i = 0; i <= 89; i++) {
+            expected.add(i);
+        }
+        assertEquals(expected, queried);
     }
 }
