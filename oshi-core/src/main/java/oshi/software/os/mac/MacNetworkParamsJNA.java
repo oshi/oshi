@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.mac.net.RouteDump;
+import oshi.driver.mac.net.RouteDumpJNA;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.mac.SystemB;
 import oshi.jna.platform.unix.CLibrary;
@@ -73,6 +73,6 @@ final class MacNetworkParamsJNA extends MacNetworkParams {
 
     @Override
     protected byte[] queryRouteDump() {
-        return RouteDump.queryRouteDump();
+        return RouteDumpJNA.queryRouteDump();
     }
 }

@@ -19,7 +19,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
 import oshi.SystemInfo;
-import oshi.driver.unix.bsd.BsdRouteDump;
+import oshi.driver.mac.net.RouteDumpJNA;
+import oshi.driver.unix.bsd.BsdRouteDumpJNA;
 import oshi.hardware.NetworkIF;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.jna.platform.unix.OpenBsdLibc;
@@ -97,11 +98,11 @@ class RouteComparisonTest {
     private static byte[] nativeDump() {
         switch (platform) {
             case MACOS:
-                return oshi.driver.mac.net.RouteDump.queryRouteDump();
+                return RouteDumpJNA.queryRouteDump();
             case FREEBSD:
-                return BsdRouteDump.queryRouteDump(FreeBsdLibc.INSTANCE);
+                return BsdRouteDumpJNA.queryRouteDump(FreeBsdLibc.INSTANCE);
             default:
-                return BsdRouteDump.queryRouteDump(OpenBsdLibc.INSTANCE);
+                return BsdRouteDumpJNA.queryRouteDump(OpenBsdLibc.INSTANCE);
         }
     }
 

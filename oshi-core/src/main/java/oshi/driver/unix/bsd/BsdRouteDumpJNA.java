@@ -19,15 +19,15 @@ import oshi.jna.platform.unix.CLibrary;
  * call; only the message layout inside the buffer differs between them.
  */
 @ThreadSafe
-public final class BsdRouteDump {
+public final class BsdRouteDumpJNA {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BsdRouteDump.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BsdRouteDumpJNA.class);
 
     private static final int CTL_NET = 4;
     private static final int PF_ROUTE = 17;
     private static final int NET_RT_DUMP = 1;
 
-    private BsdRouteDump() {
+    private BsdRouteDumpJNA() {
     }
 
     /**

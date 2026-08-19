@@ -18,15 +18,15 @@ import oshi.jna.ByRef.CloseableSizeTByReference;
  * Fetches the kernel's routing table through a {@code NET_RT_DUMP} sysctl.
  */
 @ThreadSafe
-public final class RouteDump {
+public final class RouteDumpJNA {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RouteDump.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RouteDumpJNA.class);
 
     private static final int CTL_NET = 4;
     private static final int PF_ROUTE = 17;
     private static final int NET_RT_DUMP = 1;
 
-    private RouteDump() {
+    private RouteDumpJNA() {
     }
 
     /**
