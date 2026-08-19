@@ -140,4 +140,19 @@ class RouteTableDumpTest {
     void testEmptyBufferYieldsNoRoutes() {
         assertTrue(RouteTableDump.parse(new byte[0], Layout.MACOS, IF_NAMES).isEmpty());
     }
+
+    @Test
+    void testFlaggedButAbsentSockaddrIsRejected() {
+        // The header names a netmask, but the message ends after the gateway. Every message on every platform
+        // measured ends exactly on its last address, so this is truncation rather than a shorthand for "no mask"
+        int msgLen = HEADER + 16 + 16;
+        byte[] bytes = new byte[msgLen];
+        ByteBuffer bb = ByteBuffer.wrap(bytes).order(ByteOrder.nativeOrder());
+        writeHeader(bb, 0, msgLen, RTF_UP, RTAX_DST | RTAX_GATEWAY | RTAX_NETMASK);
+        writeInet(bb, HEADER, new byte[] { (byte) 192, (byte) 168, 1, 0 });
+        writeInet(bb, HEADER + 16, new byte[] { 10, 0, 0, 1 });
+
+        assertTrue(RouteTableDump.parse(bytes, Layout.MACOS, IF_NAMES).isEmpty(),
+                "a message naming an address it does not carry should yield nothing");
+    }
 }

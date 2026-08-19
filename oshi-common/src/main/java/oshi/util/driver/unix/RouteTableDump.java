@@ -149,8 +149,9 @@ public final class RouteTableDump {
                 continue;
             }
             if (sa >= end) {
-                // The mask names more addresses than the message carries; the rest are simply not there
-                break;
+                // The mask names an address the message does not carry. Every message on every platform measured
+                // ends exactly on its last address, so this is a truncated message rather than a shorthand
+                return false;
             }
             if (sa + 2 > end) {
                 return false;
