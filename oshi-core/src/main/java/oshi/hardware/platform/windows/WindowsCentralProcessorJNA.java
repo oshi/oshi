@@ -7,7 +7,6 @@ package oshi.hardware.platform.windows;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -15,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Native;
 import com.sun.jna.platform.win32.Advapi32Util;
+import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.PowrProf.POWER_INFORMATION_LEVEL;
 import com.sun.jna.platform.win32.VersionHelpers;
 import com.sun.jna.platform.win32.Win32Exception;
@@ -39,8 +39,6 @@ import oshi.driver.windows.perfmon.SystemInformationJNA;
 import oshi.driver.windows.wmi.Win32ProcessorJNA;
 import oshi.hardware.common.platform.windows.WindowsCentralProcessor;
 import oshi.jna.Struct.CloseableSystemInfo;
-import oshi.jna.platform.windows.Kernel32;
-import oshi.jna.platform.windows.Kernel32.ProcessorFeature;
 import oshi.jna.platform.windows.PowrProf;
 import oshi.jna.platform.windows.PowrProf.ProcessorPowerInformation;
 import oshi.util.tuples.Pair;
@@ -79,21 +77,13 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
         boolean cpu64bit = false;
 
         final String cpuRegistryRoot = "HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\";
-        String[] processorIds = Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryRoot);
+        String[] processorIds = registryGetKeys(cpuRegistryRoot);
         if (processorIds.length > 0) {
             String cpuRegistryPath = cpuRegistryRoot + processorIds[0];
-            cpuVendor = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                    "VendorIdentifier");
-            cpuName = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                    "ProcessorNameString");
-            cpuIdentifier = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath,
-                    "Identifier");
-            try {
-                cpuVendorFreq = Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, cpuRegistryPath, "~MHz")
-                        * 1_000_000L;
-            } catch (Win32Exception e) {
-                // Leave as 0, parse the identifier as backup
-            }
+            cpuVendor = registryGetString(cpuRegistryPath, "VendorIdentifier");
+            cpuName = registryGetString(cpuRegistryPath, "ProcessorNameString");
+            cpuIdentifier = registryGetString(cpuRegistryPath, "Identifier");
+            cpuVendorFreq = registryGetDword(cpuRegistryPath, "~MHz") * 1_000_000L;
         }
         if (!cpuIdentifier.isEmpty()) {
             cpuFamily = parseIdentifier(cpuIdentifier, "Family");
@@ -129,9 +119,7 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
         } else {
             lpi = LogicalProcessorInformation.getLogicalProcessorInformation();
         }
-        List<String> featureFlags = Arrays.stream(ProcessorFeature.values())
-                .filter(f -> Kernel32.INSTANCE.IsProcessorFeaturePresent(f.value())).map(ProcessorFeature::name)
-                .collect(Collectors.toList());
+        List<String> featureFlags = queryFeatureFlags(Kernel32.INSTANCE::IsProcessorFeaturePresent);
         return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 
@@ -246,5 +234,53 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
     @Override
     public long queryInterrupts() {
         return ProcessorInformationJNA.queryInterruptCounters().getOrDefault(InterruptsProperty.INTERRUPTSPERSEC, 0L);
+    }
+
+    /**
+     * Enumerates a registry key's subkeys, yielding none rather than throwing if it cannot be read. Mirrors the FFM
+     * backend, which reports a default for each value it fails to read instead of abandoning the rest.
+     *
+     * @param path The key to enumerate
+     * @return The subkey names, or an empty array
+     */
+    private static String[] registryGetKeys(String path) {
+        try {
+            return Advapi32Util.registryGetKeys(WinReg.HKEY_LOCAL_MACHINE, path);
+        } catch (Win32Exception e) {
+            LOG.debug("Failed to enumerate registry key {}", path, e);
+            return new String[0];
+        }
+    }
+
+    /**
+     * Reads a registry string, yielding an empty string rather than throwing if it is absent.
+     *
+     * @param path      The key holding the value
+     * @param valueName The value to read
+     * @return The value, or an empty string
+     */
+    private static String registryGetString(String path, String valueName) {
+        try {
+            return Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE, path, valueName);
+        } catch (Win32Exception e) {
+            LOG.debug("Failed to read registry string {} in {}", valueName, path, e);
+            return "";
+        }
+    }
+
+    /**
+     * Reads a registry DWORD, yielding zero rather than throwing if it is absent.
+     *
+     * @param path      The key holding the value
+     * @param valueName The value to read
+     * @return The value, or zero
+     */
+    private static long registryGetDword(String path, String valueName) {
+        try {
+            return Advapi32Util.registryGetIntValue(WinReg.HKEY_LOCAL_MACHINE, path, valueName);
+        } catch (Win32Exception e) {
+            LOG.debug("Failed to read registry DWORD {} in {}", valueName, path, e);
+            return 0L;
+        }
     }
 }
