@@ -13,7 +13,6 @@ import java.lang.foreign.ValueLayout;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -62,28 +61,6 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
 
     // ProcessorPowerInformation structure size: 6 ints = 24 bytes
     private static final int PPI_SIZE = 24;
-
-    // ProcessorFeature enum values matching JNA's Kernel32.ProcessorFeature
-    private static final int[] PROCESSOR_FEATURES = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18,
-            19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 36, 37, 38, 39, 40, 41, 43, 44, 45 };
-    private static final String[] PROCESSOR_FEATURE_NAMES = { "PF_FLOATING_POINT_PRECISION_ERRATA",
-            "PF_FLOATING_POINT_EMULATED", "PF_COMPARE_EXCHANGE_DOUBLE", "PF_MMX_INSTRUCTIONS_AVAILABLE",
-            "PF_PPC_MOVEMEM_64BIT_OK", "PF_ALPHA_BYTE_INSTRUCTIONS", "PF_XMMI_INSTRUCTIONS_AVAILABLE",
-            "PF_3DNOW_INSTRUCTIONS_AVAILABLE", "PF_RDTSC_INSTRUCTION_AVAILABLE", "PF_PAE_ENABLED",
-            "PF_XMMI64_INSTRUCTIONS_AVAILABLE", "PF_SSE_DAZ_MODE_AVAILABLE", "PF_NX_ENABLED",
-            "PF_SSE3_INSTRUCTIONS_AVAILABLE", "PF_COMPARE_EXCHANGE128", "PF_COMPARE64_EXCHANGE128",
-            "PF_CHANNELS_ENABLED", "PF_XSAVE_ENABLED", "PF_ARM_VFP_32_REGISTERS_AVAILABLE",
-            "PF_ARM_NEON_INSTRUCTIONS_AVAILABLE", "PF_SECOND_LEVEL_ADDRESS_TRANSLATION", "PF_VIRT_FIRMWARE_ENABLED",
-            "PF_RDWRFSGSBASE_AVAILABLE", "PF_FASTFAIL_AVAILABLE", "PF_ARM_DIVIDE_INSTRUCTION_AVAILABLE",
-            "PF_ARM_64BIT_LOADSTORE_ATOMIC", "PF_ARM_EXTERNAL_CACHE_AVAILABLE", "PF_ARM_FMAC_INSTRUCTIONS_AVAILABLE",
-            "PF_RDRAND_INSTRUCTION_AVAILABLE", "PF_ARM_V8_INSTRUCTIONS_AVAILABLE",
-            "PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE", "PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE",
-            "PF_RDTSCP_INSTRUCTION_AVAILABLE", "PF_RDPID_INSTRUCTION_AVAILABLE",
-            "PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE", "PF_SSSE3_INSTRUCTIONS_AVAILABLE",
-            "PF_SSE4_1_INSTRUCTIONS_AVAILABLE", "PF_SSE4_2_INSTRUCTIONS_AVAILABLE", "PF_AVX_INSTRUCTIONS_AVAILABLE",
-            "PF_AVX2_INSTRUCTIONS_AVAILABLE", "PF_AVX512F_INSTRUCTIONS_AVAILABLE",
-            "PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE", "PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE",
-            "PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE" };
 
     static {
         if (USE_LOAD_AVERAGE) {
@@ -164,9 +141,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                 .getLogicalProcessorInformationEx();
         buildNumaNodeProcMap(lpi.getA());
 
-        List<String> featureFlags = IntStream.range(0, PROCESSOR_FEATURES.length)
-                .filter(i -> Kernel32FFM.IsProcessorFeaturePresent(PROCESSOR_FEATURES[i]))
-                .mapToObj(i -> PROCESSOR_FEATURE_NAMES[i]).toList();
+        List<String> featureFlags = queryFeatureFlags(Kernel32FFM::IsProcessorFeaturePresent);
         return new Quartet<>(lpi.getA(), lpi.getB(), lpi.getC(), featureFlags);
     }
 
