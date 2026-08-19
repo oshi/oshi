@@ -13,6 +13,7 @@ import oshi.software.common.AbstractNetworkParams;
 import oshi.software.os.NetworkParams;
 import oshi.util.ExecutingCommand;
 import oshi.util.driver.unix.NetstatRoute;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * Abstract base for the OpenBSD NetworkParams. Holds the command-line gateway lookup and the host name fallback; the
@@ -45,6 +46,13 @@ public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public List<NetworkParams.IPRoute> getRoutes() {
+        byte[] dump = queryRouteDump();
+        if (dump.length > 0) {
+            List<IPRoute> routes = RouteTableDump.parse(dump, RouteTableDump.OPENBSD, queryInterfaceNameByIndex());
+            if (!routes.isEmpty()) {
+                return routes;
+            }
+        }
         return NetstatRoute.queryRoutes("netstat -rn -f inet", "netstat -rn -f inet6", IF_NAME_INDEX,
                 queryInterfaceIndexByName());
     }
@@ -56,4 +64,14 @@ public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
      * @return the native host name, or {@code null} to fall back to the InetAddress lookup
      */
     protected abstract @Nullable String queryHostName();
+
+    /**
+     * Fetches the kernel's routing table dump.
+     *
+     * @return The bytes of a {@code NET_RT_DUMP} sysctl, or an empty array if this build cannot make the call, in which
+     *         case the routing table is read by running a command instead
+     */
+    protected byte[] queryRouteDump() {
+        return new byte[0];
+    }
 }

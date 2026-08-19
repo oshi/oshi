@@ -13,6 +13,8 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 
 ##### Bug Fixes and Improvements
 
+* [#3663](https://github.com/oshi/oshi/pull/3663): `NetworkParams.getRoutes()` reads the routing table from the kernel through a `NET_RT_DUMP` sysctl on macOS, FreeBSD, DragonFly BSD and OpenBSD, rather than by running `netstat` twice. Measured at roughly 1 ms against 14 ms on macOS. Results are unchanged; NetBSD and the other platforms continue to parse command output - [@dbwiddis](https://github.com/dbwiddis).
+
 * [#3651](https://github.com/oshi/oshi/pull/3651): `OSFileStore` now guarantees `0 <= getUsableSpace() <= getFreeSpace() <= getTotalSpace()` on every platform. The three values are read by separate queries, so on a ZFS dataset or a swap-backed `tmpfs` they could previously contradict each other; they are now clamped downward to restore the ordering - [@dbwiddis](https://github.com/dbwiddis).
 * [#3657](https://github.com/oshi/oshi/pull/3657): The FFM implementation of `InternetProtocolStats.getConnections()` on macOS reported the wrong `TcpState` for every TCP connection, most often `CLOSED` or `UNKNOWN`. Its mapping of `in_sockinfo` was six bytes short, which shifted `tcpsi_state` within the enclosing `tcp_sockinfo`. The JNA implementation was unaffected - [@dbwiddis](https://github.com/dbwiddis).
 * [#3657](https://github.com/oshi/oshi/pull/3657): `InternetProtocolStats.getConnections()` on macOS now sizes its process list from the kernel instead of capping it at 1024, so connections belonging to processes past that limit are no longer omitted - [@dbwiddis](https://github.com/dbwiddis).

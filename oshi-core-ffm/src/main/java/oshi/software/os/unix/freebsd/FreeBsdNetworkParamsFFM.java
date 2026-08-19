@@ -18,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.bsd.RouteDumpFFM;
 import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.freebsd.FreeBsdNetworkParams;
@@ -69,5 +70,11 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
             }
             return buf.getString(0);
         }, LOG, LogLevel.WARN, "Failed to get hostname", null);
+    }
+
+    @Override
+    protected byte[] queryRouteDump() {
+        return RouteDumpFFM.queryRouteDump((state, name, namelen, oldp, oldlenp) -> FreeBsdLibcFunctions.sysctl(state,
+                name, namelen, oldp, oldlenp, MemorySegment.NULL, 0));
     }
 }
