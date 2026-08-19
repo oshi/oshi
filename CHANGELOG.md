@@ -1,25 +1,18 @@
-# 7.5.1 (in progress)
+# 7.6.0 (in progress)
 
-The `oshi-dist` zip is no longer published to Maven Central; download it from the
-[GitHub release](https://github.com/oshi/oshi/releases) instead.
+The `oshi-dist` zip is no longer published to Maven Central; download it from the [GitHub release](https://github.com/oshi/oshi/releases) instead.
 
 ##### New Features
 
 * [#3652](https://github.com/oshi/oshi/pull/3652): `oshi-metrics` reports the OpenTelemetry `reserved` state for `system.filesystem.usage` and `system.filesystem.utilization`, alongside the existing `used` and `free`. The three states partition the filesystem, so the `usage` gauges sum to `system.filesystem.limit` and the `utilization` gauges sum to 1.0. `reserved` is unused space unavailable to the calling process: the superuser reserve many UNIX filesystems hold back, or the caller's disk quota on Windows - [@dbwiddis](https://github.com/dbwiddis).
 
-##### Behavior Changes
-
-* [#3652](https://github.com/oshi/oshi/pull/3652): `oshi-metrics` computes the `used` state of `system.filesystem.usage` and `system.filesystem.utilization` as `total - free` rather than `total - usable`, so it no longer counts a filesystem's reserve as used; that space is now reported as `reserved`. Values drop by the reserve on filesystems that have one, such as ext4's default 5%, and are unchanged on ZFS and APFS, which reserve nothing at this layer - [@dbwiddis](https://github.com/dbwiddis).
-
 ##### Bug Fixes and Improvements
 
 * [#3651](https://github.com/oshi/oshi/pull/3651): `OSFileStore` now guarantees `0 <= getUsableSpace() <= getFreeSpace() <= getTotalSpace()` on every platform. The three values are read by separate queries, so on a ZFS dataset or a swap-backed `tmpfs` they could previously contradict each other; they are now clamped downward to restore the ordering - [@dbwiddis](https://github.com/dbwiddis).
-* [#3657](https://github.com/oshi/oshi/pull/3657): The FFM implementation of `InternetProtocolStats.getConnections()` on macOS reported the wrong `TcpState` for every TCP connection, most often `CLOSED` or `UNKNOWN`. Its mapping of `in_sockinfo` was six bytes short, which shifted `tcpsi_state` within the enclosing `tcp_sockinfo`. The JNA implementation was unaffected - [@dbwiddis](https://github.com/dbwiddis).
-* [#3657](https://github.com/oshi/oshi/pull/3657): `InternetProtocolStats.getConnections()` on macOS now sizes its process list from the kernel instead of capping it at 1024, so connections belonging to processes past that limit are no longer omitted - [@dbwiddis](https://github.com/dbwiddis).
-* [#3661](https://github.com/oshi/oshi/pull/3661): Setting `oshi.os.windows.hkeyperfdata` to `false` now also skips the registry when fetching thread counters, matching its documented behavior and the existing handling for processes. Threads previously read `HKEY_PERFORMANCE_DATA` regardless of the setting - [@dbwiddis](https://github.com/dbwiddis).
-* [#3662](https://github.com/oshi/oshi/pull/3662): Reading the processor description from the registry no longer throws when a value is missing. `CentralProcessor.getProcessorIdentifier()` previously propagated a `Win32Exception` if `VendorIdentifier`, `ProcessorNameString` or `Identifier` was absent; each now falls back to an empty value independently, as the FFM implementation already did - [@dbwiddis](https://github.com/dbwiddis).
-* [#3662](https://github.com/oshi/oshi/pull/3662): `CentralProcessor.getFeatureFlags()` on Windows now reports every processor feature `IsProcessorFeaturePresent()` accepts, matching the `PF_` defines in `winnt.h`. The list stopped at 45 and skipped two values within that range, so features added since Windows 11 went unreported: the AVX-adjacent `PF_ERMS_AVAILABLE` and `PF_BMI2_INSTRUCTIONS_AVAILABLE`, `PF_MOVDIR64B_INSTRUCTION_AVAILABLE`, and the Arm SVE, SVE2 and SME families - [@dbwiddis](https://github.com/dbwiddis).
-* [#3665](https://github.com/oshi/oshi/pull/3665): `NetworkParams.getRoutes()` reads the routing table from the kernel through a `NET_RT_DUMP` sysctl on macOS, FreeBSD, DragonFly BSD and OpenBSD, rather than by running `netstat` twice. Measured at roughly 1 ms against 14 ms on macOS. Results are unchanged; NetBSD and the other platforms continue to parse command output - [@dbwiddis](https://github.com/dbwiddis).
+* [#3657](https://github.com/oshi/oshi/pull/3657): Fix the `TcpState` for the FFM implementation of `InternetProtocolStats.getConnections()` on macOS and set the process cap from the kernel - [@dbwiddis](https://github.com/dbwiddis).
+* [#3661](https://github.com/oshi/oshi/pull/3661): Setting `oshi.os.windows.hkeyperfdata` to `false` now also skips the registry when fetching thread counters, matching its documented behavior and the existing handling for processes - [@dbwiddis](https://github.com/dbwiddis).
+* [#3662](https://github.com/oshi/oshi/pull/3662): Reading the processor description from the registry no longer throws when a value is missing. `CentralProcessor.getFeatureFlags()` on Windows now reports every processor feature `IsProcessorFeaturePresent()` accepts, matching the `PF_` defines in `winnt.h` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3665](https://github.com/oshi/oshi/pull/3665): `NetworkParams.getRoutes()` reads the routing table from the kernel through a `NET_RT_DUMP` sysctl on macOS, FreeBSD, DragonFly BSD and OpenBSD, rather than by running `netstat` twice - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 
