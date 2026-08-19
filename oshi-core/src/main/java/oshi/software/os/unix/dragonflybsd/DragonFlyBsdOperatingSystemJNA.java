@@ -20,7 +20,6 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemJNA;
 import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsJNA;
-import oshi.software.os.unix.freebsd.FreeBsdNetworkParamsJNA;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
@@ -46,7 +45,7 @@ public class DragonFlyBsdOperatingSystemJNA extends DragonFlyBsdOperatingSystem 
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new FreeBsdNetworkParamsJNA();
+        return new DragonFlyBsdNetworkParamsJNA();
     }
 
     @Override

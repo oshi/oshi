@@ -54,14 +54,18 @@ public final class RouteTableDump {
      * does not fail, it reads addresses from the middle of the next field.
      * <p>
      * OpenBSD is otherwise the odd one, stating its header length per message and carrying a route priority usable as a
-     * metric where the others have none. DragonFly BSD is absent because it matches FreeBSD in everything the walk
-     * uses; it carries three more address slots, which only means the walk stops before slots this parser has no use
-     * for.
+     * metric where the others have none.
+     * <p>
+     * DragonFly BSD differs from FreeBSD only in the last two columns, and only because FreeBSD stopped cloning routes:
+     * it defines neither {@code RTF_WASCLONED} nor {@code RTF_CLONED}, while DragonFly kept both. The flag values are
+     * not interchangeable across these platforms either -- OpenBSD's {@code RTF_CLONED} is {@code 0x10000}, where
+     * {@code 0x20000} is {@code RTF_CACHED}.
      */
     public enum Layout {
         // header hdrLen flags index priority padding rtaxMax AF_INET6 cloned linkInfo
         MACOS(92, -1, 8, 4, -1, 4, 8, 30, 0x20000, 0x400), //
         FREEBSD(152, -1, 8, 4, -1, 8, 8, 28, 0, 0), //
+        DRAGONFLY(152, -1, 8, 4, -1, 8, 11, 28, 0x20000, 0x400), //
         NETBSD(120, -1, 8, 4, -1, 8, 9, 24, 0, 0), //
         OPENBSD(96, 4, 16, 6, 10, 8, 15, 24, 0, 0);
 

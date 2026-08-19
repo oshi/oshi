@@ -52,8 +52,7 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
     public List<NetworkParams.IPRoute> getRoutes() {
         byte[] dump = queryRouteDump();
         if (dump.length > 0) {
-            List<IPRoute> routes = RouteTableDump.parse(dump, RouteTableDump.Layout.FREEBSD,
-                    queryInterfaceNameByIndex());
+            List<IPRoute> routes = RouteTableDump.parse(dump, routeLayout(), queryInterfaceNameByIndex());
             if (!routes.isEmpty()) {
                 return routes;
             }
@@ -86,5 +85,14 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
      */
     protected byte[] queryRouteDump() {
         return new byte[0];
+    }
+
+    /**
+     * The routing message layout to read the dump with. DragonFly BSD shares this class but not every value.
+     *
+     * @return This platform's layout
+     */
+    protected RouteTableDump.Layout routeLayout() {
+        return RouteTableDump.Layout.FREEBSD;
     }
 }
