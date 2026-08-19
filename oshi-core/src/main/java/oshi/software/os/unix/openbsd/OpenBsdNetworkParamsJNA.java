@@ -11,7 +11,7 @@ import org.jspecify.annotations.Nullable;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.bsd.RouteDump;
+import oshi.driver.unix.bsd.BsdRouteDump;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
 
@@ -35,6 +35,6 @@ public class OpenBsdNetworkParamsJNA extends OpenBsdNetworkParams {
 
     @Override
     protected byte[] queryRouteDump() {
-        return RouteDump.queryRouteDump(OpenBsdLibc.INSTANCE);
+        return BsdRouteDump.queryRouteDump(OpenBsdLibc.INSTANCE);
     }
 }

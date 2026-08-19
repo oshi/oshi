@@ -21,9 +21,9 @@ import oshi.annotation.concurrent.ThreadSafe;
  * call; only the message layout inside the buffer differs between them.
  */
 @ThreadSafe
-public final class RouteDumpFFM {
+public final class BsdRouteDumpFFM {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RouteDumpFFM.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BsdRouteDumpFFM.class);
 
     private static final int CTL_NET = 4;
     private static final int PF_ROUTE = 17;
@@ -49,7 +49,7 @@ public final class RouteDumpFFM {
                 throws Throwable;
     }
 
-    private RouteDumpFFM() {
+    private BsdRouteDumpFFM() {
     }
 
     /**

@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.bsd.RouteDumpFFM;
+import oshi.driver.unix.bsd.BsdRouteDumpFFM;
 import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
@@ -42,7 +42,7 @@ public class OpenBsdNetworkParamsFFM extends OpenBsdNetworkParams {
 
     @Override
     protected byte[] queryRouteDump() {
-        return RouteDumpFFM.queryRouteDump((state, name, namelen, oldp, oldlenp) -> OpenBsdLibcFunctions.sysctl(state,
-                name, namelen, oldp, oldlenp, MemorySegment.NULL, 0));
+        return BsdRouteDumpFFM.queryRouteDump((state, name, namelen, oldp, oldlenp) -> OpenBsdLibcFunctions
+                .sysctl(state, name, namelen, oldp, oldlenp, MemorySegment.NULL, 0));
     }
 }

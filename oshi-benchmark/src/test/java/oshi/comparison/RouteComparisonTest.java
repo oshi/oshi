@@ -19,12 +19,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
 import oshi.SystemInfo;
+import oshi.driver.unix.bsd.BsdRouteDump;
 import oshi.hardware.NetworkIF;
-import oshi.software.os.NetworkParams;
+import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.os.NetworkParams.IPRoute;
 import oshi.util.ParseUtil;
 import oshi.util.PlatformEnum;
 import oshi.util.driver.unix.NetstatRoute;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * Compares the routing table read natively through a {@code NET_RT_DUMP} sysctl against the same table read by running
@@ -58,8 +61,13 @@ class RouteComparisonTest {
         return p != PlatformEnum.MACOS && p != PlatformEnum.FREEBSD && p != PlatformEnum.OPENBSD;
     }
 
+    /**
+     * A route's full identity. The gateway belongs in it: an address the walk reads at the wrong offset still yields a
+     * correct destination, since that is the first address in the message and no padding has been applied yet.
+     */
     private static String key(IPRoute route) {
-        return ParseUtil.byteArrayToHexString(route.getDestination()) + "/" + route.getPrefixLength();
+        return ParseUtil.byteArrayToHexString(route.getDestination()) + "/" + route.getPrefixLength() + " via "
+                + ParseUtil.byteArrayToHexString(route.getGateway());
     }
 
     private static Set<String> keys(List<IPRoute> routes) {
@@ -78,16 +86,53 @@ class RouteComparisonTest {
         return NetstatRoute.queryRoutes(ipv4Command, ipv6Command, ifNameIndex, indexByName);
     }
 
+    /** The kernel's dump, and the layout for reading it. */
+    private static byte[] nativeDump() {
+        switch (platform) {
+            case MACOS:
+                return oshi.driver.mac.net.RouteDump.queryRouteDump();
+            case FREEBSD:
+                return BsdRouteDump.queryRouteDump(FreeBsdLibc.INSTANCE);
+            default:
+                return BsdRouteDump.queryRouteDump(OpenBsdLibc.INSTANCE);
+        }
+    }
+
+    private static RouteTableDump.Layout layout() {
+        switch (platform) {
+            case MACOS:
+                return RouteTableDump.MACOS;
+            case FREEBSD:
+                return RouteTableDump.FREEBSD;
+            default:
+                return RouteTableDump.OPENBSD;
+        }
+    }
+
+    /**
+     * Reads the table natively. Deliberately not through {@code getRoutes()}, which falls back to running a command
+     * when the sysctl yields nothing -- that would compare the command against itself and pass without testing
+     * anything.
+     */
+    private static List<IPRoute> nativeRoutes() {
+        byte[] dump = nativeDump();
+        assertThat(dump).as("NET_RT_DUMP buffer").isNotEmpty();
+        Map<Integer, String> nameByIndex = new HashMap<>();
+        for (NetworkIF nif : new SystemInfo().getHardware().getNetworkIFs(true)) {
+            nameByIndex.put(nif.getIndex(), nif.getName());
+        }
+        List<IPRoute> routes = RouteTableDump.parse(dump, layout(), nameByIndex);
+        assertThat(routes).as("routes parsed from the dump").isNotEmpty();
+        return routes;
+    }
+
     @Test
     void testNativeAgreesWithCommand() {
-        NetworkParams params = new SystemInfo().getOperatingSystem().getNetworkParams();
-        List<IPRoute> nativeRoutes = params.getRoutes();
+        List<IPRoute> nativeList = nativeRoutes();
         List<IPRoute> commandList = commandRoutes();
-
-        assertThat(nativeRoutes).as("native routes").isNotEmpty();
         assumeTrue(!commandList.isEmpty(), "netstat produced no routes to compare against");
 
-        Set<String> nativeKeys = keys(nativeRoutes);
+        Set<String> nativeKeys = keys(nativeList);
         Set<String> commandKeys = keys(commandList);
         Set<String> shared = new TreeSet<>(nativeKeys);
         shared.retainAll(commandKeys);
@@ -101,7 +146,7 @@ class RouteComparisonTest {
 
     @Test
     void testGatewaysAgree() {
-        List<IPRoute> nativeRoutes = new SystemInfo().getOperatingSystem().getNetworkParams().getRoutes();
+        List<IPRoute> nativeList = nativeRoutes();
         List<IPRoute> commandList = commandRoutes();
         assumeTrue(!commandList.isEmpty(), "netstat produced no routes to compare against");
 
@@ -111,7 +156,7 @@ class RouteComparisonTest {
         }
         List<String> mismatches = new ArrayList<>();
         int matched = 0;
-        for (IPRoute route : nativeRoutes) {
+        for (IPRoute route : nativeList) {
             String expected = commandGateways.get(key(route));
             if (expected != null) {
                 matched++;
@@ -124,5 +169,23 @@ class RouteComparisonTest {
         // A gateway rarely changes between two readings, and a misread address changes all of them
         assertThat(mismatches).as("gateways disagreeing on %d shared routes", matched)
                 .hasSizeLessThanOrEqualTo(matched / 4);
+    }
+
+    @Test
+    void testPublicApiUsesTheNativePath() {
+        // getRoutes() should return what the dump says, not what the command fallback would
+        List<IPRoute> viaApi = new SystemInfo().getOperatingSystem().getNetworkParams().getRoutes();
+        assertThat(keys(viaApi)).as("routes from getRoutes()").isEqualTo(keys(nativeRoutes()));
+    }
+
+    @Test
+    void testPrefixLengthsAreValid() {
+        // A prefix outside this range means the netmask was read from the wrong place. It is worth asserting
+        // separately from the comparison above, because a misread address array corrupts only the routes whose
+        // padding differs between the candidate units, which can still leave the two lists overlapping heavily.
+        for (IPRoute route : nativeRoutes()) {
+            int bits = route.getDestination().length * 8;
+            assertThat(route.getPrefixLength()).as("prefix length of %s", key(route)).isBetween(0, bits);
+        }
     }
 }
