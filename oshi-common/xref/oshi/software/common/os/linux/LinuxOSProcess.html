@@ -310,7 +310,7 @@
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
 <a class="jxr_linenumber" name="L303" href="#L303">303</a> 
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>     @Override
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">boolean</strong> result = updateAttributesFromProc();
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>         <em class="jxr_comment">// getrusage reports more accurate context-switch counts than /proc, but only for the current process and only</em>
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>         <em class="jxr_comment">// when its /proc attributes were read successfully</em>

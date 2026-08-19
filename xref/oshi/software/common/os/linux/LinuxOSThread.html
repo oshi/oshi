@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_comment">// PROC_TASK_STAT_ORDERS</em>
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      @SuppressWarnings(<span class="jxr_string">"EnumOrdinal"</span>)
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      @Override
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.name = FileUtil.getStringFromFile(
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>                  String.format(Locale.ROOT, ProcPath.TASK_COMM, <strong class="jxr_keyword">this</strong>.getOwningProcessId(), <strong class="jxr_keyword">this</strong>.threadId));
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          Map&lt;String, String&gt; status = FileUtil.getKeyValueMapFromFile(

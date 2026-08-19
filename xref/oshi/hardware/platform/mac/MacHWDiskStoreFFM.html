@@ -63,7 +63,7 @@
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>  
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      @Override
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>              @SuppressWarnings(<span class="jxr_string">"resource"</span>) <em class="jxr_comment">// CFAllocatorGetDefault returns a borrowed singleton</em>
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              CFAllocatorRef alloc = <strong class="jxr_keyword">new</strong> CFAllocatorRef(CoreFoundationFunctions.CFAllocatorGetDefault());

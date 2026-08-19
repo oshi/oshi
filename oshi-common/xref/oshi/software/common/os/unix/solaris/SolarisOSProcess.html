@@ -159,7 +159,7 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> 
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     @Override
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <a name="SolarisPsInfo" href="../../../../../../oshi/driver/common/unix/solaris/SolarisPsInfo.html#SolarisPsInfo">SolarisPsInfo</a> info = psinfo.get();
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">if</strong> (info == <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>             <strong class="jxr_keyword">this</strong>.state = INVALID;

@@ -21,50 +21,69 @@
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.NetworkParams;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.unix.NetstatRoute;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * Abstract base for the OpenBSD NetworkParams. Holds the command-line gateway lookup and the host name fallback; the</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * JNA and FFM subclasses supply the {@code gethostname} binding.</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdNetworkParams" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdNetworkParams.html#OpenBsdNetworkParams">OpenBsdNetworkParams</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworkParams" href="../../../../../../oshi/software/common/AbstractNetworkParams.html#AbstractNetworkParams">AbstractNetworkParams</a> {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * OpenBSD prints the interface in the eighth column: Destination Gateway Flags Refs Use Mtu Prio Iface. The header</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * scan corrects this if the layout differs on another release.</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IF_NAME_INDEX = 7;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      @Override
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">public</strong> String getHostName() {
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          String hn = queryHostName();
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          <strong class="jxr_keyword">return</strong> hn != <strong class="jxr_keyword">null</strong> ? hn : <strong class="jxr_keyword">super</strong>.getHostName();
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      @Override
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> String getIpv4DefaultGateway() {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Override
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">public</strong> String getIpv6DefaultGateway() {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get -inet6 default"</span>));
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      @Override
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">public</strong> List&lt;NetworkParams.IPRoute&gt; getRoutes() {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">return</strong> NetstatRoute.queryRoutes(<span class="jxr_string">"netstat -rn -f inet"</span>, <span class="jxr_string">"netstat -rn -f inet6"</span>, IF_NAME_INDEX,
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  queryInterfaceIndexByName());
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Reads the host name from libc, avoiding the name resolution that the {@link AbstractNetworkParams} fallback</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * performs.</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @return the native host name, or {@code null} to fall back to the InetAddress lookup</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> @Nullable String queryHostName();
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>  }
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.unix.RouteTableDump;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Abstract base for the OpenBSD NetworkParams. Holds the command-line gateway lookup and the host name fallback; the</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * JNA and FFM subclasses supply the {@code gethostname} binding.</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">class</strong> <a name="OpenBsdNetworkParams" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdNetworkParams.html#OpenBsdNetworkParams">OpenBsdNetworkParams</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworkParams" href="../../../../../../oshi/software/common/AbstractNetworkParams.html#AbstractNetworkParams">AbstractNetworkParams</a> {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * OpenBSD prints the interface in the eighth column: Destination Gateway Flags Refs Use Mtu Prio Iface. The header</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * scan corrects this if the layout differs on another release.</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IF_NAME_INDEX = 7;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      @Override
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">public</strong> String getHostName() {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          String hn = queryHostName();
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          <strong class="jxr_keyword">return</strong> hn != <strong class="jxr_keyword">null</strong> ? hn : <strong class="jxr_keyword">super</strong>.getHostName();
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      }
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      @Override
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> String getIpv4DefaultGateway() {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get default"</span>));
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Override
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">public</strong> String getIpv6DefaultGateway() {
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">return</strong> searchGateway(ExecutingCommand.runNative(<span class="jxr_string">"route -n get -inet6 default"</span>));
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      }
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      @Override
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> List&lt;NetworkParams.IPRoute&gt; getRoutes() {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          byte[] dump = queryRouteDump();
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">if</strong> (dump.length &gt; 0) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              List&lt;IPRoute&gt; routes = RouteTableDump.parse(dump, RouteTableDump.Layout.OPENBSD,
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                      queryInterfaceNameByIndex());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">if</strong> (!routes.isEmpty()) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  <strong class="jxr_keyword">return</strong> routes;
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>              }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          }
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">return</strong> NetstatRoute.queryRoutes(<span class="jxr_string">"netstat -rn -f inet"</span>, <span class="jxr_string">"netstat -rn -f inet6"</span>, IF_NAME_INDEX,
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  queryInterfaceIndexByName());
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * Reads the host name from libc, avoiding the name resolution that the {@link AbstractNetworkParams} fallback</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     * performs.</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @return the native host name, or {@code null} to fall back to the InetAddress lookup</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> @Nullable String queryHostName();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     * Fetches the kernel's routing table dump.</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * @return The bytes of a {@code NET_RT_DUMP} sysctl, or an empty array if this build cannot make the call, in which</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     *         case the routing table is read by running a command instead</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">protected</strong> byte[] queryRouteDump() {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> byte[0];
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
