@@ -19,6 +19,7 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 * [#3661](https://github.com/oshi/oshi/pull/3661): Setting `oshi.os.windows.hkeyperfdata` to `false` now also skips the registry when fetching thread counters, matching its documented behavior and the existing handling for processes. Threads previously read `HKEY_PERFORMANCE_DATA` regardless of the setting - [@dbwiddis](https://github.com/dbwiddis).
 * [#3662](https://github.com/oshi/oshi/pull/3662): Reading the processor description from the registry no longer throws when a value is missing. `CentralProcessor.getProcessorIdentifier()` previously propagated a `Win32Exception` if `VendorIdentifier`, `ProcessorNameString` or `Identifier` was absent; each now falls back to an empty value independently, as the FFM implementation already did - [@dbwiddis](https://github.com/dbwiddis).
 * [#3662](https://github.com/oshi/oshi/pull/3662): `CentralProcessor.getFeatureFlags()` on Windows now reports every processor feature `IsProcessorFeaturePresent()` accepts, matching the `PF_` defines in `winnt.h`. The list stopped at 45 and skipped two values within that range, so features added since Windows 11 went unreported: the AVX-adjacent `PF_ERMS_AVAILABLE` and `PF_BMI2_INSTRUCTIONS_AVAILABLE`, `PF_MOVDIR64B_INSTRUCTION_AVAILABLE`, and the Arm SVE, SVE2 and SME families - [@dbwiddis](https://github.com/dbwiddis).
+* [#3665](https://github.com/oshi/oshi/pull/3665): `NetworkParams.getRoutes()` reads the routing table from the kernel through a `NET_RT_DUMP` sysctl on macOS, FreeBSD, DragonFly BSD and OpenBSD, rather than by running `netstat` twice. Measured at roughly 1 ms against 14 ms on macOS. Results are unchanged; NetBSD and the other platforms continue to parse command output - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 
@@ -331,7 +332,6 @@ Complete migration to new FFM module.
 * [#3057](https://github.com/oshi/oshi/pull/3057): FileSystem fixes and optimization - [@dyorgio](https://github.com/dyorgio).
 * [#3064](https://github.com/oshi/oshi/pull/3064): Handle binary registry values in WindowsGraphicsCard - [@dbwiddis](https://github.com/dbwiddis).
 
-
 # 6.8.0 (2025-03-22), 6.8.1 (2025-04-15), 6.8.2 (2025-05-31), 6.8.3 (2025-08-16)
 
 ##### New Features
@@ -642,7 +642,6 @@ In addition, JNA's `Memory` class now implements `Closeable`. All direct and mos
 * [#1501](https://github.com/oshi/oshi/pull/1501): Get bare metal Apple M1 CPU info from IODeviceTree - [@dbwiddis](https://github.com/dbwiddis).
 * [#1502](https://github.com/oshi/oshi/pull/1502): Fix bitness mismatch on 32-bit OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#1505](https://github.com/oshi/oshi/pull/1505): Fix windows disk transfer time (yet again) - [@dbwiddis](https://github.com/dbwiddis).
-
 
 # 5.3.0 (2020-10-11), 5.3.1 (2020-10-18), 5.3.2 (2020-10-25), 5.3.3 (2020-10-28), 5.3.4 (2020-11-01), 5.3.5 (2020-11-11), 5.3.6 (2020-11-15), 5.3.7 (2020-12-20)
 

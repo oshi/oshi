@@ -10,6 +10,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
+import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
@@ -40,5 +41,10 @@ public class NetBsdOperatingSystemJNA extends NetBsdOperatingSystem {
     @Override
     protected OSProcess createProcess(int pid, Map<BsdPsKeyword, String> psMap) {
         return new NetBsdOSProcessJNA(pid, psMap, this);
+    }
+
+    @Override
+    public NetworkParams getNetworkParams() {
+        return new NetBsdNetworkParamsJNA();
     }
 }

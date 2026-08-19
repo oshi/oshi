@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.sun.jna.Native;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.unix.bsd.BsdRouteDumpJNA;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.unix.CLibrary;
 import oshi.jna.platform.unix.CLibrary.Addrinfo;
@@ -60,5 +61,10 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
             return null;
         }
         return Native.toString(hostnameBuffer);
+    }
+
+    @Override
+    protected byte[] queryRouteDump() {
+        return BsdRouteDumpJNA.queryRouteDump(FreeBsdLibc.INSTANCE);
     }
 }

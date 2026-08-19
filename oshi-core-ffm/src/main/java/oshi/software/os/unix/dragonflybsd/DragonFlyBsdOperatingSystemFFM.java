@@ -29,7 +29,6 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsFFM;
-import oshi.software.os.unix.freebsd.FreeBsdNetworkParamsFFM;
 import oshi.util.LogLevel;
 
 /**
@@ -57,7 +56,7 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
 
     @Override
     public NetworkParams getNetworkParams() {
-        return new FreeBsdNetworkParamsFFM();
+        return new DragonFlyBsdNetworkParamsFFM();
     }
 
     @Override

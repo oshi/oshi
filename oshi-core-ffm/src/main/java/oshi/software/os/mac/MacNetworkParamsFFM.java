@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.net.RouteDumpFFM;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.software.common.os.mac.MacNetworkParams;
@@ -92,5 +93,10 @@ final class MacNetworkParamsFFM extends MacNetworkParams {
             return null;
         }, LOG, DEBUG, "Failed gethostname()", null);
         return hostname == null ? super.getHostName() : hostname;
+    }
+
+    @Override
+    protected byte[] queryRouteDump() {
+        return RouteDumpFFM.queryRouteDump();
     }
 }
