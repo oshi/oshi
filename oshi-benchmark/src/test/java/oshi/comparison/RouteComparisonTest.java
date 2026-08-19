@@ -190,11 +190,12 @@ class RouteComparisonTest {
         // getRoutes() should return what the dump says, not what the command fallback would. These are two readings
         // of a table that changes, so require a large majority rather than equality, as above
         Set<String> viaApi = keys(new SystemInfo().getOperatingSystem().getNetworkParams().getRoutes());
+        assertThat(viaApi).as("routes from getRoutes()").isNotEmpty();
         Set<String> direct = keys(nativeRoutes());
         Set<String> shared = new TreeSet<>(viaApi);
         shared.retainAll(direct);
         assertThat(shared.size()).as("routes common to getRoutes() and a direct read")
-                .isGreaterThanOrEqualTo((Math.min(viaApi.size(), direct.size()) * 3) / 4);
+                .isGreaterThanOrEqualTo(threeQuartersOf(Math.min(viaApi.size(), direct.size())));
     }
 
     @Test
@@ -206,5 +207,10 @@ class RouteComparisonTest {
             int bits = route.getDestination().length * 8;
             assertThat(route.getPrefixLength()).as("prefix length of %s", key(route)).isBetween(0, bits);
         }
+    }
+
+    /** Three quarters, rounded up, so a small set is not let off with less than the fraction asks for. */
+    private static int threeQuartersOf(int count) {
+        return (count * 3 + 3) / 4;
     }
 }

@@ -110,12 +110,13 @@ public final class RouteTableDump {
         List<IPRoute> routes = new ArrayList<>();
         ByteBuffer bb = ByteBuffer.wrap(buffer).order(ByteOrder.nativeOrder());
         int offset = 0;
-        while (offset + layout.headerSize <= buffer.length) {
-            int msgLen = bb.getShort(offset + OFF_MSGLEN) & 0xFFFF;
-            // A message shorter than the header would have its own fields read out of the next one, and one running
-            // past the buffer cannot be trusted at all. Give up on the whole table rather than return part of it:
-            // the caller reads it by running a command when this yields nothing, which beats a truncated answer.
-            if (msgLen < layout.headerSize || offset + msgLen > buffer.length) {
+        while (offset < buffer.length) {
+            // Anything the kernel did not lay out as whole messages is a truncated buffer, not a table with a little
+            // rubbish on the end. Give up on all of it rather than return part: the caller reads the table by running
+            // a command when this yields nothing, which is a better answer than a partial one.
+            int msgLen = buffer.length - offset < layout.headerSize ? 0 : bb.getShort(offset + OFF_MSGLEN) & 0xFFFF;
+            if (msgLen < layout.headerSize || offset + msgLen > buffer.length
+                    || !addressesFit(bb, buffer, offset, msgLen, layout)) {
                 routes.clear();
                 return routes;
             }
@@ -128,6 +129,42 @@ public final class RouteTableDump {
             offset += msgLen;
         }
         return routes;
+    }
+
+    /**
+     * Checks that a message's addresses lie inside it, so the reads that follow cannot run into the next message or off
+     * the end of the buffer. A sockaddr states its own length, and nothing else constrains it.
+     */
+    private static boolean addressesFit(ByteBuffer bb, byte[] buffer, int offset, int msgLen, Layout layout) {
+        int headerSize = layout.hdrLenOffset < 0 ? layout.headerSize
+                : bb.getShort(offset + layout.hdrLenOffset) & 0xFFFF;
+        if (headerSize < layout.headerSize || headerSize > msgLen) {
+            return false;
+        }
+        int addrs = bb.getInt(offset + OFF_ADDRS);
+        int end = offset + msgLen;
+        int sa = offset + headerSize;
+        for (int rtax = 0; rtax < layout.rtaxMax; rtax++) {
+            if ((addrs & (1 << rtax)) == 0) {
+                continue;
+            }
+            if (sa >= end) {
+                // The mask names more addresses than the message carries; the rest are simply not there
+                break;
+            }
+            if (sa + 2 > end) {
+                return false;
+            }
+            int saLen = buffer[sa] & 0xFF;
+            if (saLen > end - sa) {
+                return false;
+            }
+            sa += saLen == 0 ? layout.paddingUnit : roundUp(saLen, layout.paddingUnit);
+            if (sa > end) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static @Nullable IPRoute parseMessage(ByteBuffer bb, byte[] buffer, int offset, int msgLen, Layout layout,
@@ -226,8 +263,10 @@ public final class RouteTableDump {
             return addressBytes * 8;
         }
         int addrOffset = addressBytes == 4 ? 4 : 8;
+        // maskLen comes from the message; keep the read inside the buffer whatever it claims
+        int available = Math.min(maskLen, buffer.length - maskStart);
         byte[] mask = new byte[addressBytes];
-        for (int i = 0; i < addressBytes && addrOffset + i < maskLen; i++) {
+        for (int i = 0; i < addressBytes && addrOffset + i < available; i++) {
             mask[i] = buffer[maskStart + addrOffset + i];
         }
         return ParseUtil.netmaskToPrefixLength(mask);
