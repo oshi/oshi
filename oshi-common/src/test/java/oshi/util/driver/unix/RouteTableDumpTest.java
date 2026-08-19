@@ -31,6 +31,9 @@ class RouteTableDumpTest {
     private static final int RTM_GET = 4;
     private static final int RTF_UP = 0x1;
     private static final int RTF_GATEWAY = 0x2;
+    /** macOS RTF_WASCLONED and RTF_LLINFO, the pair Layout.MACOS names. */
+    private static final int RTF_WASCLONED = 0x20000;
+    private static final int RTF_LLINFO = 0x400;
 
     private static final int RTAX_DST = 1 << 0;
     private static final int RTAX_GATEWAY = 1 << 1;
@@ -39,6 +42,9 @@ class RouteTableDumpTest {
     /** macOS: 92-byte header, addresses padded to 4. */
     private static final int HEADER = 92;
     private static final int PAD = 4;
+
+    /** FreeBSD's header, for the one case that reads with its layout. */
+    private static final int FREEBSD_HEADER = 152;
 
     private static final Map<Integer, String> IF_NAMES = Collections.singletonMap(7, "en0");
 
@@ -154,5 +160,45 @@ class RouteTableDumpTest {
 
         assertTrue(RouteTableDump.parse(bytes, Layout.MACOS, IF_NAMES).isEmpty(),
                 "a message naming an address it does not carry should yield nothing");
+    }
+
+    /**
+     * Builds one message with the given flags, carrying a destination and a gateway.
+     */
+    private static byte[] oneRoute(int flags, byte[] destination, int headerSize) {
+        int msgLen = headerSize + 16 + 16;
+        byte[] bytes = new byte[msgLen];
+        ByteBuffer bb = ByteBuffer.wrap(bytes).order(ByteOrder.nativeOrder());
+        writeHeader(bb, 0, msgLen, flags, RTAX_DST | RTAX_GATEWAY);
+        writeInet(bb, headerSize, destination);
+        writeInet(bb, headerSize + 16, new byte[] { 10, 0, 0, 1 });
+        return bytes;
+    }
+
+    @Test
+    void testClonedRouteIsExcluded() {
+        // A route cloned from another is a cache entry for one host, which the routing table does not list
+        byte[] dump = oneRoute(RTF_UP | RTF_GATEWAY | RTF_WASCLONED, new byte[] { 93, (byte) 184, (byte) 216, 1 },
+                HEADER);
+        assertTrue(RouteTableDump.parse(dump, Layout.MACOS, IF_NAMES).isEmpty(), "a cloned route should be dropped");
+    }
+
+    @Test
+    void testClonedLinkLayerRouteIsKept() {
+        // Except a link-layer one: that is how the neighbour cache appears, and the table does show those
+        byte[] dump = oneRoute(RTF_UP | RTF_WASCLONED | RTF_LLINFO, new byte[] { 10, 0, 0, 42 }, HEADER);
+        List<IPRoute> routes = RouteTableDump.parse(dump, Layout.MACOS, IF_NAMES);
+        assertEquals(1, routes.size(), "a cloned link-layer route is the neighbour cache and should be kept");
+        assertTrue(Arrays.equals(new byte[] { 10, 0, 0, 42 }, routes.get(0).getDestination()));
+    }
+
+    @Test
+    void testClonedRouteIsKeptWhereThePlatformDoesNotClone() {
+        // FreeBSD stopped cloning routes and names no flag for it, so the same bits mean nothing there. Its header
+        // is longer than the macOS one the other cases use
+        byte[] dump = oneRoute(RTF_UP | RTF_GATEWAY | RTF_WASCLONED, new byte[] { 93, (byte) 184, (byte) 216, 1 },
+                FREEBSD_HEADER);
+        assertEquals(1, RouteTableDump.parse(dump, Layout.FREEBSD, IF_NAMES).size(),
+                "a platform that does not clone should not have routes filtered out from under it");
     }
 }
