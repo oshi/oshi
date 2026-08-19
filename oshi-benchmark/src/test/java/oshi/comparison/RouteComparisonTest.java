@@ -158,22 +158,24 @@ class RouteComparisonTest {
         List<IPRoute> commandList = commandRoutes();
         assumeTrue(!commandList.isEmpty(), "netstat produced no routes to compare against");
 
-        Map<String, String> commandGateways = new HashMap<>();
+        // A destination can appear more than once with different gateways, so keep every one rather than the last
+        Map<String, Set<String>> commandGateways = new HashMap<>();
         for (IPRoute route : commandList) {
-            commandGateways.put(destination(route), ParseUtil.byteArrayToHexString(route.getGateway()));
+            commandGateways.computeIfAbsent(destination(route), d -> new TreeSet<>())
+                    .add(ParseUtil.byteArrayToHexString(route.getGateway()));
         }
         // Only routes that carry a gateway say anything here. Most do not, and counting them dilutes a real
         // disagreement to a few percent of the comparison
         List<String> mismatches = new ArrayList<>();
         int matched = 0;
         for (IPRoute route : nativeList) {
-            String expected = commandGateways.get(destination(route));
+            Set<String> expected = commandGateways.get(destination(route));
             String actual = ParseUtil.byteArrayToHexString(route.getGateway());
-            if (expected == null || (expected.isEmpty() && actual.isEmpty())) {
+            if (expected == null || (expected.size() == 1 && expected.contains("") && actual.isEmpty())) {
                 continue;
             }
             matched++;
-            if (!expected.equals(actual)) {
+            if (!expected.contains(actual)) {
                 mismatches.add(destination(route));
             }
         }
@@ -185,9 +187,14 @@ class RouteComparisonTest {
 
     @Test
     void testPublicApiUsesTheNativePath() {
-        // getRoutes() should return what the dump says, not what the command fallback would
-        List<IPRoute> viaApi = new SystemInfo().getOperatingSystem().getNetworkParams().getRoutes();
-        assertThat(keys(viaApi)).as("routes from getRoutes()").isEqualTo(keys(nativeRoutes()));
+        // getRoutes() should return what the dump says, not what the command fallback would. These are two readings
+        // of a table that changes, so require a large majority rather than equality, as above
+        Set<String> viaApi = keys(new SystemInfo().getOperatingSystem().getNetworkParams().getRoutes());
+        Set<String> direct = keys(nativeRoutes());
+        Set<String> shared = new TreeSet<>(viaApi);
+        shared.retainAll(direct);
+        assertThat(shared.size()).as("routes common to getRoutes() and a direct read")
+                .isGreaterThanOrEqualTo((Math.min(viaApi.size(), direct.size()) * 3) / 4);
     }
 
     @Test

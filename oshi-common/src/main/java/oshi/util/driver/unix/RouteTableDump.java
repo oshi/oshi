@@ -112,9 +112,12 @@ public final class RouteTableDump {
         int offset = 0;
         while (offset + layout.headerSize <= buffer.length) {
             int msgLen = bb.getShort(offset + OFF_MSGLEN) & 0xFFFF;
-            // A zero length would not advance, and a message running past the buffer cannot be trusted
-            if (msgLen <= 0 || offset + msgLen > buffer.length) {
-                break;
+            // A message shorter than the header would have its own fields read out of the next one, and one running
+            // past the buffer cannot be trusted at all. Give up on the whole table rather than return part of it:
+            // the caller reads it by running a command when this yields nothing, which beats a truncated answer.
+            if (msgLen < layout.headerSize || offset + msgLen > buffer.length) {
+                routes.clear();
+                return routes;
             }
             if ((buffer[offset + OFF_TYPE] & 0xFF) == RTM_GET) {
                 IPRoute route = parseMessage(bb, buffer, offset, msgLen, layout, ifNameByIdx);
