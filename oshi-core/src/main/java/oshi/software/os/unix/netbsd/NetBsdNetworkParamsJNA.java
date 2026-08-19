@@ -22,6 +22,11 @@ public class NetBsdNetworkParamsJNA extends NetBsdNetworkParams {
 
     @Override
     protected byte[] queryRouteDump() {
+        // Every native call on this platform has to ask first: the runner without java-jna installed still uses this
+        // class, and reaching libc there fails while the library loads rather than by returning anything
+        if (!NetBsdSysctlUtil.JNA_AVAILABLE) {
+            return new byte[0];
+        }
         int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_DUMP, 0 };
         try (Memory buf = NetBsdSysctlUtil.sysctl(mib)) {
             if (buf == null) {
