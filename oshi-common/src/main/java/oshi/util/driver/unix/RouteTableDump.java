@@ -47,35 +47,24 @@ public final class RouteTableDump {
     private static final int OFF_ADDRS = 12;
 
     /**
-     * macOS. The only one of these that pads addresses to four bytes rather than eight.
+     * The parts of a routing message whose position or size depends on the platform, and the platforms' values.
+     * <p>
+     * They are declared together so they can be read as a table, because reading down a column is the only way to
+     * notice that macOS pads addresses to four bytes where the BSDs pad to eight. That one is the trap: the wrong unit
+     * does not fail, it reads addresses from the middle of the next field.
+     * <p>
+     * OpenBSD is otherwise the odd one, stating its header length per message and carrying a route priority usable as a
+     * metric where the others have none. DragonFly BSD is absent because it matches FreeBSD in everything the walk
+     * uses; it carries three more address slots, which only means the walk stops before slots this parser has no use
+     * for.
      */
-    public static final Layout MACOS = new Layout(92, -1, 8, 4, -1, 4, 8, 30, 0x20000, 0x400);
+    public enum Layout {
+        // header hdrLen flags index priority padding rtaxMax AF_INET6 cloned linkInfo
+        MACOS(92, -1, 8, 4, -1, 4, 8, 30, 0x20000, 0x400), //
+        FREEBSD(152, -1, 8, 4, -1, 8, 8, 28, 0, 0), //
+        NETBSD(120, -1, 8, 4, -1, 8, 9, 24, 0, 0), //
+        OPENBSD(96, 4, 16, 6, 10, 8, 15, 24, 0, 0);
 
-    /**
-     * FreeBSD, and DragonFly BSD which matches it in every respect the walk uses. DragonFly carries three more address
-     * slots, which only means the walk stops before slots this parser has no use for.
-     */
-    public static final Layout FREEBSD = new Layout(152, -1, 8, 4, -1, 8, 8, 28, 0, 0);
-
-    /**
-     * NetBSD.
-     */
-    public static final Layout NETBSD = new Layout(120, -1, 8, 4, -1, 8, 9, 24, 0, 0);
-
-    /**
-     * OpenBSD, whose header is laid out differently from the rest: it states its own length, and carries a route
-     * priority usable as a metric where the others have none.
-     */
-    public static final Layout OPENBSD = new Layout(96, 4, 16, 6, 10, 8, 15, 24, 0, 0);
-
-    private RouteTableDump() {
-    }
-
-    /**
-     * The parts of a routing message whose position or size depends on the platform.
-     */
-    @ThreadSafe
-    public static final class Layout {
         private final int headerSize;
         private final int hdrLenOffset;
         private final int flagsOffset;
@@ -87,23 +76,8 @@ public final class RouteTableDump {
         private final int clonedFlag;
         private final int linkInfoFlag;
 
-        /**
-         * Describes one platform's routing message.
-         *
-         * @param headerSize     Bytes before the address array
-         * @param hdrLenOffset   Offset of a field stating that size per message, or -1 if the platform has none
-         * @param flagsOffset    Offset of {@code rtm_flags}
-         * @param indexOffset    Offset of {@code rtm_index}
-         * @param priorityOffset Offset of a route priority usable as a metric, or -1 if the platform has none
-         * @param paddingUnit    Unit each address is padded up to
-         * @param rtaxMax        Number of bits used in the address mask
-         * @param afInet6        This platform's {@code AF_INET6}
-         * @param clonedFlag     Flag marking a route the kernel cloned from another, or 0 if the platform does not
-         *                       clone
-         * @param linkInfoFlag   Flag marking a link-layer cache entry, which is listed even when cloned
-         */
-        public Layout(int headerSize, int hdrLenOffset, int flagsOffset, int indexOffset, int priorityOffset,
-                int paddingUnit, int rtaxMax, int afInet6, int clonedFlag, int linkInfoFlag) {
+        Layout(int headerSize, int hdrLenOffset, int flagsOffset, int indexOffset, int priorityOffset, int paddingUnit,
+                int rtaxMax, int afInet6, int clonedFlag, int linkInfoFlag) {
             this.headerSize = headerSize;
             this.hdrLenOffset = hdrLenOffset;
             this.flagsOffset = flagsOffset;
@@ -115,6 +89,9 @@ public final class RouteTableDump {
             this.clonedFlag = clonedFlag;
             this.linkInfoFlag = linkInfoFlag;
         }
+    }
+
+    private RouteTableDump() {
     }
 
     /**

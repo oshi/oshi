@@ -48,7 +48,8 @@ public abstract class OpenBsdNetworkParams extends AbstractNetworkParams {
     public List<NetworkParams.IPRoute> getRoutes() {
         byte[] dump = queryRouteDump();
         if (dump.length > 0) {
-            List<IPRoute> routes = RouteTableDump.parse(dump, RouteTableDump.OPENBSD, queryInterfaceNameByIndex());
+            List<IPRoute> routes = RouteTableDump.parse(dump, RouteTableDump.Layout.OPENBSD,
+                    queryInterfaceNameByIndex());
             if (!routes.isEmpty()) {
                 return routes;
             }

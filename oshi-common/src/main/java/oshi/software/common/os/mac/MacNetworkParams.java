@@ -58,7 +58,7 @@ public abstract class MacNetworkParams extends AbstractNetworkParams {
     public List<NetworkParams.IPRoute> getRoutes() {
         byte[] dump = queryRouteDump();
         if (dump.length > 0) {
-            List<NetworkParams.IPRoute> routes = RouteTableDump.parse(dump, RouteTableDump.MACOS,
+            List<NetworkParams.IPRoute> routes = RouteTableDump.parse(dump, RouteTableDump.Layout.MACOS,
                     queryInterfaceNameByIndex());
             if (!routes.isEmpty()) {
                 return routes;

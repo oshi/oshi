@@ -108,11 +108,11 @@ class RouteComparisonTest {
     private static RouteTableDump.Layout layout() {
         switch (platform) {
             case MACOS:
-                return RouteTableDump.MACOS;
+                return RouteTableDump.Layout.MACOS;
             case FREEBSD:
-                return RouteTableDump.FREEBSD;
+                return RouteTableDump.Layout.FREEBSD;
             default:
-                return RouteTableDump.OPENBSD;
+                return RouteTableDump.Layout.OPENBSD;
         }
     }
 
