@@ -66,8 +66,15 @@ class RouteComparisonTest {
      * correct destination, since that is the first address in the message and no padding has been applied yet.
      */
     private static String key(IPRoute route) {
-        return ParseUtil.byteArrayToHexString(route.getDestination()) + "/" + route.getPrefixLength() + " via "
-                + ParseUtil.byteArrayToHexString(route.getGateway());
+        return destination(route) + " via " + ParseUtil.byteArrayToHexString(route.getGateway());
+    }
+
+    /**
+     * A route's destination alone. The gateway comparison has to match routes on this rather than on the full key,
+     * which carries the gateway and so would only ever pair a route with one that already agrees.
+     */
+    private static String destination(IPRoute route) {
+        return ParseUtil.byteArrayToHexString(route.getDestination()) + "/" + route.getPrefixLength();
     }
 
     private static Set<String> keys(List<IPRoute> routes) {
@@ -152,22 +159,26 @@ class RouteComparisonTest {
 
         Map<String, String> commandGateways = new HashMap<>();
         for (IPRoute route : commandList) {
-            commandGateways.put(key(route), ParseUtil.byteArrayToHexString(route.getGateway()));
+            commandGateways.put(destination(route), ParseUtil.byteArrayToHexString(route.getGateway()));
         }
+        // Only routes that carry a gateway say anything here. Most do not, and counting them dilutes a real
+        // disagreement to a few percent of the comparison
         List<String> mismatches = new ArrayList<>();
         int matched = 0;
         for (IPRoute route : nativeList) {
-            String expected = commandGateways.get(key(route));
-            if (expected != null) {
-                matched++;
-                if (!expected.equals(ParseUtil.byteArrayToHexString(route.getGateway()))) {
-                    mismatches.add(key(route));
-                }
+            String expected = commandGateways.get(destination(route));
+            String actual = ParseUtil.byteArrayToHexString(route.getGateway());
+            if (expected == null || (expected.isEmpty() && actual.isEmpty())) {
+                continue;
+            }
+            matched++;
+            if (!expected.equals(actual)) {
+                mismatches.add(destination(route));
             }
         }
-        assumeTrue(matched >= 4, "too few shared routes to compare gateways");
+        assumeTrue(matched >= 4, "too few routes with a gateway to compare");
         // A gateway rarely changes between two readings, and a misread address changes all of them
-        assertThat(mismatches).as("gateways disagreeing on %d shared routes", matched)
+        assertThat(mismatches).as("gateways disagreeing on %d routes carrying one", matched)
                 .hasSizeLessThanOrEqualTo(matched / 4);
     }
 
