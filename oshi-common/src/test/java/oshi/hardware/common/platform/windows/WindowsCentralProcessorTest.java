@@ -45,9 +45,8 @@ class WindowsCentralProcessorTest {
     }
 
     @Test
-    void testAllFeaturesPresentSkipsUndefinedValues() {
+    void testAllFeaturesPresent() {
         List<String> all = WindowsCentralProcessor.queryFeatureFlags(f -> true);
-        // Windows defines 0-45 except 35 and 42; those are holes in the table and must not be reported
         assertEquals(44, all.size());
         assertEquals(new HashSet<>(all).size(), all.size(), "feature names should be unique");
         for (String name : all) {
@@ -66,7 +65,7 @@ class WindowsCentralProcessorTest {
 
     @Test
     void testUndefinedValuesAreNeverQueried() {
-        // A value Windows does not define must not reach the predicate at all
+        // Windows defines 0-45 apart from 35 and 42; neither should reach the predicate
         Set<Integer> queried = new HashSet<>();
         WindowsCentralProcessor.queryFeatureFlags(f -> {
             queried.add(f);
