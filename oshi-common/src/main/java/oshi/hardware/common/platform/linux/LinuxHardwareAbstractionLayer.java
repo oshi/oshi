@@ -4,8 +4,8 @@
  */
 package oshi.hardware.common.platform.linux;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.BluetoothDevice;
@@ -18,6 +18,7 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.util.driver.linux.DrmEdid;
+import oshi.util.tuples.Triplet;
 
 /**
  * LinuxHardwareAbstractionLayer class.
@@ -49,9 +50,13 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
 
     @Override
     protected List<Display> createDisplays() {
-        List<byte[]> edids = DrmEdid.getEdidArrays();
-        if (!edids.isEmpty()) {
-            return edids.stream().map(UnixDisplay::new).collect(Collectors.toList());
+        List<Triplet<String, Integer, byte[]>> drmData = DrmEdid.getDisplayData();
+        if (!drmData.isEmpty()) {
+            List<Display> displays = new ArrayList<>(drmData.size());
+            for (Triplet<String, Integer, byte[]> drm : drmData) {
+                displays.add(new UnixDisplay(drm.getC(), drm.getA(), drm.getB()));
+            }
+            return displays;
         }
         return UnixDisplay.getDisplays();
     }

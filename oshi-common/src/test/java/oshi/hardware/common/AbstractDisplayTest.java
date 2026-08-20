@@ -68,4 +68,25 @@ class AbstractDisplayTest {
         assertThat(display.getDisplayInfo().isEdidSynthetic(), is(true));
         assertThat(display.getDisplayInfo().getModel(), is("Thunderbolt"));
     }
+
+    @Test
+    void testDefaultDevicePortIsUnknown() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128]) {
+        };
+        assertThat(display.getDevicePort(), is("unknown"));
+    }
+
+    @Test
+    void testDevicePortFromTwoArgConstructor() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128], "HDMI-A-1") {
+        };
+        assertThat(display.getDevicePort(), is("HDMI-A-1"));
+    }
+
+    @Test
+    void testDefaultOutputNameIsEmpty() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128]) {
+        };
+        assertThat(display.getOutputName().isPresent(), is(false));
+    }
 }
