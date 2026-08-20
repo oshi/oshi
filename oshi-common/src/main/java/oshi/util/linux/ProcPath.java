@@ -75,6 +75,8 @@ public final class ProcPath {
     public static final String SYS_FS_FILE_NR = PROC + "/sys/fs/file-nr";
     /** Path to /proc/sys/fs/file max. */
     public static final String SYS_FS_FILE_MAX = PROC + "/sys/fs/file-max";
+    /** Path to /proc/sys/kernel/hostname. */
+    public static final String SYS_KERNEL_HOSTNAME = PROC + "/sys/kernel/hostname";
     /** Path to /proc/[pid]/task/path. */
     public static final String TASK_PATH = PROC + "/%d/task";
     /** Path to /proc/[pid]/task/comm. */

@@ -247,8 +247,9 @@ class NativeFreeComparisonTest {
     void networkParams() {
         NetworkParams jna = jnaOs.getNetworkParams();
         NetworkParams nf = nfOs.getNetworkParams();
-        // NF uses Java InetAddress (short hostname); JNA uses native gethostname (may return FQDN)
-        assertThat(jna.getHostName()).startsWith(nf.getHostName());
+        // Both backends inherit the procfs host name read from LinuxNetworkParams, so they agree exactly, FQDN and
+        // all; this guards against either one re-introducing an override that diverges
+        assertThat(nf.getHostName()).isEqualTo(jna.getHostName());
         assertThat(nf.getDnsServers()).isEqualTo(jna.getDnsServers());
         assertThat(nf.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
         assertThat(nf.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());

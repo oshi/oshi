@@ -4,16 +4,11 @@
  */
 package oshi.software.os.linux;
 
-import static com.sun.jna.platform.unix.LibCAPI.HOST_NAME_MAX;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.jna.Native;
-import com.sun.jna.platform.linux.LibC;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseablePointerByReference;
@@ -23,8 +18,8 @@ import oshi.jna.platform.unix.CLibrary.Addrinfo;
 import oshi.software.common.os.linux.LinuxNetworkParams;
 
 /**
- * JNA-based Linux network parameters. Implements {@code getDomainName} via {@code getaddrinfo} and {@code getHostName}
- * via {@code gethostname}.
+ * JNA-based Linux network parameters. Implements {@code getDomainName} via {@code getaddrinfo}; the host name is read
+ * from procfs by {@link LinuxNetworkParams}.
  */
 @ThreadSafe
 class LinuxNetworkParamsJNA extends LinuxNetworkParams {
@@ -62,12 +57,4 @@ class LinuxNetworkParamsJNA extends LinuxNetworkParams {
         }
     }
 
-    @Override
-    public String getHostName() {
-        byte[] hostnameBuffer = new byte[HOST_NAME_MAX + 1];
-        if (0 != LibC.INSTANCE.gethostname(hostnameBuffer, hostnameBuffer.length)) {
-            return super.getHostName();
-        }
-        return Native.toString(hostnameBuffer);
-    }
 }

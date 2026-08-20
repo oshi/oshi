@@ -17,30 +17,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
-import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.software.common.os.linux.LinuxNetworkParams;
 
 /**
- * FFM-based Linux network parameters. Overrides {@code gethostname} and {@code getaddrinfo} calls to use FFM.
+ * FFM-based Linux network parameters. Implements {@code getDomainName} via {@code getaddrinfo}; the host name is read
+ * from procfs by {@link LinuxNetworkParams}.
  */
 final class LinuxNetworkParamsFFM extends LinuxNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxNetworkParamsFFM.class);
-
-    private static final int HOST_NAME_MAX = 255;
-
-    @Override
-    public String getHostName() {
-        @Nullable
-        String hostname = callInArenaOrDefault(arena -> {
-            MemorySegment buf = arena.allocate(HOST_NAME_MAX + 1L);
-            if (0 == PosixLibcFunctions.gethostname(buf, HOST_NAME_MAX + 1L)) {
-                return buf.getString(0);
-            }
-            return null;
-        }, LOG, WARN, "FFM gethostname failed", null);
-        return hostname == null ? super.getHostName() : hostname;
-    }
 
     @Override
     public String getDomainName() {
