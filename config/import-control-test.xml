@@ -39,6 +39,7 @@
     <allow class="java.awt.Rectangle" />
 
     <!--java.base -->
+    <allow class="java.net.InetAddress" />
     <allow class="java.net.NetworkInterface" />
     <allow pkg="java.io" />
     <allow pkg="java.lang" />

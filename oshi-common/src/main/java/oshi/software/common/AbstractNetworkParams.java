@@ -17,6 +17,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,22 +47,15 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     @Override
     public String getDomainName() {
-        InetAddress localHost;
-        try {
-            localHost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            localHost = InetAddress.getLoopbackAddress();
-        }
-        return localHost.getCanonicalHostName();
+        InetAddress localHost = queryLocalHost();
+        return localHost == null ? "" : localHost.getCanonicalHostName();
     }
 
     @Override
     public String getHostName() {
-        InetAddress localHost;
-        try {
-            localHost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            localHost = InetAddress.getLoopbackAddress();
+        InetAddress localHost = queryLocalHost();
+        if (localHost == null) {
+            return "";
         }
         String hn = localHost.getHostName();
         int dot = hn.indexOf('.');
@@ -69,6 +63,25 @@ public abstract class AbstractNetworkParams implements NetworkParams {
             return hn;
         }
         return hn.substring(0, dot);
+    }
+
+    /**
+     * Resolves the local host, the source for both the host name and the domain name when the platform has no better
+     * one.
+     *
+     * @return the local host, or {@code null} if it does not resolve, in which case both names report the empty-string
+     *         sentinel. Note that a failed lookup is not cached by the JDK, so each call pays a full failing DNS round
+     *         trip.
+     */
+    protected @Nullable InetAddress queryLocalHost() {
+        try {
+            return InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            // Deliberately not falling back to InetAddress.getLoopbackAddress(): its name and canonical name are
+            // "localhost", which is a fabricated answer for a host whose own name does not resolve.
+            LOG.debug("Unknown host exception when getting address of local host", e);
+            return null;
+        }
     }
 
     @Override
