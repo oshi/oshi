@@ -497,6 +497,24 @@ and no such warning, so OSHI applies the equivalent guard in userland for the wh
 Note also that DragonFly's `ps` offers neither a `systime` nor a `cputime` keyword, so `OSProcess.getKernelTime()` is
 always 0 there and `getUserTime()` carries the entire total.
 
+## Why is `getCurrentFreq()` the same number every time on Apple Silicon?
+
+Because by default it is not a measurement. macOS exposes no equivalent of Linux's `scaling_cur_freq`, so each core
+reports its cluster's nominal maximum from the power manager's `voltage-states` table — a fixed hardware property. On
+an M3 Pro that is 2.7 GHz for the six efficiency cores and 4.1 GHz for the six performance cores, whatever the machine
+is doing.
+
+The real per-core frequency is derivable from the private IOReport framework, which publishes how many ticks each core
+spent in each of its cluster's DVFS states. Setting `oshi.os.mac.cpu.frequency.ioreport` to `true` reports, per core,
+the average of its cluster's frequencies weighted by that residency, with idle time excluded — the frequency the core
+selected while it had work, which is what `powermetrics` prints. A core that did not run at all reports its cluster's
+lowest frequency.
+
+It is opt-in for two reasons. IOReport is not a public API, and reading it means holding a subscription for the
+lifetime of the process. And the value is a rate, so it needs an interval: the first call establishes the baseline and
+returns the nominal frequencies, and each later call covers the time since the previous one. A program that reads
+`getCurrentFreq()` once will therefore see no difference.
+
 ## Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?
 
 The initial call to some Windows Management Instrumentation (WMI) queries sometimes trigger RPC-related negotiation delays and timeouts described [here](https://docs.microsoft.com/en-us/windows/win32/services/services-and-rpc-tcp). OSHI attempts to use performance counters in preference to WMI whenever possible, but includes the WMI queries as a backup. There are several potential causes of these delays, which seem to occur more often on corporate-managed machines. If you are experiencing these delays, you can configure RPC and shorten the timeout by altering registry values under `HKLM\SYSTEM\CurrentControlSet\Control`. The `SCMApiConnectionParam` value (defaults to 21000 ms) can be reduced to shorten the delay.

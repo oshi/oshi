@@ -8,8 +8,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+import java.util.Map;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -108,6 +112,41 @@ class IOReportClientTest {
         } finally {
             client.close();
         }
+    }
+
+    @Test
+    void testCreateForCpuSamplesEachCoreSeparately() throws InterruptedException {
+        IOReportClient client = IOReportClient.createForCpu();
+        Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
+        try {
+            assertThat("The first sample has nothing to subtract from", client.sampleCoreResidencyDelta(),
+                    is(nullValue()));
+            Thread.sleep(150);
+            Map<String, Map<String, Long>> residency = client.sampleCoreResidencyDelta();
+            // An Intel Mac has no per-core performance state channels
+            Assumptions.assumeTrue(residency != null && !residency.isEmpty(),
+                    "Skipping: no CPU performance state channels");
+            for (Map.Entry<String, Map<String, Long>> core : residency.entrySet()) {
+                assertThat("channel " + core.getKey() + " names a core", core.getKey(),
+                        matchesPattern("(DIE_\\d+_)?[A-Z]CPU\\d+"));
+                // One idle state and at least one frequency, or there would be nothing to weight
+                assertThat("states of " + core.getKey(), core.getValue().size(), is(greaterThan(1)));
+                for (Map.Entry<String, Long> state : core.getValue().entrySet()) {
+                    assertThat("residency of " + core.getKey() + " " + state.getKey(), state.getValue(),
+                            is(greaterThanOrEqualTo(0L)));
+                }
+            }
+        } finally {
+            client.close();
+        }
+    }
+
+    @Test
+    void testCpuSamplingAfterCloseReturnsNull() {
+        IOReportClient client = IOReportClient.createForCpu();
+        Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
+        client.close();
+        assertThat("Closed client should not sample", client.sampleCoreResidencyDelta(), is(nullValue()));
     }
 
     @Test

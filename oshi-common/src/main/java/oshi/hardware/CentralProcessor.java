@@ -89,6 +89,12 @@ public interface CentralProcessor {
      * On Windows, returns an estimate based on the percent of maximum frequency. On Windows systems with more than 64
      * logical processors, may only return frequencies for the current processor group in the first portion of the
      * array.
+     * <p>
+     * On Apple Silicon, returns each core's cluster's nominal maximum, which does not change between calls. Setting
+     * {@code oshi.os.mac.cpu.frequency.ioreport} to {@code true} instead returns, per core, the average of its
+     * cluster's frequencies weighted by how long the core spent at each of them since the previous call. That measure
+     * needs an interval, so the first call establishes the baseline and returns the nominal frequencies, as does any
+     * call the operating system cannot supply residency for.
      *
      * @return An array of processor frequencies for each logical processor on the system. Use the
      *         {@link #getLogicalProcessors()} to correlate these frequencies with physical packages and processors.

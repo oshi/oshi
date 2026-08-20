@@ -14,6 +14,7 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -26,11 +27,15 @@ import oshi.ffm.platform.mac.CoreFoundation.CFStringRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFTypeRef;
 import oshi.ffm.platform.mac.IOReportFunctions;
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.IOReportCpuSampler;
 import oshi.hardware.common.platform.mac.IOReportSampler;
 
 /**
- * FFM equivalent of {@code IOReportClient}: manages a single IOReport subscription for GPU Stats and Energy Model
- * channels, providing per-instance sampling of GPU active ticks, utilization, and power draw.
+ * FFM equivalent of {@code IOReportClient}: manages a single IOReport subscription, providing per-instance sampling of
+ * the channels it subscribed to. {@link #create()} subscribes to the GPU Stats and Energy Model channels, for GPU
+ * active ticks, utilization and power draw; {@link #createForCpu()} subscribes to the CPU core performance state
+ * channels, for per-core frequency residency. Sampling a channel this instance did not subscribe to returns a sentinel
+ * value.
  *
  * <p>
  * Returns sentinel values ({@code (0,0)} / {@code -1.0}) when IOReport is unavailable.
@@ -38,7 +43,7 @@ import oshi.hardware.common.platform.mac.IOReportSampler;
  * <p>
  * Call {@link #close()} when done to release all CoreFoundation references.
  */
-public final class IOReportClientFFM implements IOReportSampler {
+public final class IOReportClientFFM implements IOReportSampler, IOReportCpuSampler {
 
     private static final Logger LOG = LoggerFactory.getLogger(IOReportClientFFM.class);
 
@@ -46,6 +51,8 @@ public final class IOReportClientFFM implements IOReportSampler {
     private static final String GROUP_ENERGY = "Energy Model";
     private static final String CHANNEL_GPU_ENERGY = "GPU Energy";
     private static final String SUBGROUP_GPU_PERF_STATES = "GPU Performance States";
+    private static final String GROUP_CPU_STATS = "CPU Stats";
+    private static final String SUBGROUP_CPU_CORE_PERF_STATES = "CPU Core Performance States";
     private static final String STATE_OFF = "OFF";
     private static final String KEY_CHANNELS = "IOReportChannels";
 
@@ -55,6 +62,7 @@ public final class IOReportClientFFM implements IOReportSampler {
     private @Nullable MemorySegment prevSampleUtil;
     private @Nullable MemorySegment prevSamplePower;
     private long prevSamplePowerNanos;
+    private @Nullable MemorySegment prevSampleCpu;
 
     private boolean closed;
 
@@ -87,23 +95,53 @@ public final class IOReportClientFFM implements IOReportSampler {
                 if (!energyChannels.equals(MemorySegment.NULL)) {
                     IOReportFunctions.IOReportMergeChannels(gpuChannels, energyChannels, MemorySegment.NULL);
                 }
-                try (Arena arena = Arena.ofConfined()) {
-                    MemorySegment subRefOut = arena.allocate(ValueLayout.ADDRESS);
-                    MemorySegment sub = IOReportFunctions.IOReportCreateSubscription(MemorySegment.NULL, gpuChannels,
-                            subRefOut, 0, MemorySegment.NULL);
-                    if (sub.equals(MemorySegment.NULL)) {
-                        return null;
-                    }
-                    MemorySegment subPtr = subRefOut.get(ValueLayout.ADDRESS, 0);
-                    if (subPtr.equals(MemorySegment.NULL)) {
-                        cfRelease(sub);
-                        return null;
-                    }
-                    return new IOReportClientFFM(sub, subPtr);
-                }
+                return subscribe(gpuChannels);
             }
         } catch (Throwable _) {
             return null;
+        }
+    }
+
+    /**
+     * Creates a new {@code IOReportClientFFM} subscribed to the per-core CPU performance state channels.
+     *
+     * @return a new client, or {@code null} if IOReport is unavailable or subscription fails
+     */
+    public static @Nullable IOReportClientFFM createForCpu() {
+        if (!IOReportFunctions.isAvailable()) {
+            return null;
+        }
+        CFStringRef cpuGroup = CFStringRef.createCFString(GROUP_CPU_STATS);
+        CFStringRef coreSubgroup = CFStringRef.createCFString(SUBGROUP_CPU_CORE_PERF_STATES);
+        try (cpuGroup; coreSubgroup) {
+            MemorySegment cpuChannels = IOReportFunctions.IOReportCopyChannelsInGroup(cpuGroup.segment(),
+                    coreSubgroup.segment(), 0, 0, 0);
+            if (cpuChannels.equals(MemorySegment.NULL)) {
+                return null;
+            }
+            // wrapped only to release the native CF object on close
+            try (var _ = new CFTypeRef(cpuChannels)) {
+                return subscribe(cpuChannels);
+            }
+        } catch (Throwable _) {
+            return null;
+        }
+    }
+
+    private static @Nullable IOReportClientFFM subscribe(MemorySegment channels) throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment subRefOut = arena.allocate(ValueLayout.ADDRESS);
+            MemorySegment sub = IOReportFunctions.IOReportCreateSubscription(MemorySegment.NULL, channels, subRefOut, 0,
+                    MemorySegment.NULL);
+            if (sub.equals(MemorySegment.NULL)) {
+                return null;
+            }
+            MemorySegment subPtr = subRefOut.get(ValueLayout.ADDRESS, 0);
+            if (subPtr.equals(MemorySegment.NULL)) {
+                cfRelease(sub);
+                return null;
+            }
+            return new IOReportClientFFM(sub, subPtr);
         }
     }
 
@@ -241,6 +279,50 @@ public final class IOReportClientFFM implements IOReportSampler {
     }
 
     /**
+     * Returns the per-core CPU performance state residency accumulated since the previous call.
+     *
+     * @return a map from channel name to that core's state residency in channel state order, or {@code null} if this is
+     *         the first call, the sample could not be taken, or this client is closed
+     */
+    @Override
+    public synchronized @Nullable Map<String, Map<String, Long>> sampleCoreResidencyDelta() {
+        if (closed) {
+            return null;
+        }
+        MemorySegment sample = MemorySegment.NULL;
+        try {
+            sample = IOReportFunctions.IOReportCreateSamples(subscription, subscribedChannels, MemorySegment.NULL);
+            if (sample.equals(MemorySegment.NULL)) {
+                return null;
+            }
+            if (prevSampleCpu == null) {
+                prevSampleCpu = sample;
+                sample = MemorySegment.NULL;
+                return null;
+            }
+            MemorySegment delta = IOReportFunctions.IOReportCreateSamplesDelta(prevSampleCpu, sample,
+                    MemorySegment.NULL);
+            cfRelease(prevSampleCpu);
+            prevSampleCpu = sample;
+            sample = MemorySegment.NULL;
+            if (delta.equals(MemorySegment.NULL)) {
+                return null;
+            }
+            try {
+                return extractCoreStates(delta);
+            } finally {
+                cfRelease(delta);
+            }
+        } catch (Throwable _) {
+            return null;
+        } finally {
+            if (sample != null && !sample.equals(MemorySegment.NULL)) {
+                cfRelease(sample);
+            }
+        }
+    }
+
+    /**
      * Releases all CoreFoundation references held by this client. Idempotent.
      */
     @Override
@@ -256,6 +338,10 @@ public final class IOReportClientFFM implements IOReportSampler {
         if (prevSamplePower != null) {
             cfRelease(prevSamplePower);
             prevSamplePower = null;
+        }
+        if (prevSampleCpu != null) {
+            cfRelease(prevSampleCpu);
+            prevSampleCpu = null;
         }
         cfRelease(subscribedChannels);
         cfRelease(subscription);
@@ -289,7 +375,9 @@ public final class IOReportClientFFM implements IOReportSampler {
         return -1L;
     }
 
+    /** Sums the state residency of every channel in the group into one map. */
     private Map<String, Long> extractChannelStates(MemorySegment dict, String group, String subgroup) throws Throwable {
+        Map<String, Long> result = new HashMap<>();
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
         try (channelsKey) {
             MemorySegment arrSeg = CFDictionaryRef.getValue(dict, channelsKey);
@@ -297,37 +385,82 @@ public final class IOReportClientFFM implements IOReportSampler {
                 return Collections.emptyMap();
             }
             int count = CFArrayRef.getCount(arrSeg);
-            Map<String, Long> result = new HashMap<>();
             for (int i = 0; i < count; i++) {
-                MemorySegment entrySeg = CFArrayRef.getValueAtIndex(arrSeg, i);
-                if (entrySeg.equals(MemorySegment.NULL)) {
+                MemorySegment entrySeg = channelInGroup(arrSeg, i, group, subgroup);
+                if (entrySeg == null) {
                     continue;
                 }
-                MemorySegment groupSeg = IOReportFunctions.IOReportChannelGetGroup(entrySeg);
-                if (groupSeg.equals(MemorySegment.NULL) || !group.equals(CFStringRef.stringValue(groupSeg))) {
-                    continue;
-                }
-                if (subgroup != null) {
-                    MemorySegment subSeg = IOReportFunctions.IOReportChannelGetSubGroup(entrySeg);
-                    if (subSeg.equals(MemorySegment.NULL) || !subgroup.equals(CFStringRef.stringValue(subSeg))) {
-                        continue;
-                    }
-                }
-                int stateCount = IOReportFunctions.IOReportStateGetCount(entrySeg);
-                for (int s = 0; s < stateCount; s++) {
-                    MemorySegment nameSeg = IOReportFunctions.IOReportStateGetNameForIndex(entrySeg, s);
-                    if (nameSeg.equals(MemorySegment.NULL)) {
-                        continue;
-                    }
-                    String stateName = CFStringRef.stringValue(nameSeg);
-                    long ticks = IOReportFunctions.IOReportStateGetResidency(entrySeg, s);
-                    if (!stateName.isEmpty()) {
-                        result.merge(stateName, ticks, Long::sum);
-                    }
+                for (Map.Entry<String, Long> state : readStates(entrySeg).entrySet()) {
+                    result.merge(state.getKey(), state.getValue(), Long::sum);
                 }
             }
-            return Collections.unmodifiableMap(result);
         }
+        return Collections.unmodifiableMap(result);
+    }
+
+    /** Keeps each channel's state residency separate, keyed by channel name, for the per-core CPU states. */
+    private Map<String, Map<String, Long>> extractCoreStates(MemorySegment dict) throws Throwable {
+        Map<String, Map<String, Long>> result = new LinkedHashMap<>();
+        CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
+        try (channelsKey) {
+            MemorySegment arrSeg = CFDictionaryRef.getValue(dict, channelsKey);
+            if (arrSeg.equals(MemorySegment.NULL)) {
+                return Collections.emptyMap();
+            }
+            int count = CFArrayRef.getCount(arrSeg);
+            for (int i = 0; i < count; i++) {
+                MemorySegment entrySeg = channelInGroup(arrSeg, i, GROUP_CPU_STATS, SUBGROUP_CPU_CORE_PERF_STATES);
+                if (entrySeg == null) {
+                    continue;
+                }
+                MemorySegment nameSeg = IOReportFunctions.IOReportChannelGetChannelName(entrySeg);
+                if (nameSeg.equals(MemorySegment.NULL)) {
+                    continue;
+                }
+                String channelName = CFStringRef.stringValue(nameSeg);
+                if (!channelName.isEmpty()) {
+                    result.put(channelName, readStates(entrySeg));
+                }
+            }
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    /** Returns the channel at the array index if it belongs to the group and subgroup, otherwise {@code null}. */
+    private @Nullable MemorySegment channelInGroup(MemorySegment channels, int index, String group,
+            @Nullable String subgroup) throws Throwable {
+        MemorySegment entrySeg = CFArrayRef.getValueAtIndex(channels, index);
+        if (entrySeg.equals(MemorySegment.NULL)) {
+            return null;
+        }
+        MemorySegment groupSeg = IOReportFunctions.IOReportChannelGetGroup(entrySeg);
+        if (groupSeg.equals(MemorySegment.NULL) || !group.equals(CFStringRef.stringValue(groupSeg))) {
+            return null;
+        }
+        if (subgroup != null) {
+            MemorySegment subSeg = IOReportFunctions.IOReportChannelGetSubGroup(entrySeg);
+            if (subSeg.equals(MemorySegment.NULL) || !subgroup.equals(CFStringRef.stringValue(subSeg))) {
+                return null;
+            }
+        }
+        return entrySeg;
+    }
+
+    /** Reads one channel's residency ticks, in channel state order. */
+    private Map<String, Long> readStates(MemorySegment entrySeg) throws Throwable {
+        int stateCount = IOReportFunctions.IOReportStateGetCount(entrySeg);
+        Map<String, Long> states = new LinkedHashMap<>();
+        for (int s = 0; s < stateCount; s++) {
+            MemorySegment nameSeg = IOReportFunctions.IOReportStateGetNameForIndex(entrySeg, s);
+            if (nameSeg.equals(MemorySegment.NULL)) {
+                continue;
+            }
+            String stateName = CFStringRef.stringValue(nameSeg);
+            if (!stateName.isEmpty()) {
+                states.merge(stateName, IOReportFunctions.IOReportStateGetResidency(entrySeg, s), Long::sum);
+            }
+        }
+        return Collections.unmodifiableMap(states);
     }
 
     private static void cfRelease(MemorySegment seg) {

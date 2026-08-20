@@ -6,6 +6,7 @@ package oshi.driver.mac;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
@@ -18,13 +19,16 @@ import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.IOReportCpuSampler;
 import oshi.hardware.common.platform.mac.IOReportSampler;
 import oshi.jna.platform.mac.IOReport;
 import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
 
 /**
- * Manages a single IOReport subscription for GPU Stats and Energy Model channels, providing per-instance sampling of
- * GPU active ticks, utilization, and power draw.
+ * Manages a single IOReport subscription, providing per-instance sampling of the channels it subscribed to.
+ * {@link #create()} subscribes to the GPU Stats and Energy Model channels, for GPU active ticks, utilization and power
+ * draw; {@link #createForCpu()} subscribes to the CPU core performance state channels, for per-core frequency
+ * residency. Sampling a channel this instance did not subscribe to returns a sentinel value.
  *
  * <p>
  * Each instance holds its own subscription and previous-sample state, making it suitable for use inside a
@@ -34,12 +38,14 @@ import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
  * Call {@link #close()} when done to release all CoreFoundation references. After {@code close()}, all sampling methods
  * return sentinel values.
  */
-public final class IOReportClient implements IOReportSampler {
+public final class IOReportClient implements IOReportSampler, IOReportCpuSampler {
 
     private static final String GROUP_GPU_STATS = "GPU Stats";
     private static final String GROUP_ENERGY = "Energy Model";
     private static final String CHANNEL_GPU_ENERGY = "GPU Energy";
     private static final String SUBGROUP_GPU_PERF_STATES = "GPU Performance States";
+    private static final String GROUP_CPU_STATS = "CPU Stats";
+    private static final String SUBGROUP_CPU_CORE_PERF_STATES = "CPU Core Performance States";
     private static final String STATE_OFF = "OFF";
     private static final String KEY_CHANNELS = "IOReportChannels";
 
@@ -53,6 +59,9 @@ public final class IOReportClient implements IOReportSampler {
     // Previous sample and timestamp for power delta
     private @Nullable CFDictionaryRef prevSamplePower;
     private long prevSamplePowerNanos;
+
+    // Previous sample for the per-core residency delta
+    private @Nullable CFDictionaryRef prevSampleCpu;
 
     private boolean closed;
 
@@ -69,13 +78,10 @@ public final class IOReportClient implements IOReportSampler {
      * @return a new client, or {@code null} if IOReport is unavailable or subscription fails
      */
     public static @Nullable IOReportClient create() {
-        IOReport io;
-        try {
-            io = Native.load("IOReport", IOReport.class);
-        } catch (UnsatisfiedLinkError e) {
+        IOReport io = loadIOReport();
+        if (io == null) {
             return null;
         }
-
         CFStringRef gpuGroup = CFStringRef.createCFString(GROUP_GPU_STATS);
         CFStringRef energyGroup = CFStringRef.createCFString(GROUP_ENERGY);
         CFDictionaryRef gpuChannels = null;
@@ -89,17 +95,7 @@ public final class IOReportClient implements IOReportSampler {
             if (energyChannels != null) {
                 io.IOReportMergeChannels(gpuChannels, energyChannels, null);
             }
-            PointerByReference subRef = new PointerByReference();
-            IOReportSubscriptionRef sub = io.IOReportCreateSubscription(null, gpuChannels, subRef, 0, null);
-            if (sub == null) {
-                return null;
-            }
-            Pointer subPtr = subRef.getValue();
-            if (subPtr == null) {
-                sub.release();
-                return null;
-            }
-            return new IOReportClient(io, sub, new CFDictionaryRef(subPtr));
+            return subscribe(io, gpuChannels);
         } catch (Exception e) {
             return null;
         } finally {
@@ -112,6 +108,58 @@ public final class IOReportClient implements IOReportSampler {
                 energyChannels.release();
             }
         }
+    }
+
+    /**
+     * Creates a new {@code IOReportClient} subscribed to the per-core CPU performance state channels.
+     *
+     * @return a new client, or {@code null} if IOReport is unavailable or subscription fails
+     */
+    public static @Nullable IOReportClient createForCpu() {
+        IOReport io = loadIOReport();
+        if (io == null) {
+            return null;
+        }
+        CFStringRef cpuGroup = CFStringRef.createCFString(GROUP_CPU_STATS);
+        CFStringRef coreSubgroup = CFStringRef.createCFString(SUBGROUP_CPU_CORE_PERF_STATES);
+        CFDictionaryRef cpuChannels = null;
+        try {
+            cpuChannels = io.IOReportCopyChannelsInGroup(cpuGroup, coreSubgroup, 0, 0, 0);
+            if (cpuChannels == null) {
+                return null;
+            }
+            return subscribe(io, cpuChannels);
+        } catch (Exception e) {
+            return null;
+        } finally {
+            cpuGroup.release();
+            coreSubgroup.release();
+            if (cpuChannels != null) {
+                cpuChannels.release();
+            }
+        }
+    }
+
+    private static @Nullable IOReport loadIOReport() {
+        try {
+            return Native.load("IOReport", IOReport.class);
+        } catch (UnsatisfiedLinkError e) {
+            return null;
+        }
+    }
+
+    private static @Nullable IOReportClient subscribe(IOReport io, CFDictionaryRef channels) {
+        PointerByReference subRef = new PointerByReference();
+        IOReportSubscriptionRef sub = io.IOReportCreateSubscription(null, channels, subRef, 0, null);
+        if (sub == null) {
+            return null;
+        }
+        Pointer subPtr = subRef.getValue();
+        if (subPtr == null) {
+            sub.release();
+            return null;
+        }
+        return new IOReportClient(io, sub, new CFDictionaryRef(subPtr));
     }
 
     /**
@@ -133,12 +181,12 @@ public final class IOReportClient implements IOReportSampler {
                 return new GpuTicks(0L, 0L);
             }
             try {
-                ChannelStates cs = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
-                if (cs.getStates().isEmpty()) {
+                Map<String, Long> states = extractChannelStates(sample, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
+                if (states.isEmpty()) {
                     return new GpuTicks(0L, 0L);
                 }
-                long idle = cs.getStates().getOrDefault(STATE_OFF, 0L);
-                long total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
+                long idle = states.getOrDefault(STATE_OFF, 0L);
+                long total = states.values().stream().mapToLong(Long::longValue).sum();
                 return new GpuTicks(total - idle, idle);
             } finally {
                 sample.release();
@@ -182,12 +230,12 @@ public final class IOReportClient implements IOReportSampler {
                 return -1d;
             }
             try {
-                ChannelStates cs = extractChannelStates(delta, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
-                if (cs.getStates().isEmpty()) {
+                Map<String, Long> states = extractChannelStates(delta, GROUP_GPU_STATS, SUBGROUP_GPU_PERF_STATES);
+                if (states.isEmpty()) {
                     return -1d;
                 }
-                long off = cs.getStates().getOrDefault(STATE_OFF, 0L);
-                long total = cs.getStates().values().stream().mapToLong(Long::longValue).sum();
+                long off = states.getOrDefault(STATE_OFF, 0L);
+                long total = states.values().stream().mapToLong(Long::longValue).sum();
                 long active = total - off;
                 return total > 0 ? active * 100.0 / total : -1d;
             } finally {
@@ -259,6 +307,49 @@ public final class IOReportClient implements IOReportSampler {
     }
 
     /**
+     * Returns the per-core CPU performance state residency accumulated since the previous call.
+     *
+     * @return a map from channel name to that core's state residency in channel state order, or {@code null} if this is
+     *         the first call, the sample could not be taken, or this client is closed
+     */
+    @Override
+    public synchronized @Nullable Map<String, Map<String, Long>> sampleCoreResidencyDelta() {
+        if (closed) {
+            return null;
+        }
+        CFDictionaryRef sample = null;
+        try {
+            sample = ioReport.IOReportCreateSamples(subscription, subscribedChannels, null);
+            if (sample == null) {
+                return null;
+            }
+            if (prevSampleCpu == null) {
+                prevSampleCpu = sample;
+                sample = null;
+                return null;
+            }
+            CFDictionaryRef delta = ioReport.IOReportCreateSamplesDelta(prevSampleCpu, sample, null);
+            prevSampleCpu.release();
+            prevSampleCpu = sample;
+            sample = null;
+            if (delta == null) {
+                return null;
+            }
+            try {
+                return extractCoreStates(delta);
+            } finally {
+                delta.release();
+            }
+        } catch (Exception e) {
+            return null;
+        } finally {
+            if (sample != null) {
+                sample.release();
+            }
+        }
+    }
+
+    /**
      * Releases all CoreFoundation references held by this client. Idempotent.
      */
     @Override
@@ -274,6 +365,10 @@ public final class IOReportClient implements IOReportSampler {
         if (prevSamplePower != null) {
             prevSamplePower.release();
             prevSamplePower = null;
+        }
+        if (prevSampleCpu != null) {
+            prevSampleCpu.release();
+            prevSampleCpu = null;
         }
         subscribedChannels.release();
         subscription.release();
@@ -310,61 +405,98 @@ public final class IOReportClient implements IOReportSampler {
         return -1L;
     }
 
-    /** Holds the merged state-residency map and the number of IOReport channels that contributed to it. */
-    private static final class ChannelStates {
-        private final Map<String, Long> states;
-
-        ChannelStates(Map<String, Long> states) {
-            this.states = states;
-        }
-
-        Map<String, Long> getStates() {
-            return states;
-        }
-    }
-
-    private ChannelStates extractChannelStates(CFDictionaryRef dict, String group, String subgroup) {
+    /** Sums the state residency of every channel in the group into one map. */
+    private Map<String, Long> extractChannelStates(CFDictionaryRef dict, String group, String subgroup) {
+        Map<String, Long> result = new HashMap<>();
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
         try {
             Pointer arrPtr = dict.getValue(channelsKey);
             if (arrPtr == null) {
-                return new ChannelStates(Collections.emptyMap());
+                return Collections.emptyMap();
             }
             CFArrayRef arr = new CFArrayRef(arrPtr);
             int count = arr.getCount();
-            Map<String, Long> result = new HashMap<>();
             for (int i = 0; i < count; i++) {
-                Pointer entryPtr = arr.getValueAtIndex(i);
-                if (entryPtr == null) {
+                CFDictionaryRef entry = channelInGroup(arr, i, group, subgroup);
+                if (entry == null) {
                     continue;
                 }
-                CFDictionaryRef entry = new CFDictionaryRef(entryPtr);
-                CFStringRef groupRef = ioReport.IOReportChannelGetGroup(entry);
-                if (groupRef == null || !group.equals(groupRef.stringValue())) {
-                    continue;
-                }
-                if (subgroup != null) {
-                    CFStringRef subRef = ioReport.IOReportChannelGetSubGroup(entry);
-                    if (subRef == null || !subgroup.equals(subRef.stringValue())) {
-                        continue;
-                    }
-                }
-                int stateCount = ioReport.IOReportStateGetCount(entry);
-                for (int s = 0; s < stateCount; s++) {
-                    CFStringRef nameRef = ioReport.IOReportStateGetNameForIndex(entry, s);
-                    if (nameRef == null) {
-                        continue;
-                    }
-                    String stateName = nameRef.stringValue();
-                    long ticks = ioReport.IOReportStateGetResidency(entry, s);
-                    if (!stateName.isEmpty()) {
-                        result.merge(stateName, ticks, Long::sum);
-                    }
+                for (Map.Entry<String, Long> state : readStates(entry).entrySet()) {
+                    result.merge(state.getKey(), state.getValue(), Long::sum);
                 }
             }
-            return new ChannelStates(result);
         } finally {
             channelsKey.release();
         }
+        return Collections.unmodifiableMap(result);
+    }
+
+    /** Keeps each channel's state residency separate, keyed by channel name, for the per-core CPU states. */
+    private Map<String, Map<String, Long>> extractCoreStates(CFDictionaryRef dict) {
+        Map<String, Map<String, Long>> result = new LinkedHashMap<>();
+        CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
+        try {
+            Pointer arrPtr = dict.getValue(channelsKey);
+            if (arrPtr == null) {
+                return Collections.emptyMap();
+            }
+            CFArrayRef arr = new CFArrayRef(arrPtr);
+            int count = arr.getCount();
+            for (int i = 0; i < count; i++) {
+                CFDictionaryRef entry = channelInGroup(arr, i, GROUP_CPU_STATS, SUBGROUP_CPU_CORE_PERF_STATES);
+                if (entry == null) {
+                    continue;
+                }
+                CFStringRef nameRef = ioReport.IOReportChannelGetChannelName(entry);
+                if (nameRef == null) {
+                    continue;
+                }
+                String channelName = nameRef.stringValue();
+                if (!channelName.isEmpty()) {
+                    result.put(channelName, readStates(entry));
+                }
+            }
+        } finally {
+            channelsKey.release();
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    /** Returns the channel at the array index if it belongs to the group and subgroup, otherwise {@code null}. */
+    private @Nullable CFDictionaryRef channelInGroup(CFArrayRef channels, int index, String group,
+            @Nullable String subgroup) {
+        Pointer entryPtr = channels.getValueAtIndex(index);
+        if (entryPtr == null) {
+            return null;
+        }
+        CFDictionaryRef entry = new CFDictionaryRef(entryPtr);
+        CFStringRef groupRef = ioReport.IOReportChannelGetGroup(entry);
+        if (groupRef == null || !group.equals(groupRef.stringValue())) {
+            return null;
+        }
+        if (subgroup != null) {
+            CFStringRef subRef = ioReport.IOReportChannelGetSubGroup(entry);
+            if (subRef == null || !subgroup.equals(subRef.stringValue())) {
+                return null;
+            }
+        }
+        return entry;
+    }
+
+    /** Reads one channel's residency ticks, in channel state order. */
+    private Map<String, Long> readStates(CFDictionaryRef entry) {
+        int stateCount = ioReport.IOReportStateGetCount(entry);
+        Map<String, Long> states = new LinkedHashMap<>();
+        for (int s = 0; s < stateCount; s++) {
+            CFStringRef nameRef = ioReport.IOReportStateGetNameForIndex(entry, s);
+            if (nameRef == null) {
+                continue;
+            }
+            String stateName = nameRef.stringValue();
+            if (!stateName.isEmpty()) {
+                states.merge(stateName, ioReport.IOReportStateGetResidency(entry, s), Long::sum);
+            }
+        }
+        return Collections.unmodifiableMap(states);
     }
 }
