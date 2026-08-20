@@ -13,11 +13,13 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.Test;
 
@@ -155,6 +157,38 @@ class MacCentralProcessorTest {
         assertThat(avg[0], is(-1.0));
         assertThat(avg[1], is(-1.0));
         assertThat(avg[2], is(-1.0));
+    }
+
+    // -- Apple Silicon cluster frequencies --
+
+    @Test
+    void testArmMaxFreqWithoutFirstQueryingTheProcessorIdentifier() {
+        // The nominal frequencies were once read as a side effect of queryProcessorId(), so a caller asking for a
+        // frequency before the identifier was answered with the DEFAULT_FREQUENCY placeholder instead.
+        StubArmCentralProcessor cpu = new StubArmCentralProcessor();
+        assertThat(cpu.queryMaxFreq(), is(StubArmCentralProcessor.PERF_FREQ));
+    }
+
+    @Test
+    void testArmCurrentFreqIsPerCluster() {
+        StubArmCentralProcessor cpu = new StubArmCentralProcessor();
+        long[] freqs = cpu.queryCurrentFreq();
+        assertThat(freqs.length, is(8));
+        for (int i = 0; i < 4; i++) {
+            assertThat("efficiency core " + i, freqs[i], is(StubArmCentralProcessor.EFF_FREQ));
+        }
+        for (int i = 4; i < 8; i++) {
+            assertThat("performance core " + i, freqs[i], is(StubArmCentralProcessor.PERF_FREQ));
+        }
+    }
+
+    @Test
+    void testNominalFrequenciesAreQueriedOnceForAllThreeConsumers() {
+        StubArmCentralProcessor cpu = new StubArmCentralProcessor();
+        cpu.queryMaxFreq();
+        cpu.queryCurrentFreq();
+        assertThat("vendor frequency", cpu.queryProcessorId().getVendorFreq(), is(StubArmCentralProcessor.PERF_FREQ));
+        assertThat("IORegistry walks", cpu.nominalFrequencyQueries(), is(1));
     }
 
     // -- efficiency class derivation --
@@ -454,7 +488,7 @@ class MacCentralProcessorTest {
 
         @Override
         protected IOKitProvider ioKitProvider() {
-            return null; // Not used; platformExpert/queryCoreProperties/calculateNominalFrequencies are overridden
+            return null; // Not used; platformExpert/queryCoreProperties/queryNominalFrequencies are overridden
         }
 
         @Override
@@ -468,7 +502,8 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        protected void calculateNominalFrequencies() {
+        protected Pair<Long, Long> queryNominalFrequencies() {
+            return new Pair<>(DEFAULT_FREQUENCY, DEFAULT_FREQUENCY);
         }
 
         @Override
@@ -490,16 +525,6 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        public long queryMaxFreq() {
-            return 0L;
-        }
-
-        @Override
-        public long[] queryCurrentFreq() {
-            return new long[] { 0L };
-        }
-
-        @Override
         public long queryContextSwitches() {
             return 0L;
         }
@@ -507,6 +532,54 @@ class MacCentralProcessorTest {
         @Override
         public long queryInterrupts() {
             return 0L;
+        }
+    }
+
+    /**
+     * An Apple Silicon variant of the stub: four efficiency plus four performance cores, with the two cluster
+     * frequencies standing in for the {@code pmgr} voltage-state tables. The core count and cluster types must come
+     * from constants rather than instance fields, because the superclass derives the processor topology during
+     * construction, before any subclass field is assigned.
+     */
+    static class StubArmCentralProcessor extends StubMacCentralProcessor {
+
+        static final long PERF_FREQ = 4_056_000_000L;
+        static final long EFF_FREQ = 2_748_000_000L;
+        private static final int CORE_COUNT = 8;
+
+        private final AtomicInteger nominalFrequencyQueries = new AtomicInteger();
+
+        StubArmCentralProcessor() {
+            super(Collections.singletonMap("machdep.cpu.brand_string", "Apple M3 Pro"));
+        }
+
+        @Override
+        protected int sysctlInt(String name, int def) {
+            if ("hw.logicalcpu".equals(name) || "hw.physicalcpu".equals(name)) {
+                return CORE_COUNT;
+            }
+            return super.sysctlInt(name, def);
+        }
+
+        @Override
+        protected Map<Integer, Pair<String, String>> queryCoreProperties() {
+            Map<Integer, Pair<String, String>> props = new HashMap<>();
+            for (int i = 0; i < CORE_COUNT; i++) {
+                boolean performance = i >= CORE_COUNT / 2;
+                props.put(i, new Pair<>(performance ? "apple,everest arm,v8" : "apple,sawtooth arm,v8",
+                        performance ? "P" : "E"));
+            }
+            return props;
+        }
+
+        @Override
+        protected Pair<Long, Long> queryNominalFrequencies() {
+            nominalFrequencyQueries.incrementAndGet();
+            return new Pair<>(PERF_FREQ, EFF_FREQ);
+        }
+
+        int nominalFrequencyQueries() {
+            return nominalFrequencyQueries.get();
         }
     }
 }
