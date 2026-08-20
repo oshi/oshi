@@ -1,0 +1,22 @@
+winsock2.h
+ws2tcpip.h
+windows.h
+winternl.h
+iphlpapi.h
+psapi.h
+pdh.h
+powrprof.h
+sddl.h
+setupapi.h
+cfgmgr32.h
+wtsapi32.h
+objbase.h
+oleauto.h
+# the lm.h umbrella pulls in lmerrlog.h, whose HLOG collides with pdh.h's; name the two
+# headers that actually declare the Netapi32 bindings instead
+lmcons.h
+lmapibuf.h
+lmshare.h
+shlobj.h
+dxgi.h
+bluetoothapis.h

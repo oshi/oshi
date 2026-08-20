@@ -1,0 +1,2 @@
+# Symbols whose SDK declaration cannot be compared against a FunctionDescriptor.
+# Format: <symbol>  # reason

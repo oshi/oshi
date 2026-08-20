@@ -1,0 +1,52 @@
+# Compares every FFM FunctionDescriptor in oshi-core-ffm against the platform SDK's real prototype.
+# Catches the parameter- and return-width mismatches that otherwise surface as an intermittent
+# crash rather than a test failure. Fork-side diagnostic; not part of the release gate.
+name: FFM signature audit
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/ffm-audit/**'
+      - '.github/workflows/ffm-audit.yaml'
+      - 'oshi-core-ffm/src/main/java/oshi/ffm/**'
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit macOS bindings
+        run: |
+          python3 .github/ffm-audit/audit.py --platform mac --toolchain clang \
+            --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/mac/**/*.java" \
+            --workdir "${RUNNER_TEMP}/ffm-audit" \
+            --cflags "-isysroot $(xcrun --show-sdk-path)"
+
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install the headers the bindings need
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq libudev-dev libsystemd-dev
+      - name: Audit Linux bindings
+        run: |
+          python3 .github/ffm-audit/audit.py --platform linux --toolchain gcc \
+            --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/linux/**/*.java" \
+            --workdir "${RUNNER_TEMP}/ffm-audit"
+
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Audit Windows bindings
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"C:\Program Files (x86)\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set VSPATH=%%i
+          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat"
+          python .github\ffm-audit\audit.py --platform windows --toolchain msvc ^
+            --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/windows/**/*.java" ^
+            --workdir "%RUNNER_TEMP%\ffm-audit" --cflags "/permissive-"
