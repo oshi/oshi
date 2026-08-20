@@ -22,18 +22,17 @@ public class PdhFFM extends WindowsForeignFunctions {
     public static final int PDH_MORE_DATA = 0x800007D2;
     public static final int PDH_NO_DATA = 0x800007D5;
 
-    private static final MethodHandle PdhOpenQuery = downcall(Pdh, "PdhOpenQueryW", JAVA_INT, ADDRESS, ADDRESS,
+    private static final MethodHandle PdhOpenQuery = downcall(Pdh, "PdhOpenQueryW", JAVA_INT, ADDRESS, JAVA_LONG,
             ADDRESS);
 
-    public static int PdhOpenQuery(MemorySegment dataSource, MemorySegment userData, MemorySegment query)
-            throws Throwable {
+    public static int PdhOpenQuery(MemorySegment dataSource, long userData, MemorySegment query) throws Throwable {
         return (int) PdhOpenQuery.invokeExact(dataSource, userData, query);
     }
 
     private static final MethodHandle PdhAddEnglishCounter = downcall(Pdh, "PdhAddEnglishCounterW", JAVA_INT, ADDRESS,
-            ADDRESS, ADDRESS, ADDRESS);
+            ADDRESS, JAVA_LONG, ADDRESS);
 
-    public static int PdhAddEnglishCounter(MemorySegment query, MemorySegment counterPath, MemorySegment userData,
+    public static int PdhAddEnglishCounter(MemorySegment query, MemorySegment counterPath, long userData,
             MemorySegment counter) throws Throwable {
         return (int) PdhAddEnglishCounter.invokeExact(query, counterPath, userData, counter);
     }

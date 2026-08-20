@@ -142,7 +142,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
             lpcbData.set(JAVA_INT, 0, maxPerfBufferSize);
             MemorySegment pPerfData = arena.allocate(maxPerfBufferSize);
 
-            int ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName, 0,
+            int ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName,
                     MemorySegment.NULL, pPerfData, lpcbData);
             if (ret != ERROR_SUCCESS && ret != ERROR_MORE_DATA) {
                 LOG.error("Error reading performance data from registry for {}.", objectName);
@@ -153,7 +153,7 @@ public final class HkeyPerformanceDataUtilFFM extends HkeyPerformanceDataUtil {
                 maxPerfBufferSize += 8192;
                 lpcbData.set(JAVA_INT, 0, maxPerfBufferSize);
                 pPerfData = arena.allocate(maxPerfBufferSize);
-                ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName, 0,
+                ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName,
                         MemorySegment.NULL, pPerfData, lpcbData);
             }
             if (ret != ERROR_SUCCESS) {
