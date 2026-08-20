@@ -96,14 +96,14 @@ final class WindowsDisplayFFM extends AbstractDisplay {
             MemorySegment dummyBuf = arena.allocate(1);
             lpcbData.set(JAVA_INT, 0, 1);
 
-            int rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, dummyBuf, lpcbData);
+            int rc = Advapi32FFM.RegQueryValueEx(key, edidName, pType, dummyBuf, lpcbData);
             if (rc != ERROR_MORE_DATA) {
                 return null;
             }
             int size = lpcbData.get(JAVA_INT, 0);
             MemorySegment edidBuf = arena.allocate(size);
             lpcbData.set(JAVA_INT, 0, size);
-            rc = Advapi32FFM.RegQueryValueEx(key, edidName, 0, pType, edidBuf, lpcbData);
+            rc = Advapi32FFM.RegQueryValueEx(key, edidName, pType, edidBuf, lpcbData);
             if (rc == ERROR_SUCCESS) {
                 return edidBuf.asSlice(0, size).toArray(JAVA_BYTE);
             }

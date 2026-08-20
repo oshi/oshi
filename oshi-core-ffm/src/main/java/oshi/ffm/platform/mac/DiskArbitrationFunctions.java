@@ -5,6 +5,7 @@
 package oshi.ffm.platform.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemorySegment;
@@ -42,10 +43,10 @@ public final class DiskArbitrationFunctions extends MacForeignFunctions {
 
     private static final MethodHandle DADiskCreateFromIOMedia = LINKER.downcallHandle(
             DA_LIBRARY.findOrThrow("DADiskCreateFromIOMedia"),
-            FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, ADDRESS));
+            FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, JAVA_INT));
 
-    public static MemorySegment DADiskCreateFromIOMedia(MemorySegment allocator, MemorySegment session,
-            MemorySegment media) throws Throwable {
+    public static MemorySegment DADiskCreateFromIOMedia(MemorySegment allocator, MemorySegment session, int media)
+            throws Throwable {
         return (MemorySegment) DADiskCreateFromIOMedia.invokeExact(allocator, session, media);
     }
 

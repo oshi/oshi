@@ -84,7 +84,7 @@ public final class PerfDataUtilFFM {
 
         return callInArenaOrDefault(arena -> {
             MemorySegment queryPtr = arena.allocate(ADDRESS);
-            checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
+            checkSuccess(PdhOpenQuery(MemorySegment.NULL, 0L, queryPtr));
             // Read once into an effectively-final local so the per-counter lambdas below can capture it.
             MemorySegment query = queryPtr.get(ADDRESS, 0);
 
@@ -151,7 +151,7 @@ public final class PerfDataUtilFFM {
 
     private static MemorySegment addEnglishCounter(Arena arena, MemorySegment query, String path) throws Throwable {
         MemorySegment counterPtr = arena.allocate(ADDRESS);
-        checkSuccess(PdhAddEnglishCounter(query, toWideString(arena, path), MemorySegment.NULL, counterPtr));
+        checkSuccess(PdhAddEnglishCounter(query, toWideString(arena, path), 0L, counterPtr));
         return counterPtr.get(ADDRESS, 0);
     }
 
@@ -301,7 +301,7 @@ public final class PerfDataUtilFFM {
 
         return callInArenaOrDefault(arena -> {
             MemorySegment queryPtr = arena.allocate(ADDRESS);
-            checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
+            checkSuccess(PdhOpenQuery(MemorySegment.NULL, 0L, queryPtr));
             MemorySegment query = null;
 
             try {

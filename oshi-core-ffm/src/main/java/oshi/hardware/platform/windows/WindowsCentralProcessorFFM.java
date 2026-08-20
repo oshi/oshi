@@ -263,8 +263,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                     MemorySegment dataSize = arena.allocate(ValueLayout.JAVA_INT);
                     dataSize.set(ValueLayout.JAVA_INT, 0, 512);
                     MemorySegment data = arena.allocate(512);
-                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, 0, MemorySegment.NULL, data,
-                            dataSize) == 0) {
+                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, MemorySegment.NULL, data, dataSize) == 0) {
                         return WindowsForeignFunctions.readWideString(data);
                     }
                 }
@@ -283,8 +282,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                     MemorySegment dataSize = arena.allocate(ValueLayout.JAVA_INT);
                     dataSize.set(ValueLayout.JAVA_INT, 0, 4);
                     MemorySegment data = arena.allocate(4);
-                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, 0, MemorySegment.NULL, data,
-                            dataSize) == 0) {
+                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, MemorySegment.NULL, data, dataSize) == 0) {
                         return Integer.toUnsignedLong(data.get(ValueLayout.JAVA_INT, 0));
                     }
                 }

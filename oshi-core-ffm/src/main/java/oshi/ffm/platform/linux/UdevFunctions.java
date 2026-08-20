@@ -85,11 +85,11 @@ public final class UdevFunctions extends ForeignFunctions {
             } else {
                 SymbolLookup lib = loadUdevLibrary();
                 hNew = LINKER.downcallHandle(lib.findOrThrow("udev_new"), FunctionDescriptor.of(ADDRESS));
-                hUnref = LINKER.downcallHandle(lib.findOrThrow("udev_unref"), FunctionDescriptor.ofVoid(ADDRESS));
+                hUnref = LINKER.downcallHandle(lib.findOrThrow("udev_unref"), FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hEnumNew = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_new"),
                         FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hEnumUnref = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_unref"),
-                        FunctionDescriptor.ofVoid(ADDRESS));
+                        FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hEnumAddMatch = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_add_match_subsystem"),
                         FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
                 hEnumScan = LINKER.downcallHandle(lib.findOrThrow("udev_enumerate_scan_devices"),
@@ -103,7 +103,7 @@ public final class UdevFunctions extends ForeignFunctions {
                 hDevNewFromSyspath = LINKER.downcallHandle(lib.findOrThrow("udev_device_new_from_syspath"),
                         FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS));
                 hDevUnref = LINKER.downcallHandle(lib.findOrThrow("udev_device_unref"),
-                        FunctionDescriptor.ofVoid(ADDRESS));
+                        FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hDevGetParent = LINKER.downcallHandle(lib.findOrThrow("udev_device_get_parent"),
                         FunctionDescriptor.of(ADDRESS, ADDRESS));
                 hDevGetParentSubDev = LINKER.downcallHandle(
@@ -195,10 +195,11 @@ public final class UdevFunctions extends ForeignFunctions {
      * Drops a reference to a udev context. Once the reference count hits 0, the context is destroyed.
      *
      * @param udev the udev context handle
+     * @return always {@code NULL}; udev returns it only so a caller may write {@code x = udev_unref(x)}
      * @throws Throwable if the native call fails
      */
-    public static void udev_unref(MemorySegment udev) throws Throwable {
-        udev_unref.invokeExact(udev);
+    public static MemorySegment udev_unref(MemorySegment udev) throws Throwable {
+        return (MemorySegment) udev_unref.invokeExact(udev);
     }
 
     // ---- Enumerate ----
@@ -218,10 +219,11 @@ public final class UdevFunctions extends ForeignFunctions {
      * Drops a reference to a udev enumerate object.
      *
      * @param enumerate the enumerate handle
+     * @return always {@code NULL}; udev returns it only so a caller may write {@code x = udev_enumerate_unref(x)}
      * @throws Throwable if the native call fails
      */
-    public static void udev_enumerate_unref(MemorySegment enumerate) throws Throwable {
-        udev_enumerate_unref.invokeExact(enumerate);
+    public static MemorySegment udev_enumerate_unref(MemorySegment enumerate) throws Throwable {
+        return (MemorySegment) udev_enumerate_unref.invokeExact(enumerate);
     }
 
     /**
@@ -302,10 +304,11 @@ public final class UdevFunctions extends ForeignFunctions {
      * Drops a reference to a udev device.
      *
      * @param device the device handle
+     * @return always {@code NULL}; udev returns it only so a caller may write {@code x = udev_device_unref(x)}
      * @throws Throwable if the native call fails
      */
-    public static void udev_device_unref(MemorySegment device) throws Throwable {
-        udev_device_unref.invokeExact(device);
+    public static MemorySegment udev_device_unref(MemorySegment device) throws Throwable {
+        return (MemorySegment) udev_device_unref.invokeExact(device);
     }
 
     /**

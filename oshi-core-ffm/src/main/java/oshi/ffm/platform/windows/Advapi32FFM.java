@@ -126,11 +126,12 @@ public final class Advapi32FFM extends WindowsForeignFunctions {
     }
 
     private static final MethodHandle RegQueryValueEx = downcall(ADV, "RegQueryValueExW", JAVA_INT, ADDRESS, ADDRESS,
-            JAVA_INT, ADDRESS, ADDRESS, ADDRESS);
+            ADDRESS, ADDRESS, ADDRESS, ADDRESS);
 
-    public static int RegQueryValueEx(MemorySegment hKey, MemorySegment lpValueName, int reserved, MemorySegment lpType,
+    // lpReserved is an LPDWORD that the API requires to be NULL, so it is supplied here rather than exposed
+    public static int RegQueryValueEx(MemorySegment hKey, MemorySegment lpValueName, MemorySegment lpType,
             MemorySegment lpData, MemorySegment lpcbData) throws Throwable {
-        return (int) RegQueryValueEx.invokeExact(hKey, lpValueName, reserved, lpType, lpData, lpcbData);
+        return (int) RegQueryValueEx.invokeExact(hKey, lpValueName, MemorySegment.NULL, lpType, lpData, lpcbData);
     }
 
     // Token information classes

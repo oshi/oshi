@@ -200,7 +200,7 @@ public final class Advapi32UtilFFM {
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
             lpcbData.set(JAVA_INT, 0, Integer.BYTES);
 
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, pData, lpcbData);
             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
             return pData.get(JAVA_INT, 0);
         }
@@ -221,7 +221,7 @@ public final class Advapi32UtilFFM {
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
             lpcbData.set(JAVA_INT, 0, Long.BYTES);
 
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, pData, lpcbData);
             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
             return pData.get(JAVA_LONG, 0);
         }
@@ -243,7 +243,7 @@ public final class Advapi32UtilFFM {
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
             lpcbData.set(JAVA_INT, 0, size);
 
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, data, lpcbData);
             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
             return data.asSlice(0, lpcbData.get(JAVA_INT, 0)).toArray(JAVA_BYTE);
         }
@@ -265,7 +265,7 @@ public final class Advapi32UtilFFM {
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
             lpcbData.set(JAVA_INT, 0, size);
 
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, data, lpcbData);
             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
             return readWideString(data);
         }
@@ -285,7 +285,7 @@ public final class Advapi32UtilFFM {
             MemorySegment lpType = arena.allocate(JAVA_INT);
             MemorySegment lpcbData = arena.allocate(JAVA_INT);
 
-            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
+            int rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, MemorySegment.NULL, lpcbData);
             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
 
             int type = lpType.get(JAVA_INT, 0);
@@ -350,7 +350,7 @@ public final class Advapi32UtilFFM {
             MemorySegment hKey = phkResult.get(ADDRESS, 0);
             try {
                 MemorySegment lpType = arena.allocate(JAVA_INT);
-                rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL,
+                rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, MemorySegment.NULL,
                         arena.allocate(JAVA_INT));
                 return rc == ERROR_SUCCESS || rc == ERROR_MORE_DATA || rc == ERROR_INSUFFICIENT_BUFFER;
             } finally {
@@ -382,7 +382,7 @@ public final class Advapi32UtilFFM {
                 MemorySegment lpType = arena.allocate(JAVA_INT);
                 MemorySegment lpcbData = arena.allocate(JAVA_INT);
 
-                rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
+                rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, MemorySegment.NULL, lpcbData);
                 if (rc != ERROR_SUCCESS && rc != ERROR_INSUFFICIENT_BUFFER && rc != ERROR_MORE_DATA) {
                     throw new Win32Exception(rc);
                 }
@@ -400,7 +400,7 @@ public final class Advapi32UtilFFM {
                     data.fill((byte) 0);
                     lpcbData.set(JAVA_INT, 0, size + 4);
 
-                    rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+                    rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, data, lpcbData);
                     if (rc == ERROR_MORE_DATA || rc == ERROR_INSUFFICIENT_BUFFER) {
                         size = lpcbData.get(JAVA_INT, 0);
                         continue;
