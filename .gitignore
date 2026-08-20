@@ -17,3 +17,7 @@ release.properties
 bin/
 CLAUDE.md
 .kiro/
+
+# Python bytecode from the FFM audit helpers
+__pycache__/
+*.pyc

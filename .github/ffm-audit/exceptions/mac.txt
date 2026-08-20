@@ -1,0 +1,4 @@
+# Symbols whose SDK declaration cannot be compared against a FunctionDescriptor.
+# Format: <symbol>  # reason
+objc_msgSend  # declared "void objc_msgSend(void)" on purpose: every caller must cast it to the
+              # signature of the selector being sent, so there is no single prototype to check.
