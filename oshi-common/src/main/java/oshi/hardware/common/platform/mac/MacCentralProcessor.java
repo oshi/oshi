@@ -75,8 +75,10 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     private final Supplier<String> vendor = memoize(this::platformExpert);
     private final boolean isArmCpu = isArmCpu();
 
-    private volatile long performanceCoreFrequency = DEFAULT_FREQUENCY;
-    private volatile long efficiencyCoreFrequency = DEFAULT_FREQUENCY;
+    // Nominal cluster frequencies are fixed hardware properties, so this is memoized indefinitely. It is queried
+    // lazily rather than populated as a side effect of queryProcessorId(): a caller asking for a frequency first
+    // would otherwise be answered with the DEFAULT_FREQUENCY placeholder.
+    private final Supplier<Pair<Long, Long>> nominalFrequencies = memoize(this::queryNominalFrequencies);
 
     /**
      * Returns the sysctl provider for this implementation.
@@ -370,18 +372,23 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Calculates nominal frequencies for performance and efficiency cores.
+     * Queries the nominal maximum frequencies of the performance and efficiency core clusters from the power manager's
+     * voltage state tables.
+     *
+     * @return a pair of (performance, efficiency) core frequency in Hz, each {@link #DEFAULT_FREQUENCY} if its table
+     *         could not be read
      */
-    protected void calculateNominalFrequencies() {
+    protected Pair<Long, Long> queryNominalFrequencies() {
+        long[] freqs = { DEFAULT_FREQUENCY, DEFAULT_FREQUENCY };
         ioKitProvider().forEachMatchingServiceUntil("AppleARMIODevice", entry -> {
             if ("pmgr".equalsIgnoreCase(entry.getName())) {
-                setPerformanceCoreFrequency(
-                        getMaxFreqFromByteArray(entry.getByteArrayProperty("voltage-states5-sram")));
-                setEfficiencyCoreFrequency(getMaxFreqFromByteArray(entry.getByteArrayProperty("voltage-states1-sram")));
+                freqs[0] = getMaxFreqFromByteArray(entry.getByteArrayProperty("voltage-states5-sram"));
+                freqs[1] = getMaxFreqFromByteArray(entry.getByteArrayProperty("voltage-states1-sram"));
                 return true;
             }
             return false;
         });
+        return new Pair<>(freqs[0], freqs[1]);
     }
 
     /**
@@ -390,16 +397,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @return the performance core frequency in Hz
      */
     protected long getPerformanceCoreFrequency() {
-        return performanceCoreFrequency;
-    }
-
-    /**
-     * Sets the performance core frequency.
-     *
-     * @param freq the frequency in Hz
-     */
-    protected void setPerformanceCoreFrequency(long freq) {
-        this.performanceCoreFrequency = freq;
+        return nominalFrequencies.get().getA();
     }
 
     /**
@@ -408,16 +406,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
      * @return the efficiency core frequency in Hz
      */
     protected long getEfficiencyCoreFrequency() {
-        return efficiencyCoreFrequency;
-    }
-
-    /**
-     * Sets the efficiency core frequency.
-     *
-     * @param freq the frequency in Hz
-     */
-    protected void setEfficiencyCoreFrequency(long freq) {
-        this.efficiencyCoreFrequency = freq;
+        return nominalFrequencies.get().getB();
     }
 
     /**
@@ -470,10 +459,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             processorIdBits |= (sysctlLong("machdep.cpu.feature_bits", 0L) & 0xffffffff) << 32;
             processorID = String.format(Locale.ROOT, "%016x", processorIdBits);
         }
-        if (isArmCpu) {
-            calculateNominalFrequencies();
-        }
-        long cpuFreq = isArmCpu ? performanceCoreFrequency : sysctlLong("hw.cpufrequency", 0L);
+        long cpuFreq = isArmCpu ? getPerformanceCoreFrequency() : sysctlLong("hw.cpufrequency", 0L);
         boolean cpu64bit = sysctlInt("hw.cpu64bit_capable", 0) != 0;
 
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
@@ -551,11 +537,13 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] queryCurrentFreq() {
         if (isArmCpu) {
+            long perfFreq = getPerformanceCoreFrequency();
+            long effFreq = getEfficiencyCoreFrequency();
             Map<Integer, Long> physFreqMap = new HashMap<>();
-            getPhysicalProcessors().forEach(p -> physFreqMap.put(p.getPhysicalProcessorNumber(),
-                    p.getEfficiency() > 0 ? performanceCoreFrequency : efficiencyCoreFrequency));
+            getPhysicalProcessors().forEach(
+                    p -> physFreqMap.put(p.getPhysicalProcessorNumber(), p.getEfficiency() > 0 ? perfFreq : effFreq));
             return getLogicalProcessors().stream().map(LogicalProcessor::getPhysicalProcessorNumber)
-                    .map(p -> physFreqMap.getOrDefault(p, performanceCoreFrequency)).mapToLong(f -> f).toArray();
+                    .map(p -> physFreqMap.getOrDefault(p, perfFreq)).mapToLong(f -> f).toArray();
         }
         return new long[] { getProcessorIdentifier().getVendorFreq() };
     }
@@ -563,7 +551,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long queryMaxFreq() {
         if (isArmCpu) {
-            return performanceCoreFrequency;
+            return getPerformanceCoreFrequency();
         }
         return sysctlLong("hw.cpufrequency_max", getProcessorIdentifier().getVendorFreq());
     }
