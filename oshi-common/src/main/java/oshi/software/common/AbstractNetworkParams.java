@@ -4,6 +4,9 @@
  */
 package oshi.software.common;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -15,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
@@ -45,19 +49,21 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     private static final String NAMESERVER = "nameserver";
 
+    private final Supplier<@Nullable InetAddress> localHost = memoize(this::queryLocalHost, defaultExpiration());
+
     @Override
     public String getDomainName() {
-        InetAddress localHost = queryLocalHost();
-        return localHost == null ? "" : localHost.getCanonicalHostName();
+        InetAddress addr = this.localHost.get();
+        return addr == null ? "" : addr.getCanonicalHostName();
     }
 
     @Override
     public String getHostName() {
-        InetAddress localHost = queryLocalHost();
-        if (localHost == null) {
+        InetAddress addr = this.localHost.get();
+        if (addr == null) {
             return "";
         }
-        String hn = localHost.getHostName();
+        String hn = addr.getHostName();
         int dot = hn.indexOf('.');
         if (dot == -1) {
             return hn;
@@ -67,11 +73,11 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     /**
      * Resolves the local host, the source for both the host name and the domain name when the platform has no better
-     * one.
+     * one. The result is memoized, because the JDK does not cache a failed lookup and both names would otherwise pay a
+     * full failing DNS round trip apiece.
      *
      * @return the local host, or {@code null} if it does not resolve, in which case both names report the empty-string
-     *         sentinel. Note that a failed lookup is not cached by the JDK, so each call pays a full failing DNS round
-     *         trip.
+     *         sentinel
      */
     protected @Nullable InetAddress queryLocalHost() {
         try {
