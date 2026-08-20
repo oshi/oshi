@@ -18,8 +18,9 @@ import oshi.util.driver.linux.proc.RouteTable;
 import oshi.util.linux.ProcPath;
 
 /**
- * Linux network parameters. Provides the host name and default gateway implementations shared by all backends.
- * Subclasses provide {@link #getDomainName()} via native calls.
+ * Linux network parameters. Provides the host name and default gateway implementations shared by all backends. The JNA
+ * and FFM subclasses override {@link #getDomainName()} with a native call; the native-free subclass inherits the
+ * Java-based resolution from {@link AbstractNetworkParams}.
  */
 @ThreadSafe
 public abstract class LinuxNetworkParams extends AbstractNetworkParams {
