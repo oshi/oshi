@@ -4,6 +4,9 @@
  */
 package oshi.software.common;
 
+import static oshi.util.Memoizer.defaultExpiration;
+import static oshi.util.Memoizer.memoize;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -15,8 +18,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,31 +49,45 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     private static final String NAMESERVER = "nameserver";
 
+    private final Supplier<@Nullable InetAddress> localHost = memoize(this::queryLocalHost, defaultExpiration());
+
     @Override
     public String getDomainName() {
-        InetAddress localHost;
-        try {
-            localHost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            localHost = InetAddress.getLoopbackAddress();
-        }
-        return localHost.getCanonicalHostName();
+        InetAddress addr = this.localHost.get();
+        return addr == null ? "" : addr.getCanonicalHostName();
     }
 
     @Override
     public String getHostName() {
-        InetAddress localHost;
-        try {
-            localHost = InetAddress.getLocalHost();
-        } catch (UnknownHostException e) {
-            localHost = InetAddress.getLoopbackAddress();
+        InetAddress addr = this.localHost.get();
+        if (addr == null) {
+            return "";
         }
-        String hn = localHost.getHostName();
+        String hn = addr.getHostName();
         int dot = hn.indexOf('.');
         if (dot == -1) {
             return hn;
         }
         return hn.substring(0, dot);
+    }
+
+    /**
+     * Resolves the local host, the source for both the host name and the domain name when the platform has no better
+     * one. The result is memoized, because the JDK does not cache a failed lookup and both names would otherwise pay a
+     * full failing DNS round trip apiece.
+     *
+     * @return the local host, or {@code null} if it does not resolve, in which case both names report the empty-string
+     *         sentinel
+     */
+    protected @Nullable InetAddress queryLocalHost() {
+        try {
+            return InetAddress.getLocalHost();
+        } catch (UnknownHostException e) {
+            // Deliberately not falling back to InetAddress.getLoopbackAddress(): its name and canonical name are
+            // "localhost", which is a fabricated answer for a host whose own name does not resolve.
+            LOG.debug("Unknown host exception when getting address of local host", e);
+            return null;
+        }
     }
 
     @Override
