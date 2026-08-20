@@ -13,6 +13,7 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 * [#3661](https://github.com/oshi/oshi/pull/3661): Setting `oshi.os.windows.hkeyperfdata` to `false` now also skips the registry when fetching thread counters, matching its documented behavior and the existing handling for processes - [@dbwiddis](https://github.com/dbwiddis).
 * [#3662](https://github.com/oshi/oshi/pull/3662): Reading the processor description from the registry no longer throws when a value is missing. `CentralProcessor.getFeatureFlags()` on Windows now reports every processor feature `IsProcessorFeaturePresent()` accepts, matching the `PF_` defines in `winnt.h` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3665](https://github.com/oshi/oshi/pull/3665): `NetworkParams.getRoutes()` reads the routing table from the kernel through a `NET_RT_DUMP` sysctl on macOS, FreeBSD, DragonFly BSD and OpenBSD, rather than by running `netstat` twice - [@dbwiddis](https://github.com/dbwiddis).
+* [#3670](https://github.com/oshi/oshi/pull/3670): `NetworkParams.getHostName()` on Linux reads the kernel host name from `/proc/sys/kernel/hostname` in every backend, fixing the native-free implementation, which truncated a fully qualified name at the first dot and reported `localhost` when the name did not resolve - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 
