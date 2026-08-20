@@ -5,6 +5,7 @@
 package oshi.ffm.platform.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.getByteArrayFromNativePointer;
 import static oshi.ffm.platform.mac.CoreFoundation.kCFNumberFloat64Type;
 import static oshi.ffm.platform.mac.CoreFoundation.kCFNumberSInt32Type;
@@ -55,25 +56,25 @@ public interface IOKit {
     double kIOPSTimeRemainingUnknown = -1.0;
 
     class IOObject implements AutoCloseable {
-        private final MemorySegment segment;
+        private final int handle;
 
-        public IOObject(MemorySegment segment) {
-            this.segment = segment;
+        public IOObject(int handle) {
+            this.handle = handle;
         }
 
-        public MemorySegment segment() {
-            return segment;
+        public int handle() {
+            return handle;
         }
 
         public boolean isNull() {
-            return segment == null || segment.equals(MemorySegment.NULL);
+            return handle == 0;
         }
 
         public int release() {
             if (isNull()) {
                 return 0;
             }
-            return getIntOrDefault(() -> IOObjectRelease(segment), -1);
+            return getIntOrDefault(() -> IOObjectRelease(handle), -1);
         }
 
         @Override
@@ -88,15 +89,15 @@ public interface IOKit {
             return getBooleanOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment classNameStr = arena.allocateFrom(className);
-                    return IOObjectConformsTo(segment, classNameStr);
+                    return IOObjectConformsTo(handle, classNameStr);
                 }
             }, false);
         }
     }
 
     class IOIterator extends IOObject {
-        public IOIterator(MemorySegment segment) {
-            super(segment);
+        public IOIterator(int handle) {
+            super(handle);
         }
 
         public IORegistryEntry next() {
@@ -104,8 +105,8 @@ public interface IOKit {
                 return null;
             }
             return getOrDefault(() -> {
-                MemorySegment nextObj = IOIteratorNext(segment());
-                return nextObj.equals(MemorySegment.NULL) ? null : new IORegistryEntry(nextObj);
+                int nextObj = IOIteratorNext(handle());
+                return nextObj == 0 ? null : new IORegistryEntry(nextObj);
             }, null);
         }
 
@@ -124,8 +125,8 @@ public interface IOKit {
     }
 
     class IORegistryEntry extends IOObject {
-        public IORegistryEntry(MemorySegment segment) {
-            super(segment);
+        public IORegistryEntry(int handle) {
+            super(handle);
         }
 
         public long getRegistryEntryID() {
@@ -135,7 +136,7 @@ public interface IOKit {
             return getLongOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment idSeg = arena.allocate(ValueLayout.JAVA_LONG);
-                    int result = IORegistryEntryGetRegistryEntryID(segment(), idSeg);
+                    int result = IORegistryEntryGetRegistryEntryID(handle(), idSeg);
                     if (result != 0) {
                         return 0L;
                     }
@@ -151,7 +152,7 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment nameSeg = arena.allocate(128);
-                    int result = IORegistryEntryGetName(segment(), nameSeg);
+                    int result = IORegistryEntryGetName(handle(), nameSeg);
                     if (result != 0) {
                         return null;
                     }
@@ -167,13 +168,13 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment planeStr = arena.allocateFrom(plane);
-                    MemorySegment iterSeg = arena.allocate(ADDRESS);
-                    int result = IORegistryEntryGetChildIterator(segment(), planeStr, iterSeg);
+                    MemorySegment iterSeg = arena.allocate(JAVA_INT);
+                    int result = IORegistryEntryGetChildIterator(handle(), planeStr, iterSeg);
                     if (result != 0) {
                         return null;
                     }
-                    MemorySegment iterator = iterSeg.get(ADDRESS, 0);
-                    return iterator.equals(MemorySegment.NULL) ? null : new IOIterator(iterator);
+                    int iterator = iterSeg.get(JAVA_INT, 0);
+                    return iterator == 0 ? null : new IOIterator(iterator);
                 }
             }, null);
         }
@@ -185,13 +186,13 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment planeStr = arena.allocateFrom(plane);
-                    MemorySegment childSeg = arena.allocate(ADDRESS);
-                    int result = IORegistryEntryGetChildEntry(segment(), planeStr, childSeg);
+                    MemorySegment childSeg = arena.allocate(JAVA_INT);
+                    int result = IORegistryEntryGetChildEntry(handle(), planeStr, childSeg);
                     if (result == kIOReturnNoDevice || result != 0) {
                         return null;
                     }
-                    MemorySegment child = childSeg.get(ADDRESS, 0);
-                    return child.equals(MemorySegment.NULL) ? null : new IORegistryEntry(child);
+                    int child = childSeg.get(JAVA_INT, 0);
+                    return child == 0 ? null : new IORegistryEntry(child);
                 }
             }, null);
         }
@@ -203,13 +204,13 @@ public interface IOKit {
             return getOrDefault(() -> {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment planeStr = arena.allocateFrom(plane);
-                    MemorySegment parentSeg = arena.allocate(ADDRESS);
-                    int result = IORegistryEntryGetParentEntry(segment(), planeStr, parentSeg);
+                    MemorySegment parentSeg = arena.allocate(JAVA_INT);
+                    int result = IORegistryEntryGetParentEntry(handle(), planeStr, parentSeg);
                     if (result == kIOReturnNoDevice || result != 0) {
                         return null;
                     }
-                    MemorySegment parent = parentSeg.get(ADDRESS, 0);
-                    return parent.equals(MemorySegment.NULL) ? null : new IORegistryEntry(parent);
+                    int parent = parentSeg.get(JAVA_INT, 0);
+                    return parent == 0 ? null : new IORegistryEntry(parent);
                 }
             }, null);
         }
@@ -220,7 +221,7 @@ public interface IOKit {
             }
             return getOrDefault(() -> {
                 MemorySegment allocator = CFAllocatorGetDefault();
-                return IORegistryEntryCreateCFProperty(segment(), key, allocator, 0);
+                return IORegistryEntryCreateCFProperty(handle(), key, allocator, 0);
             }, MemorySegment.NULL);
         }
 
@@ -232,7 +233,7 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment propsSeg = arena.allocate(ADDRESS);
                     MemorySegment allocator = CFAllocatorGetDefault();
-                    int result = IORegistryEntryCreateCFProperties(segment(), propsSeg, allocator, 0);
+                    int result = IORegistryEntryCreateCFProperties(handle(), propsSeg, allocator, 0);
                     if (result != 0) {
                         return MemorySegment.NULL;
                     }
@@ -249,7 +250,7 @@ public interface IOKit {
                 try (Arena arena = Arena.ofConfined()) {
                     MemorySegment planeStr = arena.allocateFrom(plane);
                     MemorySegment allocator = CFAllocatorGetDefault();
-                    return IORegistryEntrySearchCFProperty(segment(), planeStr, key, allocator, options);
+                    return IORegistryEntrySearchCFProperty(handle(), planeStr, key, allocator, options);
                 }
             }, MemorySegment.NULL);
         }
@@ -393,8 +394,8 @@ public interface IOKit {
     }
 
     class IOService extends IORegistryEntry {
-        public IOService(MemorySegment segment) {
-            super(segment);
+        public IOService(int handle) {
+            super(handle);
         }
     }
 

@@ -161,7 +161,7 @@ public final class SmcUtilFFM {
             return callInArenaIntOrDefault(arena -> {
                 MemorySegment connPtr = arena.allocate(JAVA_INT);
                 int task = mach_task_self();
-                int result = IOServiceOpen(smcService.segment(), task, 0, connPtr);
+                int result = IOServiceOpen(smcService.handle(), task, 0, connPtr);
                 if (result == 0) {
                     int conn = connPtr.get(JAVA_INT, 0);
                     if (conn == 0) {

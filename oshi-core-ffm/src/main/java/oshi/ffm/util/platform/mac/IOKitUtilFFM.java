@@ -4,7 +4,6 @@
  */
 package oshi.ffm.util.platform.mac;
 
-import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
@@ -67,9 +66,9 @@ public final class IOKitUtilFFM {
     public static @Nullable IORegistryEntry getRoot() {
         return getOrDefault(() -> {
             int masterPort = getMasterPort();
-            MemorySegment root = IORegistryGetRootEntry(masterPort);
+            int root = IORegistryGetRootEntry(masterPort);
             deallocatePort(masterPort);
-            return root.equals(MemorySegment.NULL) ? null : new IORegistryEntry(root);
+            return root == 0 ? null : new IORegistryEntry(root);
         }, null);
     }
 
@@ -99,9 +98,9 @@ public final class IOKitUtilFFM {
     public static @Nullable IOService getMatchingService(MemorySegment matchingDictionary) {
         return getOrDefault(() -> {
             int masterPort = getMasterPort();
-            MemorySegment service = IOServiceGetMatchingService(masterPort, matchingDictionary);
+            int service = IOServiceGetMatchingService(masterPort, matchingDictionary);
             deallocatePort(masterPort);
-            return service.equals(MemorySegment.NULL) ? null : new IOService(service);
+            return service == 0 ? null : new IOService(service);
         }, null);
     }
 
@@ -131,14 +130,14 @@ public final class IOKitUtilFFM {
     public static @Nullable IOIterator getMatchingServices(MemorySegment matchingDictionary) {
         return callInArenaOrDefault(arena -> {
             int masterPort = getMasterPort();
-            MemorySegment iteratorSeg = arena.allocate(ADDRESS);
+            MemorySegment iteratorSeg = arena.allocate(JAVA_INT);
 
             int result = IOServiceGetMatchingServices(masterPort, matchingDictionary, iteratorSeg);
             deallocatePort(masterPort);
 
             if (result == 0) {
-                MemorySegment iterator = iteratorSeg.get(ADDRESS, 0);
-                if (!iterator.equals(MemorySegment.NULL)) {
+                int iterator = iteratorSeg.get(JAVA_INT, 0);
+                if (iterator != 0) {
                     return new IOIterator(iterator);
                 }
             }

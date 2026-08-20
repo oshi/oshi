@@ -89,8 +89,8 @@ public interface DiskArbitration {
             return getOrDefault(() -> {
                 MemorySegment allocSeg = allocator != null ? allocator.segment() : MemorySegment.NULL;
                 MemorySegment sessionSeg = session != null ? session.segment() : MemorySegment.NULL;
-                MemorySegment mediaSeg = media != null ? media.segment() : MemorySegment.NULL;
-                MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaSeg);
+                int mediaHandle = media != null ? media.handle() : 0;
+                MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaHandle);
                 return new DADiskRef(diskSeg);
             }, new DADiskRef(MemorySegment.NULL));
         }

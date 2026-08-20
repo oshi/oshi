@@ -137,10 +137,10 @@ public final class CoreFoundationFunctions extends MacForeignFunctions {
 
     private static final MethodHandle CFNumberGetValue = LINKER.downcallHandle(
             CF_LIBRARY.findOrThrow("CFNumberGetValue"),
-            FunctionDescriptor.of(JAVA_BOOLEAN, ADDRESS, JAVA_INT, ADDRESS));
+            FunctionDescriptor.of(JAVA_BOOLEAN, ADDRESS, JAVA_LONG, ADDRESS));
 
     public static boolean CFNumberGetValue(MemorySegment number, int theType, MemorySegment valuePtr) throws Throwable {
-        return (boolean) CFNumberGetValue.invokeExact(number, theType, valuePtr);
+        return (boolean) CFNumberGetValue.invokeExact(number, (long) theType, valuePtr);
     }
 
     // CFNumberType CFNumberGetType(CFNumberRef number);

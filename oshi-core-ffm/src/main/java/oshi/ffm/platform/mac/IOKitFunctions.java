@@ -5,7 +5,6 @@
 package oshi.ffm.platform.mac;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
-import static java.lang.foreign.ValueLayout.JAVA_BOOLEAN;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
@@ -15,6 +14,14 @@ import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
+/**
+ * Bindings for the I/O Kit framework.
+ * <p>
+ * IOKit object handles -- {@code io_object_t} and the {@code io_service_t}, {@code io_iterator_t} and
+ * {@code io_registry_entry_t} aliases of it -- are {@code mach_port_t}, which is a 32-bit {@code natural_t}, not a
+ * pointer. They are therefore passed and returned as {@code int}, and a null handle is {@code 0}. Only the
+ * CoreFoundation types these functions also take are real pointers.
+ */
 public final class IOKitFunctions extends MacForeignFunctions {
 
     private IOKitFunctions() {
@@ -38,10 +45,10 @@ public final class IOKitFunctions extends MacForeignFunctions {
     // io_registry_entry_t IORegistryGetRootEntry(mach_port_t mainPort);
 
     private static final MethodHandle IORegistryGetRootEntry = LINKER.downcallHandle(
-            IOKIT_LIBRARY.findOrThrow("IORegistryGetRootEntry"), FunctionDescriptor.of(ADDRESS, JAVA_INT));
+            IOKIT_LIBRARY.findOrThrow("IORegistryGetRootEntry"), FunctionDescriptor.of(JAVA_INT, JAVA_INT));
 
-    public static MemorySegment IORegistryGetRootEntry(int masterPort) throws Throwable {
-        return (MemorySegment) IORegistryGetRootEntry.invokeExact(masterPort);
+    public static int IORegistryGetRootEntry(int masterPort) throws Throwable {
+        return (int) IORegistryGetRootEntry.invokeExact(masterPort);
     }
 
     // CFMutableDictionaryRef IOServiceNameMatching(const char *name);
@@ -66,11 +73,10 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IOServiceGetMatchingService = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IOServiceGetMatchingService"),
-            FunctionDescriptor.of(ADDRESS, JAVA_INT, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
-    public static MemorySegment IOServiceGetMatchingService(int masterPort, MemorySegment matchingDict)
-            throws Throwable {
-        return (MemorySegment) IOServiceGetMatchingService.invokeExact(masterPort, matchingDict);
+    public static int IOServiceGetMatchingService(int masterPort, MemorySegment matchingDict) throws Throwable {
+        return (int) IOServiceGetMatchingService.invokeExact(masterPort, matchingDict);
     }
 
     // kern_return_t IOServiceGetMatchingServices(mach_port_t mainPort, CFDictionaryRef matching, io_iterator_t
@@ -98,46 +104,46 @@ public final class IOKitFunctions extends MacForeignFunctions {
     // kern_return_t IOObjectRelease(io_object_t object);
 
     private static final MethodHandle IOObjectRelease = LINKER
-            .downcallHandle(IOKIT_LIBRARY.findOrThrow("IOObjectRelease"), FunctionDescriptor.of(JAVA_INT, ADDRESS));
+            .downcallHandle(IOKIT_LIBRARY.findOrThrow("IOObjectRelease"), FunctionDescriptor.of(JAVA_INT, JAVA_INT));
 
-    public static int IOObjectRelease(MemorySegment object) throws Throwable {
+    public static int IOObjectRelease(int object) throws Throwable {
         return (int) IOObjectRelease.invokeExact(object);
     }
 
     // boolean_t IOObjectConformsTo(io_object_t object, const io_name_t className);
 
     private static final MethodHandle IOObjectConformsTo = LINKER.downcallHandle(
-            IOKIT_LIBRARY.findOrThrow("IOObjectConformsTo"), FunctionDescriptor.of(JAVA_BOOLEAN, ADDRESS, ADDRESS));
+            IOKIT_LIBRARY.findOrThrow("IOObjectConformsTo"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
-    public static boolean IOObjectConformsTo(MemorySegment object, MemorySegment className) throws Throwable {
-        return (boolean) IOObjectConformsTo.invokeExact(object, className);
+    public static boolean IOObjectConformsTo(int object, MemorySegment className) throws Throwable {
+        return (int) IOObjectConformsTo.invokeExact(object, className) != 0;
     }
 
     // io_object_t IOIteratorNext(io_iterator_t iterator);
 
     private static final MethodHandle IOIteratorNext = LINKER
-            .downcallHandle(IOKIT_LIBRARY.findOrThrow("IOIteratorNext"), FunctionDescriptor.of(ADDRESS, ADDRESS));
+            .downcallHandle(IOKIT_LIBRARY.findOrThrow("IOIteratorNext"), FunctionDescriptor.of(JAVA_INT, JAVA_INT));
 
-    public static MemorySegment IOIteratorNext(MemorySegment iterator) throws Throwable {
-        return (MemorySegment) IOIteratorNext.invokeExact(iterator);
+    public static int IOIteratorNext(int iterator) throws Throwable {
+        return (int) IOIteratorNext.invokeExact(iterator);
     }
 
     // kern_return_t IORegistryEntryGetRegistryEntryID(io_registry_entry_t entry, uint64_t *entryID);
 
     private static final MethodHandle IORegistryEntryGetRegistryEntryID = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntryGetRegistryEntryID"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
-    public static int IORegistryEntryGetRegistryEntryID(MemorySegment entry, MemorySegment id) throws Throwable {
+    public static int IORegistryEntryGetRegistryEntryID(int entry, MemorySegment id) throws Throwable {
         return (int) IORegistryEntryGetRegistryEntryID.invokeExact(entry, id);
     }
 
     // kern_return_t IORegistryEntryGetName(io_registry_entry_t entry, io_name_t name);
 
     private static final MethodHandle IORegistryEntryGetName = LINKER.downcallHandle(
-            IOKIT_LIBRARY.findOrThrow("IORegistryEntryGetName"), FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS));
+            IOKIT_LIBRARY.findOrThrow("IORegistryEntryGetName"), FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS));
 
-    public static int IORegistryEntryGetName(MemorySegment entry, MemorySegment name) throws Throwable {
+    public static int IORegistryEntryGetName(int entry, MemorySegment name) throws Throwable {
         return (int) IORegistryEntryGetName.invokeExact(entry, name);
     }
 
@@ -146,9 +152,9 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IORegistryEntryGetChildIterator = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntryGetChildIterator"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, ADDRESS));
 
-    public static int IORegistryEntryGetChildIterator(MemorySegment entry, MemorySegment plane, MemorySegment iter)
+    public static int IORegistryEntryGetChildIterator(int entry, MemorySegment plane, MemorySegment iter)
             throws Throwable {
         return (int) IORegistryEntryGetChildIterator.invokeExact(entry, plane, iter);
     }
@@ -158,9 +164,9 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IORegistryEntryGetChildEntry = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntryGetChildEntry"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, ADDRESS));
 
-    public static int IORegistryEntryGetChildEntry(MemorySegment entry, MemorySegment plane, MemorySegment child)
+    public static int IORegistryEntryGetChildEntry(int entry, MemorySegment plane, MemorySegment child)
             throws Throwable {
         return (int) IORegistryEntryGetChildEntry.invokeExact(entry, plane, child);
     }
@@ -170,9 +176,9 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IORegistryEntryGetParentEntry = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntryGetParentEntry"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, ADDRESS));
 
-    public static int IORegistryEntryGetParentEntry(MemorySegment entry, MemorySegment plane, MemorySegment parent)
+    public static int IORegistryEntryGetParentEntry(int entry, MemorySegment plane, MemorySegment parent)
             throws Throwable {
         return (int) IORegistryEntryGetParentEntry.invokeExact(entry, plane, parent);
     }
@@ -183,10 +189,10 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IORegistryEntryCreateCFProperty = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntryCreateCFProperty"),
-            FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_INT));
+            FunctionDescriptor.of(ADDRESS, JAVA_INT, ADDRESS, ADDRESS, JAVA_INT));
 
-    public static MemorySegment IORegistryEntryCreateCFProperty(MemorySegment entry, MemorySegment key,
-            MemorySegment allocator, int options) throws Throwable {
+    public static MemorySegment IORegistryEntryCreateCFProperty(int entry, MemorySegment key, MemorySegment allocator,
+            int options) throws Throwable {
         return (MemorySegment) IORegistryEntryCreateCFProperty.invokeExact(entry, key, allocator, options);
     }
 
@@ -196,10 +202,10 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IORegistryEntryCreateCFProperties = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntryCreateCFProperties"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, ADDRESS, ADDRESS, JAVA_INT));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, ADDRESS, ADDRESS, JAVA_INT));
 
-    public static int IORegistryEntryCreateCFProperties(MemorySegment entry, MemorySegment properties,
-            MemorySegment allocator, int options) throws Throwable {
+    public static int IORegistryEntryCreateCFProperties(int entry, MemorySegment properties, MemorySegment allocator,
+            int options) throws Throwable {
         return (int) IORegistryEntryCreateCFProperties.invokeExact(entry, properties, allocator, options);
     }
 
@@ -209,10 +215,10 @@ public final class IOKitFunctions extends MacForeignFunctions {
 
     private static final MethodHandle IORegistryEntrySearchCFProperty = LINKER.downcallHandle(
             IOKIT_LIBRARY.findOrThrow("IORegistryEntrySearchCFProperty"),
-            FunctionDescriptor.of(ADDRESS, ADDRESS, ADDRESS, ADDRESS, ADDRESS, JAVA_INT));
+            FunctionDescriptor.of(ADDRESS, JAVA_INT, ADDRESS, ADDRESS, ADDRESS, JAVA_INT));
 
-    public static MemorySegment IORegistryEntrySearchCFProperty(MemorySegment entry, MemorySegment plane,
-            MemorySegment key, MemorySegment allocator, int options) throws Throwable {
+    public static MemorySegment IORegistryEntrySearchCFProperty(int entry, MemorySegment plane, MemorySegment key,
+            MemorySegment allocator, int options) throws Throwable {
         return (MemorySegment) IORegistryEntrySearchCFProperty.invokeExact(entry, plane, key, allocator, options);
     }
 
@@ -265,10 +271,9 @@ public final class IOKitFunctions extends MacForeignFunctions {
     // io_connect_t *connect);
 
     private static final MethodHandle IOServiceOpen = LINKER.downcallHandle(IOKIT_LIBRARY.findOrThrow("IOServiceOpen"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS, JAVA_INT, JAVA_INT, ADDRESS));
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT, ADDRESS));
 
-    public static int IOServiceOpen(MemorySegment service, int owningTask, int type, MemorySegment connect)
-            throws Throwable {
+    public static int IOServiceOpen(int service, int owningTask, int type, MemorySegment connect) throws Throwable {
         return (int) IOServiceOpen.invokeExact(service, owningTask, type, connect);
     }
 
