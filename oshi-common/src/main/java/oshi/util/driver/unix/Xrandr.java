@@ -25,7 +25,29 @@ public final class Xrandr {
 
     private static final String[] XRANDR_VERBOSE = { "xrandr", "--verbose" };
 
+    /**
+     * Property names an X server may publish the EDID under, each as it appears in {@code xrandr --verbose} output,
+     * including the trailing colon. {@code EDID} is the name in randrproto 1.3 and later; {@code RANDR_EDID} is the
+     * name it replaced; {@code EDID_DATA} is the driver-side atom X.Org Server used through 1.6.
+     */
+    private static final String[] EDID_PROPERTIES = { "EDID:", "RANDR_EDID:", "EDID_DATA:" };
+
     private Xrandr() {
+    }
+
+    /**
+     * Tests whether a property line names the EDID, under any of the property names an X server may use for it.
+     *
+     * @param trimmed a whitespace-trimmed line of {@code xrandr --verbose} output
+     * @return true if the line is the header of an EDID property block
+     */
+    private static boolean isEdidProperty(String trimmed) {
+        for (String property : EDID_PROPERTIES) {
+            if (property.equals(trimmed)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -102,7 +124,7 @@ public final class Xrandr {
             String trimmed = s.trim();
             if (trimmed.startsWith("CONNECTOR_ID:")) {
                 currentConnectorId = ParseUtil.parseLastInt(trimmed, -1);
-            } else if (trimmed.equals("EDID:")) {
+            } else if (isEdidProperty(trimmed)) {
                 sb = new StringBuilder();
             } else if (sb != null) {
                 sb.append(trimmed);
@@ -124,17 +146,18 @@ public final class Xrandr {
     }
 
     /**
-     * Finds the xrandr output name for a display identified by its DRM connector ID and/or EDID. This method runs
-     * {@code xrandr --verbose} on demand and matches the display by {@code CONNECTOR_ID} first (Linux 6.5+), falling
-     * back to EDID comparison.
+     * Finds the xrandr output name for a display identified by its DRM connector ID and/or EDID, matching by
+     * {@code CONNECTOR_ID} first (Linux 6.5+) and falling back to EDID comparison.
      *
+     * @param xrandrData  xrandr display data as returned by {@link #getDisplayData()}, which the caller is expected to
+     *                    share among the displays it is naming rather than querying per display
      * @param connectorId the DRM connector ID ({@code -1} if not available)
      * @param edid        the EDID byte array from DRM sysfs
      * @return an {@link Optional} containing the xrandr output name, or empty if no X server is available or no match
      *         is found
      */
-    public static Optional<String> findOutputName(int connectorId, byte[] edid) {
-        Map<String, Pair<Integer, byte[]>> xrandrData = getDisplayData();
+    public static Optional<String> findOutputName(Map<String, Pair<Integer, byte[]>> xrandrData, int connectorId,
+            byte[] edid) {
         if (xrandrData.isEmpty()) {
             return Optional.empty();
         }
@@ -147,7 +170,7 @@ public final class Xrandr {
             }
         }
         // Fallback: match by first 128 bytes of EDID
-        if (edid != null && edid.length >= 128) {
+        if (edid.length >= 128) {
             byte[] edid128 = Arrays.copyOf(edid, 128);
             for (Map.Entry<String, Pair<Integer, byte[]>> entry : xrandrData.entrySet()) {
                 byte[] xrandrEdid = entry.getValue().getB();
