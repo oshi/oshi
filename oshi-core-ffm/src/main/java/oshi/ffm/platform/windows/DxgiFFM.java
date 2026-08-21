@@ -157,7 +157,11 @@ public final class DxgiFFM extends ForeignFunctions {
         MemorySegment vtable = obj.get(ADDRESS, 0).reinterpret(8 * 32L, arena, null);
         MemorySegment fn = vtable.get(ADDRESS, 2 * ADDRESS.byteSize());
         MethodHandle mh = Linker.nativeLinker().downcallHandle(fn, FunctionDescriptor.of(JAVA_INT, ADDRESS));
-        mh.invokeExact(obj);
+        // Release returns the remaining reference count, which is only of interest to the log. Cast it: invokeExact()
+        // in an expression statement infers a void return type, and this handle then throws WrongMethodTypeException
+        // -- from a finally block, which would abandon the whole enumeration.
+        int refCount = (int) mh.invokeExact(obj);
+        LOG.trace("Released COM object, {} reference(s) remaining", refCount);
     }
 
     private static String readDescriptionWchars(MemorySegment desc) {

@@ -479,6 +479,7 @@ public final class SystemInfoHelper {
         int i = 0;
         for (Display display : list) {
             lines.add(" Display " + i + ":");
+            lines.add("  Device Port: " + display.getDevicePort());
             lines.add(String.valueOf(display));
             i++;
         }

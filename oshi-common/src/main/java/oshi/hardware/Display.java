@@ -58,9 +58,18 @@ public interface Display {
     DisplayInfo getDisplayInfo();
 
     /**
-     * The system-level device identification for this display. On Linux this is the DRM connector name extracted from
-     * the sysfs directory (e.g. {@code HDMI-A-1}, {@code eDP-1}, {@code DP-2}), or the {@code xrandr} output name when
-     * DRM sysfs is not available.
+     * The system-level device identification for this display. The form of the identifier is platform-specific:
+     * <ul>
+     * <li>Linux: the DRM connector name from sysfs (e.g. {@code HDMI-A-1}, {@code eDP-1}, {@code DP-2}), or the
+     * {@code xrandr} output name when DRM sysfs is not available.</li>
+     * <li>macOS: on Apple Silicon, the port named by an external monitor's framebuffer {@code TransportDescription}
+     * (e.g. {@code Port-HDMI@1}, {@code Port-USB-C@1}), or the built-in panel's device tree name (e.g. {@code disp0}).
+     * Intel Macs do not expose a port.</li>
+     * <li>Windows: the connector derived from the Connecting and Configuring Displays (CCD) API's output technology and
+     * connector instance (e.g. {@code HDMI}, {@code DisplayPort-1}).</li>
+     * <li>Other UNIX platforms: the {@code xrandr} output name, which is the same value {@link #getOutputName()}
+     * returns.</li>
+     * </ul>
      *
      * @return The device port identifier, or {@link Constants#UNKNOWN} if not available.
      */
@@ -70,7 +79,9 @@ public interface Display {
 
     /**
      * The X11 output name for this display as reported by {@code xrandr} (e.g. {@code HDMI-1}, {@code DP2}). This is
-     * the name to pass to {@code xrandr --output}. Only meaningful on systems running an X server.
+     * the name to pass to {@code xrandr --output}. Implemented on Linux and the other UNIX platforms, and only
+     * available where an X server with the RandR extension is reachable. On Linux the display is matched to an X output
+     * by its DRM {@code CONNECTOR_ID}, falling back to a comparison of their EDIDs.
      *
      * @return An {@link Optional} containing the xrandr output name, or empty if not available.
      */

@@ -29,8 +29,10 @@ import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.common.AbstractDisplay;
+import oshi.util.Constants;
 import oshi.util.EdidUtil;
 import oshi.util.ExceptionUtil;
+import oshi.util.ParseUtil;
 
 /**
  * A Display
@@ -40,29 +42,43 @@ final class MacDisplayFFM extends AbstractDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplayFFM.class);
 
+    private final String devicePort;
+
     MacDisplayFFM(byte[] edid) {
+        this(edid, Constants.UNKNOWN);
+    }
+
+    MacDisplayFFM(byte[] edid, String devicePort) {
         super(edid);
+        this.devicePort = devicePort;
         LOG.debug("Initialized MacDisplayFFM");
     }
 
-    MacDisplayFFM(DisplayInfo displayInfo) {
+    MacDisplayFFM(DisplayInfo displayInfo, String devicePort) {
         super(displayInfo);
+        this.devicePort = devicePort;
         LOG.debug("Initialized MacDisplayFFM (synthetic)");
+    }
+
+    @Override
+    public String getDevicePort() {
+        return this.devicePort;
     }
 
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon).
-        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService"));
-        // Apple Silicon external monitors: same stripped EDID as Intel path, just different service.
-        displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null));
+        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available.
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null));
+        // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
+        displays.addAll(
+                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription"));
         // Apple Silicon built-in panel: no real EDID exposed, synthesize from DisplayAttributes.
         displays.addAll(getAppleSiliconBuiltInDisplay());
         return displays;
     }
 
     private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
-            @Nullable String childEntryName) {
+            @Nullable String childEntryName, @Nullable String portKeyName) {
         List<Display> displays = new ArrayList<>();
         IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(serviceName);
         if (serviceIterator == null) {
@@ -81,7 +97,14 @@ final class MacDisplayFFM extends AbstractDisplay {
                             try (CFDataRef edid = new CFDataRef(edidRaw)) {
                                 byte[] bytes = edid.getBytes();
                                 if (bytes.length > 0) {
-                                    displays.add(new MacDisplayFFM(bytes));
+                                    // TransportDescription names the port ahead of the transport it carries, e.g.
+                                    // "Port-HDMI@1/DisplayPort". A null key is the Intel path, which has no such
+                                    // property and normalizes to the sentinel.
+                                    String transport = portKeyName == null ? null
+                                            : propertySource.getStringProperty(portKeyName);
+                                    String devicePort = ParseUtil
+                                            .getStringValueOrUnknown(ParseUtil.getStringBefore(transport, '/'));
+                                    displays.add(new MacDisplayFFM(bytes, devicePort));
                                 }
                             }
                         }
@@ -151,17 +174,20 @@ final class MacDisplayFFM extends AbstractDisplay {
         if (attrsRaw == null || attrsRaw.equals(MemorySegment.NULL)) {
             return;
         }
+        // The device tree name (e.g. "disp0,t6030") gives both the port and the fallback model name.
+        String devicePort = ParseUtil
+                .getStringValueOrUnknown(ParseUtil.getStringBefore(fb.getStringProperty("IONameMatched"), ','));
         try (CFDictionaryRef attrs = new CFDictionaryRef(attrsRaw)) {
-            DisplayInfo info = synthesize(fb, attrs);
+            DisplayInfo info = synthesize(fb, attrs, devicePort);
             if (info != null) {
-                displays.add(new MacDisplayFFM(info));
+                displays.add(new MacDisplayFFM(info, devicePort));
             }
         }
     }
 
     // Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with
     // native resolution and device name from the framebuffer node and CoreGraphics.
-    private static @Nullable DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
+    private static @Nullable DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs, String devicePort) {
         CFDictionaryRef product = CFUtilFFM.getDictionary(attrs, "ProductAttributes");
         if (product == null) {
             return null;
@@ -174,14 +200,8 @@ final class MacDisplayFFM extends AbstractDisplay {
         // Native pixel resolution from the framebuffer node.
         Long displayWidth = fb.getLongProperty("DisplayWidth");
         Long displayHeight = fb.getLongProperty("DisplayHeight");
-        // Device tree name for fallback model name.
-        String fallbackName = null;
-        String ioNameMatched = fb.getStringProperty("IONameMatched");
-        if (ioNameMatched != null) {
-            String shortName = ioNameMatched.contains(",") ? ioNameMatched.substring(0, ioNameMatched.indexOf(','))
-                    : ioNameMatched;
-            fallbackName = shortName + " (Built-in Display)";
-        }
+        // Device tree name (the port) doubles as the fallback model name.
+        String fallbackName = Constants.UNKNOWN.equals(devicePort) ? null : devicePort + " (Built-in Display)";
         // CoreGraphics properties: model number, serial number, physical size, and localized name.
         Integer cgModel = null;
         Integer cgSerial = null;

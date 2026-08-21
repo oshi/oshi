@@ -387,6 +387,22 @@ class ParseUtilTest {
     }
 
     /**
+     * Test getStringBefore
+     */
+    @Test
+    void testGetStringBefore() {
+        assertThat("delimiter present", ParseUtil.getStringBefore("Port-HDMI@1/DisplayPort", '/'), is("Port-HDMI@1"));
+        assertThat("first of several delimiters", ParseUtil.getStringBefore("a/b/c", '/'), is("a"));
+        assertThat("no delimiter returns whole string", ParseUtil.getStringBefore("disp0", ','), is("disp0"));
+        assertThat("trailing delimiter", ParseUtil.getStringBefore("disp0,", ','), is("disp0"));
+        assertThat("leading delimiter", ParseUtil.getStringBefore(",t6030", ','), is(""));
+        assertThat("delimiter only", ParseUtil.getStringBefore("/", '/'), is(""));
+        assertThat("empty", ParseUtil.getStringBefore("", '/'), is(""));
+        assertThat("null", ParseUtil.getStringBefore(null, '/'), is(""));
+        assertThat("whitespace is a value", ParseUtil.getStringBefore(" /x", '/'), is(" "));
+    }
+
+    /**
      * Test parse FirstIntValue
      */
     @Test

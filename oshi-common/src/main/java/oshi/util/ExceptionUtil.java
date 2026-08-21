@@ -4,6 +4,7 @@
  */
 package oshi.util;
 
+import java.lang.invoke.WrongMethodTypeException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -11,17 +12,84 @@ import java.util.OptionalLong;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * Utility methods for reducing repetitive exception handling boilerplate, particularly around FFM (Foreign Function and
  * Memory) native calls that require catching {@link Throwable}.
+ * <p>
+ * Catching {@link Throwable} is necessary here because {@code MethodHandle.invokeExact} declares it, but it also
+ * catches {@link WrongMethodTypeException} — a defect in a native binding rather than a failed system call. Every
+ * wrapper below therefore treats that one as unrecoverable: it is logged at {@code ERROR}, whatever level (or silence)
+ * the caller asked for, and then rethrown rather than absorbed into a default value. It is unchecked, so this changes
+ * no signature; the reasoning is on {@link #logCaught}.
  */
 @ThreadSafe
 public final class ExceptionUtil {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ExceptionUtil.class);
+
+    /**
+     * Appended to the caller's message when the throwable is a {@link WrongMethodTypeException}. Carries no {@code {}}
+     * placeholder, so the caller's arguments still line up with the message it supplied.
+     */
+    private static final String SIGNATURE_MISMATCH = " -- the native binding's declared signature does not match its"
+            + " call site. This is a defect in OSHI rather than a condition on this machine: it fails identically for"
+            + " every caller and every input, so it is rethrown instead of being reported as missing data. Please"
+            + " report it.";
+
     private ExceptionUtil() {
+    }
+
+    /**
+     * Logs a caught throwable at the caller's level and returns, or logs a {@link WrongMethodTypeException} at
+     * {@code ERROR} and rethrows it.
+     * <p>
+     * {@code invokeExact} is signature-polymorphic: the call site states the signature, so a mismatch with the handle's
+     * descriptor throws {@link WrongMethodTypeException} rather than failing to compile. One exception covers the whole
+     * signature — return type, parameter types, boxing and arity alike — and its message prints both sides, so it is
+     * rethrown unaltered. That is never recoverable and never data-dependent: it fails on the first call and on every
+     * call after it, on every machine. Yet it arrives here as just another {@link Throwable}, and returning the default
+     * value for it has hidden the bug three times: issues #3301 and #3422, and a Windows connector lookup that reported
+     * the sentinel for every display until a cross-implementation test happened to compare the two backends' values.
+     * <p>
+     * A default value is the right answer to "this machine cannot answer" and the wrong answer to "this binding is
+     * wrong", which is why the two are separated here. Rethrowing surfaces the defect at the offending call site, in
+     * the test run for the platform the binding belongs to, rather than leaving it to whoever reads the log. The
+     * {@code ERROR} line is logged first so the wrapper's own message survives as context; where wrappers nest, each
+     * layer logs one line as the exception passes through.
+     * <p>
+     * Public so other modules can apply the same policy from their own catch blocks; {@code oshi-core-ffm}'s
+     * {@code ForeignFunctions} wrappers funnel through it. Use it instead of
+     * {@link #logAtLevel(Logger, LogLevel, String, Throwable, Object...)} wherever the throwable was caught from a
+     * native call rather than constructed locally.
+     *
+     * @param log   the logger to use
+     * @param level the level at which to log an ordinary failure
+     * @param msg   the log message (use {} for each argument, and none for the exception)
+     * @param t     the throwable that was caught
+     * @param args  the arguments filling the {} placeholders, if any
+     */
+    public static void logCaught(Logger log, LogLevel level, String msg, Throwable t, @Nullable Object... args) {
+        if (t instanceof WrongMethodTypeException) {
+            logAtLevel(log, LogLevel.ERROR, msg + SIGNATURE_MISMATCH, t, args);
+            throw (WrongMethodTypeException) t;
+        }
+        logAtLevel(log, level, msg, t, args);
+    }
+
+    /**
+     * Applies the same treatment on behalf of the wrappers that have no logger of their own and are documented to
+     * swallow failures, and does nothing for any other throwable. A binding defect is worth breaking that silence for;
+     * an expected native failure is not. See {@link #logCaught}.
+     */
+    private static void handleSignatureMismatch(Throwable t) {
+        if (t instanceof WrongMethodTypeException) {
+            logAtLevel(LOG, LogLevel.ERROR, "A native call failed" + SIGNATURE_MISMATCH, t);
+            throw (WrongMethodTypeException) t;
+        }
     }
 
     /**
@@ -149,6 +217,7 @@ public final class ExceptionUtil {
         try {
             return supplier.get();
         } catch (Throwable t) {
+            handleSignatureMismatch(t);
             return defaultValue;
         }
     }
@@ -188,7 +257,7 @@ public final class ExceptionUtil {
         try {
             return supplier.get();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -204,6 +273,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsInt();
         } catch (Throwable t) {
+            handleSignatureMismatch(t);
             return defaultValue;
         }
     }
@@ -241,7 +311,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsInt();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -257,6 +327,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsLong();
         } catch (Throwable t) {
+            handleSignatureMismatch(t);
             return defaultValue;
         }
     }
@@ -294,7 +365,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsLong();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -310,6 +381,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsBoolean();
         } catch (Throwable t) {
+            handleSignatureMismatch(t);
             return defaultValue;
         }
     }
@@ -347,7 +419,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsBoolean();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -363,6 +435,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsDouble();
         } catch (Throwable t) {
+            handleSignatureMismatch(t);
             return defaultValue;
         }
     }
@@ -400,7 +473,7 @@ public final class ExceptionUtil {
         try {
             return supplier.getAsDouble();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return defaultValue;
         }
     }
@@ -437,7 +510,7 @@ public final class ExceptionUtil {
         try {
             return Optional.ofNullable(supplier.get());
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return Optional.empty();
         }
     }
@@ -472,7 +545,7 @@ public final class ExceptionUtil {
         try {
             return OptionalInt.of(supplier.getAsInt());
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return OptionalInt.empty();
         }
     }
@@ -507,13 +580,14 @@ public final class ExceptionUtil {
         try {
             return OptionalLong.of(supplier.getAsLong());
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
             return OptionalLong.empty();
         }
     }
 
     /**
-     * Executes the runnable, silently swallowing any {@link Throwable}.
+     * Executes the runnable, silently swallowing any {@link Throwable} — except a {@link WrongMethodTypeException},
+     * which is logged and rethrown as a binding defect.
      *
      * @param runnable the operation to attempt
      */
@@ -521,7 +595,8 @@ public final class ExceptionUtil {
         try {
             runnable.run();
         } catch (Throwable t) {
-            // intentionally silent
+            // intentionally silent, unless the binding itself is wrong
+            handleSignatureMismatch(t);
         }
     }
 
@@ -550,7 +625,7 @@ public final class ExceptionUtil {
         try {
             runnable.run();
         } catch (Throwable t) {
-            logAtLevel(log, level, msg, t, args);
+            logCaught(log, level, msg, t, args);
         }
     }
 }
