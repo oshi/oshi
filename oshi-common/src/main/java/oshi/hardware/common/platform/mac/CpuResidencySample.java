@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.driver.common.mac.CpuFrequencyResidency;
 
 /**
  * One interval of Apple Silicon CPU performance state residency, holding the two views IOReport publishes of the same
@@ -66,7 +67,7 @@ public final class CpuResidencySample {
      * <p>
      * The states are ordered as the per-core ones are, and the channels naming a complex whose residency is the state
      * the hardware ran at can be told from the rest by their name; see
-     * {@link oshi.driver.common.mac.CpuFrequencyResidency#realizedComplexStates}.
+     * {@link CpuFrequencyResidency#realizedComplexStates}.
      *
      * @return a map from the channel name identifying the complex to a map from state name to ticks, in channel state
      *         order. Empty if the sample held no such channel.
