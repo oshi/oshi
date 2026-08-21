@@ -4,7 +4,6 @@
  */
 package oshi.hardware.common.platform.linux;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -51,14 +50,7 @@ public abstract class LinuxHardwareAbstractionLayer extends AbstractHardwareAbst
     @Override
     protected List<Display> createDisplays() {
         List<Triplet<String, Integer, byte[]>> drmData = DrmEdid.getDisplayData();
-        if (!drmData.isEmpty()) {
-            List<Display> displays = new ArrayList<>(drmData.size());
-            for (Triplet<String, Integer, byte[]> drm : drmData) {
-                displays.add(new UnixDisplay(drm.getC(), drm.getA(), drm.getB()));
-            }
-            return displays;
-        }
-        return UnixDisplay.getDisplays();
+        return drmData.isEmpty() ? UnixDisplay.getDisplays() : UnixDisplay.getDisplays(drmData);
     }
 
     @Override

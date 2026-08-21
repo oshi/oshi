@@ -13,9 +13,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -219,6 +221,43 @@ class XrandrTest {
         List<byte[]> edids = Xrandr.getEdidArrays(createXrandrWithConnectorId());
         assertThat(edids, hasSize(1));
         assertThat(edids.get(0).length, is(128));
+    }
+
+    @Test
+    void testFindOutputNameByConnectorId() {
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        // A connector ID match wins even though the EDID passed here belongs to no display
+        assertThat(Xrandr.findOutputName(data, 96, new byte[0]), is(Optional.of("DP2")));
+    }
+
+    @Test
+    void testFindOutputNameByEdid() {
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Pair<Integer, byte[]> hdmi1 = data.get("HDMI1");
+        assertNotNull(hdmi1);
+        // HDMI1 has no connector ID in xrandr, so only the EDID can identify it
+        assertThat(Xrandr.findOutputName(data, -1, hdmi1.getB()), is(Optional.of("HDMI1")));
+    }
+
+    @Test
+    void testFindOutputNameFallsBackToEdidWhenConnectorIdIsUnmatched() {
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Pair<Integer, byte[]> dp2 = data.get("DP2");
+        assertNotNull(dp2);
+        assertThat(Xrandr.findOutputName(data, 1234, dp2.getB()), is(Optional.of("DP2")));
+    }
+
+    @Test
+    void testFindOutputNameNoMatch() {
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        byte[] unknownEdid = new byte[128];
+        Arrays.fill(unknownEdid, (byte) 0x5A);
+        assertThat(Xrandr.findOutputName(data, 1234, unknownEdid).isPresent(), is(false));
+    }
+
+    @Test
+    void testFindOutputNameEmptyData() {
+        assertThat(Xrandr.findOutputName(Collections.emptyMap(), 96, new byte[128]).isPresent(), is(false));
     }
 
     @Nested
