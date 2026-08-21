@@ -206,11 +206,14 @@ public final class AdlUtilFFM {
         if (destroy == null) {
             return;
         }
-        // Block lambda (not an expression lambda) so invokeExact() on this void handle is in a statement context and
-        // its return type is inferred as void; an expression lambda infers Object -> WrongMethodTypeException (#3422).
-        // The suppression on the next line stops S1602 collapsing the block back to the buggy expression form.
-        runOrLog(() -> { // NOSONAR java:S1602 - block form required; expression lambda miscompiles void invokeExact
-            destroy.invokeExact(context);
+        // invokeExact() is signature-polymorphic, so the call site must state the handle's int return type: an
+        // expression lambda would infer Object and a bare expression statement would infer void, either of which
+        // throws WrongMethodTypeException (#3422). Assigning the result gets both right.
+        runOrLog(() -> {
+            int ret = (int) destroy.invokeExact(context);
+            if (ret != ADL_OK) {
+                LOG.debug("ADL2_Main_Control_Destroy failed with code {}", ret);
+            }
         }, LOG, "ADL uninit failed");
     }
 
