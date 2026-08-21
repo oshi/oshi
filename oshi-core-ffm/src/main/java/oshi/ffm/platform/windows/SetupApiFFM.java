@@ -111,9 +111,15 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
         return getIntOrDefault(() -> {
             MemorySegment requiredSize = arena.allocate(JAVA_INT);
             // The sizing call is expected to fail with ERROR_INSUFFICIENT_BUFFER, having written the size it needs, so
-            // the written size is what to read; an unexpected success leaves nothing to size. Cast the result even
-            // though it is only tested for that: invokeExact() in an expression statement infers a void return type,
-            // and a handle declared to return int then throws WrongMethodTypeException.
+            // the written size is what to read; an unexpected success leaves nothing to size. Reading it rather than
+            // gating on GetLastError() == ERROR_INSUFFICIENT_BUFFER is deliberate. Arena allocations are
+            // zero-initialized, so a failure that writes no size reads back 0 -- the same answer the error check would
+            // give -- whereas a separate GetLastError() downcall is not a dependable read: the runtime may overwrite
+            // the thread's last error first, which is what Linker.Option.captureCallState exists to work around. A
+            // clobbered read would discard a size the API did write and report UNKNOWN for every display. The JNA twin
+            // trusts the written size too. Cast the result even though it is only tested for success: invokeExact() in
+            // an expression statement infers a void return type, and a handle declared to return int then throws
+            // WrongMethodTypeException.
             if (isSuccess((int) SetupDiGetDeviceInterfaceDetail.invokeExact(hDevInfo, deviceInterfaceData,
                     MemorySegment.NULL, 0, requiredSize, MemorySegment.NULL))) {
                 return 0;
