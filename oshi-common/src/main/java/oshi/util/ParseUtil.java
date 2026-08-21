@@ -683,6 +683,27 @@ public final class ParseUtil {
     }
 
     /**
+     * Gets the portion of a string preceding the first occurrence of a delimiter, for values that pack a wanted prefix
+     * ahead of a qualifier, such as macOS IOKit's {@code Port-HDMI@1/DisplayPort} or {@code disp0,t6030}.
+     * <p>
+     * A string that does not contain the delimiter is returned unchanged, since all of it precedes the (absent)
+     * delimiter. A string that leads with the delimiter has nothing before it and yields an empty string; pair this
+     * with {@link #getStringValueOrUnknown} where the caller wants that normalized to a sentinel.
+     *
+     * @param text      The string to split, which may be {@code null}
+     * @param delimiter The delimiter to stop before
+     * @return The text preceding the first {@code delimiter}; the whole string if it contains no {@code delimiter}; or
+     *         an empty string if {@code text} is {@code null}, empty, or begins with {@code delimiter}
+     */
+    public static String getStringBefore(@Nullable String text, char delimiter) {
+        if (text == null) {
+            return "";
+        }
+        int idx = text.indexOf(delimiter);
+        return idx < 0 ? text : text.substring(0, idx);
+    }
+
+    /**
      * Parses a string such as "10.12.2" or "key = 1 (0x1) (int)" to find the integer value of the first set of one or
      * more consecutive digits
      *

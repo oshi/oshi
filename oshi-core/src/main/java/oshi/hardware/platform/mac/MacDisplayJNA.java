@@ -28,7 +28,6 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.annotation.concurrent.Immutable;
-import oshi.driver.common.mac.MacDisplayPort;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.common.AbstractDisplay;
@@ -37,6 +36,7 @@ import oshi.jna.platform.mac.ObjCRuntime;
 import oshi.util.Constants;
 import oshi.util.EdidUtil;
 import oshi.util.ExceptionUtil;
+import oshi.util.ParseUtil;
 import oshi.util.platform.mac.CFUtil;
 
 /**
@@ -143,9 +143,13 @@ final class MacDisplayJNA extends AbstractDisplay {
                                 int length = edid.getLength();
                                 Pointer p = edid.getBytePtr();
                                 if (length > 0) {
-                                    String devicePort = portKeyName == null ? Constants.UNKNOWN
-                                            : MacDisplayPort.fromTransportDescription(
-                                                    propertySource.getStringProperty(portKeyName));
+                                    // TransportDescription names the port ahead of the transport it carries, e.g.
+                                    // "Port-HDMI@1/DisplayPort". A null key is the Intel path, which has no such
+                                    // property and normalizes to the sentinel.
+                                    String transport = portKeyName == null ? null
+                                            : propertySource.getStringProperty(portKeyName);
+                                    String devicePort = ParseUtil
+                                            .getStringValueOrUnknown(ParseUtil.getStringBefore(transport, '/'));
                                     displays.add(new MacDisplayJNA(p.getByteArray(0, length), devicePort));
                                 }
                             } finally {
@@ -233,7 +237,8 @@ final class MacDisplayJNA extends AbstractDisplay {
             return;
         }
         // The device tree name (e.g. "disp0,t6030") gives both the port and the fallback model name.
-        String devicePort = MacDisplayPort.fromDeviceTreeName(fb.getStringProperty("IONameMatched"));
+        String devicePort = ParseUtil
+                .getStringValueOrUnknown(ParseUtil.getStringBefore(fb.getStringProperty("IONameMatched"), ','));
         try {
             DisplayInfo info = synthesize(fb, new CFDictionaryRef(attrsRaw.getPointer()), devicePort);
             if (info != null) {
