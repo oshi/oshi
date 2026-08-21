@@ -8,7 +8,6 @@ import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_NO_MORE_ITEMS;
 import static oshi.util.ExceptionUtil.getBooleanOrDefault;
 import static oshi.util.ExceptionUtil.getIntOrDefault;
@@ -111,10 +110,15 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
             Arena arena) {
         return getIntOrDefault(() -> {
             MemorySegment requiredSize = arena.allocate(JAVA_INT);
-            SetupDiGetDeviceInterfaceDetail.invokeExact(hDevInfo, deviceInterfaceData, MemorySegment.NULL, 0,
-                    requiredSize, MemorySegment.NULL);
-            int err = Kernel32FFM.GetLastError().orElse(0);
-            return err == ERROR_INSUFFICIENT_BUFFER ? requiredSize.get(JAVA_INT, 0) : 0;
+            // The sizing call is expected to fail with ERROR_INSUFFICIENT_BUFFER, having written the size it needs, so
+            // the written size is what to read; an unexpected success leaves nothing to size. Cast the result even
+            // though it is only tested for that: invokeExact() in an expression statement infers a void return type,
+            // and a handle declared to return int then throws WrongMethodTypeException.
+            if (isSuccess((int) SetupDiGetDeviceInterfaceDetail.invokeExact(hDevInfo, deviceInterfaceData,
+                    MemorySegment.NULL, 0, requiredSize, MemorySegment.NULL))) {
+                return 0;
+            }
+            return requiredSize.get(JAVA_INT, 0);
         }, 0, LOG, "SetupApiFFM.SetupDiGetDeviceInterfaceDetailSize failed");
     }
 
