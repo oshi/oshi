@@ -95,14 +95,21 @@ public final class CpuFrequencyResidency {
             observedTicks += clamped;
             residency.add(clamped);
         }
-        if (firstActive < 0 || residency.size() - firstActive != table.length) {
-            // Either every state is an idle state, or the chip reports a number of states this table cannot explain.
-            // Aligning the lists at the end still pairs the frequencies correctly if the difference is an extra idle
-            // state rather than an extra frequency.
-            firstActive = residency.size() - table.length;
-            if (firstActive < 0) {
+        if (firstActive < 0) {
+            // Every state is one the core occupies while not executing, so no state names a frequency
+            return 0L;
+        }
+        if (residency.size() - firstActive != table.length) {
+            // The chip reports a number of states this table cannot explain. Aligning the lists at the end still pairs
+            // the frequencies correctly if the surplus is leading states this release does not recognize as idle, but
+            // never if reaching the table's length would mean charging a state the core idles in as a frequency, or
+            // pairing frequencies that are missing a state. Either of those pairs every frequency with the wrong
+            // state's ticks, so the caller is better served by the nominal value.
+            int aligned = residency.size() - table.length;
+            if (aligned < firstActive) {
                 return 0L;
             }
+            firstActive = aligned;
         }
         long totalTicks = 0L;
         // Accumulated as a double because ticks times hertz overflows a long once a few states are summed. The result

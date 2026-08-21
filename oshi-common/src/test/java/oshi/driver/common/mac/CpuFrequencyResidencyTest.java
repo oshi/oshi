@@ -121,6 +121,30 @@ class CpuFrequencyResidencyTest {
     }
 
     @Test
+    void testAMissingFrequencyStateIsNotPairedByShiftingTheTable() {
+        // One frequency state short of the table. Pairing what is there against the end of the table would charge the
+        // idle ticks as the lowest frequency and shift every other frequency onto its neighbour's ticks, reporting a
+        // number that looks plausible and is wrong throughout.
+        String[] names = Arrays.copyOf(E_STATES, E_STATES.length - 1);
+        Map<String, Long> incomplete = residency(names, 1_567_158L, 890_293L, 8_869L, 34_395L, 95_064L, 0L, 0L, 0L);
+        assertThat("one active state missing", CpuFrequencyResidency.activeWeightedFrequency(incomplete, E_TABLE),
+                is(0L));
+    }
+
+    @Test
+    void testAnUnrecognizedLeadingStateIsStillExcluded() {
+        // A power-gated state named something this release does not know cannot be recognized as an idle state, so the
+        // surplus is resolved from the end of the list instead. Doing so only drops leading states, never a frequency.
+        String[] names = new String[E_STATES.length + 1];
+        names[0] = "POWERGATED";
+        System.arraycopy(E_STATES, 0, names, 1, E_STATES.length);
+        Map<String, Long> gated = residency(names, 42L, 1_567_158L, 890_293L, 8_869L, 34_395L, 95_064L, 0L, 0L, 0L,
+                15_183L);
+        assertThat("unrecognized state ahead of IDLE", CpuFrequencyResidency.activeWeightedFrequency(gated, E_TABLE),
+                is(CpuFrequencyResidency.activeWeightedFrequency(ecpu0(), E_TABLE)));
+    }
+
+    @Test
     void testResidencyTooShortForTheTableIsNotGuessedAt() {
         assertThat("fewer states than frequencies", CpuFrequencyResidency.activeWeightedFrequency(ecpu0(), P_TABLE),
                 is(0L));
