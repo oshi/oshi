@@ -4,14 +4,15 @@
  */
 package oshi.hardware.common.platform.unix;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ArrayList;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.Display;
 import oshi.hardware.common.AbstractDisplay;
+import oshi.util.Constants;
 import oshi.util.driver.unix.Xrandr;
 import oshi.util.tuples.Pair;
 
@@ -21,6 +22,7 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public final class UnixDisplay extends AbstractDisplay {
 
+    private final String devicePort;
     private final int connectorId;
 
     /**
@@ -29,8 +31,7 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param edid a byte array representing a display EDID
      */
     public UnixDisplay(byte[] edid) {
-        super(edid);
-        this.connectorId = -1;
+        this(edid, Constants.UNKNOWN, -1);
     }
 
     /**
@@ -41,8 +42,14 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param connectorId the DRM connector ID ({@code -1} if not available)
      */
     public UnixDisplay(byte[] edid, String devicePort, int connectorId) {
-        super(edid, devicePort);
+        super(edid);
+        this.devicePort = devicePort;
         this.connectorId = connectorId;
+    }
+
+    @Override
+    public String getDevicePort() {
+        return this.devicePort;
     }
 
     @Override

@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 import java.util.ArrayList;
@@ -151,6 +152,7 @@ class XrandrTest {
         assertThat(data.size(), is(1));
         assertThat(data.containsKey("DP2"), is(true));
         Pair<Integer, byte[]> pair = data.get("DP2");
+        assertNotNull(pair);
         assertThat(pair.getA(), is(96));
         assertThat(pair.getB().length, is(128));
         assertThat(pair.getB()[0], is((byte) 0x00));
@@ -163,6 +165,7 @@ class XrandrTest {
         assertThat(data.size(), is(1));
         assertThat(data.containsKey("HDMI-1"), is(true));
         Pair<Integer, byte[]> pair = data.get("HDMI-1");
+        assertNotNull(pair);
         assertThat(pair.getA(), is(-1));
         assertThat(pair.getB().length, is(128));
     }
@@ -173,12 +176,16 @@ class XrandrTest {
         assertThat(data.size(), is(2));
         assertThat(data.containsKey("DP2"), is(true));
         assertThat(data.containsKey("HDMI1"), is(true));
+        Pair<Integer, byte[]> dp2 = data.get("DP2");
+        Pair<Integer, byte[]> hdmi1 = data.get("HDMI1");
+        assertNotNull(dp2);
+        assertNotNull(hdmi1);
         // DP2 has CONNECTOR_ID, HDMI1 does not
-        assertThat(data.get("DP2").getA(), is(96));
-        assertThat(data.get("HDMI1").getA(), is(-1));
+        assertThat(dp2.getA(), is(96));
+        assertThat(hdmi1.getA(), is(-1));
         // Both have valid EDIDs
-        assertThat(data.get("DP2").getB().length, is(128));
-        assertThat(data.get("HDMI1").getB().length, is(128));
+        assertThat(dp2.getB().length, is(128));
+        assertThat(hdmi1.getB().length, is(128));
     }
 
     @Test
@@ -198,8 +205,10 @@ class XrandrTest {
         Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrDisconnectedWithConnectorId());
         assertThat(data.size(), is(1));
         assertThat(data.containsKey("eDP"), is(true));
+        Pair<Integer, byte[]> edp = data.get("eDP");
+        assertNotNull(edp);
         // eDP's own CONNECTOR_ID is 51, not 70 or 80 from the disconnected outputs
-        assertThat(data.get("eDP").getA(), is(51));
+        assertThat(edp.getA(), is(51));
         // Disconnected outputs should not appear
         assertThat(data.containsKey("DP-1"), is(false));
         assertThat(data.containsKey("HDMI-A-1"), is(false));

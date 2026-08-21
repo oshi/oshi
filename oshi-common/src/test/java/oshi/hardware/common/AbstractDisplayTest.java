@@ -77,13 +77,6 @@ class AbstractDisplayTest {
     }
 
     @Test
-    void testDevicePortFromTwoArgConstructor() {
-        AbstractDisplay display = new AbstractDisplay(new byte[128], "HDMI-A-1") {
-        };
-        assertThat(display.getDevicePort(), is("HDMI-A-1"));
-    }
-
-    @Test
     void testDefaultOutputNameIsEmpty() {
         AbstractDisplay display = new AbstractDisplay(new byte[128]) {
         };

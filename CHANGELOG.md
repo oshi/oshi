@@ -5,6 +5,7 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 ##### New Features
 
 * [#3652](https://github.com/oshi/oshi/pull/3652): `oshi-metrics` reports the OpenTelemetry `reserved` state for `system.filesystem.usage` and `system.filesystem.utilization`, alongside the existing `used` and `free`. The three states partition the filesystem, so the `usage` gauges sum to `system.filesystem.limit` and the `utilization` gauges sum to 1.0. `reserved` is unused space unavailable to the calling process: the superuser reserve many UNIX filesystems hold back, or the caller's disk quota on Windows - [@dbwiddis](https://github.com/dbwiddis).
+* [#3660](https://github.com/oshi/oshi/pull/3660): `Display.getDevicePort()` reports the port a display is attached to, and `Display.getOutputName()` the name `xrandr --output` accepts for it. On Linux the port is the DRM connector name (`HDMI-A-1`, `eDP-1`), read from sysfs, and the output name is resolved by matching the connector to an X output on its `CONNECTOR_ID`, falling back to its EDID. Both report a sentinel on platforms that have no implementation yet - [@ayonization](https://github.com/ayonization).
 
 ##### Bug Fixes and Improvements
 

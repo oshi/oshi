@@ -94,8 +94,8 @@ public final class DrmEdid {
                     int connectorId = -1;
                     File connectorIdFile = new File(connector, "connector_id");
                     if (connectorIdFile.exists()) {
-                        connectorId = ParseUtil.parseIntOrDefault(
-                                FileUtil.getStringFromFile(connectorIdFile.getPath()).trim(), -1);
+                        connectorId = ParseUtil
+                                .parseIntOrDefault(FileUtil.getStringFromFile(connectorIdFile.getPath()).trim(), -1);
                     }
                     results.add(new Triplet<>(connectorName, connectorId, edid));
                 }
