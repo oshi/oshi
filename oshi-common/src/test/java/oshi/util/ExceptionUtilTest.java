@@ -35,6 +35,10 @@ class ExceptionUtilTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExceptionUtilTest.class);
 
+    /** Message for a signature mismatch thrown where it may reach a real logger, so the log line identifies itself. */
+    private static final String DELIBERATE_MISMATCH = "mismatch thrown deliberately by ExceptionUtilTest;"
+            + " not a real binding defect";
+
     // -- getOrDefault --
 
     @Test
@@ -515,12 +519,14 @@ class ExceptionUtilTest {
 
     @Test
     void testSilentOverloadsAlsoRethrowASignatureMismatch() {
-        // The wrappers with no logger of their own are silent about a failed system call, but not about a defect
+        // The wrappers with no logger of their own are silent about a failed system call, but not about a defect.
+        // Having no caller logger, they log under ExceptionUtil's own name, which simplelogger.properties turns off
+        // for this module; the message says so anyway, for a run that does not pick that configuration up.
         assertThrows(WrongMethodTypeException.class, () -> ExceptionUtil.getOrDefault(() -> {
-            throw new WrongMethodTypeException("mismatch");
+            throw new WrongMethodTypeException(DELIBERATE_MISMATCH);
         }, "fallback"));
         assertThrows(WrongMethodTypeException.class, () -> ExceptionUtil.runSilently(() -> {
-            throw new WrongMethodTypeException("mismatch");
+            throw new WrongMethodTypeException(DELIBERATE_MISMATCH);
         }));
     }
 
