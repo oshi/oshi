@@ -21,6 +21,8 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
+import oshi.util.tuples.Triplet;
+
 @EnabledOnOs(OS.LINUX)
 class DrmEdidTest {
 
@@ -113,5 +115,46 @@ class DrmEdidTest {
         List<byte[]> edids = DrmEdid.getEdidArrays(tempDir.toFile());
         assertThat(edids, hasSize(1));
         assertThat(edids.get(0).length, greaterThanOrEqualTo(128));
+    }
+
+    @Test
+    void testGetDisplayDataExtractsConnectorName(@TempDir Path tempDir) throws IOException {
+        Path connector = Files.createDirectories(tempDir.resolve("card0-HDMI-A-1"));
+        writeFile(connector.resolve("status"), "connected\n");
+        Files.write(connector.resolve("edid"), VALID_EDID);
+
+        List<Triplet<String, Integer, byte[]>> data = DrmEdid.getDisplayData(tempDir.toFile());
+        assertThat(data, hasSize(1));
+        assertThat(data.get(0).getA(), is("HDMI-A-1"));
+        assertThat(data.get(0).getB(), is(-1));
+        assertThat(data.get(0).getC().length, greaterThanOrEqualTo(128));
+    }
+
+    @Test
+    void testGetDisplayDataReadsConnectorId(@TempDir Path tempDir) throws IOException {
+        Path connector = Files.createDirectories(tempDir.resolve("card0-DP-2"));
+        writeFile(connector.resolve("status"), "connected\n");
+        Files.write(connector.resolve("edid"), VALID_EDID);
+        writeFile(connector.resolve("connector_id"), "96\n");
+
+        List<Triplet<String, Integer, byte[]>> data = DrmEdid.getDisplayData(tempDir.toFile());
+        assertThat(data, hasSize(1));
+        assertThat(data.get(0).getA(), is("DP-2"));
+        assertThat(data.get(0).getB(), is(96));
+    }
+
+    @Test
+    void testGetDisplayDataMultipleConnectors(@TempDir Path tempDir) throws IOException {
+        Path hdmi = Files.createDirectories(tempDir.resolve("card0-HDMI-A-1"));
+        writeFile(hdmi.resolve("status"), "connected\n");
+        Files.write(hdmi.resolve("edid"), VALID_EDID);
+        writeFile(hdmi.resolve("connector_id"), "51\n");
+
+        Path dp = Files.createDirectories(tempDir.resolve("card0-eDP-1"));
+        writeFile(dp.resolve("status"), "connected\n");
+        Files.write(dp.resolve("edid"), VALID_EDID);
+
+        List<Triplet<String, Integer, byte[]>> data = DrmEdid.getDisplayData(tempDir.toFile());
+        assertThat(data, hasSize(2));
     }
 }

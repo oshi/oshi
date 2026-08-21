@@ -68,4 +68,18 @@ class AbstractDisplayTest {
         assertThat(display.getDisplayInfo().isEdidSynthetic(), is(true));
         assertThat(display.getDisplayInfo().getModel(), is("Thunderbolt"));
     }
+
+    @Test
+    void testDefaultDevicePortIsUnknown() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128]) {
+        };
+        assertThat(display.getDevicePort(), is("unknown"));
+    }
+
+    @Test
+    void testDefaultOutputNameIsEmpty() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128]) {
+        };
+        assertThat(display.getOutputName().isPresent(), is(false));
+    }
 }

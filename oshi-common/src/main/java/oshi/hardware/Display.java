@@ -4,8 +4,11 @@
  */
 package oshi.hardware;
 
+import java.util.Optional;
+
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
+import oshi.util.Constants;
 
 /**
  * Display refers to the information regarding a video source and monitor identified by the EDID standard.
@@ -53,4 +56,25 @@ public interface Display {
      * @return A {@link DisplayInfo} holding the display's decoded attributes.
      */
     DisplayInfo getDisplayInfo();
+
+    /**
+     * The system-level device identification for this display. On Linux this is the DRM connector name extracted from
+     * the sysfs directory (e.g. {@code HDMI-A-1}, {@code eDP-1}, {@code DP-2}), or the {@code xrandr} output name when
+     * DRM sysfs is not available.
+     *
+     * @return The device port identifier, or {@link Constants#UNKNOWN} if not available.
+     */
+    default String getDevicePort() {
+        return Constants.UNKNOWN;
+    }
+
+    /**
+     * The X11 output name for this display as reported by {@code xrandr} (e.g. {@code HDMI-1}, {@code DP2}). This is
+     * the name to pass to {@code xrandr --output}. Only meaningful on systems running an X server.
+     *
+     * @return An {@link Optional} containing the xrandr output name, or empty if not available.
+     */
+    default Optional<String> getOutputName() {
+        return Optional.empty();
+    }
 }
