@@ -19,9 +19,9 @@ import oshi.driver.common.windows.DisplayConnector;
  * <p>
  * This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA project.
  */
-public interface User32Ext extends StdCallLibrary {
+public interface User32 extends StdCallLibrary {
 
-    User32Ext INSTANCE = Native.load("user32", User32Ext.class);
+    User32 INSTANCE = Native.load("user32", User32.class);
 
     /**
      * Retrieves the size of the buffers required to call {@code QueryDisplayConfig}.

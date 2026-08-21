@@ -31,7 +31,7 @@ import oshi.hardware.common.AbstractDisplay;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableSpDeviceInterfaceData;
 import oshi.jna.Struct.CloseableSpDevinfoData;
-import oshi.jna.platform.windows.User32Ext;
+import oshi.jna.platform.windows.User32;
 import oshi.util.Constants;
 
 /**
@@ -86,7 +86,7 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     /**
      * Gets Display Information
      *
-     * @return An array of Display objects representing monitors, etc.
+     * @return A list of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
@@ -170,7 +170,7 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
     // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
     private static Map<String, String> queryConnectorPorts() {
-        User32Ext u32 = User32Ext.INSTANCE;
+        User32 u32 = User32.INSTANCE;
         for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
             Map<String, String> map = queryConnectorPortsOnce(u32);
             if (map != null) {
@@ -182,7 +182,7 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     }
 
     // Returns null if the buffers were too small and the caller should re-size and retry.
-    private static @Nullable Map<String, String> queryConnectorPortsOnce(User32Ext u32) {
+    private static @Nullable Map<String, String> queryConnectorPortsOnce(User32 u32) {
         Map<String, String> map = new HashMap<>();
         try (CloseableIntByReference numPaths = new CloseableIntByReference();
                 CloseableIntByReference numModes = new CloseableIntByReference()) {
@@ -224,7 +224,7 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     }
 
     // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector name.
-    private static void addConnector(Map<String, String> map, User32Ext u32, long adapterId, int targetId) {
+    private static void addConnector(Map<String, String> map, User32 u32, long adapterId, int targetId) {
         try (Memory tdn = new Memory(DisplayConnector.TARGET_DEVICE_NAME_SIZE)) {
             tdn.clear();
             tdn.setInt(0, DisplayConnector.DEVICE_INFO_GET_TARGET_NAME);

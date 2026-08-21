@@ -74,7 +74,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
     /**
      * Gets Display Information
      *
-     * @return An array of Display objects representing monitors, etc. Displays whose connector Windows cannot resolve
+     * @return A list of Display objects representing monitors, etc. Displays whose connector Windows cannot resolve
      *         report {@link Constants#UNKNOWN} as their device port.
      */
     public static List<Display> getDisplays() {
