@@ -59,6 +59,11 @@ class LinuxGpuStatsTest {
         }
 
         @Override
+        protected double nvmlGetGpuUtilization(String deviceId) {
+            return -1d;
+        }
+
+        @Override
         protected long nvmlGetVramUsed(String deviceId) {
             return -1L;
         }
@@ -89,12 +94,23 @@ class LinuxGpuStatsTest {
         }
     }
 
-    /** Concrete subclass simulating a working NVML device found by bus ID. Tracks findDevice call count. */
+    /**
+     * Concrete subclass simulating a working NVML device found by bus ID, reporting the given utilization. Tracks
+     * findDevice call count.
+     */
     private static final class NvmlLinuxGpuStats extends LinuxGpuStats {
+        private final double utilization;
+
         private int findDeviceCallCount;
 
         NvmlLinuxGpuStats(String drmDevicePath, String driverName, String pciBusId, String cardName) {
+            this(drmDevicePath, driverName, pciBusId, cardName, 73.0);
+        }
+
+        NvmlLinuxGpuStats(String drmDevicePath, String driverName, String pciBusId, String cardName,
+                double utilization) {
             super(drmDevicePath, driverName, pciBusId, cardName);
+            this.utilization = utilization;
         }
 
         /**
@@ -120,6 +136,11 @@ class LinuxGpuStatsTest {
         @Override
         protected String nvmlFindDeviceByName(String name) {
             return "nvml-device-0";
+        }
+
+        @Override
+        protected double nvmlGetGpuUtilization(String deviceId) {
+            return utilization;
         }
 
         @Override
@@ -507,12 +528,36 @@ class LinuxGpuStatsTest {
     @Test
     void testNvmlMetrics() {
         try (NvmlLinuxGpuStats stats = new NvmlLinuxGpuStats("", "nvidia", "0000:01:00.0", "NVIDIA GPU")) {
+            assertThat(stats.getGpuUtilization(), closeTo(73.0, EPS));
             assertThat(stats.getVramUsed(), is(2147483648L));
             assertThat(stats.getTemperature(), closeTo(65.0, EPS));
             assertThat(stats.getPowerDraw(), closeTo(120.0, EPS));
             assertThat(stats.getCoreClockMhz(), is(1800L));
             assertThat(stats.getMemoryClockMhz(), is(7000L));
             assertThat(stats.getFanSpeedPercent(), closeTo(45.0, EPS));
+        }
+    }
+
+    @Test
+    void testNvmlUtilizationUnsupportedReturnsSentinel() {
+        // NVML resolves the device but does not support the utilization query, and the nvidia driver exposes no
+        // sysfs equivalent to fall back to
+        try (LinuxGpuStats stats = new NvmlLinuxGpuStats("", "nvidia", "0000:01:00.0", "NVIDIA GPU", -1d)) {
+            assertThat(stats.getGpuUtilization(), is(-1d));
+        }
+    }
+
+    @Test
+    void testNvmlUtilizationUnavailableFallsBackToSysfs(@TempDir Path tmp) throws IOException {
+        Path device = tmp.resolve("device");
+        Files.createDirectories(device);
+        writeFile(device.resolve("gpu_busy_percent"), "42\n");
+
+        // With no bus ID to match on, the device is correlated by name, which is a substring match in either
+        // direction and can therefore answer for a card it does not belong to. NVML declining to report utilization
+        // must leave the driver's own reading in place rather than shadowing it with the sentinel.
+        try (LinuxGpuStats stats = new NvmlLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU", -1d)) {
+            assertThat(stats.getGpuUtilization(), closeTo(42.0, EPS));
         }
     }
 
@@ -546,6 +591,11 @@ class LinuxGpuStatsTest {
             @Override
             protected String nvmlFindDeviceByName(String name) {
                 return "nvml-by-name";
+            }
+
+            @Override
+            protected double nvmlGetGpuUtilization(String deviceId) {
+                return -1d;
             }
 
             @Override
