@@ -6,7 +6,7 @@ package oshi.hardware.platform.windows;
 
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
-import static java.lang.foreign.ValueLayout.JAVA_LONG;
+import static java.lang.foreign.ValueLayout.JAVA_LONG_UNALIGNED;
 import static oshi.ffm.platform.windows.SetupApiFFM.SP_DEVICE_INTERFACE_DATA;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.util.ExceptionUtil.getOrDefault;
@@ -211,7 +211,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
             if ((flags & DisplayConnector.PATH_ACTIVE) == 0) {
                 continue;
             }
-            long adapterId = paths.get(JAVA_LONG, base + DisplayConnector.PATH_TARGET_ADAPTER_ID_OFFSET);
+            long adapterId = paths.get(JAVA_LONG_UNALIGNED, base + DisplayConnector.PATH_TARGET_ADAPTER_ID_OFFSET);
             int targetId = paths.get(JAVA_INT, base + DisplayConnector.PATH_TARGET_ID_OFFSET);
             addConnector(map, arena, adapterId, targetId);
         }
@@ -223,7 +223,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         MemorySegment tdn = arena.allocate(DisplayConnector.TARGET_DEVICE_NAME_SIZE);
         tdn.set(JAVA_INT, 0, DisplayConnector.DEVICE_INFO_GET_TARGET_NAME);
         tdn.set(JAVA_INT, DisplayConnector.TDN_HEADER_SIZE_OFFSET, DisplayConnector.TARGET_DEVICE_NAME_SIZE);
-        tdn.set(JAVA_LONG, DisplayConnector.TDN_HEADER_ADAPTER_ID_OFFSET, adapterId);
+        tdn.set(JAVA_LONG_UNALIGNED, DisplayConnector.TDN_HEADER_ADAPTER_ID_OFFSET, adapterId);
         tdn.set(JAVA_INT, DisplayConnector.TDN_HEADER_ID_OFFSET, targetId);
         if (User32FFM.DisplayConfigGetDeviceInfo(tdn) != ERROR_SUCCESS) {
             return;

@@ -18,6 +18,10 @@ import oshi.util.Util;
  * implementations cannot drift apart, and the pure parsing (connector naming, device-path normalization) is shared and
  * unit-tested. The native calls themselves - {@code GetDisplayConfigBufferSizes}, {@code QueryDisplayConfig}, and
  * {@code DisplayConfigGetDeviceInfo} - are made by each backend.
+ * <p>
+ * A {@code LUID} is two {@code DWORD}s, so it is only 4-byte aligned and the {@code adapterId} fields below can land on
+ * an offset that is not a multiple of 8. An 8-byte read there must therefore be unaligned, which the FFM backend
+ * enforces at runtime.
  */
 @ThreadSafe
 public final class DisplayConnector {
