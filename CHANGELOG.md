@@ -20,6 +20,7 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 * [#3672](https://github.com/oshi/oshi/pull/3672),
   [#3674](https://github.com/oshi/oshi/pull/3674): `CentralProcessor` frequencies and `PhysicalProcessor.getEfficiency()` on Apple Silicon are correct regardless of call order and on the M4 and M5 generations. Frequencies previously fell back to a 2.4 GHz placeholder unless `getProcessorIdentifier()` happened to be called first, were reported a thousand times too low on the M4 and later, and a chip with more or fewer than two kinds of core was misclassified - [@dbwiddis](https://github.com/dbwiddis).
 * [#3675](https://github.com/oshi/oshi/pull/3675): `CentralProcessor.getCurrentFreq()` on Apple Silicon can report the frequency the hardware actually ran at, rather than a nominal maximum that never changes. Set `oshi.os.mac.cpu.frequency.ioreport` to `true`; it is opt-in because it holds a subscription to a private framework for the lifetime of the process - [@dbwiddis](https://github.com/dbwiddis).
+* [#3680](https://github.com/oshi/oshi/pull/3680): `oshi-metrics` reads a disk or network interface once per scrape rather than once per meter, so a scrape makes one query where it previously made five or seven, and every meter of one device reports the same reading. A rate computed across two of them, such as errors per packet, is now comparable - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 

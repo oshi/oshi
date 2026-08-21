@@ -4,6 +4,7 @@
  */
 package oshi.metrics;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -11,11 +12,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.function.ToDoubleFunction;
 
 import oshi.hardware.NetworkIF;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpState;
+import oshi.util.Memoizer;
 
 import io.micrometer.core.instrument.FunctionCounter;
 import io.micrometer.core.instrument.Gauge;
@@ -41,6 +44,11 @@ import io.micrometer.core.instrument.binder.MeterBinder;
  * <ul>
  * <li>{@code system.network.connection.count} — connection count by protocol and state</li>
  * </ul>
+ *
+ * <p>
+ * An interface's counters are re-read as its meters are sampled, once per interface per
+ * {@link Memoizer#defaultExpiration()} window rather than once per meter, so that all of an interface's meters within a
+ * scrape report the same reading. The connection counts are cached the same way, for one second.
  */
 public class NetworkMetrics implements MeterBinder {
 
@@ -58,9 +66,11 @@ public class NetworkMetrics implements MeterBinder {
     private final Supplier<List<NetworkIF>> networkIFSupplier;
     private final InternetProtocolStats ipStats;
 
-    // Strong reference to prevent GC of NetworkIF objects used by FunctionCounter (Micrometer holds them weakly)
-    @SuppressWarnings("java:S1450") // deliberate GC root; must outlive bindTo(), not a method-local
-    private List<NetworkIF> networkIFs;
+    // Strong reference to prevent GC of the refreshing suppliers, and through them the NetworkIF objects they close
+    // over, used by FunctionCounter (Micrometer holds them weakly). FunctionCounter has no strongReference() of its
+    // own, as Gauge does, so this field is the only thing keeping the measured object reachable.
+    @SuppressWarnings({ "java:S1068", "UnusedVariable" }) // deliberate GC root; must outlive bindTo(), never read
+    private List<Supplier<NetworkIF>> refreshedNetworkIFs;
 
     // Connection count cache to avoid repeated getConnections() calls per scrape
     private volatile long cacheTimestamp;
@@ -80,58 +90,57 @@ public class NetworkMetrics implements MeterBinder {
 
     @Override
     public void bindTo(MeterRegistry registry) {
-        this.networkIFs = networkIFSupplier.get();
+        List<NetworkIF> nets = networkIFSupplier.get();
+        List<Supplier<NetworkIF>> refreshing = new ArrayList<>(nets.size());
 
-        for (NetworkIF net : networkIFs) {
+        for (NetworkIF net : nets) {
             String device = net.getName();
+            // A bound NetworkIF holds the counters read when the binder was created, so it has to be refreshed as it
+            // is sampled. The seven meters below read it through one memoized supplier, both to spare the interface six
+            // redundant queries per scrape and so that a single scrape reads one snapshot: bytes, packets, drops and
+            // errors are otherwise counted from different moments, and a drop or error rate computed against a byte
+            // or packet count from another reading is not comparable.
+            Supplier<NetworkIF> refreshed = Memoizer.memoize(() -> {
+                net.updateAttributes();
+                return net;
+            }, Memoizer.defaultExpiration());
+            refreshing.add(refreshed);
 
             // system.network.io — Counter, unit "By", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_IO, net, n -> {
-                n.updateAttributes();
-                return n.getBytesRecv();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Network bytes transferred")
-                    .baseUnit("By").register(registry);
-            FunctionCounter.builder(NET_IO, net, n -> {
-                n.updateAttributes();
-                return n.getBytesSent();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "transmit").description("Network bytes transferred")
-                    .baseUnit("By").register(registry);
+            registerNetCounter(registry, refreshed, device, "receive", NET_IO, "Network bytes transferred", "By",
+                    NetworkIF::getBytesRecv);
+            registerNetCounter(registry, refreshed, device, "transmit", NET_IO, "Network bytes transferred", "By",
+                    NetworkIF::getBytesSent);
 
             // system.network.packet.count — Counter, unit "{packet}", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_PACKETS, net, n -> {
-                n.updateAttributes();
-                return n.getPacketsRecv();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Network packets transferred")
-                    .baseUnit("{packet}").register(registry);
-            FunctionCounter.builder(NET_PACKETS, net, n -> {
-                n.updateAttributes();
-                return n.getPacketsSent();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "transmit").description("Network packets transferred")
-                    .baseUnit("{packet}").register(registry);
+            registerNetCounter(registry, refreshed, device, "receive", NET_PACKETS, "Network packets transferred",
+                    "{packet}", NetworkIF::getPacketsRecv);
+            registerNetCounter(registry, refreshed, device, "transmit", NET_PACKETS, "Network packets transferred",
+                    "{packet}", NetworkIF::getPacketsSent);
 
             // system.network.packet.dropped — Counter, unit "{packet}", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_DROPPED, net, n -> {
-                n.updateAttributes();
-                return n.getInDrops();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Count of packets dropped")
-                    .baseUnit("{packet}").register(registry);
+            registerNetCounter(registry, refreshed, device, "receive", NET_DROPPED, "Count of packets dropped",
+                    "{packet}", NetworkIF::getInDrops);
 
             // system.network.errors — Counter, unit "{error}", attrs: network.io.direction, system.device
-            FunctionCounter.builder(NET_ERRORS, net, n -> {
-                n.updateAttributes();
-                return n.getInErrors();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "receive").description("Network errors").baseUnit("{error}")
-                    .register(registry);
-            FunctionCounter.builder(NET_ERRORS, net, n -> {
-                n.updateAttributes();
-                return n.getOutErrors();
-            }).tag(DEVICE_KEY, device).tag(DIRECTION_KEY, "transmit").description("Network errors").baseUnit("{error}")
-                    .register(registry);
+            registerNetCounter(registry, refreshed, device, "receive", NET_ERRORS, "Network errors", "{error}",
+                    NetworkIF::getInErrors);
+            registerNetCounter(registry, refreshed, device, "transmit", NET_ERRORS, "Network errors", "{error}",
+                    NetworkIF::getOutErrors);
         }
+
+        // Hold strong references to prevent GC (FunctionCounter uses WeakReference)
+        this.refreshedNetworkIFs = refreshing;
 
         // system.network.connection.count — UpDownCounter (Gauge), unit "{connection}",
         // attrs: network.transport, network.connection.state
         registerConnectionCountGauges(registry);
+    }
+
+    private static void registerNetCounter(MeterRegistry registry, Supplier<NetworkIF> refreshed, String device,
+            String direction, String name, String description, String baseUnit, ToDoubleFunction<NetworkIF> value) {
+        FunctionCounter.builder(name, refreshed, s -> value.applyAsDouble(s.get())).tag(DEVICE_KEY, device)
+                .tag(DIRECTION_KEY, direction).description(description).baseUnit(baseUnit).register(registry);
     }
 
     private void registerConnectionCountGauges(MeterRegistry registry) {
