@@ -882,6 +882,13 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         // frequency table, which would report a plausible but wrong number.
         Map<Integer, List<String>> channelGroups = groupChannelsByCoreType(residency.keySet());
         Map<Integer, List<PhysicalProcessor>> coreGroups = groupCoresByEfficiencyClass();
+        if (channelGroups.containsKey(CpuFrequencyResidency.UNKNOWN_RANK)) {
+            // A core type this release does not know. Where it belongs among the ones it does know is a guess, and
+            // guessing wrong charges a core with another cluster's frequency table.
+            LOG.debug("IOReport reports a CPU core type this release does not recognize: {}",
+                    channelGroups.get(CpuFrequencyResidency.UNKNOWN_RANK));
+            return;
+        }
         if (channelGroups.size() != coreGroups.size()) {
             LOG.debug("IOReport reports {} core types but this processor has {} efficiency classes.",
                     channelGroups.size(), coreGroups.size());

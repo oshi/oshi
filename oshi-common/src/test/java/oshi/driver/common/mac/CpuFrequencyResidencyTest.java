@@ -163,8 +163,12 @@ class CpuFrequencyResidencyTest {
     void testANameThatIsNotACoreChannelSortsLast() {
         assertThat(CpuFrequencyResidency.orderChannels(Arrays.asList("ECPM", "PCPU0", "ECPU0", "GPU")),
                 is(Arrays.asList("ECPU0", "PCPU0", "ECPM", "GPU")));
+        // Both a core type no release knows and a name that is not a core channel at all, so a caller can tell that a
+        // sample holds something it cannot place
         assertThat("unrecognized core type", CpuFrequencyResidency.prefixRank("XCPU0"),
-                is(CpuFrequencyResidency.prefixRank("ECPM")));
+                is(CpuFrequencyResidency.UNKNOWN_RANK));
+        assertThat("not a core channel", CpuFrequencyResidency.prefixRank("ECPM"),
+                is(CpuFrequencyResidency.UNKNOWN_RANK));
     }
 
     @Test

@@ -54,8 +54,12 @@ public final class CpuFrequencyResidency {
      */
     private static final String CHANNEL_PREFIX_ORDER = "EMPS";
 
-    /** Rank given to a name that is not a core channel, or that names an unrecognized core type. */
-    private static final int UNKNOWN_RANK = CHANNEL_PREFIX_ORDER.length();
+    /**
+     * Rank {@link #prefixRank(String)} gives to a name that is not a core channel, or that names a core type this
+     * release does not know. It orders after every known type, and a caller pairing channels with cores should treat
+     * its presence as a chip it cannot interpret rather than assume where such a core belongs.
+     */
+    public static final int UNKNOWN_RANK = CHANNEL_PREFIX_ORDER.length();
 
     /** Bits reserved for the core index in a channel sort key, enough for any core count a die could report. */
     private static final int CORE_BITS = 20;

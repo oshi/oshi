@@ -47,16 +47,18 @@ class MacCentralProcessorLiveFrequencyTest {
         return states;
     }
 
-    // A sampler over the eight cores of StubArmCentralProcessor, each parked at one index of its cluster's table.
+    // Residency of the eight cores of StubArmCentralProcessor, each parked at one index of its cluster's table.
+    private static Map<String, Map<String, Long>> residencyAt(int efficiencyIndex, int performanceIndex) {
+        Map<String, Map<String, Long>> residency = new LinkedHashMap<>();
+        for (int i = 0; i < 4; i++) {
+            residency.put("ECPU" + i, atFrequency(M3_PRO_EFFICIENCY_TABLE, efficiencyIndex));
+            residency.put("PCPU" + i, atFrequency(M3_PRO_PERFORMANCE_TABLE, performanceIndex));
+        }
+        return residency;
+    }
+
     private static IOReportCpuSampler samplerAt(int efficiencyIndex, int performanceIndex) {
-        return new StubCpuSampler(() -> {
-            Map<String, Map<String, Long>> residency = new LinkedHashMap<>();
-            for (int i = 0; i < 4; i++) {
-                residency.put("ECPU" + i, atFrequency(M3_PRO_EFFICIENCY_TABLE, efficiencyIndex));
-                residency.put("PCPU" + i, atFrequency(M3_PRO_PERFORMANCE_TABLE, performanceIndex));
-            }
-            return residency;
-        });
+        return new StubCpuSampler(() -> residencyAt(efficiencyIndex, performanceIndex));
     }
 
     private static StubArmCentralProcessor liveCpu(@Nullable IOReportCpuSampler sampler) {
@@ -144,15 +146,34 @@ class MacCentralProcessorLiveFrequencyTest {
 
     @Test
     void testACoreWhoseResidencyCannotBePairedKeepsItsNominalFrequency() {
-        // A performance core reporting the efficiency cluster's state count cannot be weighted, but its five siblings
+        // A performance core reporting the efficiency cluster's state count cannot be weighted, but its three siblings
         // still can be
         long[] freqs = liveCpu(new StubCpuSampler(() -> {
-            Map<String, Map<String, Long>> residency = samplerAt(2, 9).sampleCoreResidencyDelta();
+            Map<String, Map<String, Long>> residency = residencyAt(2, 9);
             residency.put("PCPU1", atFrequency(M3_PRO_EFFICIENCY_TABLE, 2));
             return residency;
         })).queryCurrentFreq();
         assertThat("unpairable core", freqs[5], is(StubArmCentralProcessor.PERF_FREQ));
-        assertThat("its sibling", freqs[4], is(M3_PRO_PERFORMANCE_TABLE[9]));
+        for (int i : new int[] { 4, 6, 7 }) {
+            assertThat("sibling " + i, freqs[i], is(M3_PRO_PERFORMANCE_TABLE[9]));
+        }
+    }
+
+    @Test
+    void testACoreTypeThisReleaseDoesNotKnowReportsTheNominalFrequencies() {
+        // A future chip could name its core types with letters this release has never seen, and an unknown letter sorts
+        // last however fast that core really is. Here the counts agree and each group's state count even pairs with the
+        // table it is wrongly given, so nothing downstream would catch it: the efficiency cores would be charged the
+        // unknown cores' frequency table and report a plausible but wrong number. The whole sample is refused instead.
+        long[] freqs = liveCpu(new StubCpuSampler(() -> {
+            Map<String, Map<String, Long>> residency = new LinkedHashMap<>();
+            for (int i = 0; i < 4; i++) {
+                residency.put("XCPU" + i, atFrequency(M3_PRO_PERFORMANCE_TABLE, 19));
+                residency.put("PCPU" + i, atFrequency(M3_PRO_EFFICIENCY_TABLE, 0));
+            }
+            return residency;
+        })).queryCurrentFreq();
+        assertArrayEquals(new StubArmCentralProcessor().queryCurrentFreq(), freqs, "unrecognized core type");
     }
 
     @Test
