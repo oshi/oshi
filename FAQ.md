@@ -497,6 +497,32 @@ and no such warning, so OSHI applies the equivalent guard in userland for the wh
 Note also that DragonFly's `ps` offers neither a `systime` nor a `cputime` keyword, so `OSProcess.getKernelTime()` is
 always 0 there and `getUserTime()` carries the entire total.
 
+## Why is `getCurrentFreq()` the same number every time on Apple Silicon?
+
+Because by default it is not a measurement. macOS exposes no equivalent of Linux's `scaling_cur_freq`, so each core
+reports its cluster's nominal maximum from the power manager's `voltage-states` table — a fixed hardware property. On
+an M3 Pro that is 2.7 GHz for the six efficiency cores and 4.1 GHz for the six performance cores, whatever the machine
+is doing.
+
+The real frequency is derivable from the private IOReport framework, which publishes how many ticks each core, and each
+cluster of cores, spent in each of its DVFS states. Setting `oshi.os.mac.cpu.frequency.ioreport` to `true` reports the
+average of a cluster's frequencies weighted by that residency, with idle time excluded — the frequency the hardware ran
+at while it had work, which is the figure `powermetrics` prints as the cluster's HW active frequency. Cores in a cluster
+share one frequency domain and so share that value, and a core that did not run at all over the interval reports its
+cluster's lowest frequency instead.
+
+The per-core channels are deliberately not used for the value: a core reports the state it *asked* for, which is the
+fastest one whenever it has work, so under a power or thermal limit it reads high. On an M3 Pro with six busy threads
+every performance core reports 4.06 GHz — the nominal maximum, which is what this setting exists to replace — while the
+cluster reports the 3.58 GHz that `powermetrics` agrees it ran at. They are the fallback: a chip whose cluster channels
+cannot be matched to the kinds of core it reports is read from the cores' own residency instead, which is right whenever
+nothing is capping the cluster.
+
+It is opt-in for two reasons. IOReport is not a public API, and reading it means holding a subscription for the
+lifetime of the process. And the value is a rate, so it needs an interval: the first call establishes the baseline and
+returns the nominal frequencies, and each later call covers the time since the previous one. A program that reads
+`getCurrentFreq()` once will therefore see no difference.
+
 ## Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?
 
 The initial call to some Windows Management Instrumentation (WMI) queries sometimes trigger RPC-related negotiation delays and timeouts described [here](https://docs.microsoft.com/en-us/windows/win32/services/services-and-rpc-tcp). OSHI attempts to use performance counters in preference to WMI whenever possible, but includes the WMI queries as a backup. There are several potential causes of these delays, which seem to occur more often on corporate-managed machines. If you are experiencing these delays, you can configure RPC and shorten the timeout by altering registry values under `HKLM\SYSTEM\CurrentControlSet\Control`. The `SCMApiConnectionParam` value (defaults to 21000 ms) can be reduced to shorten the delay.

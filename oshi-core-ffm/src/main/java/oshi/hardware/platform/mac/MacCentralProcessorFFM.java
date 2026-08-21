@@ -16,13 +16,16 @@ import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.IOReportClientFFM;
 import oshi.ffm.platform.mac.MacSystem;
 import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.hardware.common.platform.mac.IOKitProvider;
+import oshi.hardware.common.platform.mac.IOReportCpuSampler;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
 import oshi.hardware.common.platform.mac.SysctlProvider;
 
@@ -77,6 +80,11 @@ final class MacCentralProcessorFFM extends MacCentralProcessor {
     @Override
     protected IOKitProvider ioKitProvider() {
         return IOKitProviderFFM.INSTANCE;
+    }
+
+    @Override
+    protected @Nullable IOReportCpuSampler createCpuFrequencySampler() {
+        return IOReportClientFFM.createForCpu();
     }
 
     @Override

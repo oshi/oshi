@@ -8,8 +8,12 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.matchesPattern;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+
+import java.util.Map;
 
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
@@ -17,6 +21,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.CpuResidencySample;
 
 @EnabledOnOs(OS.MAC)
 class IOReportClientTest {
@@ -108,6 +113,45 @@ class IOReportClientTest {
         } finally {
             client.close();
         }
+    }
+
+    @Test
+    void testCreateForCpuSamplesEachCoreSeparately() throws InterruptedException {
+        IOReportClient client = IOReportClient.createForCpu();
+        Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
+        try {
+            assertThat("The first sample has nothing to subtract from", client.sampleResidencyDelta(), is(nullValue()));
+            Thread.sleep(150);
+            CpuResidencySample sample = client.sampleResidencyDelta();
+            // An Intel Mac has no per-core performance state channels
+            Assumptions.assumeTrue(sample != null && !sample.getCoreStates().isEmpty(),
+                    "Skipping: no CPU performance state channels");
+            for (Map.Entry<String, Map<String, Long>> complex : sample.getComplexStates().entrySet()) {
+                assertThat("channel " + complex.getKey() + " names a CPU complex", complex.getKey(),
+                        matchesPattern("(DIE_\\d+_)?[A-Z]CP[UM]\\d*"));
+                assertThat("states of " + complex.getKey(), complex.getValue().size(), is(greaterThan(1)));
+            }
+            for (Map.Entry<String, Map<String, Long>> core : sample.getCoreStates().entrySet()) {
+                assertThat("channel " + core.getKey() + " names a core", core.getKey(),
+                        matchesPattern("(DIE_\\d+_)?[A-Z]CPU\\d+"));
+                // One idle state and at least one frequency, or there would be nothing to weight
+                assertThat("states of " + core.getKey(), core.getValue().size(), is(greaterThan(1)));
+                for (Map.Entry<String, Long> state : core.getValue().entrySet()) {
+                    assertThat("residency of " + core.getKey() + " " + state.getKey(), state.getValue(),
+                            is(greaterThanOrEqualTo(0L)));
+                }
+            }
+        } finally {
+            client.close();
+        }
+    }
+
+    @Test
+    void testCpuSamplingAfterCloseReturnsNull() {
+        IOReportClient client = IOReportClient.createForCpu();
+        Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
+        client.close();
+        assertThat("Closed client should not sample", client.sampleResidencyDelta(), is(nullValue()));
     }
 
     @Test

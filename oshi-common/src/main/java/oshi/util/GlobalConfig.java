@@ -181,6 +181,13 @@ public final class GlobalConfig {
     public static final String OSHI_OS_MAC_SENSORS_CPUVOLTAGE_KEYS = "oshi.os.mac.sensors.cpuvoltage.keys";
 
     /**
+     * Whether to report a live per-core CPU frequency on Apple Silicon, derived from the performance state residency
+     * IOReport publishes, rather than each cluster's nominal maximum. Enabling this holds an IOReport subscription for
+     * the lifetime of the process. Default is {@code false}.
+     */
+    public static final String OSHI_OS_MAC_CPU_FREQUENCY_IOREPORT = "oshi.os.mac.cpu.frequency.ioreport";
+
+    /**
      * The name of the Windows System event log containing bootup event IDs 12 and 6005, used for a one-time calculation
      * of system boot time that is consistent across process runs regardless of sleep/hibernate cycles. If set to the
      * empty string, boot time is calculated by subtracting uptime from the current time (faster but less accurate).

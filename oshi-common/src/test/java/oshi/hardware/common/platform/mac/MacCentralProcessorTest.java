@@ -231,6 +231,15 @@ class MacCentralProcessorTest {
     private static final long M5_MAX_SUPER_KHZ = 4_608_000L;
     private static final long M5_MAX_PERFORMANCE_KHZ = 4_380_000L;
 
+    // The complete voltage state tables of a real M3 Pro (Mac15,7), read from pmgr's voltage-states1-sram and
+    // voltage-states5-sram. Their lengths are what the IOReport performance state counts have to match.
+    static final long[] M3_PRO_EFFICIENCY_TABLE = { 744_000_000L, 1_044_000_000L, 1_476_000_000L, 2_004_000_000L,
+            2_268_000_000L, 2_448_000_000L, 2_640_000_000L, 2_748_000_000L };
+    static final long[] M3_PRO_PERFORMANCE_TABLE = { 696_000_000L, 1_092_000_000L, 1_356_000_000L, 1_596_000_000L,
+            1_884_000_000L, 2_172_000_000L, 2_424_000_000L, 2_616_000_000L, 2_808_000_000L, 2_988_000_000L,
+            3_144_000_000L, 3_288_000_000L, 3_420_000_000L, 3_576_000_000L, 3_624_000_000L, 3_708_000_000L,
+            3_780_000_000L, 3_864_000_000L, 3_960_000_000L, 4_056_000_000L };
+
     @Test
     void testHertzTablesAreNotScaled() {
         assertThat("M3 Pro", MacCentralProcessor.toHz(M3_PRO_PERFORMANCE_HZ), is(4_056_000_000L));
@@ -851,9 +860,14 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        protected long[] queryClusterFrequencies() {
+        protected long[][] queryClusterFrequencyTables() {
             // With no IORegistry to walk there are no tables to read; PmgrCentralProcessor supplies one
-            return ioKitProvider() == null ? new long[0] : super.queryClusterFrequencies();
+            return ioKitProvider() == null ? new long[0][] : super.queryClusterFrequencyTables();
+        }
+
+        @Override
+        protected @Nullable IOReportCpuSampler createCpuFrequencySampler() {
+            return null; // Overridden where a live frequency is under test
         }
 
         @Override
@@ -898,6 +912,10 @@ class MacCentralProcessorTest {
         private static final int CORE_COUNT = 8;
 
         private final AtomicInteger nominalFrequencyQueries = new AtomicInteger();
+        private final AtomicInteger samplerRequests = new AtomicInteger();
+
+        /** Set before the first frequency query to exercise the live path; null leaves the nominal path in place. */
+        private @Nullable IOReportCpuSampler sampler;
 
         StubArmCentralProcessor() {
             super(Collections.singletonMap("machdep.cpu.brand_string", "Apple M3 Pro"));
@@ -923,13 +941,27 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        protected long[] queryClusterFrequencies() {
+        protected long[][] queryClusterFrequencyTables() {
             nominalFrequencyQueries.incrementAndGet();
-            return new long[] { EFF_FREQ, PERF_FREQ };
+            return new long[][] { M3_PRO_EFFICIENCY_TABLE, M3_PRO_PERFORMANCE_TABLE };
+        }
+
+        @Override
+        protected @Nullable IOReportCpuSampler createCpuFrequencySampler() {
+            samplerRequests.incrementAndGet();
+            return sampler;
+        }
+
+        void setSampler(@Nullable IOReportCpuSampler sampler) {
+            this.sampler = sampler;
         }
 
         int nominalFrequencyQueries() {
             return nominalFrequencyQueries.get();
+        }
+
+        int samplerRequests() {
+            return samplerRequests.get();
         }
     }
 

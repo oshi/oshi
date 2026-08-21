@@ -4,13 +4,16 @@
  */
 package oshi.hardware.platform.mac;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.platform.mac.SystemB;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.mac.IOReportClient;
 import oshi.hardware.common.platform.mac.IOKitProvider;
+import oshi.hardware.common.platform.mac.IOReportCpuSampler;
 import oshi.hardware.common.platform.mac.MacCentralProcessor;
 import oshi.hardware.common.platform.mac.SysctlProvider;
 import oshi.jna.ByRef.CloseableIntByReference;
@@ -52,6 +55,11 @@ final class MacCentralProcessorJNA extends MacCentralProcessor {
     @Override
     protected IOKitProvider ioKitProvider() {
         return IOKitProviderJNA.INSTANCE;
+    }
+
+    @Override
+    protected @Nullable IOReportCpuSampler createCpuFrequencySampler() {
+        return IOReportClient.createForCpu();
     }
 
     @Override
