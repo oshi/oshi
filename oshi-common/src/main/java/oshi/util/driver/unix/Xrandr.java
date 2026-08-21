@@ -25,7 +25,29 @@ public final class Xrandr {
 
     private static final String[] XRANDR_VERBOSE = { "xrandr", "--verbose" };
 
+    /**
+     * Property names an X server may publish the EDID under, each as it appears in {@code xrandr --verbose} output,
+     * including the trailing colon. {@code EDID} is the name in randrproto 1.3 and later; {@code RANDR_EDID} is the
+     * name it replaced; {@code EDID_DATA} is the driver-side atom X.Org Server used through 1.6.
+     */
+    private static final String[] EDID_PROPERTIES = { "EDID:", "RANDR_EDID:", "EDID_DATA:" };
+
     private Xrandr() {
+    }
+
+    /**
+     * Tests whether a property line names the EDID, under any of the property names an X server may use for it.
+     *
+     * @param trimmed a whitespace-trimmed line of {@code xrandr --verbose} output
+     * @return true if the line is the header of an EDID property block
+     */
+    private static boolean isEdidProperty(String trimmed) {
+        for (String property : EDID_PROPERTIES) {
+            if (property.equals(trimmed)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -102,7 +124,7 @@ public final class Xrandr {
             String trimmed = s.trim();
             if (trimmed.startsWith("CONNECTOR_ID:")) {
                 currentConnectorId = ParseUtil.parseLastInt(trimmed, -1);
-            } else if (trimmed.equals("EDID:")) {
+            } else if (isEdidProperty(trimmed)) {
                 sb = new StringBuilder();
             } else if (sb != null) {
                 sb.append(trimmed);

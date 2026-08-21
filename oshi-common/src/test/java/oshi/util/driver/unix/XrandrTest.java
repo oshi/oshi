@@ -223,6 +223,40 @@ class XrandrTest {
         assertThat(edids.get(0).length, is(128));
     }
 
+    // Fixture: xrandr --verbose output using a legacy EDID property name
+    private static List<String> createXrandrWithEdidProperty(String property) {
+        List<String> lines = new ArrayList<>(createXrandrWithEdid());
+        lines.set(2, "\t" + property);
+        return lines;
+    }
+
+    @Test
+    void testGetDisplayDataLegacyEdidDataProperty() {
+        // X.Org Server through 1.6 published the driver-side atom EDID_DATA
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("EDID_DATA:"));
+        assertThat(data.size(), is(1));
+        Pair<Integer, byte[]> pair = data.get("HDMI-1");
+        assertNotNull(pair);
+        assertThat(pair.getB().length, is(128));
+    }
+
+    @Test
+    void testGetDisplayDataLegacyRandrEdidProperty() {
+        // randrproto before 1.3 named the conventional property RANDR_EDID
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("RANDR_EDID:"));
+        assertThat(data.size(), is(1));
+        Pair<Integer, byte[]> pair = data.get("HDMI-1");
+        assertNotNull(pair);
+        assertThat(pair.getB().length, is(128));
+    }
+
+    @Test
+    void testGetDisplayDataIgnoresOtherEdidNamedProperties() {
+        // A property whose name merely contains EDID must not start an EDID block
+        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("EDID_HASH:"));
+        assertThat(data.isEmpty(), is(true));
+    }
+
     @Test
     void testFindOutputNameByConnectorId() {
         Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
