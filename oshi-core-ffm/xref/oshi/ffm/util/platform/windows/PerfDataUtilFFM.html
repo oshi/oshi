@@ -92,7 +92,7 @@
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>  
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> callInArenaOrDefault(arena -&gt; {
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>              MemorySegment queryPtr = arena.allocate(ADDRESS);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              checkSuccess(PdhOpenQuery(MemorySegment.NULL, 0L, queryPtr));
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>              <em class="jxr_comment">// Read once into an effectively-final local so the per-counter lambdas below can capture it.</em>
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>              MemorySegment query = queryPtr.get(ADDRESS, 0);
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>  
@@ -159,7 +159,7 @@
 <a class="jxr_linenumber" name="L151" href="#L151">151</a> 
 <a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> MemorySegment addEnglishCounter(Arena arena, MemorySegment query, String path) <strong class="jxr_keyword">throws</strong> Throwable {
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         MemorySegment counterPtr = arena.allocate(ADDRESS);
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         checkSuccess(PdhAddEnglishCounter(query, toWideString(arena, path), MemorySegment.NULL, counterPtr));
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         checkSuccess(PdhAddEnglishCounter(query, toWideString(arena, path), 0L, counterPtr));
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">return</strong> counterPtr.get(ADDRESS, 0);
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 
@@ -309,7 +309,7 @@
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> 
 <a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">return</strong> callInArenaOrDefault(arena -&gt; {
 <a class="jxr_linenumber" name="L303" href="#L303">303</a>             MemorySegment queryPtr = arena.allocate(ADDRESS);
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>             checkSuccess(PdhOpenQuery(MemorySegment.NULL, MemorySegment.NULL, queryPtr));
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>             checkSuccess(PdhOpenQuery(MemorySegment.NULL, 0L, queryPtr));
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>             MemorySegment query = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L306" href="#L306">306</a> 
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>             <strong class="jxr_keyword">try</strong> {

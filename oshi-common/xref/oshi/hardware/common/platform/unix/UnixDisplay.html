@@ -12,38 +12,127 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common.platform.unix;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Display;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractDisplay;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.unix.Xrandr;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Optional;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment"> * A Display</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractDisplay" href="../../../../../oshi/hardware/common/AbstractDisplay.html#AbstractDisplay">AbstractDisplay</a> {
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * Constructor for UnixDisplay.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     * @param edid a byte array representing a display EDID</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">public</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a>(byte[] edid) {
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <strong class="jxr_keyword">super</strong>(edid);
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * Gets Display Information</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @return An array of Display objects representing monitors, etc.</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Display&gt; getDisplays() {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">return</strong> Xrandr.getEdidArrays().stream().map(UnixDisplay::<strong class="jxr_keyword">new</strong>).collect(Collectors.toList());
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  }
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.Display;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractDisplay;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.driver.unix.Xrandr;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> * A Display</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractDisplay" href="../../../../../oshi/hardware/common/AbstractDisplay.html#AbstractDisplay">AbstractDisplay</a> {
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String devicePort;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> connectorId;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Supplier&lt;Map&lt;String, Pair&lt;Integer, byte[]&gt;&gt;&gt; xrandrData;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * Constructor for UnixDisplay.</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @param edid a byte array representing a display EDID</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">public</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a>(byte[] edid) {
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">this</strong>(edid, Constants.UNKNOWN, -1);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * Constructor for UnixDisplay with device port and DRM connector ID.</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * @param edid        a byte array representing a display EDID</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * @param devicePort  the DRM connector name (e.g. {@code HDMI-A-1})</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * @param connectorId the DRM connector ID ({@code -1} if not available)</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">public</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a>(byte[] edid, String devicePort, <strong class="jxr_keyword">int</strong> connectorId) {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">this</strong>(edid, devicePort, connectorId, memoize(Xrandr::getDisplayData));
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      }
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * Constructor for UnixDisplay sharing xrandr data with the rest of its batch.</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param edid        a byte array representing a display EDID</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @param devicePort  the DRM connector name (e.g. {@code HDMI-A-1})</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @param connectorId the DRM connector ID ({@code -1} if not available)</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @param xrandrData  the display's source of xrandr data, expected to be memoized or already realized</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a>(byte[] edid, String devicePort, <strong class="jxr_keyword">int</strong> connectorId,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              Supplier&lt;Map&lt;String, Pair&lt;Integer, byte[]&gt;&gt;&gt; xrandrData) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">super</strong>(edid);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.devicePort = devicePort;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.connectorId = connectorId;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.xrandrData = xrandrData;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      @Override
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">public</strong> String getDevicePort() {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.devicePort;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      @Override
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">public</strong> Optional&lt;String&gt; getOutputName() {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">return</strong> Xrandr.findOutputName(<strong class="jxr_keyword">this</strong>.xrandrData.get(), <strong class="jxr_keyword">this</strong>.connectorId, <strong class="jxr_keyword">this</strong>.getDisplayInfo().getEdid());
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * Gets Display Information from xrandr. Used as a fallback when DRM sysfs is not available.</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * @return An array of Display objects representing monitors, etc.</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Display&gt; getDisplays() {
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          Map&lt;String, Pair&lt;Integer, byte[]&gt;&gt; data = Xrandr.getDisplayData();
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          List&lt;Display&gt; displays = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(data.size());
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          <em class="jxr_comment">// The data is already in hand, so these displays need no further xrandr query</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          Supplier&lt;Map&lt;String, Pair&lt;Integer, byte[]&gt;&gt;&gt; sharedData = () -&gt; data;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">for</strong> (Map.Entry&lt;String, Pair&lt;Integer, byte[]&gt;&gt; entry : data.entrySet()) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              displays.add(<strong class="jxr_keyword">new</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a>(entry.getValue().getB(), entry.getKey(), entry.getValue().getA(), sharedData));
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">return</strong> displays;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * Gets Display objects from DRM sysfs data, sharing one {@code xrandr --verbose} invocation among them rather than</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * running it once per display per call.</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * @param drmData a list of {@link Triplet} of DRM connector name, DRM connector ID, and EDID byte array, as read</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     *                from DRM sysfs</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * @return An array of Display objects representing monitors, etc.</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;Display&gt; getDisplays(List&lt;Triplet&lt;String, Integer, byte[]&gt;&gt; drmData) {
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> getDisplays(drmData, Xrandr::getDisplayData);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     * Builds a batch of displays sharing one query for the xrandr data behind {@link #getOutputName()}.</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     * The query is memoized indefinitely, because a {@link Display} is an immutable snapshot: the output name matching</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * its connector cannot change over the object's lifetime. The hardware abstraction layer re-queries displays on its</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     * own schedule, building a new batch with a new supplier, so a topology change is picked up there.</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * @param drmData     the DRM sysfs data to build displays from</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * @param xrandrQuery the query for xrandr display data, run at most once for the whole batch</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     * @return An array of Display objects representing monitors, etc.</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">static</strong> List&lt;Display&gt; getDisplays(List&lt;Triplet&lt;String, Integer, byte[]&gt;&gt; drmData,
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             Supplier&lt;Map&lt;String, Pair&lt;Integer, byte[]&gt;&gt;&gt; xrandrQuery) {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         List&lt;Display&gt; displays = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(drmData.size());
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Supplier&lt;Map&lt;String, Pair&lt;Integer, byte[]&gt;&gt;&gt; sharedData = memoize(xrandrQuery);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">for</strong> (Triplet&lt;String, Integer, byte[]&gt; drm : drmData) {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>             displays.add(<strong class="jxr_keyword">new</strong> <a name="UnixDisplay" href="../../../../../oshi/hardware/common/platform/unix/UnixDisplay.html#UnixDisplay">UnixDisplay</a>(drm.getC(), drm.getA(), drm.getB(), sharedData));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         <strong class="jxr_keyword">return</strong> displays;
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -255,13 +255,14 @@
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>     <strong class="jxr_keyword">void</strong> networkParams() {
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>         NetworkParams jna = jnaOs.getNetworkParams();
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>         NetworkParams nf = nfOs.getNetworkParams();
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <em class="jxr_comment">// NF uses Java InetAddress (short hostname); JNA uses native gethostname (may return FQDN)</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         assertThat(jna.getHostName()).startsWith(nf.getHostName());
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         assertThat(nf.getDnsServers()).isEqualTo(jna.getDnsServers());
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>         assertThat(nf.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertThat(nf.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     }
-<a class="jxr_linenumber" name="L256" href="#L256">256</a> }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         <em class="jxr_comment">// Both backends inherit the procfs host name read from LinuxNetworkParams, so they agree exactly, FQDN and</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <em class="jxr_comment">// all; this guards against either one re-introducing an override that diverges</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         assertThat(nf.getHostName()).isEqualTo(jna.getHostName());
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         assertThat(nf.getDnsServers()).isEqualTo(jna.getDnsServers());
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertThat(nf.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         assertThat(nf.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>     }
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

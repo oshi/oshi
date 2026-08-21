@@ -165,22 +165,26 @@
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         MemorySegment vtable = obj.get(ADDRESS, 0).reinterpret(8 * 32L, arena, <strong class="jxr_keyword">null</strong>);
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         MemorySegment fn = vtable.get(ADDRESS, 2 * ADDRESS.byteSize());
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         MethodHandle mh = Linker.nativeLinker().downcallHandle(fn, FunctionDescriptor.of(JAVA_INT, ADDRESS));
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         mh.invokeExact(obj);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>     }
-<a class="jxr_linenumber" name="L162" href="#L162">162</a> 
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readDescriptionWchars(MemorySegment desc) {
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <em class="jxr_comment">// Description is WCHAR[128] at offset 0</em>
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">int</strong> len = 0;
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         <strong class="jxr_keyword">while</strong> (len &lt; 128 &amp;&amp; desc.get(JAVA_CHAR, len * 2L) != 0) {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             len++;
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">char</strong>[] chars = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[len];
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; len; i++) {
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>             chars[i] = desc.get(JAVA_CHAR, i * 2L);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <em class="jxr_comment">// Release returns the remaining reference count, which is only of interest to the log. Cast it: invokeExact()</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <em class="jxr_comment">// in an expression statement infers a void return type, and this handle then throws WrongMethodTypeException</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// -- from a finally block, which would abandon the whole enumeration.</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         <strong class="jxr_keyword">int</strong> refCount = (<strong class="jxr_keyword">int</strong>) mh.invokeExact(obj);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         LOG.trace(<span class="jxr_string">"Released COM object, {} reference(s) remaining"</span>, refCount);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> 
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readDescriptionWchars(MemorySegment desc) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <em class="jxr_comment">// Description is WCHAR[128] at offset 0</em>
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">int</strong> len = 0;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">while</strong> (len &lt; 128 &amp;&amp; desc.get(JAVA_CHAR, len * 2L) != 0) {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             len++;
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(chars);
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> }
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">char</strong>[] chars = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">char</strong>[len];
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; len; i++) {
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             chars[i] = desc.get(JAVA_CHAR, i * 2L);
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         }
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(chars);
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>     }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

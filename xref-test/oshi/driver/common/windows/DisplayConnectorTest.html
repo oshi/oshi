@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>DisplayConnectorTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../testapidocs/oshi/driver/common/windows/DisplayConnectorTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.common.windows;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">class</strong> <a name="DisplayConnectorTest" href="../../../../oshi/driver/common/windows/DisplayConnectorTest.html#DisplayConnectorTest">DisplayConnectorTest</a> {
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      @Test
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <strong class="jxr_keyword">void</strong> testConnectorNameSingleConnectorHasNoIndex() {
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>          <em class="jxr_comment">// connectorInstance 0 means the adapter has a single connector of that type</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          assertThat(DisplayConnector.connectorName(5, 0), is(<span class="jxr_string">"HDMI"</span>));
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>          assertThat(DisplayConnector.connectorName(10, 0), is(<span class="jxr_string">"DisplayPort"</span>));
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          assertThat(DisplayConnector.connectorName(11, 0), is(<span class="jxr_string">"eDP"</span>));
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>          assertThat(DisplayConnector.connectorName(0x80000000, 0), is(<span class="jxr_string">"Internal"</span>));
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      }
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      @Test
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">void</strong> testConnectorNameMultipleConnectorsAppendInstance() {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(DisplayConnector.connectorName(5, 1), is(<span class="jxr_string">"HDMI-1"</span>));
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          assertThat(DisplayConnector.connectorName(10, 2), is(<span class="jxr_string">"DisplayPort-2"</span>));
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      }
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      @Test
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">void</strong> testConnectorNameKnownTechnologies() {
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThat(DisplayConnector.connectorName(0, 0), is(<span class="jxr_string">"VGA"</span>));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          assertThat(DisplayConnector.connectorName(4, 0), is(<span class="jxr_string">"DVI"</span>));
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(DisplayConnector.connectorName(6, 0), is(<span class="jxr_string">"LVDS"</span>));
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      }
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      @Test
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">void</strong> testConnectorNameUnknownTechnology() {
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertThat(DisplayConnector.connectorName(-1, 0), is(<span class="jxr_string">"Other"</span>));
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          assertThat(DisplayConnector.connectorName(999, 0), is(<span class="jxr_string">"Other"</span>));
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Test
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">void</strong> testNormalizePathLowerCases() {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(DisplayConnector.normalizePath(<span class="jxr_string">"&#92;&#92;&#92;&#92;?&#92;&#92;DISPLAY#DELA1CD#5&amp;2a1c8d3&amp;0&amp;UID4353#{E6F07B5F}"</span>),
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  is(<span class="jxr_string">"&#92;&#92;&#92;&#92;?&#92;&#92;display#dela1cd#5&amp;2a1c8d3&amp;0&amp;uid4353#{e6f07b5f}"</span>));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testNormalizePathBlankIsUnknown() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(DisplayConnector.normalizePath(<span class="jxr_string">""</span>), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

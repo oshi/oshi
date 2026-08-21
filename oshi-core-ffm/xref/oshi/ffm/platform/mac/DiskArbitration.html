@@ -97,8 +97,8 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>              <strong class="jxr_keyword">return</strong> getOrDefault(() -&gt; {
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  MemorySegment allocSeg = allocator != <strong class="jxr_keyword">null</strong> ? allocator.segment() : MemorySegment.NULL;
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  MemorySegment sessionSeg = session != <strong class="jxr_keyword">null</strong> ? session.segment() : MemorySegment.NULL;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  MemorySegment mediaSeg = media != <strong class="jxr_keyword">null</strong> ? media.segment() : MemorySegment.NULL;
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaSeg);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <strong class="jxr_keyword">int</strong> mediaHandle = media != <strong class="jxr_keyword">null</strong> ? media.handle() : 0;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  MemorySegment diskSeg = DADiskCreateFromIOMedia(allocSeg, sessionSeg, mediaHandle);
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> DADiskRef(diskSeg);
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>              }, <strong class="jxr_keyword">new</strong> DADiskRef(MemorySegment.NULL));
 <a class="jxr_linenumber" name="L96" href="#L96">96</a>          }

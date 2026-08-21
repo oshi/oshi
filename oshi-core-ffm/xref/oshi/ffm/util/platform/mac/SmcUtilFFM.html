@@ -169,7 +169,7 @@
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>             <strong class="jxr_keyword">return</strong> callInArenaIntOrDefault(arena -&gt; {
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>                 MemorySegment connPtr = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>                 <strong class="jxr_keyword">int</strong> task = mach_task_self();
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 <strong class="jxr_keyword">int</strong> result = IOServiceOpen(smcService.segment(), task, 0, connPtr);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 <strong class="jxr_keyword">int</strong> result = IOServiceOpen(smcService.handle(), task, 0, connPtr);
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>                 <strong class="jxr_keyword">if</strong> (result == 0) {
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>                     <strong class="jxr_keyword">int</strong> conn = connPtr.get(JAVA_INT, 0);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>                     <strong class="jxr_keyword">if</strong> (conn == 0) {

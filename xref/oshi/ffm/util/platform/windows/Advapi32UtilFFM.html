@@ -208,7 +208,7 @@
 <a class="jxr_linenumber" name="L200" href="#L200">200</a>             MemorySegment lpcbData = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>             lpcbData.set(JAVA_INT, 0, Integer.BYTES);
 <a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, pData, lpcbData);
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>             <strong class="jxr_keyword">return</strong> pData.get(JAVA_INT, 0);
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>         }
@@ -229,7 +229,7 @@
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>             MemorySegment lpcbData = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L222" href="#L222">222</a>             lpcbData.set(JAVA_INT, 0, Long.BYTES);
 <a class="jxr_linenumber" name="L223" href="#L223">223</a> 
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, pData, lpcbData);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, pData, lpcbData);
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
 <a class="jxr_linenumber" name="L226" href="#L226">226</a>             <strong class="jxr_keyword">return</strong> pData.get(JAVA_LONG, 0);
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>         }
@@ -251,7 +251,7 @@
 <a class="jxr_linenumber" name="L243" href="#L243">243</a>             MemorySegment lpcbData = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L244" href="#L244">244</a>             lpcbData.set(JAVA_INT, 0, size);
 <a class="jxr_linenumber" name="L245" href="#L245">245</a> 
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, data, lpcbData);
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">return</strong> data.asSlice(0, lpcbData.get(JAVA_INT, 0)).toArray(JAVA_BYTE);
 <a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
@@ -273,7 +273,7 @@
 <a class="jxr_linenumber" name="L265" href="#L265">265</a>             MemorySegment lpcbData = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>             lpcbData.set(JAVA_INT, 0, size);
 <a class="jxr_linenumber" name="L267" href="#L267">267</a> 
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, data, lpcbData);
 <a class="jxr_linenumber" name="L269" href="#L269">269</a>             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>             <strong class="jxr_keyword">return</strong> readWideString(data);
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>         }
@@ -293,7 +293,7 @@
 <a class="jxr_linenumber" name="L285" href="#L285">285</a>             MemorySegment lpType = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L286" href="#L286">286</a>             MemorySegment lpcbData = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L287" href="#L287">287</a> 
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">int</strong> rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, MemorySegment.NULL, lpcbData);
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>             checkSuccess(rc, ERROR_INSUFFICIENT_BUFFER);
 <a class="jxr_linenumber" name="L290" href="#L290">290</a> 
 <a class="jxr_linenumber" name="L291" href="#L291">291</a>             <strong class="jxr_keyword">int</strong> type = lpType.get(JAVA_INT, 0);
@@ -358,7 +358,7 @@
 <a class="jxr_linenumber" name="L350" href="#L350">350</a>             MemorySegment hKey = phkResult.get(ADDRESS, 0);
 <a class="jxr_linenumber" name="L351" href="#L351">351</a>             <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L352" href="#L352">352</a>                 MemorySegment lpType = arena.allocate(JAVA_INT);
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL,
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, MemorySegment.NULL,
 <a class="jxr_linenumber" name="L354" href="#L354">354</a>                         arena.allocate(JAVA_INT));
 <a class="jxr_linenumber" name="L355" href="#L355">355</a>                 <strong class="jxr_keyword">return</strong> rc == ERROR_SUCCESS || rc == ERROR_MORE_DATA || rc == ERROR_INSUFFICIENT_BUFFER;
 <a class="jxr_linenumber" name="L356" href="#L356">356</a>             } <strong class="jxr_keyword">finally</strong> {
@@ -390,7 +390,7 @@
 <a class="jxr_linenumber" name="L382" href="#L382">382</a>                 MemorySegment lpType = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L383" href="#L383">383</a>                 MemorySegment lpcbData = arena.allocate(JAVA_INT);
 <a class="jxr_linenumber" name="L384" href="#L384">384</a> 
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, MemorySegment.NULL, lpcbData);
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>                 rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, MemorySegment.NULL, lpcbData);
 <a class="jxr_linenumber" name="L386" href="#L386">386</a>                 <strong class="jxr_keyword">if</strong> (rc != ERROR_SUCCESS &amp;&amp; rc != ERROR_INSUFFICIENT_BUFFER &amp;&amp; rc != ERROR_MORE_DATA) {
 <a class="jxr_linenumber" name="L387" href="#L387">387</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> <a name="Win32Exception" href="../../../../../oshi/ffm/platform/windows/Win32Exception.html#Win32Exception">Win32Exception</a>(rc);
 <a class="jxr_linenumber" name="L388" href="#L388">388</a>                 }
@@ -408,7 +408,7 @@
 <a class="jxr_linenumber" name="L400" href="#L400">400</a>                     data.fill((byte) 0);
 <a class="jxr_linenumber" name="L401" href="#L401">401</a>                     lpcbData.set(JAVA_INT, 0, size + 4);
 <a class="jxr_linenumber" name="L402" href="#L402">402</a> 
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>                     rc = RegQueryValueEx(hKey, toWideString(arena, valueName), 0, lpType, data, lpcbData);
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                     rc = RegQueryValueEx(hKey, toWideString(arena, valueName), lpType, data, lpcbData);
 <a class="jxr_linenumber" name="L404" href="#L404">404</a>                     <strong class="jxr_keyword">if</strong> (rc == ERROR_MORE_DATA || rc == ERROR_INSUFFICIENT_BUFFER) {
 <a class="jxr_linenumber" name="L405" href="#L405">405</a>                         size = lpcbData.get(JAVA_INT, 0);
 <a class="jxr_linenumber" name="L406" href="#L406">406</a>                         <strong class="jxr_keyword">continue</strong>;

@@ -76,7 +76,21 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(display.getDisplayInfo().isEdidSynthetic(), is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(display.getDisplayInfo().getModel(), is(<span class="jxr_string">"Thunderbolt"</span>));
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      @Test
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">void</strong> testDefaultDevicePortIsUnknown() {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          AbstractDisplay display = <strong class="jxr_keyword">new</strong> AbstractDisplay(<strong class="jxr_keyword">new</strong> byte[128]) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          };
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertThat(display.getDevicePort(), is(<span class="jxr_string">"unknown"</span>));
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      @Test
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">void</strong> testDefaultOutputNameIsEmpty() {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          AbstractDisplay display = <strong class="jxr_keyword">new</strong> AbstractDisplay(<strong class="jxr_keyword">new</strong> byte[128]) {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          };
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(display.getOutputName().isPresent(), is(false));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

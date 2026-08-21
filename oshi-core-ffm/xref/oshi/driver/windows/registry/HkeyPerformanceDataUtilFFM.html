@@ -150,7 +150,7 @@
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>             lpcbData.set(JAVA_INT, 0, maxPerfBufferSize);
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>             MemorySegment pPerfData = arena.allocate(maxPerfBufferSize);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">int</strong> ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName, 0,
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             <strong class="jxr_keyword">int</strong> ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName,
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>                     MemorySegment.NULL, pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>             <strong class="jxr_keyword">if</strong> (ret != ERROR_SUCCESS &amp;&amp; ret != ERROR_MORE_DATA) {
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>                 LOG.error(<span class="jxr_string">"Error reading performance data from registry for {}."</span>, objectName);
@@ -161,7 +161,7 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>                 maxPerfBufferSize += 8192;
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>                 lpcbData.set(JAVA_INT, 0, maxPerfBufferSize);
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>                 pPerfData = arena.allocate(maxPerfBufferSize);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName, 0,
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>                 ret = RegQueryValueEx(MemorySegment.ofAddress(WinRegFFM.HKEY_PERFORMANCE_DATA), lpValueName,
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>                         MemorySegment.NULL, pPerfData, lpcbData);
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>             }
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>             <strong class="jxr_keyword">if</strong> (ret != ERROR_SUCCESS) {

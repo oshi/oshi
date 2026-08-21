@@ -623,13 +623,16 @@
 <a class="jxr_linenumber" name="L615" href="#L615">615</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">int</strong>) ERRNO_HANDLE.get(callState, 0);
 <a class="jxr_linenumber" name="L616" href="#L616">616</a>     }
 <a class="jxr_linenumber" name="L617" href="#L617">617</a> 
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> logThrowable(Logger logger, <a name="LogLevel" href="../../oshi/util/LogLevel.html#LogLevel">LogLevel</a> level, String message, Throwable t,
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>             @Nullable Object... args) {
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>         Objects.requireNonNull(logger, <span class="jxr_string">"logger"</span>);
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>         Objects.requireNonNull(level, <span class="jxr_string">"level"</span>);
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>         ExceptionUtil.logAtLevel(logger, level, message, t, args);
-<a class="jxr_linenumber" name="L623" href="#L623">623</a>     }
-<a class="jxr_linenumber" name="L624" href="#L624">624</a> }
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>     <em class="jxr_comment">// logCaught rather than logAtLevel: every caller of this is a catch block around a native call, so a</em>
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>     <em class="jxr_comment">// WrongMethodTypeException here is a binding defect. It is logged at ERROR and rethrown instead of becoming the</em>
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>     <em class="jxr_comment">// wrapper's default value -- see ExceptionUtil.logCaught.</em>
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> logThrowable(Logger logger, <a name="LogLevel" href="../../oshi/util/LogLevel.html#LogLevel">LogLevel</a> level, String message, Throwable t,
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>             @Nullable Object... args) {
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>         Objects.requireNonNull(logger, <span class="jxr_string">"logger"</span>);
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>         Objects.requireNonNull(level, <span class="jxr_string">"level"</span>);
+<a class="jxr_linenumber" name="L625" href="#L625">625</a>         ExceptionUtil.logCaught(logger, level, message, t, args);
+<a class="jxr_linenumber" name="L626" href="#L626">626</a>     }
+<a class="jxr_linenumber" name="L627" href="#L627">627</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
