@@ -28,11 +28,13 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
 import oshi.annotation.concurrent.Immutable;
+import oshi.driver.common.mac.MacDisplayPort;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
 import oshi.hardware.common.AbstractDisplay;
 import oshi.jna.platform.mac.CoreGraphicsExt;
 import oshi.jna.platform.mac.ObjCRuntime;
+import oshi.util.Constants;
 import oshi.util.EdidUtil;
 import oshi.util.ExceptionUtil;
 import oshi.util.platform.mac.CFUtil;
@@ -50,13 +52,26 @@ final class MacDisplayJNA extends AbstractDisplay {
     /** kCFNumberSInt64Type, as the CFIndex expected by CFNumberGetValue. */
     private static final CFIndex K_CF_NUMBER_SINT64 = new CFIndex(4);
 
+    private final String devicePort;
+
     /**
      * Constructor for MacDisplayJNA from a real EDID byte array.
      *
      * @param edid a byte array representing a display EDID
      */
     MacDisplayJNA(byte[] edid) {
+        this(edid, Constants.UNKNOWN);
+    }
+
+    /**
+     * Constructor for MacDisplayJNA from a real EDID byte array with a device port.
+     *
+     * @param edid       a byte array representing a display EDID
+     * @param devicePort the device port this display is attached to
+     */
+    MacDisplayJNA(byte[] edid, String devicePort) {
         super(edid);
+        this.devicePort = devicePort;
         LOG.debug("Initialized MacDisplayJNA");
     }
 
@@ -65,10 +80,17 @@ final class MacDisplayJNA extends AbstractDisplay {
      * which has no EDID EPROM.
      *
      * @param displayInfo the synthesized display info
+     * @param devicePort  the device port this display is attached to
      */
-    MacDisplayJNA(DisplayInfo displayInfo) {
+    MacDisplayJNA(DisplayInfo displayInfo, String devicePort) {
         super(displayInfo);
+        this.devicePort = devicePort;
         LOG.debug("Initialized MacDisplayJNA (synthetic)");
+    }
+
+    @Override
+    public String getDevicePort() {
+        return this.devicePort;
     }
 
     /**
@@ -78,10 +100,11 @@ final class MacDisplayJNA extends AbstractDisplay {
      */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon).
-        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService"));
-        // Apple Silicon external monitors: same stripped EDID as Intel path, just different service.
-        displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null));
+        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available.
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null));
+        // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
+        displays.addAll(
+                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription"));
         // Apple Silicon built-in panel: no real EDID exposed, synthesize from DisplayAttributes.
         displays.addAll(getAppleSiliconBuiltInDisplay());
         return displays;
@@ -93,10 +116,12 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param serviceName    The IOKit service name to search for
      * @param edidKeyName    The key name for the EDID property
      * @param childEntryName The name of the child entry to search in, or null to search directly in the service
+     * @param portKeyName    The key name for the port property (e.g. {@code TransportDescription}), or null if the
+     *                       service does not expose one
      * @return List of Display objects found using this service
      */
     private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
-            @Nullable String childEntryName) {
+            @Nullable String childEntryName, @Nullable String portKeyName) {
         List<Display> displays = new ArrayList<>();
 
         IOIterator serviceIterator = IOKitUtil.getMatchingServices(serviceName);
@@ -118,7 +143,10 @@ final class MacDisplayJNA extends AbstractDisplay {
                                 int length = edid.getLength();
                                 Pointer p = edid.getBytePtr();
                                 if (length > 0) {
-                                    displays.add(new MacDisplayJNA(p.getByteArray(0, length)));
+                                    String devicePort = portKeyName == null ? Constants.UNKNOWN
+                                            : MacDisplayPort.fromTransportDescription(
+                                                    propertySource.getStringProperty(portKeyName));
+                                    displays.add(new MacDisplayJNA(p.getByteArray(0, length), devicePort));
                                 }
                             } finally {
                                 edid.release();
@@ -204,10 +232,12 @@ final class MacDisplayJNA extends AbstractDisplay {
         if (attrsRaw == null) {
             return;
         }
+        // The device tree name (e.g. "disp0,t6030") gives both the port and the fallback model name.
+        String devicePort = MacDisplayPort.fromDeviceTreeName(fb.getStringProperty("IONameMatched"));
         try {
-            DisplayInfo info = synthesize(fb, new CFDictionaryRef(attrsRaw.getPointer()));
+            DisplayInfo info = synthesize(fb, new CFDictionaryRef(attrsRaw.getPointer()), devicePort);
             if (info != null) {
-                displays.add(new MacDisplayJNA(info));
+                displays.add(new MacDisplayJNA(info, devicePort));
             }
         } finally {
             attrsRaw.release();
@@ -216,7 +246,7 @@ final class MacDisplayJNA extends AbstractDisplay {
 
     // Maps an Apple Silicon DisplayAttributes dictionary onto a synthetic DisplayInfo via EdidUtil, enriched with
     // native resolution and device name from the framebuffer node and CoreGraphics.
-    private static @Nullable DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs) {
+    private static @Nullable DisplayInfo synthesize(IORegistryEntry fb, CFDictionaryRef attrs, String devicePort) {
         CFDictionaryRef product = CFUtil.getDictionary(attrs, "ProductAttributes");
         if (product == null) {
             return null;
@@ -229,14 +259,8 @@ final class MacDisplayJNA extends AbstractDisplay {
         // Native pixel resolution from the framebuffer node.
         Long displayWidth = fb.getLongProperty("DisplayWidth");
         Long displayHeight = fb.getLongProperty("DisplayHeight");
-        // Device tree name for fallback model name.
-        String fallbackName = null;
-        String ioNameMatched = fb.getStringProperty("IONameMatched");
-        if (ioNameMatched != null) {
-            String shortName = ioNameMatched.contains(",") ? ioNameMatched.substring(0, ioNameMatched.indexOf(','))
-                    : ioNameMatched;
-            fallbackName = shortName + " (Built-in Display)";
-        }
+        // Device tree name (the port) doubles as the fallback model name.
+        String fallbackName = Constants.UNKNOWN.equals(devicePort) ? null : devicePort + " (Built-in Display)";
         // CoreGraphics properties: model number, serial number, physical size, and localized name.
         Integer cgModel = null;
         Integer cgSerial = null;
