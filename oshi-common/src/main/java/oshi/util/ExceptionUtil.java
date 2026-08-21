@@ -47,12 +47,13 @@ public final class ExceptionUtil {
      * Logs a caught throwable at the caller's level and returns, or logs a {@link WrongMethodTypeException} at
      * {@code ERROR} and rethrows it.
      * <p>
-     * {@code invokeExact} is signature-polymorphic: its return type comes from the call site, so a mismatch with the
-     * handle's descriptor throws {@link WrongMethodTypeException} rather than failing to compile. That is never
-     * recoverable and never data-dependent — it fails on the first call and on every call after it, on every machine.
-     * Yet it arrives here as just another {@link Throwable}, and returning the default value for it has hidden the bug
-     * three times: issues #3301 and #3422, and a Windows connector lookup that reported the sentinel for every display
-     * until a cross-implementation test happened to compare the two backends' values.
+     * {@code invokeExact} is signature-polymorphic: the call site states the signature, so a mismatch with the handle's
+     * descriptor throws {@link WrongMethodTypeException} rather than failing to compile. One exception covers the whole
+     * signature — return type, parameter types, boxing and arity alike — and its message prints both sides, so it is
+     * rethrown unaltered. That is never recoverable and never data-dependent: it fails on the first call and on every
+     * call after it, on every machine. Yet it arrives here as just another {@link Throwable}, and returning the default
+     * value for it has hidden the bug three times: issues #3301 and #3422, and a Windows connector lookup that reported
+     * the sentinel for every display until a cross-implementation test happened to compare the two backends' values.
      * <p>
      * A default value is the right answer to "this machine cannot answer" and the wrong answer to "this binding is
      * wrong", which is why the two are separated here. Rethrowing surfaces the defect at the offending call site, in
