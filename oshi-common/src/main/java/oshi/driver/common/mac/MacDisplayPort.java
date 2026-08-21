@@ -8,7 +8,7 @@ import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.Constants;
-import oshi.util.Util;
+import oshi.util.ParseUtil;
 
 /**
  * Derives a display's device port from the IOKit strings the macOS display twins already read, so both the JNA and FFM
@@ -44,10 +44,11 @@ public final class MacDisplayPort {
     }
 
     private static String beforeDelimiter(@Nullable String value, char delimiter) {
-        if (value == null || Util.isBlank(value)) {
+        if (value == null) {
             return Constants.UNKNOWN;
         }
         int idx = value.indexOf(delimiter);
-        return idx < 0 ? value : value.substring(0, idx);
+        // Normalizes both an empty input and a value that leads with the delimiter to the sentinel.
+        return ParseUtil.getStringValueOrUnknown(idx < 0 ? value : value.substring(0, idx));
     }
 }

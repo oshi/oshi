@@ -52,6 +52,9 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     private static final int DETAIL_CBSIZE = Native.POINTER_SIZE == 8 ? 8 : 6;
     private static final int DETAIL_PATH_OFFSET = 4;
 
+    // Attempts allowed for the QueryDisplayConfig size-then-query pair, in case the topology changes between them.
+    private static final int QDC_ATTEMPTS = 3;
+
     private final String devicePort;
 
     /**
@@ -163,10 +166,24 @@ final class WindowsDisplayJNA extends AbstractDisplay {
         return null;
     }
 
-    // Builds a map from normalized monitor device interface path to connector name, from the CCD active paths.
+    // Builds a map from normalized monitor device interface path to connector name, from the CCD active paths. A
+    // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
+    // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
     private static Map<String, String> queryConnectorPorts() {
-        Map<String, String> map = new HashMap<>();
         User32Ext u32 = User32Ext.INSTANCE;
+        for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
+            Map<String, String> map = queryConnectorPortsOnce(u32);
+            if (map != null) {
+                return map;
+            }
+        }
+        LOG.debug("Display configuration kept changing; unable to map connectors.");
+        return new HashMap<>();
+    }
+
+    // Returns null if the buffers were too small and the caller should re-size and retry.
+    private static @Nullable Map<String, String> queryConnectorPortsOnce(User32Ext u32) {
+        Map<String, String> map = new HashMap<>();
         try (CloseableIntByReference numPaths = new CloseableIntByReference();
                 CloseableIntByReference numModes = new CloseableIntByReference()) {
             if (u32.GetDisplayConfigBufferSizes(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths,
@@ -182,8 +199,12 @@ final class WindowsDisplayJNA extends AbstractDisplay {
                     Memory modes = new Memory(Math.max(1L, (long) modeCount * DisplayConnector.MODE_INFO_SIZE))) {
                 paths.clear();
                 modes.clear();
-                if (u32.QueryDisplayConfig(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths, paths, numModes, modes,
-                        null) != WinError.ERROR_SUCCESS) {
+                int rc = u32.QueryDisplayConfig(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths, paths, numModes,
+                        modes, null);
+                if (rc == WinError.ERROR_INSUFFICIENT_BUFFER) {
+                    return null;
+                }
+                if (rc != WinError.ERROR_SUCCESS) {
                     return map;
                 }
                 int actualPaths = numPaths.getValue();

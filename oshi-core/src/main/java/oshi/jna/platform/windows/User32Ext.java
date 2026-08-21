@@ -9,11 +9,13 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.win32.StdCallLibrary;
 
+import oshi.driver.common.windows.DisplayConnector;
+
 /**
  * Binding to the {@code user32.dll} Connecting and Configuring Displays (CCD) functions, which are not mapped by JNA's
  * platform {@code User32}. These functions have no {@code A}/{@code W} variants, so the library is loaded without a
  * name-mangling function mapper. Buffers are passed as raw pointers and their fields read by offset (see
- * {@link oshi.driver.common.windows.DisplayConnector}), rather than mapping the {@code DISPLAYCONFIG_*} structs.
+ * {@link DisplayConnector}), rather than mapping the {@code DISPLAYCONFIG_*} structs.
  * <p>
  * This class should be considered non-API as it may be removed if/when its code is incorporated into the JNA project.
  */

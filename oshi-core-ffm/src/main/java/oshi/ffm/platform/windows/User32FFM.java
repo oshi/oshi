@@ -15,10 +15,12 @@ import java.lang.invoke.MethodHandle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.driver.common.windows.DisplayConnector;
+
 /**
  * Binding to the {@code user32.dll} Connecting and Configuring Displays (CCD) functions. Buffers are passed as raw
- * segments and their fields read by offset (see {@link oshi.driver.common.windows.DisplayConnector}), rather than
- * mapping the {@code DISPLAYCONFIG_*} structs.
+ * segments and their fields read by offset (see {@link DisplayConnector}), rather than mapping the
+ * {@code DISPLAYCONFIG_*} structs.
  */
 public final class User32FFM extends WindowsForeignFunctions {
 

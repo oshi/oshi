@@ -49,6 +49,10 @@ final class WindowsDisplayFFM extends AbstractDisplay {
     private static final int KEY_QUERY_VALUE = 0x0001;
     private static final int ERROR_MORE_DATA = 234;
     private static final int ERROR_SUCCESS = 0;
+    private static final int ERROR_INSUFFICIENT_BUFFER = 122;
+
+    // Attempts allowed for the QueryDisplayConfig size-then-query pair, in case the topology changes between them.
+    private static final int QDC_ATTEMPTS = 3;
 
     private final String devicePort;
 
@@ -67,6 +71,12 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         return this.devicePort;
     }
 
+    /**
+     * Gets Display Information
+     *
+     * @return An array of Display objects representing monitors, etc. Displays whose connector Windows cannot resolve
+     *         report {@link Constants#UNKNOWN} as their device port.
+     */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
         try (Arena arena = Arena.ofConfined()) {
@@ -156,8 +166,22 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         return portByPath.getOrDefault(DisplayConnector.normalizePath(path.get()), Constants.UNKNOWN);
     }
 
-    // Builds a map from normalized monitor device interface path to connector name, from the CCD active paths.
+    // Builds a map from normalized monitor device interface path to connector name, from the CCD active paths. A
+    // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
+    // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
     private static Map<String, String> queryConnectorPorts(Arena arena) {
+        for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
+            Map<String, String> map = queryConnectorPortsOnce(arena);
+            if (map != null) {
+                return map;
+            }
+        }
+        LOG.debug("Display configuration kept changing; unable to map connectors.");
+        return new HashMap<>();
+    }
+
+    // Returns null if the buffers were too small and the caller should re-size and retry.
+    private static @Nullable Map<String, String> queryConnectorPortsOnce(Arena arena) {
         Map<String, String> map = new HashMap<>();
         MemorySegment numPaths = arena.allocate(JAVA_INT);
         MemorySegment numModes = arena.allocate(JAVA_INT);
@@ -172,8 +196,12 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         }
         MemorySegment paths = arena.allocate((long) pathCount * DisplayConnector.PATH_INFO_SIZE);
         MemorySegment modes = arena.allocate(Math.max(1L, (long) modeCount * DisplayConnector.MODE_INFO_SIZE));
-        if (User32FFM.QueryDisplayConfig(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths, paths, numModes, modes,
-                MemorySegment.NULL) != ERROR_SUCCESS) {
+        int rc = User32FFM.QueryDisplayConfig(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths, paths, numModes, modes,
+                MemorySegment.NULL);
+        if (rc == ERROR_INSUFFICIENT_BUFFER) {
+            return null;
+        }
+        if (rc != ERROR_SUCCESS) {
             return map;
         }
         int actualPaths = numPaths.get(JAVA_INT, 0);

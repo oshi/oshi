@@ -31,6 +31,11 @@ class MacDisplayPortTest {
     }
 
     @Test
+    void testFromTransportDescriptionLeadingDelimiter() {
+        assertThat(MacDisplayPort.fromTransportDescription("/DisplayPort"), is(Constants.UNKNOWN));
+    }
+
+    @Test
     void testFromDeviceTreeName() {
         assertThat(MacDisplayPort.fromDeviceTreeName("disp0,t6030"), is("disp0"));
         assertThat(MacDisplayPort.fromDeviceTreeName("dispext1,t6030"), is("dispext1"));
@@ -45,5 +50,10 @@ class MacDisplayPortTest {
     void testFromDeviceTreeNameNullOrBlank() {
         assertThat(MacDisplayPort.fromDeviceTreeName(null), is(Constants.UNKNOWN));
         assertThat(MacDisplayPort.fromDeviceTreeName(""), is(Constants.UNKNOWN));
+    }
+
+    @Test
+    void testFromDeviceTreeNameLeadingDelimiter() {
+        assertThat(MacDisplayPort.fromDeviceTreeName(",t6030"), is(Constants.UNKNOWN));
     }
 }
