@@ -69,9 +69,25 @@ public final class SetupApiFFM extends WindowsForeignFunctions {
      */
     public static int SetupDiEnumDeviceInterfaces(MemorySegment hDevInfo, MemorySegment classGuid, int memberIndex,
             MemorySegment deviceInterfaceData) {
+        return SetupDiEnumDeviceInterfaces(hDevInfo, MemorySegment.NULL, classGuid, memberIndex, deviceInterfaceData);
+    }
+
+    /**
+     * Enumerates the device interfaces of a single device, scoping the enumeration to the given {@code devInfoData}
+     * rather than the whole device info set.
+     *
+     * @param hDevInfo            the device info set handle
+     * @param devInfoData         the device to scope enumeration to, or {@code MemorySegment.NULL} for the whole set
+     * @param classGuid           the interface class GUID
+     * @param memberIndex         zero-based index of the interface to retrieve
+     * @param deviceInterfaceData receives information about the device interface
+     * @return 0 if no more items, 1 if success, -1 on other error
+     */
+    public static int SetupDiEnumDeviceInterfaces(MemorySegment hDevInfo, MemorySegment devInfoData,
+            MemorySegment classGuid, int memberIndex, MemorySegment deviceInterfaceData) {
         return getIntOrDefault(() -> {
-            int result = (int) SetupDiEnumDeviceInterfaces.invokeExact(hDevInfo, MemorySegment.NULL, classGuid,
-                    memberIndex, deviceInterfaceData);
+            int result = (int) SetupDiEnumDeviceInterfaces.invokeExact(hDevInfo, devInfoData, classGuid, memberIndex,
+                    deviceInterfaceData);
             if (isSuccess(result)) {
                 return 1;
             }

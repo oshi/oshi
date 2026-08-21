@@ -29,6 +29,7 @@ import org.jspecify.annotations.NullMarked;
     exports oshi.driver.common.unix.freebsd.disk;
     exports oshi.driver.common.unix.solaris;
     exports oshi.driver.common.unix.solaris.disk;
+    exports oshi.driver.common.windows;
     exports oshi.driver.common.windows.perfmon;
     exports oshi.driver.common.windows.registry;
     exports oshi.driver.common.windows.gpu;
