@@ -9,10 +9,12 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -46,6 +48,15 @@ public final class CpuFrequencyResidency {
      * within the die.
      */
     private static final Pattern CPU_CHANNEL = Pattern.compile("^(?:DIE_(\\d+)_)?([A-Z])CPU(\\d+)$");
+
+    /**
+     * Matches the IOReport channel of a CPU complex whose residency is the state the hardware ran at, e.g. {@code ECPM}
+     * or {@code PCPM}, and {@code DIE_1_PCPM} on a chip with more than one die. Its sibling channel names the same
+     * complex ending in {@code CPU} and reports the state the cores asked for instead, which is the fastest one
+     * whenever they have work. A chip with more than one cluster of a core type is expected to number them, so the
+     * trailing digits are optional.
+     */
+    private static final Pattern REALIZED_COMPLEX_CHANNEL = Pattern.compile("^(?:DIE_(\\d+)_)?([A-Z])CPM(\\d*)$");
 
     /**
      * The core type letters in ascending performance order. Through the M4 the letters are {@code E} and {@code P}; on
@@ -126,6 +137,56 @@ public final class CpuFrequencyResidency {
             return observedTicks == 0L ? 0L : table[0];
         }
         return (long) (weighted / totalTicks);
+    }
+
+    /**
+     * Collects the state residency of the CPU complexes that report the state the hardware ran at, one entry per core
+     * type.
+     * <p>
+     * A core type divided into more than one cluster reports one such channel per cluster. Every cluster of a type runs
+     * the same frequency table, so their residency is summed by state, giving the frequency that type ran at over the
+     * interval. A channel reporting the state the cores asked for rather than the state they got is ignored, as is one
+     * whose states cannot be summed with its siblings' because it does not name them the same way.
+     *
+     * @param complexStates the ticks each complex spent in each state, keyed by channel name
+     * @return the summed ticks per state of each core type, keyed by that type's rank as {@link #prefixRank(String)}
+     *         gives it, in ascending performance order and in channel state order. A type this release does not know is
+     *         keyed by {@link #UNKNOWN_RANK}, so a caller pairing these with cores can tell that the sample holds a
+     *         type it cannot place.
+     */
+    public static Map<Integer, Map<String, Long>> realizedComplexStates(Map<String, Map<String, Long>> complexStates) {
+        Map<Integer, Map<String, Long>> byRank = new TreeMap<>();
+        for (Map.Entry<String, Map<String, Long>> channel : complexStates.entrySet()) {
+            Matcher m = REALIZED_COMPLEX_CHANNEL.matcher(channel.getKey());
+            if (!m.matches()) {
+                continue;
+            }
+            int letter = CHANNEL_PREFIX_ORDER.indexOf(m.group(2));
+            int rank = letter < 0 ? UNKNOWN_RANK : letter;
+            Map<String, Long> summed = byRank.get(rank);
+            if (summed == null) {
+                byRank.put(rank, ticksByState(channel.getValue()));
+            } else if (summed.keySet().equals(channel.getValue().keySet())) {
+                for (Map.Entry<String, Long> state : ticksByState(channel.getValue()).entrySet()) {
+                    summed.merge(state.getKey(), state.getValue(), Long::sum);
+                }
+            } else {
+                // Two clusters of one type naming their states differently cannot be one core type's residency, and
+                // summing them would pair a frequency with a state that is not the same state
+                byRank.put(rank, Collections.<String, Long>emptyMap());
+            }
+        }
+        return Collections.unmodifiableMap(byRank);
+    }
+
+    /** Copies a channel's residency in state order, reading an absent tick count as none. */
+    private static Map<String, Long> ticksByState(Map<String, Long> states) {
+        Map<String, Long> ticksByState = new LinkedHashMap<>();
+        for (Map.Entry<String, Long> state : states.entrySet()) {
+            Long ticks = state.getValue();
+            ticksByState.put(state.getKey(), ticks == null ? 0L : ticks);
+        }
+        return ticksByState;
     }
 
     /**

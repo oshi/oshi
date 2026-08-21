@@ -19,6 +19,7 @@ import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.ptr.PointerByReference;
 
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.CpuResidencySample;
 import oshi.hardware.common.platform.mac.IOReportCpuSampler;
 import oshi.hardware.common.platform.mac.IOReportSampler;
 import oshi.jna.platform.mac.IOReport;
@@ -27,8 +28,8 @@ import oshi.jna.platform.mac.IOReport.IOReportSubscriptionRef;
 /**
  * Manages a single IOReport subscription, providing per-instance sampling of the channels it subscribed to.
  * {@link #create()} subscribes to the GPU Stats and Energy Model channels, for GPU active ticks, utilization and power
- * draw; {@link #createForCpu()} subscribes to the CPU core performance state channels, for per-core frequency
- * residency. Sampling a channel this instance did not subscribe to returns a sentinel value.
+ * draw; {@link #createForCpu()} subscribes to the CPU Stats channels, for per-core and per-cluster frequency residency.
+ * Sampling a channel this instance did not subscribe to returns a sentinel value.
  *
  * <p>
  * Each instance holds its own subscription and previous-sample state, making it suitable for use inside a
@@ -46,6 +47,7 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
     private static final String SUBGROUP_GPU_PERF_STATES = "GPU Performance States";
     private static final String GROUP_CPU_STATS = "CPU Stats";
     private static final String SUBGROUP_CPU_CORE_PERF_STATES = "CPU Core Performance States";
+    private static final String SUBGROUP_CPU_COMPLEX_PERF_STATES = "CPU Complex Performance States";
     private static final String STATE_OFF = "OFF";
     private static final String KEY_CHANNELS = "IOReportChannels";
 
@@ -111,7 +113,11 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
     }
 
     /**
-     * Creates a new {@code IOReportClient} subscribed to the per-core CPU performance state channels.
+     * Creates a new {@code IOReportClient} subscribed to the CPU performance state channels.
+     * <p>
+     * Subscribes to the whole {@code CPU Stats} group rather than one of its subgroups, because a core's states and its
+     * cluster's states must describe the same interval to be read together, and one subscription yields one delta over
+     * both.
      *
      * @return a new client, or {@code null} if IOReport is unavailable or subscription fails
      */
@@ -121,10 +127,9 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
             return null;
         }
         CFStringRef cpuGroup = CFStringRef.createCFString(GROUP_CPU_STATS);
-        CFStringRef coreSubgroup = CFStringRef.createCFString(SUBGROUP_CPU_CORE_PERF_STATES);
         CFDictionaryRef cpuChannels = null;
         try {
-            cpuChannels = io.IOReportCopyChannelsInGroup(cpuGroup, coreSubgroup, 0, 0, 0);
+            cpuChannels = io.IOReportCopyChannelsInGroup(cpuGroup, null, 0, 0, 0);
             if (cpuChannels == null) {
                 return null;
             }
@@ -133,7 +138,6 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
             return null;
         } finally {
             cpuGroup.release();
-            coreSubgroup.release();
             if (cpuChannels != null) {
                 cpuChannels.release();
             }
@@ -307,13 +311,13 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
     }
 
     /**
-     * Returns the per-core CPU performance state residency accumulated since the previous call.
+     * Returns the per-core and per-cluster CPU performance state residency accumulated since the previous call.
      *
-     * @return a map from channel name to that core's state residency in channel state order, or {@code null} if this is
-     *         the first call, the sample could not be taken, or this client is closed
+     * @return the residency of both, or {@code null} if this is the first call, the sample could not be taken, or this
+     *         client is closed
      */
     @Override
-    public synchronized @Nullable Map<String, Map<String, Long>> sampleCoreResidencyDelta() {
+    public synchronized @Nullable CpuResidencySample sampleResidencyDelta() {
         if (closed) {
             return null;
         }
@@ -336,7 +340,8 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
                 return null;
             }
             try {
-                return extractCoreStates(delta);
+                return new CpuResidencySample(extractPerChannelStates(delta, SUBGROUP_CPU_CORE_PERF_STATES),
+                        extractPerChannelStates(delta, SUBGROUP_CPU_COMPLEX_PERF_STATES));
             } finally {
                 delta.release();
             }
@@ -431,8 +436,8 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
         return Collections.unmodifiableMap(result);
     }
 
-    /** Keeps each channel's state residency separate, keyed by channel name, for the per-core CPU states. */
-    private Map<String, Map<String, Long>> extractCoreStates(CFDictionaryRef dict) {
+    /** Keeps each channel's state residency separate, keyed by channel name, for one CPU states subgroup. */
+    private Map<String, Map<String, Long>> extractPerChannelStates(CFDictionaryRef dict, String subgroup) {
         Map<String, Map<String, Long>> result = new LinkedHashMap<>();
         CFStringRef channelsKey = CFStringRef.createCFString(KEY_CHANNELS);
         try {
@@ -443,7 +448,7 @@ public final class IOReportClient implements IOReportSampler, IOReportCpuSampler
             CFArrayRef arr = new CFArrayRef(arrPtr);
             int count = arr.getCount();
             for (int i = 0; i < count; i++) {
-                CFDictionaryRef entry = channelInGroup(arr, i, GROUP_CPU_STATS, SUBGROUP_CPU_CORE_PERF_STATES);
+                CFDictionaryRef entry = channelInGroup(arr, i, GROUP_CPU_STATS, subgroup);
                 if (entry == null) {
                     continue;
                 }

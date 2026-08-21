@@ -504,11 +504,19 @@ reports its cluster's nominal maximum from the power manager's `voltage-states` 
 an M3 Pro that is 2.7 GHz for the six efficiency cores and 4.1 GHz for the six performance cores, whatever the machine
 is doing.
 
-The real per-core frequency is derivable from the private IOReport framework, which publishes how many ticks each core
-spent in each of its cluster's DVFS states. Setting `oshi.os.mac.cpu.frequency.ioreport` to `true` reports, per core,
-the average of its cluster's frequencies weighted by that residency, with idle time excluded — the frequency the core
-selected while it had work, which is what `powermetrics` prints. A core that did not run at all reports its cluster's
-lowest frequency.
+The real frequency is derivable from the private IOReport framework, which publishes how many ticks each core, and each
+cluster of cores, spent in each of its DVFS states. Setting `oshi.os.mac.cpu.frequency.ioreport` to `true` reports the
+average of a cluster's frequencies weighted by that residency, with idle time excluded — the frequency the hardware ran
+at while it had work, which is the figure `powermetrics` prints as the cluster's HW active frequency. Cores in a cluster
+share one frequency domain and so share that value, and a core that did not run at all over the interval reports its
+cluster's lowest frequency instead.
+
+The per-core channels are deliberately not used for the value: a core reports the state it *asked* for, which is the
+fastest one whenever it has work, so under a power or thermal limit it reads high. On an M3 Pro with six busy threads
+every performance core reports 4.06 GHz — the nominal maximum, which is what this setting exists to replace — while the
+cluster reports the 3.58 GHz that `powermetrics` agrees it ran at. They are the fallback: a chip whose cluster channels
+cannot be matched to the kinds of core it reports is read from the cores' own residency instead, which is right whenever
+nothing is capping the cluster.
 
 It is opt-in for two reasons. IOReport is not a public API, and reading it means holding a subscription for the
 lifetime of the process. And the value is a rate, so it needs an interval: the first call establishes the baseline and

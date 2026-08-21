@@ -7,11 +7,13 @@ package oshi.driver.common.mac;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
@@ -158,6 +160,77 @@ class CpuFrequencyResidencyTest {
         // A core reporting only idle states has no frequency to weight, and the table cannot explain one state
         assertThat(CpuFrequencyResidency.activeWeightedFrequency(residency(new String[] { "IDLE" }, 100L), E_TABLE),
                 is(0L));
+    }
+
+    // Residency of a CPU complex that spent every active tick at one frequency of its table. A complex reports the same
+    // states a core of it does, its idle one being the time every one of its cores was idle.
+    private static Map<String, Long> complexAt(String[] states, int index) {
+        long[] ticks = new long[states.length];
+        ticks[0] = 500L;
+        ticks[index + 1] = 1_000L;
+        return residency(states, ticks);
+    }
+
+    private static final int RANK_E = CpuFrequencyResidency.prefixRank("ECPU0");
+    private static final int RANK_P = CpuFrequencyResidency.prefixRank("PCPU0");
+
+    @Test
+    void testTheClusterStateTheHardwareRanAtIsPreferredToTheOneTheCoresAskedFor() {
+        // Both channels of a complex are published, and only the one reporting what the cores got is weighted: on a
+        // busy M3 Pro the cores ask for the top state throughout while the hardware runs several states below it
+        Map<String, Map<String, Long>> complexes = new LinkedHashMap<>();
+        complexes.put("ECPU", complexAt(E_STATES, 7));
+        complexes.put("ECPM", complexAt(E_STATES, 3));
+        complexes.put("PCPU", complexAt(P_STATES, 19));
+        complexes.put("PCPM", complexAt(P_STATES, 13));
+        Map<Integer, Map<String, Long>> byRank = CpuFrequencyResidency.realizedComplexStates(complexes);
+        assertThat("one entry per core type", byRank.keySet(), is(new TreeSet<>(Arrays.asList(RANK_E, RANK_P))));
+        Map<String, Long> efficiency = byRank.get(RANK_E);
+        Map<String, Long> performance = byRank.get(RANK_P);
+        assertNotNull(efficiency, "efficiency complex");
+        assertNotNull(performance, "performance complex");
+        assertThat("efficiency cluster", CpuFrequencyResidency.activeWeightedFrequency(efficiency, E_TABLE),
+                is(E_TABLE[3]));
+        assertThat("performance cluster", CpuFrequencyResidency.activeWeightedFrequency(performance, P_TABLE),
+                is(P_TABLE[13]));
+    }
+
+    @Test
+    void testEveryClusterOfOneCoreTypeIsSummed() {
+        // An Ultra prefixes each die's complex, and a chip with two clusters of one type on a die is expected to number
+        // them. Every cluster of a type runs the same frequencies, so one type ran at the average of its clusters.
+        for (String[] names : Arrays.asList(new String[] { "DIE_0_PCPM", "DIE_1_PCPM" },
+                new String[] { "PCPM0", "PCPM1" })) {
+            Map<String, Map<String, Long>> complexes = new LinkedHashMap<>();
+            complexes.put(names[0], complexAt(P_STATES, 5));
+            complexes.put(names[1], complexAt(P_STATES, 15));
+            Map<String, Long> summed = CpuFrequencyResidency.realizedComplexStates(complexes).get(RANK_P);
+            assertNotNull(summed, names[0] + " and " + names[1] + " are one core type");
+            assertFrequency(names[0] + " with " + names[1], (P_TABLE[5] + P_TABLE[15]) / 2,
+                    CpuFrequencyResidency.activeWeightedFrequency(summed, P_TABLE));
+        }
+    }
+
+    @Test
+    void testClustersOfOneTypeThatNameTheirStatesDifferentlyAreNotSummed() {
+        // Summing them would add one cluster's ticks at a frequency to another's at a different frequency, so the type
+        // is reported as one the caller cannot weight rather than as a number that is wrong throughout
+        Map<String, Map<String, Long>> complexes = new LinkedHashMap<>();
+        complexes.put("PCPM0", complexAt(P_STATES, 5));
+        complexes.put("PCPM1", complexAt(E_STATES, 3));
+        Map<String, Long> summed = CpuFrequencyResidency.realizedComplexStates(complexes).get(RANK_P);
+        assertNotNull(summed, "the core type is still reported");
+        assertThat("not summable", CpuFrequencyResidency.activeWeightedFrequency(summed, P_TABLE), is(0L));
+    }
+
+    @Test
+    void testAClusterOfACoreTypeThisReleaseDoesNotKnowIsKeyedAsUnknown() {
+        Map<String, Map<String, Long>> complexes = new LinkedHashMap<>();
+        complexes.put("XCPM", complexAt(P_STATES, 5));
+        // Not a complex channel at all, so it names no core type and is left out rather than keyed as unknown
+        complexes.put("GPU", complexAt(P_STATES, 5));
+        assertThat(CpuFrequencyResidency.realizedComplexStates(complexes).keySet(),
+                is(Collections.singleton(CpuFrequencyResidency.UNKNOWN_RANK)));
     }
 
     @Test

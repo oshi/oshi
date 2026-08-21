@@ -4,8 +4,6 @@
  */
 package oshi.hardware.common.platform.mac;
 
-import java.util.Map;
-
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -22,17 +20,13 @@ import oshi.annotation.concurrent.ThreadSafe;
 public interface IOReportCpuSampler extends AutoCloseable {
 
     /**
-     * Samples how long each CPU core spent in each of its performance states.
-     * <p>
-     * The states of one core are its idle state or states followed by one state per frequency the core's cluster can
-     * run at, in ascending frequency order, so the returned per-channel maps must preserve that order.
+     * Samples how long each CPU core, and each cluster of cores, spent in each of its performance states.
      *
-     * @return a map from channel name, which identifies the core, to a map from state name to the ticks spent in that
-     *         state since the previous sample, in channel state order. Null if no previous sample exists, as on the
-     *         first call, or if the sample could not be taken.
+     * @return the residency of both since the previous sample, or null if no previous sample exists, as on the first
+     *         call, or if the sample could not be taken
      */
     @Nullable
-    Map<String, Map<String, Long>> sampleCoreResidencyDelta();
+    CpuResidencySample sampleResidencyDelta();
 
     /**
      * Releases the subscription. Overridden to drop {@code AutoCloseable}'s checked exception.

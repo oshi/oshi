@@ -872,9 +872,13 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         if (sampler == null) {
             return;
         }
-        Map<String, Map<String, Long>> residency = sampler.sampleCoreResidencyDelta();
-        if (residency == null || residency.isEmpty()) {
+        CpuResidencySample sample = sampler.sampleResidencyDelta();
+        if (sample == null) {
             // No previous sample to subtract from, as on the first call
+            return;
+        }
+        Map<String, Map<String, Long>> residency = sample.getCoreStates();
+        if (residency.isEmpty()) {
             return;
         }
         // Both lists run in ascending performance order, so they line up only if they describe the same chip. Any
@@ -903,17 +907,35 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
                 return;
             }
         }
+        // The state each cluster's hardware actually ran at, which is what any core in it ran at while it was running.
+        // Only usable if the clusters reported are the core types reported, since otherwise which table weights which
+        // cluster is a guess.
+        Map<Integer, Map<String, Long>> complexByRank = CpuFrequencyResidency
+                .realizedComplexStates(sample.getComplexStates());
+        boolean complexMatchesCores = complexByRank.keySet().equals(channelGroups.keySet());
         long[][] tables = nominalFrequencyTables.get();
-        channelIterator = channelGroups.values().iterator();
+        Iterator<Map.Entry<Integer, List<String>>> channelEntries = channelGroups.entrySet().iterator();
         for (Map.Entry<Integer, List<PhysicalProcessor>> cores : coreGroups.entrySet()) {
-            List<String> channels = channelIterator.next();
+            Map.Entry<Integer, List<String>> channelEntry = channelEntries.next();
+            List<String> channels = channelEntry.getValue();
             long[] table = tables[Math.min(Math.max(cores.getKey(), 0), tables.length - 1)];
+            Map<String, Long> cluster = complexMatchesCores ? complexByRank.get(channelEntry.getKey()) : null;
+            long realized = cluster == null ? 0L : CpuFrequencyResidency.activeWeightedFrequency(cluster, table);
             for (int i = 0; i < channels.size(); i++) {
                 Map<String, Long> states = residency.get(channels.get(i));
                 long frequency = states == null ? 0L : CpuFrequencyResidency.activeWeightedFrequency(states, table);
-                if (frequency > 0) {
-                    physFreqMap.put(cores.getValue().get(i).getPhysicalProcessorNumber(), frequency);
+                if (frequency == 0L) {
+                    // Nothing was observed, or the core's states are not a list this table can be paired with
+                    continue;
                 }
+                if (realized > 0 && frequency != table[0]) {
+                    // A core's own residency names the state it asked for, which is the fastest one whenever it has
+                    // work, so under a power or thermal cap it reads high by as much as the cap. Where the cluster can
+                    // be read it says what the core got instead, and only a core that did not run at all keeps the
+                    // lowest frequency its cluster can run at rather than being credited with its siblings' work.
+                    frequency = realized;
+                }
+                physFreqMap.put(cores.getValue().get(i).getPhysicalProcessorNumber(), frequency);
             }
         }
     }

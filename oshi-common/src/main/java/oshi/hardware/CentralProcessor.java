@@ -91,10 +91,12 @@ public interface CentralProcessor {
      * array.
      * <p>
      * On Apple Silicon, returns each core's cluster's nominal maximum, which does not change between calls. Setting
-     * {@code oshi.os.mac.cpu.frequency.ioreport} to {@code true} instead returns, per core, the average of its
-     * cluster's frequencies weighted by how long the core spent at each of them since the previous call. That measure
-     * needs an interval, so the first call establishes the baseline and returns the nominal frequencies, as does any
-     * call the operating system cannot supply residency for.
+     * {@code oshi.os.mac.cpu.frequency.ioreport} to {@code true} instead returns the frequency each core's cluster
+     * actually ran at, as the average of the cluster's frequencies weighted by how long it spent at each of them since
+     * the previous call. A cluster is one frequency domain, so its cores share that value; a core that did not run at
+     * all over the interval reports the lowest frequency its cluster runs at instead. That measure needs an interval,
+     * so the first call establishes the baseline and returns the nominal frequencies, as does any call the operating
+     * system cannot supply residency for.
      *
      * @return An array of processor frequencies for each logical processor on the system. Use the
      *         {@link #getLogicalProcessors()} to correlate these frequencies with physical packages and processors.

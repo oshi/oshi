@@ -21,6 +21,7 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.GpuTicks;
+import oshi.hardware.common.platform.mac.CpuResidencySample;
 
 @EnabledOnOs(OS.MAC)
 class IOReportClientTest {
@@ -119,14 +120,18 @@ class IOReportClientTest {
         IOReportClient client = IOReportClient.createForCpu();
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         try {
-            assertThat("The first sample has nothing to subtract from", client.sampleCoreResidencyDelta(),
-                    is(nullValue()));
+            assertThat("The first sample has nothing to subtract from", client.sampleResidencyDelta(), is(nullValue()));
             Thread.sleep(150);
-            Map<String, Map<String, Long>> residency = client.sampleCoreResidencyDelta();
+            CpuResidencySample sample = client.sampleResidencyDelta();
             // An Intel Mac has no per-core performance state channels
-            Assumptions.assumeTrue(residency != null && !residency.isEmpty(),
+            Assumptions.assumeTrue(sample != null && !sample.getCoreStates().isEmpty(),
                     "Skipping: no CPU performance state channels");
-            for (Map.Entry<String, Map<String, Long>> core : residency.entrySet()) {
+            for (Map.Entry<String, Map<String, Long>> complex : sample.getComplexStates().entrySet()) {
+                assertThat("channel " + complex.getKey() + " names a CPU complex", complex.getKey(),
+                        matchesPattern("(DIE_\\d+_)?[A-Z]CP[UM]\\d*"));
+                assertThat("states of " + complex.getKey(), complex.getValue().size(), is(greaterThan(1)));
+            }
+            for (Map.Entry<String, Map<String, Long>> core : sample.getCoreStates().entrySet()) {
                 assertThat("channel " + core.getKey() + " names a core", core.getKey(),
                         matchesPattern("(DIE_\\d+_)?[A-Z]CPU\\d+"));
                 // One idle state and at least one frequency, or there would be nothing to weight
@@ -146,7 +151,7 @@ class IOReportClientTest {
         IOReportClient client = IOReportClient.createForCpu();
         Assumptions.assumeTrue(client != null, "Skipping: IOReport unavailable");
         client.close();
-        assertThat("Closed client should not sample", client.sampleCoreResidencyDelta(), is(nullValue()));
+        assertThat("Closed client should not sample", client.sampleResidencyDelta(), is(nullValue()));
     }
 
     @Test
