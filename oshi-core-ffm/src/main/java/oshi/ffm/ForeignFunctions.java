@@ -615,10 +615,13 @@ public abstract class ForeignFunctions {
         return (int) ERRNO_HANDLE.get(callState, 0);
     }
 
+    // logCaught rather than logAtLevel: every caller of this is a catch block around a native call, so a
+    // WrongMethodTypeException here is a binding defect. It is logged at ERROR and rethrown instead of becoming the
+    // wrapper's default value -- see ExceptionUtil.logCaught.
     private static void logThrowable(Logger logger, LogLevel level, String message, Throwable t,
             @Nullable Object... args) {
         Objects.requireNonNull(logger, "logger");
         Objects.requireNonNull(level, "level");
-        ExceptionUtil.logAtLevel(logger, level, message, t, args);
+        ExceptionUtil.logCaught(logger, level, message, t, args);
     }
 }

@@ -34,6 +34,14 @@ import org.junit.jupiter.api.Test;
  * test can't see it. A block lambda ({@code () -> { handle.invokeExact(...); }}) keeps the call in a statement context
  * where the return type is correctly {@code void}.
  * <p>
+ * The general rule this scan only partly enforces: <strong>the call site must state the handle's own return
+ * type.</strong> A block lambda is the fix only for a handle declared {@code ofVoid}; for one declared to return a
+ * value, a statement-position call infers {@code void} and throws just the same, so the result has to be cast and
+ * assigned ({@code int rc = (int) handle.invokeExact(...);}) even where it is unused. That variant is not detectable
+ * from the source text alone — it needs the handle's descriptor — so {@link oshi.util.ExceptionUtil} logs every
+ * {@code WrongMethodTypeException} at {@code ERROR} and rethrows it rather than returning a default value, which fails
+ * the test run on the platform the binding belongs to instead of leaving the defect in a log line.
+ * <p>
  * Scanning the sources catches the regression on every build (not only on the platform where the call runs), which
  * matters because the fix keeps getting lost whenever the FFM code is moved between packages.
  */

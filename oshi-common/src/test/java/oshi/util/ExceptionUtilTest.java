@@ -6,13 +6,17 @@ package oshi.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.lang.invoke.WrongMethodTypeException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -469,5 +473,64 @@ class ExceptionUtilTest {
         String result = ExceptionUtil.getOrDefault(() -> "ok", "fallback", recorder.logger(), "Failed for {}", "key");
         assertThat("Returns the supplied value", result, is("ok"));
         assertThat("Nothing logged on the success path", recorder.calls(), is(empty()));
+    }
+
+    // -- WrongMethodTypeException is a binding defect, not missing data --
+
+    @Test
+    void testSignatureMismatchIsLoggedAtErrorAndRethrown() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        WrongMethodTypeException thrown = assertThrows(WrongMethodTypeException.class,
+                () -> ExceptionUtil.getIntOrDefault(() -> {
+                    throw new WrongMethodTypeException("handle's method type (int)int but found (int)void");
+                }, 0, recorder.logger(), "Sizing call failed"));
+        assertThat("Rethrown as-is, so the trace still points at the call site", thrown.getMessage(),
+                containsString("(int)void"));
+        assertThat("Escalated past the caller's debug level", recorder.onlyCall(), is("error"));
+        assertThat("Keeps the caller's message", recorder.message(), startsWith("Sizing call failed"));
+        assertThat("Names it as an OSHI defect", recorder.message(), containsString("defect in OSHI"));
+        assertThat("Throwable still attached", recorder.arguments(),
+                arrayContaining(instanceOf(WrongMethodTypeException.class)));
+    }
+
+    @Test
+    void testSignatureMismatchOutranksAnExplicitLevel() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        assertThrows(WrongMethodTypeException.class, () -> ExceptionUtil.runOrLog(() -> {
+            throw new WrongMethodTypeException("mismatch");
+        }, recorder.logger(), LogLevel.TRACE, "Release failed"));
+        assertThat("A defect outranks the level the caller asked for", recorder.onlyCall(), is("error"));
+    }
+
+    @Test
+    void testOrdinaryFailureKeepsCallersLevelAndMessage() {
+        LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+        int result = ExceptionUtil.getIntOrDefault(() -> {
+            throw new IllegalStateException("boom");
+        }, 0, recorder.logger(), "Sizing call failed");
+        assertThat("Still returns the default", result, is(0));
+        assertThat("A failed system call stays at debug", recorder.onlyCall(), is("debug"));
+        assertThat("Message is untouched", recorder.message(), is("Sizing call failed"));
+    }
+
+    @Test
+    void testSilentOverloadsAlsoRethrowASignatureMismatch() {
+        // The wrappers with no logger of their own are silent about a failed system call, but not about a defect
+        assertThrows(WrongMethodTypeException.class, () -> ExceptionUtil.getOrDefault(() -> {
+            throw new WrongMethodTypeException("mismatch");
+        }, "fallback"));
+        assertThrows(WrongMethodTypeException.class, () -> ExceptionUtil.runSilently(() -> {
+            throw new WrongMethodTypeException("mismatch");
+        }));
+    }
+
+    @Test
+    void testNestedWrappersPropagateTheSameSignatureMismatch() {
+        // The inner wrapper's rethrow is caught by the outer one, which must not turn it back into a default value
+        WrongMethodTypeException thrown = assertThrows(WrongMethodTypeException.class,
+                () -> ExceptionUtil.getOrDefault(() -> ExceptionUtil.getIntOrDefault(() -> {
+                    throw new WrongMethodTypeException("mismatch");
+                }, 0, LOG, "inner"), -1, LOG, "outer"));
+        assertThat("The original exception, not a wrapper", thrown.getMessage(), is("mismatch"));
     }
 }
