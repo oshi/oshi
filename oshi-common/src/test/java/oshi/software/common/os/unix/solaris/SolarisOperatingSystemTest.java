@@ -22,10 +22,12 @@ class SolarisOperatingSystemTest {
 
     @Test
     void testParseSvcsTypical() {
-        List<String> svcs = Arrays.asList("online         23:56:25 svc:/system/svc/restarter:default",
-                "                        23:56:24       13 svc.startd",
-                "legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd",
-                "online         23:56:25 svc:/network/loopback:default");
+        List<String> svcs = """
+                online         23:56:25 svc:/system/svc/restarter:default
+                                        23:56:24       13 svc.startd
+                legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
+                online         23:56:25 svc:/network/loopback:default
+                """.lines().toList();
         List<String> legacySvcs = Arrays.asList("S47pppd", "S89PRESERVE");
 
         List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, legacySvcs);

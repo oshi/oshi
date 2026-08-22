@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,14 +21,15 @@ class SolarisGraphicsCardTest {
     @Test
     void testParsePrtconf() {
         // prtconf -pv output with a display-class device (class-code 0003xxxx)
-        List<String> prtconf = Arrays.asList(//
-                "    Node 0x1f8e610", //
-                "      name:  'pci8086,2a42'", //
-                "      model:  'Intel GM45 Integrated Graphics'", //
-                "      vendor-id:  00008086", //
-                "      device-id:  00002a42", //
-                "      revision-id:  00000007", //
-                "      class-code:  00030000");
+        List<String> prtconf = """
+                    Node 0x1f8e610
+                      name:  'pci8086,2a42'
+                      model:  'Intel GM45 Integrated Graphics'
+                      vendor-id:  00008086
+                      device-id:  00002a42
+                      revision-id:  00000007
+                      class-code:  00030000
+                """.lines().toList();
         List<GraphicsCard> cards = SolarisGraphicsCard.parsePrtconf(prtconf);
         assertThat(cards, hasSize(1));
         GraphicsCard card = cards.get(0);
@@ -43,12 +43,13 @@ class SolarisGraphicsCardTest {
     @Test
     void testParsePrtconfNoDisplayDevice() {
         // prtconf -pv output with NO display-class device
-        List<String> prtconf = Arrays.asList(//
-                "    Node 0x1f8e610", //
-                "      name:  'pci8086,29c0'", //
-                "      vendor-id:  00008086", //
-                "      device-id:  000029c0", //
-                "      class-code:  00060000"); // class 0006 = Bridge, not Display
+        List<String> prtconf = """
+                    Node 0x1f8e610
+                      name:  'pci8086,29c0'
+                      vendor-id:  00008086
+                      device-id:  000029c0
+                      class-code:  00060000
+                """.lines().toList(); // class 0006 = Bridge, not Display
         List<GraphicsCard> cards = SolarisGraphicsCard.parsePrtconf(prtconf);
         assertThat(cards, is(empty()));
     }
@@ -62,14 +63,15 @@ class SolarisGraphicsCardTest {
     @Test
     void testParsePrtconfDisplayAtEnd() {
         // Display device at end of output (no following Node header to flush)
-        List<String> prtconf = Arrays.asList(//
-                "    Node 0xaabbcc", //
-                "      name:  'pci1002,67df'", //
-                "      model:  'AMD Radeon RX 580'", //
-                "      vendor-id:  00001002", //
-                "      device-id:  000067df", //
-                "      revision-id:  000000e7", //
-                "      class-code:  00030000");
+        List<String> prtconf = """
+                    Node 0xaabbcc
+                      name:  'pci1002,67df'
+                      model:  'AMD Radeon RX 580'
+                      vendor-id:  00001002
+                      device-id:  000067df
+                      revision-id:  000000e7
+                      class-code:  00030000
+                """.lines().toList();
         List<GraphicsCard> cards = SolarisGraphicsCard.parsePrtconf(prtconf);
         assertThat(cards, hasSize(1));
         assertThat(cards.get(0).getName(), is("AMD Radeon RX 580"));

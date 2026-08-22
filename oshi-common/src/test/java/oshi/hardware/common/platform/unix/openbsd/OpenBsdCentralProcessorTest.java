@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,11 +95,12 @@ class OpenBsdCentralProcessorTest {
     @Test
     void testParseVmStats() {
         // Real OpenBSD vmstat -s: "software interrupts" appears before bare "interrupts"
-        List<String> vmstat = Arrays.asList(//
-                "      142983 cpu context switches", //
-                "           0 software interrupts", //
-                "       28301 interrupts", //
-                "       50000 some other stat");
+        List<String> vmstat = """
+                      142983 cpu context switches
+                           0 software interrupts
+                       28301 interrupts
+                       50000 some other stat
+                """.lines().toList();
         Pair<Long, Long> result = OpenBsdCentralProcessor.parseVmStats(vmstat);
         assertThat(result.getA(), is(142983L));
         assertThat(result.getB(), is(28301L));

@@ -22,11 +22,12 @@ class NetBsdFileSystemTest {
 
     @Test
     void testParseDfInodesTypical() {
-        List<String> lines = Arrays.asList(
-                "Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on",
-                "/dev/wd0a      2149212    908676   1133076    45%    8355  147163     5%   /",
-                "/dev/wd0e      4050876        36   3848300     0%      10  285108     0%   /home",
-                "/dev/wd0d      6082908   3343172   2435592    58%   27813  386905     7%   /usr");
+        List<String> lines = """
+                Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on
+                /dev/wd0a      2149212    908676   1133076    45%    8355  147163     5%   /
+                /dev/wd0e      4050876        36   3848300     0%      10  285108     0%   /home
+                /dev/wd0d      6082908   3343172   2435592    58%   27813  386905     7%   /usr
+                """.lines().toList();
         Pair<Map<String, Long>, Map<String, Long>> result = NetBsdFileSystem.parseDfInodes(lines);
         Map<String, Long> freeMap = result.getA();
         Map<String, Long> usedMap = result.getB();

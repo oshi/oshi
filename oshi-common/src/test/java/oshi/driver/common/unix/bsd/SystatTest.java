@@ -29,8 +29,14 @@ class SystatTest {
     @Test
     void testParseSensorsExtractsCpuTempVoltsAndFans() {
         // CPU rows go to cpuTemps/volts; non-cpu temp rows go to allTemps; "fan" rows to fanRPMs.
-        List<String> systat = Arrays.asList("cpu0.temp0    55.00 degC", "cpu0.volt0    1.25 V DC",
-                "acpitz0.temp0 40.00 degC", "acpitz1.temp0 42.00 degC", "it0.fan0    1500 RPM", "it0.fan1    2000 RPM");
+        List<String> systat = """
+                cpu0.temp0    55.00 degC
+                cpu0.volt0    1.25 V DC
+                acpitz0.temp0 40.00 degC
+                acpitz1.temp0 42.00 degC
+                it0.fan0    1500 RPM
+                it0.fan1    2000 RPM
+                """.lines().toList();
 
         Triplet<Double, int[], Double> r = Systat.parseSensors(systat);
         // cpuTemps non-empty so the average of cpu temps wins over allTemps.
@@ -89,10 +95,15 @@ class SystatTest {
 
     @Test
     void testParseBatteryFieldsWatthour() {
-        List<String> systat = Arrays.asList("acpibat0.volt0 11.10 V DC", "acpibat0.current0 0.500 A",
-                "acpibat0.temp0 30.0 degC", "acpibat0.watthour0 12.00 Wh (remaining capacity)",
-                "acpibat0.watthour1 24.00 Wh (last full capacity)", "acpibat0.watthour2 36.00 Wh (design capacity)",
-                "acpibat1.volt0 99.0 V DC"); // different name — ignored
+        List<String> systat = """
+                acpibat0.volt0 11.10 V DC
+                acpibat0.current0 0.500 A
+                acpibat0.temp0 30.0 degC
+                acpibat0.watthour0 12.00 Wh (remaining capacity)
+                acpibat0.watthour1 24.00 Wh (last full capacity)
+                acpibat0.watthour2 36.00 Wh (design capacity)
+                acpibat1.volt0 99.0 V DC
+                """.lines().toList(); // different name — ignored
 
         BatteryFields b = Systat.parseBatteryFields("acpibat0", systat);
         assertThat(b.getVoltage(), is(closeTo(11.10, 1e-9)));
@@ -107,8 +118,11 @@ class SystatTest {
 
     @Test
     void testParseBatteryFieldsAmphour() {
-        List<String> systat = Arrays.asList("acpibat0.amphour0 1.50 Ah (remaining capacity)",
-                "acpibat0.amphour1 3.00 Ah (last full capacity)", "acpibat0.amphour2 4.00 Ah (new capacity)");
+        List<String> systat = """
+                acpibat0.amphour0 1.50 Ah (remaining capacity)
+                acpibat0.amphour1 3.00 Ah (last full capacity)
+                acpibat0.amphour2 4.00 Ah (new capacity)
+                """.lines().toList();
 
         BatteryFields b = Systat.parseBatteryFields("acpibat0", systat);
         assertThat(b.getCapacityUnits(), is(CapacityUnits.MAH));

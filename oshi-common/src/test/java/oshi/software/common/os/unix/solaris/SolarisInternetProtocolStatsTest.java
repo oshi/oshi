@@ -22,12 +22,13 @@ class SolarisInternetProtocolStatsTest {
     @Test
     void testParseTcpStats() {
         // netstat -s -P tcp output: two stats per line separated by spaces
-        List<String> netstat = Arrays.asList(//
-                "tcpCurrEstab =    42   tcpActiveOpens =  1000", //
-                "tcpPassiveOpens = 500   tcpAttemptFails =   10", //
-                "tcpEstabResets =    5   tcpOutSegs    = 50000", //
-                "tcpInSegs     = 60000   tcpRetransSegs =   200", //
-                "tcpInErr      =     3   tcpOutRsts    =    15");
+        List<String> netstat = """
+                tcpCurrEstab =    42   tcpActiveOpens =  1000
+                tcpPassiveOpens = 500   tcpAttemptFails =   10
+                tcpEstabResets =    5   tcpOutSegs    = 50000
+                tcpInSegs     = 60000   tcpRetransSegs =   200
+                tcpInErr      =     3   tcpOutRsts    =    15
+                """.lines().toList();
         TcpStats stats = SolarisInternetProtocolStats.parseTcpStats(netstat);
         assertThat(stats.getConnectionsEstablished(), is(42L));
         assertThat(stats.getConnectionsActive(), is(1000L));

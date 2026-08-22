@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,11 +20,14 @@ import oshi.TestConstants;
 class LshalTest {
 
     // Fixture: lshal output with system hardware info
-    private static final List<String> LSHAL_OUTPUT = Arrays.asList("udi = '/org/freedesktop/Hal/devices/computer'",
-            "  system.hardware.vendor = 'Dell Inc.'  (string)",
-            "  system.hardware.product = 'PowerEdge R720'  (string)", "  system.hardware.serial = 'ABC1234'  (string)",
-            "  system.hardware.uuid = '4C4C4544-0044-4810-8031-B4C04F333132'  (string)",
-            "  system.firmware.vendor = 'Dell Inc.'  (string)");
+    private static final List<String> LSHAL_OUTPUT = """
+            udi = '/org/freedesktop/Hal/devices/computer'
+              system.hardware.vendor = 'Dell Inc.'  (string)
+              system.hardware.product = 'PowerEdge R720'  (string)
+              system.hardware.serial = 'ABC1234'  (string)
+              system.hardware.uuid = '4C4C4544-0044-4810-8031-B4C04F333132'  (string)
+              system.firmware.vendor = 'Dell Inc.'  (string)
+            """.lines().toList();
 
     @Test
     void testQuerySerialNumber() {

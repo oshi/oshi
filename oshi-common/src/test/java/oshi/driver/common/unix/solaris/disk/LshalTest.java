@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +18,16 @@ class LshalTest {
 
     @Test
     void testParseLshalTypicalOutput() {
-        List<String> lshal = Arrays.asList("udi = '/org/freedesktop/Hal/devices/storage_serial_VBOX_HARDDISK_VB12345'",
-                "  block.major = 102  (0x66)  (int)", "  block.minor = 0  (0x0)  (int)",
-                "  info.category = 'storage'  (string)", "",
-                "udi = '/org/freedesktop/Hal/devices/storage_serial_disk1'", "  block.major = 91  (0x5b)  (int)",
-                "  block.minor = 1  (0x1)  (int)");
+        List<String> lshal = """
+                udi = '/org/freedesktop/Hal/devices/storage_serial_VBOX_HARDDISK_VB12345'
+                  block.major = 102  (0x66)  (int)
+                  block.minor = 0  (0x0)  (int)
+                  info.category = 'storage'  (string)
+
+                udi = '/org/freedesktop/Hal/devices/storage_serial_disk1'
+                  block.major = 91  (0x5b)  (int)
+                  block.minor = 1  (0x1)  (int)
+                """.lines().toList();
 
         Map<String, Integer> result = Lshal.parseLshal(lshal);
 
@@ -40,8 +44,11 @@ class LshalTest {
 
     @Test
     void testParseLshalNoBlockMajorLine() {
-        List<String> lshal = Arrays.asList("udi = '/org/freedesktop/Hal/devices/computer'",
-                "  info.category = 'computer'  (string)", "  info.product = 'Computer'  (string)");
+        List<String> lshal = """
+                udi = '/org/freedesktop/Hal/devices/computer'
+                  info.category = 'computer'  (string)
+                  info.product = 'Computer'  (string)
+                """.lines().toList();
 
         Map<String, Integer> result = Lshal.parseLshal(lshal);
         assertThat(result, is(anEmptyMap()));

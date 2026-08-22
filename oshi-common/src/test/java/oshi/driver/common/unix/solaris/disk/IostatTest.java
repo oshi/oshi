@@ -65,10 +65,12 @@ class IostatTest {
 
     @Test
     void testParseDeviceStringsTypicalOutput() {
-        List<String> iostat = Arrays.asList("cmdk0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0",
-                "Model: VBOX HARDDISK,Serial No: VB12345678-abcdefgh,Size: 21.47GB <21474836480 bytes>",
-                "sd0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0",
-                "Vendor: ATA,Product: Samsung SSD 860,Serial No: S3Z2NB0K999999,Size: 500.11GB <500107862016 bytes>");
+        List<String> iostat = """
+                cmdk0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0
+                Model: VBOX HARDDISK,Serial No: VB12345678-abcdefgh,Size: 21.47GB <21474836480 bytes>
+                sd0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0
+                Vendor: ATA,Product: Samsung SSD 860,Serial No: S3Z2NB0K999999,Size: 500.11GB <500107862016 bytes>
+                """.lines().toList();
 
         Set<String> diskSet = new HashSet<>(Arrays.asList("cmdk0", "sd0"));
 
@@ -95,10 +97,12 @@ class IostatTest {
 
     @Test
     void testParseDeviceStringsFiltersByDiskSet() {
-        List<String> iostat = Arrays.asList("cmdk0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0",
-                "Model: VBOX HARDDISK,Serial No: VB12345,Size: 21.47GB <21474836480 bytes>",
-                "sd0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0",
-                "Vendor: ATA,Product: Test,Serial No: SN999,Size: 100GB <100000000000 bytes>");
+        List<String> iostat = """
+                cmdk0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0
+                Model: VBOX HARDDISK,Serial No: VB12345,Size: 21.47GB <21474836480 bytes>
+                sd0,Soft Errors: 0,Hard Errors: 0,Transport Errors: 0
+                Vendor: ATA,Product: Test,Serial No: SN999,Size: 100GB <100000000000 bytes>
+                """.lines().toList();
 
         // Only include cmdk0 in the disk set
         Set<String> diskSet = new HashSet<>(Arrays.asList("cmdk0"));

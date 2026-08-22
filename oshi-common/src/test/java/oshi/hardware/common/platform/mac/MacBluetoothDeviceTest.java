@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,29 +22,30 @@ class MacBluetoothDeviceTest {
     // controller block (ignored, not in a Connected/Not Connected section), then Connected and Not Connected device
     // sections. Devices carry ignored fields (Vendor ID, Product ID, Services) plus the parsed Address/Minor Type/
     // Battery Level.
-    private static final List<String> SPBLUETOOTH = Arrays.asList(//
-            "Bluetooth:", //
-            "", //
-            "      Bluetooth Controller:", //
-            "          Address: 5C:E9:1E:83:67:4F", //
-            "          State: On", //
-            "          Chipset: BCM_4388", //
-            "          Vendor ID: 0x004C (Apple)", //
-            "      Connected:", //
-            "          Wireless Keyboard:", //
-            "              Address: 11:22:33:aa:bb:cc", //
-            "              Vendor ID: 0x046D", //
-            "              Product ID: 0xB359", //
-            "              Minor Type: Keyboard", //
-            "              Battery Level: 80%", //
-            "              Services: 0x400000 < BLE >", //
-            "          Wireless Headphones:", //
-            "              Address: 22:33:44:55:66:77", //
-            "              Minor Type: Headphones", //
-            "      Not Connected:", //
-            "          Wireless Mouse:", //
-            "              Address: 33:44:55:66:77:88", //
-            "              Major Type: Peripheral");
+    private static final List<String> SPBLUETOOTH = """
+            Bluetooth:
+
+                  Bluetooth Controller:
+                      Address: 5C:E9:1E:83:67:4F
+                      State: On
+                      Chipset: BCM_4388
+                      Vendor ID: 0x004C (Apple)
+                  Connected:
+                      Wireless Keyboard:
+                          Address: 11:22:33:aa:bb:cc
+                          Vendor ID: 0x046D
+                          Product ID: 0xB359
+                          Minor Type: Keyboard
+                          Battery Level: 80%
+                          Services: 0x400000 < BLE >
+                      Wireless Headphones:
+                          Address: 22:33:44:55:66:77
+                          Minor Type: Headphones
+                  Not Connected:
+                      Wireless Mouse:
+                          Address: 33:44:55:66:77:88
+                          Major Type: Peripheral
+            """.lines().toList();
 
     @Test
     void testParseSystemProfiler() {
@@ -78,8 +78,12 @@ class MacBluetoothDeviceTest {
     @Test
     void testParseSystemProfilerNoDevices() {
         // Controller present but no Connected/Not Connected sections -> no devices
-        assertThat(MacBluetoothDevice.parseSystemProfiler(Arrays.asList("Bluetooth:", "      Bluetooth Controller:",
-                "          Address: AA:BB:CC:DD:EE:FF", "          State: On")), is(empty()));
+        assertThat(MacBluetoothDevice.parseSystemProfiler("""
+                Bluetooth:
+                      Bluetooth Controller:
+                          Address: AA:BB:CC:DD:EE:FF
+                          State: On
+                """.lines().toList()), is(empty()));
         assertThat(MacBluetoothDevice.parseSystemProfiler(Collections.emptyList()), is(empty()));
     }
 }

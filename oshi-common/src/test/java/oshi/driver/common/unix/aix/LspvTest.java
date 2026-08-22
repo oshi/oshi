@@ -26,11 +26,12 @@ class LspvTest {
     @Test
     void testParsePpSize() {
         // lspv -L: an active volume with a 128 MB physical-partition size, returned in bytes
-        long ppSize = Lspv.parsePpSize(Arrays.asList(//
-                "PHYSICAL VOLUME:    hdisk0                   VOLUME GROUP:     rootvg", //
-                "PV STATE:           active", //
-                "PP SIZE:            128 megabyte(s)          LOGICAL VOLUMES:  12", //
-                "TOTAL PPs:          271 (34688 megabytes)    VG DESCRIPTORS:   2"));
+        long ppSize = Lspv.parsePpSize("""
+                PHYSICAL VOLUME:    hdisk0                   VOLUME GROUP:     rootvg
+                PV STATE:           active
+                PP SIZE:            128 megabyte(s)          LOGICAL VOLUMES:  12
+                TOTAL PPs:          271 (34688 megabytes)    VG DESCRIPTORS:   2
+                """.lines().toList());
         assertThat(ppSize, is(128L << 20));
     }
 

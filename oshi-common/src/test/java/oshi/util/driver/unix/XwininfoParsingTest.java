@@ -118,9 +118,12 @@ class XwininfoParsingTest {
 
     @Test
     void testParseWindowTreeNonMatchingLines() {
-        List<String> nonMatching = Arrays.asList("xwininfo: Window id: 0x1e3 (the root window) \"i3\"",
-                "  Root window id: 0x1e3 (the root window) (has no name)", "  Parent window id: 0x0 (none)",
-                "     2 children:");
+        List<String> nonMatching = """
+                xwininfo: Window id: 0x1e3 (the root window) "i3"
+                  Root window id: 0x1e3 (the root window) (has no name)
+                  Parent window id: 0x0 (none)
+                     2 children:
+                """.lines().toList();
         Map<String, String> nameMap = new HashMap<>();
         Map<String, String> pathMap = new HashMap<>();
 
