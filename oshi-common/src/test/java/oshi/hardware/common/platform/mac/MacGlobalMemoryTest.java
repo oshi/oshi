@@ -20,14 +20,34 @@ import oshi.hardware.PhysicalMemory;
 
 class MacGlobalMemoryTest {
 
-    private static final List<String> SP_MEMORY_TWO_BANKS = Arrays.asList("Memory:", "", "    Memory Slots:", "",
-            "      ECC: Disabled", "      Upgradeable Memory: Yes", "", "        BANK 0/DIMM0 :", "",
-            "          Size: 8 GB", "          Type: DDR4", "          Speed: 2400 MHz",
-            "          Manufacturer: Samsung", "          Part Number: M471A1K43CB1-CRC",
-            "          Serial Number: 12345678", "          Status: OK", "", "        BANK 1/DIMM0 :", "",
-            "          Size: 8 GB", "          Type: DDR4", "          Speed: 2400 MHz",
-            "          Manufacturer: Hynix", "          Part Number: HMA81GS6AFR8N-UH",
-            "          Serial Number: 87654321", "          Status: OK");
+    private static final List<String> SP_MEMORY_TWO_BANKS = """
+            Memory:
+
+                Memory Slots:
+
+                  ECC: Disabled
+                  Upgradeable Memory: Yes
+
+                    BANK 0/DIMM0 :
+
+                      Size: 8 GB
+                      Type: DDR4
+                      Speed: 2400 MHz
+                      Manufacturer: Samsung
+                      Part Number: M471A1K43CB1-CRC
+                      Serial Number: 12345678
+                      Status: OK
+
+                    BANK 1/DIMM0 :
+
+                      Size: 8 GB
+                      Type: DDR4
+                      Speed: 2400 MHz
+                      Manufacturer: Hynix
+                      Part Number: HMA81GS6AFR8N-UH
+                      Serial Number: 87654321
+                      Status: OK
+            """.lines().toList();
 
     @Test
     void testParseSystemProfilerMemoryTwoBanks() {
@@ -57,9 +77,15 @@ class MacGlobalMemoryTest {
 
     @Test
     void testParseSystemProfilerMemorySingleBank() {
-        List<String> singleBank = Arrays.asList("        BANK 0/DIMM0 :", "          Size: 16 GB",
-                "          Type: LPDDR4X", "          Speed: 4267 MHz", "          Manufacturer: Micron",
-                "          Part Number: MT53E1G32D4NQ-046", "          Serial Number: ABCDEF01");
+        List<String> singleBank = """
+                        BANK 0/DIMM0 :
+                          Size: 16 GB
+                          Type: LPDDR4X
+                          Speed: 4267 MHz
+                          Manufacturer: Micron
+                          Part Number: MT53E1G32D4NQ-046
+                          Serial Number: ABCDEF01
+                """.lines().toList();
         List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(singleBank);
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getBankLabel(), is("BANK 0/DIMM0"));
@@ -78,8 +104,13 @@ class MacGlobalMemoryTest {
 
     @Test
     void testParseSystemProfilerMemoryAppleSilicon() {
-        List<String> appleSilicon = Arrays.asList("Memory:", "", "      Memory: 36 GB", "      Type: LPDDR5",
-                "      Manufacturer: Micron");
+        List<String> appleSilicon = """
+                Memory:
+
+                      Memory: 36 GB
+                      Type: LPDDR5
+                      Manufacturer: Micron
+                """.lines().toList();
         List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(appleSilicon);
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getCapacity(), is(greaterThan(0L)));

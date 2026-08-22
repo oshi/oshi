@@ -22,20 +22,31 @@ import oshi.hardware.LogicalVolumeGroup;
 class MacLogicalVolumeGroupTest {
 
     // Fixture: typical diskutil cs list output with one CoreStorage volume group
-    private static final List<String> DISKUTIL_CS_OUTPUT = Arrays.asList("CoreStorage logical volume groups (1 found)",
-            "|", "+-- Logical Volume Group B6D1A2C3-4E5F-6789-ABCD-EF0123456789",
-            "    =========================================================", "    Name:         Macintosh HD",
-            "    Status:       Online", "    Size:         499248103424 B (499.2 GB)",
-            "    Free Space:   12345678 B (12.3 MB)", "    |",
-            "    +-< Physical Volume 0A1B2C3D-4E5F-6789-ABCD-EF0123456789",
-            "    |   ----------------------------------------------------", "    |   Index:    0",
-            "    |   Disk:     disk0s2", "    |   Status:   Online", "    |   Size:     499248103424 B (499.2 GB)",
-            "    |", "    +-> Logical Volume Family 1A2B3C4D-5E6F-7890-ABCD-EF0123456789",
-            "        ----------------------------------------------------------",
-            "        +-> Logical Volume 2A3B4C5D-6E7F-8901-ABCD-EF0123456789",
-            "            ---------------------------------------------------",
-            "            Disk:                  disk1", "            Status:                Online",
-            "            Size (Total):          498877931520 B (498.9 GB)");
+    private static final List<String> DISKUTIL_CS_OUTPUT = """
+            CoreStorage logical volume groups (1 found)
+            |
+            +-- Logical Volume Group B6D1A2C3-4E5F-6789-ABCD-EF0123456789
+                =========================================================
+                Name:         Macintosh HD
+                Status:       Online
+                Size:         499248103424 B (499.2 GB)
+                Free Space:   12345678 B (12.3 MB)
+                |
+                +-< Physical Volume 0A1B2C3D-4E5F-6789-ABCD-EF0123456789
+                |   ----------------------------------------------------
+                |   Index:    0
+                |   Disk:     disk0s2
+                |   Status:   Online
+                |   Size:     499248103424 B (499.2 GB)
+                |
+                +-> Logical Volume Family 1A2B3C4D-5E6F-7890-ABCD-EF0123456789
+                    ----------------------------------------------------------
+                    +-> Logical Volume 2A3B4C5D-6E7F-8901-ABCD-EF0123456789
+                        ---------------------------------------------------
+                        Disk:                  disk1
+                        Status:                Online
+                        Size (Total):          498877931520 B (498.9 GB)
+            """.lines().toList();
 
     @Test
     void testParseDiskutilCsListSingleGroup() {
@@ -63,11 +74,20 @@ class MacLogicalVolumeGroupTest {
 
     @Test
     void testParseDiskutilCsListMultipleGroups() {
-        List<String> twoGroups = Arrays.asList("+-- Logical Volume Group AAA", "    Name:         Group One",
-                "    +-< Physical Volume PV1", "    |   Disk:     disk0s2", "    +-> Logical Volume LV1",
-                "            Disk:                  disk1", "+-- Logical Volume Group BBB",
-                "    Name:         Group Two", "    +-< Physical Volume PV2", "    |   Disk:     disk2s1",
-                "    +-> Logical Volume LV2", "            Disk:                  disk3");
+        List<String> twoGroups = """
+                +-- Logical Volume Group AAA
+                    Name:         Group One
+                    +-< Physical Volume PV1
+                    |   Disk:     disk0s2
+                    +-> Logical Volume LV1
+                            Disk:                  disk1
+                +-- Logical Volume Group BBB
+                    Name:         Group Two
+                    +-< Physical Volume PV2
+                    |   Disk:     disk2s1
+                    +-> Logical Volume LV2
+                            Disk:                  disk3
+                """.lines().toList();
         List<LogicalVolumeGroup> groups = MacLogicalVolumeGroup.parseDiskutilCsList(twoGroups);
         assertThat(groups, hasSize(2));
         assertThat(groups.get(0).getName(), is("Group One"));
@@ -78,10 +98,18 @@ class MacLogicalVolumeGroupTest {
 
     @Test
     void testParseDiskutilCsListMultiplePVsAndLVs() {
-        List<String> multiPvLv = Arrays.asList("+-- Logical Volume Group CCC", "    Name:         Fusion Drive",
-                "    +-< Physical Volume PV1", "    |   Disk:     disk0s2", "    +-< Physical Volume PV2",
-                "    |   Disk:     disk1s1", "    +-> Logical Volume LV1", "            Disk:                  disk2",
-                "    +-> Logical Volume LV2", "            Disk:                  disk3");
+        List<String> multiPvLv = """
+                +-- Logical Volume Group CCC
+                    Name:         Fusion Drive
+                    +-< Physical Volume PV1
+                    |   Disk:     disk0s2
+                    +-< Physical Volume PV2
+                    |   Disk:     disk1s1
+                    +-> Logical Volume LV1
+                            Disk:                  disk2
+                    +-> Logical Volume LV2
+                            Disk:                  disk3
+                """.lines().toList();
         List<LogicalVolumeGroup> groups = MacLogicalVolumeGroup.parseDiskutilCsList(multiPvLv);
         assertThat(groups, hasSize(1));
         assertThat(groups.get(0).getPhysicalVolumes(), hasItem("disk0s2"));

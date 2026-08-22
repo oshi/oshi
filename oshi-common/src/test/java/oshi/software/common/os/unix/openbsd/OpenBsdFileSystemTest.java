@@ -22,10 +22,11 @@ class OpenBsdFileSystemTest {
 
     @Test
     void testParseDfInodesTypical() {
-        List<String> lines = Arrays.asList(
-                "Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on",
-                "/dev/sd0a      2149212    908676   1133076    45%    8355  147163     5%   /",
-                "/dev/sd0e      4050876        36   3848300     0%      10  285108     0%   /home");
+        List<String> lines = """
+                Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on
+                /dev/sd0a      2149212    908676   1133076    45%    8355  147163     5%   /
+                /dev/sd0e      4050876        36   3848300     0%      10  285108     0%   /home
+                """.lines().toList();
         Pair<Map<String, Long>, Map<String, Long>> result = OpenBsdFileSystem.parseDfInodes(lines);
         Map<String, Long> freeMap = result.getA();
         Map<String, Long> usedMap = result.getB();

@@ -77,9 +77,11 @@ class CupsPrinterTest {
 
     @Test
     void testGetPrintersFromLpstatSkipsNonPrinterLines() {
-        List<String> mixed = Arrays.asList("scheduler is running",
-                "printer MyPrinter now printing MyPrinter-42. enabled since Mon 01 Jan",
-                "no system default destination");
+        List<String> mixed = """
+                scheduler is running
+                printer MyPrinter now printing MyPrinter-42. enabled since Mon 01 Jan
+                no system default destination
+                """.lines().toList();
         List<Printer> printers = CupsPrinter.getPrintersFromLpstat(mixed, "", Collections.emptyMap(),
                 Collections.emptyMap(), name -> "", STUB_FACTORY);
         assertThat(printers, hasSize(1));

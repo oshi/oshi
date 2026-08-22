@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,9 +22,14 @@ class BsdPowerSourceTest {
 
     // Real `systat -ab sensors` battery rows (watt-hour battery): voltage 11.10 V, current 0.5 A, temp 30 degC,
     // remaining/full/design capacity 12/24/36 Wh -> current/max/design 12000/24000/36000 mWh.
-    private static final List<String> SYSTAT_WATTHOUR = Arrays.asList("acpibat0.volt0 11.10 V DC",
-            "acpibat0.current0 0.500 A", "acpibat0.temp0 30.0 degC", "acpibat0.watthour0 12.00 Wh (remaining capacity)",
-            "acpibat0.watthour1 24.00 Wh (last full capacity)", "acpibat0.watthour2 36.00 Wh (design capacity)");
+    private static final List<String> SYSTAT_WATTHOUR = """
+            acpibat0.volt0 11.10 V DC
+            acpibat0.current0 0.500 A
+            acpibat0.temp0 30.0 degC
+            acpibat0.watthour0 12.00 Wh (remaining capacity)
+            acpibat0.watthour1 24.00 Wh (last full capacity)
+            acpibat0.watthour2 36.00 Wh (design capacity)
+            """.lines().toList();
 
     private static BatteryFields watthourFields() {
         return Systat.parseBatteryFields("acpibat0", SYSTAT_WATTHOUR);
@@ -101,8 +105,11 @@ class BsdPowerSourceTest {
     @Test
     void testMaxCapacityRaisedToDesign() {
         // remaining/full/design 30/10/20 Wh: max (10) < design (20) and max < current (30) -> max raised to design
-        List<String> systat = Arrays.asList("acpibat0.watthour0 30.00 Wh (remaining capacity)",
-                "acpibat0.watthour1 10.00 Wh (last full capacity)", "acpibat0.watthour2 20.00 Wh (design capacity)");
+        List<String> systat = """
+                acpibat0.watthour0 30.00 Wh (remaining capacity)
+                acpibat0.watthour1 10.00 Wh (last full capacity)
+                acpibat0.watthour2 20.00 Wh (design capacity)
+                """.lines().toList();
         PowerSource ps = BsdPowerSource.buildPowerSource("acpibat0", Systat.parseBatteryFields("acpibat0", systat), 1,
                 10, 90);
         assertThat(ps.getCurrentCapacity(), is(30000));
@@ -113,8 +120,11 @@ class BsdPowerSourceTest {
     @Test
     void testDesignCapacityRaisedToMax() {
         // remaining/full/design 30/25/5 Wh: design (5) < max (25) and design < current (30) -> design raised to max
-        List<String> systat = Arrays.asList("acpibat0.watthour0 30.00 Wh (remaining capacity)",
-                "acpibat0.watthour1 25.00 Wh (last full capacity)", "acpibat0.watthour2 5.00 Wh (design capacity)");
+        List<String> systat = """
+                acpibat0.watthour0 30.00 Wh (remaining capacity)
+                acpibat0.watthour1 25.00 Wh (last full capacity)
+                acpibat0.watthour2 5.00 Wh (design capacity)
+                """.lines().toList();
         PowerSource ps = BsdPowerSource.buildPowerSource("acpibat0", Systat.parseBatteryFields("acpibat0", systat), 1,
                 10, 90);
         assertThat(ps.getMaxCapacity(), is(25000));

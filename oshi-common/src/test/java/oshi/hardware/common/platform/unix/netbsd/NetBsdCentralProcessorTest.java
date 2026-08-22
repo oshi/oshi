@@ -20,11 +20,12 @@ class NetBsdCentralProcessorTest {
 
     @Test
     void testParseVmStats() {
-        List<String> vmstat = Arrays.asList(//
-                "       42983 CPU context switches", //
-                "        8301 device interrupts", //
-                "           0 software interrupts", //
-                "       12345 some other stat");
+        List<String> vmstat = """
+                       42983 CPU context switches
+                        8301 device interrupts
+                           0 software interrupts
+                       12345 some other stat
+                """.lines().toList();
         Pair<Long, Long> result = NetBsdCentralProcessor.parseVmStats(vmstat);
         assertThat(result.getA(), is(42983L));
         assertThat(result.getB(), is(8301L));

@@ -67,8 +67,11 @@ class SolarisOSProcessTest {
 
     @Test
     void testParsePsrinfo() {
-        List<String> psrinfo = Arrays.asList("0       on-line   since 01/01/2020 00:00:00",
-                "1       on-line   since 01/01/2020 00:00:00", "4       on-line   since 01/01/2020 00:00:00");
+        List<String> psrinfo = """
+                0       on-line   since 01/01/2020 00:00:00
+                1       on-line   since 01/01/2020 00:00:00
+                4       on-line   since 01/01/2020 00:00:00
+                """.lines().toList();
         long mask = SolarisOSProcess.parsePsrinfo(psrinfo);
         // bits 0, 1, 4 set = 0b10011 = 19
         assertThat(mask, is(19L));

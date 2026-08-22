@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -22,16 +21,30 @@ class PrtvtocTest {
     @Test
     void testParsePrtvtocTypicalOutput() {
         // Typical prtvtoc output for a Solaris disk
-        List<String> prtvtoc = Arrays.asList("* /dev/dsk/c1t0d0s0 partition map", "*", "* Dimensions:",
-                "*     512 bytes/sector", "*      63 sectors/track", "*      16 tracks/cylinder",
-                "*    1008 sectors/cylinder", "*   16384 cylinders", "*   16382 accessible cylinders", "*", "* Flags:",
-                "*   1: unmountable", "*  10: read-only", "*", "* Volume Name: MyVolume", "*",
-                "*          First     Sector    Last",
-                "* Partition  Tag  Flags  Sector     Count    Sector  Mount Directory",
-                "       0      2    00       1008   14329440   14330447   /",
-                "       1      3    01    14330448    2097648   16428095",
-                "       2      5    00           0   16515072   16515071",
-                "       3      7    00    16428096      86976   16515071   /var");
+        List<String> prtvtoc = """
+                * /dev/dsk/c1t0d0s0 partition map
+                *
+                * Dimensions:
+                *     512 bytes/sector
+                *      63 sectors/track
+                *      16 tracks/cylinder
+                *    1008 sectors/cylinder
+                *   16384 cylinders
+                *   16382 accessible cylinders
+                *
+                * Flags:
+                *   1: unmountable
+                *  10: read-only
+                *
+                * Volume Name: MyVolume
+                *
+                *          First     Sector    Last
+                * Partition  Tag  Flags  Sector     Count    Sector  Mount Directory
+                       0      2    00       1008   14329440   14330447   /
+                       1      3    01    14330448    2097648   16428095
+                       2      5    00           0   16515072   16515071
+                       3      7    00    16428096      86976   16515071   /var
+                """.lines().toList();
 
         List<HWPartition> result = Prtvtoc.parsePrtvtoc(prtvtoc, "c1t0d0", 102);
 
@@ -73,13 +86,22 @@ class PrtvtocTest {
     @Test
     void testParsePrtvtocTagMappings() {
         // Test various tag values to verify name mappings
-        List<String> prtvtoc = Arrays.asList("* header line", "*     512 bytes/sector",
-                "       0      1    00       0   1000    999", "       1     24    00       0   1000    999",
-                "       3      4    10       0   1000    999", "       4      6    00       0   1000    999",
-                "       5      8    00       0   1000    999", "       6      9    00       0   1000    999",
-                "       7     10    00       0   1000    999", "       8     11    00       0   1000    999",
-                "       9     12    00       0   1000    999", "      10     14    00       0   1000    999",
-                "      11     15    00       0   1000    999", "      12     99    00       0   1000    999");
+        List<String> prtvtoc = """
+                * header line
+                *     512 bytes/sector
+                       0      1    00       0   1000    999
+                       1     24    00       0   1000    999
+                       3      4    10       0   1000    999
+                       4      6    00       0   1000    999
+                       5      8    00       0   1000    999
+                       6      9    00       0   1000    999
+                       7     10    00       0   1000    999
+                       8     11    00       0   1000    999
+                       9     12    00       0   1000    999
+                      10     14    00       0   1000    999
+                      11     15    00       0   1000    999
+                      12     99    00       0   1000    999
+                """.lines().toList();
 
         List<HWPartition> result = Prtvtoc.parsePrtvtoc(prtvtoc, "c0d0", 10);
 
@@ -113,9 +135,14 @@ class PrtvtocTest {
     @Test
     void testParsePrtvtocFlagMappings() {
         // Test flag values: 00=wm, 10=rm, 01=wu, other=ru
-        List<String> prtvtoc = Arrays.asList("* header", "*     512 bytes/sector",
-                "       0      2    00       0   1000    999", "       1      2    10       0   1000    999",
-                "       3      2    01       0   1000    999", "       4      2    11       0   1000    999");
+        List<String> prtvtoc = """
+                * header
+                *     512 bytes/sector
+                       0      2    00       0   1000    999
+                       1      2    10       0   1000    999
+                       3      2    01       0   1000    999
+                       4      2    11       0   1000    999
+                """.lines().toList();
 
         List<HWPartition> result = Prtvtoc.parsePrtvtoc(prtvtoc, "c0d0", 5);
 
@@ -142,8 +169,11 @@ class PrtvtocTest {
     @Test
     void testParsePrtvtocNoBytesPerSectorIgnoresPartitions() {
         // If bytes/sector is never set, partition lines are ignored
-        List<String> prtvtoc = Arrays.asList("* header line without bytes/sector info", "* another comment",
-                "       0      2    00       0   1000    999");
+        List<String> prtvtoc = """
+                * header line without bytes/sector info
+                * another comment
+                       0      2    00       0   1000    999
+                """.lines().toList();
 
         List<HWPartition> result = Prtvtoc.parsePrtvtoc(prtvtoc, "c0d0", 10);
         assertThat(result, is(empty()));
@@ -151,8 +181,12 @@ class PrtvtocTest {
 
     @Test
     void testParsePrtvtocVolumeNameUsedAsLabel() {
-        List<String> prtvtoc = Arrays.asList("* header", "*     512 bytes/sector", "* Volume Name: TestLabel",
-                "       0      2    00       0   2048    2047   /");
+        List<String> prtvtoc = """
+                * header
+                *     512 bytes/sector
+                * Volume Name: TestLabel
+                       0      2    00       0   2048    2047   /
+                """.lines().toList();
 
         List<HWPartition> result = Prtvtoc.parsePrtvtoc(prtvtoc, "c0d0", 5);
 
