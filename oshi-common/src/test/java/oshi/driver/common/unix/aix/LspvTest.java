@@ -7,6 +7,7 @@ package oshi.driver.common.unix.aix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -56,19 +57,25 @@ class LspvTest {
         Map<String, HWPartition> byName = Lspv.parsePartitions(lspvP, ppSize, majMin).stream()
                 .collect(Collectors.toMap(HWPartition::getName, Function.identity()));
 
+        HWPartition hd5 = byName.get("hd5");
+        HWPartition hd6 = byName.get("hd6");
+        HWPartition hd4 = byName.get("hd4");
+        assertNotNull(hd5);
+        assertNotNull(hd6);
+        assertNotNull(hd4);
         // hd5: 1 PP, type/mount from the row, major/minor from the supplied map
-        assertThat(byName.get("hd5").getType(), is("boot"));
-        assertThat(byName.get("hd5").getMountPoint(), is("")); // N/A is normalized to empty
-        assertThat(byName.get("hd5").getSize(), is(ppSize));
-        assertThat(byName.get("hd5").getMajor(), is(10));
-        assertThat(byName.get("hd5").getMinor(), is(5));
+        assertThat(hd5.getType(), is("boot"));
+        assertThat(hd5.getMountPoint(), is("")); // N/A is normalized to empty
+        assertThat(hd5.getSize(), is(ppSize));
+        assertThat(hd5.getMajor(), is(10));
+        assertThat(hd5.getMinor(), is(5));
         // hd6: 4 PPs (56-59); not in the map, so major/minor fall back to the first int in the name
-        assertThat(byName.get("hd6").getType(), is("paging"));
-        assertThat(byName.get("hd6").getSize(), is(ppSize * 4));
-        assertThat(byName.get("hd6").getMajor(), is(6));
+        assertThat(hd6.getType(), is("paging"));
+        assertThat(hd6.getSize(), is(ppSize * 4));
+        assertThat(hd6.getMajor(), is(6));
         // hd4: 2 PPs (111-112), mounted at /
-        assertThat(byName.get("hd4").getMountPoint(), is("/"));
-        assertThat(byName.get("hd4").getSize(), is(ppSize * 2));
+        assertThat(hd4.getMountPoint(), is("/"));
+        assertThat(hd4.getSize(), is(ppSize * 2));
     }
 
     @Test

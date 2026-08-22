@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
@@ -197,7 +199,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @param dmUuid the device-mapper UUID
      * @return the model description
      */
-    protected static String getModelForDmDevice(String dmUuid) {
+    protected static String getModelForDmDevice(@Nullable String dmUuid) {
         if (isLogicalVolume(dmUuid)) {
             return LOGICAL_VOLUME_GROUP;
         } else if (isEncryptedVolume(dmUuid)) {
@@ -212,7 +214,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @param dmUuid the device-mapper UUID
      * @return whether the UUID identifies an LVM logical volume
      */
-    protected static boolean isLogicalVolume(String dmUuid) {
+    protected static boolean isLogicalVolume(@Nullable String dmUuid) {
         return dmUuid != null && dmUuid.startsWith("LVM-");
     }
 
@@ -222,7 +224,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @param dmUuid the device-mapper UUID
      * @return whether the UUID identifies an encrypted volume
      */
-    protected static boolean isEncryptedVolume(String dmUuid) {
+    protected static boolean isEncryptedVolume(@Nullable String dmUuid) {
         return dmUuid != null && dmUuid.startsWith("CRYPT-");
     }
 
@@ -233,7 +235,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @param devnode the device node path
      * @return the device path
      */
-    protected static String getDmDevicePath(String dmName, String devnode) {
+    protected static String getDmDevicePath(@Nullable String dmName, String devnode) {
         return Util.isBlank(dmName) ? devnode : DevPath.MAPPER + dmName;
     }
 
@@ -241,13 +243,13 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * Gets the mount point for a device-mapper device.
      *
      * @param mountsMap the map of device paths to mount points
-     * @param dmName    the device-mapper name
+     * @param dmName    the device-mapper name, or {@code null} if unnamed
      * @param devnode   the device node path
      * @param sysPath   the sysfs path for the device
      * @return the mount point or dependent device names
      */
-    protected static String getMountPointForDmDevice(Map<String, String> mountsMap, String dmName, String devnode,
-            String sysPath) {
+    protected static String getMountPointForDmDevice(Map<String, String> mountsMap, @Nullable String dmName,
+            String devnode, String sysPath) {
         String devicePath = getDmDevicePath(dmName, devnode);
         String mountPoint = mountsMap.get(devicePath);
         if (mountPoint != null) {
@@ -267,29 +269,32 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      *
      * @param store     the disk store to update
      * @param mountsMap the map of device paths to mount points
-     * @param dmUuid    the device-mapper UUID
-     * @param vgName    the LVM volume group name
-     * @param lvName    the LVM logical volume name
+     * @param dmUuid    the device-mapper UUID, or {@code null} if the device has none
+     * @param vgName    the LVM volume group name, or {@code null} if not an LVM volume
+     * @param lvName    the LVM logical volume name, or {@code null} if not an LVM volume
      * @param dmName    the device-mapper name
      * @param devnode   the device node path
      * @param sysname   the sysfs device name
      * @param sysPath   the sysfs path for the device
-     * @param fsType    the filesystem type
-     * @param fsUuid    the filesystem UUID
-     * @param fsLabel   the filesystem label
+     * @param fsType    the filesystem type, or {@code null} if unknown
+     * @param fsUuid    the filesystem UUID, or {@code null} if unknown
+     * @param fsLabel   the filesystem label, or {@code null} if unknown
      * @param size      the partition size in bytes
      * @param major     the major device ID
      * @param minor     the minor device ID
      */
-    protected static void addDeviceMapperPartition(LinuxHWDiskStore store, Map<String, String> mountsMap, String dmUuid,
-            String vgName, String lvName, String dmName, String devnode, String sysname, String sysPath, String fsType,
-            String fsUuid, String fsLabel, long size, int major, int minor) {
+    protected static void addDeviceMapperPartition(LinuxHWDiskStore store, Map<String, String> mountsMap,
+            @Nullable String dmUuid, @Nullable String vgName, @Nullable String lvName, @Nullable String dmName,
+            String devnode, String sysname, String sysPath, @Nullable String fsType, @Nullable String fsUuid,
+            @Nullable String fsLabel, long size, int major, int minor) {
         if (isLogicalVolume(dmUuid) && !Util.isBlank(vgName) && !Util.isBlank(lvName)) {
-            store.getMutablePartitionList()
-                    .add(new HWPartition(getPartitionNameForDmDevice(vgName, lvName), sysname,
-                            fsType == null ? PARTITION : fsType, ParseUtil.getStringValueOrEmpty(fsUuid),
-                            ParseUtil.getStringValueOrEmpty(fsLabel), size, major, minor,
-                            getMountPointOfDmDevice(vgName, lvName)));
+            // The isBlank guards above already establish these, but a predicate does not narrow for the analyzer;
+            // the normalizer's return type does.
+            String vg = ParseUtil.getStringValueOrEmpty(vgName);
+            String lv = ParseUtil.getStringValueOrEmpty(lvName);
+            store.getMutablePartitionList().add(new HWPartition(getPartitionNameForDmDevice(vg, lv), sysname,
+                    fsType == null ? PARTITION : fsType, ParseUtil.getStringValueOrEmpty(fsUuid),
+                    ParseUtil.getStringValueOrEmpty(fsLabel), size, major, minor, getMountPointOfDmDevice(vg, lv)));
         } else if (isEncryptedVolume(dmUuid)) {
             String name = getDmDevicePath(dmName, devnode);
             store.getMutablePartitionList()

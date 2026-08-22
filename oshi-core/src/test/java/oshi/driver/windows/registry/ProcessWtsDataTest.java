@@ -9,10 +9,12 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -31,8 +33,8 @@ class ProcessWtsDataTest {
         assertWtsInfo(wtsMap.get(pid));
     }
 
-    private static void assertWtsInfo(WtsInfo info) {
-        assertThat("WTS info should not be null", info, is(notNullValue()));
+    private static void assertWtsInfo(@Nullable WtsInfo info) {
+        assertNotNull(info, "WTS info should not be null");
         assertThat("Process name should not be null", info.getName(), is(notNullValue()));
         assertThat("Thread count should be positive", info.getThreadCount(), is(greaterThan(0)));
         assertThat("Virtual size should be nonnegative", info.getVirtualSize(), is(greaterThanOrEqualTo(0L)));

@@ -26,6 +26,10 @@ class LoadAverageTest {
 
     // Builds a LoadAverage whose raw-counter hooks return the supplied fixtures, so the shared aggregation can be
     // exercised without the platform-specific perfmon drivers.
+    /** Idle counters for the queue-length tests, which never read them. */
+    private static final Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> NO_IDLE_COUNTERS = new Pair<>(
+            Collections.emptyList(), Collections.emptyMap());
+
     private static LoadAverage stub(Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> idleCounters,
             Map<ProcessorQueueLengthProperty, Long> queueLength) {
         return new LoadAverage() {
@@ -66,8 +70,10 @@ class LoadAverageTest {
 
     @Test
     void testQueryQueueLength() {
-        assertThat(stub(null, Collections.singletonMap(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 3L))
-                .queryQueueLength(), is(3L));
-        assertThat(stub(null, Collections.emptyMap()).queryQueueLength(), is(0L));
+        assertThat(
+                stub(NO_IDLE_COUNTERS, Collections.singletonMap(ProcessorQueueLengthProperty.PROCESSORQUEUELENGTH, 3L))
+                        .queryQueueLength(),
+                is(3L));
+        assertThat(stub(NO_IDLE_COUNTERS, Collections.emptyMap()).queryQueueLength(), is(0L));
     }
 }

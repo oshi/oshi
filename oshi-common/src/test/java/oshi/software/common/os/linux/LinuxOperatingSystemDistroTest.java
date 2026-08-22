@@ -6,6 +6,7 @@ package oshi.software.common.os.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -49,6 +50,7 @@ class LinuxOperatingSystemDistroTest {
     @Test
     void testReadOsReleaseFedora() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_FEDORA);
+        assertNotNull(result);
         assertThat(result.getA(), is("Fedora Linux"));
         assertThat(result.getB(), is("39"));
         assertThat(result.getC(), is("Workstation Edition"));
@@ -57,6 +59,7 @@ class LinuxOperatingSystemDistroTest {
     @Test
     void testReadOsReleaseArch() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_ARCH);
+        assertNotNull(result);
         assertThat(result.getA(), is("Arch Linux"));
         // Arch has no VERSION or VERSION_ID
         assertThat(result.getB(), is(Constants.UNKNOWN));
@@ -66,6 +69,7 @@ class LinuxOperatingSystemDistroTest {
     @Test
     void testReadOsReleaseDebian() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_DEBIAN);
+        assertNotNull(result);
         assertThat(result.getA(), is("Debian GNU/Linux"));
         assertThat(result.getB(), is("12"));
         assertThat(result.getC(), is("bookworm"));
@@ -74,6 +78,7 @@ class LinuxOperatingSystemDistroTest {
     @Test
     void testReadOsReleaseAlpine() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_ALPINE);
+        assertNotNull(result);
         assertThat(result.getA(), is("Alpine Linux"));
         assertThat(result.getB(), is("3.19.0"));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -82,6 +87,7 @@ class LinuxOperatingSystemDistroTest {
     @Test
     void testReadOsReleaseRHEL() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_RHEL);
+        assertNotNull(result);
         assertThat(result.getA(), is("Red Hat Enterprise Linux"));
         assertThat(result.getB(), is("9.3"));
         assertThat(result.getC(), is("Plow"));
@@ -90,6 +96,7 @@ class LinuxOperatingSystemDistroTest {
     @Test
     void testReadOsReleaseOpenSUSE() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_OPENSUSE);
+        assertNotNull(result);
         assertThat(result.getA(), is("openSUSE Leap"));
         assertThat(result.getB(), is("15.5"));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -101,6 +108,7 @@ class LinuxOperatingSystemDistroTest {
     void testReadDistribReleaseAmazonLinux() {
         List<String> lines = Arrays.asList("Amazon Linux release 2023 (Amazon Linux)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Amazon Linux"));
         assertThat(result.getB(), is("2023"));
         assertThat(result.getC(), is("Amazon Linux"));
@@ -110,6 +118,7 @@ class LinuxOperatingSystemDistroTest {
     void testReadDistribReleaseOracle() {
         List<String> lines = Arrays.asList("Oracle Linux Server release 8.9");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Oracle Linux Server"));
         assertThat(result.getB(), is("8.9"));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -119,6 +128,7 @@ class LinuxOperatingSystemDistroTest {
     void testReadDistribReleaseRocky() {
         List<String> lines = Arrays.asList("Rocky Linux release 9.3 (Blue Onyx)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Rocky Linux"));
         assertThat(result.getB(), is("9.3"));
         assertThat(result.getC(), is("Blue Onyx"));
