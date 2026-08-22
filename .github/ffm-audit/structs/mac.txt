@@ -1,0 +1,28 @@
+# Maps an FFM struct layout constant to the C type it mirrors, so the audit can compare its size
+# and every named field's offset against the real header. A layout with no entry here is reported
+# as unmapped and is not checked -- adding a line is the act of claiming which struct it models,
+# which is the review step this file exists to force.
+# Format: <JAVA_LAYOUT_CONSTANT> = <C type expression>
+
+TIMEVAL              = struct timeval
+RLIMIT               = struct rlimit
+PASSWD               = struct passwd
+GROUP                = struct group
+UTMPX                = struct utmpx
+STATFS               = struct statfs
+ADDRINFO             = struct addrinfo
+XSW_USAGE            = struct xsw_usage
+VM_STATISTICS        = struct vm_statistics
+
+PROC_FD_INFO         = struct proc_fdinfo
+PROC_BSD_INFO        = struct proc_bsdinfo
+PROC_TASK_INFO       = struct proc_taskinfo
+PROC_TASK_ALL_INFO   = struct proc_taskallinfo
+PROC_FILE_INFO       = struct proc_fileinfo
+VNODE_INFO_PATH      = struct vnode_info_path
+VNODE_PATH_INFO      = struct proc_vnodepathinfo
+
+IN_SOCK_INFO         = struct in_sockinfo
+TCP_SOCK_INFO        = struct tcp_sockinfo
+SOCKET_INFO          = struct socket_info
+SOCKET_FD_INFO       = struct socket_fdinfo

@@ -4,8 +4,12 @@
  */
 package oshi.jna.platform.unix;
 
+import java.util.Arrays;
+import java.util.List;
+
 import com.sun.jna.Library;
 import com.sun.jna.NativeLong;
+import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
@@ -39,9 +43,17 @@ public interface CLibrary extends LibCAPI, Library {
         }
     }
 
-    @FieldOrder({ "ai_flags", "ai_family", "ai_socktype", "ai_protocol", "ai_addrlen", "ai_addr", "ai_canonname",
-            "ai_next" })
+    /**
+     * The field order differs by platform: glibc declares {@code ai_addr} before {@code ai_canonname}, while the BSDs
+     * and macOS declare them the other way round. Reading the wrong one yields a {@code struct sockaddr} pointer where
+     * a string is expected, so the order is chosen at runtime rather than fixed by an annotation.
+     */
     class Addrinfo extends Structure implements AutoCloseable {
+        private static final List<String> GLIBC_ORDER = Arrays.asList("ai_flags", "ai_family", "ai_socktype",
+                "ai_protocol", "ai_addrlen", "ai_addr", "ai_canonname", "ai_next");
+        private static final List<String> BSD_ORDER = Arrays.asList("ai_flags", "ai_family", "ai_socktype",
+                "ai_protocol", "ai_addrlen", "ai_canonname", "ai_addr", "ai_next");
+
         public int ai_flags;
         public int ai_family;
         public int ai_socktype;
@@ -52,6 +64,12 @@ public interface CLibrary extends LibCAPI, Library {
         public ByReference ai_next;
 
         public static class ByReference extends Addrinfo implements Structure.ByReference {
+        }
+
+        @Override
+        protected List<String> getFieldOrder() {
+            return Platform.isMac() || Platform.isFreeBSD() || Platform.isOpenBSD() || Platform.isNetBSD()
+                    || Platform.isDragonFlyBSD() ? BSD_ORDER : GLIBC_ORDER;
         }
 
         public Addrinfo() {

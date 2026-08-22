@@ -41,6 +41,7 @@ def main():
     ap.add_argument('--cflags', default='', help='extra compiler flags, space separated')
     args = ap.parse_args()
 
+    PRE_INCLUDES = '// Generated: OSHI FFM struct layouts vs the platform headers.\n%s\n'
     tc = TOOLCHAINS[args.toolchain]
     cmd = tc['cmd'] + [f for f in args.cflags.split(' ') if f]
     work = args.workdir
@@ -83,6 +84,68 @@ def main():
 
     findings = sorted({m for l in log.splitlines() if 'static_assert(' not in l
                        for m in re.findall(r"FFMAUDIT ([A-Za-z0-9_]+: [^\"']+)", l)})
+
+    # --- struct layout pass -------------------------------------------------
+    structs = []
+    for f in glob.glob(args.sources, recursive=True):
+        structs += extract.extract_structs(f)
+    mapping, map_file = {}, os.path.join(HERE, 'structs', args.platform + '.txt')
+    if os.path.exists(map_file):
+        for line in open(map_file):
+            line = line.split('#')[0].strip()
+            if '=' in line:
+                k, v = line.split('=', 1)
+                mapping[k.strip()] = v.strip()
+    sizes, offsets, unresolved = gen.struct_sizes(structs)
+    ssrc = os.path.join(work, 'structs.cpp')
+    sskip, slog = set(), ''
+    for _ in range(8):
+        scode, schecked, sfields = gen.emit_structs(structs, mapping, sizes, offsets, sskip)
+        open(ssrc, 'w').write(PRE_INCLUDES % '\n'.join('#include <%s>' % h for h in includes) + scode)
+        slog = run(cmd, ssrc)
+        # a type or member the SDK does not declare: drop that layout and retry
+        # a field the SDK does not declare drops just that field; an unknown type drops the layout
+        drop = set()
+        ctype_owner = {mapping[n].split()[-1]: n for n in mapping}
+        for fld, owner in re.findall(r"no member named '(\w+)' in '(?:struct )?(\w+)'", slog):
+            if owner in ctype_owner:
+                drop.add((ctype_owner[owner], fld))
+        for typ in re.findall(r"(?:incomplete type|unknown type name|undeclared identifier) '(?:struct )?(\w+)'", slog):
+            if typ in ctype_owner:
+                drop.add(ctype_owner[typ])
+        drop -= sskip
+        if not drop:
+            break
+        sskip |= drop
+    open(os.path.join(work, 'structs.log'), 'w').write(slog)
+    # pair each failure with both numbers: cmp<actual, what OSHI's layout says>
+    sfindings = set()
+    lines = slog.splitlines()
+    for i, l in enumerate(lines):
+        c = re.search(r"undefined template 'cmp<(\d+), (\d+)>'", l)
+        if not c:
+            continue
+        for j in range(i, min(i + 4, len(lines))):
+            lab = re.search(r'FFMAUDIT ([A-Za-z0-9_]+: [^\n]+?)\s*$', lines[j])
+            if lab:
+                sfindings.add('%s -- header says %s, layout says %s'
+                              % (lab.group(1), c.group(1), c.group(2)))
+                break
+    sfindings = sorted(sfindings)
+    unmapped = sorted(n for n in sizes if n not in mapping)
+    print(f'{args.platform}: {len(structs)} struct layouts, {schecked} checked against the SDK '
+          f'({sfields} field offsets), {len(unmapped)} unmapped, {len(unresolved)} unresolvable', flush=True)
+    if unmapped:
+        print('  unmapped (add to structs/%s.txt to check): %s' % (args.platform, ', '.join(unmapped)))
+    if unresolved:
+        print('  unresolvable layout arithmetic: ' + ', '.join(sorted(unresolved)))
+    if sskip:
+        layouts = sorted(x for x in sskip if isinstance(x, str))
+        fields = sorted('%s.%s' % x for x in sskip if isinstance(x, tuple))
+        if layouts:
+            print('  no SDK declaration: ' + ', '.join(layouts))
+        if fields:
+            print('  fields absent from the SDK struct: ' + ', '.join(fields))
     # anything the compiler reported that is neither a skip nor an assert means the harness itself
     # is broken on this platform, and must not be mistaken for a clean run
     other = [l for l in log.splitlines()
@@ -101,12 +164,17 @@ def main():
         for l in other[:20]:
             print('  ' + l.strip())
         return 2
-    if findings:
-        print(f'\n{args.platform}: {len(findings)} signature mismatches')
-        for f in findings:
-            print('  ' + f)
+    if findings or sfindings:
+        if findings:
+            print(f'\n{args.platform}: {len(findings)} signature mismatches')
+            for f in findings:
+                print('  ' + f)
+        if sfindings:
+            print(f'\n{args.platform}: {len(sfindings)} struct layout mismatches')
+            for f in sfindings:
+                print('  ' + f)
         return 1
-    print(f'\n{args.platform}: no signature mismatches')
+    print(f'\n{args.platform}: no signature or struct layout mismatches')
     return 0
 
 
