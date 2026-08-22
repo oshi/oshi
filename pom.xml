@@ -156,7 +156,7 @@
         optional so it stays off consumers' transitive classpath, and imported optionally by OSGi. Four
         annotation classes, no transitive dependencies, Java 8 bytecode, Apache 2.0. -->
         <jspecify.version>1.0.1</jspecify.version>
-        <nullaway.version>0.13.8</nullaway.version>
+        <nullaway.version>0.14.0</nullaway.version>
         <!-- report only -->
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
