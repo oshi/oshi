@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -37,10 +38,14 @@ class LsDevicesTest {
                 "brw-rw----  1 root system 10,  5 Sep 12  2017 hd2", //
                 "brw-------  1 root system 20,  0 Jun 28  1970 hdisk0"));
         assertThat(map, not(hasKey("null")));
-        assertThat(map.get("hd2").getA(), is(10));
-        assertThat(map.get("hd2").getB(), is(5));
-        assertThat(map.get("hdisk0").getA(), is(20));
-        assertThat(map.get("hdisk0").getB(), is(0));
+        Pair<Integer, Integer> hd2 = map.get("hd2");
+        Pair<Integer, Integer> hdisk0 = map.get("hdisk0");
+        assertNotNull(hd2);
+        assertNotNull(hdisk0);
+        assertThat(hd2.getA(), is(10));
+        assertThat(hd2.getB(), is(5));
+        assertThat(hdisk0.getA(), is(20));
+        assertThat(hdisk0.getB(), is(0));
     }
 
     @Test
@@ -57,7 +62,7 @@ class LsDevicesTest {
         boolean foundNonNull = false;
         boolean foundPartitions = false;
         for (String device : majMinMap.keySet()) {
-            Pair<String, String> modSer = Lscfg.queryModelSerial(device);
+            Pair<@Nullable String, @Nullable String> modSer = Lscfg.queryModelSerial(device);
             if (modSer.getA() != null || modSer.getB() != null) {
                 foundNonNull = true;
                 List<HWPartition> lvs = Lspv.queryLogicalVolumes(device, majMinMap);
@@ -75,7 +80,8 @@ class LsDevicesTest {
         List<String> lscfg = Lscfg.queryAllDevices();
         assertThat("Output of lscfg should be nonempty", lscfg.size(), greaterThan(0));
 
-        Triplet<String, String, String> modSerVer = Lscfg.queryBackplaneModelSerialVersion(lscfg);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> modSerVer = Lscfg
+                .queryBackplaneModelSerialVersion(lscfg);
         // Either all should be null or none should be null
         if (!(modSerVer.getA() == null && modSerVer.getB() == null && modSerVer.getC() == null)) {
             assertNotNull(modSerVer.getA(), "Backplane Model should not be null");

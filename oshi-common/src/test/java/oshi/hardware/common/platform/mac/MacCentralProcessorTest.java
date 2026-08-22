@@ -475,8 +475,9 @@ class MacCentralProcessorTest {
     // -- efficiency class derivation --
 
     // Builds a core-properties map from parallel arrays, where a null element means the property is absent.
-    private static Map<Integer, Pair<String, String>> coreProps(String[] codenames, String[] clusterTypes) {
-        Map<Integer, Pair<String, String>> props = new HashMap<>();
+    private static Map<Integer, Pair<@Nullable String, @Nullable String>> coreProps(String[] codenames,
+            String[] clusterTypes) {
+        Map<Integer, Pair<@Nullable String, @Nullable String>> props = new HashMap<>();
         for (int i = 0; i < codenames.length; i++) {
             String compatible = codenames[i] == null ? null : "apple," + codenames[i] + " arm,v8";
             props.put(i, new Pair<>(compatible, clusterTypes[i]));
@@ -616,7 +617,7 @@ class MacCentralProcessorTest {
         // Some cores report a cluster-type and a codename while others expose no readable properties at all, as
         // happens when an IORegistry node cannot be read. The exact readings must survive: discarding them here
         // classified every performance core as class 0, which is worse than the codename table this replaced.
-        Map<Integer, Pair<String, String>> props = new HashMap<>();
+        Map<Integer, Pair<@Nullable String, @Nullable String>> props = new HashMap<>();
         for (int i = 0; i < 4; i++) {
             props.put(i, new Pair<>("apple,everest arm,v8", "P"));
         }
@@ -632,7 +633,7 @@ class MacCentralProcessorTest {
     void testOwnClusterTypeIsNotOverwrittenByPropagation() {
         // A core that reported its own cluster-type must keep that exact reading. Two cores here share a codename but
         // report different cluster types, so propagating by codename must not overwrite either one's own value.
-        Map<Integer, Pair<String, String>> props = new HashMap<>();
+        Map<Integer, Pair<@Nullable String, @Nullable String>> props = new HashMap<>();
         props.put(0, new Pair<>("apple,everest arm,v8", "E"));
         props.put(1, new Pair<>("apple,everest arm,v8", "P"));
         props.put(2, new Pair<>("apple,everest arm,v8", null));
@@ -839,14 +840,20 @@ class MacCentralProcessorTest {
             return sysctlStrings == null ? def : sysctlStrings.getOrDefault(name, def);
         }
 
+        /** Whether an IORegistry is available. The base stub has none; PmgrCentralProcessor supplies one. */
+        protected boolean hasIoKit() {
+            return false;
+        }
+
         @Override
         protected SysctlProvider sysctlProvider() {
-            return null; // Not used; sysctl methods are overridden directly
+            throw new UnsupportedOperationException("sysctl methods are overridden directly");
         }
 
         @Override
         protected IOKitProvider ioKitProvider() {
-            return null; // Not used; platformExpert/queryCoreProperties/queryClusterFrequencies are overridden
+            throw new UnsupportedOperationException(
+                    "platformExpert/queryCoreProperties/queryClusterFrequencies are overridden");
         }
 
         @Override
@@ -855,14 +862,14 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        protected Map<Integer, Pair<String, String>> queryCoreProperties() {
+        protected Map<Integer, Pair<@Nullable String, @Nullable String>> queryCoreProperties() {
             return new HashMap<>();
         }
 
         @Override
         protected long[][] queryClusterFrequencyTables() {
             // With no IORegistry to walk there are no tables to read; PmgrCentralProcessor supplies one
-            return ioKitProvider() == null ? new long[0][] : super.queryClusterFrequencyTables();
+            return hasIoKit() ? super.queryClusterFrequencyTables() : new long[0][];
         }
 
         @Override
@@ -930,8 +937,8 @@ class MacCentralProcessorTest {
         }
 
         @Override
-        protected Map<Integer, Pair<String, String>> queryCoreProperties() {
-            Map<Integer, Pair<String, String>> props = new HashMap<>();
+        protected Map<Integer, Pair<@Nullable String, @Nullable String>> queryCoreProperties() {
+            Map<Integer, Pair<@Nullable String, @Nullable String>> props = new HashMap<>();
             for (int i = 0; i < CORE_COUNT; i++) {
                 boolean performance = i >= CORE_COUNT / 2;
                 props.put(i, new Pair<>(performance ? "apple,everest arm,v8" : "apple,sawtooth arm,v8",
@@ -977,6 +984,11 @@ class MacCentralProcessorTest {
         PmgrCentralProcessor(Map<String, byte[]> pmgrProperties) {
             super(Collections.singletonMap("machdep.cpu.brand_string", "Apple M0"));
             this.provider = new PmgrProvider(pmgrProperties);
+        }
+
+        @Override
+        protected boolean hasIoKit() {
+            return true;
         }
 
         @Override
