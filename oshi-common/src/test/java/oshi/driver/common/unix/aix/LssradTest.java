@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -26,14 +25,15 @@ class LssradTest {
     void testParseNodesPackages() {
         // lssrad -av: leading-digit lines set the REF (node); indented lines carry SRAD (slot) + CPU ranges.
         // A range line without a decimal MEM column is a continuation that keeps the previous slot.
-        Map<Integer, Pair<Integer, Integer>> map = Lssrad.parseNodesPackages(Arrays.asList(//
-                "REF1        SRAD        MEM        CPU", //
-                "0", //
-                "               0       32749.12    0-63", //
-                "               1        9462.00    64-67 72-75", //
-                "                                   80-83 88-91", //
-                "1", //
-                "               2        2471.19    92-95"));
+        Map<Integer, Pair<Integer, Integer>> map = Lssrad.parseNodesPackages("""
+                REF1        SRAD        MEM        CPU
+                0
+                               0       32749.12    0-63
+                               1        9462.00    64-67 72-75
+                                                   80-83 88-91
+                1
+                               2        2471.19    92-95
+                """.lines().toList());
         // node 0, slot 0
         Pair<Integer, Integer> cpu0 = map.get(0);
         Pair<Integer, Integer> cpu63 = map.get(63);

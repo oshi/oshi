@@ -22,9 +22,12 @@ class AixFileSystemTest {
 
     @Test
     void testParseDfInodesTypical() {
-        List<String> lines = Arrays.asList("Filesystem    512-blocks     Ifree    Iused",
-                "/dev/hd4         4194304   164951    15969", "/dev/hd2        52690944  2894117   196692",
-                "/dev/hd9var      6291456   605443     2317");
+        List<String> lines = """
+                Filesystem    512-blocks     Ifree    Iused
+                /dev/hd4         4194304   164951    15969
+                /dev/hd2        52690944  2894117   196692
+                /dev/hd9var      6291456   605443     2317
+                """.lines().toList();
         Pair<Map<String, Long>, Map<String, Long>> result = AixFileSystem.parseDfInodes(lines);
         Map<String, Long> freeMap = result.getA();
         Map<String, Long> totalMap = result.getB();

@@ -24,11 +24,12 @@ import oshi.util.tuples.Pair;
 class FreeBsdCentralProcessorTest {
 
     // Representative dmesg.boot header (indented Origin/Features lines, as FreeBSD writes them)
-    private static final List<String> DMESG_ID = Arrays.asList(
-            "CPU: Intel(R) Xeon(R) CPU E5-2683 v3 @ 2.00GHz (2000.05-MHz K8-class CPU)",
-            "  Origin=\"GenuineIntel\"  Id=0x306f2  Family=0x6  Model=0x3f  Stepping=2",
-            "  Features=0xbfebfbff<FPU,VME,DE,PSE,TSC,MSR,PAE,MCE,CX8,APIC>",
-            "  Features2=0x7ffefbff<SSE3,PCLMULQDQ,DTES64>");
+    private static final List<String> DMESG_ID = """
+            CPU: Intel(R) Xeon(R) CPU E5-2683 v3 @ 2.00GHz (2000.05-MHz K8-class CPU)
+              Origin="GenuineIntel"  Id=0x306f2  Family=0x6  Model=0x3f  Stepping=2
+              Features=0xbfebfbff<FPU,VME,DE,PSE,TSC,MSR,PAE,MCE,CX8,APIC>
+              Features2=0x7ffefbff<SSE3,PCLMULQDQ,DTES64>
+            """.lines().toList();
 
     @Test
     void testParseProcessorIdFromDmesg() {
@@ -60,9 +61,14 @@ class FreeBsdCentralProcessorTest {
 
     @Test
     void testParseProcModelsAndFlags() {
-        List<String> dmesg = Arrays.asList("cpu0: <ACPI CPU> on acpi0", "cpu1: <ACPI CPU> on acpi0",
-                "  Origin=\"GenuineIntel\"  Id=0x306f2", "  Features=0xbfebfbff<FPU,VME>",
-                "  Features2=0x7ffefbff<SSE3>", "real memory  = 8589934592");
+        List<String> dmesg = """
+                cpu0: <ACPI CPU> on acpi0
+                cpu1: <ACPI CPU> on acpi0
+                  Origin="GenuineIntel"  Id=0x306f2
+                  Features=0xbfebfbff<FPU,VME>
+                  Features2=0x7ffefbff<SSE3>
+                real memory  = 8589934592
+                """.lines().toList();
         Pair<Map<Integer, String>, List<String>> r = FreeBsdCentralProcessor.parseProcModelsAndFlags(dmesg);
         assertThat(r.getA().get(0), is("<ACPI CPU>"));
         assertThat(r.getA().get(1), is("<ACPI CPU>"));
@@ -81,9 +87,12 @@ class FreeBsdCentralProcessorTest {
 
     @Test
     void testParseCachesFromLscpu() {
-        List<String> lscpu = Arrays.asList("L1d cache:                       32K",
-                "L1i cache:                       32K", "L2 cache:                        256K",
-                "L3 cache:                        8M");
+        List<String> lscpu = """
+                L1d cache:                       32K
+                L1i cache:                       32K
+                L2 cache:                        256K
+                L3 cache:                        8M
+                """.lines().toList();
         List<ProcessorCache> caches = FreeBsdCentralProcessor.parseCachesFromLscpu(lscpu);
         assertThat(caches, hasSize(4));
         assertThat(caches.stream().anyMatch(c -> c.getLevel() == 3), is(true));

@@ -315,10 +315,14 @@ class NetstatRouteTest {
      */
     @Test
     void testParseOpenBsdPrioMetric() {
-        List<String> openBsd = Arrays.asList("Routing tables", "", "Internet:",
-                "Destination        Gateway            Flags   Refs      Use   Mtu  Prio Iface",
-                "default            192.168.1.1        UGS        0        8     -     8 em0",
-                "224/4              127.0.0.1          URS        0        0 32768     8 lo0");
+        List<String> openBsd = """
+                Routing tables
+
+                Internet:
+                Destination        Gateway            Flags   Refs      Use   Mtu  Prio Iface
+                default            192.168.1.1        UGS        0        8     -     8 em0
+                224/4              127.0.0.1          URS        0        0 32768     8 lo0
+                """.lines().toList();
         List<IPRoute> routes = NetstatRoute.parseRoutes(openBsd, false, 7, NO_INDICES);
         assertThat(routes, hasSize(2));
         assertThat(routes.get(0).getDestination(), is(new byte[] { 0, 0, 0, 0 }));

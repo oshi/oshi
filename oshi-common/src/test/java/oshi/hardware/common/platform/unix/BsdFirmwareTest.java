@@ -46,10 +46,11 @@ class BsdFirmwareTest {
     @Test
     void testParseDmesgNetBsd() {
         // Representative NetBSD dmesg bios0 output
-        List<String> dmesg = Arrays.asList(//
-                "bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)", //
-                "bios0: vendor LENOVO version \"GLET90WW (2.44 )\" date 09/13/2017", //
-                "bios0: LENOVO 20AWA08J00");
+        List<String> dmesg = """
+                bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)
+                bios0: vendor LENOVO version "GLET90WW (2.44 )" date 09/13/2017
+                bios0: LENOVO 20AWA08J00
+                """.lines().toList();
         Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
         assertThat(fw.getA(), is("LENOVO"));
         assertThat(fw.getB(), is("GLET90WW (2.44 )"));

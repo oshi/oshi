@@ -23,11 +23,27 @@ class GeomDiskListTest {
 
     @Test
     void testParseGeomDiskListTypicalOutput() {
-        List<String> geom = Arrays.asList("Geom name: ada0", "Providers:", "1. Name: ada0",
-                "   Mediasize: 500107862016 (465G)", "   Sectorsize: 512", "   Mode: r2w2e3",
-                "   descr: Samsung SSD 860 EVO 500GB", "   ident: S3Z2NB0K123456X", "   rotationrate: 0", "",
-                "Geom name: da0", "Providers:", "1. Name: da0", "   Mediasize: 8053063680 (7.5G)", "   Sectorsize: 512",
-                "   Mode: r0w0e0", "   descr: USB Flash Drive", "   ident: (null)", "   rotationrate: unknown");
+        List<String> geom = """
+                Geom name: ada0
+                Providers:
+                1. Name: ada0
+                   Mediasize: 500107862016 (465G)
+                   Sectorsize: 512
+                   Mode: r2w2e3
+                   descr: Samsung SSD 860 EVO 500GB
+                   ident: S3Z2NB0K123456X
+                   rotationrate: 0
+
+                Geom name: da0
+                Providers:
+                1. Name: da0
+                   Mediasize: 8053063680 (7.5G)
+                   Sectorsize: 512
+                   Mode: r0w0e0
+                   descr: USB Flash Drive
+                   ident: (null)
+                   rotationrate: unknown
+                """.lines().toList();
 
         Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(geom);
 

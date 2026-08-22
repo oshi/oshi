@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.jspecify.annotations.Nullable;
@@ -21,12 +20,13 @@ class LscfgTest {
     @Test
     void testParseModelSerial() {
         // lscfg -vl hdisk0: the "Machine Type and Model" line overrides the first-line description
-        Pair<@Nullable String, @Nullable String> modSer = Lscfg.parseModelSerial(Arrays.asList(//
-                "  hdisk0           U78CB.001.WZS00MP-P1-C2-T1-L0  MPIO IBM 2076 FC Disk", //
-                "        Manufacturer................IBM", //
-                "        Machine Type and Model......2076", //
-                "        Serial Number...............0123456789AB", //
-                "        EC Level....................D77161"), "hdisk0");
+        Pair<@Nullable String, @Nullable String> modSer = Lscfg.parseModelSerial("""
+                  hdisk0           U78CB.001.WZS00MP-P1-C2-T1-L0  MPIO IBM 2076 FC Disk
+                        Manufacturer................IBM
+                        Machine Type and Model......2076
+                        Serial Number...............0123456789AB
+                        EC Level....................D77161
+                """.lines().toList(), "hdisk0");
         assertThat(modSer.getA(), is("2076"));
         assertThat(modSer.getB(), is("0123456789AB"));
     }

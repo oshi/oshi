@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,12 @@ class MountTest {
 
     @Test
     void testParseMountOutputTypicalOutput() {
-        List<String> mountOutput = Arrays.asList("/dev/ada0p2 on / (ufs, local, journaled, soft-updates)",
-                "devfs on /dev (devfs)", "/dev/ada0p3 on /usr (ufs, local, journaled, soft-updates)",
-                "/dev/da0p1 on /mnt/usb (msdosfs, local)");
+        List<String> mountOutput = """
+                /dev/ada0p2 on / (ufs, local, journaled, soft-updates)
+                devfs on /dev (devfs)
+                /dev/ada0p3 on /usr (ufs, local, journaled, soft-updates)
+                /dev/da0p1 on /mnt/usb (msdosfs, local)
+                """.lines().toList();
 
         Map<String, String> result = Mount.parseMountOutput(mountOutput);
 
@@ -39,8 +41,11 @@ class MountTest {
 
     @Test
     void testParseMountOutputNonMatchingLinesIgnored() {
-        List<String> mountOutput = Arrays.asList("devfs on /dev (devfs)", "procfs on /proc (procfs, local)",
-                "tmpfs on /tmp (tmpfs, local)");
+        List<String> mountOutput = """
+                devfs on /dev (devfs)
+                procfs on /proc (procfs, local)
+                tmpfs on /tmp (tmpfs, local)
+                """.lines().toList();
 
         Map<String, String> result = Mount.parseMountOutput(mountOutput);
         assertThat(result, is(anEmptyMap()));

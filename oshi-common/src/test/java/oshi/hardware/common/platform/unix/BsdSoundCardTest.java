@@ -22,13 +22,14 @@ import oshi.util.Constants;
 class BsdSoundCardTest {
 
     // Representative NetBSD/OpenBSD dmesg output with audio devices
-    private static final List<String> DMESG = Arrays.asList(//
-            "azalia0 at pci0 dev 27 function 0 \"Intel 82801I HD Audio\" rev 0x03: msi", //
-            "azalia0: codec[0]: Realtek ALC888", //
-            "audio0 at azalia0", //
-            "hdaudio0 at pci0 dev 3 function 0 \"Intel HD Graphics Audio\" rev 0x05: msi", //
-            "hdaudio0: codec[0]: Intel Haswell HDMI", //
-            "audio1 at hdaudio0");
+    private static final List<String> DMESG = """
+            azalia0 at pci0 dev 27 function 0 "Intel 82801I HD Audio" rev 0x03: msi
+            azalia0: codec[0]: Realtek ALC888
+            audio0 at azalia0
+            hdaudio0 at pci0 dev 3 function 0 "Intel HD Graphics Audio" rev 0x05: msi
+            hdaudio0: codec[0]: Intel Haswell HDMI
+            audio1 at hdaudio0
+            """.lines().toList();
 
     @Test
     void testParseDmesg() {
@@ -62,10 +63,11 @@ class BsdSoundCardTest {
     @Test
     void testParseDmesgNoCodec() {
         // Audio device is present but no codec line follows the PCI match
-        List<String> dmesg = Arrays.asList(//
-                "audio0 at azalia0", //
-                "azalia0 at pci0 dev 27 function 0 \"Intel Audio\" rev 0x01: msi", //
-                "unrelated line here");
+        List<String> dmesg = """
+                audio0 at azalia0
+                azalia0 at pci0 dev 27 function 0 "Intel Audio" rev 0x01: msi
+                unrelated line here
+                """.lines().toList();
         List<SoundCard> cards = BsdSoundCard.parseDmesg(dmesg);
         assertThat(cards, hasSize(1));
         assertThat(cards.get(0).getName(), is("Intel Audio"));

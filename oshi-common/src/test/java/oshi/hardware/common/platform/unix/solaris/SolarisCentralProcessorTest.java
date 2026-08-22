@@ -20,10 +20,12 @@ class SolarisCentralProcessorTest {
 
     @Test
     void testParseDmesgCpuInfo() {
-        List<String> dmesg = Arrays.asList(//
-                "Jan  9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r) CPU J3455 @ 1.50GHz", //
-                "Jan  9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)", //
-                "Jan  9 14:04:28 solaris unix: [ID 950921 kern.info] cpu1: Intel(r) Celeron(r) CPU J3455 @ 1.50GHz");
+        List<String> dmesg = """
+                Jan  9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: Intel(r) Celeron(r) CPU J3455 @ 1.50GHz
+                Jan  9 14:04:28 solaris unix: [ID 950921 kern.info] cpu0: x86 (chipid 0x0 GenuineIntel 506C9 family 6 model 92 step 9 clock 1500 MHz)
+                Jan  9 14:04:28 solaris unix: [ID 950921 kern.info] cpu1: Intel(r) Celeron(r) CPU J3455 @ 1.50GHz
+                """
+                .lines().toList();
         Map<Integer, String> result = SolarisCentralProcessor.parseDmesgCpuInfo(dmesg);
         // Only lines matching ".* cpu(\d+): ((ARM|AMD|Intel).+)" are captured
         assertThat(result.size(), is(2));
@@ -39,11 +41,12 @@ class SolarisCentralProcessorTest {
 
     @Test
     void testParseNumaNodes() {
-        List<String> lgrpinfo = Arrays.asList(//
-                "lgroup 0 (root):", //
-                "CPUs: 0-3", //
-                "lgroup 1 (leaf):", //
-                "CPUs: 4 5 6 7");
+        List<String> lgrpinfo = """
+                lgroup 0 (root):
+                CPUs: 0-3
+                lgroup 1 (leaf):
+                CPUs: 4 5 6 7
+                """.lines().toList();
         Map<Integer, Integer> result = SolarisCentralProcessor.parseNumaNodes(lgrpinfo);
         assertThat(result.size(), is(8));
         assertThat(result, hasEntry(0, 0));
@@ -65,11 +68,12 @@ class SolarisCentralProcessorTest {
     @Test
     void testParseIsainfoFlags() {
         // isainfo -v output: first a 64-bit header, then indented flags, then 32-bit header
-        List<String> isainfo = Arrays.asList(//
-                "64-bit amd64 applications", //
-                "        avx512f avx512cd sha sse4.2 popcnt", //
-                "32-bit i386 applications", //
-                "        sse2 sse mmx");
+        List<String> isainfo = """
+                64-bit amd64 applications
+                        avx512f avx512cd sha sse4.2 popcnt
+                32-bit i386 applications
+                        sse2 sse mmx
+                """.lines().toList();
         String[] flags = SolarisCentralProcessor.parseIsainfoFlags(isainfo);
         // Should only contain flags from the 64-bit section, lowercased, split on whitespace.
         // The first element is empty because the flags StringBuilder starts with a space.

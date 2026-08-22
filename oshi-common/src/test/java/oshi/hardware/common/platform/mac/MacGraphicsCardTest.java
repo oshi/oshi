@@ -33,16 +33,33 @@ class MacGraphicsCardTest {
     @Test
     void testSingleCard() {
         // Real output from system_profiler SPDisplaysDataType on Apple M3 Pro
-        List<String> sp = Arrays.asList("Graphics/Displays:", "", "    Apple M3 Pro:", "",
-                "      Chipset Model: Apple M3 Pro", "      Type: GPU", "      Bus: Built-In",
-                "      Total Number of Cores: 18", "      Vendor: Apple (0x106b)", "      Metal Support: Metal 4",
-                "      Displays:", "        LG ULTRAWIDE:",
-                "          Resolution: 3440 x 1440 (UWQHD - Ultra-Wide Quad HD)",
-                "          UI Looks like: 3440 x 1440 @ 50.00Hz", "          Main Display: Yes",
-                "          Mirror: Off", "          Online: Yes", "          Rotation: Supported", "        Color LCD:",
-                "          Display Type: Built-in Liquid Retina XDR Display",
-                "          Resolution: 3456 x 2234 Retina", "          Mirror: Off", "          Online: Yes",
-                "          Automatically Adjust Brightness: Yes", "          Connection Type: Internal");
+        List<String> sp = """
+                Graphics/Displays:
+
+                    Apple M3 Pro:
+
+                      Chipset Model: Apple M3 Pro
+                      Type: GPU
+                      Bus: Built-In
+                      Total Number of Cores: 18
+                      Vendor: Apple (0x106b)
+                      Metal Support: Metal 4
+                      Displays:
+                        LG ULTRAWIDE:
+                          Resolution: 3440 x 1440 (UWQHD - Ultra-Wide Quad HD)
+                          UI Looks like: 3440 x 1440 @ 50.00Hz
+                          Main Display: Yes
+                          Mirror: Off
+                          Online: Yes
+                          Rotation: Supported
+                        Color LCD:
+                          Display Type: Built-in Liquid Retina XDR Display
+                          Resolution: 3456 x 2234 Retina
+                          Mirror: Off
+                          Online: Yes
+                          Automatically Adjust Brightness: Yes
+                          Connection Type: Internal
+                """.lines().toList();
         List<GraphicsCard> cards = MacGraphicsCard.parseGraphicsCards(sp, FACTORY, SYSCTL);
         assertThat(cards, hasSize(1));
         assertThat(cards.get(0).getName(), is("Apple M3 Pro"));
@@ -53,11 +70,25 @@ class MacGraphicsCardTest {
     @Test
     void testTwoCards() {
         // Representative output from a 2017 MacBook Pro with Intel + AMD GPUs
-        List<String> sp = Arrays.asList("Graphics/Displays:", "", "    Intel HD Graphics 630:", "",
-                "      Chipset Model: Intel HD Graphics 630", "      Device ID: 0x591b", "      Vendor: Intel (0x8086)",
-                "      VRAM (Dynamic, Max): 1536 MB", "      Revision ID: 0x0004", "", "    Radeon Pro 560:", "",
-                "      Chipset Model: Radeon Pro 560", "      Device ID: 0x67ef", "      Vendor: AMD (0x1002)",
-                "      VRAM (Total): 4096 MB", "      EFI Driver Version: 01.00.560");
+        List<String> sp = """
+                Graphics/Displays:
+
+                    Intel HD Graphics 630:
+
+                      Chipset Model: Intel HD Graphics 630
+                      Device ID: 0x591b
+                      Vendor: Intel (0x8086)
+                      VRAM (Dynamic, Max): 1536 MB
+                      Revision ID: 0x0004
+
+                    Radeon Pro 560:
+
+                      Chipset Model: Radeon Pro 560
+                      Device ID: 0x67ef
+                      Vendor: AMD (0x1002)
+                      VRAM (Total): 4096 MB
+                      EFI Driver Version: 01.00.560
+                """.lines().toList();
         List<GraphicsCard> cards = MacGraphicsCard.parseGraphicsCards(sp, FACTORY, SYSCTL);
         assertThat(cards, hasSize(2));
         assertThat(cards.get(0).getName(), is("Intel HD Graphics 630"));
@@ -70,8 +101,12 @@ class MacGraphicsCardTest {
 
     @Test
     void testVersionInfo() {
-        List<String> sp = Arrays.asList("    Card:", "      Chipset Model: Test GPU", "      EFI Driver Version: 1.2.3",
-                "      Metal Revision: 42");
+        List<String> sp = """
+                    Card:
+                      Chipset Model: Test GPU
+                      EFI Driver Version: 1.2.3
+                      Metal Revision: 42
+                """.lines().toList();
         List<GraphicsCard> cards = MacGraphicsCard.parseGraphicsCards(sp, FACTORY, SYSCTL);
         assertThat(cards, hasSize(1));
         assertThat(cards.get(0).getVersionInfo(), is("EFI Driver Version: 1.2.3, Metal Revision: 42"));

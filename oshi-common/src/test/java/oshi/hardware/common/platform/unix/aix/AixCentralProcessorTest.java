@@ -24,12 +24,13 @@ class AixCentralProcessorTest {
     @Test
     void testParseProcessorId() {
         // prtconf excerpt
-        Quartet<String, String, String, Boolean> id = AixCentralProcessor.parseProcessorId(Arrays.asList(//
-                "System Model: IBM,9114-275", //
-                "Processor Type: PowerPC_POWER7", //
-                "Processor Version: PV_7_Compat", //
-                "Number Of Processors: 8", //
-                "CPU Type: 64-bit"));
+        Quartet<String, String, String, Boolean> id = AixCentralProcessor.parseProcessorId("""
+                System Model: IBM,9114-275
+                Processor Type: PowerPC_POWER7
+                Processor Version: PV_7_Compat
+                Number Of Processors: 8
+                CPU Type: 64-bit
+                """.lines().toList());
         assertThat(id.getA(), is("IBM"));
         assertThat(id.getB(), is("PowerPC_POWER7"));
         assertThat(id.getC(), is("PV_7_Compat"));

@@ -24,11 +24,12 @@ import oshi.util.tuples.Pair;
 class BsdCentralProcessorTest {
 
     // Representative OpenBSD/NetBSD dmesg topology lines
-    private static final List<String> DMESG_TOPOLOGY = Arrays.asList(//
-            "cpu0: smt 0, core 0, package 0", //
-            "cpu1: smt 0, core 1, package 0", //
-            "cpu2: smt 0, core 0, package 1", //
-            "cpu3: smt 0, core 1, package 1");
+    private static final List<String> DMESG_TOPOLOGY = """
+            cpu0: smt 0, core 0, package 0
+            cpu1: smt 0, core 1, package 0
+            cpu2: smt 0, core 0, package 1
+            cpu3: smt 0, core 1, package 1
+            """.lines().toList();
 
     @Test
     void testParseTopology() {
@@ -55,11 +56,12 @@ class BsdCentralProcessorTest {
     @Test
     void testParseDmesgModelsAndCachesIntel() {
         // Representative x86 dmesg — cache entries are split across separate lines but each line ends with "cache"
-        List<String> dmesg = Arrays.asList(//
-                "cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01", //
-                "cpu0: 32KB 64b/line 8-way D-cache, 32KB 64b/line 8-way I-cache", //
-                "cpu0: 4MB 64b/line 16-way L2 cache", //
-                "cpu0: FPU,VME,DE,PSE,TSC,MSR,PAE,MCE");
+        List<String> dmesg = """
+                cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01
+                cpu0: 32KB 64b/line 8-way D-cache, 32KB 64b/line 8-way I-cache
+                cpu0: 4MB 64b/line 16-way L2 cache
+                cpu0: FPU,VME,DE,PSE,TSC,MSR,PAE,MCE
+                """.lines().toList();
         DmesgStrings result = BsdCentralProcessor.parseDmesgModelsAndCaches(dmesg);
         assertThat(result.getCpuMap().get(0), is("Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01"));
         assertThat(result.getCaches(), is(not(empty())));
@@ -70,13 +72,14 @@ class BsdCentralProcessorTest {
     @Test
     void testParseDmesgModelsAndCachesArm() {
         // Representative ARM big.LITTLE dmesg
-        List<String> dmesg = Arrays.asList(//
-                "cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4", //
-                "cpu0: 32KB 64b/line 2-way L1 VIPT I-cache, 32KB 64b/line 4-way L1 D-cache", //
-                "cpu0: 512KB 64b/line 16-way L2 cache", //
-                "cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2", //
-                "cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache", //
-                "cpu4: 1024KB 64b/line 16-way L2 cache");
+        List<String> dmesg = """
+                cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4
+                cpu0: 32KB 64b/line 2-way L1 VIPT I-cache, 32KB 64b/line 4-way L1 D-cache
+                cpu0: 512KB 64b/line 16-way L2 cache
+                cpu4 at mainbus0 mpidr 100: ARM Cortex-A72 r0p2
+                cpu4: 48KB 64b/line 3-way L1 PIPT I-cache, 32KB 64b/line 2-way L1 D-cache
+                cpu4: 1024KB 64b/line 16-way L2 cache
+                """.lines().toList();
         DmesgStrings result = BsdCentralProcessor.parseDmesgModelsAndCaches(dmesg);
         assertThat(result.getCpuMap().get(0), is("ARM Cortex-A53 r0p4"));
         assertThat(result.getCpuMap().get(4), is("ARM Cortex-A72 r0p2"));

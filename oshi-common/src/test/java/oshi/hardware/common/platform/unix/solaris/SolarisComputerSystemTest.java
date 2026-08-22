@@ -23,31 +23,32 @@ class SolarisComputerSystemTest {
     @Test
     void testParseSmbios() {
         // Representative smbios output with BIOS, System, and Baseboard sections
-        List<String> smbios = Arrays.asList(//
-                "ID    SIZE TYPE", //
-                "0     87   SMB_TYPE_BIOS (BIOS Information)", //
-                "", //
-                "  Vendor: Parallels Software International Inc.", //
-                "  Version String: 11.2.1 (32686)", //
-                "  Release Date: 07/15/2016", //
-                "  Address Segment: 0xf000", //
-                "", //
-                "ID    SIZE TYPE", //
-                "1     177  SMB_TYPE_SYSTEM (system information)", //
-                "", //
-                "  Manufacturer: Parallels Software International Inc.", //
-                "  Product: Parallels Virtual Platform", //
-                "  Version: None", //
-                "  Serial Number: Parallels-45 2E 7E 2D 57 5C 4B 59 B1 30 28 81 B7 81 89 34", //
-                "  UUID: 452e7e2d-575c04b59-b130-2881b7818934", //
-                "", //
-                "ID    SIZE TYPE", //
-                "2     90   SMB_TYPE_BASEBOARD (base board)", //
-                "", //
-                "  Manufacturer: Parallels Software International Inc.", //
-                "  Product: Parallels Virtual Platform", //
-                "  Version: None", //
-                "  Serial Number: None");
+        List<String> smbios = """
+                ID    SIZE TYPE
+                0     87   SMB_TYPE_BIOS (BIOS Information)
+
+                  Vendor: Parallels Software International Inc.
+                  Version String: 11.2.1 (32686)
+                  Release Date: 07/15/2016
+                  Address Segment: 0xf000
+
+                ID    SIZE TYPE
+                1     177  SMB_TYPE_SYSTEM (system information)
+
+                  Manufacturer: Parallels Software International Inc.
+                  Product: Parallels Virtual Platform
+                  Version: None
+                  Serial Number: Parallels-45 2E 7E 2D 57 5C 4B 59 B1 30 28 81 B7 81 89 34
+                  UUID: 452e7e2d-575c04b59-b130-2881b7818934
+
+                ID    SIZE TYPE
+                2     90   SMB_TYPE_BASEBOARD (base board)
+
+                  Manufacturer: Parallels Software International Inc.
+                  Product: Parallels Virtual Platform
+                  Version: None
+                  Serial Number: None
+                """.lines().toList();
 
         EnumMap<SmbType, Map<String, String>> result = SolarisComputerSystem.parseSmbios(smbios);
 

@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -94,8 +93,19 @@ class PerfstatJNATest {
     void testQueryProtocol() {
         perfstat_protocol_t[] protos = PerfstatProtocolJNA.queryProtocols();
         assertThat("Should have at least one protocol", protos.length, greaterThan(0));
-        List<String> validProtos = Arrays.asList("ip", "ipv6", "icmp", "icmpv6", "udp", "tcp", "rpc", "nfs", "nfsv2",
-                "nfsv3", "nfsv4");
+        List<String> validProtos = """
+                ip
+                ipv6
+                icmp
+                icmpv6
+                udp
+                tcp
+                rpc
+                nfs
+                nfsv2
+                nfsv3
+                nfsv4
+                """.lines().toList();
         for (perfstat_protocol_t proto : protos) {
             String protoName = Native.toString(proto.name);
             assertTrue(validProtos.contains(protoName), "Protocol must be in defined list of names");
