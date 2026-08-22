@@ -47,6 +47,9 @@ public final class AdlUtilJNA {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdlUtilJNA.class);
 
+    // ADLODNPerformanceStatus clock values are reported in 10 kHz units; divide by this to get MHz.
+    private static final long ADL_ODN_CLOCK_UNITS_PER_MHZ = 100L;
+
     // -------------------------------------------------------------------------
     // Library loading (holder pattern — loads the .dll once)
     // -------------------------------------------------------------------------
@@ -280,6 +283,37 @@ public final class AdlUtilJNA {
     }
 
     /**
+     * Reads one field from the OverdriveN performance status.
+     *
+     * @param adapterIndex ADL adapter index
+     * @param field        selects the field to read
+     * @return the raw field value, or -1 if unavailable
+     */
+    private static int performanceStatusField(int adapterIndex, ToIntFunction<ADLODNPerformanceStatus> field) {
+        if (adapterIndex < 0) {
+            return -1;
+        }
+        AdlLibrary lib = Holder.LIB;
+        Pointer ctx = adlInit();
+        if (ctx == null || lib == null) {
+            return -1;
+        }
+        try {
+            if (!supportsOverdriveN(ctx, adapterIndex)) {
+                return -1;
+            }
+            ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
+            if (lib.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
+                perf.read();
+                return field.applyAsInt(perf);
+            }
+            return -1;
+        } finally {
+            adlUninit(ctx);
+        }
+    }
+
+    /**
      * Reads one clock from the OverdriveN performance status, in MHz. ADL reports clocks in 10 kHz units.
      *
      * @param adapterIndex ADL adapter index
@@ -287,27 +321,19 @@ public final class AdlUtilJNA {
      * @return the clock in MHz, or -1 if unavailable
      */
     private static long performanceClockMhz(int adapterIndex, ToIntFunction<ADLODNPerformanceStatus> clock) {
-        if (adapterIndex < 0) {
-            return -1L;
-        }
-        AdlLibrary lib = Holder.LIB;
-        Pointer ctx = adlInit();
-        if (ctx == null || lib == null) {
-            return -1L;
-        }
-        try {
-            if (!supportsOverdriveN(ctx, adapterIndex)) {
-                return -1L;
-            }
-            ADLODNPerformanceStatus perf = new ADLODNPerformanceStatus();
-            if (lib.ADL2_OverdriveN_PerformanceStatus_Get(ctx, adapterIndex, perf) == Adl.ADL_OK) {
-                perf.read();
-                return clock.applyAsInt(perf) / 100L;
-            }
-            return -1L;
-        } finally {
-            adlUninit(ctx);
-        }
+        int raw = performanceStatusField(adapterIndex, clock);
+        return raw < 0 ? -1L : raw / ADL_ODN_CLOCK_UNITS_PER_MHZ;
+    }
+
+    /**
+     * Returns GPU core utilization as a percentage (0-100), or -1 if unavailable. The value is one field of the same
+     * OverdriveN performance status struct the clock getters read.
+     *
+     * @param adapterIndex ADL adapter index
+     * @return utilization percentage or -1
+     */
+    public static double getGpuUtilization(int adapterIndex) {
+        return performanceStatusField(adapterIndex, perf -> perf.iGPUActivityPercent);
     }
 
     /**

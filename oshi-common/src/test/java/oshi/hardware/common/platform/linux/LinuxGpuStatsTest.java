@@ -539,6 +539,60 @@ class LinuxGpuStatsTest {
     }
 
     @Test
+    void testNvmlOutranksSysfs(@TempDir Path tmp) throws IOException {
+        // Every metric is answerable from both sources, with different values, so dropping the NVML branch from any
+        // getter fails here rather than silently falling through to sysfs.
+        Path device = tmp.resolve("device");
+        Path hwmon = device.resolve("hwmon/hwmon0");
+        Files.createDirectories(hwmon);
+        writeFile(device.resolve("gpu_busy_percent"), "42\n");
+        writeFile(device.resolve("mem_info_vram_used"), "1073741824\n");
+        writeFile(hwmon.resolve("temp1_input"), "55000\n");
+        writeFile(hwmon.resolve("power1_average"), "90000000\n");
+        writeFile(hwmon.resolve("freq1_input"), "1000000000\n");
+        writeFile(hwmon.resolve("freq2_input"), "5000000000\n");
+        writeFile(hwmon.resolve("fan1_input"), "1000\n");
+        writeFile(hwmon.resolve("fan1_max"), "2000\n");
+
+        try (LinuxGpuStats stats = new NvmlLinuxGpuStats(device.toString(), "amdgpu", "0000:01:00.0", "NVIDIA GPU")) {
+            assertThat(stats.getGpuUtilization(), closeTo(73.0, EPS));
+            assertThat(stats.getVramUsed(), is(2147483648L));
+            assertThat(stats.getTemperature(), closeTo(65.0, EPS));
+            assertThat(stats.getPowerDraw(), closeTo(120.0, EPS));
+            assertThat(stats.getCoreClockMhz(), is(1800L));
+            assertThat(stats.getMemoryClockMhz(), is(7000L));
+            assertThat(stats.getFanSpeedPercent(), closeTo(45.0, EPS));
+        }
+    }
+
+    @Test
+    void testSysfsAnswersWhenNvmlDeclinesEveryMetric(@TempDir Path tmp) throws IOException {
+        // The mirror of the test above: the same fixture read through a stub whose NVML answers nothing, confirming
+        // each value it pins really is reachable from sysfs and the NVML assertions above are not vacuous.
+        Path device = tmp.resolve("device");
+        Path hwmon = device.resolve("hwmon/hwmon0");
+        Files.createDirectories(hwmon);
+        writeFile(device.resolve("gpu_busy_percent"), "42\n");
+        writeFile(device.resolve("mem_info_vram_used"), "1073741824\n");
+        writeFile(hwmon.resolve("temp1_input"), "55000\n");
+        writeFile(hwmon.resolve("power1_average"), "90000000\n");
+        writeFile(hwmon.resolve("freq1_input"), "1000000000\n");
+        writeFile(hwmon.resolve("freq2_input"), "5000000000\n");
+        writeFile(hwmon.resolve("fan1_input"), "1000\n");
+        writeFile(hwmon.resolve("fan1_max"), "2000\n");
+
+        try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
+            assertThat(stats.getGpuUtilization(), closeTo(42.0, EPS));
+            assertThat(stats.getVramUsed(), is(1073741824L));
+            assertThat(stats.getTemperature(), closeTo(55.0, EPS));
+            assertThat(stats.getPowerDraw(), closeTo(90.0, EPS));
+            assertThat(stats.getCoreClockMhz(), is(1000L));
+            assertThat(stats.getMemoryClockMhz(), is(5000L));
+            assertThat(stats.getFanSpeedPercent(), closeTo(50.0, EPS));
+        }
+    }
+
+    @Test
     void testNvmlUtilizationUnsupportedReturnsSentinel() {
         // NVML resolves the device but does not support the utilization query, and the nvidia driver exposes no
         // sysfs equivalent to fall back to

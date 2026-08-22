@@ -24,7 +24,13 @@ import oshi.hardware.GpuTicks;
 import oshi.util.tuples.Pair;
 
 /**
- * Common Windows {@link GpuStats} implementation. Subclasses provide platform-specific native dispatch.
+ * Common Windows {@link GpuStats} implementation. Dynamic metrics are sourced in priority order: NVML (NVIDIA GPUs),
+ * then ADL (AMD GPUs), then LibreHardwareMonitor's WMI provider when that application is running. Utilization has a
+ * fourth source below those, a delta of the PDH GPU engine running-time counters, which is vendor-neutral but needs two
+ * samples. Memory usage reads the PDH adapter memory counters ahead of LibreHardwareMonitor.
+ *
+ * <p>
+ * Subclasses provide platform-specific native dispatch.
  */
 @ThreadSafe
 public abstract class WindowsGpuStats implements GpuStats {
@@ -111,6 +117,14 @@ public abstract class WindowsGpuStats implements GpuStats {
     protected abstract @Nullable String nvmlFindDeviceByName(String gpuName);
 
     /**
+     * Gets the GPU core utilization via NVML.
+     *
+     * @param device the NVML device handle
+     * @return utilization percentage (0-100), or negative if unavailable
+     */
+    protected abstract double nvmlGetGpuUtilization(String device);
+
+    /**
      * Gets the GPU temperature via NVML.
      *
      * @param device the NVML device handle
@@ -164,6 +178,14 @@ public abstract class WindowsGpuStats implements GpuStats {
      * @return the adapter index, or -1 if not found
      */
     protected abstract int adlFindAdapterIndex(int pciBusNumber);
+
+    /**
+     * Gets the GPU core utilization via ADL.
+     *
+     * @param adapterIndex the ADL adapter index
+     * @return utilization percentage (0-100), or negative if unavailable
+     */
+    protected abstract double adlGetGpuUtilization(int adapterIndex);
 
     /**
      * Gets the GPU temperature via ADL.
@@ -261,18 +283,26 @@ public abstract class WindowsGpuStats implements GpuStats {
     @Override
     public synchronized double getGpuUtilization() {
         checkOpen();
-        if (!lhmParent.isEmpty()) {
-            try {
-                WmiResult<LhmSensorProperty> sensors = queryLhmSensors(lhmParent, "Load");
-                for (int i = 0; i < sensors.getResultCount(); i++) {
-                    if ("GPU Core".equals(WmiUtil.getString(sensors, LhmSensorProperty.NAME, i))) {
-                        return WmiUtil.getFloat(sensors, LhmSensorProperty.VALUE, i);
-                    }
-                }
-            } catch (Exception e) {
-                LOG.debug("LHM GPU utilization query failed", e);
+        String nvmlDevice = findNvmlDevice();
+        if (nvmlDevice != null) {
+            double val = nvmlGetGpuUtilization(nvmlDevice);
+            if (val >= 0) {
+                return val;
             }
         }
+        int adlIndex = findAdlIndex();
+        if (adlIndex >= 0) {
+            double val = adlGetGpuUtilization(adlIndex);
+            if (val >= 0) {
+                return val;
+            }
+        }
+        double lhm = lhmFloatSensor("Load", "GPU Core");
+        if (lhm >= 0) {
+            return lhm;
+        }
+        // Vendor-neutral last resort: the PDH engine running-time delta. Unlike the sources above it needs two
+        // samples, so the first call after the session opens seeds the baseline and returns the sentinel.
         GpuTicks curr = getGpuTicks();
         GpuTicks prev = this.prevUtilTicks;
         if (prev != null) {
