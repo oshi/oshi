@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,23 +51,67 @@ class AbstractGlobalMemoryTest {
     }
 
     // Fixture: dmidecode --type 17 with two populated DIMMs and one empty slot
-    private static final List<String> DMI_TYPE_17 = Arrays.asList("# dmidecode 3.2", "Getting SMBIOS data from sysfs.",
-            "SMBIOS 3.0.0 present.", "", "Handle 0x0038, DMI type 17, 40 bytes", "Memory Device",
-            "\tArray Handle: 0x0036", "\tError Information Handle: Not Provided", "\tTotal Width: 72 bits",
-            "\tData Width: 64 bits", "\tSize: 16384 MB", "\tForm Factor: DIMM", "\tSet: None", "\tLocator: DIMM_A1",
-            "\tBank Locator: NODE 0", "\tType: DDR4", "\tType Detail: Synchronous Registered (Buffered)",
-            "\tSpeed: 2666 MT/s", "\tManufacturer: Samsung", "\tSerial Number: 12345ABC",
-            "\tAsset Tag: DIMM_A1_AssetTag", "\tPart Number: M393A2K43CB2-CTD", "\tRank: 2",
-            "\tConfigured Memory Speed: 2666 MT/s", "", "Handle 0x0039, DMI type 17, 40 bytes", "Memory Device",
-            "\tArray Handle: 0x0036", "\tError Information Handle: Not Provided", "\tTotal Width: 72 bits",
-            "\tData Width: 64 bits", "\tSize: 8192 MB", "\tForm Factor: DIMM", "\tSet: None", "\tLocator: DIMM_B1",
-            "\tBank Locator: NODE 1", "\tType: DDR4", "\tType Detail: Synchronous Registered (Buffered)",
-            "\tSpeed: 2400 MT/s", "\tManufacturer: Micron", "\tSerial Number: 67890DEF",
-            "\tAsset Tag: DIMM_B1_AssetTag", "\tPart Number: MTA18ASF1G72PZ", "\tRank: 1",
-            "\tConfigured Memory Speed: 2400 MT/s", "", "Handle 0x003A, DMI type 17, 40 bytes", "Memory Device",
-            "\tArray Handle: 0x0036", "\tError Information Handle: Not Provided", "\tTotal Width: Unknown",
-            "\tData Width: Unknown", "\tSize: No Module Installed", "\tForm Factor: DIMM", "\tSet: None",
-            "\tLocator: DIMM_C1", "\tBank Locator: NODE 2", "\tType: Unknown", "\tType Detail: None");
+    private static final List<String> DMI_TYPE_17 = """
+            # dmidecode 3.2
+            Getting SMBIOS data from sysfs.
+            SMBIOS 3.0.0 present.
+
+            Handle 0x0038, DMI type 17, 40 bytes
+            Memory Device
+            \tArray Handle: 0x0036
+            \tError Information Handle: Not Provided
+            \tTotal Width: 72 bits
+            \tData Width: 64 bits
+            \tSize: 16384 MB
+            \tForm Factor: DIMM
+            \tSet: None
+            \tLocator: DIMM_A1
+            \tBank Locator: NODE 0
+            \tType: DDR4
+            \tType Detail: Synchronous Registered (Buffered)
+            \tSpeed: 2666 MT/s
+            \tManufacturer: Samsung
+            \tSerial Number: 12345ABC
+            \tAsset Tag: DIMM_A1_AssetTag
+            \tPart Number: M393A2K43CB2-CTD
+            \tRank: 2
+            \tConfigured Memory Speed: 2666 MT/s
+
+            Handle 0x0039, DMI type 17, 40 bytes
+            Memory Device
+            \tArray Handle: 0x0036
+            \tError Information Handle: Not Provided
+            \tTotal Width: 72 bits
+            \tData Width: 64 bits
+            \tSize: 8192 MB
+            \tForm Factor: DIMM
+            \tSet: None
+            \tLocator: DIMM_B1
+            \tBank Locator: NODE 1
+            \tType: DDR4
+            \tType Detail: Synchronous Registered (Buffered)
+            \tSpeed: 2400 MT/s
+            \tManufacturer: Micron
+            \tSerial Number: 67890DEF
+            \tAsset Tag: DIMM_B1_AssetTag
+            \tPart Number: MTA18ASF1G72PZ
+            \tRank: 1
+            \tConfigured Memory Speed: 2400 MT/s
+
+            Handle 0x003A, DMI type 17, 40 bytes
+            Memory Device
+            \tArray Handle: 0x0036
+            \tError Information Handle: Not Provided
+            \tTotal Width: Unknown
+            \tData Width: Unknown
+            \tSize: No Module Installed
+            \tForm Factor: DIMM
+            \tSet: None
+            \tLocator: DIMM_C1
+            \tBank Locator: NODE 2
+            \tType: Unknown
+            \tType Detail: None
+            """.lines().toList();
 
     @Test
     void testParsePhysicalMemoryTwoDimms() {
@@ -101,9 +144,18 @@ class AbstractGlobalMemoryTest {
 
     @Test
     void testParsePhysicalMemorySingleDimm() {
-        List<String> single = Arrays.asList("Handle 0x0038, DMI type 17, 40 bytes", "Memory Device", "\tSize: 4096 MB",
-                "\tLocator: DIMM0", "\tBank Locator: Bank0", "\tType: DDR3", "\tSpeed: 1600 MT/s",
-                "\tManufacturer: Kingston", "\tPart Number: KVR16N11/4", "\tSerial Number: AABB1122");
+        List<String> single = """
+                Handle 0x0038, DMI type 17, 40 bytes
+                Memory Device
+                \tSize: 4096 MB
+                \tLocator: DIMM0
+                \tBank Locator: Bank0
+                \tType: DDR3
+                \tSpeed: 1600 MT/s
+                \tManufacturer: Kingston
+                \tPart Number: KVR16N11/4
+                \tSerial Number: AABB1122
+                """.lines().toList();
         List<PhysicalMemory> result = AbstractGlobalMemory.getPhysicalMemory(single);
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getBankLabel(), is("Bank0/DIMM0"));
@@ -113,11 +165,26 @@ class AbstractGlobalMemoryTest {
     @Test
     void testParsePhysicalMemoryNoStateLeak() {
         // Second DIMM omits Manufacturer and Part Number — should NOT inherit from first
-        List<String> twoEntries = Arrays.asList("Handle 0x0038, DMI type 17, 40 bytes", "Memory Device",
-                "\tSize: 8192 MB", "\tLocator: DIMM_A1", "\tBank Locator: Bank0", "\tType: DDR4", "\tSpeed: 2666 MT/s",
-                "\tManufacturer: Samsung", "\tPart Number: M393A2K43CB2-CTD", "\tSerial Number: SN111",
-                "Handle 0x0039, DMI type 17, 40 bytes", "Memory Device", "\tSize: 4096 MB", "\tLocator: DIMM_B1",
-                "\tBank Locator: Bank1", "\tType: DDR4", "\tSpeed: 2400 MT/s", "\tSerial Number: SN222");
+        List<String> twoEntries = """
+                Handle 0x0038, DMI type 17, 40 bytes
+                Memory Device
+                \tSize: 8192 MB
+                \tLocator: DIMM_A1
+                \tBank Locator: Bank0
+                \tType: DDR4
+                \tSpeed: 2666 MT/s
+                \tManufacturer: Samsung
+                \tPart Number: M393A2K43CB2-CTD
+                \tSerial Number: SN111
+                Handle 0x0039, DMI type 17, 40 bytes
+                Memory Device
+                \tSize: 4096 MB
+                \tLocator: DIMM_B1
+                \tBank Locator: Bank1
+                \tType: DDR4
+                \tSpeed: 2400 MT/s
+                \tSerial Number: SN222
+                """.lines().toList();
         List<PhysicalMemory> result = AbstractGlobalMemory.getPhysicalMemory(twoEntries);
         assertThat(result, hasSize(2));
 

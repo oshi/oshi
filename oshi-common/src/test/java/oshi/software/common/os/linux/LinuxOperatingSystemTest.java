@@ -139,8 +139,12 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testReadLsbRelease() {
-        List<String> lines = Arrays.asList("DISTRIB_ID=Ubuntu", "DISTRIB_RELEASE=20.04", "DISTRIB_CODENAME=focal",
-                "DISTRIB_DESCRIPTION=\"Ubuntu 20.04.6 LTS\"");
+        List<String> lines = """
+                DISTRIB_ID=Ubuntu
+                DISTRIB_RELEASE=20.04
+                DISTRIB_CODENAME=focal
+                DISTRIB_DESCRIPTION="Ubuntu 20.04.6 LTS"
+                """.lines().toList();
         Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
@@ -272,8 +276,11 @@ class LinuxOperatingSystemTest {
     @Test
     void testReadOsReleaseNameAfterVersion() {
         // NAME= appears after VERSION= to verify order independence
-        List<String> lines = Arrays.asList("VERSION=\"20.04.6 LTS (Focal Fossa)\"", "VERSION_ID=\"20.04\"",
-                "NAME=\"Ubuntu\"");
+        List<String> lines = """
+                VERSION="20.04.6 LTS (Focal Fossa)"
+                VERSION_ID="20.04"
+                NAME="Ubuntu"
+                """.lines().toList();
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
@@ -290,8 +297,12 @@ class LinuxOperatingSystemTest {
         // When Release:/Codename: lines appear before Description:, the explicit
         // values are set first. Description's parsed version/codename do not override
         // because the code only sets them when versionId/codeName are still UNKNOWN.
-        List<String> lines = Arrays.asList("Distributor ID:\tFedora", "Release:\t39", "Codename:\tThirtyNine",
-                "Description:\tFedora release 38 (Thirty Eight)");
+        List<String> lines = """
+                Distributor ID:\tFedora
+                Release:\t39
+                Codename:\tThirtyNine
+                Description:\tFedora release 38 (Thirty Eight)
+                """.lines().toList();
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
@@ -322,11 +333,15 @@ class LinuxOperatingSystemTest {
     void testParseServicesSystemctl() {
         // Real `systemctl list-unit-files` columns: UNIT FILE, STATE, [VENDOR PRESET]. Only ".service"/"enabled"
         // rows count; already-running services are dropped by full name or short (last dotted segment) name.
-        List<String> systemctl = Arrays.asList("UNIT FILE                              STATE      VENDOR PRESET",
-                "cron.service                           enabled    enabled",
-                "ssh.service                            enabled    enabled",
-                "dbus-org.freedesktop.resolve1.service  enabled    enabled",
-                "bluetooth.service                      disabled   enabled", "", "247 unit files listed.");
+        List<String> systemctl = """
+                UNIT FILE                              STATE      VENDOR PRESET
+                cron.service                           enabled    enabled
+                ssh.service                            enabled    enabled
+                dbus-org.freedesktop.resolve1.service  enabled    enabled
+                bluetooth.service                      disabled   enabled
+
+                247 unit files listed.
+                """.lines().toList();
         Set<String> running = new HashSet<>(Arrays.asList("ssh", "resolve1"));
         List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, "/nonexistent-init-dir");
         // ssh (full-name match) and resolve1 (short-name match) deduped; bluetooth disabled; only cron remains
