@@ -13,7 +13,6 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,7 +31,7 @@ class LsDevicesTest {
     @Test
     void testParseDeviceMajorMinor() {
         // ls -l /dev: block devices begin with 'b'; major,minor are the 2nd and 3rd integers, name is the last token
-        Map<String, Pair<Integer, Integer>> map = Ls.parseDeviceMajorMinor(Arrays.asList(//
+        Map<String, Pair<Integer, Integer>> map = Ls.parseDeviceMajorMinor(List.of(//
                 "total 0", //
                 "crw-rw-rw-  1 root system  2,  2 Jun 28  1970 null", // not a block device, skipped
                 "brw-rw----  1 root system 10,  5 Sep 12  2017 hd2", //

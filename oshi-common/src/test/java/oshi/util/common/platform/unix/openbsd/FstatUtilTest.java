@@ -7,7 +7,6 @@ package oshi.util.common.platform.unix.openbsd;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +19,7 @@ class FstatUtilTest {
 
     @Test
     void testParseOpenFilesCountsNonPipeAndNonUnixRows() {
-        List<String> fstat = Arrays.asList("USER CMD PID FD MOUNT INUM MODE RW SZ FLAGS XS",
+        List<String> fstat = List.of("USER CMD PID FD MOUNT INUM MODE RW SZ FLAGS XS",
                 "dan bash 123 0 /     12345 crw r  64 0 0", "dan bash 123 1 /dev  67890 crw rw 64 0 0",
                 "dan bash 123 2 /dev  67890 crw rw 64 0 0", "dan bash 123 3 pipe  0     fff rw 0  0 0",
                 "dan bash 123 4 unix  0     fff rw 0  0 0");
@@ -29,8 +28,7 @@ class FstatUtilTest {
 
     @Test
     void testParseOpenFilesHeaderOnly() {
-        assertThat(FstatUtil.parseOpenFiles(Collections.singletonList("USER CMD PID FD MOUNT INUM MODE RW SZ FL XS")),
-                is(0L));
+        assertThat(FstatUtil.parseOpenFiles(List.of("USER CMD PID FD MOUNT INUM MODE RW SZ FL XS")), is(0L));
     }
 
     @Test
@@ -40,7 +38,7 @@ class FstatUtilTest {
 
     @Test
     void testParseOpenFilesPartialTokenMounts() {
-        List<String> fstat = Arrays.asList("USER CMD PID FD MOUNT INUM MODE RW SZ FLAGS XS",
+        List<String> fstat = List.of("USER CMD PID FD MOUNT INUM MODE RW SZ FLAGS XS",
                 "dan bash 123 0 pipex 12345 crw r  64 0 0", "dan bash 123 1 unpipe 6789 crw rw 64 0 0",
                 "dan bash 123 2 unixsocket 0 crw rw 64 0 0", "dan bash 123 3 pipe  0     fff rw 0  0 0",
                 "dan bash 123 4 unix  0     fff rw 0  0 0");

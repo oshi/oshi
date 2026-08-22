@@ -162,7 +162,7 @@ class PrtvtocTest {
     @Test
     void testParsePrtvtocSingleLineInput() {
         // size <= 1 returns empty
-        List<HWPartition> result = Prtvtoc.parsePrtvtoc(Collections.singletonList("* header"), "c0d0", 10);
+        List<HWPartition> result = Prtvtoc.parsePrtvtoc(List.of("* header"), "c0d0", 10);
         assertThat(result, is(empty()));
     }
 

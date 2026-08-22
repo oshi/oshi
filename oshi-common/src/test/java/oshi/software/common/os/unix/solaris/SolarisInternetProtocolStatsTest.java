@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +45,7 @@ class SolarisInternetProtocolStatsTest {
     void testParseTcpStatsMixedPrefix() {
         // Real netstat output: tcpInErr is paired with a non-tcp stat (from IP section),
         // so splitOnPrefix finds only one "tcp" occurrence and the remainder contains "="
-        List<String> netstat = Arrays.asList(//
+        List<String> netstat = List.of(//
                 "tcpCurrEstab =    10   tcpActiveOpens =   100", //
                 "tcpInErr     =     7   udpNoPorts    =    99");
         TcpStats stats = SolarisInternetProtocolStats.parseTcpStats(netstat);
@@ -65,7 +64,7 @@ class SolarisInternetProtocolStatsTest {
 
     @Test
     void testParseUdpStats() {
-        List<String> netstat = Arrays.asList(//
+        List<String> netstat = List.of(//
                 "udpOutDatagrams = 10000   udpInDatagrams = 20000", //
                 "udpNoPorts      =   100   udpInErrors    =    50");
         UdpStats stats = SolarisInternetProtocolStats.parseUdpStats(netstat);

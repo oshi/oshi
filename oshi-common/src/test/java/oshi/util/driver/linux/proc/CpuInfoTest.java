@@ -34,7 +34,7 @@ class CpuInfoTest {
             "Revision\t: a020d3", "Serial\t\t: 00000000abcdef01");
 
     // Fixture: x86 /proc/cpuinfo
-    private static final List<String> CPUINFO_X86 = Arrays.asList("processor\t: 0", "vendor_id\t: GenuineIntel",
+    private static final List<String> CPUINFO_X86 = List.of("processor\t: 0", "vendor_id\t: GenuineIntel",
             "model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
             "flags\t\t: fpu vme de pse tsc msr pae mce cx8 apic", "", "processor\t: 1", "vendor_id\t: GenuineIntel",
             "model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
@@ -47,13 +47,13 @@ class CpuInfoTest {
 
     @Test
     void testQueryCpuManufacturerQualcomm() {
-        List<String> qualcomm = Arrays.asList("CPU implementer\t: 0x51");
+        List<String> qualcomm = List.of("CPU implementer\t: 0x51");
         assertThat(CpuInfo.queryCpuManufacturer(qualcomm), is("Qualcomm"));
     }
 
     @Test
     void testQueryCpuManufacturerUnknown() {
-        List<String> unknown = Arrays.asList("CPU implementer\t: 0xff");
+        List<String> unknown = List.of("CPU implementer\t: 0xff");
         assertThat(CpuInfo.queryCpuManufacturer(unknown), is(nullValue()));
     }
 
@@ -80,7 +80,7 @@ class CpuInfoTest {
 
     @Test
     void testQueryBoardInfoEgoman() {
-        List<String> egoman = Arrays.asList("Revision\t: a120d3");
+        List<String> egoman = List.of("Revision\t: a120d3");
         Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
                 .queryBoardInfo(egoman);
         assertThat(info.getA(), is("Egoman"));
@@ -88,7 +88,7 @@ class CpuInfoTest {
 
     @Test
     void testQueryBoardInfoUnknownManufacturer() {
-        List<String> unknown = Arrays.asList("Revision\t: a920d3");
+        List<String> unknown = List.of("Revision\t: a920d3");
         Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
                 .queryBoardInfo(unknown);
         assertThat(info.getA(), is(Constants.UNKNOWN));

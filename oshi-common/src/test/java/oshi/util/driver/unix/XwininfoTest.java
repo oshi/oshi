@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.awt.Rectangle;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,7 +25,7 @@ class XwininfoTest {
             .singletonList("_NET_CLIENT_LIST_STACKING(WINDOW): window id # 0x1400003, 0x1600003, 0x1800003");
 
     // Fixture: xwininfo -root -tree output with window entries
-    private static final List<String> WINDOW_TREE = Arrays.asList(
+    private static final List<String> WINDOW_TREE = List.of(
             "xwininfo: Window id: 0x1e7 (the root window) (has no name)",
             "  Root window id: 0x1e7 (the root window) (has no name)",
             "     0x1400003 \"Terminal\": (\"gnome-terminal\" \"Gnome-terminal\")  800x600+0+0  +100+200",
@@ -50,7 +49,7 @@ class XwininfoTest {
 
     @Test
     void testParseZOrderNoHexId() {
-        List<String> noHex = Collections.singletonList("_NET_CLIENT_LIST_STACKING(WINDOW): window id # ");
+        List<String> noHex = List.of("_NET_CLIENT_LIST_STACKING(WINDOW): window id # ");
         Map<String, Integer> zOrder = Xwininfo.parseZOrder(noHex);
         assertThat(zOrder, is(anEmptyMap()));
     }
@@ -125,7 +124,7 @@ class XwininfoTest {
     @Test
     void testParseWindowTreeAnonymousWindow() {
         // A window line with no quoted name
-        List<String> tree = Collections.singletonList("     0x2000001 (has no name): ()  320x240+0+0  +0+0");
+        List<String> tree = List.of("     0x2000001 (has no name): ()  320x240+0+0  +0+0");
         Map<String, Integer> zOrderMap = new HashMap<>();
         zOrderMap.put("0x2000001", 1);
 

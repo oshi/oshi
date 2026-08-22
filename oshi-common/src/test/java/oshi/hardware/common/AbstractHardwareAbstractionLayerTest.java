@@ -95,8 +95,8 @@ class AbstractHardwareAbstractionLayerTest {
     @Test
     void testGetUsbDevicesTreeReturnsCachedTree() {
         UsbDevice child = createUsb("child", Collections.emptyList());
-        UsbDevice root = createUsb("root", Collections.singletonList(child));
-        AbstractHardwareAbstractionLayer hal = createHal(Collections.singletonList(root));
+        UsbDevice root = createUsb("root", List.of(child));
+        AbstractHardwareAbstractionLayer hal = createHal(List.of(root));
 
         List<UsbDevice> tree = hal.getUsbDevices(true);
         assertThat(tree, hasSize(1));
@@ -107,9 +107,9 @@ class AbstractHardwareAbstractionLayerTest {
     @Test
     void testGetUsbDevicesFlatFlattensTree() {
         UsbDevice grandchild = createUsb("grandchild", Collections.emptyList());
-        UsbDevice child = createUsb("child", Collections.singletonList(grandchild));
-        UsbDevice root = createUsb("root", Collections.singletonList(child));
-        AbstractHardwareAbstractionLayer hal = createHal(Collections.singletonList(root));
+        UsbDevice child = createUsb("child", List.of(grandchild));
+        UsbDevice root = createUsb("root", List.of(child));
+        AbstractHardwareAbstractionLayer hal = createHal(List.of(root));
 
         List<UsbDevice> flat = hal.getUsbDevices(false);
         assertThat(flat, hasSize(2));

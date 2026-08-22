@@ -17,7 +17,6 @@ import static oshi.driver.common.windows.wmi.WmiConstants.CIM_UINT64;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_I4;
 
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -51,7 +50,7 @@ class PerfCounterWildcardQueryTest {
         private StubResult put(Prop p, int cim, int vt, Object... rowValues) {
             cimTypes.put(p, cim);
             vtTypes.put(p, vt);
-            values.put(p, Arrays.asList(rowValues));
+            values.put(p, List.of(rowValues));
             rows = Math.max(rows, rowValues.length);
             return this;
         }

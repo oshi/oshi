@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -145,7 +146,7 @@ class FileSystemMetricsTest {
         // separately: the states would be measured against four different readings. They share one memoized refresh
         // per filesystem, which holds for 300 ms by default -- far longer than sampling four gauges in process.
         OSFileStore fs = new VaryingOSFileStore();
-        new FileSystemMetrics(() -> Collections.singletonList(fs)).bindTo(registry);
+        new FileSystemMetrics(() -> List.of(fs)).bindTo(registry);
         assertEquals(limit(), usage("used") + usage("free") + usage("reserved"),
                 "usage states should sum to the limit even while the filesystem is changing");
     }

@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,9 +55,9 @@ class WindowsCentralProcessorTest {
     @Test
     void testOnlyRequestedFeaturesReported() {
         // 3 = PF_MMX_INSTRUCTIONS_AVAILABLE, 39 = PF_AVX_INSTRUCTIONS_AVAILABLE
-        Set<Integer> present = new HashSet<>(Arrays.asList(3, 39));
+        Set<Integer> present = new HashSet<>(List.of(3, 39));
         IntPredicate predicate = present::contains;
-        assertEquals(Arrays.asList("PF_MMX_INSTRUCTIONS_AVAILABLE", "PF_AVX_INSTRUCTIONS_AVAILABLE"),
+        assertEquals(List.of("PF_MMX_INSTRUCTIONS_AVAILABLE", "PF_AVX_INSTRUCTIONS_AVAILABLE"),
                 WindowsCentralProcessor.queryFeatureFlags(predicate));
     }
 

@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +41,7 @@ class AixFileSystemTest {
 
     @Test
     void testParseDfInodesNfsMounts() {
-        List<String> lines = Arrays.asList("Filesystem    512-blocks     Ifree    Iused",
+        List<String> lines = List.of("Filesystem    512-blocks     Ifree    Iused",
                 "nfshost:/export  8388608   500000    10000");
         Pair<Map<String, Long>, Map<String, Long>> result = AixFileSystem.parseDfInodes(lines);
         Map<String, Long> freeMap = result.getA();
@@ -55,7 +54,7 @@ class AixFileSystemTest {
 
     @Test
     void testParseDfInodesSkipsProcAndHeader() {
-        List<String> lines = Arrays.asList("Filesystem    512-blocks     Ifree    Iused",
+        List<String> lines = List.of("Filesystem    512-blocks     Ifree    Iused",
                 "/proc                  -        -        -");
         Pair<Map<String, Long>, Map<String, Long>> result = AixFileSystem.parseDfInodes(lines);
         // Header doesn't match FS_PATTERN, /proc has dashes so parseLong returns 0
@@ -74,7 +73,7 @@ class AixFileSystemTest {
     @Test
     void testParseOpenFileDescriptors() {
         // lsof -nl: every row after the COMMAND header counts
-        List<String> lsof = Arrays.asList(//
+        List<String> lsof = List.of(//
                 "COMMAND     PID     USER   FD   TYPE             DEVICE  SIZE/OFF  NODE NAME", //
                 "init          1     root  cwd  VDIR              10,  5      256     2 /", //
                 "init          1     root  txt  VREG              10,  6    12345    17 /usr/sbin/init");
@@ -84,13 +83,13 @@ class AixFileSystemTest {
     @Test
     void testParseOpenFileDescriptorsNoHeaderOrEmpty() {
         // No COMMAND header line: nothing is counted
-        assertThat(AixFileSystem.parseOpenFileDescriptors(Arrays.asList("garbage", "more garbage")), is(0L));
+        assertThat(AixFileSystem.parseOpenFileDescriptors(List.of("garbage", "more garbage")), is(0L));
         assertThat(AixFileSystem.parseOpenFileDescriptors(Collections.emptyList()), is(0L));
     }
 
     @Test
     void testParseMaxFileDescriptorsPerProcess() {
-        List<String> limits = Arrays.asList("default:", "        fsize = -1", "        nofiles = 2000",
+        List<String> limits = List.of("default:", "        fsize = -1", "        nofiles = 2000",
                 "        core = 2097151");
         assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(limits), is(2000L));
     }
@@ -98,7 +97,7 @@ class AixFileSystemTest {
     @Test
     void testParseMaxFileDescriptorsPerProcessMissing() {
         // No nofiles line: unlimited (Long.MAX_VALUE)
-        assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(Arrays.asList("default:", "        fsize = -1")),
+        assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(List.of("default:", "        fsize = -1")),
                 is(Long.MAX_VALUE));
     }
 }

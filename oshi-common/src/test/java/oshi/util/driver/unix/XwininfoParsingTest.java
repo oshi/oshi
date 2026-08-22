@@ -26,7 +26,7 @@ class XwininfoParsingTest {
             .asList("_NET_CLIENT_LIST_STACKING(WINDOW): window id # 0x1400003, 0x1600003, 0x1800003");
 
     // Fixture: xwininfo -root -tree output (trimmed)
-    private static final List<String> XWININFO_TREE = Arrays.asList(
+    private static final List<String> XWININFO_TREE = List.of(
             "     0x1400003 \"Terminal\": (\"gnome-terminal\" \"Gnome-terminal\")  800x600+0+0  +100+200",
             "     0x1600003 \"Firefox\": (\"Navigator\" \"firefox\")  1920x1080+0+0  +0+0",
             "     0x1800003 (has no name): ()  200x200+0+0  +50+-10",
@@ -49,7 +49,7 @@ class XwininfoParsingTest {
 
     @Test
     void testParseZOrderNoHexIds() {
-        List<String> noIds = Arrays.asList("_NET_CLIENT_LIST_STACKING: no such atom on any window.");
+        List<String> noIds = List.of("_NET_CLIENT_LIST_STACKING: no such atom on any window.");
         Map<String, Integer> zOrder = Xwininfo.parseZOrder(noIds);
         assertThat(zOrder, is(anEmptyMap()));
     }

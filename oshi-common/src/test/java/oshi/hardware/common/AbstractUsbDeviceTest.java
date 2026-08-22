@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -46,8 +45,7 @@ class AbstractUsbDeviceTest {
     void testConnectedDevices() {
         AbstractUsbDevice child = new AbstractUsbDevice("Mouse", "Logitech", "", "", "", "", Collections.emptyList()) {
         };
-        AbstractUsbDevice parent = new AbstractUsbDevice("Hub", "Generic", "", "", "", "",
-                Collections.singletonList(child)) {
+        AbstractUsbDevice parent = new AbstractUsbDevice("Hub", "Generic", "", "", "", "", List.of(child)) {
         };
         assertThat(parent.getConnectedDevices(), hasSize(1));
         assertThat(parent.getConnectedDevices().get(0).getName(), is("Mouse"));
@@ -67,7 +65,7 @@ class AbstractUsbDeviceTest {
         AbstractUsbDevice child = new AbstractUsbDevice("Mouse", "Logitech", "", "", "SN1", "",
                 Collections.emptyList()) {
         };
-        AbstractUsbDevice parent = new AbstractUsbDevice("Hub", "", "", "", "", "", Collections.singletonList(child)) {
+        AbstractUsbDevice parent = new AbstractUsbDevice("Hub", "", "", "", "", "", List.of(child)) {
         };
         assertThat(parent.toString(), is(" Hub\n |-- Mouse (Logitech) [s/n: SN1]"));
     }
@@ -141,7 +139,7 @@ class AbstractUsbDeviceTest {
         productIdMap.put("usb1/1-2", "0002");
         Map<String, String> serialMap = Collections.emptyMap();
         Map<String, List<String>> hubMap = new HashMap<>();
-        hubMap.put("usb1", Arrays.asList("usb1/1-1", "usb1/1-2"));
+        hubMap.put("usb1", List.of("usb1/1-1", "usb1/1-2"));
 
         UsbDevice hub = AbstractUsbDevice.buildDeviceTree("usb1", "0000", "0000", nameMap, vendorMap, vendorIdMap,
                 productIdMap, serialMap, hubMap, FACTORY);
@@ -173,8 +171,8 @@ class AbstractUsbDeviceTest {
         productIdMap.put("usb1/1-1", "2514");
         productIdMap.put("usb1/1-1/1-1.1", "0112");
         Map<String, List<String>> hubMap = new HashMap<>();
-        hubMap.put("usb1", Collections.singletonList("usb1/1-1"));
-        hubMap.put("usb1/1-1", Collections.singletonList("usb1/1-1/1-1.1"));
+        hubMap.put("usb1", List.of("usb1/1-1"));
+        hubMap.put("usb1/1-1", List.of("usb1/1-1/1-1.1"));
 
         UsbDevice root = AbstractUsbDevice.buildDeviceTree("usb1", "0000", "0000", nameMap, Collections.emptyMap(),
                 vendorIdMap, productIdMap, Collections.emptyMap(), hubMap, FACTORY);

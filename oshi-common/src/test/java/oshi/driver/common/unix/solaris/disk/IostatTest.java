@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -25,9 +24,9 @@ class IostatTest {
     @Test
     void testParsePartitionToMountMapTypicalOutput() {
         // iostat -er output: errors with device name in first column
-        List<String> mountNames = Arrays.asList("errors", "device,s/w,h/w,trn,tot", "cmdk0,0,0,0,0", "sd0,0,0,0,0");
+        List<String> mountNames = List.of("errors", "device,s/w,h/w,trn,tot", "cmdk0,0,0,0,0", "sd0,0,0,0,0");
         // iostat -ern output: errors with device name in last column
-        List<String> mountPoints = Arrays.asList("errors", "s/w,h/w,trn,tot,device", "0,0,0,0,c1d0", "0,0,0,0,c1t1d0");
+        List<String> mountPoints = List.of("errors", "s/w,h/w,trn,tot,device", "0,0,0,0,c1d0", "0,0,0,0,c1t1d0");
 
         Map<String, String> result = Iostat.parsePartitionToMountMap(mountNames, mountPoints);
 
@@ -44,8 +43,8 @@ class IostatTest {
 
     @Test
     void testParsePartitionToMountMapHeaderOnly() {
-        List<String> mountNames = Arrays.asList("errors", "device,s/w,h/w,trn,tot");
-        List<String> mountPoints = Arrays.asList("errors", "s/w,h/w,trn,tot,device");
+        List<String> mountNames = List.of("errors", "device,s/w,h/w,trn,tot");
+        List<String> mountPoints = List.of("errors", "s/w,h/w,trn,tot,device");
 
         Map<String, String> result = Iostat.parsePartitionToMountMap(mountNames, mountPoints);
         assertThat(result, is(anEmptyMap()));
@@ -54,8 +53,8 @@ class IostatTest {
     @Test
     void testParsePartitionToMountMapMismatchedLengths() {
         // mountNames has more entries than mountPoints - only paired entries are processed
-        List<String> mountNames = Arrays.asList("errors", "device,s/w,h/w,trn,tot", "cmdk0,0,0,0,0", "sd0,0,0,0,0");
-        List<String> mountPoints = Arrays.asList("errors", "s/w,h/w,trn,tot,device", "0,0,0,0,c1d0");
+        List<String> mountNames = List.of("errors", "device,s/w,h/w,trn,tot", "cmdk0,0,0,0,0", "sd0,0,0,0,0");
+        List<String> mountPoints = List.of("errors", "s/w,h/w,trn,tot,device", "0,0,0,0,c1d0");
 
         Map<String, String> result = Iostat.parsePartitionToMountMap(mountNames, mountPoints);
 
@@ -72,7 +71,7 @@ class IostatTest {
                 Vendor: ATA,Product: Samsung SSD 860,Serial No: S3Z2NB0K999999,Size: 500.11GB <500107862016 bytes>
                 """.lines().toList();
 
-        Set<String> diskSet = new HashSet<>(Arrays.asList("cmdk0", "sd0"));
+        Set<String> diskSet = new HashSet<>(List.of("cmdk0", "sd0"));
 
         Map<String, Quintet<String, String, String, String, Long>> result = Iostat.parseDeviceStrings(iostat, diskSet);
 
@@ -105,7 +104,7 @@ class IostatTest {
                 """.lines().toList();
 
         // Only include cmdk0 in the disk set
-        Set<String> diskSet = new HashSet<>(Arrays.asList("cmdk0"));
+        Set<String> diskSet = new HashSet<>(List.of("cmdk0"));
 
         Map<String, Quintet<String, String, String, String, Long>> result = Iostat.parseDeviceStrings(iostat, diskSet);
 
@@ -116,7 +115,7 @@ class IostatTest {
 
     @Test
     void testParseDeviceStringsEmptyInput() {
-        Set<String> diskSet = new HashSet<>(Arrays.asList("cmdk0"));
+        Set<String> diskSet = new HashSet<>(List.of("cmdk0"));
         Map<String, Quintet<String, String, String, String, Long>> result = Iostat
                 .parseDeviceStrings(Collections.emptyList(), diskSet);
         assertThat(result, is(anEmptyMap()));

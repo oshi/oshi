@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -33,7 +32,7 @@ class CupsPrinterTest {
     private static final CupsPrinter.PrinterFactory STUB_FACTORY = StubPrinter::new;
 
     // Fixture: lpstat -p output with two printers
-    private static final List<String> LPSTAT_P = Arrays.asList(
+    private static final List<String> LPSTAT_P = List.of(
             "printer HP_LaserJet is idle.  enabled since Mon 01 Jan 2024 12:00:00 AM",
             "printer PDF_Printer disabled since Tue 02 Jan 2024 - paused by admin");
 

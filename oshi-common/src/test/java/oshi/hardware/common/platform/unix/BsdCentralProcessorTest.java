@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +89,7 @@ class BsdCentralProcessorTest {
     @Test
     void testParseDmesgModelsAndCachesFeatureFlags() {
         // Feature flags are lines starting with "cpu" having ": " with 4+ comma-delimited items
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "cpu0: FPU,VME,DE,PSE,TSC,MSR,PAE,MCE", //
                 "cpu0: SSE3,PCLMULQDQ,DTES64,MONITOR");
         DmesgStrings result = BsdCentralProcessor.parseDmesgModelsAndCaches(dmesg);

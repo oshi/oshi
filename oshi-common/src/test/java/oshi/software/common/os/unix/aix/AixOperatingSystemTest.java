@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ class AixOperatingSystemTest {
     @Test
     void testParseServices() {
         // lssrc -a: header row, active subsystems (with/without a Group column), and an inoperative one
-        List<OSService> services = AixOperatingSystem.parseServices(Arrays.asList(//
+        List<OSService> services = AixOperatingSystem.parseServices(List.of(//
                 "Subsystem         Group            PID          Status", //
                 " syslogd          ras              4194320      active", //
                 " inetd            5218374          active", // 3-token active form (no group column)
@@ -49,8 +48,7 @@ class AixOperatingSystemTest {
 
     @Test
     void testParseServicesHeaderOnlyOrEmpty() {
-        assertThat(AixOperatingSystem.parseServices(Collections.singletonList("Subsystem Group PID Status")),
-                is(empty()));
+        assertThat(AixOperatingSystem.parseServices(List.of("Subsystem Group PID Status")), is(empty()));
         assertThat(AixOperatingSystem.parseServices(Collections.emptyList()), is(empty()));
     }
 

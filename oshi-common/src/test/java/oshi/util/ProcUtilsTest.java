@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -87,8 +87,8 @@ class ProcUtilsTest {
     @Test
     void testParseStatisticsWithTrailingWhitespace() {
         // A trailing space on the line must not prevent it from producing exactly two fields
-        Map<String, Long> results = ProcUtil
-                .parseStatistics(Collections.singletonList("SomeStatistic             12345 "), ParseUtil.whitespaces);
+        Map<String, Long> results = ProcUtil.parseStatistics(List.of("SomeStatistic             12345 "),
+                ParseUtil.whitespaces);
 
         assertThat(results.get("SomeStatistic"), is(12345L));
     }

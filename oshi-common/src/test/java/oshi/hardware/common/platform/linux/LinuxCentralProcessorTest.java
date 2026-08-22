@@ -16,7 +16,6 @@ import static oshi.util.TestFileUtil.writeFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +54,7 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testParseCpuidOutputNoMatch() {
-        List<String> lines = Arrays.asList("CPU 0:",
+        List<String> lines = List.of("CPU 0:",
                 "   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69");
         assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
     }
@@ -63,7 +62,7 @@ class LinuxCentralProcessorTest {
     @Test
     void testParseCpuidOutputMalformed() {
         // Leaf 0x00000001 present but edx missing — should return null to allow fallback
-        List<String> lines = Arrays.asList("   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf");
+        List<String> lines = List.of("   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf");
         assertThat(LinuxCentralProcessor.parseCpuidOutput(lines), is(nullValue()));
     }
 
@@ -333,7 +332,7 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testReadTopologyFromCpuinfoSingleProcessor() {
-        List<String> lines = Arrays.asList("processor\t: 0", "core id\t\t: 0", "physical id\t: 0");
+        List<String> lines = List.of("processor\t: 0", "core id\t\t: 0", "physical id\t: 0");
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
                 .readTopologyFromCpuinfo(lines);
         assertThat(result.getA(), hasSize(1));
@@ -373,7 +372,7 @@ class LinuxCentralProcessorTest {
     @Test
     void testReadTopologyFromCpuinfoCpuNumber() {
         // Some architectures use "cpu number" instead of "core id"
-        List<String> lines = Arrays.asList("processor\t: 0", "cpu number\t: 5", "physical id\t: 0");
+        List<String> lines = List.of("processor\t: 0", "cpu number\t: 5", "physical id\t: 0");
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
                 .readTopologyFromCpuinfo(lines);
         assertThat(result.getA().get(0).getPhysicalProcessorNumber(), is(5));
@@ -472,7 +471,7 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testMapNumaNodesFromLscpuCommentsOnly() {
-        List<String> comments = Arrays.asList("# comment1", "# comment2");
+        List<String> comments = List.of("# comment1", "# comment2");
         Map<Integer, Integer> result = LinuxCentralProcessor.mapNumaNodesFromLscpu(comments);
         assertThat(result.isEmpty(), is(true));
     }
@@ -618,7 +617,7 @@ class LinuxCentralProcessorTest {
     void testParseProcessorIdFromCpuinfoIgnoresNumericProcessorName() {
         // The "processor : N" line on ARM must not become the CPU name
         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor
-                .parseProcessorIdFromCpuinfo(Arrays.asList("processor\t: 3"));
+                .parseProcessorIdFromCpuinfo(List.of("processor\t: 3"));
         assertThat(id.name(), is(""));
     }
 
@@ -641,7 +640,7 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testParseLscpuIdentityArchitectureOnlyOverridesHexVendor() {
-        List<String> lscpu = Arrays.asList("Architecture:                    x86_64");
+        List<String> lscpu = List.of("Architecture:                    x86_64");
         // Non-hex vendor is left alone by the Architecture line
         assertThat(LinuxCentralProcessor.parseLscpuIdentity(lscpu, "GenuineIntel", "158", "Xeon").getA(),
                 is("GenuineIntel"));
@@ -651,7 +650,7 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testParseLscpuIdentityKeepsExistingModelAndName() {
-        List<String> lscpu = Arrays.asList("Model name:                      Ignored");
+        List<String> lscpu = List.of("Model name:                      Ignored");
         Triplet<String, String, String> id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, "GenuineIntel", "158",
                 "i7");
         assertThat(id.getB(), is("158"));

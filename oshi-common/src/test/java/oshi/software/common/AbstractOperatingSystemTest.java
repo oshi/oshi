@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -146,20 +145,20 @@ class AbstractOperatingSystemTest {
 
     @Test
     void testGetProcessesNoFilterNoSortNoLimit() {
-        AbstractOperatingSystem os = createOS(Arrays.asList(stubProcess(1), stubProcess(2), stubProcess(3)));
+        AbstractOperatingSystem os = createOS(List.of(stubProcess(1), stubProcess(2), stubProcess(3)));
         assertThat(os.getProcesses(null, null, 0), hasSize(3));
     }
 
     @Test
     void testGetProcessesWithFilter() {
-        AbstractOperatingSystem os = createOS(Arrays.asList(stubProcess(1), stubProcess(2), stubProcess(3)));
+        AbstractOperatingSystem os = createOS(List.of(stubProcess(1), stubProcess(2), stubProcess(3)));
         Predicate<OSProcess> filter = p -> p.getProcessID() > 1;
         assertThat(os.getProcesses(filter, null, 0), hasSize(2));
     }
 
     @Test
     void testGetProcessesWithSortAndLimit() {
-        AbstractOperatingSystem os = createOS(Arrays.asList(stubProcess(1), stubProcess(2), stubProcess(3)));
+        AbstractOperatingSystem os = createOS(List.of(stubProcess(1), stubProcess(2), stubProcess(3)));
         Comparator<OSProcess> sort = Comparator.comparingInt(OSProcess::getProcessID).reversed();
         List<OSProcess> result = os.getProcesses(null, sort, 1);
         assertThat(result, hasSize(1));

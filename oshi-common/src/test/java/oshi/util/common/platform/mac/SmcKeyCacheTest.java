@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -29,7 +28,7 @@ import oshi.util.GlobalConfig;
  */
 class SmcKeyCacheTest {
 
-    private static final List<String> FALLBACK = Collections.unmodifiableList(Arrays.asList("Tg05", "Tg0D"));
+    private static final List<String> FALLBACK = Collections.unmodifiableList(List.of("Tg05", "Tg0D"));
 
     /** A discovery function that records how many times it ran. */
     private static final class CountingDiscovery implements Supplier<@Nullable List<String>> {
@@ -53,7 +52,7 @@ class SmcKeyCacheTest {
 
     @Test
     void testCompletedDiscoveryIsCached() {
-        CountingDiscovery discovery = new CountingDiscovery(Arrays.asList("Tg0f", "Tg0j"));
+        CountingDiscovery discovery = new CountingDiscovery(List.of("Tg0f", "Tg0j"));
         SmcKeyCache keys = cache("oshi.test.smckeycache.completed");
         assertThat(keys.get(discovery), contains("Tg0f", "Tg0j"));
         assertThat(keys.get(discovery), contains("Tg0f", "Tg0j"));
@@ -86,7 +85,7 @@ class SmcKeyCacheTest {
         String property = "oshi.test.smckeycache.configured";
         GlobalConfig.set(property, "Tg1k,Tg1l");
         try {
-            CountingDiscovery discovery = new CountingDiscovery(Arrays.asList("Tg0f"));
+            CountingDiscovery discovery = new CountingDiscovery(List.of("Tg0f"));
             SmcKeyCache keys = cache(property);
             assertThat(keys.get(discovery), contains("Tg1k", "Tg1l"));
             assertThat(keys.get(discovery), contains("Tg1k", "Tg1l"));
@@ -103,7 +102,7 @@ class SmcKeyCacheTest {
         String property = "oshi.test.smckeycache.malformed";
         GlobalConfig.set(property, "TOOLONG,ab");
         try {
-            CountingDiscovery discovery = new CountingDiscovery(Arrays.asList("Tg0f"));
+            CountingDiscovery discovery = new CountingDiscovery(List.of("Tg0f"));
             assertThat(cache(property).get(discovery), contains("Tg0f"));
             assertThat(discovery.calls.get(), is(1));
         } finally {

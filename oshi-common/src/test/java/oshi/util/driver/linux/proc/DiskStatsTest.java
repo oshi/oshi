@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -28,7 +27,7 @@ class DiskStatsTest {
     @Test
     void testParseDiskStats() {
         // /proc/diskstats: major minor name reads reads_merged sectors_read ms_read writes writes_merged ...
-        List<String> diskstats = Arrays.asList("   8       0 sda 100 5 2000 50 200 10 4000 80 0 130 130",
+        List<String> diskstats = List.of("   8       0 sda 100 5 2000 50 200 10 4000 80 0 130 130",
                 "   8       1 sda1 40 2 800 20 90 3 1200 30 0 45 45");
         Map<String, Map<IoStat, Long>> map = DiskStats.parseDiskStats(diskstats);
         assertThat(map.keySet(), containsInAnyOrder("sda", "sda1"));

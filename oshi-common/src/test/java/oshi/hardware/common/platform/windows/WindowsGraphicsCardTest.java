@@ -14,7 +14,6 @@ import static oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_I4;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -71,7 +70,7 @@ class WindowsGraphicsCardTest {
     }
 
     private static WmiResult<VideoControllerProperty> result(Row... rows) {
-        List<Row> list = Arrays.asList(rows);
+        List<Row> list = List.of(rows);
         return new WmiResult<VideoControllerProperty>() {
             @Override
             public int getResultCount() {
@@ -137,7 +136,7 @@ class WindowsGraphicsCardTest {
     @Test
     void testMatchedCardsAreOrderedByDxgiIndex() {
         // DXGI enumerates the primary desktop adapter first, so the result follows DXGI order, not WMI row order.
-        List<DxgiAdapterInfo> adapters = Arrays.asList(new DxgiAdapterInfo("Primary", 0x10DE, 0x1C03, 100L, 1, 0),
+        List<DxgiAdapterInfo> adapters = List.of(new DxgiAdapterInfo("Primary", 0x10DE, 0x1C03, 100L, 1, 0),
                 new DxgiAdapterInfo("Secondary", 0x8086, 0x56A0, 200L, 2, 0));
         List<GraphicsCard> cards = build(adapters,
                 result(row("Secondary", "PCI\\VEN_8086&DEV_56A0", "Intel", "4.5.6", 0, 1),

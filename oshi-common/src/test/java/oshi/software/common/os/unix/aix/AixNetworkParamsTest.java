@@ -7,8 +7,8 @@ package oshi.software.common.os.unix.aix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +29,7 @@ class AixNetworkParamsTest {
 
     @Test
     void testParseDefaultGatewayNoDefaultRoute() {
-        String gw = AixNetworkParams.parseDefaultGateway(Arrays.asList(//
+        String gw = AixNetworkParams.parseDefaultGateway(List.of(//
                 "Destination      Gateway         Flags  Refs   Use  If  Exp  Groups", //
                 "127/8            127.0.0.1       U       3       0  lo0   -    -"));
         // The NetworkParams contract, and every other platform, reports an absent default route as an empty string

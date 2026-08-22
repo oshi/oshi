@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,7 +33,7 @@ class WhoSystemdTest {
 
     // Writes one session file: systemd session files are KEY=value lines, named by numeric session id.
     private static void session(Path dir, String name, String... keyValues) throws IOException {
-        Files.write(dir.resolve(name), Arrays.asList(keyValues), StandardCharsets.UTF_8);
+        Files.write(dir.resolve(name), List.of(keyValues), StandardCharsets.UTF_8);
     }
 
     private static List<String> users(List<OSSession> sessions) {

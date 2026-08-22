@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -90,7 +89,7 @@ class SolarisCentralProcessorTest {
 
     @Test
     void testSumKstatLong() {
-        List<String> kstat = Arrays.asList(//
+        List<String> kstat = List.of(//
                 "cpu_stat:0:cpu_stat0:pswitch\t1000", //
                 "cpu_stat:1:cpu_stat1:pswitch\t2000", //
                 "cpu_stat:0:cpu_stat0:inv_swtch\t500");

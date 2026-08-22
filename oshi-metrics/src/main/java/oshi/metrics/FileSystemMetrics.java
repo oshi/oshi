@@ -4,7 +4,6 @@
  */
 package oshi.metrics;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.function.ToDoubleFunction;
@@ -78,7 +77,7 @@ public class FileSystemMetrics implements MeterBinder {
     public void bindTo(MeterRegistry registry) {
         for (OSFileStore fs : fileStoreSupplier.get()) {
             String opts = fs.getOptions();
-            String mode = Arrays.asList(opts.split(",")).contains("rw") ? "rw" : "ro";
+            String mode = List.of(opts.split(",")).contains("rw") ? "rw" : "ro";
             Tags tags = Tags.of(DEVICE_KEY, fs.getVolume(), MOUNTPOINT_KEY, fs.getMount(), TYPE_KEY, fs.getType(),
                     MODE_KEY, mode);
             // A bound OSFileStore is a snapshot taken when the binder was created, so it has to be refreshed as it is

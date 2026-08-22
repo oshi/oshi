@@ -245,7 +245,7 @@ class SmcKeyIndexTest {
 
     @Test
     void testReconcileFanKeysPrefersDiscovered() {
-        List<String> discovered = Arrays.asList("F0Ac", "F1Ac");
+        List<String> discovered = List.of("F0Ac", "F1Ac");
         // Non-empty discovery is authoritative regardless of FNum, including when the two disagree.
         assertThat(SmcKeyIndex.reconcileFanKeys(discovered, 2), contains("F0Ac", "F1Ac"));
         assertThat(SmcKeyIndex.reconcileFanKeys(discovered, 5), contains("F0Ac", "F1Ac"));
@@ -305,7 +305,7 @@ class SmcKeyIndexTest {
 
     @Test
     void testMaxPlausibleIgnoresSentinels() {
-        List<String> keys = Arrays.asList("Tg0W", "Tg0X", "Tg0f", "Tg1h");
+        List<String> keys = List.of("Tg0W", "Tg0X", "Tg0f", "Tg1h");
         assertThat("Returns the hottest genuine reading, not the global max",
                 SmcKeyIndex.maxPlausible(keys, SmcKeyIndexTest::read, v -> v >= FLOOR), is(63.4d));
     }
@@ -313,14 +313,13 @@ class SmcKeyIndexTest {
     @Test
     void testMaxPlausibleWithNothingUsable() {
         assertThat("All-sentinel reads must report unavailable",
-                SmcKeyIndex.maxPlausible(Arrays.asList("Tg0W", "Tg1h"), SmcKeyIndexTest::read, v -> v >= FLOOR),
-                is(0d));
+                SmcKeyIndex.maxPlausible(List.of("Tg0W", "Tg1h"), SmcKeyIndexTest::read, v -> v >= FLOOR), is(0d));
         assertThat(SmcKeyIndex.maxPlausible(Arrays.<String>asList(), SmcKeyIndexTest::read, v -> v >= FLOOR), is(0d));
     }
 
     @Test
     void testMaxPlausibleNeverReturnsBelowTheFloor() {
-        double result = SmcKeyIndex.maxPlausible(Arrays.asList("Tg0W", "Tg0X"), SmcKeyIndexTest::read, v -> v >= FLOOR);
+        double result = SmcKeyIndex.maxPlausible(List.of("Tg0W", "Tg0X"), SmcKeyIndexTest::read, v -> v >= FLOOR);
         assertThat("A result is either 0 or at least the floor, never in between", result == 0d || result >= FLOOR,
                 is(true));
         assertThat(6.7d, is(lessThanOrEqualTo(result)));
@@ -332,21 +331,19 @@ class SmcKeyIndexTest {
     void testFirstPlausibleReturnsTheFirstNotTheBest() {
         // Order is preference order, so an earlier plausible reading wins even though a later one is higher. This is
         // what distinguishes it from maxPlausible.
-        List<String> keys = Arrays.asList("Tg0W", "Tg0X", "Tg0f");
+        List<String> keys = List.of("Tg0W", "Tg0X", "Tg0f");
         assertThat(SmcKeyIndex.firstPlausible(keys, SmcKeyIndexTest::read, v -> v >= FLOOR, "temperature"), is(40.7d));
     }
 
     @Test
     void testFirstPlausibleSkipsImplausibleAndSentinelReads() {
-        assertThat("A leading sentinel must not stop the scan",
-                SmcKeyIndex.firstPlausible(Arrays.asList("Tg1h", "Tg0W", "Tg0f"), SmcKeyIndexTest::read,
-                        v -> v >= FLOOR, "temperature"),
-                is(63.4d));
+        assertThat("A leading sentinel must not stop the scan", SmcKeyIndex.firstPlausible(
+                List.of("Tg1h", "Tg0W", "Tg0f"), SmcKeyIndexTest::read, v -> v >= FLOOR, "temperature"), is(63.4d));
     }
 
     @Test
     void testFirstPlausibleWithNothingUsable() {
-        assertThat(SmcKeyIndex.firstPlausible(Arrays.asList("Tg0W", "Tg1h"), SmcKeyIndexTest::read, v -> v >= FLOOR,
+        assertThat(SmcKeyIndex.firstPlausible(List.of("Tg0W", "Tg1h"), SmcKeyIndexTest::read, v -> v >= FLOOR,
                 "temperature"), is(0d));
         assertThat(SmcKeyIndex.firstPlausible(Arrays.<String>asList(), SmcKeyIndexTest::read, v -> v >= FLOOR,
                 "temperature"), is(0d));
@@ -354,7 +351,7 @@ class SmcKeyIndexTest {
 
     @Test
     void testFirstPlausibleAndMaxPlausibleAgreeOnASingleKey() {
-        List<String> one = Arrays.asList("Tg0f");
+        List<String> one = List.of("Tg0f");
         assertThat(SmcKeyIndex.firstPlausible(one, SmcKeyIndexTest::read, v -> v >= FLOOR, "temperature"),
                 is(SmcKeyIndex.maxPlausible(one, SmcKeyIndexTest::read, v -> v >= FLOOR)));
     }

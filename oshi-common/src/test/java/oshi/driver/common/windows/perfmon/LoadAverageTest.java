@@ -7,7 +7,6 @@ package oshi.driver.common.windows.perfmon;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -48,10 +47,10 @@ class LoadAverageTest {
     @Test
     void testQueryNonIdleTicksSumsTotalMinusIdle() {
         Map<IdleProcessorTimeProperty, List<Long>> valueMap = new EnumMap<>(IdleProcessorTimeProperty.class);
-        valueMap.put(IdleProcessorTimeProperty.PERCENTPROCESSORTIME, Arrays.asList(1000L, 300L));
-        valueMap.put(IdleProcessorTimeProperty.ELAPSEDTIME, Arrays.asList(5000L, 4000L));
-        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> counters = new Pair<>(
-                Arrays.asList("_Total", "Idle"), valueMap);
+        valueMap.put(IdleProcessorTimeProperty.PERCENTPROCESSORTIME, List.of(1000L, 300L));
+        valueMap.put(IdleProcessorTimeProperty.ELAPSEDTIME, List.of(5000L, 4000L));
+        Pair<List<String>, Map<IdleProcessorTimeProperty, List<Long>>> counters = new Pair<>(List.of("_Total", "Idle"),
+                valueMap);
 
         Pair<Long, Long> ticks = stub(counters, Collections.emptyMap()).queryNonIdleTicks();
         // _Total contributes ticks 1000 and base 5000; Idle subtracts its 300 ticks and leaves base untouched
@@ -61,9 +60,9 @@ class LoadAverageTest {
 
     @Test
     void testQueryNonIdleTicksMissingCountersReturnsZero() {
-        Pair<Long, Long> ticks = stub(new Pair<>(Collections.singletonList("_Total"),
-                Collections.<IdleProcessorTimeProperty, List<Long>>emptyMap()), Collections.emptyMap())
-                        .queryNonIdleTicks();
+        Pair<Long, Long> ticks = stub(
+                new Pair<>(List.of("_Total"), Collections.<IdleProcessorTimeProperty, List<Long>>emptyMap()),
+                Collections.emptyMap()).queryNonIdleTicks();
         assertThat(ticks.getA(), is(0L));
         assertThat(ticks.getB(), is(0L));
     }

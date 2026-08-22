@@ -105,7 +105,7 @@ class AbstractPowerSourceTest {
                 PowerSource.CapacityUnits.MWH, 0, 0, 0, 0, "", null, "", "", 0) {
             @Override
             protected List<PowerSource> queryPowerSources() {
-                return Collections.singletonList(createSource("BAT0"));
+                return List.of(createSource("BAT0"));
             }
         };
         assertThat(ps.updateAttributes(), is(true));

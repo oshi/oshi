@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -145,20 +144,16 @@ class VirtualizationDetectorTest {
     @Test
     void testMatchMac() {
         Properties props = shippedMacProps();
-        assertThat(VirtualizationDetector.matchMac(Collections.singletonList("08:00:27:12:34:56"), props),
-                is(Optional.of("VirtualBox")));
+        assertThat(VirtualizationDetector.matchMac(List.of("08:00:27:12:34:56"), props), is(Optional.of("VirtualBox")));
         // The library formats MAC addresses in lowercase; the table is keyed uppercase
-        assertThat(VirtualizationDetector.matchMac(Collections.singletonList("00:15:5d:aa:bb:cc"), props),
+        assertThat(VirtualizationDetector.matchMac(List.of("00:15:5d:aa:bb:cc"), props),
                 is(Optional.of("Microsoft Hyper-V")));
-        assertThat(VirtualizationDetector.matchMac(Collections.singletonList("42:01:0a:80:00:01"), props),
+        assertThat(VirtualizationDetector.matchMac(List.of("42:01:0a:80:00:01"), props),
                 is(Optional.of("Google Cloud Platform")));
         // The first matching address wins, and unparseable entries are skipped rather than throwing
-        assertThat(
-                VirtualizationDetector
-                        .matchMac(Arrays.asList(Constants.UNKNOWN, "3c:22:fb:11:22:33", "08:00:27:12:34:56"), props),
-                is(Optional.of("VirtualBox")));
-        assertThat(VirtualizationDetector.matchMac(Collections.singletonList("3c:22:fb:11:22:33"), props),
-                is(Optional.empty()));
+        assertThat(VirtualizationDetector.matchMac(List.of(Constants.UNKNOWN, "3c:22:fb:11:22:33", "08:00:27:12:34:56"),
+                props), is(Optional.of("VirtualBox")));
+        assertThat(VirtualizationDetector.matchMac(List.of("3c:22:fb:11:22:33"), props), is(Optional.empty()));
         assertThat(VirtualizationDetector.matchMac(Collections.<String>emptyList(), props), is(Optional.empty()));
     }
 }

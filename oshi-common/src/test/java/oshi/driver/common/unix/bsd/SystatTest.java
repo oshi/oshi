@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,7 +48,7 @@ class SystatTest {
 
     @Test
     void testParseSensorsFallsBackToAllTempsWhenNoCpuTemp() {
-        List<String> systat = Arrays.asList("acpitz0.temp0 30.00 degC", "acpitz1.temp0 50.00 degC");
+        List<String> systat = List.of("acpitz0.temp0 30.00 degC", "acpitz1.temp0 50.00 degC");
         Triplet<Double, int[], Double> r = Systat.parseSensors(systat);
         // Average of acpitz0 and acpitz1.
         assertThat(r.getA(), is(closeTo(40.0, 1e-9)));
@@ -59,7 +58,7 @@ class SystatTest {
 
     @Test
     void testParseSensorsAveragesMultipleCpuTemps() {
-        List<String> systat = Arrays.asList("cpu0.temp0 50.00 degC", "cpu1.temp0 70.00 degC");
+        List<String> systat = List.of("cpu0.temp0 50.00 degC", "cpu1.temp0 70.00 degC");
         Triplet<Double, int[], Double> r = Systat.parseSensors(systat);
         assertThat(r.getA(), is(closeTo(60.0, 1e-9)));
     }
@@ -67,7 +66,7 @@ class SystatTest {
     @Test
     void testParseSensorsIgnoresMalformedRowsAndEmptyInput() {
         // Single-token rows (no value) and blank lines must be skipped without NaN propagation.
-        List<String> systat = Arrays.asList("", "cpu0.temp0", "junk", "cpu0.temp0 not-a-number");
+        List<String> systat = List.of("", "cpu0.temp0", "junk", "cpu0.temp0 not-a-number");
         Triplet<Double, int[], Double> r = Systat.parseSensors(systat);
         // "not-a-number" parses to NaN and is excluded by listAverage; result is 0.
         assertThat(r.getA(), is(closeTo(0.0, 1e-9)));
@@ -81,7 +80,7 @@ class SystatTest {
 
     @Test
     void testParsePowerSourceNamesExtractsPrefixesAndDedupes() {
-        List<String> systat = Arrays.asList("acpibat0.watthour0 12.0 Wh", "acpibat0.amphour1 5.0 Ah",
+        List<String> systat = List.of("acpibat0.watthour0 12.0 Wh", "acpibat0.amphour1 5.0 Ah",
                 "acpibat1.watthour0 10.0 Wh", "cpu0.temp0 55 degC", // not a power source row
                 "noise without dot");
 
@@ -146,22 +145,22 @@ class SystatTest {
     @Test
     void testParseBatteryFieldsVoltMatchesWhenRowDescribesCurrent() {
         // Some sensors report "volt" without trailing 0 but include "current" in the line text.
-        List<String> systat = Collections.singletonList("acpibat0.volt 12.00 V (current voltage)");
+        List<String> systat = List.of("acpibat0.volt 12.00 V (current voltage)");
         BatteryFields b = Systat.parseBatteryFields("acpibat0", systat);
         assertThat(b.getVoltage(), is(closeTo(12.0, 1e-9)));
     }
 
     @Test
     void testListAverageSkipsNaNs() {
-        assertThat(Systat.listAverage(Arrays.asList(10.0, Double.NaN, 20.0)), is(closeTo(15.0, 1e-9)));
-        assertThat(Systat.listAverage(Arrays.asList(Double.NaN, Double.NaN)), is(closeTo(0.0, 1e-9)));
+        assertThat(Systat.listAverage(List.of(10.0, Double.NaN, 20.0)), is(closeTo(15.0, 1e-9)));
+        assertThat(Systat.listAverage(List.of(Double.NaN, Double.NaN)), is(closeTo(0.0, 1e-9)));
         assertThat(Systat.listAverage(Collections.<Double>emptyList()), is(closeTo(0.0, 1e-9)));
     }
 
     @Test
     void testParseSensorsFanZeroDefaultForNonNumeric() {
         // Fan row with a non-numeric value should default the parsed RPM to 0 rather than throw.
-        List<String> systat = Arrays.asList("it0.fan0 broken RPM");
+        List<String> systat = List.of("it0.fan0 broken RPM");
         Triplet<Double, int[], Double> r = Systat.parseSensors(systat);
         assertThat("one fan parsed", r.getB().length, is(1));
         assertThat(r.getB()[0], is(0));

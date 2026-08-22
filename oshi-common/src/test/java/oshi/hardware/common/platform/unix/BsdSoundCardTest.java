@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +45,7 @@ class BsdSoundCardTest {
 
     @Test
     void testParseDmesgNoAudio() {
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "azalia0 at pci0 dev 27 function 0 \"Intel Audio\" rev 0x03: msi", //
                 "azalia0: codec[0]: Realtek ALC888");
         // No "audio0 at azalia0" line means azalia0 is not in the names set

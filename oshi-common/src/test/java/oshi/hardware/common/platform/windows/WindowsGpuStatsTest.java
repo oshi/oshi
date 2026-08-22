@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -177,19 +176,19 @@ class WindowsGpuStatsTest {
 
         /** Publishes one engine counter instance belonging to this adapter, plus one belonging to another. */
         StubWindowsGpuStats withEngineTicks(long runningTime, long runningTimeBase) {
-            this.engineInstances = Arrays.asList(LUID + "_engtype_3D", "luid_0x00000000_0x0000ffff_engtype_3D");
+            this.engineInstances = List.of(LUID + "_engtype_3D", "luid_0x00000000_0x0000ffff_engtype_3D");
             Map<GpuEngineProperty, List<Long>> values = new HashMap<>();
-            values.put(GpuEngineProperty.RUNNING_TIME, Arrays.asList(runningTime, 999_999L));
-            values.put(GpuEngineProperty.RUNNING_TIME_BASE, Arrays.asList(runningTimeBase, 999_999L));
+            values.put(GpuEngineProperty.RUNNING_TIME, List.of(runningTime, 999_999L));
+            values.put(GpuEngineProperty.RUNNING_TIME_BASE, List.of(runningTimeBase, 999_999L));
             this.engineValues = values;
             return this;
         }
 
         StubWindowsGpuStats withAdapterMemory(long dedicated, long shared) {
-            this.memoryInstances = Arrays.asList("luid_0x00000000_0x0000ffff_phys_0", LUID);
+            this.memoryInstances = List.of("luid_0x00000000_0x0000ffff_phys_0", LUID);
             Map<GpuAdapterMemoryProperty, List<Long>> values = new HashMap<>();
-            values.put(GpuAdapterMemoryProperty.DEDICATED_USAGE, Arrays.asList(-1L, dedicated));
-            values.put(GpuAdapterMemoryProperty.SHARED_USAGE, Arrays.asList(-1L, shared));
+            values.put(GpuAdapterMemoryProperty.DEDICATED_USAGE, List.of(-1L, dedicated));
+            values.put(GpuAdapterMemoryProperty.SHARED_USAGE, List.of(-1L, shared));
             this.memoryValues = values;
             return this;
         }

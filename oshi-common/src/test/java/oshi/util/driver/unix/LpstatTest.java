@@ -19,15 +19,15 @@ import oshi.hardware.Printer.PrinterStatus;
 class LpstatTest {
 
     // Fixture: lpstat -d
-    private static final List<String> LPSTAT_D = Arrays.asList("system default destination: HP_LaserJet");
+    private static final List<String> LPSTAT_D = List.of("system default destination: HP_LaserJet");
 
     // Fixture: lpstat -v
-    private static final List<String> LPSTAT_V = Arrays.asList(
+    private static final List<String> LPSTAT_V = List.of(
             "device for HP_LaserJet: usb://HP/LaserJet%20Pro?serial=ABC123", "device for PDF_Printer: cups-pdf:/",
             "device for Network_Printer: ipp://192.168.1.100/ipp/print");
 
     // Fixture: lpstat -l -p
-    private static final List<String> LPSTAT_LP = Arrays.asList(
+    private static final List<String> LPSTAT_LP = List.of(
             "printer HP_LaserJet is idle.  enabled since Mon 01 Jan 2024 12:00:00 AM",
             "\tDescription: HP LaserJet Pro MFP", "\tLocation: Office",
             "printer PDF_Printer disabled since Tue 02 Jan 2024 01:00:00 AM -",
@@ -49,7 +49,7 @@ class LpstatTest {
 
     @Test
     void testQueryDefaultPrinterNoDefault() {
-        List<String> noDefault = Arrays.asList("no system default destination");
+        List<String> noDefault = List.of("no system default destination");
         assertThat(Lpstat.queryDefaultPrinter(noDefault), is(""));
     }
 
@@ -87,7 +87,7 @@ class LpstatTest {
 
     @Test
     void testQueryDriverNotFound() {
-        assertThat(Lpstat.queryDriver(Arrays.asList("copies=1 device-uri=usb://HP")), is(""));
+        assertThat(Lpstat.queryDriver(List.of("copies=1 device-uri=usb://HP")), is(""));
     }
 
     @Test

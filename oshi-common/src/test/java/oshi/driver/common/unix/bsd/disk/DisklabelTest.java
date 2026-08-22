@@ -13,7 +13,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -100,7 +99,7 @@ class DisklabelTest {
     void testParseDiskParamsLargeDiskWithoutIntOverflow() {
         // 5 TiB disk at 512-byte sectors = 10737418240 sectors, > Integer.MAX_VALUE.
         long sectors = 10_737_418_240L;
-        List<String> disklabelOut = Arrays.asList("label: Big Disk", "duid: deadbeefdeadbeef", "bytes/sector: 512",
+        List<String> disklabelOut = List.of("label: Big Disk", "duid: deadbeefdeadbeef", "bytes/sector: 512",
                 "total sectors: " + sectors);
 
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("sd1", disklabelOut,
@@ -166,7 +165,7 @@ class DisklabelTest {
 
     @Test
     void testParseDfFallbackIgnoresOtherDisks() {
-        List<String> dfOut = Collections.singletonList("/dev/sd1a   1000   500   500   50%  /home");
+        List<String> dfOut = List.of("/dev/sd1a   1000   500   500   50%  /home");
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDfFallback("sd0", dfOut,
                 ZERO_MAJOR_MINOR);
         assertThat(result.getD(), is(empty()));

@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -52,8 +51,7 @@ class WindowsNetworkParamsTest {
     void testAnUnspecifiedNextHopIsNotAGateway() {
         // Windows publishes no flags column, so an on-link route is recognized by its all-zero next hop
         List<IPRoute> routes = new StubParams(
-                Collections.singletonList(row(new byte[] { 10, 0, 0, 0 }, 24, new byte[] { 0, 0, 0, 0 }, 5, 256L)))
-                        .getRoutes();
+                List.of(row(new byte[] { 10, 0, 0, 0 }, 24, new byte[] { 0, 0, 0, 0 }, 5, 256L))).getRoutes();
         assertThat(routes, hasSize(1));
         assertThat(routes.get(0).isGateway(), is(false));
         assertThat("A non-gateway route reports no gateway address", routes.get(0).getGateway(), is(new byte[0]));
@@ -63,8 +61,7 @@ class WindowsNetworkParamsTest {
     @Test
     void testARealNextHopIsAGateway() {
         List<IPRoute> routes = new StubParams(
-                Collections.singletonList(row(new byte[] { 0, 0, 0, 0 }, 0, new byte[] { -64, -88, 1, 1 }, 5, 25L)))
-                        .getRoutes();
+                List.of(row(new byte[] { 0, 0, 0, 0 }, 0, new byte[] { -64, -88, 1, 1 }, 5, 25L))).getRoutes();
         assertThat(routes.get(0).isGateway(), is(true));
         assertThat(routes.get(0).getGateway(), is(new byte[] { -64, -88, 1, 1 }));
         assertThat(routes.get(0).getPrefixLength(), is(0));
@@ -76,7 +73,7 @@ class WindowsNetworkParamsTest {
         byte[] v6 = new byte[16];
         v6[15] = 1;
         List<IPRoute> routes = new StubParams(
-                Arrays.asList(row(new byte[] { 127, 0, 0, 1 }, 32, new byte[] { 0, 0, 0, 0 }, 1, 331L),
+                List.of(row(new byte[] { 127, 0, 0, 1 }, 32, new byte[] { 0, 0, 0, 0 }, 1, 331L),
                         row(v6, 128, new byte[16], 1, 331L))).getRoutes();
         assertThat(routes, hasSize(2));
         assertThat("A /32 IPv4 route is a host route", routes.get(0).isHost(), is(true));
@@ -99,8 +96,8 @@ class WindowsNetworkParamsTest {
     @Test
     void testAnUnknownInterfaceIndexReportsAnEmptyName() {
         // Index 999999 will not be present in this machine's interface list
-        List<IPRoute> routes = new StubParams(
-                Collections.singletonList(row(new byte[] { 10, 0, 0, 0 }, 8, new byte[0], 999999, 0L))).getRoutes();
+        List<IPRoute> routes = new StubParams(List.of(row(new byte[] { 10, 0, 0, 0 }, 8, new byte[0], 999999, 0L)))
+                .getRoutes();
         assertThat(routes.get(0).getInterfaceName(), is(""));
         assertThat(routes.get(0).getInterfaceIndex(), is(999999));
     }

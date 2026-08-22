@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -117,7 +116,7 @@ class MacGraphicsCardTest {
         // Apple Silicon GPUs have no VRAM line; resolveVram falls back to hw.memsize
         long memsize = 36L * 1024 * 1024 * 1024;
         MacGraphicsCard.SysctlLong sysctl = (name, def) -> "hw.memsize".equals(name) ? memsize : def;
-        List<String> sp = Arrays.asList("      Chipset Model: Apple M3 Pro", "      Vendor: Apple (0x106b)");
+        List<String> sp = List.of("      Chipset Model: Apple M3 Pro", "      Vendor: Apple (0x106b)");
         List<GraphicsCard> cards = MacGraphicsCard.parseGraphicsCards(sp, FACTORY, sysctl);
         assertThat(cards, hasSize(1));
         assertThat(cards.get(0).getVRam(), is(memsize));

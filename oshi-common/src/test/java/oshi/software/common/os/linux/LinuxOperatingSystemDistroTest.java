@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -26,25 +25,25 @@ class LinuxOperatingSystemDistroTest {
 
     // --- os-release fixtures ---
 
-    private static final List<String> OS_RELEASE_FEDORA = Arrays.asList("NAME=\"Fedora Linux\"",
+    private static final List<String> OS_RELEASE_FEDORA = List.of("NAME=\"Fedora Linux\"",
             "VERSION=\"39 (Workstation Edition)\"", "ID=fedora", "VERSION_ID=39",
             "PRETTY_NAME=\"Fedora Linux 39 (Workstation Edition)\"");
 
-    private static final List<String> OS_RELEASE_ARCH = Arrays.asList("NAME=\"Arch Linux\"", "ID=arch",
+    private static final List<String> OS_RELEASE_ARCH = List.of("NAME=\"Arch Linux\"", "ID=arch",
             "PRETTY_NAME=\"Arch Linux\"", "BUILD_ID=rolling");
 
-    private static final List<String> OS_RELEASE_DEBIAN = Arrays.asList("NAME=\"Debian GNU/Linux\"",
+    private static final List<String> OS_RELEASE_DEBIAN = List.of("NAME=\"Debian GNU/Linux\"",
             "VERSION=\"12 (bookworm)\"", "VERSION_ID=\"12\"", "ID=debian",
             "PRETTY_NAME=\"Debian GNU/Linux 12 (bookworm)\"");
 
-    private static final List<String> OS_RELEASE_ALPINE = Arrays.asList("NAME=\"Alpine Linux\"", "ID=alpine",
+    private static final List<String> OS_RELEASE_ALPINE = List.of("NAME=\"Alpine Linux\"", "ID=alpine",
             "VERSION_ID=3.19.0", "PRETTY_NAME=\"Alpine Linux v3.19\"");
 
-    private static final List<String> OS_RELEASE_RHEL = Arrays.asList("NAME=\"Red Hat Enterprise Linux\"",
+    private static final List<String> OS_RELEASE_RHEL = List.of("NAME=\"Red Hat Enterprise Linux\"",
             "VERSION=\"9.3 (Plow)\"", "ID=\"rhel\"", "VERSION_ID=\"9.3\"",
             "PRETTY_NAME=\"Red Hat Enterprise Linux 9.3 (Plow)\"");
 
-    private static final List<String> OS_RELEASE_OPENSUSE = Arrays.asList("NAME=\"openSUSE Leap\"", "VERSION=\"15.5\"",
+    private static final List<String> OS_RELEASE_OPENSUSE = List.of("NAME=\"openSUSE Leap\"", "VERSION=\"15.5\"",
             "ID=\"opensuse-leap\"", "VERSION_ID=\"15.5\"", "PRETTY_NAME=\"openSUSE Leap 15.5\"");
 
     @Test
@@ -106,7 +105,7 @@ class LinuxOperatingSystemDistroTest {
 
     @Test
     void testReadDistribReleaseAmazonLinux() {
-        List<String> lines = Arrays.asList("Amazon Linux release 2023 (Amazon Linux)");
+        List<String> lines = List.of("Amazon Linux release 2023 (Amazon Linux)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Amazon Linux"));
@@ -116,7 +115,7 @@ class LinuxOperatingSystemDistroTest {
 
     @Test
     void testReadDistribReleaseOracle() {
-        List<String> lines = Arrays.asList("Oracle Linux Server release 8.9");
+        List<String> lines = List.of("Oracle Linux Server release 8.9");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Oracle Linux Server"));
@@ -126,7 +125,7 @@ class LinuxOperatingSystemDistroTest {
 
     @Test
     void testReadDistribReleaseRocky() {
-        List<String> lines = Arrays.asList("Rocky Linux release 9.3 (Blue Onyx)");
+        List<String> lines = List.of("Rocky Linux release 9.3 (Blue Onyx)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Rocky Linux"));
@@ -138,7 +137,7 @@ class LinuxOperatingSystemDistroTest {
 
     @Test
     void testReadLsbReleaseFedora() {
-        List<String> lines = Arrays.asList("DISTRIB_ID=Fedora", "DISTRIB_RELEASE=39", "DISTRIB_CODENAME=ThirtyNine");
+        List<String> lines = List.of("DISTRIB_ID=Fedora", "DISTRIB_RELEASE=39", "DISTRIB_CODENAME=ThirtyNine");
         Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));

@@ -16,7 +16,6 @@ import static oshi.driver.common.windows.wmi.WmiConstants.CIM_STRING;
 import static oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -247,7 +246,7 @@ class WindowsLogicalVolumeGroupTest {
                 build(pools("Pool1", SP_GUID), virtualDisks(), physicalDisks("Disk1", "PCISlot1", PD1_GUID),
                         poolToDisk(SP_GUID, PD1_GUID)).get(0).getPhysicalVolumes(),
                 contains("Disk1 @ PCISlot1"));
-        assertThat("VD fixture must parse into 'name guid'", Arrays.asList(
+        assertThat("VD fixture must parse into 'name guid'", List.of(
                 build(pools("Pool1", SP_GUID), virtualDisks("Volume1", SP_GUID, VD_GUID), physicalDisks(), poolToDisk())
                         .get(0).getLogicalVolumes().keySet().iterator().next()),
                 contains("Volume1 " + VD_GUID));

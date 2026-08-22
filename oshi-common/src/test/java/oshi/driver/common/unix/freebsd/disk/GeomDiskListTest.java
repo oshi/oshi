@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -70,7 +69,7 @@ class GeomDiskListTest {
 
     @Test
     void testParseGeomDiskListNoMediasizeDefaultsToZero() {
-        List<String> geom = Arrays.asList("Geom name: vtbd0", "   descr: VirtIO Block Device", "   ident: serial123");
+        List<String> geom = List.of("Geom name: vtbd0", "   descr: VirtIO Block Device", "   ident: serial123");
 
         Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(geom);
 
@@ -84,7 +83,7 @@ class GeomDiskListTest {
 
     @Test
     void testParseGeomDiskListMissingFieldsDefaultToUnknown() {
-        List<String> geom = Arrays.asList("Geom name: nvd0", "   Mediasize: 1024000000000 (953G)");
+        List<String> geom = List.of("Geom name: nvd0", "   Mediasize: 1024000000000 (953G)");
 
         Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(geom);
 

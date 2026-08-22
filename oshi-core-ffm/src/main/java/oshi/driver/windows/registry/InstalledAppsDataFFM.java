@@ -21,7 +21,6 @@ import static oshi.util.LogLevel.TRACE;
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -46,10 +45,10 @@ public final class InstalledAppsDataFFM {
 
     static {
         REGISTRY_PATHS.put(MemorySegment.ofAddress(HKEY_LOCAL_MACHINE),
-                Arrays.asList("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+                List.of("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
                         "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall"));
         REGISTRY_PATHS.put(MemorySegment.ofAddress(HKEY_CURRENT_USER),
-                Arrays.asList("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"));
+                List.of("SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"));
     }
 
     private InstalledAppsDataFFM() {
