@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.Constants;
@@ -33,12 +34,12 @@ class BsdFirmwareTest {
         }
 
         @Override
-        protected Triplet<String, String, String> readFirmware() {
+        protected Triplet<@Nullable String, @Nullable String, @Nullable String> readFirmware() {
             return parseDmesg(dmesg);
         }
     }
 
-    private static Triplet<String, String, String> parse(List<String> dmesg) {
+    private static Triplet<@Nullable String, @Nullable String, @Nullable String> parse(List<String> dmesg) {
         return BsdFirmware.parseDmesg(dmesg);
     }
 
@@ -49,7 +50,7 @@ class BsdFirmwareTest {
                 "bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)", //
                 "bios0: vendor LENOVO version \"GLET90WW (2.44 )\" date 09/13/2017", //
                 "bios0: LENOVO 20AWA08J00");
-        Triplet<String, String, String> fw = parse(dmesg);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
         assertThat(fw.getA(), is("LENOVO"));
         assertThat(fw.getB(), is("GLET90WW (2.44 )"));
         assertThat(fw.getC(), is("2017-09-13"));
@@ -61,7 +62,7 @@ class BsdFirmwareTest {
         List<String> dmesg = Arrays.asList(//
                 "bios0 at mainbus0: SMBIOS rev. 2.8 @ 0xe9cb0 (53 entries)", //
                 "bios0: vendor American Megatrends Inc. version \"F5\" date 03/18/2016");
-        Triplet<String, String, String> fw = parse(dmesg);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
         assertThat(fw.getA(), is("American Megatrends Inc."));
         assertThat(fw.getB(), is("F5"));
         assertThat(fw.getC(), is("2016-03-18"));
@@ -70,7 +71,7 @@ class BsdFirmwareTest {
     @Test
     void testParseDmesgMultiWordVendor() {
         List<String> dmesg = Arrays.asList("bios0: vendor Phoenix Technologies LTD version \"6.00\" date 04/14/2014");
-        Triplet<String, String, String> fw = parse(dmesg);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
         assertThat(fw.getA(), is("Phoenix Technologies LTD"));
         assertThat(fw.getB(), is("6.00"));
         assertThat(fw.getC(), is("2014-04-14"));
@@ -78,7 +79,7 @@ class BsdFirmwareTest {
 
     @Test
     void testParseDmesgEmpty() {
-        Triplet<String, String, String> fw = parse(Collections.emptyList());
+        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(Collections.emptyList());
         assertThat(fw.getA(), is(nullValue()));
         assertThat(fw.getB(), is(nullValue()));
         assertThat(fw.getC(), is(emptyString()));
@@ -89,7 +90,7 @@ class BsdFirmwareTest {
         List<String> dmesg = Arrays.asList(//
                 "cpu0 at mainbus0: AMD EPYC 7313P", //
                 "some other line");
-        Triplet<String, String, String> fw = parse(dmesg);
+        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
         assertThat(fw.getA(), is(nullValue()));
         assertThat(fw.getB(), is(nullValue()));
         assertThat(fw.getC(), is(emptyString()));

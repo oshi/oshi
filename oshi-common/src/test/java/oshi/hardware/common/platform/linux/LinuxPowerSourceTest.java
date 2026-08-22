@@ -10,11 +10,13 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -166,9 +168,11 @@ class LinuxPowerSourceTest {
 
         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
 
-        assertThat(ps.getManufactureDate().getYear(), is(2021));
-        assertThat(ps.getManufactureDate().getMonthValue(), is(6));
-        assertThat(ps.getManufactureDate().getDayOfMonth(), is(15));
+        LocalDate manufactureDate = ps.getManufactureDate();
+        assertNotNull(manufactureDate);
+        assertThat(manufactureDate.getYear(), is(2021));
+        assertThat(manufactureDate.getMonthValue(), is(6));
+        assertThat(manufactureDate.getDayOfMonth(), is(15));
     }
 
     @Test

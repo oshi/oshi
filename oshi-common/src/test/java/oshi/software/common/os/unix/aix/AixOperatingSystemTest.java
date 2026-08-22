@@ -7,6 +7,7 @@ package oshi.software.common.os.unix.aix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -32,12 +33,18 @@ class AixOperatingSystemTest {
         Map<String, OSService> byName = services.stream()
                 .collect(Collectors.toMap(OSService::getName, Function.identity()));
 
-        assertThat(byName.get("syslogd").getProcessID(), is(4194320));
-        assertThat(byName.get("syslogd").getState(), is(OSService.State.RUNNING));
-        assertThat(byName.get("inetd").getProcessID(), is(5218374));
-        assertThat(byName.get("inetd").getState(), is(OSService.State.RUNNING));
-        assertThat(byName.get("portmap").getProcessID(), is(0));
-        assertThat(byName.get("portmap").getState(), is(OSService.State.STOPPED));
+        OSService syslogd = byName.get("syslogd");
+        OSService inetd = byName.get("inetd");
+        OSService portmap = byName.get("portmap");
+        assertNotNull(syslogd);
+        assertNotNull(inetd);
+        assertNotNull(portmap);
+        assertThat(syslogd.getProcessID(), is(4194320));
+        assertThat(syslogd.getState(), is(OSService.State.RUNNING));
+        assertThat(inetd.getProcessID(), is(5218374));
+        assertThat(inetd.getState(), is(OSService.State.RUNNING));
+        assertThat(portmap.getProcessID(), is(0));
+        assertThat(portmap.getState(), is(OSService.State.STOPPED));
     }
 
     @Test

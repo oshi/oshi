@@ -42,7 +42,7 @@ class AbstractGlobalMemoryTest {
 
             @Override
             public VirtualMemory getVirtualMemory() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
         };
         String s = mem.toString();

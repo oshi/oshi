@@ -31,7 +31,7 @@ import oshi.software.os.InternetProtocolStats.UdpStats;
 @TestInstance(Lifecycle.PER_CLASS)
 class InternetProtocolStatsTest {
 
-    private InternetProtocolStats ipStats = null;
+    private InternetProtocolStats ipStats;
 
     @BeforeAll
     void setUp() {

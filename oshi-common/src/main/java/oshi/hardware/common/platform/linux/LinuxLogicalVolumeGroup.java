@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ExecutingCommand;
@@ -79,22 +81,23 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
      * assembly can be shared. Any field may be null if udev did not report that property.
      */
     public static final class UdevBlockDevice {
-        private final String syspath;
-        private final String devnode;
-        private final String uuid;
-        private final String vgName;
-        private final String lvName;
+        private final @Nullable String syspath;
+        private final @Nullable String devnode;
+        private final @Nullable String uuid;
+        private final @Nullable String vgName;
+        private final @Nullable String lvName;
 
         /**
          * Creates a block device record.
          *
-         * @param syspath the sysfs path of the device
-         * @param devnode the device node path, e.g. {@code /dev/dm-0}
-         * @param uuid    the {@code DM_UUID} property
-         * @param vgName  the {@code DM_VG_NAME} property
-         * @param lvName  the {@code DM_LV_NAME} property
+         * @param syspath the sysfs path of the device, or {@code null} if udev reported none
+         * @param devnode the device node path, e.g. {@code /dev/dm-0}, or {@code null} if udev reported none
+         * @param uuid    the {@code DM_UUID} property, or {@code null} if absent
+         * @param vgName  the {@code DM_VG_NAME} property, or {@code null} if absent
+         * @param lvName  the {@code DM_LV_NAME} property, or {@code null} if absent
          */
-        public UdevBlockDevice(String syspath, String devnode, String uuid, String vgName, String lvName) {
+        public UdevBlockDevice(@Nullable String syspath, @Nullable String devnode, @Nullable String uuid,
+                @Nullable String vgName, @Nullable String lvName) {
             this.syspath = syspath;
             this.devnode = devnode;
             this.uuid = uuid;
@@ -149,14 +152,17 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                     || !device.uuid.startsWith("LVM-") || Util.isBlank(device.vgName) || Util.isBlank(device.lvName)) {
                 continue;
             }
-            Map<String, Set<String>> lvMapForGroup = logicalVolumesMap.computeIfAbsent(device.vgName,
-                    k -> new HashMap<>());
-            Set<String> pvSetForGroup = physicalVolumesMap.computeIfAbsent(device.vgName, k -> new HashSet<>());
+            // The isBlank guards above already establish these, but a predicate does not narrow for the analyzer;
+            // the normalizer's return type does.
+            String vgName = ParseUtil.getStringValueOrEmpty(device.vgName);
+            String lvName = ParseUtil.getStringValueOrEmpty(device.lvName);
+            Map<String, Set<String>> lvMapForGroup = logicalVolumesMap.computeIfAbsent(vgName, k -> new HashMap<>());
+            Set<String> pvSetForGroup = physicalVolumesMap.computeIfAbsent(vgName, k -> new HashSet<>());
             File[] slaves = new File(device.syspath + "/slaves").listFiles();
             if (slaves != null) {
                 for (File f : slaves) {
                     String pvName = DevPath.DEV + f.getName();
-                    lvMapForGroup.computeIfAbsent(device.lvName, k -> new HashSet<>()).add(pvName);
+                    lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(pvName);
                     pvSetForGroup.add(pvName);
                 }
             }

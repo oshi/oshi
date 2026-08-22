@@ -1236,13 +1236,6 @@
             "-Xep:Check:OFF"-style flags; it's also JMH-only and never carries JSpecify
             annotations, so it isn't worth the extra plumbing to fix. -->
             <id>error-prone</id>
-            <properties>
-                <!-- The Error Prone plugin argument, split so main and test compilation can differ in exactly one
-                place: NullAway's severity. Everything else is identical, and the two <arg> elements below must stay
-                that way. Each must remain a single token; javac takes one -Xplugin value. -->
-                <errorprone.checks>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR</errorprone.checks>
-                <errorprone.nullaway.opts>-XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</errorprone.nullaway.opts>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
@@ -1290,7 +1283,7 @@
                                 74-site backlog was drained; every log call now passes the throwable rather than
                                 its message, so it is back at the plugin's default ERROR. Note the severity token
                                 Error Prone accepts is WARN, not WARNING. -->
-                                <arg>${errorprone.checks} -Xep:NullAway:ERROR ${errorprone.nullaway.opts}</arg>
+                                <arg>-Xplugin:ErrorProne -Xep:InlineMeSuggester:OFF -Xep:DoNotCallSuggester:OFF -Xep:MissingSummary:OFF -Xep:StringSplitter:ERROR -Xep:EnumOrdinal:ERROR -Xep:OperatorPrecedence:ERROR -Xep:MixedMutabilityReturnType:ERROR -Xep:ReferenceEquality:ERROR -Xep:BoxingComparator:ERROR -Xep:NarrowCalculation:ERROR -Xep:LongDoubleConversion:ERROR -Xep:IntLiteralCast:ERROR -Xep:UnnecessaryLongToIntConversion:ERROR -Xep:IntLongMath:ERROR -Xep:BadImport:ERROR -Xep:ModifyCollectionInEnhancedForLoop:ERROR -Xep:EqualsGetClass:ERROR -Xep:DuplicateBranches:ERROR -Xep:InconsistentCapitalization:ERROR -Xep:NonApiType:ERROR -Xep:InvalidParam:ERROR -Xep:EffectivelyPrivate:ERROR -Xep:ImmutableEnumChecker:ERROR -Xep:StatementSwitchToExpressionSwitch:ERROR -Xep:UnnecessaryLambda:ERROR -Xep:UnnecessaryParentheses:ERROR -Xep:AssignmentExpression:ERROR -Xep:UnusedVariable:ERROR -Xep:PatternMatchingInstanceof:ERROR -Xep:EscapedEntity:ERROR -Xep:NotJavadoc:ERROR -Xep:AlmostJavadoc:ERROR -Xep:InvalidInlineTag:ERROR -Xep:InlineFormatString:ERROR -Xep:Slf4jLoggerShouldBeNonStatic:OFF -Xep:Slf4jSignOnlyFormat:OFF -Xep:Slf4jDoNotLogMessageOfExceptionExplicitly:ERROR -Xep:Slf4jPlaceholderMismatch:ERROR -Xep:Slf4jFormatShouldBeConst:ERROR -Xep:Slf4jLoggerShouldBePrivate:ERROR -Xep:Slf4jLoggerShouldBeFinal:ERROR -Xep:Slf4jIllegalPassedClass:ERROR -Xep:NullAway:ERROR -XepOpt:NullAway:OnlyNullMarked=true -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:HandleTestAssertionLibraries=true</arg>
                             </compilerArgs>
                             <annotationProcessorPaths>
                                 <path>
@@ -1310,31 +1303,6 @@
                                 </path>
                             </annotationProcessorPaths>
                         </configuration>
-                        <executions>
-                            <!-- Test sources run NullAway at WARN, not ERROR. Raising maven.compiler.testRelease to
-                            17 moved test compilation from the classpath onto the module path, which brought
-                            module-info.java's @NullMarked into scope for test packages for the first time and
-                            surfaced 178 findings across 41 files that had never been checked. They are real, and
-                            mostly mechanical (assertNotNull for a dereference, a @Nullable type argument for a
-                            generic mismatch), but a drain job of their own rather than a build-config change. WARN
-                            keeps them visible while the backlog is worked; raise this to ERROR once it reaches
-                            zero. Every other check stays at its configured severity here - only NullAway moves. -->
-                            <execution>
-                                <id>default-testCompile</id>
-                                <configuration>
-                                    <compilerArgs>
-                                        <arg>-Xlint:-options</arg>
-                                        <arg>-Xmaxwarns</arg>
-                                        <arg>100000</arg>
-                                        <arg>-Xmaxerrs</arg>
-                                        <arg>100000</arg>
-                                        <arg>-XDcompilePolicy=simple</arg>
-                                        <arg>--should-stop=ifError=FLOW</arg>
-                                        <arg>${errorprone.checks} -Xep:NullAway:WARN ${errorprone.nullaway.opts}</arg>
-                                    </compilerArgs>
-                                </configuration>
-                            </execution>
-                        </executions>
                     </plugin>
                 </plugins>
             </build>

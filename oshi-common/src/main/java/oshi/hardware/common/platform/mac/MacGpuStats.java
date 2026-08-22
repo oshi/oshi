@@ -112,10 +112,10 @@ public abstract class MacGpuStats implements GpuStats {
     /**
      * Tests whether an IOAccelerator model name refers to this card, ignoring case and trademark symbols.
      *
-     * @param model the model name read from the registry
+     * @param model the model name read from the registry, or {@code null} if the card reports none
      * @return true if it names this card
      */
-    protected final boolean matchesName(String model) {
+    protected final boolean matchesName(@Nullable String model) {
         if (model == null || model.isEmpty()) {
             return false;
         }

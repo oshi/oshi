@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -604,7 +605,7 @@ class LinuxCentralProcessorTest {
         }
 
         @Override
-        protected List<String> enumerateCpuSyspathsViaUdev() {
+        protected @Nullable List<String> enumerateCpuSyspathsViaUdev() {
             return null;
         }
 

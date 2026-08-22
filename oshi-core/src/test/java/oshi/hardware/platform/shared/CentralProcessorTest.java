@@ -35,7 +35,7 @@ import oshi.util.Util;
 @TestInstance(Lifecycle.PER_CLASS)
 class CentralProcessorTest {
 
-    private CentralProcessor p = null;
+    private CentralProcessor p;
 
     @BeforeAll
     void setUp() {

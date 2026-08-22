@@ -19,6 +19,7 @@ import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.oneOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,17 +64,19 @@ class OperatingSystemTest {
     }
 
     protected OperatingSystem os = createOperatingSystem();
-    protected OSProcess proc = os.getProcess(os.getProcessId());
+    protected OSProcess proc;
 
     @BeforeAll
     void setUp() {
+        OSProcess current = os.getProcess(os.getProcessId());
         // In rare cases on procfs based systems the proc call may result in null, so
         // we'll try a second time
-        if (this.proc == null) {
-            this.proc = os.getProcess(os.getProcessId());
+        if (current == null) {
+            current = os.getProcess(os.getProcessId());
         }
         // Fail here rather than more confusing NPEs later
-        assertThat("Current process PID returned null", proc, is(notNullValue()));
+        assertNotNull(current, "Current process PID returned null");
+        this.proc = current;
     }
 
     @Test

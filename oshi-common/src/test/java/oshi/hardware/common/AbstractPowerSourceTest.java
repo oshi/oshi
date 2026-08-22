@@ -13,6 +13,7 @@ import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.PowerSource;
@@ -28,7 +29,7 @@ class AbstractPowerSourceTest {
     private static AbstractPowerSource createSource(String name, double remainPct, double timeEst, double timeInst,
             double power, double voltage, double amperage, boolean onLine, boolean charging, boolean discharging,
             PowerSource.CapacityUnits units, int current, int max, int design, int cycles, String chemistry,
-            LocalDate mfgDate, String mfg, String serial, double temp) {
+            @Nullable LocalDate mfgDate, String mfg, String serial, double temp) {
         return new AbstractPowerSource(name, "Device-" + name, remainPct, timeEst, timeInst, power, voltage, amperage,
                 onLine, charging, discharging, units, current, max, design, cycles, chemistry, mfgDate, mfg, serial,
                 temp) {

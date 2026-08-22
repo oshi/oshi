@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.driver.common.windows.gpu.DxgiAdapterInfo;
@@ -46,7 +47,7 @@ class WindowsGraphicsCardTest {
 
         @Override
         public oshi.hardware.GpuStats createStatsSession() {
-            return null;
+            throw new UnsupportedOperationException("not exercised by this test");
         }
     }
 
@@ -78,7 +79,7 @@ class WindowsGraphicsCardTest {
             }
 
             @Override
-            public Object getValue(VideoControllerProperty property, int index) {
+            public @Nullable Object getValue(VideoControllerProperty property, int index) {
                 return list.get(index).values.get(property);
             }
 

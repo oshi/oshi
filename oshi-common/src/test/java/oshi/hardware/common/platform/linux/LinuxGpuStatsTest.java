@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.linux;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static oshi.util.TestFileUtil.writeFile;
 
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -48,13 +50,13 @@ class LinuxGpuStatsTest {
         }
 
         @Override
-        protected String nvmlFindDevice(String busId) {
+        protected @Nullable String nvmlFindDevice(String busId) {
             findDeviceCallCount++;
             return null;
         }
 
         @Override
-        protected String nvmlFindDeviceByName(String name) {
+        protected @Nullable String nvmlFindDeviceByName(String name) {
             return null;
         }
 
@@ -128,13 +130,13 @@ class LinuxGpuStatsTest {
         }
 
         @Override
-        protected String nvmlFindDevice(String busId) {
+        protected @Nullable String nvmlFindDevice(String busId) {
             findDeviceCallCount++;
             return "nvml-device-0";
         }
 
         @Override
-        protected String nvmlFindDeviceByName(String name) {
+        protected @Nullable String nvmlFindDeviceByName(String name) {
             return "nvml-device-0";
         }
 
@@ -177,6 +179,13 @@ class LinuxGpuStatsTest {
     // -------------------------------------------------------------------------
     // Empty / missing path — all metrics return sentinel
     // -------------------------------------------------------------------------
+
+    /** The card's gt/gt0 directory, given its device directory. Path.getParent() is nullable; here it is not. */
+    private static Path gt0Of(Path device) {
+        Path card = device.getParent();
+        assertNotNull(card);
+        return card.resolve("gt/gt0");
+    }
 
     @Test
     void testEmptyPathReturnsSentinels() {
@@ -364,7 +373,7 @@ class LinuxGpuStatsTest {
     @Test
     void testI915Utilization(@TempDir Path tmp) throws IOException {
         Path device = createCardWithGt(tmp);
-        Path gt0 = device.getParent().resolve("gt/gt0");
+        Path gt0 = gt0Of(device);
         writeFile(gt0.resolve("rps_act_freq_mhz"), "1200\n");
         writeFile(gt0.resolve("rps_max_freq_mhz"), "1500\n");
 
@@ -377,7 +386,7 @@ class LinuxGpuStatsTest {
     @Test
     void testI915UtilizationZeroActual(@TempDir Path tmp) throws IOException {
         Path device = createCardWithGt(tmp);
-        Path gt0 = device.getParent().resolve("gt/gt0");
+        Path gt0 = gt0Of(device);
         writeFile(gt0.resolve("rps_act_freq_mhz"), "0\n");
         writeFile(gt0.resolve("rps_max_freq_mhz"), "1500\n");
 
@@ -389,7 +398,7 @@ class LinuxGpuStatsTest {
     @Test
     void testI915CoreClock(@TempDir Path tmp) throws IOException {
         Path device = createCardWithGt(tmp);
-        Path gt0 = device.getParent().resolve("gt/gt0");
+        Path gt0 = gt0Of(device);
         writeFile(gt0.resolve("rps_cur_freq_mhz"), "1350\n");
 
         try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "i915", "", "Intel GPU")) {
@@ -404,7 +413,7 @@ class LinuxGpuStatsTest {
     @Test
     void testXeUtilization(@TempDir Path tmp) throws IOException {
         Path device = createCardWithGt(tmp);
-        Path gt0 = device.getParent().resolve("gt/gt0");
+        Path gt0 = gt0Of(device);
         writeFile(gt0.resolve("rps_act_freq_mhz"), "900\n");
         writeFile(gt0.resolve("rps_max_freq_mhz"), "1800\n");
 
@@ -581,7 +590,7 @@ class LinuxGpuStatsTest {
     @Test
     void testI915UtilizationCappedAt100(@TempDir Path tmp) throws IOException {
         Path device = createCardWithGt(tmp);
-        Path gt0 = device.getParent().resolve("gt/gt0");
+        Path gt0 = gt0Of(device);
         writeFile(gt0.resolve("rps_act_freq_mhz"), "2000\n");
         writeFile(gt0.resolve("rps_max_freq_mhz"), "1500\n");
 
@@ -707,12 +716,12 @@ class LinuxGpuStatsTest {
             }
 
             @Override
-            protected String nvmlFindDevice(String busId) {
+            protected @Nullable String nvmlFindDevice(String busId) {
                 return null;
             }
 
             @Override
-            protected String nvmlFindDeviceByName(String name) {
+            protected @Nullable String nvmlFindDeviceByName(String name) {
                 return "nvml-by-name";
             }
 

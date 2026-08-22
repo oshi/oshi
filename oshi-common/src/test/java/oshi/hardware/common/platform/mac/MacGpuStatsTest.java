@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.GpuTicks;
@@ -30,7 +31,7 @@ class MacGpuStatsTest {
     private static final String TEMPERATURE = "Temperature(C)";
 
     /** Records whether a sampler was requested, and hands out a fixed one. */
-    private static final class RecordingFactory implements Supplier<IOReportSampler> {
+    private static final class RecordingFactory implements Supplier<@Nullable IOReportSampler> {
         private final IOReportSampler sampler;
         private int calls;
 
@@ -79,19 +80,19 @@ class MacGpuStatsTest {
 
     /** Serves canned PerformanceStatistics, with null meaning the dictionary itself could not be read. */
     private static final class StubGpuStats extends MacGpuStats {
-        private final Map<String, Long> stats;
+        private final @Nullable Map<String, Long> stats;
         private final double smcTemp;
         private int perfStatQueries;
 
-        StubGpuStats(boolean isAppleSilicon, String cardName, Supplier<IOReportSampler> samplerFactory,
-                Map<String, Long> stats, double smcTemp) {
+        StubGpuStats(boolean isAppleSilicon, String cardName, Supplier<@Nullable IOReportSampler> samplerFactory,
+                @Nullable Map<String, Long> stats, double smcTemp) {
             super(isAppleSilicon, cardName, samplerFactory);
             this.stats = stats;
             this.smcTemp = smcTemp;
         }
 
         @Override
-        protected Map<String, Long> queryPerfStats(String... keys) {
+        protected @Nullable Map<String, Long> queryPerfStats(String... keys) {
             perfStatQueries++;
             if (stats == null) {
                 return null;
@@ -256,7 +257,7 @@ class MacGpuStatsTest {
         assertThat("empty does not match", gpu.matchesName(""), is(false));
     }
 
-    private static IOReportSampler nullSampler() {
+    private static @Nullable IOReportSampler nullSampler() {
         return null;
     }
 }

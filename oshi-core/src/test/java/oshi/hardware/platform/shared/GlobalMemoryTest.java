@@ -34,7 +34,7 @@ class GlobalMemoryTest {
         return new SystemInfo().getHardware().getMemory();
     }
 
-    private GlobalMemory memory = null;
+    private GlobalMemory memory;
 
     @BeforeAll
     void setUp() {

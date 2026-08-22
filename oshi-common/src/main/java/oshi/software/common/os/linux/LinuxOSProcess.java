@@ -429,7 +429,7 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
      * @param status status map to fill.
      * @param stat   string to read from.
      */
-    static void getMissingDetails(Map<String, String> status, String stat) {
+    static void getMissingDetails(@Nullable Map<String, String> status, @Nullable String stat) {
         if (status == null || stat == null) {
             return;
         }
