@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,22 +29,25 @@ class RouteTableTest {
     // Verbatim /proc/net/route. The matching `ip route show` reported:
     // default via 172.17.0.1 dev eth0
     // 172.17.0.0/16 dev eth0 scope link src 172.17.0.2
-    private static final List<String> PROC_NET_ROUTE = Arrays.asList(
-            "Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                   ", //
-            "eth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                           ", //
-            "eth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                           ");
+    private static final List<String> PROC_NET_ROUTE = """
+            Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                  \s
+            eth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                          \s
+            eth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                          \s
+            """.lines().toList();
 
     // Verbatim /proc/net/ipv6_route, with a 2001:db8:1122:3344::1/64 address added to lo so the byte order is
     // unambiguous. The matching `ip -6 route show` reported:
     // 2001:db8:1122:3344::/64 dev lo metric 256
     // fe80::/64 dev eth0 metric 256
-    private static final List<String> PROC_NET_IPV6_ROUTE = Arrays.asList(
-            "20010db8112233440000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00200200       lo", //
-            "fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0", //
-            "00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo", //
-            "00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000003 00000000 80200001       lo", //
-            "20010db8112233440000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo", //
-            "ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000002 00000000 00000001     eth0");
+    private static final List<String> PROC_NET_IPV6_ROUTE = """
+            20010db8112233440000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00200200       lo
+            fe800000000000000000000000000000 40 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000001 00000000 00000001     eth0
+            00000000000000000000000000000000 00 00000000000000000000000000000000 00 00000000000000000000000000000000 ffffffff 00000001 00000000 00200200       lo
+            00000000000000000000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000003 00000000 80200001       lo
+            20010db8112233440000000000000001 80 00000000000000000000000000000000 00 00000000000000000000000000000000 00000000 00000002 00000000 80200001       lo
+            ff000000000000000000000000000000 08 00000000000000000000000000000000 00 00000000000000000000000000000000 00000100 00000002 00000000 00000001     eth0
+            """
+            .lines().toList();
 
     // Verbatim /proc/net/ipv6_route from a container given an IPv6 default route, which the capture above had none of.
     // The matching `ip -6 route show` reported:
