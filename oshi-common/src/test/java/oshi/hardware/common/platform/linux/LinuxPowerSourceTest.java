@@ -13,7 +13,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -271,7 +270,7 @@ class LinuxPowerSourceTest {
                 + "POWER_SUPPLY_ENERGY_NOW=20712000\n" + "POWER_SUPPLY_ENERGY_FULL=40877000\n"
                 + "POWER_SUPPLY_ENERGY_FULL_DESIGN=48248000\n" + "POWER_SUPPLY_POWER_NOW=9361000\n"
                 + "POWER_SUPPLY_CAPACITY=50\n" + "IGNORED_KEY=should_be_skipped\n" + "MALFORMED_LINE\n";
-        Files.write(bat.resolve("uevent"), uevent.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(bat.resolve("uevent"), uevent);
 
         List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.toString());
 
@@ -303,7 +302,7 @@ class LinuxPowerSourceTest {
         Files.createDirectories(bat);
         String uevent = "POWER_SUPPLY_NAME=BAT0\nPOWER_SUPPLY_STATUS=Charging\n"
                 + "POWER_SUPPLY_ENERGY_NOW=20000000\nPOWER_SUPPLY_ENERGY_FULL=40000000\n";
-        Files.write(bat.resolve("uevent"), uevent.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(bat.resolve("uevent"), uevent);
 
         List<PowerSource> sources = LinuxPowerSource.getPowerSources(tempDir.toString());
         assertThat(sources, hasSize(1));

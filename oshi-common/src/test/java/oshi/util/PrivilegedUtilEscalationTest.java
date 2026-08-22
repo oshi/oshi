@@ -14,7 +14,6 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -81,7 +80,7 @@ class PrivilegedUtilEscalationTest {
     @Test
     void testReadFilePrivilegedWithPrefixAndReadableFile(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("readable.txt");
-        Files.write(testFile, "content\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(testFile, "content\n");
 
         String filePath = testFile.toString();
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, filePath);
@@ -96,7 +95,7 @@ class PrivilegedUtilEscalationTest {
     @Test
     void testReadFilePrivilegedEscalationPath(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("restricted.txt");
-        Files.write(testFile, "secret\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(testFile, "secret\n");
         assumeTrue(testFile.toFile().setReadable(false) && !Files.isReadable(testFile),
                 "Could not make file unreadable (possibly running as root)");
 
@@ -203,7 +202,7 @@ class PrivilegedUtilEscalationTest {
     @Test
     void testGetStringFromFilePrivilegedWithAllowlist(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("single-line.txt");
-        Files.write(testFile, "hello world\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(testFile, "hello world\n");
 
         String filePath = testFile.toString();
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, filePath);
@@ -242,7 +241,7 @@ class PrivilegedUtilEscalationTest {
     @Test
     void testReadFilePrivilegedNotInAllowlist(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("not-allowed.txt");
-        Files.write(testFile, "data\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(testFile, "data\n");
 
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, "/some/other/path");
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_PREFIX, "sudo -n");

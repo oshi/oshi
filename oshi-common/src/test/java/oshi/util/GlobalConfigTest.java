@@ -17,7 +17,6 @@ import static oshi.util.GlobalConfig.remove;
 import static oshi.util.GlobalConfig.set;
 import static oshi.util.GlobalConfigTest.GlobalConfigAsserter.asserter;
 
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
@@ -133,7 +132,7 @@ class GlobalConfigTest {
     void testLoadExternalConfig(@TempDir Path tempDir) throws Exception {
         // Write a temp properties file
         Path propsFile = tempDir.resolve("test-oshi.properties");
-        Files.write(propsFile, "oshi.test.external=fromfile\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(propsFile, "oshi.test.external=fromfile\n");
 
         // Set system property to point to it
         System.setProperty("oshi.properties.file", propsFile.toString());

@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -354,7 +353,7 @@ class LinuxOperatingSystemTest {
     void testParseServicesSystemctlFoundSuppressesFallback(@TempDir Path initDir) throws IOException {
         // The only enabled unit is already running, so no stopped service is emitted -- but systemctl DID produce
         // output, so the /etc/init fallback must not run even though a .conf job is present in the init dir
-        Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(initDir.resolve("tty1.conf"), "start on runlevel\n");
         List<String> systemctl = List.of("UNIT FILE          STATE      VENDOR PRESET",
                 "ssh.service        enabled    enabled");
         Set<String> running = new HashSet<>(List.of("ssh"));
@@ -365,9 +364,9 @@ class LinuxOperatingSystemTest {
     @Test
     void testParseServicesInitFallback(@TempDir Path initDir) throws IOException {
         // No systemctl services -> scan the init directory for *.conf upstart jobs
-        Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
-        Files.write(initDir.resolve("ssh.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
-        Files.write(initDir.resolve("README.txt"), "not a job\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(initDir.resolve("tty1.conf"), "start on runlevel\n");
+        Files.writeString(initDir.resolve("ssh.conf"), "start on runlevel\n");
+        Files.writeString(initDir.resolve("README.txt"), "not a job\n");
         Set<String> running = new HashSet<>(List.of("ssh"));
         List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), running,
                 initDir.toString());
@@ -391,7 +390,7 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testGetReleaseFilenameMatchesDistribFile(@TempDir Path etc) throws IOException {
-        Files.write(etc.resolve("redhat-release"), "CentOS release 7\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(etc.resolve("redhat-release"), "CentOS release 7\n");
         assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()),
                 is(etc.resolve("redhat-release").toString()));
     }
@@ -400,9 +399,9 @@ class LinuxOperatingSystemTest {
     void testGetReleaseFilenameSkipsExcludedThenReleaseFallback(@TempDir Path etc) throws IOException {
         // os-release/lsb-release/system-release are handled elsewhere and excluded from the scan; with only those
         // present the scan falls back to the "release" file (Solaris-style) when it exists
-        Files.write(etc.resolve("os-release"), "NAME=Ubuntu\n".getBytes(StandardCharsets.UTF_8));
-        Files.write(etc.resolve("lsb-release"), "DISTRIB_ID=Ubuntu\n".getBytes(StandardCharsets.UTF_8));
-        Files.write(etc.resolve("release"), "Solaris\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(etc.resolve("os-release"), "NAME=Ubuntu\n");
+        Files.writeString(etc.resolve("lsb-release"), "DISTRIB_ID=Ubuntu\n");
+        Files.writeString(etc.resolve("release"), "Solaris\n");
         assertThat(LinuxOperatingSystem.getReleaseFilename(etc.toString()), is(etc.resolve("release").toString()));
     }
 

@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static oshi.util.TestFileUtil.writeFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -172,7 +171,7 @@ class LinuxGraphicsCardTest {
     void testReadUeventValue(@TempDir Path tempDir) throws IOException {
         Path uevent = tempDir.resolve("uevent");
         String content = "DRIVER=amdgpu\nPCI_SLOT_NAME=0000:01:00.0\nPCI_ID=1002:744C\n";
-        Files.write(uevent, content.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(uevent, content);
 
         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), "PCI_SLOT_NAME"), is("0000:01:00.0"));
         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), "DRIVER"), is("amdgpu"));
@@ -218,7 +217,7 @@ class LinuxGraphicsCardTest {
         Files.createDirectories(driverTarget);
         Files.createSymbolicLink(deviceDir.resolve("driver"), driverTarget);
         // Write uevent with PCI_SLOT_NAME
-        Files.write(deviceDir.resolve("uevent"), ("PCI_SLOT_NAME=" + slotName + "\n").getBytes(StandardCharsets.UTF_8));
+        Files.writeString(deviceDir.resolve("uevent"), ("PCI_SLOT_NAME=" + slotName + "\n"));
     }
 
     // -------------------------------------------------------------------------
