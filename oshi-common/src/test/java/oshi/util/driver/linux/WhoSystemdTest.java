@@ -17,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.ThrowingSupplier;
@@ -37,7 +36,7 @@ class WhoSystemdTest {
     }
 
     private static List<String> users(List<OSSession> sessions) {
-        return sessions.stream().map(OSSession::getUserName).collect(Collectors.toList());
+        return sessions.stream().map(OSSession::getUserName).toList();
     }
 
     @Test

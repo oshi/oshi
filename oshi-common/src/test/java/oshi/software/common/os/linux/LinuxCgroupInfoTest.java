@@ -13,7 +13,6 @@ import static oshi.software.os.CgroupInfo.UNLIMITED_CPUS;
 import static oshi.software.os.CgroupInfo.UNLIMITED_MEMORY;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -30,13 +29,13 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuQuotaV2WithLimit(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.max"), "200000 100000\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.max"), "200000 100000\n");
         assertEquals(200000L, cgroup.readCpuQuotaV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readCpuQuotaV2Unlimited(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.max"), "max 100000\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.max"), "max 100000\n");
         assertEquals(UNLIMITED, cgroup.readCpuQuotaV2(tempDir.toString() + "/"));
     }
 
@@ -47,49 +46,49 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuPeriodV2(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.max"), "200000 50000\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.max"), "200000 50000\n");
         assertEquals(50000L, cgroup.readCpuPeriodV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readCpuPeriodV2Default(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.max"), "max\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.max"), "max\n");
         assertEquals(DEFAULT_CPU_PERIOD, cgroup.readCpuPeriodV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readMemoryLimitV2WithLimit(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.max"), "1073741824\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.max"), "1073741824\n");
         assertEquals(1073741824L, cgroup.readMemoryLimitV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readMemoryLimitV2Unlimited(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.max"), "max\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.max"), "max\n");
         assertEquals(UNLIMITED_MEMORY, cgroup.readMemoryLimitV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readMemoryUsageV2(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.current"), "536870912\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.current"), "536870912\n");
         assertEquals(536870912L, cgroup.readMemoryUsageV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readPidLimitV2WithLimit(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.max"), "1024\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.max"), "1024\n");
         assertEquals(1024L, cgroup.readPidLimitV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readPidLimitV2Unlimited(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.max"), "max\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.max"), "max\n");
         assertEquals(UNLIMITED, cgroup.readPidLimitV2(tempDir.toString() + "/"));
     }
 
     @Test
     void readPidCurrentV2(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.current"), "42\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.current"), "42\n");
         assertEquals(42L, cgroup.readPidCurrentV2(tempDir.toString() + "/"));
     }
 
@@ -248,13 +247,13 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuQuotaV1WithLimit(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.cfs_quota_us"), "50000\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.cfs_quota_us"), "50000\n");
         assertEquals(50000L, cgroup.readCpuQuotaV1(tempDir.toString() + "/"));
     }
 
     @Test
     void readCpuQuotaV1Unlimited(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.cfs_quota_us"), "-1\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.cfs_quota_us"), "-1\n");
         assertEquals(-1L, cgroup.readCpuQuotaV1(tempDir.toString() + "/"));
     }
 
@@ -265,7 +264,7 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuPeriodV1(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.cfs_period_us"), "50000\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.cfs_period_us"), "50000\n");
         assertEquals(50000L, cgroup.readCpuPeriodV1(tempDir.toString() + "/"));
     }
 
@@ -276,13 +275,13 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuUsageV1(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpuacct.usage"), "123456789\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpuacct.usage"), "123456789\n");
         assertEquals(123456789L, cgroup.readCpuUsageV1(tempDir.toString() + "/"));
     }
 
     @Test
     void readMemoryLimitV1WithLimit(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.limit_in_bytes"), "2147483648\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.limit_in_bytes"), "2147483648\n");
         assertEquals(2147483648L, cgroup.readMemoryLimitV1(tempDir.toString() + "/"));
     }
 
@@ -290,7 +289,7 @@ class LinuxCgroupInfoTest {
     void readMemoryLimitV1Unlimited(@TempDir Path tempDir) throws IOException {
         // Kernel reports near-max value for unlimited
         String nearMax = String.valueOf(Long.MAX_VALUE - 4095);
-        Files.write(tempDir.resolve("memory.limit_in_bytes"), (nearMax + "\n").getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.limit_in_bytes"), (nearMax + "\n"));
         assertEquals(UNLIMITED_MEMORY, cgroup.readMemoryLimitV1(tempDir.toString() + "/"));
     }
 
@@ -298,31 +297,31 @@ class LinuxCgroupInfoTest {
     void readMemoryLimitV1BelowThreshold(@TempDir Path tempDir) throws IOException {
         // A large but valid limit (8 TiB) should be returned as-is, not treated as unlimited
         long eightTiB = 8L * 1024 * 1024 * 1024 * 1024;
-        Files.write(tempDir.resolve("memory.limit_in_bytes"), (eightTiB + "\n").getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.limit_in_bytes"), (eightTiB + "\n"));
         assertEquals(eightTiB, cgroup.readMemoryLimitV1(tempDir.toString() + "/"));
     }
 
     @Test
     void readMemoryUsageV1(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.usage_in_bytes"), "1048576\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.usage_in_bytes"), "1048576\n");
         assertEquals(1048576L, cgroup.readMemoryUsageV1(tempDir.toString() + "/"));
     }
 
     @Test
     void readPidLimitV1WithLimit(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.max"), "512\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.max"), "512\n");
         assertEquals(512L, cgroup.readPidLimitV1(tempDir.toString() + "/"));
     }
 
     @Test
     void readPidLimitV1Unlimited(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.max"), "max\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.max"), "max\n");
         assertEquals(UNLIMITED, cgroup.readPidLimitV1(tempDir.toString() + "/"));
     }
 
     @Test
     void readPidCurrentV1(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.current"), "17\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.current"), "17\n");
         assertEquals(17L, cgroup.readPidCurrentV1(tempDir.toString() + "/"));
     }
 
@@ -330,42 +329,42 @@ class LinuxCgroupInfoTest {
 
     @Test
     void dispatchV2CpuUsage(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.stat"), "usage_usec 1000\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.stat"), "usage_usec 1000\n");
         TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(2, tempDir.toString() + "/");
         assertEquals(1_000_000L, testable.getCpuUsage());
     }
 
     @Test
     void dispatchV2MemoryUsage(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.current"), "4096\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.current"), "4096\n");
         TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(2, tempDir.toString() + "/");
         assertEquals(4096L, testable.getMemoryUsage());
     }
 
     @Test
     void dispatchV2PidCurrent(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.current"), "5\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.current"), "5\n");
         TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(2, tempDir.toString() + "/");
         assertEquals(5L, testable.getPidCurrent());
     }
 
     @Test
     void dispatchV1CpuUsage(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpuacct.usage"), "999\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpuacct.usage"), "999\n");
         TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(1, tempDir.toString() + "/");
         assertEquals(999L, testable.getCpuUsage());
     }
 
     @Test
     void dispatchV1MemoryUsage(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("memory.usage_in_bytes"), "2048\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("memory.usage_in_bytes"), "2048\n");
         TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(1, tempDir.toString() + "/");
         assertEquals(2048L, testable.getMemoryUsage());
     }
 
     @Test
     void dispatchV1PidCurrent(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("pids.current"), "3\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("pids.current"), "3\n");
         TestableLinuxCgroupInfo testable = new TestableLinuxCgroupInfo(1, tempDir.toString() + "/");
         assertEquals(3L, testable.getPidCurrent());
     }

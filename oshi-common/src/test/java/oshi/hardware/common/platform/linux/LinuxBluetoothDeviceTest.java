@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -186,6 +185,6 @@ class LinuxBluetoothDeviceTest {
     }
 
     private static void writeFile(Path path, String content) throws IOException {
-        Files.write(path, content.getBytes(StandardCharsets.UTF_8));
+        Files.writeString(path, content);
     }
 }

@@ -19,7 +19,6 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -105,7 +104,7 @@ class WindowsGraphicsCardTest {
     }
 
     private static List<String> names(List<GraphicsCard> cards) {
-        return cards.stream().map(GraphicsCard::getName).collect(Collectors.toList());
+        return cards.stream().map(GraphicsCard::getName).toList();
     }
 
     @Test
@@ -154,7 +153,7 @@ class WindowsGraphicsCardTest {
                 result(row("Shared", "PCI\\VEN_10DE&DEV_1C03", "NVIDIA", "1.2.3", 0, 111),
                         row("Shared", "PCI\\VEN_10DE&DEV_1C03", "NVIDIA", "1.2.3", 0, 222)));
         assertThat("both rows are returned", cards.size(), is(2));
-        List<Long> vram = cards.stream().map(GraphicsCard::getVRam).collect(Collectors.toList());
+        List<Long> vram = cards.stream().map(GraphicsCard::getVRam).toList();
         assertThat("only one row got the DXGI VRAM", vram, contains(9999L, 222L));
     }
 
