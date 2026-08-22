@@ -39,7 +39,7 @@ final class LinuxGraphicsCardNF extends LinuxGraphicsCard {
     public static List<GraphicsCard> getGraphicsCards() {
         return LinuxGraphicsCard
                 .getGraphicsCards(a -> new LinuxGraphicsCardNF(a.getName(), a.getDeviceId(), a.getVendor(),
-                        a.getVersionInfo(), a.getVram(), a.getDrmDevicePath(), a.getDriverName(), a.getPciBusId()));
+                        a.getVersionInfo(), vramTotal(a), a.getDrmDevicePath(), a.getDriverName(), a.getPciBusId()));
     }
 
     /**

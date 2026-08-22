@@ -277,6 +277,21 @@ public final class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static long getLongFromFile(String filename) {
+        return getLongFromFile(filename, 0L);
+    }
+
+    /**
+     * Read a file and return the long value contained therein. Intended primarily for Linux /sys filesystem.
+     *
+     * <p>
+     * A caller that must tell an absent or unreadable file from a genuine zero should pass a default outside the
+     * value's real range, such as -1: an unconditional zero is indistinguishable from an idle counter.
+     *
+     * @param filename     The file to read
+     * @param defaultValue The value to return if the file cannot be read or does not contain a long
+     * @return The value contained in the file, if any; otherwise {@code defaultValue}
+     */
+    public static long getLongFromFile(String filename, long defaultValue) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
@@ -285,9 +300,9 @@ public final class FileUtil {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(READ_LOG, read.get(0));
             }
-            return ParseUtil.parseLongOrDefault(read.get(0), 0L);
+            return ParseUtil.parseLongOrDefault(read.get(0), defaultValue);
         }
-        return 0L;
+        return defaultValue;
     }
 
     /**
@@ -318,6 +333,21 @@ public final class FileUtil {
      * @return The value contained in the file, if any; otherwise zero
      */
     public static int getIntFromFile(String filename) {
+        return getIntFromFile(filename, 0);
+    }
+
+    /**
+     * Read a file and return the int value contained therein. Intended primarily for Linux /sys filesystem.
+     *
+     * <p>
+     * A caller that must tell an absent or unreadable file from a genuine zero should pass a default outside the
+     * value's real range, such as -1: an unconditional zero is indistinguishable from an idle counter.
+     *
+     * @param filename     The file to read
+     * @param defaultValue The value to return if the file cannot be read or does not contain an int
+     * @return The value contained in the file, if any; otherwise {@code defaultValue}
+     */
+    public static int getIntFromFile(String filename, int defaultValue) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(READING_LOG, filename);
         }
@@ -327,12 +357,12 @@ public final class FileUtil {
                 if (LOG.isTraceEnabled()) {
                     LOG.trace(READ_LOG, read.get(0));
                 }
-                return ParseUtil.parseIntOrDefault(read.get(0), 0);
+                return ParseUtil.parseIntOrDefault(read.get(0), defaultValue);
             }
         } catch (NumberFormatException ex) {
             LOG.warn("Unable to read value from {}", filename, ex);
         }
-        return 0;
+        return defaultValue;
     }
 
     /**

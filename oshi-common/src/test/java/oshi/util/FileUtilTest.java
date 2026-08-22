@@ -108,6 +108,33 @@ class FileUtilTest {
         assertThat("string from invalid ", FileUtil.getStringFromFile(stringFile.toString()), is(emptyString()));
     }
 
+    /**
+     * Test the get*FromFile overloads that take a caller-supplied default
+     */
+    @Test
+    void testGetFromFileWithDefault(@TempDir Path tempDir) throws IOException {
+        Path integerFile = tempDir.resolve("int");
+        Files.write(integerFile, "123\n".getBytes(StandardCharsets.UTF_8));
+        assertThat("long from int", FileUtil.getLongFromFile(integerFile.toString(), -1L), is(123L));
+        assertThat("int from int", FileUtil.getIntFromFile(integerFile.toString(), -1), is(123));
+
+        Path zeroFile = tempDir.resolve("zero");
+        Files.write(zeroFile, "0\n".getBytes(StandardCharsets.UTF_8));
+        // A file holding a genuine zero must not be confused with an absent one, which is the whole point of the
+        // overload: the no-argument form returns 0 for both.
+        assertThat("long from zero", FileUtil.getLongFromFile(zeroFile.toString(), -1L), is(0L));
+        assertThat("int from zero", FileUtil.getIntFromFile(zeroFile.toString(), -1), is(0));
+
+        Path stringFile = tempDir.resolve("str");
+        Files.write(stringFile, "foo bar\n".getBytes(StandardCharsets.UTF_8));
+        assertThat("long from string", FileUtil.getLongFromFile(stringFile.toString(), -1L), is(-1L));
+        assertThat("int from string", FileUtil.getIntFromFile(stringFile.toString(), -1), is(-1));
+
+        Path missingFile = tempDir.resolve("does-not-exist");
+        assertThat("long from missing", FileUtil.getLongFromFile(missingFile.toString(), -1L), is(-1L));
+        assertThat("int from missing", FileUtil.getIntFromFile(missingFile.toString(), -1), is(-1));
+    }
+
     @Test
     void testReadProcIo() {
         Map<String, String> expected = new LinkedHashMap<>();
