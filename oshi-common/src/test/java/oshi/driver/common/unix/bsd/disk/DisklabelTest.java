@@ -46,14 +46,30 @@ class DisklabelTest {
     @Test
     void testParseDiskParamsExtractsHeaderAndPartitions() {
         // Representative output of `disklabel -n sd0` on OpenBSD/NetBSD.
-        List<String> disklabelOut = Arrays.asList("# /dev/rsd0c:", "type: SCSI", "disk: SCSI disk",
-                "label: Storage Device", "duid: 0000000000000000", "flags:", "bytes/sector: 512", "sectors/track: 63",
-                "tracks/cylinder: 255", "sectors/cylinder: 16065", "cylinders: 976", "total sectors: 15693824",
-                "boundstart: 0", "boundend: 15693824", "drivedata: 0", "", "16 partitions:",
-                "#                size           offset  fstype [fsize bsize   cpg]",
-                "  a:          2097152             1024  4.2BSD   2048 16384 12958 # /",
-                "  b:         17023368          2098176    swap                    # none",
-                "  c:        500118192                0  unused", "  i:              960               64   MSDOS");
+        List<String> disklabelOut = """
+                # /dev/rsd0c:
+                type: SCSI
+                disk: SCSI disk
+                label: Storage Device
+                duid: 0000000000000000
+                flags:
+                bytes/sector: 512
+                sectors/track: 63
+                tracks/cylinder: 255
+                sectors/cylinder: 16065
+                cylinders: 976
+                total sectors: 15693824
+                boundstart: 0
+                boundend: 15693824
+                drivedata: 0
+
+                16 partitions:
+                #                size           offset  fstype [fsize bsize   cpg]
+                  a:          2097152             1024  4.2BSD   2048 16384 12958 # /
+                  b:         17023368          2098176    swap                    # none
+                  c:        500118192                0  unused
+                  i:              960               64   MSDOS
+                """.lines().toList();
 
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("sd0", disklabelOut,
                 ZERO_MAJOR_MINOR);
@@ -106,8 +122,13 @@ class DisklabelTest {
 
     @Test
     void testParseDiskParamsUsesMajorMinorLookup() {
-        List<String> disklabelOut = Arrays.asList("label: Test", "duid: aaaa", "bytes/sector: 512",
-                "total sectors: 100", "  a:  100  0  4.2BSD  2048  16384 12958 # /");
+        List<String> disklabelOut = """
+                label: Test
+                duid: aaaa
+                bytes/sector: 512
+                total sectors: 100
+                  a:  100  0  4.2BSD  2048  16384 12958 # /
+                """.lines().toList();
         BiFunction<String, String, Pair<Integer, Integer>> lookup = (disk, name) -> new Pair<>(7, 42);
 
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("sd0", disklabelOut,
@@ -121,10 +142,12 @@ class DisklabelTest {
     @Test
     void testParseDfFallbackBuildsUnknownLabeledQuartet() {
         // `df` columns: device 1k-blocks used avail capacity mounted
-        List<String> dfOut = Arrays.asList("Filesystem  1K-blocks    Used   Avail Capacity  Mounted on",
-                "/dev/sd0a     1024000  500000  524000     49%  /",
-                "/dev/sd0d     2048000 1000000 1048000     49%  /var",
-                "tmpfs           65536       0   65536      0%  /tmp");
+        List<String> dfOut = """
+                Filesystem  1K-blocks    Used   Avail Capacity  Mounted on
+                /dev/sd0a     1024000  500000  524000     49%  /
+                /dev/sd0d     2048000 1000000 1048000     49%  /var
+                tmpfs           65536       0   65536      0%  /tmp
+                """.lines().toList();
 
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDfFallback("sd0", dfOut,
                 ZERO_MAJOR_MINOR);
@@ -152,8 +175,13 @@ class DisklabelTest {
     @Test
     void testParseDiskParamsRowWithoutFstypeIsSkipped() {
         // A partition row with fewer than 5 columns (no fstype) is discarded by the parser.
-        List<String> disklabelOut = Arrays.asList("label: X", "duid: x", "bytes/sector: 512", "total sectors: 10",
-                "  a:  10  0  ");
+        List<String> disklabelOut = """
+                label: X
+                duid: x
+                bytes/sector: 512
+                total sectors: 10
+                  a:  10  0 \s
+                """.lines().toList();
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("sd0", disklabelOut,
                 ZERO_MAJOR_MINOR);
         assertThat(result.getD(), is(empty()));

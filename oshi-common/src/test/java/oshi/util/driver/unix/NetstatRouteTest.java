@@ -29,65 +29,78 @@ class NetstatRouteTest {
 
     // Verbatim `netstat -rn -f inet` from macOS. Note the trailing "!" on two rows and the empty Expire column on the
     // default route, which make the field count vary from row to row.
-    private static final List<String> MACOS_V4 = Arrays.asList("Routing tables", //
-            "", //
-            "Internet:", //
-            "Destination        Gateway            Flags               Netif Expire", //
-            "default            10.0.0.1           UGScg                 en0       ", //
-            "10/24              link#14            UCS                   en0      !", //
-            "10.0.0.1/32        link#14            UCS                   en0      !", //
-            "10.0.0.1           40:f:c1:cb:2a:97   UHLWIir               en0   1198", //
-            "10.0.0.3           d4:80:8b:1e:6b:b9  UHLWI                 en0   1196");
+    private static final List<String> MACOS_V4 = """
+            Routing tables
+
+            Internet:
+            Destination        Gateway            Flags               Netif Expire
+            default            10.0.0.1           UGScg                 en0      \s
+            10/24              link#14            UCS                   en0      !
+            10.0.0.1/32        link#14            UCS                   en0      !
+            10.0.0.1           40:f:c1:cb:2a:97   UHLWIir               en0   1198
+            10.0.0.3           d4:80:8b:1e:6b:b9  UHLWI                 en0   1196
+            """.lines().toList();
 
     // Verbatim `netstat -rn -f inet6` from macOS.
-    private static final List<String> MACOS_V6 = Arrays.asList("Routing tables", //
-            "", //
-            "Internet6:", //
-            "Destination                             Gateway                                 Flags               Netif Expire", //
-            "default                                 fe80::420f:c1ff:fecb:2a97%en0           UGcg                  en0       ", //
-            "default                                 fe80::%utun0                            UGcIg               utun0       ", //
-            "::1                                     ::1                                     UHL                   lo0       ", //
-            "2601:601:d47c:3090::/64                 link#14                                 UC                    en0       ", //
-            "2601:601:d47c:3090::13e2                0:11:32:c5:e:9b                         UHLWI                 en0       ");
+    private static final List<String> MACOS_V6 = """
+            Routing tables
+
+            Internet6:
+            Destination                             Gateway                                 Flags               Netif Expire
+            default                                 fe80::420f:c1ff:fecb:2a97%en0           UGcg                  en0      \s
+            default                                 fe80::%utun0                            UGcIg               utun0      \s
+            ::1                                     ::1                                     UHL                   lo0      \s
+            2601:601:d47c:3090::/64                 link#14                                 UC                    en0      \s
+            2601:601:d47c:3090::13e2                0:11:32:c5:e:9b                         UHLWI                 en0      \s
+            """
+            .lines().toList();
 
     // Verbatim `netstat -rnf inet` from AIX. The column header precedes the section banner here, the reverse of the
     // macOS order, and two rows carry a trailing "=>".
-    private static final List<String> AIX_V4 = Arrays.asList("Routing tables", //
-            "Destination        Gateway           Flags   Refs     Use  If   Exp  Groups", //
-            "", //
-            "Route Tree for Protocol Family 2 (Internet):", //
-            "default            140.211.9.1       UG      124  27595284 en1      -      -   ", //
-            "10.1.0.0           10.1.0.3          UHSb      0         0 en0      -      -   =>", //
-            "10.1/23            10.1.0.3          U         0   1422409 en0      -      -   ", //
-            "10.1.0.3           127.0.0.1         UGHS      0    313680 lo0      -      -   ", //
-            "127/8              127.0.0.1         U         3   3564888 lo0      -      -   ", //
-            "140.211.9/24       140.211.9.96      U         1   1835134 en1      -      -   ");
+    private static final List<String> AIX_V4 = """
+            Routing tables
+            Destination        Gateway           Flags   Refs     Use  If   Exp  Groups
+
+            Route Tree for Protocol Family 2 (Internet):
+            default            140.211.9.1       UG      124  27595284 en1      -      -  \s
+            10.1.0.0           10.1.0.3          UHSb      0         0 en0      -      -   =>
+            10.1/23            10.1.0.3          U         0   1422409 en0      -      -  \s
+            10.1.0.3           127.0.0.1         UGHS      0    313680 lo0      -      -  \s
+            127/8              127.0.0.1         U         3   3564888 lo0      -      -  \s
+            140.211.9/24       140.211.9.96      U         1   1835134 en1      -      -  \s
+            """.lines().toList();
 
     // Verbatim `netstat -rnf inet6` from AIX.
-    private static final List<String> AIX_V6 = Arrays.asList("Routing tables", //
-            "Destination        Gateway           Flags   Refs     Use  If   Exp  Groups", //
-            "", //
-            "Route Tree for Protocol Family 24 (Internet v6):", //
-            "::1%1              ::1%1             UH        1    466765 lo0      -      -   ");
+    private static final List<String> AIX_V6 = """
+            Routing tables
+            Destination        Gateway           Flags   Refs     Use  If   Exp  Groups
+
+            Route Tree for Protocol Family 24 (Internet v6):
+            ::1%1              ::1%1             UH        1    466765 lo0      -      -  \s
+            """.lines().toList();
 
     // Verbatim `netstat -rnv -f inet` from Solaris 11.4. The default route has an empty Device column, which collapses
     // under whitespace splitting and shifts every following token left by one.
-    private static final List<String> SOLARIS_V4 = Arrays.asList("", //
-            "IRE Table: IPv4", //
-            "  Destination             Mask           Gateway          Device  MTU  Ref Flg  Out  In/Fwd ", //
-            "-------------------- --------------- -------------------- ------ ----- --- --- ----- ------ ", //
-            "default              0.0.0.0         129.70.163.177                  0   5 UG  5666596      0 ", //
-            "127.0.0.1            255.255.255.255 127.0.0.1            lo0     8232   2 UH   31396  31391 ", //
-            "129.70.163.176       255.255.255.248 129.70.163.179       net0    1500   3 U     2181      0 ");
+    private static final List<String> SOLARIS_V4 = """
+
+            IRE Table: IPv4
+              Destination             Mask           Gateway          Device  MTU  Ref Flg  Out  In/Fwd\s
+            -------------------- --------------- -------------------- ------ ----- --- --- ----- ------\s
+            default              0.0.0.0         129.70.163.177                  0   5 UG  5666596      0\s
+            127.0.0.1            255.255.255.255 127.0.0.1            lo0     8232   2 UH   31396  31391\s
+            129.70.163.176       255.255.255.248 129.70.163.179       net0    1500   3 U     2181      0\s
+            """.lines().toList();
 
     // Verbatim `netstat -rnv -f inet6` from Solaris 11.4. IPv6 has no Mask column and puts the flags one position
     // earlier than IPv4 does.
-    private static final List<String> SOLARIS_V6 = Arrays.asList("", //
-            "IRE Table: IPv6", //
-            "  Destination/Mask            Gateway                    If    MTU  Ref Flags  Out   In/Fwd ", //
-            "--------------------------- --------------------------- ----- ----- --- ----- ------ ------ ", //
-            "::1                         ::1                         lo0    8252   2 UH      1113   1113 ", //
-            "fe80::/10                   fe80::214:4fff:fefb:a5d7    net0   1500   2 U          0      0 ");
+    private static final List<String> SOLARIS_V6 = """
+
+            IRE Table: IPv6
+              Destination/Mask            Gateway                    If    MTU  Ref Flags  Out   In/Fwd\s
+            --------------------------- --------------------------- ----- ----- --- ----- ------ ------\s
+            ::1                         ::1                         lo0    8252   2 UH      1113   1113\s
+            fe80::/10                   fe80::214:4fff:fefb:a5d7    net0   1500   2 U          0      0\s
+            """.lines().toList();
 
     @Test
     void testParseMacOsIpv4() {
@@ -245,24 +258,28 @@ class NetstatRouteTest {
 
     // Verbatim `netstat -rn -f inet` from DragonFly BSD 6.4 in CI. Note "192.168.122": DragonFly abbreviates a network
     // whose mask falls on an octet boundary and omits the prefix entirely, where FreeBSD prints "192.168.122.0/24".
-    private static final List<String> DRAGONFLY_V4 = Arrays.asList("Routing tables", //
-            "", //
-            "Internet:", //
-            "Destination        Gateway            Flags    Refs      Use  Netif Expire", //
-            "default            192.168.122.2      UGSc       16        0 vtnet0       ", //
-            "127.0.0.1          127.0.0.1          UH          0        0    lo0       ", //
-            "192.168.122        link#1             UC          2        0 vtnet0       ", //
-            "192.168.122.2      52:55:c0:a8:7a:02  UHLW       17       58 vtnet0   1195");
+    private static final List<String> DRAGONFLY_V4 = """
+            Routing tables
+
+            Internet:
+            Destination        Gateway            Flags    Refs      Use  Netif Expire
+            default            192.168.122.2      UGSc       16        0 vtnet0      \s
+            127.0.0.1          127.0.0.1          UH          0        0    lo0      \s
+            192.168.122        link#1             UC          2        0 vtnet0      \s
+            192.168.122.2      52:55:c0:a8:7a:02  UHLW       17       58 vtnet0   1195
+            """.lines().toList();
 
     // Verbatim `netstat -rn -f inet6` from the same host. Its header has no Refs or Use, so Netif sits at index 3
     // rather than the 5 the IPv4 table uses on this very platform.
-    private static final List<String> DRAGONFLY_V6 = Arrays.asList("Routing tables", //
-            "", //
-            "Internet6:", //
-            "Destination                       Gateway                       Flags      Netif Expire", //
-            "::1                               ::1                           UH          lo0       ", //
-            "fe80::%vtnet0/64                  link#1                        UC       vtnet0       ", //
-            "ff01::/32                         ::1                           U           lo0       ");
+    private static final List<String> DRAGONFLY_V6 = """
+            Routing tables
+
+            Internet6:
+            Destination                       Gateway                       Flags      Netif Expire
+            ::1                               ::1                           UH          lo0      \s
+            fe80::%vtnet0/64                  link#1                        UC       vtnet0      \s
+            ff01::/32                         ::1                           U           lo0      \s
+            """.lines().toList();
 
     /**
      * DragonFly BSD prints Refs and Use columns that macOS does not, putting Netif at index 5 rather than 3, and
