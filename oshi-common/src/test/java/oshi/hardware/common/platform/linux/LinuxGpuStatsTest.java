@@ -291,7 +291,11 @@ class LinuxGpuStatsTest {
         Path device = tmp.resolve("device");
         Files.createDirectories(device);
         // No hwmon freq1_input, fall back to pp_dpm_sclk
-        writeFile(device.resolve("pp_dpm_sclk"), "0: 500Mhz\n1: 1200Mhz *\n2: 1800Mhz\n");
+        writeFile(device.resolve("pp_dpm_sclk"), """
+                0: 500Mhz
+                1: 1200Mhz *
+                2: 1800Mhz
+                """);
 
         try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
             assertThat(stats.getCoreClockMhz(), is(1200L));
@@ -314,7 +318,11 @@ class LinuxGpuStatsTest {
     void testAmdgpuMemoryClockFallbackToDpm(@TempDir Path tmp) throws IOException {
         Path device = tmp.resolve("device");
         Files.createDirectories(device);
-        writeFile(device.resolve("pp_dpm_mclk"), "0: 400Mhz\n1: 800Mhz\n2: 1000Mhz *\n");
+        writeFile(device.resolve("pp_dpm_mclk"), """
+                0: 400Mhz
+                1: 800Mhz
+                2: 1000Mhz *
+                """);
 
         try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
             assertThat(stats.getMemoryClockMhz(), is(1000L));
@@ -548,7 +556,10 @@ class LinuxGpuStatsTest {
     void testDpmNoActiveEntry(@TempDir Path tmp) throws IOException {
         Path device = tmp.resolve("device");
         Files.createDirectories(device);
-        writeFile(device.resolve("pp_dpm_sclk"), "0: 500Mhz\n1: 1200Mhz\n");
+        writeFile(device.resolve("pp_dpm_sclk"), """
+                0: 500Mhz
+                1: 1200Mhz
+                """);
 
         try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
             assertThat(stats.getCoreClockMhz(), is(-1L));

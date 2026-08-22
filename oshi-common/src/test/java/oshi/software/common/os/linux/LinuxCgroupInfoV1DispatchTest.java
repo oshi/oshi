@@ -125,7 +125,10 @@ class LinuxCgroupInfoV1DispatchTest {
     @Test
     void readCpuUsageV2NoUsageLine(@TempDir Path tempDir) throws IOException {
         // cpu.stat without usage_usec line
-        Files.write(tempDir.resolve("cpu.stat"), "nr_periods 100\nnr_throttled 5\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.stat"), """
+                nr_periods 100
+                nr_throttled 5
+                """);
         assertEquals(0L, cgroup.readCpuUsageV2(tempDir.toString() + "/"));
     }
 

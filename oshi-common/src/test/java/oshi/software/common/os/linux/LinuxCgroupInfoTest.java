@@ -95,8 +95,10 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuUsageV2(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.stat"),
-                "usage_usec 5000000\nnr_periods 100\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.stat"), """
+                usage_usec 5000000
+                nr_periods 100
+                """);
         // 5000000 usec * 1000 ns/usec = 5000000000 ns
         assertEquals(5_000_000_000L, cgroup.readCpuUsageV2(tempDir.toString() + "/"));
     }
@@ -133,8 +135,11 @@ class LinuxCgroupInfoTest {
 
     @Test
     void readCpuUsageV2LineOrder(@TempDir Path tempDir) throws IOException {
-        Files.write(tempDir.resolve("cpu.stat"),
-                "nr_periods 100\nusage_usec 3000\nnr_throttled 5\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(tempDir.resolve("cpu.stat"), """
+                nr_periods 100
+                usage_usec 3000
+                nr_throttled 5
+                """);
         assertEquals(3_000_000L, cgroup.readCpuUsageV2(tempDir.toString() + "/"));
     }
 
