@@ -13,7 +13,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.lang.management.ManagementFactory;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ class ProcstatUtilTest {
 
     @Test
     void testParseCwdReturnsFirstCwdPath() {
-        List<String> procstat = Arrays.asList("PID COMM             FD T V FLAGS    REF  OFFSET PRO NAME",
+        List<String> procstat = List.of("PID COMM             FD T V FLAGS    REF  OFFSET PRO NAME",
                 "1234 bash             cwd v d r---- 1 0 - /home/dan",
                 "1234 bash               0 t s rw--- 1 0 - /dev/tty");
         assertThat(ProcstatUtil.parseCwd(procstat), is("/home/dan"));
@@ -48,7 +47,7 @@ class ProcstatUtilTest {
     void testParseOpenFilesExcludesVdAndDash() {
         // The 5th column (index 4) is the file type: V (vnode), d (cwd/root/text), - (jail/text/etc.) are excluded.
         // Rows with t (terminal), s (socket), p (pipe), k (kqueue), etc., count.
-        List<String> procstat = Arrays.asList("PID COMM             FD T V FLAGS    REF  OFFSET PRO NAME",
+        List<String> procstat = List.of("PID COMM             FD T V FLAGS    REF  OFFSET PRO NAME",
                 "1234 bash             cwd v d r---- 1 0 - /home/dan", // excluded (d)
                 "1234 bash            text v V r---- 1 0 - /usr/bin/bash", // excluded (V)
                 "1234 bash             jail v - r---- 1 0 - /", // excluded (-)

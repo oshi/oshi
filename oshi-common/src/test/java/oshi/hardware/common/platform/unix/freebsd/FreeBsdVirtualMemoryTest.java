@@ -8,7 +8,6 @@ import static java.util.Collections.emptyList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ class FreeBsdVirtualMemoryTest {
 
     @Test
     void sumsAcrossMultipleSwapDevices() {
-        List<String> swapinfo = Arrays.asList("Device          1K-blocks     Used    Avail Capacity",
+        List<String> swapinfo = List.of("Device          1K-blocks     Used    Avail Capacity",
                 "/dev/da0p2.eli     524288   100000   424288    19%",
                 "/dev/da1p2.eli     524288    50000   474288    10%");
         assertThat("Multi-device used should sum to 150000 KB", FreeBsdVirtualMemory.sumSwapUsed(swapinfo),
@@ -63,7 +62,7 @@ class FreeBsdVirtualMemoryTest {
     @Test
     void totalSummaryRowOverridesPerDeviceSum() {
         // -hT output: per-device rows would sum to 150_000, but the Total row reports a different (canonical) value.
-        List<String> swapinfo = Arrays.asList("Device          1K-blocks     Used    Avail Capacity",
+        List<String> swapinfo = List.of("Device          1K-blocks     Used    Avail Capacity",
                 "/dev/da0p2.eli     524288   100000   424288    19%",
                 "/dev/da1p2.eli     524288    50000   474288    10%",
                 "Total             1048576   123456   925120    11%");
@@ -72,7 +71,7 @@ class FreeBsdVirtualMemoryTest {
 
     @Test
     void sumSwapUsedHandlesSingleDevice() {
-        List<String> swapinfo = Arrays.asList("Device          1K-blocks     Used    Avail Capacity",
+        List<String> swapinfo = List.of("Device          1K-blocks     Used    Avail Capacity",
                 "/dev/da0p2.eli     524288   123456   400832    24%");
         assertThat("Single device matches the per-row parser", FreeBsdVirtualMemory.sumSwapUsed(swapinfo),
                 is(123456L << 10));
@@ -81,7 +80,7 @@ class FreeBsdVirtualMemoryTest {
     @Test
     void sumSwapUsedReturnsZeroForHeaderOnly() {
         assertThat("Header row alone implies no swap is configured",
-                FreeBsdVirtualMemory.sumSwapUsed(Arrays.asList("Device 1K-blocks Used Avail Capacity")), is(0L));
+                FreeBsdVirtualMemory.sumSwapUsed(List.of("Device 1K-blocks Used Avail Capacity")), is(0L));
     }
 
     @Test

@@ -7,7 +7,6 @@ package oshi.hardware.common.platform.unix.solaris;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,7 +18,7 @@ class SolarisVirtualMemoryTest {
 
     @Test
     void testSumKstatLong() {
-        List<String> kstat = Arrays.asList(//
+        List<String> kstat = List.of(//
                 "cpu_stat:0:cpu_stat0:pgswapin\t42", //
                 "cpu_stat:1:cpu_stat1:pgswapin\t18");
         assertThat(SolarisVirtualMemory.sumKstatLong(kstat), is(60L));

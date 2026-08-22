@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -43,7 +42,7 @@ class LinuxInstalledAppsTest {
 
     @Test
     void testMultipleValidLines() {
-        List<String> lines = Arrays.asList(
+        List<String> lines = List.of(
                 "firefox|120.0|amd64|250000|1700000000|Mozilla Team|firefox-source|https://firefox.com",
                 "vim|9.0|amd64|3500|1690000000|Vim Maintainers|vim-source|https://vim.org");
 
@@ -56,7 +55,7 @@ class LinuxInstalledAppsTest {
 
     @Test
     void testLineWithFewerThanEightFieldsIsSkipped() {
-        List<String> lines = Arrays.asList("firefox|120.0|amd64|250000|1700000000|Mozilla Team|firefox-source",
+        List<String> lines = List.of("firefox|120.0|amd64|250000|1700000000|Mozilla Team|firefox-source",
                 "vim|9.0|amd64|3500|1690000000|Vim Maintainers|vim-source|https://vim.org");
 
         List<ApplicationInfo> result = LinuxInstalledApps.parseLinuxAppInfo(lines);
@@ -67,7 +66,7 @@ class LinuxInstalledAppsTest {
 
     @Test
     void testLineWithEmptyFieldsUsesUnknown() {
-        List<String> lines = Collections.singletonList("|||0|||| ");
+        List<String> lines = List.of("|||0|||| ");
 
         List<ApplicationInfo> result = LinuxInstalledApps.parseLinuxAppInfo(lines);
 
@@ -91,7 +90,7 @@ class LinuxInstalledAppsTest {
 
     @Test
     void testDuplicateEntriesAreDeduplicated() {
-        List<String> lines = Arrays.asList(
+        List<String> lines = List.of(
                 "firefox|120.0|amd64|250000|1700000000|Mozilla Team|firefox-source|https://firefox.com",
                 "firefox|120.0|amd64|250000|1700000000|Mozilla Team|firefox-source|https://firefox.com");
 

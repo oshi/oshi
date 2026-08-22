@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.is;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,7 +39,7 @@ class LinuxLogicalVolumeGroupTest {
     @Test
     void testParsePhysicalVolumes() {
         // pvs -o vg_name,pv_name output: header row, then "vg pv" rows (leading whitespace)
-        List<String> pvs = Arrays.asList("  VG   PV", "  vg0  /dev/sda2", "  vg0  /dev/sdb1", "  vg1  /dev/sdc1");
+        List<String> pvs = List.of("  VG   PV", "  vg0  /dev/sda2", "  vg0  /dev/sdb1", "  vg1  /dev/sdc1");
         Map<String, Set<String>> map = LinuxLogicalVolumeGroup.parsePhysicalVolumes(pvs);
         assertThat(map.keySet(), containsInAnyOrder("vg0", "vg1"));
         assertThat(map.get("vg0"), containsInAnyOrder("/dev/sda2", "/dev/sdb1"));
@@ -50,7 +49,7 @@ class LinuxLogicalVolumeGroupTest {
     @Test
     void testParsePhysicalVolumesSkipsNonDeviceAndMalformed() {
         // A single-token line (length != 2) and a second token that is not a /dev path are both ignored
-        List<String> pvs = Arrays.asList("  novg", "  vg2  notadevice", "  vg3  /dev/mapper/pv");
+        List<String> pvs = List.of("  novg", "  vg2  notadevice", "  vg3  /dev/mapper/pv");
         Map<String, Set<String>> map = LinuxLogicalVolumeGroup.parsePhysicalVolumes(pvs);
         assertThat(map.keySet(), contains("vg3"));
         assertThat(map.get("vg3"), contains("/dev/mapper/pv"));
@@ -90,7 +89,7 @@ class LinuxLogicalVolumeGroupTest {
     @Test
     void testAssemblesGroupFromSlavesDirectory(@TempDir Path tmp) throws IOException {
         String syspath = syspathWithSlaves(tmp, "dm-0", "sda2", "sdb1");
-        List<LogicalVolumeGroup> lvgs = build(Collections.singletonList(lvmDevice(syspath, "vg0", "root")));
+        List<LogicalVolumeGroup> lvgs = build(List.of(lvmDevice(syspath, "vg0", "root")));
 
         assertThat(lvgs, hasSize(1));
         assertThat(lvgs.get(0).getName(), is("vg0"));
@@ -101,7 +100,7 @@ class LinuxLogicalVolumeGroupTest {
 
     @Test
     void testTwoLogicalVolumesShareOneGroup(@TempDir Path tmp) throws IOException {
-        List<UdevBlockDevice> devices = Arrays.asList(lvmDevice(syspathWithSlaves(tmp, "dm-0", "sda2"), "vg0", "root"),
+        List<UdevBlockDevice> devices = List.of(lvmDevice(syspathWithSlaves(tmp, "dm-0", "sda2"), "vg0", "root"),
                 lvmDevice(syspathWithSlaves(tmp, "dm-1", "sdb1"), "vg0", "swap"));
         List<LogicalVolumeGroup> lvgs = build(devices);
 
@@ -116,7 +115,7 @@ class LinuxLogicalVolumeGroupTest {
     @Test
     void testNonLvmDevicesAreFiltered(@TempDir Path tmp) throws IOException {
         String syspath = syspathWithSlaves(tmp, "dev", "sda1");
-        List<UdevBlockDevice> devices = Arrays.asList(
+        List<UdevBlockDevice> devices = List.of(
                 // not a device-mapper node
                 new UdevBlockDevice(syspath, "/dev/sda", "LVM-abcdef", "vg0", "root"),
                 // device-mapper, but owned by something other than LVM, e.g. LUKS
@@ -132,8 +131,7 @@ class LinuxLogicalVolumeGroupTest {
     @Test
     void testMissingSlavesDirectoryStillReportsTheGroup(@TempDir Path tmp) {
         // A volume whose sysfs entry has no slaves directory is still a volume group, just with no physical volumes.
-        List<LogicalVolumeGroup> lvgs = build(
-                Collections.singletonList(lvmDevice(tmp.resolve("absent").toString(), "vg0", "root")));
+        List<LogicalVolumeGroup> lvgs = build(List.of(lvmDevice(tmp.resolve("absent").toString(), "vg0", "root")));
         assertThat(lvgs, hasSize(1));
         assertThat(lvgs.get(0).getName(), is("vg0"));
         assertThat(lvgs.get(0).getPhysicalVolumes(), is(empty()));
@@ -144,10 +142,9 @@ class LinuxLogicalVolumeGroupTest {
     void testPhysicalVolumesFromPvsAreMergedWithSlaves(@TempDir Path tmp) throws IOException {
         // pvs already reported a volume for this group; the slaves scan adds to that set rather than replacing it.
         Map<String, Set<String>> fromPvs = new HashMap<>();
-        fromPvs.put("vg0", new HashSet<>(Collections.singletonList("/dev/sdc1")));
+        fromPvs.put("vg0", new HashSet<>(List.of("/dev/sdc1")));
         List<LogicalVolumeGroup> lvgs = LinuxLogicalVolumeGroup.buildLogicalVolumeGroups(
-                Collections.singletonList(lvmDevice(syspathWithSlaves(tmp, "dm-0", "sda2"), "vg0", "root")), fromPvs,
-                TestLvg::new);
+                List.of(lvmDevice(syspathWithSlaves(tmp, "dm-0", "sda2"), "vg0", "root")), fromPvs, TestLvg::new);
 
         assertThat(lvgs, hasSize(1));
         assertThat(lvgs.get(0).getPhysicalVolumes(), containsInAnyOrder("/dev/sdc1", "/dev/sda2"));

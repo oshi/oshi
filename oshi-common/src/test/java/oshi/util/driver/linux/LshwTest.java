@@ -13,7 +13,6 @@ import static org.hamcrest.Matchers.matchesRegex;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -29,12 +28,12 @@ import oshi.util.tuples.Triplet;
 class LshwTest {
 
     // Fixture: lshw -C system output
-    private static final List<String> SYSTEM_OUTPUT = Arrays.asList("  *-system", "       description: Computer",
+    private static final List<String> SYSTEM_OUTPUT = List.of("  *-system", "       description: Computer",
             "       product: PowerEdge R720", "       vendor: Dell Inc.", "       serial: ABC1234",
             "       width: 64 bits", "       uuid: 4C4C4544-0044-4810-8031-B4C04F333132");
 
     // Fixture: lshw -class processor output
-    private static final List<String> PROCESSOR_OUTPUT = Arrays.asList("  *-cpu",
+    private static final List<String> PROCESSOR_OUTPUT = List.of("  *-cpu",
             "       product: Intel(R) Xeon(R) CPU E5-2670 v2 @ 2.50GHz", "       vendor: Intel Corp.",
             "       capacity: 3300MHz", "       width: 64 bits");
 
@@ -57,7 +56,7 @@ class LshwTest {
 
     @Test
     void testParseSystemInfoPartial() {
-        List<String> partial = Arrays.asList("       product: MyServer");
+        List<String> partial = List.of("       product: MyServer");
         Triplet<@Nullable String, @Nullable String, @Nullable String> result = Lshw.parseSystemInfo(partial);
         assertThat(result.getA(), is("MyServer"));
         assertThat(result.getB(), is(nullValue()));
@@ -76,7 +75,7 @@ class LshwTest {
 
     @Test
     void testQueryCpuCapacityNoCapacityLine() {
-        List<String> noCapacity = Arrays.asList("  *-cpu", "       product: ARM Cortex-A72");
+        List<String> noCapacity = List.of("  *-cpu", "       product: ARM Cortex-A72");
         assertThat(Lshw.queryCpuCapacity(noCapacity), is(-1L));
     }
 

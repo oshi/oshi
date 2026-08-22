@@ -12,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -184,7 +185,7 @@ class CpuFrequencyResidencyTest {
         complexes.put("PCPU", complexAt(P_STATES, 19));
         complexes.put("PCPM", complexAt(P_STATES, 13));
         Map<Integer, Map<String, Long>> byRank = CpuFrequencyResidency.realizedComplexStates(complexes);
-        assertThat("one entry per core type", byRank.keySet(), is(new TreeSet<>(Arrays.asList(RANK_E, RANK_P))));
+        assertThat("one entry per core type", byRank.keySet(), is(new TreeSet<>(List.of(RANK_E, RANK_P))));
         Map<String, Long> efficiency = byRank.get(RANK_E);
         Map<String, Long> performance = byRank.get(RANK_P);
         assertNotNull(efficiency, "efficiency complex");
@@ -199,8 +200,7 @@ class CpuFrequencyResidencyTest {
     void testEveryClusterOfOneCoreTypeIsSummed() {
         // An Ultra prefixes each die's complex, and a chip with two clusters of one type on a die is expected to number
         // them. Every cluster of a type runs the same frequencies, so one type ran at the average of its clusters.
-        for (String[] names : Arrays.asList(new String[] { "DIE_0_PCPM", "DIE_1_PCPM" },
-                new String[] { "PCPM0", "PCPM1" })) {
+        for (String[] names : List.of(new String[] { "DIE_0_PCPM", "DIE_1_PCPM" }, new String[] { "PCPM0", "PCPM1" })) {
             Map<String, Map<String, Long>> complexes = new LinkedHashMap<>();
             complexes.put(names[0], complexAt(P_STATES, 5));
             complexes.put(names[1], complexAt(P_STATES, 15));
@@ -235,31 +235,29 @@ class CpuFrequencyResidencyTest {
 
     @Test
     void testChannelsAreOrderedByCoreTypeThenCore() {
-        assertThat("M3 Pro",
-                CpuFrequencyResidency.orderChannels(Arrays.asList("PCPU5", "ECPU0", "PCPU0", "ECPU5", "ECPU1")),
-                is(Arrays.asList("ECPU0", "ECPU1", "ECPU5", "PCPU0", "PCPU5")));
+        assertThat("M3 Pro", CpuFrequencyResidency.orderChannels(List.of("PCPU5", "ECPU0", "PCPU0", "ECPU5", "ECPU1")),
+                is(List.of("ECPU0", "ECPU1", "ECPU5", "PCPU0", "PCPU5")));
         // The M5 Pro and Max name their performance cores MCPU and their fastest cores PCPU, with no ECPU at all, so
         // the letters shift but the order does not
-        assertThat("M5 Max",
-                CpuFrequencyResidency.orderChannels(Arrays.asList("PCPU1", "MCPU11", "PCPU0", "MCPU0", "MCPU2")),
-                is(Arrays.asList("MCPU0", "MCPU2", "MCPU11", "PCPU0", "PCPU1")));
+        assertThat("M5 Max", CpuFrequencyResidency.orderChannels(List.of("PCPU1", "MCPU11", "PCPU0", "MCPU0", "MCPU2")),
+                is(List.of("MCPU0", "MCPU2", "MCPU11", "PCPU0", "PCPU1")));
         // An Ultra prefixes its channels with the die, and macOS numbers both dies' cores of one type before the next
         assertThat("Ultra",
                 CpuFrequencyResidency
-                        .orderChannels(Arrays.asList("DIE_1_PCPU0", "DIE_0_ECPU0", "DIE_1_ECPU0", "DIE_0_PCPU0")),
-                is(Arrays.asList("DIE_0_ECPU0", "DIE_1_ECPU0", "DIE_0_PCPU0", "DIE_1_PCPU0")));
+                        .orderChannels(List.of("DIE_1_PCPU0", "DIE_0_ECPU0", "DIE_1_ECPU0", "DIE_0_PCPU0")),
+                is(List.of("DIE_0_ECPU0", "DIE_1_ECPU0", "DIE_0_PCPU0", "DIE_1_PCPU0")));
     }
 
     @Test
     void testACoreIndexIsOrderedNumericallyNotAsText() {
-        assertThat(CpuFrequencyResidency.orderChannels(Arrays.asList("PCPU10", "PCPU9", "PCPU2")),
-                is(Arrays.asList("PCPU2", "PCPU9", "PCPU10")));
+        assertThat(CpuFrequencyResidency.orderChannels(List.of("PCPU10", "PCPU9", "PCPU2")),
+                is(List.of("PCPU2", "PCPU9", "PCPU10")));
     }
 
     @Test
     void testANameThatIsNotACoreChannelSortsLast() {
-        assertThat(CpuFrequencyResidency.orderChannels(Arrays.asList("ECPM", "PCPU0", "ECPU0", "GPU")),
-                is(Arrays.asList("ECPU0", "PCPU0", "ECPM", "GPU")));
+        assertThat(CpuFrequencyResidency.orderChannels(List.of("ECPM", "PCPU0", "ECPU0", "GPU")),
+                is(List.of("ECPU0", "PCPU0", "ECPM", "GPU")));
         // Both a core type no release knows and a name that is not a core channel at all, so a caller can tell that a
         // sample holds something it cannot place
         assertThat("unrecognized core type", CpuFrequencyResidency.prefixRank("XCPU0"),

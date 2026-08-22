@@ -75,7 +75,7 @@ class DmidecodeTest {
 
     @Test
     void testQueryBiosNameRevNoRevision() {
-        List<String> noRev = Arrays.asList("SMBIOS 3.0 present.", "Handle 0x0000, DMI type 0, 24 bytes");
+        List<String> noRev = List.of("SMBIOS 3.0 present.", "Handle 0x0000, DMI type 0, 24 bytes");
         Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev(noRev);
         assertThat(result.getA(), is("SMBIOS 3.0"));
         assertThat(result.getB(), is(nullValue()));
@@ -83,7 +83,7 @@ class DmidecodeTest {
 
     @Test
     void testQueryBiosNameRevLowercaseVariant() {
-        List<String> lowerCase = Arrays.asList("SMBIOS 3.1 present.", "\tbios revision: 1.2");
+        List<String> lowerCase = List.of("SMBIOS 3.1 present.", "\tbios revision: 1.2");
         Pair<@Nullable String, @Nullable String> result = Dmidecode.queryBiosNameRev(lowerCase);
         assertThat(result.getA(), is("SMBIOS 3.1"));
         assertThat(result.getB(), is("1.2"));

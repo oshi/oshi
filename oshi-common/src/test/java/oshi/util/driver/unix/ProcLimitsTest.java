@@ -7,7 +7,6 @@ package oshi.util.driver.unix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,7 +23,7 @@ class ProcLimitsTest {
     private static final String HEADER = "Limit                     Soft Limit           Hard Limit           Units";
 
     private static List<String> limits(String maxOpenFilesRow) {
-        return Arrays.asList(HEADER, "Max cpu time              unlimited            unlimited            seconds",
+        return List.of(HEADER, "Max cpu time              unlimited            unlimited            seconds",
                 maxOpenFilesRow, "Max processes             31573                31573                processes");
     }
 
@@ -57,7 +56,7 @@ class ProcLimitsTest {
 
     @Test
     void testRowAbsentOrEmpty() {
-        List<String> noRow = Arrays.asList(HEADER,
+        List<String> noRow = List.of(HEADER,
                 "Max processes             31573                31573                processes");
         assertThat("no Max open files row", ProcLimits.parseOpenFileLimit(noRow, SOFT), is(-1L));
         assertThat("empty input", ProcLimits.parseOpenFileLimit(Collections.emptyList(), SOFT), is(-1L));

@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -50,7 +49,7 @@ class AixCentralProcessorTest {
     void testParseProcessorIdEmptyMarkerValues() {
         // Bare marker lines (no value after the colon) must not throw; they yield empty fields
         Quartet<String, String, String, Boolean> id = AixCentralProcessor
-                .parseProcessorId(Arrays.asList("Processor Type:", "Processor Version:", "CPU Type:"));
+                .parseProcessorId(List.of("Processor Type:", "Processor Version:", "CPU Type:"));
         assertThat(id.getA(), is(Constants.UNKNOWN));
         assertThat(id.getB(), is(""));
         assertThat(id.getC(), is(""));
@@ -60,7 +59,7 @@ class AixCentralProcessorTest {
     @Test
     void testParsePowerVersion() {
         // Real prtconf excerpt from a POWER8 box (IBM,8284-22A): the Processor Version line carries the generation
-        List<String> prtconf = Arrays.asList(//
+        List<String> prtconf = List.of(//
                 "System Model: IBM,8284-22A", //
                 "Processor Type: PowerPC_POWER8", //
                 "Processor Implementation Mode: POWER 8", //
@@ -69,15 +68,14 @@ class AixCentralProcessorTest {
                 "CPU Type: 64-bit");
         assertThat(AixCentralProcessor.parsePowerVersion(prtconf), is(8));
         // POWER9 form
-        assertThat(AixCentralProcessor.parsePowerVersion(Collections.singletonList("Processor Version: PV_9_Compat")),
-                is(9));
+        assertThat(AixCentralProcessor.parsePowerVersion(List.of("Processor Version: PV_9_Compat")), is(9));
         // No Processor Version line -> 0 (selects no caches, same as an unknown generation)
         assertThat(AixCentralProcessor.parsePowerVersion(Collections.emptyList()), is(0));
     }
 
     @Test
     void testParseCurrentFreq() {
-        List<String> pmcycles = Arrays.asList("Cpu 0 runs at 3000 MHz", "Cpu 1 runs at 3000 MHz");
+        List<String> pmcycles = List.of("Cpu 0 runs at 3000 MHz", "Cpu 1 runs at 3000 MHz");
         // exactly two CPUs
         assertThat(AixCentralProcessor.parseCurrentFreq(pmcycles, 2),
                 is(new long[] { 3_000_000_000L, 3_000_000_000L }));
@@ -90,10 +88,10 @@ class AixCentralProcessorTest {
 
     @Test
     void testParseSbits() {
-        assertThat(AixCentralProcessor.parseSbits(Collections.singletonList("#define SBITS 16")), is(16));
-        assertThat(AixCentralProcessor.parseSbits(Collections.singletonList("#define  SBITS  10")), is(10));
+        assertThat(AixCentralProcessor.parseSbits(List.of("#define SBITS 16")), is(16));
+        assertThat(AixCentralProcessor.parseSbits(List.of("#define  SBITS  10")), is(10));
         // default when not present
-        assertThat(AixCentralProcessor.parseSbits(Collections.singletonList("#define OTHER 5")), is(16));
+        assertThat(AixCentralProcessor.parseSbits(List.of("#define OTHER 5")), is(16));
         assertThat(AixCentralProcessor.parseSbits(Collections.emptyList()), is(16));
     }
 

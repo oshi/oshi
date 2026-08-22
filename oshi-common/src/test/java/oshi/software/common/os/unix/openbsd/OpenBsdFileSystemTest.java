@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.aMapWithSize;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +45,7 @@ class OpenBsdFileSystemTest {
 
     @Test
     void testParseDfInodesIncludesMfsAndSkipsHeader() {
-        List<String> lines = Arrays.asList(
+        List<String> lines = List.of(
                 "Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on",
                 "mfs:12345      1048576    10240   1038336     1%       5   65531     0%   /tmp");
         Pair<Map<String, Long>, Map<String, Long>> result = OpenBsdFileSystem.parseDfInodes(lines);

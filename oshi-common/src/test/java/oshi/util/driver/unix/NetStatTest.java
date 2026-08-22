@@ -31,7 +31,7 @@ import oshi.util.tuples.Pair;
 class NetStatTest {
 
     // Fixture: netstat -n -p tcp output (macOS style)
-    private static final List<String> TCP_NETSTAT = Arrays.asList("Active Internet connections",
+    private static final List<String> TCP_NETSTAT = List.of("Active Internet connections",
             "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)",
             "tcp4       0      0  192.168.1.5.55362      93.184.216.34.443      ESTABLISHED",
             "tcp4       0      0  192.168.1.5.55363      93.184.216.34.443      ESTABLISHED",
@@ -39,7 +39,7 @@ class NetStatTest {
             "tcp4       0      0  192.168.1.5.55365      10.0.0.1.80            TIME_WAIT");
 
     // Fixture: netstat -n output
-    private static final List<String> NETSTAT_N = Arrays.asList("Active Internet connections",
+    private static final List<String> NETSTAT_N = List.of("Active Internet connections",
             "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)",
             "tcp4       0      0  192.168.1.5.55362      93.184.216.34.443      ESTABLISHED",
             "udp4       0      0  192.168.1.5.5353       *.* ");
@@ -52,34 +52,33 @@ class NetStatTest {
             "    45 resets sent");
 
     // Fixture: netstat -su4 output (Linux UDP stats)
-    private static final List<String> UDP_STATS_LINUX = Arrays.asList("Udp:", "    12345 packets received",
+    private static final List<String> UDP_STATS_LINUX = List.of("Udp:", "    12345 packets received",
             "    67 packets to unknown port received", "    0 packet receive errors", "    8901 packets sent");
 
     // Fixture: netstat -s -p tcp output (OpenBSD/FreeBSD style)
-    private static final List<String> TCP_STATS_BSD = Arrays.asList("tcp:", "    100 packet sent",
-            "    200 packet received", "    5 bad connection attempts",
-            "    15 connection established (including accepts)", "    7 dropped due to RST",
-            "    42 retransmitted 3 data packet", "    2 discarded for bad checksum",
+    private static final List<String> TCP_STATS_BSD = List.of("tcp:", "    100 packet sent", "    200 packet received",
+            "    5 bad connection attempts", "    15 connection established (including accepts)",
+            "    7 dropped due to RST", "    42 retransmitted 3 data packet", "    2 discarded for bad checksum",
             "    3 discarded for bad header offset field", "    10 resets sent");
 
     // Fixture: netstat -s -p udp output (OpenBSD/FreeBSD style)
-    private static final List<String> UDP_STATS_BSD = Arrays.asList("udp:", "    5000 datagram output",
+    private static final List<String> UDP_STATS_BSD = List.of("udp:", "    5000 datagram output",
             "    3000 datagram received", "    50 dropped due to no socket",
             "    10 broadcast/multicast datagram dropped due to no socket", "    2 with incomplete header",
             "    1 with bad data length field", "    3 with bad checksum", "    4 with no checksum");
 
     // Fixture: netstat -n with SYN_RCVD state (should map to SYN_RECV)
-    private static final List<String> NETSTAT_SYN_RCVD = Arrays.asList("Active Internet connections",
+    private static final List<String> NETSTAT_SYN_RCVD = List.of("Active Internet connections",
             "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)",
             "tcp4       0      0  10.0.0.1.8080          10.0.0.2.54321         SYN_RCVD");
 
     // Fixture: netstat -n with short lines (fewer than 5 elements) that should be ignored
-    private static final List<String> NETSTAT_SHORT_LINES = Arrays.asList(
+    private static final List<String> NETSTAT_SHORT_LINES = List.of(
             "tcp4       0      0  192.168.1.5.55362      93.184.216.34.443      ESTABLISHED", "tcp4 short",
             "tcp4    0    0", "tcp4       0      0  192.168.1.5.55365      10.0.0.1.80            TIME_WAIT");
 
     // Fixture: netstat -n with IPv6 addresses
-    private static final List<String> NETSTAT_IPV6 = Arrays.asList(
+    private static final List<String> NETSTAT_IPV6 = List.of(
             "tcp6       0      0  2001:db8::1.443        2001:db8::2.54321      ESTABLISHED",
             "tcp6       0      0  fe80::1:.8080          fe80::2:.9090          TIME_WAIT",
             "tcp6       0      0  ::1.55364              ::1.8080               ESTABLISHED");
@@ -176,7 +175,7 @@ class NetStatTest {
     @Test
     void testQueryTcpStatsRetransmitSpecialCase() {
         // Test the "N retransmitted M data packet" pattern in isolation (BSD format)
-        List<String> retransmitLines = Arrays.asList("tcp:", "    99 retransmitted 5 data packet");
+        List<String> retransmitLines = List.of("tcp:", "    99 retransmitted 5 data packet");
         TcpStats stats = NetStat.queryTcpStats(retransmitLines);
         // The special-case pattern uses += on segmentsRetransmitted
         assertThat(stats.getSegmentsRetransmitted(), is(99L));

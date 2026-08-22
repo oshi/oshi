@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -159,23 +158,23 @@ class OperatingSystemTest {
 
         @Override
         public List<OSService> getServices() {
-            return Collections.singletonList(new OSService("svc", 1, OSService.State.RUNNING));
+            return List.of(new OSService("svc", 1, OSService.State.RUNNING));
         }
 
         @Override
         public List<OSSession> getSessions() {
-            return Collections.singletonList(new OSSession("user", "tty1", 0L, "localhost"));
+            return List.of(new OSSession("user", "tty1", 0L, "localhost"));
         }
 
         @Override
         public List<OSDesktopWindow> getDesktopWindows(boolean visibleOnly) {
-            return Collections.singletonList(
-                    new OSDesktopWindow(1L, "Title", "cmd", new java.awt.Rectangle(0, 0, 100, 100), 1L, 0, true));
+            return List
+                    .of(new OSDesktopWindow(1L, "Title", "cmd", new java.awt.Rectangle(0, 0, 100, 100), 1L, 0, true));
         }
 
         @Override
         public List<ApplicationInfo> getInstalledApplications() {
-            return Collections.singletonList(new ApplicationInfo("App", "1.0", "Vendor", 0L, null));
+            return List.of(new ApplicationInfo("App", "1.0", "Vendor", 0L, null));
         }
     };
 
@@ -188,7 +187,7 @@ class OperatingSystemTest {
     @Test
     void testDefaultGetProcessesCollection() {
         // getProcess returns null, so filtered out
-        assertThat(MINIMAL.getProcesses(Arrays.asList(1, 2, 3)), is(empty()));
+        assertThat(MINIMAL.getProcesses(List.of(1, 2, 3)), is(empty()));
     }
 
     /**

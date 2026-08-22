@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -28,7 +27,7 @@ class SolarisOperatingSystemTest {
                 legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
                 online         23:56:25 svc:/network/loopback:default
                 """.lines().toList();
-        List<String> legacySvcs = Arrays.asList("S47pppd", "S89PRESERVE");
+        List<String> legacySvcs = List.of("S47pppd", "S89PRESERVE");
 
         List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, legacySvcs);
 
@@ -63,8 +62,8 @@ class SolarisOperatingSystemTest {
 
     @Test
     void testParseSvcsLegacyNoMatch() {
-        List<String> svcs = Arrays.asList("legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd");
-        List<String> legacySvcs = Arrays.asList("S89PRESERVE");
+        List<String> svcs = List.of("legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd");
+        List<String> legacySvcs = List.of("S89PRESERVE");
 
         List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, legacySvcs);
         assertThat(services, is(empty()));
@@ -72,7 +71,7 @@ class SolarisOperatingSystemTest {
 
     @Test
     void testParseSvcsOnlineWithoutDefaultSuffix() {
-        List<String> svcs = Arrays.asList("online         23:56:25 svc:/system/manifest-import:refresh");
+        List<String> svcs = List.of("online         23:56:25 svc:/system/manifest-import:refresh");
         List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, Collections.emptyList());
         assertThat(services, hasSize(1));
         // No :default suffix, so name includes everything after the last :/

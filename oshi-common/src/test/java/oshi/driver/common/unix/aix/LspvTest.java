@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,15 +37,14 @@ class LspvTest {
     @Test
     void testParsePpSizeInactiveOrEmpty() {
         // A non-active PV yields 0 (no partitions to enumerate)
-        assertThat(
-                Lspv.parsePpSize(Arrays.asList("PV STATE:           missing", "PP SIZE:            128 megabyte(s)")),
+        assertThat(Lspv.parsePpSize(List.of("PV STATE:           missing", "PP SIZE:            128 megabyte(s)")),
                 is(0L));
         assertThat(Lspv.parsePpSize(Collections.emptyList()), is(0L));
     }
 
     @Test
     void testParsePartitions() {
-        List<String> lspvP = Arrays.asList(//
+        List<String> lspvP = List.of(//
                 "hdisk0:", //
                 "PP RANGE  STATE   REGION        LV NAME             TYPE       MOUNT POINT", //
                 "1-1     used    outer edge    hd5                 boot       N/A", //

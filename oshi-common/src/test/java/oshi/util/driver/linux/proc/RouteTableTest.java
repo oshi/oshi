@@ -52,7 +52,7 @@ class RouteTableTest {
     // Verbatim /proc/net/ipv6_route from a container given an IPv6 default route, which the capture above had none of.
     // The matching `ip -6 route show` reported:
     // default via 2001:db8::1 dev eth0 metric 1024
-    private static final List<String> PROC_NET_IPV6_ROUTE_GATEWAY = Collections.singletonList(
+    private static final List<String> PROC_NET_IPV6_ROUTE_GATEWAY = List.of(
             "00000000000000000000000000000000 00 00000000000000000000000000000000 00 20010db8000000000000000000000001 00000400 00000001 00000000 00000003     eth0");
 
     @Test
@@ -143,14 +143,13 @@ class RouteTableTest {
     void testEmptyAndMalformedInput() {
         assertThat(RouteTable.parseIpv4Routes(Collections.emptyList(), NO_INDICES), hasSize(0));
         assertThat(RouteTable.parseIpv6Routes(Collections.emptyList(), NO_INDICES), hasSize(0));
-        assertThat(RouteTable.parseIpv4Routes(Collections.singletonList("truncated\tline"), NO_INDICES), hasSize(0));
-        assertThat(RouteTable.parseIpv6Routes(Collections.singletonList("not hex at all"), NO_INDICES), hasSize(0));
+        assertThat(RouteTable.parseIpv4Routes(List.of("truncated\tline"), NO_INDICES), hasSize(0));
+        assertThat(RouteTable.parseIpv6Routes(List.of("not hex at all"), NO_INDICES), hasSize(0));
         // A line with the right number of columns but a destination that is not thirty-two hex digits. This is how the
         // IPv6 file rejects anything unexpected, since unlike the IPv4 one it has no header to skip. The token is
         // exactly thirty-two characters so that it is rejected for not being hex rather than for its length.
         assertThat(RouteTable.parseIpv6Routes(
-                Collections.singletonList(
-                        "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz 40 0 00 0 00000100 00000001 00000000 00000001 eth0"),
+                List.of("zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz 40 0 00 0 00000100 00000001 00000000 00000001 eth0"),
                 NO_INDICES), hasSize(0));
     }
 }

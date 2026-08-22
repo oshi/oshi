@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -67,7 +66,7 @@ class MacLogicalVolumeGroupTest {
 
     @Test
     void testParseDiskutilCsListNoGroups() {
-        List<String> noGroups = Arrays.asList("No CoreStorage logical volume groups found");
+        List<String> noGroups = List.of("No CoreStorage logical volume groups found");
         List<LogicalVolumeGroup> groups = MacLogicalVolumeGroup.parseDiskutilCsList(noGroups);
         assertThat(groups, is(empty()));
     }

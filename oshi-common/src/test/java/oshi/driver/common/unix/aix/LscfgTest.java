@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
@@ -34,8 +35,8 @@ class LscfgTest {
     @Test
     void testParseModelSerialFallsBackToDescription() {
         // With no "Machine Type and Model" line, the model is the description after the location code
-        Pair<@Nullable String, @Nullable String> modSer = Lscfg.parseModelSerial(
-                Collections.singletonList("  cd0              U78CB.001.WZS00MP-P2-D1  SATA DVD-RAM Drive"), "cd0");
+        Pair<@Nullable String, @Nullable String> modSer = Lscfg
+                .parseModelSerial(List.of("  cd0              U78CB.001.WZS00MP-P2-D1  SATA DVD-RAM Drive"), "cd0");
         assertThat(modSer.getA(), is("SATA DVD-RAM Drive"));
         assertThat(modSer.getB(), is(nullValue()));
     }
@@ -43,8 +44,8 @@ class LscfgTest {
     @Test
     void testParseModelSerialDeviceAtEndOfLine() {
         // A line ending in the device name splits to a single element; the fallback must be skipped, not crash
-        Pair<@Nullable String, @Nullable String> modSer = Lscfg
-                .parseModelSerial(Collections.singletonList("  Adapter containing hdisk0"), "hdisk0");
+        Pair<@Nullable String, @Nullable String> modSer = Lscfg.parseModelSerial(List.of("  Adapter containing hdisk0"),
+                "hdisk0");
         assertThat(modSer.getA(), is(nullValue()));
         assertThat(modSer.getB(), is(nullValue()));
     }

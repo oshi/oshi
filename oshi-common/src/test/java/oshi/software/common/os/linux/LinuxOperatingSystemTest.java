@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -35,16 +34,16 @@ import oshi.util.tuples.Triplet;
 class LinuxOperatingSystemTest {
 
     // Fixture: /etc/os-release from Ubuntu 22.04
-    private static final List<String> OS_RELEASE_UBUNTU = Arrays.asList("NAME=\"Ubuntu\"",
+    private static final List<String> OS_RELEASE_UBUNTU = List.of("NAME=\"Ubuntu\"",
             "VERSION=\"22.04.3 LTS (Jammy Jellyfish)\"", "ID=ubuntu", "VERSION_ID=\"22.04\"",
             "PRETTY_NAME=\"Ubuntu 22.04.3 LTS\"");
 
     // Fixture: /etc/os-release from CentOS Stream (no codename in VERSION)
-    private static final List<String> OS_RELEASE_CENTOS = Arrays.asList("NAME=\"CentOS Stream\"", "VERSION=\"9\"",
+    private static final List<String> OS_RELEASE_CENTOS = List.of("NAME=\"CentOS Stream\"", "VERSION=\"9\"",
             "ID=\"centos\"", "VERSION_ID=\"9\"");
 
     // Fixture: lsb_release -a output
-    private static final List<String> LSB_RELEASE = Arrays.asList(
+    private static final List<String> LSB_RELEASE = List.of(
             "LSB Version:\tcore-11.1.0ubuntu4-noarch:security-11.1.0ubuntu4-noarch", "Distributor ID:\tUbuntu",
             "Description:\tUbuntu 22.04.3 LTS", "Release:\t22.04", "Codename:\tjammy");
 
@@ -72,7 +71,7 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testReadOsReleaseNoName() {
-        List<String> noName = Arrays.asList("VERSION=\"1.0\"", "VERSION_ID=\"1\"");
+        List<String> noName = List.of("VERSION=\"1.0\"", "VERSION_ID=\"1\"");
         assertThat(LinuxOperatingSystem.readOsRelease(noName), is(nullValue()));
     }
 
@@ -92,7 +91,7 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testExecLsbReleaseDescriptionOnly() {
-        List<String> descOnly = Arrays.asList("Description:\tFedora release 38 (Thirty Eight)");
+        List<String> descOnly = List.of("Description:\tFedora release 38 (Thirty Eight)");
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(descOnly);
         assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
@@ -154,7 +153,7 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testReadLsbReleaseDescriptionWithRelease() {
-        List<String> lines = Arrays.asList("DISTRIB_DESCRIPTION=\"Fedora release 38 (Thirty Eight)\"");
+        List<String> lines = List.of("DISTRIB_DESCRIPTION=\"Fedora release 38 (Thirty Eight)\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
@@ -173,7 +172,7 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testReadDistribRelease() {
-        List<String> lines = Arrays.asList("CentOS release 6.10 (Final)");
+        List<String> lines = List.of("CentOS release 6.10 (Final)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("CentOS"));
@@ -183,7 +182,7 @@ class LinuxOperatingSystemTest {
 
     @Test
     void testReadDistribReleaseVersion() {
-        List<String> lines = Arrays.asList("SUSE Linux Enterprise Server VERSION 15");
+        List<String> lines = List.of("SUSE Linux Enterprise Server VERSION 15");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
@@ -254,7 +253,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testReadOsReleaseCommaSeparator() {
         // VERSION uses ", " separator instead of parentheses
-        List<String> lines = Arrays.asList("NAME=\"Ubuntu\"", "VERSION=\"22.04, Jammy\"", "VERSION_ID=\"22.04\"");
+        List<String> lines = List.of("NAME=\"Ubuntu\"", "VERSION=\"22.04, Jammy\"", "VERSION_ID=\"22.04\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
@@ -265,7 +264,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testReadOsReleaseVersionIdFallback() {
         // No VERSION= line, falls back to VERSION_ID=
-        List<String> lines = Arrays.asList("NAME=\"Alpine Linux\"", "VERSION_ID=\"3.18.4\"");
+        List<String> lines = List.of("NAME=\"Alpine Linux\"", "VERSION_ID=\"3.18.4\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Alpine Linux"));
@@ -317,7 +316,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testReadDistribReleaseVersionWithCodename() {
         // " VERSION " delimiter with a codename in parentheses
-        List<String> lines = Arrays.asList("SUSE Linux Enterprise Server VERSION 15 (SP3)");
+        List<String> lines = List.of("SUSE Linux Enterprise Server VERSION 15 (SP3)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
@@ -342,7 +341,7 @@ class LinuxOperatingSystemTest {
 
                 247 unit files listed.
                 """.lines().toList();
-        Set<String> running = new HashSet<>(Arrays.asList("ssh", "resolve1"));
+        Set<String> running = new HashSet<>(List.of("ssh", "resolve1"));
         List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, "/nonexistent-init-dir");
         // ssh (full-name match) and resolve1 (short-name match) deduped; bluetooth disabled; only cron remains
         assertThat(services, hasSize(1));
@@ -356,9 +355,9 @@ class LinuxOperatingSystemTest {
         // The only enabled unit is already running, so no stopped service is emitted -- but systemctl DID produce
         // output, so the /etc/init fallback must not run even though a .conf job is present in the init dir
         Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
-        List<String> systemctl = Arrays.asList("UNIT FILE          STATE      VENDOR PRESET",
+        List<String> systemctl = List.of("UNIT FILE          STATE      VENDOR PRESET",
                 "ssh.service        enabled    enabled");
-        Set<String> running = new HashSet<>(Collections.singletonList("ssh"));
+        Set<String> running = new HashSet<>(List.of("ssh"));
         List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, initDir.toString());
         assertThat(services, is(empty()));
     }
@@ -369,7 +368,7 @@ class LinuxOperatingSystemTest {
         Files.write(initDir.resolve("tty1.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
         Files.write(initDir.resolve("ssh.conf"), "start on runlevel\n".getBytes(StandardCharsets.UTF_8));
         Files.write(initDir.resolve("README.txt"), "not a job\n".getBytes(StandardCharsets.UTF_8));
-        Set<String> running = new HashSet<>(Collections.singletonList("ssh"));
+        Set<String> running = new HashSet<>(List.of("ssh"));
         List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), running,
                 initDir.toString());
         // ssh.conf deduped against running, README.txt is not a .conf; only tty1 remains

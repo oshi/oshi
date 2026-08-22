@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.net.InetAddress;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -86,7 +85,7 @@ class AbstractNetworkParamsTest {
 
     @Test
     void testSearchGatewayFound() {
-        List<String> lines = Arrays.asList("  route to: default", "  gateway: 192.168.1.1%en0", "  interface: en0");
+        List<String> lines = List.of("  route to: default", "  gateway: 192.168.1.1%en0", "  interface: en0");
         assertThat(AbstractNetworkParams.searchGateway(lines), is("192.168.1.1"));
     }
 

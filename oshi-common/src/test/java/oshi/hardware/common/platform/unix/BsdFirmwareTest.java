@@ -9,7 +9,6 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,7 +59,7 @@ class BsdFirmwareTest {
     @Test
     void testParseDmesgOpenBsd() {
         // Representative OpenBSD dmesg bios0 output with multi-word vendor
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "bios0 at mainbus0: SMBIOS rev. 2.8 @ 0xe9cb0 (53 entries)", //
                 "bios0: vendor American Megatrends Inc. version \"F5\" date 03/18/2016");
         Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
@@ -71,7 +70,7 @@ class BsdFirmwareTest {
 
     @Test
     void testParseDmesgMultiWordVendor() {
-        List<String> dmesg = Arrays.asList("bios0: vendor Phoenix Technologies LTD version \"6.00\" date 04/14/2014");
+        List<String> dmesg = List.of("bios0: vendor Phoenix Technologies LTD version \"6.00\" date 04/14/2014");
         Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
         assertThat(fw.getA(), is("Phoenix Technologies LTD"));
         assertThat(fw.getB(), is("6.00"));
@@ -88,7 +87,7 @@ class BsdFirmwareTest {
 
     @Test
     void testParseDmesgNoMatch() {
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "cpu0 at mainbus0: AMD EPYC 7313P", //
                 "some other line");
         Triplet<@Nullable String, @Nullable String, @Nullable String> fw = parse(dmesg);
@@ -108,7 +107,7 @@ class BsdFirmwareTest {
 
     @Test
     void testParsedAttributesArePassedThrough() {
-        BsdFirmware fw = new TestFirmware(Arrays.asList("bios0: vendor LENOVO version \"GLET90WW\" date 09/13/2017"));
+        BsdFirmware fw = new TestFirmware(List.of("bios0: vendor LENOVO version \"GLET90WW\" date 09/13/2017"));
         assertThat(fw.getManufacturer(), is("LENOVO"));
         assertThat(fw.getVersion(), is("GLET90WW"));
         assertThat(fw.getReleaseDate(), is("2017-09-13"));

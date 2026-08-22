@@ -13,8 +13,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -148,7 +146,7 @@ class LinuxCgroupInfoV1DispatchTest {
 
     // Real hybrid (v1 + unified) /proc/self/cgroup: numbered v1 hierarchies with comma-separated controllers, plus
     // a trailing "0::" unified (v2) line whose controllers field is empty.
-    private static final List<String> SELF_CGROUP = Arrays.asList("12:hugetlb:/",
+    private static final List<String> SELF_CGROUP = List.of("12:hugetlb:/",
             "11:cpu,cpuacct:/user.slice/user-1000.slice", "10:memory:/user.slice/user-1000.slice/session-3.scope",
             "3:pids:/user.slice/user-1000.slice", "1:name=systemd:/user.slice/user-1000.slice/session-3.scope",
             "0::/user.slice/user-1000.slice/session-3.scope");
@@ -182,7 +180,7 @@ class LinuxCgroupInfoV1DispatchTest {
     @EnabledOnOs(OS.LINUX)
     void resolveV1ControllerPathSkipsUnifiedLine() {
         // A pure-v2 cgroup (only the "0::" unified line, empty controllers) never matches -> default path
-        List<String> unifiedOnly = Collections.singletonList("0::/user.slice/user-1000.slice/session-3.scope");
+        List<String> unifiedOnly = List.of("0::/user.slice/user-1000.slice/session-3.scope");
         assertEquals(SysPath.CGROUP + "cpu/", LinuxCgroupInfo.resolveV1ControllerPath(unifiedOnly, "cpu"));
     }
 }

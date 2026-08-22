@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -88,7 +87,7 @@ class SolarisComputerSystemTest {
 
     @Test
     void testParseSerialFromPrtconf() {
-        List<String> prtconf = Arrays.asList(//
+        List<String> prtconf = List.of(//
                 "System Configuration:  Sun Microsystems  sun4u", //
                 "    name:  'SUNW,Ultra-5_10'", //
                 "      chassis-sn:  'ABC123'", //
@@ -103,7 +102,7 @@ class SolarisComputerSystemTest {
 
     @Test
     void testParseSerialFromPrtconfNoMatch() {
-        List<String> prtconf = Arrays.asList(//
+        List<String> prtconf = List.of(//
                 "System Configuration:  Sun Microsystems  sun4u", //
                 "    name:  'SUNW,Ultra-5_10'");
         assertThat(SolarisComputerSystem.parseSerialFromPrtconf(prtconf), is(""));

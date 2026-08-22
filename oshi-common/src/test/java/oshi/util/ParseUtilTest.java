@@ -605,7 +605,7 @@ class ParseUtilTest {
 
     @Test
     void testFilePathStartsWith() {
-        List<String> prefixList = Arrays.asList("/foo", "/bar");
+        List<String> prefixList = List.of("/foo", "/bar");
         assertThat(ParseUtil.filePathStartsWith(prefixList, "/foo"), is(true));
         assertThat(ParseUtil.filePathStartsWith(prefixList, "/foo/bar"), is(true));
         assertThat(ParseUtil.filePathStartsWith(prefixList, "/foobar"), is(false));
@@ -985,7 +985,7 @@ class ParseUtilTest {
     @Test
     void teststringToEnumMapWithKeys() {
         // Explicit key order independent of ordinal order; last key slurps the remainder
-        List<TestEnum> keys = Arrays.asList(TestEnum.BAZ, TestEnum.FOO);
+        List<TestEnum> keys = List.of(TestEnum.BAZ, TestEnum.FOO);
         Map<TestEnum, String> map = ParseUtil.stringToEnumMap(TestEnum.class, keys, "one two,three four", ' ');
         assertThat(map.get(TestEnum.BAZ), is("one"));
         assertThat(map.get(TestEnum.FOO), is("two,three four"));
@@ -997,7 +997,7 @@ class ParseUtilTest {
         assertThat(map.containsKey(TestEnum.FOO), is(false));
 
         // Consecutive delimiters are treated as one
-        List<TestEnum> three = Arrays.asList(TestEnum.FOO, TestEnum.BAR, TestEnum.BAZ);
+        List<TestEnum> three = List.of(TestEnum.FOO, TestEnum.BAR, TestEnum.BAZ);
         map = ParseUtil.stringToEnumMap(TestEnum.class, three, "one,,two,three", ',');
         assertThat(map.get(TestEnum.FOO), is("one"));
         assertThat(map.get(TestEnum.BAR), is("two"));

@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +76,7 @@ class FreeBsdCentralProcessorTest {
 
     @Test
     void testParseProcModelsAndFlagsArmHybrid() {
-        List<String> dmesg = Arrays.asList("CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0",
+        List<String> dmesg = List.of("CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0",
                 "CPU 1: ARM Cortex-A72 r0p3 affinity: 0 1");
         Pair<Map<Integer, String>, List<String>> r = FreeBsdCentralProcessor.parseProcModelsAndFlags(dmesg);
         assertThat(r.getA().get(0), is("ARM Cortex-A53 r0p4"));

@@ -12,7 +12,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.lang.management.ManagementFactory;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ class ProcstatUtilTest {
 
     @Test
     void testParseCwdFromFstatFindsWdRow() {
-        List<String> fstat = Arrays.asList("USER     CMD       PID    NLWP   FD MOUNT INUM MODE NAME",
+        List<String> fstat = List.of("USER     CMD       PID    NLWP   FD MOUNT INUM MODE NAME",
                 "dan      bash      1234   1      wd /     45   drwx /home/dan",
                 "dan      bash      1234   1      0  /dev  12   crw  /dev/tty");
         assertThat(ProcstatUtil.parseCwdFromFstat(fstat), is("/home/dan"));
@@ -41,7 +40,7 @@ class ProcstatUtilTest {
 
     @Test
     void testParseCwdFromFstatNoWdRowReturnsEmpty() {
-        List<String> fstat = Arrays.asList("USER CMD PID NLWP FD MOUNT INUM MODE NAME",
+        List<String> fstat = List.of("USER CMD PID NLWP FD MOUNT INUM MODE NAME",
                 "dan  bash 1234 1 0  /dev 12 crw /dev/tty");
         assertThat(ProcstatUtil.parseCwdFromFstat(fstat), is(emptyString()));
     }
@@ -56,7 +55,7 @@ class ProcstatUtilTest {
         // 5 rows total. The wd, root, and text rows are excluded; the header (token "FD" at index 4) is not excluded
         // by the filter but is removed via the -1 adjustment at the end. With 2 countable rows minus the header
         // adjustment, the result is 1.
-        List<String> fstat = Arrays.asList("USER CMD PID NLWP FD MOUNT INUM MODE NAME",
+        List<String> fstat = List.of("USER CMD PID NLWP FD MOUNT INUM MODE NAME",
                 "dan  bash 1234 1 wd   /    45 drwx /home/dan", "dan  bash 1234 1 root /    1  drwx /",
                 "dan  bash 1234 1 text /    99 -rxr /bin/bash", "dan  bash 1234 1 0    /dev 12 crw  /dev/tty",
                 "dan  bash 1234 1 1    /dev 12 crw  /dev/tty");
@@ -66,7 +65,7 @@ class ProcstatUtilTest {
     @Test
     void testParseOpenFilesNoCountableRowsReturnsZero() {
         // Only header + excluded rows → no fd counted → returns 0 (per implementation: fd > 0 ? fd - 1 : 0)
-        List<String> fstat = Arrays.asList("USER CMD PID NLWP FD MOUNT INUM MODE NAME",
+        List<String> fstat = List.of("USER CMD PID NLWP FD MOUNT INUM MODE NAME",
                 "dan  bash 1234 1 wd /home 45 drwx /home/dan");
         // Header row counts (split[4]="FD" not in {wd,root,text}), then the wd row is excluded.
         // Count=1 (header) → returns 1-1=0.

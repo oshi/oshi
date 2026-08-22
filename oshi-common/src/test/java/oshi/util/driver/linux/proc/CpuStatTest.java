@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import oshi.hardware.CentralProcessor.TickType;
 class CpuStatTest {
 
     // /proc/stat overall line: cpu user nice system idle iowait irq softirq steal (guest guest_nice ignored)
-    private static final List<String> PROC_STAT = Arrays.asList("cpu  100 200 300 400 500 600 700 800 900 1000",
+    private static final List<String> PROC_STAT = List.of("cpu  100 200 300 400 500 600 700 800 900 1000",
             "cpu0 10 20 30 40 50 60 70 80 90 100", "cpu1 11 21 31 41 51 61 71 81 91 101", "intr 12345 0 0 0",
             "ctxt 987654", "btime 1600000000", "processes 54321");
 
@@ -46,9 +45,9 @@ class CpuStatTest {
     void testParseSystemCpuLoadTicksEmptyOrShort() {
         // Empty input and a too-short line (caught by the user/nice/system/idle guard) both yield all-zero ticks
         assertThat(CpuStat.parseSystemCpuLoadTicks(Collections.emptyList())[TickType.USER.getIndex()], is(0L));
-        assertThat(CpuStat.parseSystemCpuLoadTicks(Arrays.asList("cpu 1 2"))[TickType.USER.getIndex()], is(0L));
+        assertThat(CpuStat.parseSystemCpuLoadTicks(List.of("cpu 1 2"))[TickType.USER.getIndex()], is(0L));
         // A line that clears the guard but is still truncated must not overrun: present fields parse, rest stay 0
-        long[] ticks = CpuStat.parseSystemCpuLoadTicks(Arrays.asList("cpu 1 2 3 4"));
+        long[] ticks = CpuStat.parseSystemCpuLoadTicks(List.of("cpu 1 2 3 4"));
         assertThat(ticks[TickType.IDLE.getIndex()], is(4L));
         assertThat(ticks[TickType.IOWAIT.getIndex()], is(0L));
         assertThat(ticks[TickType.STEAL.getIndex()], is(0L));

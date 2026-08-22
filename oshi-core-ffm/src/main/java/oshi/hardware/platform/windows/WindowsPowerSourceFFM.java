@@ -42,7 +42,6 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,7 +90,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
      * @return A list of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
-        return Arrays.asList(getPowerSource("System Battery"));
+        return List.of(getPowerSource("System Battery"));
     }
 
     private static WindowsPowerSource getPowerSource(String name) {

@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -63,7 +62,7 @@ class LinuxFirmwareTest {
 
     @Test
     void testQueryVcGenCmdTooFewLines() {
-        VcGenCmdStrings result = LinuxFirmware.queryVcGenCmd(Arrays.asList("Jan 13 2013 16:24:29"));
+        VcGenCmdStrings result = LinuxFirmware.queryVcGenCmd(List.of("Jan 13 2013 16:24:29"));
         assertThat(result.getReleaseDate(), is(nullValue()));
         assertThat(result.getManufacturer(), is(nullValue()));
         assertThat(result.getVersion(), is(nullValue()));
@@ -73,7 +72,7 @@ class LinuxFirmwareTest {
 
     @Test
     void testQueryVcGenCmdInvalidDate() {
-        List<String> badDate = Arrays.asList("not a date", "Copyright (c) 2012 Broadcom", "version abc123");
+        List<String> badDate = List.of("not a date", "Copyright (c) 2012 Broadcom", "version abc123");
         VcGenCmdStrings result = LinuxFirmware.queryVcGenCmd(badDate);
         assertThat(result.getReleaseDate(), is(Constants.UNKNOWN));
         assertThat(result.getManufacturer(), is("Broadcom"));

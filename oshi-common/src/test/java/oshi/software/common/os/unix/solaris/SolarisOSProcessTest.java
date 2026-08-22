@@ -7,7 +7,6 @@ package oshi.software.common.os.unix.solaris;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,14 +16,14 @@ class SolarisOSProcessTest {
 
     @Test
     void testParseOpenFileLimitSoft() {
-        List<String> plimit = Arrays.asList("1234:", "   coredumpsize      0           unlimited",
+        List<String> plimit = List.of("1234:", "   coredumpsize      0           unlimited",
                 "   nofiles(descriptors)  256         65536", "   vmemorysize       unlimited   unlimited");
         assertThat(SolarisOSProcess.parseOpenFileLimit(plimit, 1), is(256L));
     }
 
     @Test
     void testParseOpenFileLimitHard() {
-        List<String> plimit = Arrays.asList("1234:", "   nofiles(descriptors)  256         65536");
+        List<String> plimit = List.of("1234:", "   nofiles(descriptors)  256         65536");
         assertThat(SolarisOSProcess.parseOpenFileLimit(plimit, 2), is(65536L));
     }
 
@@ -35,13 +34,13 @@ class SolarisOSProcessTest {
 
     @Test
     void testParseOpenFileLimitNoNofilesLine() {
-        List<String> plimit = Arrays.asList("1234:", "   coredumpsize      0           unlimited");
+        List<String> plimit = List.of("1234:", "   coredumpsize      0           unlimited");
         assertThat(SolarisOSProcess.parseOpenFileLimit(plimit, 1), is(-1L));
     }
 
     @Test
     void testParseOpenFileLimitIndexOutOfBounds() {
-        List<String> plimit = Arrays.asList("   nofiles(descriptors)  256         unlimited");
+        List<String> plimit = List.of("   nofiles(descriptors)  256         unlimited");
         // "unlimited" is non-numeric, so split yields only ["", "256"]
         assertThat(SolarisOSProcess.parseOpenFileLimit(plimit, 2), is(-1L));
     }

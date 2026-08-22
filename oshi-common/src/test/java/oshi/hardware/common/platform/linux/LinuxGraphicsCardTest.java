@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
@@ -227,7 +226,7 @@ class LinuxGraphicsCardTest {
     // -------------------------------------------------------------------------
 
     // Fixture: lspci -vnnmm output with one VGA card
-    private static final List<String> LSPCI_VNNMM = Arrays.asList("Slot:\t01:00.0",
+    private static final List<String> LSPCI_VNNMM = List.of("Slot:\t01:00.0",
             "Class:\tVGA compatible controller [0300]", "Vendor:\tNVIDIA Corporation [10de]",
             "Device:\tGA102 [GeForce RTX 3090] [2204]", "SVendor:\tASUS [1043]",
             "SDevice:\tGA102 [GeForce RTX 3090] [8687]", "Rev:\ta1", "");
@@ -335,8 +334,8 @@ class LinuxGraphicsCardTest {
         });
 
         // Each card must be correlated using its own PCI slot, not null and not a shared one
-        assertThat(drmSlots, is(Arrays.asList("00:02.0", "01:00.0")));
-        assertThat(vramSlots, is(Arrays.asList("00:02.0", "01:00.0")));
+        assertThat(drmSlots, is(List.of("00:02.0", "01:00.0")));
+        assertThat(vramSlots, is(List.of("00:02.0", "01:00.0")));
         assertThat(((LinuxGraphicsCard) cards.get(0)).getPciBusId(), is("00:02.0"));
         assertThat(((LinuxGraphicsCard) cards.get(1)).getPciBusId(), is("01:00.0"));
         assertThat(cards.get(0).getVRam(), is(1024L));
@@ -373,7 +372,7 @@ class LinuxGraphicsCardTest {
         });
         assertThat(cards.size(), is(1));
         assertThat(cards.get(0).getDeviceId(), is("0x1cb3"));
-        assertThat(drmSlots, is(Collections.singletonList("01:00.0")));
+        assertThat(drmSlots, is(List.of("01:00.0")));
     }
 
     @Test
@@ -423,13 +422,13 @@ class LinuxGraphicsCardTest {
         assertThat(second.getDeviceId(), is("0x2000"));
         assertThat(second.getVendor(), is(Constants.UNKNOWN));
         assertThat(second.getVersionInfo(), is(Constants.UNKNOWN));
-        assertThat(drmSlots, is(Arrays.asList("01:00.0", "00:02.0")));
+        assertThat(drmSlots, is(List.of("01:00.0", "00:02.0")));
     }
 
     @Test
     void testGetGraphicsCardsFromLspciValuelessClassLine() {
         // A "Class:" line with no value must not be treated as a display controller
-        List<String> lspci = Arrays.asList("Slot:\t01:00.0", "Class:", "Vendor:\tNVIDIA Corporation [10de]",
+        List<String> lspci = List.of("Slot:\t01:00.0", "Class:", "Vendor:\tNVIDIA Corporation [10de]",
                 "Device:\tGP107GL [Quadro P400] [1cb3]", "");
         assertThat(LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM), is(empty()));
     }
@@ -454,7 +453,7 @@ class LinuxGraphicsCardTest {
 
     @Test
     void testQueryLspciMemorySizeNoPrefetchable() {
-        List<String> noPrefetch = Arrays.asList("01:00.0 VGA compatible controller: Intel",
+        List<String> noPrefetch = List.of("01:00.0 VGA compatible controller: Intel",
                 "\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]");
         assertThat(LinuxGraphicsCard.queryLspciMemorySize(noPrefetch), is(0L));
     }

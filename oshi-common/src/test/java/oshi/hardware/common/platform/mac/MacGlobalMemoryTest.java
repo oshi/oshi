@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -96,7 +95,7 @@ class MacGlobalMemoryTest {
 
     @Test
     void testParseSystemProfilerMemoryNoColon() {
-        List<String> noColon = Arrays.asList("        BANK 0", "          Size: 4 GB", "          Type: DDR3");
+        List<String> noColon = List.of("        BANK 0", "          Size: 4 GB", "          Type: DDR3");
         List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(noColon);
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getBankLabel(), is("BANK 0"));
@@ -120,7 +119,7 @@ class MacGlobalMemoryTest {
 
     @Test
     void testParseSystemProfilerMemoryAppleSiliconMinimal() {
-        List<String> minimal = Arrays.asList("      Memory: 8 GB");
+        List<String> minimal = List.of("      Memory: 8 GB");
         List<PhysicalMemory> result = MacGlobalMemory.parseSystemProfilerMemory(minimal);
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getCapacity(), is(greaterThan(0L)));

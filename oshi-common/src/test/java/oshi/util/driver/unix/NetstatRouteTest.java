@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -355,7 +354,7 @@ class NetstatRouteTest {
     /** A header naming no interface column at all leaves the caller's default index in place. */
     @Test
     void testHeaderWithoutAnInterfaceColumn() {
-        List<String> lines = Arrays.asList("Destination        Gateway            Flags",
+        List<String> lines = List.of("Destination        Gateway            Flags",
                 "default            10.0.0.1           UGSc                  en0");
         List<IPRoute> routes = NetstatRoute.parseRoutes(lines, false, 3, NO_INDICES);
         assertThat(routes, hasSize(1));
@@ -365,7 +364,7 @@ class NetstatRouteTest {
     /** A line with enough columns but no flags field is not a route. */
     @Test
     void testLineWithoutAFlagsColumnIsSkipped() {
-        List<String> lines = Arrays.asList("10.0.0.1           10.0.0.254         1198                  en0",
+        List<String> lines = List.of("10.0.0.1           10.0.0.254         1198                  en0",
                 "default            10.0.0.1           UGSc                  en0");
         List<IPRoute> routes = NetstatRoute.parseRoutes(lines, false, 3, NO_INDICES);
         assertThat("Only the row whose third column is a flags field should parse", routes, hasSize(1));
@@ -375,8 +374,7 @@ class NetstatRouteTest {
     /** A row shorter than the interface column reports no name rather than throwing. */
     @Test
     void testRowShorterThanTheInterfaceColumn() {
-        List<IPRoute> routes = NetstatRoute.parseRoutes(Collections.singletonList("default   10.0.0.1   UGSc"), false,
-                3, NO_INDICES);
+        List<IPRoute> routes = NetstatRoute.parseRoutes(List.of("default   10.0.0.1   UGSc"), false, 3, NO_INDICES);
         assertThat(routes, hasSize(1));
         assertThat(routes.get(0).getInterfaceName(), is(""));
         assertThat(routes.get(0).getInterfaceIndex(), is(-1));

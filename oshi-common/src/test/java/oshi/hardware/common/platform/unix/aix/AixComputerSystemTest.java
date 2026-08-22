@@ -7,7 +7,6 @@ package oshi.hardware.common.platform.unix.aix;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,14 +17,14 @@ import oshi.util.Constants;
 class AixComputerSystemTest {
 
     // lsattr -El sys0: attr, value, description, user-settable columns (whitespace-separated)
-    private static final List<String> LSATTR = Arrays.asList(//
+    private static final List<String> LSATTR = List.of(//
             "fwversion       IBM,RG080425_d79e22_r                Firmware version and revision levels   False", //
             "modelname       IBM,9114-275                         Machine name                           False", //
             "os_uuid         789f930f-b15c-4639-b842-b42603862704 N/A                                     True", //
             "systemid        IBM,0110ACFDE                        Hardware system identifier             False");
 
     // lsmcode -c
-    private static final List<String> LSMCODE = Arrays.asList(//
+    private static final List<String> LSMCODE = List.of(//
             "Platform Firmware level is 3F080425", //
             "System Firmware level is RG080425_d79e22_regatta");
 

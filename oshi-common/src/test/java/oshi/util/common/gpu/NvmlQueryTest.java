@@ -8,10 +8,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
 
@@ -120,7 +120,7 @@ class NvmlQueryTest {
 
     @Test
     void testMatchBusIdReturnsTheEnumeratedForm() {
-        Set<String> busIds = new LinkedHashSet<>(Arrays.asList("00000000:0a:00.0", "00000000:02:00.0"));
+        Set<String> busIds = new LinkedHashSet<>(List.of("00000000:0a:00.0", "00000000:02:00.0"));
         assertThat("returns the canonical enumerated id", NvmlQuery.matchBusId(busIds, "02:00.0"),
                 is("00000000:02:00.0"));
         assertThat("is case-insensitive", NvmlQuery.matchBusId(busIds, "0A:00.0"), is("00000000:0a:00.0"));
@@ -132,7 +132,7 @@ class NvmlQueryTest {
     void testMatchBusIdRejectsABlankFragment() {
         // Every string contains the empty string, so without an explicit guard a blank fragment would match every
         // enumerated id and resolve to the longest of them.
-        Set<String> busIds = new LinkedHashSet<>(Arrays.asList("0000:01:00.0", "00000000:01:00.0"));
+        Set<String> busIds = new LinkedHashSet<>(List.of("0000:01:00.0", "00000000:01:00.0"));
         assertThat("an empty fragment matches nothing", NvmlQuery.matchBusId(busIds, ""), is(nullValue()));
         assertThat("a null fragment matches nothing", NvmlQuery.matchBusId(busIds, null), is(nullValue()));
     }
@@ -141,8 +141,8 @@ class NvmlQueryTest {
     void testMatchBusIdPrefersTheQualifiedForm() {
         // Both of a device's forms are enumerated and a bare fragment matches both, so the answer must not depend on
         // which one iteration happens to reach first.
-        Set<String> legacyFirst = new LinkedHashSet<>(Arrays.asList("0000:01:00.0", "00000000:01:00.0"));
-        Set<String> modernFirst = new LinkedHashSet<>(Arrays.asList("00000000:01:00.0", "0000:01:00.0"));
+        Set<String> legacyFirst = new LinkedHashSet<>(List.of("0000:01:00.0", "00000000:01:00.0"));
+        Set<String> modernFirst = new LinkedHashSet<>(List.of("00000000:01:00.0", "0000:01:00.0"));
         assertThat("the domain-qualified form wins", NvmlQuery.matchBusId(legacyFirst, "01:00.0"),
                 is("00000000:01:00.0"));
         assertThat("regardless of iteration order", NvmlQuery.matchBusId(modernFirst, "01:00.0"),
@@ -153,7 +153,7 @@ class NvmlQueryTest {
     void testDeviceCacheRetriesUntilEnumerationSucceeds() {
         NvmlDeviceCache cache = new NvmlDeviceCache("test");
         int[] calls = new int[1];
-        Set<String> ids = new HashSet<>(Collections.singletonList("00000000:01:00.0"));
+        Set<String> ids = new HashSet<>(List.of("00000000:01:00.0"));
 
         calls[0] = 0;
         assertThat("a failed enumeration is not cached", cache.get(() -> {

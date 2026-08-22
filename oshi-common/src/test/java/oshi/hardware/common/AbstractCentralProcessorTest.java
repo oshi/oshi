@@ -15,7 +15,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -40,8 +39,7 @@ class AbstractCentralProcessorTest {
         return new AbstractCentralProcessor() {
             @Override
             protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
-                return new Quartet<>(Collections.singletonList(new LogicalProcessor(0, 0, 0)), null, null,
-                        Collections.emptyList());
+                return new Quartet<>(List.of(new LogicalProcessor(0, 0, 0)), null, null, Collections.emptyList());
             }
 
             @Override
@@ -193,14 +191,14 @@ class AbstractCentralProcessorTest {
         return new AbstractCentralProcessor() {
             @Override
             protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
-                List<LogicalProcessor> logProcs = Arrays.asList(new LogicalProcessor(0, 0, 0),
-                        new LogicalProcessor(1, 1, 0), new LogicalProcessor(2, 2, 0), new LogicalProcessor(3, 3, 0));
-                List<PhysicalProcessor> physProcs = Arrays.asList(new PhysicalProcessor(0, 0, 1, "P-core"),
+                List<LogicalProcessor> logProcs = List.of(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0),
+                        new LogicalProcessor(2, 2, 0), new LogicalProcessor(3, 3, 0));
+                List<PhysicalProcessor> physProcs = List.of(new PhysicalProcessor(0, 0, 1, "P-core"),
                         new PhysicalProcessor(0, 1, 1, "P-core"), new PhysicalProcessor(0, 2, 0, "E-core"),
                         new PhysicalProcessor(0, 3, 0, "E-core"));
                 List<ProcessorCache> caches = Collections
                         .singletonList(new ProcessorCache(2, 0, 64, 4 * 1024 * 1024, ProcessorCache.Type.UNIFIED));
-                return new Quartet<>(logProcs, physProcs, caches, Arrays.asList("sse", "avx"));
+                return new Quartet<>(logProcs, physProcs, caches, List.of("sse", "avx"));
             }
 
             @Override
@@ -271,7 +269,7 @@ class AbstractCentralProcessorTest {
     @Test
     void testCreateProcListFromDmesg() {
         AbstractCentralProcessor cpu = createProcessor();
-        List<LogicalProcessor> logProcs = Arrays.asList(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0));
+        List<LogicalProcessor> logProcs = List.of(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0));
         Map<Integer, String> dmesg = new HashMap<>();
         dmesg.put(0, "ARM Cortex-A73");
         dmesg.put(1, "ARM Cortex-A53");
@@ -286,7 +284,7 @@ class AbstractCentralProcessorTest {
     @Test
     void testCreateProcListFromDmesgAppleSilicon() {
         AbstractCentralProcessor cpu = createProcessor();
-        List<LogicalProcessor> logProcs = Arrays.asList(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0));
+        List<LogicalProcessor> logProcs = List.of(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0));
         Map<Integer, String> dmesg = new HashMap<>();
         dmesg.put(0, "Apple Firestorm");
         dmesg.put(1, "Apple Icestorm");
@@ -300,7 +298,7 @@ class AbstractCentralProcessorTest {
     @Test
     void testCreateProcListFromDmesgHomogeneous() {
         AbstractCentralProcessor cpu = createProcessor();
-        List<LogicalProcessor> logProcs = Arrays.asList(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0));
+        List<LogicalProcessor> logProcs = List.of(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0));
         Map<Integer, String> dmesg = new HashMap<>();
         dmesg.put(0, "ARM Cortex-A73");
         dmesg.put(1, "ARM Cortex-A73");

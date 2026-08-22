@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +32,7 @@ class DxgiUtilTest {
                 16L * 1024 * 1024 * 1024, 0, 0);
         DxgiAdapterInfo igpu = new DxgiAdapterInfo("Intel(R) UHD Graphics 770", 0x8086, 0x4680, 128L * 1024 * 1024, 0,
                 0);
-        List<DxgiAdapterInfo> adapters = Arrays.asList(arc, igpu);
+        List<DxgiAdapterInfo> adapters = List.of(arc, igpu);
 
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0x8086, 0x56A0, "Intel Arc A770");
         assertNotNull(match);
@@ -48,7 +47,7 @@ class DxgiUtilTest {
                 0, 0);
         DxgiAdapterInfo second = new DxgiAdapterInfo("NVIDIA GeForce RTX 4090", 0x10DE, 0x2684,
                 24L * 1024 * 1024 * 1024, 0, 0);
-        List<DxgiAdapterInfo> adapters = Arrays.asList(first, second);
+        List<DxgiAdapterInfo> adapters = List.of(first, second);
 
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0x10DE, 0x2684, "NVIDIA GeForce RTX 4090");
         assertThat(match, is(first));
@@ -61,7 +60,7 @@ class DxgiUtilTest {
         // typically omits them. Verify that normalization bridges the difference.
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("Intel(R) Arc(TM) A770 Graphics", 0x8086, 0x56A0,
                 16L * 1024 * 1024 * 1024, 0, 0);
-        List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
+        List<DxgiAdapterInfo> adapters = List.of(adapter);
 
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0, 0, "Intel Arc A770 Graphics");
         assertNotNull(match);
@@ -73,7 +72,7 @@ class DxgiUtilTest {
     void testFindMatchNoMatchReturnsNull() {
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("AMD Radeon RX 7900 XTX", 0x1002, 0x744C,
                 24L * 1024 * 1024 * 1024, 0, 0);
-        List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
+        List<DxgiAdapterInfo> adapters = List.of(adapter);
 
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0x8086, 0x56A0, "Intel Arc A770");
         assertThat("Different vendor+device should not match", match, is(nullValue()));
@@ -89,7 +88,7 @@ class DxgiUtilTest {
     void testFindMatchZeroIdsUsesNameFallback() {
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("AMD Radeon RX 7900 XTX", 0x1002, 0x744C,
                 24L * 1024 * 1024 * 1024, 0, 0);
-        List<DxgiAdapterInfo> adapters = Collections.singletonList(adapter);
+        List<DxgiAdapterInfo> adapters = List.of(adapter);
 
         // vendorId=0 and deviceId=0 should skip ID matching and try name
         DxgiAdapterInfo match = DxgiUtilJNA.findMatch(adapters, 0, 0, "AMD Radeon RX 7900 XTX");

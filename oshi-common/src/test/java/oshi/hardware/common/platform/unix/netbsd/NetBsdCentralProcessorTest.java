@@ -8,7 +8,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.is;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,7 +39,7 @@ class NetBsdCentralProcessorTest {
 
     @Test
     void testParseFamilyModelStepping() {
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01", //
                 "cpu1: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01");
         String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
@@ -49,7 +48,7 @@ class NetBsdCentralProcessorTest {
 
     @Test
     void testParseFamilyModelSteppingAmd() {
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01");
         String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
         assertThat(fms, is(arrayContaining("19", "01", "01")));
@@ -63,7 +62,7 @@ class NetBsdCentralProcessorTest {
 
     @Test
     void testParseFamilyModelSteppingNoMatch() {
-        List<String> dmesg = Arrays.asList(//
+        List<String> dmesg = List.of(//
                 "cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4", //
                 "cpu0: 32KB 64b/line 2-way L1 VIPT I-cache");
         String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
