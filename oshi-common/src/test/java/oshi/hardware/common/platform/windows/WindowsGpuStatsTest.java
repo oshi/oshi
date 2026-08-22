@@ -110,14 +110,11 @@ class WindowsGpuStatsTest {
 
         @Override
         public @Nullable Object getValue(LhmSensorProperty property, int index) {
-            switch (property) {
-                case NAME:
-                    return names.get(index);
-                case VALUE:
-                    return values.get(index);
-                default:
-                    return null;
-            }
+            return switch (property) {
+                case NAME -> names.get(index);
+                case VALUE -> values.get(index);
+                default -> null;
+            };
         }
 
         @Override

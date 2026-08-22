@@ -151,7 +151,7 @@ class CentralProcessorTest {
             assertThat("Logical processor number is negative", p.getLogicalProcessors().get(lp).getProcessorNumber(),
                     is(greaterThanOrEqualTo(0)));
             switch (PlatformEnum.getCurrentPlatform()) {
-                case WINDOWS:
+                case WINDOWS -> {
                     if (p.getLogicalProcessorCount() < 64) {
                         assertThat(
                                 "Processor group should be 0 for Windows systems with less than 64 logical processors",
@@ -159,36 +159,34 @@ class CentralProcessorTest {
                     }
                     assertThat("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode(),
                             is(greaterThanOrEqualTo(0)));
-                    break;
-                case LINUX:
+                }
+                case LINUX -> {
                     assertThat("Processor group should be 0 for Linux systems",
                             p.getLogicalProcessors().get(lp).getProcessorGroup(), is(0));
                     assertThat("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode(),
                             is(greaterThanOrEqualTo(0)));
-                    break;
-                case MACOS:
+                }
+                case MACOS -> {
                     assertThat("Processor group should be 0 for macOS systems",
                             p.getLogicalProcessors().get(lp).getProcessorGroup(), is(0));
                     assertThat("NUMA Node should be 0 for macOS systems",
                             p.getLogicalProcessors().get(lp).getNumaNode(), is(0));
-                    break;
-                case SOLARIS:
+                }
+                case SOLARIS -> {
                     assertThat("Processor group should be 0 for Solaris systems",
                             p.getLogicalProcessors().get(lp).getProcessorGroup(), is(0));
                     assertThat("NUMA node number is negative", p.getLogicalProcessors().get(lp).getNumaNode(),
                             is(greaterThanOrEqualTo(0)));
-                    break;
-                case FREEBSD:
-                case DRAGONFLYBSD:
-                case NETBSD:
-                case AIX:
+                }
+                case FREEBSD, DRAGONFLYBSD, NETBSD, AIX -> {
                     assertThat("Processor group should be 0 for FreeBSD or AIX systems",
                             p.getLogicalProcessors().get(lp).getProcessorGroup(), is(0));
                     assertThat("NUMA Node should be 0 for FreeBSD or AIX systems",
                             p.getLogicalProcessors().get(lp).getNumaNode(), is(0));
-                    break;
-                default:
-                    break;
+                }
+                default -> {
+                    // Remaining platforms make no processor group or NUMA node guarantee
+                }
             }
         }
     }

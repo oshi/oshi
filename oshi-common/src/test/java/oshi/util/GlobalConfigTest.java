@@ -206,16 +206,16 @@ class GlobalConfigTest {
                 // No default supplied: exercise the single-argument overload, which is the only one that can
                 // report an absent property as null
                 assertThat(message, get(property), is(expected));
-            } else if (def instanceof String) {
-                assertThat(message, get(property, (String) def), is(expected));
-            } else if (def instanceof Boolean) {
-                assertThat(message, get(property, (boolean) def), is(expected));
-            } else if (def instanceof Integer) {
-                assertThat(message, get(property, (Integer) def), is(expected));
-            } else if (def instanceof Double) {
+            } else if (def instanceof String s) {
+                assertThat(message, get(property, s), is(expected));
+            } else if (def instanceof Boolean b) {
+                assertThat(message, get(property, (boolean) b), is(expected));
+            } else if (def instanceof Integer i) {
+                assertThat(message, get(property, i), is(expected));
+            } else if (def instanceof Double d) {
                 Double expectedDouble = (Double) expected;
                 assertNotNull(expectedDouble, message);
-                assertThat(message, get(property, (Double) def), is(closeTo(expectedDouble, EPSILON)));
+                assertThat(message, get(property, d), is(closeTo(expectedDouble, EPSILON)));
             }
             return this;
         }
