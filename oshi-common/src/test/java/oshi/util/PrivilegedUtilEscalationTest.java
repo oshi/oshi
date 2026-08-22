@@ -52,7 +52,10 @@ class PrivilegedUtilEscalationTest {
     @Test
     void testReadFilePrivilegedWithAllowlistAndPrefix(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("test-data.txt");
-        Files.write(testFile, "line1\nline2\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(testFile, """
+                line1
+                line2
+                """);
 
         String filePath = testFile.toString();
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, filePath);
@@ -182,7 +185,10 @@ class PrivilegedUtilEscalationTest {
     @Test
     void testGetKeyValueMapFromFilePrivileged(@TempDir Path tempDir) throws IOException {
         Path testFile = tempDir.resolve("kvmap.txt");
-        Files.write(testFile, "key1=value1\nkey2=value2\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(testFile, """
+                key1=value1
+                key2=value2
+                """);
 
         String filePath = testFile.toString();
         GlobalConfig.set(GlobalConfig.OSHI_OS_LINUX_PRIVILEGED_FILE_ALLOWLIST, filePath);

@@ -74,8 +74,13 @@ class LinuxBluetoothDeviceTest {
         Path varLib = tempDir.resolve("varlib");
         Path deviceDir = varLib.resolve("AA:BB:CC:DD:EE:FF/11:22:33:44:55:66");
         Files.createDirectories(deviceDir);
-        writeFile(deviceDir.resolve("info"),
-                "[General]\nName=My Headphones\nPaired=true\nConnected=true\nClass=0x240404\n");
+        writeFile(deviceDir.resolve("info"), """
+                [General]
+                Name=My Headphones
+                Paired=true
+                Connected=true
+                Class=0x240404
+                """);
 
         List<BluetoothDevice> devices = LinuxBluetoothDevice.queryBluetoothDevices(sysDir.toString(),
                 varLib.toString() + "/");
@@ -101,8 +106,14 @@ class LinuxBluetoothDeviceTest {
         // Lowercase adapter address in sysfs, uppercase in varlib
         Path deviceDir = varLib.resolve("AA:BB:CC:DD:EE:FF/11:22:33:44:55:66");
         Files.createDirectories(deviceDir);
-        writeFile(deviceDir.resolve("info"),
-                "[General]\nName=BT Mouse\nPaired=true\nConnected=false\nClass=0x002580\nBattery=75\n");
+        writeFile(deviceDir.resolve("info"), """
+                [General]
+                Name=BT Mouse
+                Paired=true
+                Connected=false
+                Class=0x002580
+                Battery=75
+                """);
 
         List<BluetoothDevice> devices = LinuxBluetoothDevice.queryBluetoothDevices(sysDir.toString(),
                 varLib.toString() + "/");
@@ -162,7 +173,10 @@ class LinuxBluetoothDeviceTest {
         // Use lowercase path (fallback case); no explicit Paired key means paired=true
         Path deviceDir = varLib.resolve("aa:bb:cc:dd:ee:ff/11:22:33:44:55:66");
         Files.createDirectories(deviceDir);
-        writeFile(deviceDir.resolve("info"), "[General]\nName=Speaker\n");
+        writeFile(deviceDir.resolve("info"), """
+                [General]
+                Name=Speaker
+                """);
 
         List<BluetoothDevice> devices = LinuxBluetoothDevice.queryBluetoothDevices(sysDir.toString(),
                 varLib.toString() + "/");

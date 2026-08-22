@@ -288,8 +288,10 @@ class LinuxPowerSourceTest {
     void testGetPowerSourcesSkipsPresentZero(@TempDir Path tempDir) throws IOException {
         Path bat = tempDir.resolve("BAT0");
         Files.createDirectories(bat);
-        Files.write(bat.resolve("uevent"),
-                "POWER_SUPPLY_NAME=BAT0\nPOWER_SUPPLY_PRESENT=0\n".getBytes(StandardCharsets.UTF_8));
+        Files.writeString(bat.resolve("uevent"), """
+                POWER_SUPPLY_NAME=BAT0
+                POWER_SUPPLY_PRESENT=0
+                """);
 
         List<PowerSource> result = LinuxPowerSource.getPowerSources(tempDir.toString());
         assertThat(result, hasSize(0));

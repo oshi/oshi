@@ -91,7 +91,10 @@ class LinuxSoundCardTest {
     void testGetCardCodecFromFile(@TempDir Path tempDir) throws IOException {
         Path card0 = tempDir.resolve("card0");
         Files.createDirectories(card0);
-        writeFile(card0.resolve("codec#0"), "Codec: Realtek ALC892\nAddress: 0\nVendor Id: 0x10ec0892");
+        writeFile(card0.resolve("codec#0"), """
+                Codec: Realtek ALC892
+                Address: 0
+                Vendor Id: 0x10ec0892""");
 
         String codec = LinuxSoundCard.getCardCodec(card0.toFile());
         assertThat(codec, is("Realtek ALC892"));
