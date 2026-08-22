@@ -44,9 +44,11 @@ class LinuxCentralProcessorTest {
     @Test
     void testParseCpuidOutputValid() {
         // Real cpuid -1r output for leaf 0x00000001
-        List<String> lines = Arrays.asList("CPU 0:", //
-                "   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69",
-                "   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf edx=0xbfebfbff");
+        List<String> lines = """
+                CPU 0:
+                   0x00000000 0x00: eax=0x00000016 ebx=0x756e6547 ecx=0x6c65746e edx=0x49656e69
+                   0x00000001 0x00: eax=0x000906ea ebx=0x00100800 ecx=0x7ffafbbf edx=0xbfebfbff
+                """.lines().toList();
         String result = LinuxCentralProcessor.parseCpuidOutput(lines);
         assertThat(result, is("bfebfbff000906ea"));
     }
@@ -343,8 +345,19 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testReadTopologyFromCpuinfoMultiProcessor() {
-        List<String> lines = Arrays.asList("processor\t: 0", "core id\t\t: 0", "physical id\t: 0", "", "processor\t: 1",
-                "core id\t\t: 1", "physical id\t: 0", "", "processor\t: 2", "core id\t\t: 0", "physical id\t: 1");
+        List<String> lines = """
+                processor\t: 0
+                core id\t\t: 0
+                physical id\t: 0
+
+                processor\t: 1
+                core id\t\t: 1
+                physical id\t: 0
+
+                processor\t: 2
+                core id\t\t: 0
+                physical id\t: 1
+                """.lines().toList();
         Quartet<List<LogicalProcessor>, List<ProcessorCache>, Map<Integer, Integer>, Map<Integer, String>> result = LinuxCentralProcessor
                 .readTopologyFromCpuinfo(lines);
         assertThat(result.getA(), hasSize(3));
@@ -430,10 +443,16 @@ class LinuxCentralProcessorTest {
     // -------------------------------------------------------------------------
 
     // Fixture: lscpu -p=cpu,node output
-    private static final List<String> LSCPU_NUMA = Arrays.asList(
-            "# The following is the parsable format, which can be fed to other",
-            "# programs. Each different item in every column has an unique ID", "# starting from zero.", "# CPU,Node",
-            "0,0", "1,0", "2,1", "3,1");
+    private static final List<String> LSCPU_NUMA = """
+            # The following is the parsable format, which can be fed to other
+            # programs. Each different item in every column has an unique ID
+            # starting from zero.
+            # CPU,Node
+            0,0
+            1,0
+            2,1
+            3,1
+            """.lines().toList();
 
     @Test
     void testMapNumaNodesFromLscpu() {
@@ -463,19 +482,52 @@ class LinuxCentralProcessorTest {
     // -------------------------------------------------------------------------
 
     // Fixture: lscpu -B -C --json output
-    private static final List<String> LSCPU_CACHE_JSON = Arrays.asList("{", "   \"caches\": [", "      {",
-            "         \"name\": \"L1d\",", "         \"one-size\": \"32768\",", "         \"all-size\": null,",
-            "         \"ways\": 8,", "         \"type\": \"Data\",", "         \"level\": 1,",
-            "         \"sets\": null,", "         \"coherency-size\": 64", "      },", "      {",
-            "         \"name\": \"L1i\",", "         \"one-size\": \"32768\",", "         \"all-size\": null,",
-            "         \"ways\": 8,", "         \"type\": \"Instruction\",", "         \"level\": 1,",
-            "         \"sets\": null,", "         \"coherency-size\": 64", "      },", "      {",
-            "         \"name\": \"L2\",", "         \"one-size\": \"262144\",", "         \"all-size\": null,",
-            "         \"ways\": 4,", "         \"type\": \"Unified\",", "         \"level\": 2,",
-            "         \"sets\": null,", "         \"coherency-size\": 64", "      },", "      {",
-            "         \"name\": \"L3\",", "         \"one-size\": \"16777216\",", "         \"all-size\": null,",
-            "         \"ways\": null,", "         \"type\": \"Unified\",", "         \"level\": 3,",
-            "         \"sets\": null,", "         \"coherency-size\": 64", "      }", "   ]", "}");
+    private static final List<String> LSCPU_CACHE_JSON = """
+            {
+               "caches": [
+                  {
+                     "name": "L1d",
+                     "one-size": "32768",
+                     "all-size": null,
+                     "ways": 8,
+                     "type": "Data",
+                     "level": 1,
+                     "sets": null,
+                     "coherency-size": 64
+                  },
+                  {
+                     "name": "L1i",
+                     "one-size": "32768",
+                     "all-size": null,
+                     "ways": 8,
+                     "type": "Instruction",
+                     "level": 1,
+                     "sets": null,
+                     "coherency-size": 64
+                  },
+                  {
+                     "name": "L2",
+                     "one-size": "262144",
+                     "all-size": null,
+                     "ways": 4,
+                     "type": "Unified",
+                     "level": 2,
+                     "sets": null,
+                     "coherency-size": 64
+                  },
+                  {
+                     "name": "L3",
+                     "one-size": "16777216",
+                     "all-size": null,
+                     "ways": null,
+                     "type": "Unified",
+                     "level": 3,
+                     "sets": null,
+                     "coherency-size": 64
+                  }
+               ]
+            }
+            """.lines().toList();
 
     @Test
     void testMapCachesFromLscpu() {
@@ -508,9 +560,15 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testParseProcessorIdFromCpuinfoX86() {
-        List<String> cpuinfo = Arrays.asList("processor\t: 0", "vendor_id\t: GenuineIntel", "cpu family\t: 6",
-                "model\t\t: 158", "model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz", "stepping\t: 10",
-                "flags\t\t: fpu vme de pse tsc msr pae mce cx8 apic sep lm constant_tsc");
+        List<String> cpuinfo = """
+                processor\t: 0
+                vendor_id\t: GenuineIntel
+                cpu family\t: 6
+                model\t\t: 158
+                model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz
+                stepping\t: 10
+                flags\t\t: fpu vme de pse tsc msr pae mce cx8 apic sep lm constant_tsc
+                """.lines().toList();
         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
         assertThat(id.vendor(), is("GenuineIntel"));
         assertThat(id.name(), is("Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"));
@@ -524,9 +582,16 @@ class LinuxCentralProcessorTest {
     void testParseProcessorIdFromCpuinfoArm() {
         // Raspberry Pi style aarch64 /proc/cpuinfo: vendor from implementer, family from architecture, model from part,
         // stepping synthesized from variant (r0) + revision (p3)
-        List<String> cpuinfo = Arrays.asList("processor\t: 0", "BogoMIPS\t: 108.00",
-                "Features\t: fp asimd evtstrm crc32 cpuid", "CPU implementer\t: 0x41", "CPU architecture: 8",
-                "CPU variant\t: 0x0", "CPU part\t: 0xd08", "CPU revision\t: 3");
+        List<String> cpuinfo = """
+                processor\t: 0
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+                """.lines().toList();
         LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
         assertThat(id.vendor(), is("0x41"));
         assertThat(id.family(), is("8"));
@@ -563,8 +628,11 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testParseLscpuIdentityFillsFromLscpu() {
-        List<String> lscpu = Arrays.asList("Architecture:                    aarch64",
-                "Vendor ID:                       ARM", "Model name:                      Cortex-A72");
+        List<String> lscpu = """
+                Architecture:                    aarch64
+                Vendor ID:                       ARM
+                Model name:                      Cortex-A72
+                """.lines().toList();
         Triplet<String, String, String> id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, "0x41", "", "");
         assertThat(id.getA(), is("ARM"));
         assertThat(id.getB(), is("Cortex-A72"));

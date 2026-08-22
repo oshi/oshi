@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -24,14 +23,15 @@ class FreeBsdFirmwareTest {
     @Test
     void testParseDmiDecode() {
         // Representative `dmidecode -t bios` (DMI type 0) block; MM/DD/YYYY date is normalized to ISO.
-        List<String> dmidecode = Arrays.asList(//
-                "Handle 0x0000, DMI type 0, 24 bytes", //
-                "BIOS Information", //
-                "\tVendor: Parallels Software International Inc.", //
-                "\tVersion: 11.2.1 (32626)", //
-                "\tRelease Date: 07/15/2016", //
-                "\tBIOS Revision: 11.2", //
-                "\tFirmware Revision: 11.2");
+        List<String> dmidecode = """
+                Handle 0x0000, DMI type 0, 24 bytes
+                BIOS Information
+                \tVendor: Parallels Software International Inc.
+                \tVersion: 11.2.1 (32626)
+                \tRelease Date: 07/15/2016
+                \tBIOS Revision: 11.2
+                \tFirmware Revision: 11.2
+                """.lines().toList();
         Triplet<@Nullable String, @Nullable String, @Nullable String> fw = FreeBsdFirmware.parseDmiDecode(dmidecode);
         assertThat(fw.getA(), is("Parallels Software International Inc."));
         assertThat(fw.getB(), is("11.2.1 (32626)"));

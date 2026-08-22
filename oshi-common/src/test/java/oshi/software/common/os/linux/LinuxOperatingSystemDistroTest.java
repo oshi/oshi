@@ -150,8 +150,12 @@ class LinuxOperatingSystemDistroTest {
 
     @Test
     void testExecLsbReleaseDebian() {
-        List<String> lines = Arrays.asList("Distributor ID:\tDebian", "Description:\tDebian GNU/Linux 12 (bookworm)",
-                "Release:\t12", "Codename:\tbookworm");
+        List<String> lines = """
+                Distributor ID:\tDebian
+                Description:\tDebian GNU/Linux 12 (bookworm)
+                Release:\t12
+                Codename:\tbookworm
+                """.lines().toList();
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Debian"));
@@ -161,8 +165,12 @@ class LinuxOperatingSystemDistroTest {
 
     @Test
     void testExecLsbReleaseNoCodename() {
-        List<String> lines = Arrays.asList("Distributor ID:\tArch", "Description:\tArch Linux", "Release:\trolling",
-                "Codename:\tn/a");
+        List<String> lines = """
+                Distributor ID:\tArch
+                Description:\tArch Linux
+                Release:\trolling
+                Codename:\tn/a
+                """.lines().toList();
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
         assertNotNull(result);
         assertThat(result.getA(), is("Arch"));
