@@ -32,22 +32,22 @@ class AbstractHardwareAbstractionLayerTest {
         return new AbstractHardwareAbstractionLayer() {
             @Override
             protected ComputerSystem createComputerSystem() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
             protected CentralProcessor createProcessor() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
             protected GlobalMemory createMemory() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
             protected Sensors createSensors() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override

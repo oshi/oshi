@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.tuples.Quintet;
@@ -32,7 +33,8 @@ class FreeBsdComputerSystemTest {
                 "\tWake-up Type: Power Switch", //
                 "\tSKU Number: SKU=NotProvided", //
                 "\tFamily: PowerEdge");
-        Quintet<String, String, String, String, String> dmi = FreeBsdComputerSystem.parseDmiDecode(dmidecode);
+        Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = FreeBsdComputerSystem
+                .parseDmiDecode(dmidecode);
         assertThat(dmi.getA(), is("Dell Inc."));
         assertThat(dmi.getB(), is("PowerEdge R640"));
         assertThat(dmi.getC(), is("7XY1234"));
@@ -43,7 +45,7 @@ class FreeBsdComputerSystemTest {
     @Test
     void testParseDmiDecodeEmpty() {
         // No output (e.g. dmidecode not available / not root): every field is null so the caller can fall back.
-        Quintet<String, String, String, String, String> dmi = FreeBsdComputerSystem
+        Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = FreeBsdComputerSystem
                 .parseDmiDecode(Collections.emptyList());
         assertThat(dmi.getA(), is(nullValue()));
         assertThat(dmi.getC(), is(nullValue()));

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.LogicalProcessor;
@@ -38,7 +39,7 @@ class AbstractCentralProcessorTest {
     private static AbstractCentralProcessor createProcessor() {
         return new AbstractCentralProcessor() {
             @Override
-            protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+            protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
                 return new Quartet<>(Collections.singletonList(new LogicalProcessor(0, 0, 0)), null, null,
                         Collections.emptyList());
             }
@@ -191,7 +192,7 @@ class AbstractCentralProcessorTest {
     private static AbstractCentralProcessor createHybridProcessor() {
         return new AbstractCentralProcessor() {
             @Override
-            protected Quartet<List<LogicalProcessor>, List<PhysicalProcessor>, List<ProcessorCache>, List<String>> initProcessorCounts() {
+            protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
                 List<LogicalProcessor> logProcs = Arrays.asList(new LogicalProcessor(0, 0, 0),
                         new LogicalProcessor(1, 1, 0), new LogicalProcessor(2, 2, 0), new LogicalProcessor(3, 3, 0));
                 List<PhysicalProcessor> physProcs = Arrays.asList(new PhysicalProcessor(0, 0, 1, "P-core"),

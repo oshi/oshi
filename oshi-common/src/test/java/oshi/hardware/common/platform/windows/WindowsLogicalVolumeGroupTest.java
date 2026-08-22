@@ -21,6 +21,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
@@ -61,7 +62,7 @@ class WindowsLogicalVolumeGroupTest {
             }
 
             @Override
-            public Object getValue(T property, int index) {
+            public @Nullable Object getValue(T property, int index) {
                 return rows.get(index).get(property);
             }
 

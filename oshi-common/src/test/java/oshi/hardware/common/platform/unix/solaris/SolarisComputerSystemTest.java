@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.solaris;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -51,17 +52,20 @@ class SolarisComputerSystemTest {
         EnumMap<SmbType, Map<String, String>> result = SolarisComputerSystem.parseSmbios(smbios);
 
         Map<String, String> bios = result.get(SmbType.SMB_TYPE_BIOS);
+        assertNotNull(bios);
         assertThat(bios.get("Vendor"), is("Parallels Software International Inc."));
         assertThat(bios.get("Version String"), is("11.2.1 (32686)"));
         assertThat(bios.get("Release Date"), is("07/15/2016"));
 
         Map<String, String> system = result.get(SmbType.SMB_TYPE_SYSTEM);
+        assertNotNull(system);
         assertThat(system.get("Manufacturer"), is("Parallels Software International Inc."));
         assertThat(system.get("Product"), is("Parallels Virtual Platform"));
         assertThat(system.get("Serial Number"), is("Parallels-45 2E 7E 2D 57 5C 4B 59 B1 30 28 81 B7 81 89 34"));
         assertThat(system.get("UUID"), is("452e7e2d-575c04b59-b130-2881b7818934"));
 
         Map<String, String> baseboard = result.get(SmbType.SMB_TYPE_BASEBOARD);
+        assertNotNull(baseboard);
         assertThat(baseboard.get("Manufacturer"), is("Parallels Software International Inc."));
         assertThat(baseboard.get("Product"), is("Parallels Virtual Platform"));
         assertThat(baseboard.get("Serial Number"), is("None"));
@@ -70,9 +74,15 @@ class SolarisComputerSystemTest {
     @Test
     void testParseSmbiosEmpty() {
         EnumMap<SmbType, Map<String, String>> result = SolarisComputerSystem.parseSmbios(Collections.emptyList());
-        assertThat(result.get(SmbType.SMB_TYPE_BIOS).isEmpty(), is(true));
-        assertThat(result.get(SmbType.SMB_TYPE_SYSTEM).isEmpty(), is(true));
-        assertThat(result.get(SmbType.SMB_TYPE_BASEBOARD).isEmpty(), is(true));
+        Map<String, String> bios = result.get(SmbType.SMB_TYPE_BIOS);
+        Map<String, String> system = result.get(SmbType.SMB_TYPE_SYSTEM);
+        Map<String, String> baseboard = result.get(SmbType.SMB_TYPE_BASEBOARD);
+        assertNotNull(bios);
+        assertNotNull(system);
+        assertNotNull(baseboard);
+        assertThat(bios.isEmpty(), is(true));
+        assertThat(system.isEmpty(), is(true));
+        assertThat(baseboard.isEmpty(), is(true));
     }
 
     @Test

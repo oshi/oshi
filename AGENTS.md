@@ -196,10 +196,10 @@ them. Use text blocks for captured command or file output, `Files.writeString` o
 `Files.write(path, s.getBytes(UTF_8))`, and `Stream.toList()`; `var` is fine and is already the
 house style in `oshi-core-ffm`. Two cautions:
 
-- **NullAway runs at WARN on test sources, not ERROR.** Compiling tests at 17 put them on the module
-  path, which brought `module-info.java`'s `@NullMarked` into scope for test packages for the first
-  time and surfaced 178 pre-existing findings across 41 files. Do not add to them: new test code
-  should be NullAway-clean, and the severity goes back to ERROR once the backlog is drained.
+- **NullAway checks test sources too**, at ERROR, the same as main. Compiling tests at 17 put them
+  on the module path, which brings `module-info.java`'s `@NullMarked` into scope for test packages.
+  A stub override must repeat the parent's `@Nullable`; a `Map.get()` needs a local plus
+  `assertNotNull`, which narrows where Hamcrest's `is(notNullValue())` does not.
 - **17 is a ceiling.** It is exactly the lowest JDK running tests in CI — AppVeyor Windows and
   Solaris SPARC, both with no headroom. Do not raise it without moving those first.
 - **Do not sweep `Arrays.asList` to `List.of`.** `List.of` rejects nulls and is immutable, and

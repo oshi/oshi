@@ -14,6 +14,7 @@ import static org.hamcrest.Matchers.not;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -29,7 +30,7 @@ class LinuxOSFileStoreTest {
     /** Subclass that returns null from queryStatvfs to test the JVM File fallback path. */
     private static final class NullStatvfsFileSystem extends LinuxFileSystem {
         @Override
-        protected long[] queryStatvfs(String path) {
+        protected long @Nullable [] queryStatvfs(String path) {
             return null;
         }
     }
@@ -37,7 +38,7 @@ class LinuxOSFileStoreTest {
     /** Subclass that returns zeros from queryStatvfs to test the JVM File fallback within updateAttributes. */
     private static final class ZeroStatvfsFileSystem extends LinuxFileSystem {
         @Override
-        protected long[] queryStatvfs(String path) {
+        protected long @Nullable [] queryStatvfs(String path) {
             // Return array with totalInodes, freeInodes, totalSpace=0, usableSpace=0, freeSpace=0
             // This triggers the JVM File fallback inside updateAttributes
             return new long[] { 1000L, 500L, 0L, 0L, 0L };

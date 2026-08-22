@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.software.os.FileSystem;
@@ -77,16 +78,16 @@ class AbstractOperatingSystemTest {
 
             @Override
             public FileSystem getFileSystem() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
             public InternetProtocolStats getInternetProtocolStats() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
-            public OSProcess getProcess(int pid) {
+            public @Nullable OSProcess getProcess(int pid) {
                 return allProcesses.stream().filter(p -> p.getProcessID() == pid).findFirst().orElse(null);
             }
 
@@ -102,7 +103,7 @@ class AbstractOperatingSystemTest {
 
             @Override
             public OSThread getCurrentThread() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
@@ -127,7 +128,7 @@ class AbstractOperatingSystemTest {
 
             @Override
             public NetworkParams getNetworkParams() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
         };
     }
@@ -345,7 +346,7 @@ class AbstractOperatingSystemTest {
         }
 
         @Override
-        public double getProcessCpuLoadBetweenTicks(OSProcess proc) {
+        public double getProcessCpuLoadBetweenTicks(@Nullable OSProcess proc) {
             return 0;
         }
 

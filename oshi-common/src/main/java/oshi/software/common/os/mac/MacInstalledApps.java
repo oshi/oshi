@@ -152,7 +152,7 @@ public final class MacInstalledApps {
         return obtainedFrom;
     }
 
-    static List<Map<String, String>> parseItems(String xml) {
+    static List<Map<String, String>> parseItems(@Nullable String xml) {
         if (xml == null) {
             return Collections.emptyList();
         }

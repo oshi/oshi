@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -50,6 +51,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testReadOsReleaseUbuntu() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_UBUNTU);
+        assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
         assertThat(result.getB(), is("22.04.3 LTS"));
         assertThat(result.getC(), is("Jammy Jellyfish"));
@@ -58,6 +60,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testReadOsReleaseCentOS() {
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(OS_RELEASE_CENTOS);
+        assertNotNull(result);
         assertThat(result.getA(), is("CentOS Stream"));
         assertThat(result.getB(), is("9"));
     }
@@ -76,6 +79,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testExecLsbRelease() {
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(LSB_RELEASE);
+        assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
         assertThat(result.getB(), is("22.04"));
         assertThat(result.getC(), is("jammy"));
@@ -90,6 +94,7 @@ class LinuxOperatingSystemTest {
     void testExecLsbReleaseDescriptionOnly() {
         List<String> descOnly = Arrays.asList("Description:\tFedora release 38 (Thirty Eight)");
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(descOnly);
+        assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
         assertThat(result.getB(), is("38"));
         assertThat(result.getC(), is("Thirty Eight"));
@@ -137,6 +142,7 @@ class LinuxOperatingSystemTest {
         List<String> lines = Arrays.asList("DISTRIB_ID=Ubuntu", "DISTRIB_RELEASE=20.04", "DISTRIB_CODENAME=focal",
                 "DISTRIB_DESCRIPTION=\"Ubuntu 20.04.6 LTS\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
         assertThat(result.getB(), is("20.04"));
         assertThat(result.getC(), is("focal"));
@@ -146,6 +152,7 @@ class LinuxOperatingSystemTest {
     void testReadLsbReleaseDescriptionWithRelease() {
         List<String> lines = Arrays.asList("DISTRIB_DESCRIPTION=\"Fedora release 38 (Thirty Eight)\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
         assertThat(result.getB(), is("38"));
         assertThat(result.getC(), is("Thirty Eight"));
@@ -164,6 +171,7 @@ class LinuxOperatingSystemTest {
     void testReadDistribRelease() {
         List<String> lines = Arrays.asList("CentOS release 6.10 (Final)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("CentOS"));
         assertThat(result.getB(), is("6.10"));
         assertThat(result.getC(), is("Final"));
@@ -173,6 +181,7 @@ class LinuxOperatingSystemTest {
     void testReadDistribReleaseVersion() {
         List<String> lines = Arrays.asList("SUSE Linux Enterprise Server VERSION 15");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
         assertThat(result.getB(), is("15"));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -199,6 +208,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testParseReleaseNoCodename() {
         Triplet<String, String, String> result = LinuxOperatingSystem.parseRelease("Debian release 11", " release ");
+        assertNotNull(result);
         assertThat(result.getA(), is("Debian"));
         assertThat(result.getB(), is("11"));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -207,6 +217,7 @@ class LinuxOperatingSystemTest {
     @Test
     void testParseReleaseNoVersion() {
         Triplet<String, String, String> result = LinuxOperatingSystem.parseRelease("MyLinux", " release ");
+        assertNotNull(result);
         assertThat(result.getA(), is("MyLinux"));
         assertThat(result.getB(), is(Constants.UNKNOWN));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -241,6 +252,7 @@ class LinuxOperatingSystemTest {
         // VERSION uses ", " separator instead of parentheses
         List<String> lines = Arrays.asList("NAME=\"Ubuntu\"", "VERSION=\"22.04, Jammy\"", "VERSION_ID=\"22.04\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
         assertThat(result.getB(), is("22.04"));
         assertThat(result.getC(), is("Jammy"));
@@ -251,6 +263,7 @@ class LinuxOperatingSystemTest {
         // No VERSION= line, falls back to VERSION_ID=
         List<String> lines = Arrays.asList("NAME=\"Alpine Linux\"", "VERSION_ID=\"3.18.4\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Alpine Linux"));
         assertThat(result.getB(), is("3.18.4"));
         assertThat(result.getC(), is(Constants.UNKNOWN));
@@ -262,6 +275,7 @@ class LinuxOperatingSystemTest {
         List<String> lines = Arrays.asList("VERSION=\"20.04.6 LTS (Focal Fossa)\"", "VERSION_ID=\"20.04\"",
                 "NAME=\"Ubuntu\"");
         Triplet<String, String, String> result = LinuxOperatingSystem.readOsRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Ubuntu"));
         assertThat(result.getB(), is("20.04.6 LTS"));
         assertThat(result.getC(), is("Focal Fossa"));
@@ -279,6 +293,7 @@ class LinuxOperatingSystemTest {
         List<String> lines = Arrays.asList("Distributor ID:\tFedora", "Release:\t39", "Codename:\tThirtyNine",
                 "Description:\tFedora release 38 (Thirty Eight)");
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
         assertThat(result.getB(), is("39"));
         assertThat(result.getC(), is("ThirtyNine"));
@@ -293,6 +308,7 @@ class LinuxOperatingSystemTest {
         // " VERSION " delimiter with a codename in parentheses
         List<String> lines = Arrays.asList("SUSE Linux Enterprise Server VERSION 15 (SP3)");
         Triplet<String, String, String> result = LinuxOperatingSystem.readDistribRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("SUSE Linux Enterprise Server"));
         assertThat(result.getB(), is("15"));
         assertThat(result.getC(), is("SP3"));

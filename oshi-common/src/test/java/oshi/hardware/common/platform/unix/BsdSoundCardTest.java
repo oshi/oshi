@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,7 +36,7 @@ class BsdSoundCardTest {
         assertThat(cards, hasSize(2));
         // Find the azalia card
         SoundCard azalia = cards.stream().filter(c -> c.getName().contains("82801I")).findFirst().orElse(null);
-        assertThat(azalia != null, is(true));
+        assertNotNull(azalia);
         assertThat(azalia.getName(), is("Intel 82801I HD Audio"));
         // Parser uses indexOf(':') to split — captures everything after the first colon in the codec line
         assertThat(azalia.getCodec(), is("codec[0]: Realtek ALC888"));

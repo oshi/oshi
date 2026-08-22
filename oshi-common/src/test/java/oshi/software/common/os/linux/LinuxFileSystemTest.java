@@ -16,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.Collections;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -28,7 +29,7 @@ class LinuxFileSystemTest {
     /** Concrete subclass that falls back to File methods for space queries. */
     private static final class StubLinuxFileSystem extends LinuxFileSystem {
         @Override
-        protected long[] queryStatvfs(String path) {
+        protected long @Nullable [] queryStatvfs(String path) {
             return null;
         }
     }

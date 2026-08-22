@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.driver.common.windows.wmi.WmiQuery;
@@ -39,7 +40,7 @@ class WindowsComputerSystemTest {
                 }
 
                 @Override
-                public Object getValue(T property, int index) {
+                public @Nullable Object getValue(T property, int index) {
                     return null;
                 }
 
@@ -65,12 +66,12 @@ class WindowsComputerSystemTest {
 
             @Override
             public Firmware createFirmware() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
 
             @Override
             public Baseboard createBaseboard() {
-                return null;
+                throw new UnsupportedOperationException("not exercised by this test");
             }
         };
     }

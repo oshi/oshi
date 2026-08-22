@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -240,13 +241,13 @@ class LinuxGraphicsCardTest {
 
     // No-op lookups for pure parsing tests
     private static final ToLongFunction<String> NO_VRAM = LinuxGraphicsCardTest::noVram;
-    private static final Function<String, Triplet<String, String, String>> NO_DRM = LinuxGraphicsCardTest::noDrm;
+    private static final Function<@Nullable String, Triplet<String, String, String>> NO_DRM = LinuxGraphicsCardTest::noDrm;
 
     private static long noVram(String slot) {
         return 0L;
     }
 
-    private static Triplet<String, String, String> noDrm(String slot) {
+    private static Triplet<String, String, String> noDrm(@Nullable String slot) {
         return new Triplet<>("", "", "");
     }
 

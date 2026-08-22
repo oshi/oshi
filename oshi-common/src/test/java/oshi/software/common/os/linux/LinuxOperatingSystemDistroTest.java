@@ -140,6 +140,7 @@ class LinuxOperatingSystemDistroTest {
     void testReadLsbReleaseFedora() {
         List<String> lines = Arrays.asList("DISTRIB_ID=Fedora", "DISTRIB_RELEASE=39", "DISTRIB_CODENAME=ThirtyNine");
         Triplet<String, String, String> result = LinuxOperatingSystem.readLsbRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Fedora"));
         assertThat(result.getB(), is("39"));
         assertThat(result.getC(), is("ThirtyNine"));
@@ -152,6 +153,7 @@ class LinuxOperatingSystemDistroTest {
         List<String> lines = Arrays.asList("Distributor ID:\tDebian", "Description:\tDebian GNU/Linux 12 (bookworm)",
                 "Release:\t12", "Codename:\tbookworm");
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Debian"));
         assertThat(result.getB(), is("12"));
         assertThat(result.getC(), is("bookworm"));
@@ -162,6 +164,7 @@ class LinuxOperatingSystemDistroTest {
         List<String> lines = Arrays.asList("Distributor ID:\tArch", "Description:\tArch Linux", "Release:\trolling",
                 "Codename:\tn/a");
         Triplet<String, String, String> result = LinuxOperatingSystem.execLsbRelease(lines);
+        assertNotNull(result);
         assertThat(result.getA(), is("Arch"));
         assertThat(result.getB(), is("rolling"));
     }
