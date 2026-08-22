@@ -62,6 +62,11 @@ final class WindowsGpuStatsJNA extends WindowsGpuStats {
     }
 
     @Override
+    protected double nvmlGetGpuUtilization(String device) {
+        return NvmlUtilJNA.getGpuUtilization(device);
+    }
+
+    @Override
     protected double nvmlGetTemperature(String device) {
         return NvmlUtilJNA.getTemperature(device);
     }
@@ -94,6 +99,11 @@ final class WindowsGpuStatsJNA extends WindowsGpuStats {
     @Override
     protected int adlFindAdapterIndex(int pciBusNumber) {
         return AdlUtilJNA.findAdapterIndex(pciBusNumber);
+    }
+
+    @Override
+    protected double adlGetGpuUtilization(int adapterIndex) {
+        return AdlUtilJNA.getGpuUtilization(adapterIndex);
     }
 
     @Override

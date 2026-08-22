@@ -63,6 +63,8 @@ public final class AdlUtilFFM {
     private static final int PERF_STATUS_SIZE = 72;
     private static final long PERF_CORE_CLOCK_OFFSET = 0;
     private static final long PERF_MEMORY_CLOCK_OFFSET = 4;
+    // iGPUActivityPercent is the 7th int, after iCoreClock, iMemoryClock, iDCEFClock, iGFXClock, iUVDClock, iVCEClock
+    private static final long PERF_GPU_ACTIVITY_OFFSET = 24;
     // ADLODNPerformanceStatus clock values are reported in 10 kHz units; divide by this to get MHz.
     private static final long ADL_ODN_CLOCK_UNITS_PER_MHZ = 100L;
 
@@ -373,14 +375,14 @@ public final class AdlUtilFFM {
     }
 
     /**
-     * Reads one clock from the OverdriveN performance status, in MHz. ADL reports clocks in 10 kHz units.
+     * Reads one field from the OverdriveN performance status.
      *
      * @param adapterIndex ADL adapter index
-     * @param clockOffset  byte offset of the clock field within the status struct
-     * @param what         the clock being read, for the failure log
-     * @return the clock in MHz, or -1 if unavailable
+     * @param fieldOffset  byte offset of the field within the status struct
+     * @param what         the field being read, for the failure log
+     * @return the raw field value, or -1 if unavailable
      */
-    private static long performanceClockMhz(int adapterIndex, long clockOffset, String what) {
+    private static long performanceStatusField(int adapterIndex, long fieldOffset, String what) {
         MethodHandle perfGet = ADL2_OVERDRIVEN_PERFORMANCE_STATUS_GET;
         if (adapterIndex < 0 || perfGet == null) {
             return -1L;
@@ -396,13 +398,37 @@ public final class AdlUtilFFM {
                 }
                 MemorySegment perf = arena.allocate(PERF_STATUS_SIZE);
                 if ((int) perfGet.invokeExact(ctx, adapterIndex, perf) == ADL_OK) {
-                    return perf.get(JAVA_INT, clockOffset) / ADL_ODN_CLOCK_UNITS_PER_MHZ;
+                    return (long) perf.get(JAVA_INT, fieldOffset);
                 }
             } finally {
                 adlUninit(ctx);
             }
             return -1L;
         }, LOG, DEBUG, "ADL " + what + " failed", -1L);
+    }
+
+    /**
+     * Reads one clock from the OverdriveN performance status, in MHz. ADL reports clocks in 10 kHz units.
+     *
+     * @param adapterIndex ADL adapter index
+     * @param clockOffset  byte offset of the clock field within the status struct
+     * @param what         the clock being read, for the failure log
+     * @return the clock in MHz, or -1 if unavailable
+     */
+    private static long performanceClockMhz(int adapterIndex, long clockOffset, String what) {
+        long raw = performanceStatusField(adapterIndex, clockOffset, what);
+        return raw < 0 ? -1L : raw / ADL_ODN_CLOCK_UNITS_PER_MHZ;
+    }
+
+    /**
+     * Gets the GPU core utilization as a percentage (0-100). The value is one field of the same OverdriveN performance
+     * status struct the clock getters read.
+     *
+     * @param adapterIndex the adapter index
+     * @return the utilization percentage, or -1 on failure
+     */
+    public static double getGpuUtilization(int adapterIndex) {
+        return performanceStatusField(adapterIndex, PERF_GPU_ACTIVITY_OFFSET, "getGpuUtilization");
     }
 
     /**

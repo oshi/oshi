@@ -62,6 +62,11 @@ final class WindowsGpuStatsFFM extends WindowsGpuStats {
     }
 
     @Override
+    protected double nvmlGetGpuUtilization(String device) {
+        return NvmlUtilFFM.getGpuUtilization(device);
+    }
+
+    @Override
     protected double nvmlGetTemperature(String device) {
         return NvmlUtilFFM.getTemperature(device);
     }
@@ -94,6 +99,11 @@ final class WindowsGpuStatsFFM extends WindowsGpuStats {
     @Override
     protected int adlFindAdapterIndex(int pciBusNumber) {
         return AdlUtilFFM.findAdapterIndex(pciBusNumber);
+    }
+
+    @Override
+    protected double adlGetGpuUtilization(int adapterIndex) {
+        return AdlUtilFFM.getGpuUtilization(adapterIndex);
     }
 
     @Override
