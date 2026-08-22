@@ -36,6 +36,11 @@ final class LinuxGpuStatsFFM extends LinuxGpuStats {
     }
 
     @Override
+    protected double nvmlGetGpuUtilization(String deviceId) {
+        return NvmlUtilFFM.getGpuUtilization(deviceId);
+    }
+
+    @Override
     protected long nvmlGetVramUsed(String deviceId) {
         return NvmlUtilFFM.getVramUsed(deviceId);
     }
