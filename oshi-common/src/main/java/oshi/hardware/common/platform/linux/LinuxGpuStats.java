@@ -21,8 +21,8 @@ import oshi.util.ParseUtil;
  * once at construction time.
  *
  * <p>
- * GPU ticks are not available on Linux and always return {@code (0L, 0L)}. Shared memory is not available and always
- * returns -1.
+ * GPU ticks are not available on Linux and always return {@code (0L, 0L)}. Shared memory is read from the amdgpu GTT
+ * counter and returns -1 on every other driver.
  *
  * <p>
  * Subclasses provide the NVML integration via JNA or FFM by implementing the {@code nvml*} methods.
@@ -224,11 +224,10 @@ public abstract class LinuxGpuStats implements GpuStats {
         }
         String driver = driverName.toLowerCase(Locale.ROOT);
         if ("amdgpu".equals(driver)) {
-            int pct = FileUtil.getIntFromFile(drmDevicePath + "/gpu_busy_percent");
-            return pct >= 0 ? pct : -1d;
+            return FileUtil.getIntFromFile(drmDevicePath + "/gpu_busy_percent", -1);
         }
         if ("i915".equals(driver) || "xe".equals(driver)) {
-            long actual = FileUtil.getLongFromFile(gt0Path + "/rps_act_freq_mhz");
+            long actual = FileUtil.getLongFromFile(gt0Path + "/rps_act_freq_mhz", -1L);
             long max = FileUtil.getLongFromFile(gt0Path + "/rps_max_freq_mhz");
             if (actual >= 0 && max > 0) {
                 return actual == 0 ? 0.0 : Math.min(100.0, actual * 100.0 / max);
@@ -251,8 +250,7 @@ public abstract class LinuxGpuStats implements GpuStats {
             return -1L;
         }
         if ("amdgpu".equals(driverName.toLowerCase(Locale.ROOT))) {
-            long used = FileUtil.getLongFromFile(drmDevicePath + "/mem_info_vram_used");
-            return used >= 0 ? used : -1L;
+            return FileUtil.getLongFromFile(drmDevicePath + "/mem_info_vram_used", -1L);
         }
         return -1L;
     }
@@ -260,6 +258,13 @@ public abstract class LinuxGpuStats implements GpuStats {
     @Override
     public synchronized long getSharedMemoryUsed() {
         checkOpen();
+        if (drmDevicePath.isEmpty()) {
+            return -1L;
+        }
+        if ("amdgpu".equals(driverName.toLowerCase(Locale.ROOT))) {
+            // GTT is the system memory the GPU has mapped, the counterpart of the Windows Shared Usage counter
+            return FileUtil.getLongFromFile(drmDevicePath + "/mem_info_gtt_used", -1L);
+        }
         return -1L;
     }
 
@@ -274,7 +279,7 @@ public abstract class LinuxGpuStats implements GpuStats {
             }
         }
         if (!hwmonPath.isEmpty()) {
-            long milliC = FileUtil.getLongFromFile(hwmonPath + "/temp1_input");
+            long milliC = FileUtil.getLongFromFile(hwmonPath + "/temp1_input", -1L);
             if (milliC >= 0) {
                 return milliC / 1000.0;
             }
@@ -293,7 +298,7 @@ public abstract class LinuxGpuStats implements GpuStats {
             }
         }
         if (!hwmonPath.isEmpty()) {
-            long microW = FileUtil.getLongFromFile(hwmonPath + "/power1_average");
+            long microW = FileUtil.getLongFromFile(hwmonPath + "/power1_average", -1L);
             if (microW >= 0) {
                 return microW / 1_000_000.0;
             }
@@ -367,12 +372,12 @@ public abstract class LinuxGpuStats implements GpuStats {
             }
         }
         if (!hwmonPath.isEmpty()) {
-            long fanRpm = FileUtil.getLongFromFile(hwmonPath + "/fan1_input");
+            long fanRpm = FileUtil.getLongFromFile(hwmonPath + "/fan1_input", -1L);
             long fanMax = FileUtil.getLongFromFile(hwmonPath + "/fan1_max");
             if (fanRpm >= 0 && fanMax > 0) {
                 return Math.min(100.0, fanRpm * 100.0 / fanMax);
             }
-            long pwm = FileUtil.getLongFromFile(hwmonPath + "/pwm1");
+            long pwm = FileUtil.getLongFromFile(hwmonPath + "/pwm1", -1L);
             if (pwm >= 0) {
                 return pwm / 255.0 * 100.0;
             }

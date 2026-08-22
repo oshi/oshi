@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.linux;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static oshi.util.TestFileUtil.writeFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -64,6 +65,38 @@ class LinuxGraphicsCardTest {
         assertThat(attrs.getDrmDevicePath(), is("/sys/class/drm/card1/device"));
         assertThat(attrs.getDriverName(), is("amdgpu"));
         assertThat(attrs.getPciBusId(), is("0000:03:00.0"));
+    }
+
+    @Test
+    void testVramTotalPrefersAmdgpuSysfs(@TempDir Path tempDir) throws IOException {
+        Path device = tempDir.resolve("device");
+        Files.createDirectories(device);
+        writeFile(device.resolve("mem_info_vram_total"), "25753026560\n");
+
+        // The 20480 below is an lspci BAR size, which is the aperture the card exposes rather than the memory it has
+        LinuxGraphicsCard.Attrs attrs = new LinuxGraphicsCard.Attrs("RX 7900", "0x744c", "AMD", "Rev: c1", 20480L,
+                device.toString(), "amdgpu", "0000:03:00.0");
+        assertThat(LinuxGraphicsCard.vramTotal(attrs), is(25753026560L));
+    }
+
+    @Test
+    void testVramTotalFallsBackToParsedValue(@TempDir Path tempDir) throws IOException {
+        Path device = tempDir.resolve("device");
+        Files.createDirectories(device);
+
+        LinuxGraphicsCard.Attrs amdNoFile = new LinuxGraphicsCard.Attrs("RX 7900", "0x744c", "AMD", "Rev: c1", 20480L,
+                device.toString(), "amdgpu", "0000:03:00.0");
+        assertThat(LinuxGraphicsCard.vramTotal(amdNoFile), is(20480L));
+
+        // Only amdgpu publishes this file, so another driver must not be read out of the same path
+        writeFile(device.resolve("mem_info_vram_total"), "25753026560\n");
+        LinuxGraphicsCard.Attrs intel = new LinuxGraphicsCard.Attrs("Arc A770", "0x56a0", "Intel", "Rev: 08", 20480L,
+                device.toString(), "i915", "0000:03:00.0");
+        assertThat(LinuxGraphicsCard.vramTotal(intel), is(20480L));
+
+        LinuxGraphicsCard.Attrs noPath = new LinuxGraphicsCard.Attrs("RX 7900", "0x744c", "AMD", "Rev: c1", 20480L, "",
+                "amdgpu", "0000:03:00.0");
+        assertThat(LinuxGraphicsCard.vramTotal(noPath), is(20480L));
     }
 
     @Test

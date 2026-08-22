@@ -108,6 +108,48 @@ class FileUtilTest {
         assertThat("string from invalid ", FileUtil.getStringFromFile(stringFile.toString()), is(emptyString()));
     }
 
+    /**
+     * Test the get*FromFile overloads that take a caller-supplied default
+     */
+    @Test
+    void testGetFromFileWithDefault() {
+        Path integerFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.int", null);
+            Files.write(file, "123\n".getBytes(StandardCharsets.UTF_8));
+            return file;
+        }, "IO Exception creating or writing to temporary integer file.");
+        assertThat("long from int", FileUtil.getLongFromFile(integerFile.toString(), -1L), is(123L));
+        assertThat("int from int", FileUtil.getIntFromFile(integerFile.toString(), -1), is(123));
+
+        Path zeroFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.zero", null);
+            Files.write(file, "0\n".getBytes(StandardCharsets.UTF_8));
+            return file;
+        }, "IO Exception creating or writing to temporary zero file.");
+        // A file holding a genuine zero must not be confused with an absent one, which is the whole point of the
+        // overload: the no-argument form returns 0 for both.
+        assertThat("long from zero", FileUtil.getLongFromFile(zeroFile.toString(), -1L), is(0L));
+        assertThat("int from zero", FileUtil.getIntFromFile(zeroFile.toString(), -1), is(0));
+
+        Path stringFile = assertDoesNotThrow(() -> {
+            Path file = Files.createTempFile("oshitest.str", null);
+            Files.write(file, "foo bar\n".getBytes(StandardCharsets.UTF_8));
+            return file;
+        }, "IO Exception creating or writing to temporary string file.");
+        assertThat("long from string", FileUtil.getLongFromFile(stringFile.toString(), -1L), is(-1L));
+        assertThat("int from string", FileUtil.getIntFromFile(stringFile.toString(), -1), is(-1));
+
+        assertDoesNotThrow(() -> {
+            Files.deleteIfExists(integerFile);
+            Files.deleteIfExists(zeroFile);
+            Files.deleteIfExists(stringFile);
+            return null;
+        }, "IO Exception deleting temporary files.");
+
+        assertThat("long from missing", FileUtil.getLongFromFile(stringFile.toString(), -1L), is(-1L));
+        assertThat("int from missing", FileUtil.getIntFromFile(stringFile.toString(), -1), is(-1));
+    }
+
     @Test
     void testReadProcIo() {
         Map<String, String> expected = new LinkedHashMap<>();

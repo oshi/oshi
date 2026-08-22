@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.linux;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
@@ -183,6 +184,28 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         public String getPciBusId() {
             return pciBusId;
         }
+    }
+
+    /**
+     * Returns the total VRAM for a card from sysfs when the driver publishes it, falling back to the size parsed from
+     * lspci or lshw.
+     *
+     * <p>
+     * The lspci and lshw values are memory BAR sizes, which are the aperture the card exposes to the host rather than
+     * the memory it has. amdgpu publishes the real total, so read that when it is there. NVML takes precedence on
+     * NVIDIA cards, so a backend that has an NVML lookup calls this only after that lookup comes back empty.
+     *
+     * @param attrs the parsed attributes for the card
+     * @return VRAM in bytes, or 0 if no source reported it
+     */
+    protected static long vramTotal(Attrs attrs) {
+        if (!attrs.getDrmDevicePath().isEmpty() && "amdgpu".equals(attrs.getDriverName().toLowerCase(Locale.ROOT))) {
+            long total = FileUtil.getLongFromFile(attrs.getDrmDevicePath() + "/mem_info_vram_total", -1L);
+            if (total > 0) {
+                return total;
+            }
+        }
+        return attrs.getVram();
     }
 
     /**

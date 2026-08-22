@@ -430,6 +430,75 @@ class LinuxGpuStatsTest {
     }
 
     // -------------------------------------------------------------------------
+    // Shared memory — amdgpu GTT
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testAmdgpuSharedMemoryUsed(@TempDir Path tmp) throws IOException {
+        Path device = tmp.resolve("device");
+        Files.createDirectories(device);
+        writeFile(device.resolve("mem_info_gtt_used"), "268435456\n");
+
+        try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
+            assertThat(stats.getSharedMemoryUsed(), is(268435456L));
+        }
+    }
+
+    @Test
+    void testNonAmdgpuSharedMemoryReturnsSentinel(@TempDir Path tmp) throws IOException {
+        Path device = tmp.resolve("device");
+        Files.createDirectories(device);
+        writeFile(device.resolve("mem_info_gtt_used"), "268435456\n");
+
+        // Only amdgpu publishes this file; a different driver must not be read out of the same path
+        try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "i915", "", "Intel GPU")) {
+            assertThat(stats.getSharedMemoryUsed(), is(-1L));
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // An absent sysfs file is unavailable, not a reading of zero
+    // -------------------------------------------------------------------------
+
+    @Test
+    void testAmdgpuMissingSysfsFilesReturnSentinelNotZero(@TempDir Path tmp) throws IOException {
+        // The directories exist but hold none of the files, which is the common shape: an amdgpu hwmon directory
+        // routinely omits power1_average, and reporting 0.0 W there is a plausible-looking wrong answer.
+        Path device = tmp.resolve("device");
+        Files.createDirectories(device.resolve("hwmon/hwmon0"));
+
+        try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
+            assertThat(stats.getGpuUtilization(), is(-1d));
+            assertThat(stats.getVramUsed(), is(-1L));
+            assertThat(stats.getSharedMemoryUsed(), is(-1L));
+            assertThat(stats.getTemperature(), is(-1d));
+            assertThat(stats.getPowerDraw(), is(-1d));
+            assertThat(stats.getFanSpeedPercent(), is(-1d));
+        }
+    }
+
+    @Test
+    void testAmdgpuZeroIsDistinguishedFromMissing(@TempDir Path tmp) throws IOException {
+        // The mirror of the test above: a file that really holds zero must report zero, not the sentinel
+        Path device = tmp.resolve("device");
+        Path hwmon = device.resolve("hwmon/hwmon0");
+        Files.createDirectories(hwmon);
+        writeFile(device.resolve("gpu_busy_percent"), "0\n");
+        writeFile(device.resolve("mem_info_vram_used"), "0\n");
+        writeFile(device.resolve("mem_info_gtt_used"), "0\n");
+        writeFile(hwmon.resolve("power1_average"), "0\n");
+        writeFile(hwmon.resolve("pwm1"), "0\n");
+
+        try (LinuxGpuStats stats = new StubLinuxGpuStats(device.toString(), "amdgpu", "", "AMD GPU")) {
+            assertThat(stats.getGpuUtilization(), closeTo(0.0, EPS));
+            assertThat(stats.getVramUsed(), is(0L));
+            assertThat(stats.getSharedMemoryUsed(), is(0L));
+            assertThat(stats.getPowerDraw(), closeTo(0.0, EPS));
+            assertThat(stats.getFanSpeedPercent(), closeTo(0.0, EPS));
+        }
+    }
+
+    // -------------------------------------------------------------------------
     // NVML device resolution caching
     // -------------------------------------------------------------------------
 

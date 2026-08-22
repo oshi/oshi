@@ -40,6 +40,6 @@ final class LinuxGraphicsCardJNA extends LinuxGraphicsCard {
 
     private static long vram(LinuxGraphicsCard.Attrs attrs) {
         long total = NvmlUtilJNA.getVramTotal(NvmlUtilJNA.findDevice(attrs.getPciBusId()));
-        return total > 0 ? total : attrs.getVram();
+        return total > 0 ? total : vramTotal(attrs);
     }
 }
