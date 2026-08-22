@@ -294,18 +294,13 @@ class SmcKeyIndexTest {
     private static final double FLOOR = 15d;
 
     private static double read(String key) {
-        switch (key) {
-            case "Tg0W":
-                return 6.7d; // idle-gated sentinel
-            case "Tg0X":
-                return 40.7d;
-            case "Tg0f":
-                return 63.4d;
-            case "Tg1h":
-                return -4.0d; // negative sentinel, seen on M4 Max
-            default:
-                return 0d;
-        }
+        return switch (key) {
+            case "Tg0W" -> 6.7d; // idle-gated sentinel
+            case "Tg0X" -> 40.7d;
+            case "Tg0f" -> 63.4d;
+            case "Tg1h" -> -4.0d; // negative sentinel, seen on M4 Max
+            default -> 0d;
+        };
     }
 
     @Test

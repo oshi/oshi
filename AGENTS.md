@@ -185,10 +185,33 @@ confirm it runs, and delete it.
 
 ## Hard rules that CI enforces
 
-**Language level.** `oshi-common` and `oshi-core` compile with `release 8`. No `var`, no `List.of`,
-no records, no switch expressions, no text blocks, no `Stream.toList()`. Only `oshi-core-ffm`
-(25), `oshi-metrics` (17), and `oshi-benchmark` (25) get modern Java. Agents get this wrong
-constantly.
+**Language level.** `oshi-common` and `oshi-core` compile **main** sources with `release 8`. No
+`var`, no `List.of`, no records, no switch expressions, no text blocks, no `Stream.toList()`. Only
+`oshi-core-ffm` (25), `oshi-metrics` (17), and `oshi-benchmark` (25) get modern Java in main
+sources. Agents get this wrong constantly.
+
+**Their `src/test` compiles at `release 17`**, set by `maven.compiler.testRelease` in the root
+`pom.xml`. Test classes are never published, so the Java 8 guarantee to consumers does not reach
+them. Use text blocks for captured command or file output, `Files.writeString` over
+`Files.write(path, s.getBytes(UTF_8))`, and `Stream.toList()`; `var` is fine and is already the
+house style in `oshi-core-ffm`. Two cautions:
+
+- **NullAway runs at WARN on test sources, not ERROR.** Compiling tests at 17 put them on the module
+  path, which brought `module-info.java`'s `@NullMarked` into scope for test packages for the first
+  time and surfaced 178 pre-existing findings across 41 files. Do not add to them: new test code
+  should be NullAway-clean, and the severity goes back to ERROR once the backlog is drained.
+- **17 is a ceiling.** It is exactly the lowest JDK running tests in CI — AppVeyor Windows and
+  Solaris SPARC, both with no headroom. Do not raise it without moving those first.
+- **Do not sweep `Arrays.asList` to `List.of`.** `List.of` rejects nulls and is immutable, and
+  fixtures here model real-world output where a null is sometimes deliberate. Prefer `List.of` in
+  new code; leave working call sites alone.
+
+Text blocks strip incidental leading and trailing whitespace, and spotless applies
+`trimTrailingWhitespace` to Java sources, so a fixture whose real output carries trailing spaces or
+tab alignment needs explicit `\s` or `\t` escapes. Converting a fixture is a judgment call, never a
+find-and-replace — and not every fixture wants one. `FileUtilTest.testReadProcIo` deliberately keeps
+generating its file body from the map it asserts against, because a text block there would duplicate
+the data.
 
 **Banned APIs** (`config/forbidden-apis.txt` and friends, enforced by `forbiddenapis:check`):
 

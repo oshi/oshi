@@ -448,14 +448,11 @@ class OperatingSystemTest {
             for (OSService svc : services) {
                 assertThat(svc.getName(), is(not(emptyString())));
                 switch (svc.getState()) {
-                    case STOPPED:
-                        stopped++;
-                        break;
-                    case RUNNING:
-                        running++;
-                        break;
-                    default:
-                        break;
+                    case STOPPED -> stopped++;
+                    case RUNNING -> running++;
+                    default -> {
+                        // OTHER is neither counted nor asserted on
+                    }
                 }
             }
             // Should be at least one of each
