@@ -19,5 +19,5 @@ public interface AixLibc extends CLibrary {
      *
      * @return the caller's kernel thread ID.
      */
-    int thread_self();
+    long thread_self();
 }

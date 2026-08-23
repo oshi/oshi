@@ -113,13 +113,17 @@ public final class SolarisLibcFunctions extends PosixLibcFunctions {
             MemoryLayout.sequenceLayout(UTX_USERSIZE, JAVA_BYTE).withName("ut_user"),
             MemoryLayout.sequenceLayout(UTX_IDSIZE, JAVA_BYTE).withName("ut_id"),
             MemoryLayout.sequenceLayout(UTX_LINESIZE, JAVA_BYTE).withName("ut_line"), JAVA_INT.withName("ut_pid"),
-            JAVA_SHORT.withName("ut_type"), MemoryLayout.paddingLayout(6), JAVA_LONG.withName("ut_tv_sec"),
-            JAVA_LONG.withName("ut_tv_usec"), MemoryLayout.paddingLayout(26),
-            MemoryLayout.sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName("ut_host"), MemoryLayout.paddingLayout(5));
+            JAVA_SHORT.withName("ut_type"), MemoryLayout.paddingLayout(6),
+            // nested rather than flattened so the audit can check ut_tv's offset against the header
+            MemoryLayout.structLayout(JAVA_LONG.withName("tv_sec"), JAVA_LONG.withName("tv_usec")).withName("ut_tv"),
+            MemoryLayout.paddingLayout(26), MemoryLayout.sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName("ut_host"),
+            MemoryLayout.paddingLayout(5));
 
     private static final VarHandle UTMPX_TYPE = UTMPX_LAYOUT.varHandle(PathElement.groupElement("ut_type"));
-    private static final VarHandle UTMPX_TV_SEC = UTMPX_LAYOUT.varHandle(PathElement.groupElement("ut_tv_sec"));
-    private static final VarHandle UTMPX_TV_USEC = UTMPX_LAYOUT.varHandle(PathElement.groupElement("ut_tv_usec"));
+    private static final VarHandle UTMPX_TV_SEC = UTMPX_LAYOUT.varHandle(PathElement.groupElement("ut_tv"),
+            PathElement.groupElement("tv_sec"));
+    private static final VarHandle UTMPX_TV_USEC = UTMPX_LAYOUT.varHandle(PathElement.groupElement("ut_tv"),
+            PathElement.groupElement("tv_usec"));
 
     private static final long UTMPX_USER_OFFSET = UTMPX_LAYOUT.byteOffset(PathElement.groupElement("ut_user"));
     private static final long UTMPX_LINE_OFFSET = UTMPX_LAYOUT.byteOffset(PathElement.groupElement("ut_line"));
