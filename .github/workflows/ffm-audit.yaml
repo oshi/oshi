@@ -71,3 +71,94 @@ jobs:
           name: ffm-audit-windows
           path: ${{ runner.temp }}/ffm-audit
           if-no-files-found: warn
+
+  # The Unix variants have far less struct surface than the three platforms above -- FreeBSD 2
+  # layouts, OpenBSD 1, Solaris 4, and the two in the shared oshi.ffm.platform.unix package -- but
+  # they are the layouts nobody can eyeball, so they are exactly the ones worth compiling.
+  #
+  # These VMs need no JDK: the audit is python plus the base system's compiler and headers.
+  #
+  # AIX and DragonFly BSD are audited by hand on the GCC compile farm instead. Neither declares a
+  # struct layout of its own, and neither has a VM image here.
+  freebsd:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit FreeBSD bindings
+        uses: vmactions/freebsd-vm@83b151f58c6047089f4c80eb5ba2039d158ce093 # v1
+        with:
+          disable-cache: true
+          usesh: true
+          copyback: true
+          prepare: |
+            pkg install -y python3
+          run: |
+            python3 .github/ffm-audit/audit.py --platform freebsd --toolchain clang \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/freebsd/**/*.java" \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/*.java" \
+              --workdir ffm-audit-work
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffm-audit-freebsd
+          path: ffm-audit-work
+          if-no-files-found: warn
+
+  openbsd:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit OpenBSD bindings
+        uses: vmactions/openbsd-vm@e6c68b637a12e83519688d115d57d5b0b53923cd # v1
+        with:
+          release: "7.9"
+          usesh: false
+          mem: 2048
+          copyback: true
+          cache-after-prepare: true
+          prepare: |
+            pkg_add python%3
+          run: |
+            python3 .github/ffm-audit/audit.py --platform openbsd --toolchain clang \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/openbsd/**/*.java" \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/*.java" \
+              --workdir ffm-audit-work
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffm-audit-openbsd
+          path: ffm-audit-work
+          if-no-files-found: warn
+
+  solaris:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit Solaris bindings
+        uses: vmactions/openindiana-vm@52f16d4534fe3edd9d9621621c238398d4d2a698 # v1
+        with:
+          mem: 4096
+          cpu: 2
+          disable-cache: true
+          copyback: true
+          prepare: |
+            pkg install gcc-14 || true
+          run: |
+            PATH=/usr/gcc/14/bin:$PATH
+            export PATH
+            python3 .github/ffm-audit/audit.py --platform solaris --toolchain gcc \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/solaris/**/*.java" \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/*.java" \
+              --workdir ffm-audit-work
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffm-audit-solaris
+          path: ffm-audit-work
+          if-no-files-found: warn
