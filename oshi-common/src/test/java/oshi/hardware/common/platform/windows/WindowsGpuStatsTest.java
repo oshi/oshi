@@ -165,12 +165,7 @@ class WindowsGpuStatsTest {
         }
 
         StubWindowsGpuStats withLhmSensor(String sensorType, String sensorName, double value) {
-            FakeSensorResult result = lhmSensors.get(sensorType);
-            if (result == null) {
-                result = new FakeSensorResult();
-                lhmSensors.put(sensorType, result);
-            }
-            result.add(sensorName, value);
+            lhmSensors.computeIfAbsent(sensorType, k -> new FakeSensorResult()).add(sensorName, value);
             return this;
         }
 

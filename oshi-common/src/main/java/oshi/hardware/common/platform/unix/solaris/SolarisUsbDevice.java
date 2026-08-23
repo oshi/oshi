@@ -79,7 +79,7 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
             // Node 0x... identifies start of a new tree
             if (line.contains("Node 0x")) {
                 // Remove indent for key
-                key = line.replaceFirst("^\\s*", "");
+                key = ParseUtil.trimLeadingWhitespace(line);
                 // Calculate indent and store as last parent at this depth
                 int depth = line.length() - key.length();
                 // Store first indent for future use

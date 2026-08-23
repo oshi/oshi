@@ -75,13 +75,14 @@ public final class Disklabel {
         for (String line : disklabelLines) {
             if (line.contains(TOTAL_MARKER)) {
                 // Parse as long to avoid int overflow for disks larger than ~2 TiB at 512-byte sectors.
-                totalSectors = ParseUtil.parseLongOrDefault(line.split(TOTAL_MARKER, -1)[1].trim(), 1L);
+                totalSectors = ParseUtil.parseLongOrDefault(ParseUtil.getTextAfterString(line, TOTAL_MARKER).trim(),
+                        1L);
             } else if (line.contains(BPS_MARKER)) {
                 bytesPerSector = ParseUtil.getFirstIntValue(line);
             } else if (line.contains(LABEL_MARKER)) {
-                label = line.split(LABEL_MARKER, -1)[1].trim();
+                label = ParseUtil.getTextAfterString(line, LABEL_MARKER).trim();
             } else if (line.contains(DUID_MARKER)) {
-                duid = line.split(DUID_MARKER, -1)[1].trim();
+                duid = ParseUtil.getTextAfterString(line, DUID_MARKER).trim();
             }
             if (line.trim().indexOf(':') == 1) {
                 // Partition rows have a single letter followed by a colon:

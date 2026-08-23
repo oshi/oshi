@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.util.Constants;
 import oshi.util.ExceptionUtil;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
@@ -186,7 +187,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 case "model name":
                 case "processor": // some ARM chips
                     // Ignore processor number
-                    if (!splitLine[1].matches("\\d+")) {
+                    if (!Constants.DIGITS.matcher(splitLine[1]).matches()) {
                         name = splitLine[1];
                     }
                     break;
@@ -754,7 +755,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 marker = "ID:";
                 procInfo = true;
             } else if (procInfo && checkLine.contains(marker)) {
-                return checkLine.split(marker, -1)[1].trim();
+                return ParseUtil.getTextAfterString(checkLine, marker).trim();
             }
         }
         // If we've gotten this far, dmidecode failed. Try cpuid.

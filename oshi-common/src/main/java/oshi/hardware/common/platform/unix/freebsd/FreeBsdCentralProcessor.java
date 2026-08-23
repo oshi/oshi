@@ -494,10 +494,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 marker = "ID:";
                 procInfo = true;
             } else if (procInfo && checkLine.contains(marker)) {
-                String[] parts = checkLine.split(marker, -1);
-                if (parts.length > 1) {
-                    return parts[1].trim();
-                }
+                return ParseUtil.getTextAfterString(checkLine, marker).trim();
             }
         }
         // If we've gotten this far, dmidecode failed. Used the passed-in values

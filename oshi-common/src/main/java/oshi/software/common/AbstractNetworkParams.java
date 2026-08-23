@@ -99,7 +99,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
         for (int i = 0; i < resolv.size() && servers.size() < maxNameServer; i++) {
             String line = resolv.get(i);
             if (line.startsWith(key)) {
-                String value = line.substring(key.length()).replaceFirst("^[ \t]+", "");
+                String value = ParseUtil.trimLeadingWhitespace(line.substring(key.length()));
                 if (!value.isEmpty() && value.charAt(0) != '#' && value.charAt(0) != ';') {
                     String val = SERVER_VALUE_DELIM.split(value, 2)[0];
                     servers.add(val);
@@ -118,7 +118,7 @@ public abstract class AbstractNetworkParams implements NetworkParams {
      */
     protected static String searchGateway(List<String> lines) {
         for (String line : lines) {
-            String leftTrimmed = line.replaceFirst("^\\s+", "");
+            String leftTrimmed = ParseUtil.trimLeadingWhitespace(line);
             if (leftTrimmed.startsWith("gateway:")) {
                 String[] split = ParseUtil.whitespaces.split(leftTrimmed, -1);
                 if (split.length < 2) {

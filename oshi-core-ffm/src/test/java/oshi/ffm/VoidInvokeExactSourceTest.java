@@ -50,6 +50,9 @@ class VoidInvokeExactSourceTest {
     // run(OrLog|Silently)(() -> ... invokeExact with no '{' before invokeExact is an expression lambda -- the bug.
     // Scanned against whole-file content, so a lambda wrapped across lines is still caught. [^{};]* stays within the
     // single statement (no brace/semicolon crossing) to avoid matching an unrelated later invokeExact.
+    /** Collapses a matched lambda onto one line for the failure message. */
+    private static final Pattern WHITESPACE_RUN = Pattern.compile("\\s+");
+
     private static final Pattern EXPRESSION_LAMBDA_INVOKE_EXACT = Pattern
             .compile("run(?:OrLog|Silently)\\(\\(\\)\\s*->[^{};]*invokeExact");
 
@@ -66,7 +69,7 @@ class VoidInvokeExactSourceTest {
                     Matcher matcher = EXPRESSION_LAMBDA_INVOKE_EXACT.matcher(content);
                     while (matcher.find()) {
                         long line = content.substring(0, matcher.start()).chars().filter(c -> c == '\n').count() + 1;
-                        offenders.add(p + ":" + line + "  " + matcher.group().replaceAll("\\s+", " "));
+                        offenders.add(p + ":" + line + "  " + WHITESPACE_RUN.matcher(matcher.group()).replaceAll(" "));
                     }
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);

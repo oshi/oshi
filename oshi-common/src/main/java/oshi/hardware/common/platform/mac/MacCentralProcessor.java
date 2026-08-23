@@ -950,12 +950,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, List<String>> groups = new TreeMap<>();
         for (String channel : CpuFrequencyResidency.orderChannels(channelNames)) {
             int rank = CpuFrequencyResidency.prefixRank(channel);
-            List<String> group = groups.get(rank);
-            if (group == null) {
-                group = new ArrayList<>();
-                groups.put(rank, group);
-            }
-            group.add(channel);
+            groups.computeIfAbsent(rank, k -> new ArrayList<>()).add(channel);
         }
         return groups;
     }
@@ -970,12 +965,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, List<PhysicalProcessor>> groups = new TreeMap<>();
         for (PhysicalProcessor processor : getPhysicalProcessors()) {
             int efficiency = Math.max(processor.getEfficiency(), 0);
-            List<PhysicalProcessor> group = groups.get(efficiency);
-            if (group == null) {
-                group = new ArrayList<>();
-                groups.put(efficiency, group);
-            }
-            group.add(processor);
+            groups.computeIfAbsent(efficiency, k -> new ArrayList<>()).add(processor);
         }
         for (List<PhysicalProcessor> group : groups.values()) {
             Collections.sort(group,
