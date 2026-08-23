@@ -125,14 +125,15 @@ def main():
         def stem(n):
             return re.sub(r'^(?:_+|tag)', '', n).upper()
 
-        ctype_owner = {stem(mapping[n].split()[-1]): n for n in mapping}
+        ctype_owners = {}
+        for n in mapping:
+            ctype_owners.setdefault(stem(mapping[n].split()[-1]), []).append(n)
         for m in re.finditer(tc['no_member'], slog):
-            owner, fld = stem(m.group('type')), m.group('member')
-            if owner in ctype_owner:
-                drop.add((ctype_owner[owner], fld))
+            for owner in ctype_owners.get(stem(m.group('type')), ()):
+                drop.add((owner, m.group('member')))
         for typ in re.findall(tc['unknown_type'], slog) + re.findall(tc['undeclared'], slog):
-            if stem(typ) in ctype_owner:
-                drop.add(ctype_owner[stem(typ)])
+            for owner in ctype_owners.get(stem(typ), ()):
+                drop.add(owner)
         drop -= sskip
         if not drop:
             break
@@ -158,13 +159,22 @@ def main():
             sfindings.add('%s -- header says %s, layout says %s'
                           % (labels[int(n.group(1))], c.group(1), c.group(2)))
     sfindings = sorted(sfindings)
-    unmapped = sorted({n for (f, n) in sizes if not gen.ctype_for({'file': f, 'name': n}, mapping)})
+    def ident(f, n):
+        """How this layout would have to be written in structs/<platform>.txt to be mapped."""
+        return '%s.%s' % (os.path.basename(f).replace('.java', ''), n) if names.get(n, 1) > 1 else n
+
+    names = {}
+    for (_f, n) in sizes:
+        names[n] = names.get(n, 0) + 1
+    unmapped = sorted(ident(f, n) for (f, n) in sizes
+                      if not gen.ctype_for({'file': f, 'name': n}, mapping))
     print(f'{args.platform}: {len(structs)} struct layouts, {schecked} checked against the SDK '
           f'({sfields} field offsets), {len(unmapped)} unmapped, {len(unresolved)} unresolvable', flush=True)
     if unmapped:
         print('  unmapped (add to structs/%s.txt to check): %s' % (args.platform, ', '.join(unmapped)))
     if unresolved:
-        print('  unresolvable layout arithmetic: ' + ', '.join(sorted(n for (_f, n) in unresolved)))
+        print('  unresolvable layout arithmetic: '
+              + ', '.join(sorted(ident(f, n) for (f, n) in unresolved)))
     if sskip:
         layouts = sorted(x for x in sskip if isinstance(x, str))
         fields = sorted('%s.%s' % x for x in sskip if isinstance(x, tuple))

@@ -265,32 +265,3 @@ def emit_structs(structs, mapping, sizes, offsets, skip):
                        '// FFMAUDIT %s: %s offset' % (ctype, field, off, ident, field, mkey, field))
         out.append('')
     return '\n'.join(out), checked, fields
-
-
-DUMP_PRE = """
-// Generated: prints the platform's real size and field offsets for each mapped layout, so a
-// mismatch can be corrected against the header rather than guessed at.
-%s
-#include <stddef.h>
-extern "C" int printf(const char *, ...);
-int main() {
-"""
-
-
-def emit_dump(structs, mapping, offsets, skip):
-    """A program that prints sizeof and offsetof for every mapped layout, as the header sees them."""
-    out = []
-    for st in sorted(structs, key=lambda x: (x['name'], x['file'])):
-        name, key = st['name'], (st['file'], st['name'])
-        ctype = ctype_for(st, mapping)
-        if not ctype or name in skip:
-            continue
-        out.append('  printf("%-24s size %6lu\\n", "' + name + '", (unsigned long)sizeof(' + ctype + '));')
-        for field, _ in sorted(offsets.get(key, {}).items(), key=lambda kv: kv[1]):
-            if (name, field) in skip:
-                continue
-            out.append('  printf("  %-22s %6lu\\n", "' + field + '", '
-                       '(unsigned long)offsetof(' + ctype + ', ' + field + '));')
-    out.append('  return 0;')
-    out.append('}')
-    return '\n'.join(out)
