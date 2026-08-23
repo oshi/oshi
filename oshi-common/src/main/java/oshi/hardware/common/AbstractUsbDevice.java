@@ -88,35 +88,15 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         return this.connectedDevices;
     }
 
-    @Override
-    public int compareTo(UsbDevice usb) {
-        // Naturally sort by device name, then break ties on the identity fields so that the ordering is total and
-        // compareTo() returns zero only for AbstractUsbDevice instances that equals() also considers equal. A foreign
-        // UsbDevice carrying the same values still compares zero without being equal; equals() cannot widen to match
-        // without becoming asymmetric.
-        int cmp = getName().compareTo(usb.getName());
-        if (cmp == 0) {
-            cmp = getUniqueDeviceId().compareTo(usb.getUniqueDeviceId());
-        }
-        if (cmp == 0) {
-            cmp = getVendorId().compareTo(usb.getVendorId());
-        }
-        if (cmp == 0) {
-            cmp = getProductId().compareTo(usb.getProductId());
-        }
-        if (cmp == 0) {
-            cmp = getSerialNumber().compareTo(usb.getSerialNumber());
-        }
-        return cmp;
-    }
-
     /**
      * Compares this device to another for equality. Two devices are equal when their name, unique device ID, vendor ID,
-     * product ID and serial number all match, which are the same fields {@link #compareTo(UsbDevice)} orders by.
+     * product ID and serial number all match, which are the same fields {@link UsbDevice#compareTo(UsbDevice)} orders
+     * by.
      * <p>
      * Only another {@link AbstractUsbDevice} can be equal to this one. Widening that to any {@link UsbDevice} would
      * make equality asymmetric, because a foreign implementation carrying the same values is free to keep the
-     * identity-based {@code equals} it inherits from {@link Object}.
+     * identity-based {@code equals} it inherits from {@link Object}. Ordering has no such limitation, because
+     * {@link UsbDevice} supplies it to every implementation.
      *
      * @param obj the object to compare with
      * @return {@code true} if the two devices carry the same identity fields

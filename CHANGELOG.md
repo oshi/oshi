@@ -11,7 +11,7 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 ##### Behavior Changes
 
 * [#3705](https://github.com/oshi/oshi/pull/3705): `OSDesktopWindow.getLocAndSize()` returns a copy of the window's `Rectangle` and the constructor copies the one it is given, so the class honors the immutability its documentation promises. `ApplicationInfo.getAdditionalInfo()` returns an unmodifiable map. Code that wrote through either return value silently mutated OSHI's own state; it now has no effect, or throws `UnsupportedOperationException` for the map - [@dbwiddis](https://github.com/dbwiddis).
-* [#3705](https://github.com/oshi/oshi/pull/3705): `UsbDevice.compareTo()` breaks ties on the unique device ID, vendor ID, product ID and serial number after comparing names, and `AbstractUsbDevice` implements `equals()` and `hashCode()` over the same fields. Two distinct devices sharing a name previously compared equal, so a `TreeSet` or `SortedSet` of them kept only one - [@dbwiddis](https://github.com/dbwiddis).
+* [#3705](https://github.com/oshi/oshi/pull/3705): `UsbDevice.compareTo()` breaks ties on the unique device ID, vendor ID, product ID and serial number after comparing names, and `AbstractUsbDevice` implements `equals()` and `hashCode()` over the same fields. Two distinct devices sharing a name previously compared equal, so a `TreeSet` or `SortedSet` of them kept only one. The ordering is now a default method on `UsbDevice`, so every implementation shares it - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

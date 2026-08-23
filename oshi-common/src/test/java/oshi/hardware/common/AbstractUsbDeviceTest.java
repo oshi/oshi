@@ -6,6 +6,7 @@ package oshi.hardware.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
@@ -94,8 +95,24 @@ class AbstractUsbDeviceTest {
         UsbDevice foreign = new ForeignUsbDevice();
         assertThat(device.equals(foreign), is(false));
         assertThat(foreign.equals(device), is(false));
-        // compareTo still accepts it, and reports no ordering difference; that gap is documented on equals
+        // Ordering, unlike equality, is shared: the foreign device inherits UsbDevice's default compareTo
         assertThat(device.compareTo(foreign), is(0));
+        assertThat(foreign.compareTo(device), is(0));
+    }
+
+    @Test
+    void testOrderingIsSignSymmetricAcrossImplementations() {
+        // Same name, different identity fields: the tie-breakers must agree on a direction from both sides
+        AbstractUsbDevice ours = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN9", "USB9",
+                Collections.emptyList()) {
+        };
+        UsbDevice foreign = new ForeignUsbDevice(); // name "Mouse", uniqueDeviceId "USB1"
+        assertThat(Integer.signum(ours.compareTo(foreign)), is(-Integer.signum(foreign.compareTo(ours))));
+        assertThat(ours.compareTo(foreign), is(greaterThan(0)));
+
+        // And a SortedSet keeps the same elements whichever order they go in
+        assertThat(new TreeSet<>(List.of(ours, foreign)), hasSize(2));
+        assertThat(new TreeSet<>(List.of(foreign, ours)), hasSize(2));
     }
 
     @Test
@@ -259,9 +276,6 @@ class AbstractUsbDeviceTest {
             return Collections.emptyList();
         }
 
-        @Override
-        public int compareTo(UsbDevice o) {
-            return getName().compareTo(o.getName());
-        }
+        // No compareTo override: the ordering comes from UsbDevice's default method, which is the point
     }
 }
