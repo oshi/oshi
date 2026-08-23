@@ -144,7 +144,7 @@ def main():
     # says which check is on that line.
     labels = {}
     for n, l in enumerate(open(ssrc).read().splitlines(), 1):
-        lab = re.search(r'// FFMAUDIT ([A-Za-z0-9_]+: .+?)\s*$', l)
+        lab = re.search(r'// FFMAUDIT ([A-Za-z0-9_.]+: .+?)\s*$', l)
         if lab:
             labels[n] = lab.group(1)
     sfindings, failed_lines = set(), set()

@@ -226,10 +226,22 @@ template <audit_size_t N> struct cmp<N, N> { typedef int ok; };
 '''
 
 
+def map_key(st, mapping):
+    """The mapping file's key for this layout: File.NAME where that is how it is written, else NAME.
+
+    Two files can declare a layout called LAYOUT, so the key rather than the simple name is what
+    identifies a layout in a finding, in the skip set, and in the audit's output.
+    """
+    qualified = '%s.%s' % (os.path.basename(st['file']).replace('.java', ''), st['name'])
+    if qualified in mapping:
+        return qualified
+    return st['name'] if st['name'] in mapping else None
+
+
 def ctype_for(st, mapping):
     """The mapped C type, looked up by simple name or by File.NAME when a name is not unique."""
-    qualified = '%s.%s' % (os.path.basename(st['file']).replace('.java', ''), st['name'])
-    return mapping.get(qualified) or mapping.get(st['name'])
+    key = map_key(st, mapping)
+    return mapping[key] if key else None
 
 
 def emit_structs(structs, mapping, sizes, offsets, skip):
@@ -238,18 +250,19 @@ def emit_structs(structs, mapping, sizes, offsets, skip):
     checked = fields = 0
     for s in sorted(structs, key=lambda x: (x['name'], x['file'])):
         name, key = s['name'], (s['file'], s['name'])
-        ctype = ctype_for(s, mapping)
-        if not ctype or name in skip or key not in sizes:
+        ctype, mkey = ctype_for(s, mapping), map_key(s, mapping)
+        if not ctype or mkey in skip or key not in sizes:
             continue
         checked += 1
+        ident = mkey.replace('.', '_')
         out.append('typedef cmp<sizeof(%s), %dULL>::ok %s_size; // FFMAUDIT %s: size'
-                   % (ctype, sizes[key], name, name))
+                   % (ctype, sizes[key], ident, mkey))
         for field, off in sorted(offsets[key].items(), key=lambda kv: kv[1]):
-            if (name, field) in skip:
+            if (mkey, field) in skip:
                 continue
             fields += 1
             out.append('typedef cmp<offsetof(%s, %s), %dULL>::ok %s_%s_off; '
-                       '// FFMAUDIT %s: %s offset' % (ctype, field, off, name, field, name, field))
+                       '// FFMAUDIT %s: %s offset' % (ctype, field, off, ident, field, mkey, field))
         out.append('')
     return '\n'.join(out), checked, fields
 
