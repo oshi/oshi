@@ -14,16 +14,30 @@ import argparse, glob, json, os, re, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # compiler, syntax-only flags, and how each one words the two diagnostics we harvest
+# Each compiler words the diagnostics we harvest differently, including the order of the two names
+# in a missing-member message and, for gcc, the quote characters around them.
+Q = r"[\u2018']"      # opening quote: gcc uses a curly one unless the locale forbids it
+QE = r"[\u2019']"     # closing quote
 TOOLCHAINS = {
     'clang': dict(
         cmd=['clang++', '-std=c++17', '-fsyntax-only', '-ferror-limit=0'],
-        undeclared=r"use of undeclared identifier '([A-Za-z0-9_]+)'"),
+        undeclared=r"use of undeclared identifier '([A-Za-z0-9_]+)'",
+        no_member=r"no member named '(?P<member>\w+)' in '(?:struct )?(?P<type>\w+)'",
+        unknown_type=r"(?:incomplete type|unknown type name) '(?:struct )?(\w+)'"),
     'gcc': dict(
         cmd=['g++', '-std=c++17', '-fsyntax-only', '-fmax-errors=0'],
-        undeclared=r"error: '([A-Za-z0-9_]+)' was not declared"),
+        undeclared=r"error: " + Q + r"([A-Za-z0-9_]+)" + QE + r" (?:was|has) not (?:been )?declared",
+        # gcc names the type first: 'struct statvfs' has no member named '_f_spare'
+        no_member=Q + r"(?:struct |union )?(?P<type>\w+)" + QE + r" has no member named " + Q
+                  + r"(?P<member>\w+)" + QE,
+        # covers both "invalid use of incomplete type 'struct x'" and the sizeof wording
+        unknown_type=r"incomplete type " + Q + r"(?:struct |union )?(\w+)" + QE),
     'msvc': dict(
         cmd=['cl', '/std:c++17', '/Zs', '/nologo', '/D_CRT_SECURE_NO_WARNINGS'],
-        undeclared=r"error C2065: '([A-Za-z0-9_]+)': undeclared identifier"),
+        undeclared=r"error C2065: '([A-Za-z0-9_]+)': undeclared identifier",
+        # C2039: 'ut_pad': is not a member of 'utmpx'
+        no_member=r"error C2039: '(?P<member>\w+)': is not a member of '(?:struct )?(?P<type>\w+)'",
+        unknown_type=r"error C2027: use of undefined type '(?:struct )?(\w+)'"),
 }
 
 
@@ -107,10 +121,11 @@ def main():
         # a field the SDK does not declare drops just that field; an unknown type drops the layout
         drop = set()
         ctype_owner = {mapping[n].split()[-1]: n for n in mapping}
-        for fld, owner in re.findall(r"no member named '(\w+)' in '(?:struct )?(\w+)'", slog):
+        for m in re.finditer(tc['no_member'], slog):
+            owner, fld = m.group('type'), m.group('member')
             if owner in ctype_owner:
                 drop.add((ctype_owner[owner], fld))
-        for typ in re.findall(r"(?:incomplete type|unknown type name|undeclared identifier) '(?:struct )?(\w+)'", slog):
+        for typ in re.findall(tc['unknown_type'], slog) + re.findall(tc['undeclared'], slog):
             if typ in ctype_owner:
                 drop.add(ctype_owner[typ])
         drop -= sskip
@@ -118,19 +133,25 @@ def main():
             break
         sskip |= drop
     open(os.path.join(work, 'structs.log'), 'w').write(slog)
-    # pair each failure with both numbers: cmp<actual, what OSHI's layout says>
-    sfindings = set()
-    lines = slog.splitlines()
-    for i, l in enumerate(lines):
-        c = re.search(r"undefined template 'cmp<(\d+), (\d+)>'", l)
-        if not c:
+    # Pair each failure with both numbers: cmp<what the header says, what OSHI's layout says>. The
+    # three compilers word the "undefined template" diagnostic differently and MSVC does not echo the
+    # offending source line at all, but all of them name the file and line -- and the generated source
+    # says which check is on that line.
+    labels = {}
+    for n, l in enumerate(open(ssrc).read().splitlines(), 1):
+        lab = re.search(r'// FFMAUDIT ([A-Za-z0-9_]+: .+?)\s*$', l)
+        if lab:
+            labels[n] = lab.group(1)
+    sfindings, failed_lines = set(), set()
+    for l in slog.splitlines():
+        n = re.search(r'structs\.cpp[:(](\d+)', l)
+        if not n or int(n.group(1)) not in labels:
             continue
-        for j in range(i, min(i + 4, len(lines))):
-            lab = re.search(r'FFMAUDIT ([A-Za-z0-9_]+: [^\n]+?)\s*$', lines[j])
-            if lab:
-                sfindings.add('%s -- header says %s, layout says %s'
-                              % (lab.group(1), c.group(1), c.group(2)))
-                break
+        failed_lines.add(int(n.group(1)))
+        c = re.search(r'cmp<\s*(\d+)\s*,\s*(\d+)\s*>', l)
+        if c:
+            sfindings.add('%s -- header says %s, layout says %s'
+                          % (labels[int(n.group(1))], c.group(1), c.group(2)))
     sfindings = sorted(sfindings)
     unmapped = sorted({n for (f, n) in sizes if not gen.ctype_for({'file': f, 'name': n}, mapping)})
     print(f'{args.platform}: {len(structs)} struct layouts, {schecked} checked against the SDK '
@@ -150,16 +171,26 @@ def main():
     # the harness itself is broken on this platform, and must not be mistaken for a clean run. Both
     # passes need this: a structs.cpp that fails to compile for an unexpected reason produces no
     # cmp<> findings at all, which would otherwise read as a clean struct audit.
-    def unexpected(text, recognized):
-        return [l for l in text.splitlines()
-                if re.search(r'\berror\b', l) and not re.search(tc['undeclared'], l)
-                and not any(re.search(p, l) for p in recognized)]
+    def unexpected(text, recognized, ok_lines=()):
+        out = []
+        for l in text.splitlines():
+            if not re.search(r'\berror\b', l) or re.search(tc['undeclared'], l):
+                continue
+            if re.match(r'\d+ errors? generated\.$', l.strip()):
+                continue      # clang's tally of the diagnostics above, not a diagnostic itself
+            if any(re.search(p, l) for p in recognized):
+                continue
+            n = re.search(r'\.cpp[:(](\d+)', l)
+            if n and int(n.group(1)) in ok_lines:
+                continue      # a follow-on diagnostic on a line already counted as a finding
+            out.append(l)
+        return out
 
     # signature pass: a failed static_assert carries the FFMAUDIT message on the diagnostic line
     other = unexpected(log, [r'FFMAUDIT'])
-    # struct pass: a mismatch is an undefined cmp<actual, expected>; the rest are the skip patterns
-    other += unexpected(slog, [r"undefined template 'cmp<", r'no member named',
-                               r'incomplete type', r'unknown type name'])
+    # struct pass: a mismatch is an undefined cmp<header value, layout value>; the rest are the skips
+    other += unexpected(slog, [r'cmp<\s*\d+\s*,\s*\d+\s*>', tc['no_member'], tc['unknown_type']],
+                        failed_lines)
 
     undeclared_only = skip - exceptions
     print(f'{args.platform}: checked {checked} bindings, {len(undeclared_only)} with no SDK '

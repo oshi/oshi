@@ -209,10 +209,14 @@ def struct_sizes(structs):
 
 
 STRUCT_PRE = r'''
+#include <stddef.h>                     // offsetof, which every toolchain spells the same way
+
 // A mismatch instantiates cmp<actual, expected>, so the compiler prints both numbers in its note
 // rather than only the value OSHI claimed.
-template <unsigned long Actual, unsigned long Expected> struct cmp;
-template <unsigned long N> struct cmp<N, N> { typedef int ok; };
+// size_t, not unsigned long: unsigned long is 32 bits on Windows, so sizeof() would narrow
+typedef decltype(sizeof(0)) audit_size_t;
+template <audit_size_t Actual, audit_size_t Expected> struct cmp;
+template <audit_size_t N> struct cmp<N, N> { typedef int ok; };
 
 // Generated: checks OSHI's FFM struct layouts against the platform's real struct definitions.
 // FFM structLayout is packed exactly as written -- padding is explicit, never inferred -- so each
@@ -238,13 +242,13 @@ def emit_structs(structs, mapping, sizes, offsets, skip):
         if not ctype or name in skip or key not in sizes:
             continue
         checked += 1
-        out.append('typedef cmp<sizeof(%s), %dUL>::ok %s_size; // FFMAUDIT %s: size'
+        out.append('typedef cmp<sizeof(%s), %dULL>::ok %s_size; // FFMAUDIT %s: size'
                    % (ctype, sizes[key], name, name))
         for field, off in sorted(offsets[key].items(), key=lambda kv: kv[1]):
             if (name, field) in skip:
                 continue
             fields += 1
-            out.append('typedef cmp<__builtin_offsetof(%s, %s), %dUL>::ok %s_%s_off; '
+            out.append('typedef cmp<offsetof(%s, %s), %dULL>::ok %s_%s_off; '
                        '// FFMAUDIT %s: %s offset' % (ctype, field, off, name, field, name, field))
         out.append('')
     return '\n'.join(out), checked, fields
@@ -254,6 +258,7 @@ DUMP_PRE = """
 // Generated: prints the platform's real size and field offsets for each mapped layout, so a
 // mismatch can be corrected against the header rather than guessed at.
 %s
+#include <stddef.h>
 extern "C" int printf(const char *, ...);
 int main() {
 """
@@ -272,7 +277,7 @@ def emit_dump(structs, mapping, offsets, skip):
             if (name, field) in skip:
                 continue
             out.append('  printf("  %-22s %6lu\\n", "' + field + '", '
-                       '(unsigned long)__builtin_offsetof(' + ctype + ', ' + field + '));')
+                       '(unsigned long)offsetof(' + ctype + ', ' + field + '));')
     out.append('  return 0;')
     out.append('}')
     return '\n'.join(out)
