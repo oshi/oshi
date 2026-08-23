@@ -100,7 +100,7 @@ jobs:
               --workdir ffm-audit-work
       - name: Upload the generated sources and compiler logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-freebsd
           path: ffm-audit-work
@@ -128,7 +128,7 @@ jobs:
               --workdir ffm-audit-work
       - name: Upload the generated sources and compiler logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-openbsd
           path: ffm-audit-work
@@ -157,7 +157,7 @@ jobs:
               --workdir ffm-audit-work
       - name: Upload the generated sources and compiler logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-solaris
           path: ffm-audit-work
