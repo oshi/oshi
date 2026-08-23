@@ -27,7 +27,7 @@ jobs:
             --cflags "-isysroot $(xcrun --show-sdk-path)"
       - name: Upload the generated sources and compiler logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-mac
           path: ${{ runner.temp }}/ffm-audit
@@ -46,7 +46,7 @@ jobs:
             --workdir "${RUNNER_TEMP}/ffm-audit"
       - name: Upload the generated sources and compiler logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-linux
           path: ${{ runner.temp }}/ffm-audit
@@ -66,7 +66,7 @@ jobs:
             --workdir "%RUNNER_TEMP%\ffm-audit" --cflags "/permissive-"
       - name: Upload the generated sources and compiler logs
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-windows
           path: ${{ runner.temp }}/ffm-audit
