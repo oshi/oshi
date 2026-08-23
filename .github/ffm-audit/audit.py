@@ -132,13 +132,13 @@ def main():
                               % (lab.group(1), c.group(1), c.group(2)))
                 break
     sfindings = sorted(sfindings)
-    unmapped = sorted(n for n in sizes if n not in mapping)
+    unmapped = sorted({n for (f, n) in sizes if not gen.ctype_for({'file': f, 'name': n}, mapping)})
     print(f'{args.platform}: {len(structs)} struct layouts, {schecked} checked against the SDK '
           f'({sfields} field offsets), {len(unmapped)} unmapped, {len(unresolved)} unresolvable', flush=True)
     if unmapped:
         print('  unmapped (add to structs/%s.txt to check): %s' % (args.platform, ', '.join(unmapped)))
     if unresolved:
-        print('  unresolvable layout arithmetic: ' + ', '.join(sorted(unresolved)))
+        print('  unresolvable layout arithmetic: ' + ', '.join(sorted(n for (_f, n) in unresolved)))
     if sskip:
         layouts = sorted(x for x in sskip if isinstance(x, str))
         fields = sorted('%s.%s' % x for x in sskip if isinstance(x, tuple))

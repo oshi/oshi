@@ -1,4 +1,4 @@
-import json, sys, re
+import json, os, sys, re
 
 # layout -> (bytes, is_pointer); None = void
 LAYOUT = {
@@ -129,17 +129,17 @@ def _size_of(expr, sizes, consts=None):
     """Byte size of one struct element, or None if it cannot be resolved yet."""
     consts = consts or {}
     expr = expr.strip()
-    m = re.match(r'(?:MemoryLayout\.)?paddingLayout\(\s*(.+?)\s*\)\s*(?:\.withName\("[^"]*"\))?\s*$', expr, re.S)
+    m = re.match(r'(?:MemoryLayout\s*\.\s*)?paddingLayout\(\s*(.+?)\s*\)\s*(?:\.withName\("[^"]*"\))?\s*$', expr, re.S)
     if m:
         return _int(m.group(1), consts)
-    m = re.match(r'(?:MemoryLayout\.)?sequenceLayout\(\s*(.+?)\s*,\s*(.+?)\s*\)\s*(?:\.withName\("[^"]*"\))?\s*$',
+    m = re.match(r'(?:MemoryLayout\s*\.\s*)?sequenceLayout\(\s*(.+?)\s*,\s*(.+?)\s*\)\s*(?:\.withName\("[^"]*"\))?\s*$',
                  expr, re.S)
     if m:
         cnt = _int(m.group(1), consts)
         inner = _size_of(m.group(2), sizes, consts)
         return None if (cnt is None or inner is None) else cnt * inner
     # an inline anonymous struct/union used as one element
-    m = re.match(r'(?:MemoryLayout\.)?(struct|union)Layout\s*\((.*)\)\s*(?:\.withName\("[^"]*"\))?\s*$',
+    m = re.match(r'(?:MemoryLayout\s*\.\s*)?(struct|union)Layout\s*\((.*)\)\s*(?:\.withName\("[^"]*"\))?\s*$',
                  expr, re.S)
     if m:
         import extract as _x
@@ -164,16 +164,34 @@ def _size_of(expr, sizes, consts=None):
 
 
 def struct_sizes(structs):
-    """Resolve every layout's total size and its named fields' offsets, packed as written."""
-    sizes, offsets, unresolved = {}, {}, set(s['name'] for s in structs)
-    by_name = {s['name']: s for s in structs}
+    """Resolve every layout's total size and its named fields' offsets, packed as written.
+
+    Two files may declare layouts with the same simple name -- ADDRINFO_LAYOUT and UTMPX_LAYOUT each
+    exist for several platforms, and both VariantFFM and GuidFFM call theirs LAYOUT. Sizes are
+    therefore resolved per file, and a nested reference is looked up in its own file first, exactly
+    as Java would resolve it. A name that is ambiguous across files and absent from the referring
+    one is left unresolved rather than silently matched to the wrong struct.
+    """
+    per_file, sizes, offsets = {}, {}, {}
+    unresolved = set((s['file'], s['name']) for s in structs)
+    by_key = {(s['file'], s['name']): s for s in structs}
+    global_names = {}
+    for s in structs:
+        global_names.setdefault(s['name'], set()).add(s['file'])
     for _ in range(8):
         progressed = False
-        for name in sorted(unresolved):
-            s = by_name[name]
+        for key in sorted(unresolved):
+            s = by_key[key]
+            scope = dict(per_file.get(s['file'], {}))
+            # names unique across the whole run are also visible, as a static import would be
+            for nm, files in global_names.items():
+                if nm not in scope and len(files) == 1:
+                    other = (next(iter(files)), nm)
+                    if other in sizes:
+                        scope[nm] = sizes[other]
             off, cur, ok = {}, 0, True
             for e in s['elems']:
-                n = _size_of(e['expr'], sizes, s.get('consts'))
+                n = _size_of(e['expr'], scope, s.get('consts'))
                 if n is None:
                     ok = False
                     break
@@ -181,8 +199,9 @@ def struct_sizes(structs):
                     off[e['name']] = 0 if s.get('union') else cur
                 cur = max(cur, n) if s.get('union') else cur + n
             if ok:
-                sizes[name], offsets[name] = cur, off
-                unresolved.discard(name)
+                sizes[key], offsets[key] = cur, off
+                per_file.setdefault(s['file'], {})[s['name']] = cur
+                unresolved.discard(key)
                 progressed = True
         if not progressed:
             break
@@ -203,19 +222,25 @@ template <unsigned long N> struct cmp<N, N> { typedef int ok; };
 '''
 
 
+def ctype_for(st, mapping):
+    """The mapped C type, looked up by simple name or by File.NAME when a name is not unique."""
+    qualified = '%s.%s' % (os.path.basename(st['file']).replace('.java', ''), st['name'])
+    return mapping.get(qualified) or mapping.get(st['name'])
+
+
 def emit_structs(structs, mapping, sizes, offsets, skip):
     """One static_assert per struct size and per named field offset, for mapped layouts only."""
     out = [STRUCT_PRE]
     checked = fields = 0
-    for s in sorted(structs, key=lambda x: x['name']):
-        name = s['name']
-        ctype = mapping.get(name)
-        if not ctype or name in skip or name not in sizes:
+    for s in sorted(structs, key=lambda x: (x['name'], x['file'])):
+        name, key = s['name'], (s['file'], s['name'])
+        ctype = ctype_for(s, mapping)
+        if not ctype or name in skip or key not in sizes:
             continue
         checked += 1
         out.append('typedef cmp<sizeof(%s), %dUL>::ok %s_size; // FFMAUDIT %s: size'
-                   % (ctype, sizes[name], name, name))
-        for field, off in sorted(offsets[name].items(), key=lambda kv: kv[1]):
+                   % (ctype, sizes[key], name, name))
+        for field, off in sorted(offsets[key].items(), key=lambda kv: kv[1]):
             if (name, field) in skip:
                 continue
             fields += 1
@@ -237,13 +262,13 @@ int main() {
 def emit_dump(structs, mapping, offsets, skip):
     """A program that prints sizeof and offsetof for every mapped layout, as the header sees them."""
     out = []
-    for st in sorted(structs, key=lambda x: x['name']):
-        name = st['name']
-        ctype = mapping.get(name)
+    for st in sorted(structs, key=lambda x: (x['name'], x['file'])):
+        name, key = st['name'], (st['file'], st['name'])
+        ctype = ctype_for(st, mapping)
         if not ctype or name in skip:
             continue
         out.append('  printf("%-24s size %6lu\\n", "' + name + '", (unsigned long)sizeof(' + ctype + '));')
-        for field, _ in sorted(offsets.get(name, {}).items(), key=lambda kv: kv[1]):
+        for field, _ in sorted(offsets.get(key, {}).items(), key=lambda kv: kv[1]):
             if (name, field) in skip:
                 continue
             out.append('  printf("  %-22s %6lu\\n", "' + field + '", '
