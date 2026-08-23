@@ -58,11 +58,11 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (String checkLine : lines) {
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(modelMarker)) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  model = checkLine.split(modelMarker, -1)[1].trim();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>                  model = ParseUtil.getTextAfterString(checkLine, modelMarker).trim();
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(serialMarker)) {
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  serial = checkLine.split(serialMarker, -1)[1].trim();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>                  serial = ParseUtil.getTextAfterString(checkLine, serialMarker).trim();
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(uuidMarker)) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  uuid = checkLine.split(uuidMarker, -1)[1].trim();
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>                  uuid = ParseUtil.getTextAfterString(checkLine, uuidMarker).trim();
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>              }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(model, serial, uuid);
@@ -114,7 +114,7 @@
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>         String capacityMarker = <span class="jxr_string">"capacity:"</span>;
 <a class="jxr_linenumber" name="L107" href="#L107">107</a>         <strong class="jxr_keyword">for</strong> (String checkLine : lines) {
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(capacityMarker)) {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.parseHertz(checkLine.split(capacityMarker, -1)[1].trim());
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.parseHertz(ParseUtil.getTextAfterString(checkLine, capacityMarker).trim());
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>             }
 <a class="jxr_linenumber" name="L111" href="#L111">111</a>         }
 <a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">return</strong> -1L;

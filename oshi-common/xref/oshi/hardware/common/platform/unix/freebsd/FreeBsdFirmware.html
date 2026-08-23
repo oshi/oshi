@@ -66,11 +66,11 @@
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>  
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String checkLine : dmidecode) {
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(manufacturerMarker)) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  manufacturer = checkLine.split(manufacturerMarker, -1)[1].trim();
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  manufacturer = ParseUtil.getTextAfterString(checkLine, manufacturerMarker).trim();
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(versionMarker)) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  version = checkLine.split(versionMarker, -1)[1].trim();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  version = ParseUtil.getTextAfterString(checkLine, versionMarker).trim();
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(releaseDateMarker)) {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  releaseDate = checkLine.split(releaseDateMarker, -1)[1].trim();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  releaseDate = ParseUtil.getTextAfterString(checkLine, releaseDateMarker).trim();
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);

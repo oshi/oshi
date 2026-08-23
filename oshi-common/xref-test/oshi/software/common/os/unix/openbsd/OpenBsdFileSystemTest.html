@@ -17,23 +17,23 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.anEmptyMap;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">class</strong> <a name="OpenBsdFileSystemTest" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdFileSystemTest.html#OpenBsdFileSystemTest">OpenBsdFileSystemTest</a> {
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      @Test
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">void</strong> testParseDfInodesTypical() {
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>          List&lt;String&gt; lines = Arrays.asList(
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>                  <span class="jxr_string">"Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on"</span>,
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  <span class="jxr_string">"/dev/sd0a      2149212    908676   1133076    45%    8355  147163     5%   /"</span>,
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>                  <span class="jxr_string">"/dev/sd0e      4050876        36   3848300     0%      10  285108     0%   /home"</span>);
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">class</strong> <a name="OpenBsdFileSystemTest" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdFileSystemTest.html#OpenBsdFileSystemTest">OpenBsdFileSystemTest</a> {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      @Test
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">void</strong> testParseDfInodesTypical() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          List&lt;String&gt; lines = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>                  Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>                  /dev/sd0a      2149212    908676   1133076    45%    8355  147163     5%   /
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  /dev/sd0e      4050876        36   3848300     0%      10  285108     0%   /home
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          Pair&lt;Map&lt;String, Long&gt;, Map&lt;String, Long&gt;&gt; result = OpenBsdFileSystem.parseDfInodes(lines);
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>          Map&lt;String, Long&gt; freeMap = result.getA();
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>          Map&lt;String, Long&gt; usedMap = result.getB();
@@ -53,7 +53,7 @@
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>  
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      @Test
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">void</strong> testParseDfInodesIncludesMfsAndSkipsHeader() {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; lines = Arrays.asList(
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; lines = List.of(
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <span class="jxr_string">"Filesystem  512-blocks      Used     Avail Capacity iused   ifree  %iused  Mounted on"</span>,
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                  <span class="jxr_string">"mfs:12345      1048576    10240   1038336     1%       5   65531     0%   /tmp"</span>);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          Pair&lt;Map&lt;String, Long&gt;, Map&lt;String, Long&gt;&gt; result = OpenBsdFileSystem.parseDfInodes(lines);

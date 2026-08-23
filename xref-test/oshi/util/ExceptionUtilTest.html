@@ -492,62 +492,66 @@
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>     @Test
 <a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">void</strong> testSignatureMismatchIsLoggedAtErrorAndRethrown() {
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>         WrongMethodTypeException thrown = assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>                 () -&gt; ExceptionUtil.getIntOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(<span class="jxr_string">"handle's method type (int)int but found (int)void"</span>);
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>                 }, 0, recorder.logger(), <span class="jxr_string">"Sizing call failed"</span>));
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>         assertThat(<span class="jxr_string">"Rethrown as-is, so the trace still points at the call site"</span>, thrown.getMessage(),
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 containsString(<span class="jxr_string">"(int)void"</span>));
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         assertThat(<span class="jxr_string">"Escalated past the caller's debug level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"error"</span>));
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>         assertThat(<span class="jxr_string">"Keeps the caller's message"</span>, recorder.message(), startsWith(<span class="jxr_string">"Sizing call failed"</span>));
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>         assertThat(<span class="jxr_string">"Names it as an OSHI defect"</span>, recorder.message(), containsString(<span class="jxr_string">"defect in OSHI"</span>));
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>         assertThat(<span class="jxr_string">"Throwable still attached"</span>, recorder.arguments(),
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                 arrayContaining(instanceOf(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>)));
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>     }
-<a class="jxr_linenumber" name="L499" href="#L499">499</a> 
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>     @Test
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <strong class="jxr_keyword">void</strong> testSignatureMismatchOutranksAnExplicitLevel() {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, () -&gt; ExceptionUtil.runOrLog(() -&gt; {
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(<span class="jxr_string">"mismatch"</span>);
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>         }, recorder.logger(), LogLevel.TRACE, <span class="jxr_string">"Release failed"</span>));
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>         assertThat(<span class="jxr_string">"A defect outranks the level the caller asked for"</span>, recorder.onlyCall(), is(<span class="jxr_string">"error"</span>));
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>     }
-<a class="jxr_linenumber" name="L508" href="#L508">508</a> 
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>     @Test
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     <strong class="jxr_keyword">void</strong> testOrdinaryFailureKeepsCallersLevelAndMessage() {
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>         <strong class="jxr_keyword">int</strong> result = ExceptionUtil.getIntOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         }, 0, recorder.logger(), <span class="jxr_string">"Sizing call failed"</span>);
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         assertThat(<span class="jxr_string">"Still returns the default"</span>, result, is(0));
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         assertThat(<span class="jxr_string">"A failed system call stays at debug"</span>, recorder.onlyCall(), is(<span class="jxr_string">"debug"</span>));
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>         assertThat(<span class="jxr_string">"Message is untouched"</span>, recorder.message(), is(<span class="jxr_string">"Sizing call failed"</span>));
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>     }
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> 
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>     @Test
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>     <strong class="jxr_keyword">void</strong> testSilentOverloadsAlsoRethrowASignatureMismatch() {
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <em class="jxr_comment">// The wrappers with no logger of their own are silent about a failed system call, but not about a defect.</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         <em class="jxr_comment">// Having no caller logger, they log under ExceptionUtil's own name, which simplelogger.properties turns off</em>
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>         <em class="jxr_comment">// for this module; the message says so anyway, for a run that does not pick that configuration up.</em>
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, () -&gt; ExceptionUtil.getOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(DELIBERATE_MISMATCH);
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>         }, <span class="jxr_string">"fallback"</span>));
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>         assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, () -&gt; ExceptionUtil.runSilently(() -&gt; {
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(DELIBERATE_MISMATCH);
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>         }));
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>     }
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>     @Test
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">void</strong> testNestedWrappersPropagateTheSameSignatureMismatch() {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         <em class="jxr_comment">// The inner wrapper's rethrow is caught by the outer one, which must not turn it back into a default value</em>
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         WrongMethodTypeException thrown = assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>,
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>                 () -&gt; ExceptionUtil.getOrDefault(() -&gt; ExceptionUtil.getIntOrDefault(() -&gt; {
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(<span class="jxr_string">"mismatch"</span>);
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>                 }, 0, LOG, <span class="jxr_string">"inner"</span>), -1, LOG, <span class="jxr_string">"outer"</span>));
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         assertThat(<span class="jxr_string">"The original exception, not a wrapper"</span>, thrown.getMessage(), is(<span class="jxr_string">"mismatch"</span>));
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>     }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a> }
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <em class="jxr_comment">// S5778: the supplier's throw is a second call that can throw, but it is the planted fault this</em>
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <em class="jxr_comment">// method is being asked to rethrow, and the assertions below pin down which call threw</em>
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         <strong class="jxr_keyword">var</strong> thrown = assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, <em class="jxr_comment">// NOSONAR java:S5778 - planted fault</em>
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>                 () -&gt; ExceptionUtil.getIntOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(<span class="jxr_string">"handle's method type (int)int but found (int)void"</span>);
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 }, 0, recorder.logger(), <span class="jxr_string">"Sizing call failed"</span>));
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         assertThat(<span class="jxr_string">"Rethrown as-is, so the trace still points at the call site"</span>, thrown.getMessage(),
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>                 containsString(<span class="jxr_string">"(int)void"</span>));
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         assertThat(<span class="jxr_string">"Escalated past the caller's debug level"</span>, recorder.onlyCall(), is(<span class="jxr_string">"error"</span>));
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         assertThat(<span class="jxr_string">"Keeps the caller's message"</span>, recorder.message(), startsWith(<span class="jxr_string">"Sizing call failed"</span>));
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         assertThat(<span class="jxr_string">"Names it as an OSHI defect"</span>, recorder.message(), containsString(<span class="jxr_string">"defect in OSHI"</span>));
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         assertThat(<span class="jxr_string">"Throwable still attached"</span>, recorder.arguments(),
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>                 arrayContaining(instanceOf(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>)));
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>     }
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> 
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     @Test
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">void</strong> testSignatureMismatchOutranksAnExplicitLevel() {
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <em class="jxr_comment">// S5778: the supplier's throw is the planted fault runOrLog is being asked to rethrow</em>
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>         assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, <em class="jxr_comment">// NOSONAR java:S5778 - planted fault</em>
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                 () -&gt; ExceptionUtil.runOrLog(() -&gt; {
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(<span class="jxr_string">"mismatch"</span>);
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>                 }, recorder.logger(), LogLevel.TRACE, <span class="jxr_string">"Release failed"</span>));
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         assertThat(<span class="jxr_string">"A defect outranks the level the caller asked for"</span>, recorder.onlyCall(), is(<span class="jxr_string">"error"</span>));
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>     }
+<a class="jxr_linenumber" name="L512" href="#L512">512</a> 
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>     @Test
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <strong class="jxr_keyword">void</strong> testOrdinaryFailureKeepsCallersLevelAndMessage() {
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <strong class="jxr_keyword">int</strong> result = ExceptionUtil.getIntOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalStateException(<span class="jxr_string">"boom"</span>);
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         }, 0, recorder.logger(), <span class="jxr_string">"Sizing call failed"</span>);
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         assertThat(<span class="jxr_string">"Still returns the default"</span>, result, is(0));
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         assertThat(<span class="jxr_string">"A failed system call stays at debug"</span>, recorder.onlyCall(), is(<span class="jxr_string">"debug"</span>));
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>         assertThat(<span class="jxr_string">"Message is untouched"</span>, recorder.message(), is(<span class="jxr_string">"Sizing call failed"</span>));
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     }
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> 
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     @Test
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <strong class="jxr_keyword">void</strong> testSilentOverloadsAlsoRethrowASignatureMismatch() {
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <em class="jxr_comment">// The wrappers with no logger of their own are silent about a failed system call, but not about a defect.</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>         <em class="jxr_comment">// Having no caller logger, they log under ExceptionUtil's own name, which simplelogger.properties turns off</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         <em class="jxr_comment">// for this module; the message says so anyway, for a run that does not pick that configuration up.</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, () -&gt; ExceptionUtil.getOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(DELIBERATE_MISMATCH);
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         }, <span class="jxr_string">"fallback"</span>));
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>, () -&gt; ExceptionUtil.runSilently(() -&gt; {
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(DELIBERATE_MISMATCH);
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         }));
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>     }
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> 
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     @Test
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>     <strong class="jxr_keyword">void</strong> testNestedWrappersPropagateTheSameSignatureMismatch() {
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <em class="jxr_comment">// The inner wrapper's rethrow is caught by the outer one, which must not turn it back into a default value</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         WrongMethodTypeException thrown = assertThrows(WrongMethodTypeException.<strong class="jxr_keyword">class</strong>,
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>                 () -&gt; ExceptionUtil.getOrDefault(() -&gt; ExceptionUtil.getIntOrDefault(() -&gt; {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>                     <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> WrongMethodTypeException(<span class="jxr_string">"mismatch"</span>);
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>                 }, 0, LOG, <span class="jxr_string">"inner"</span>), -1, LOG, <span class="jxr_string">"outer"</span>));
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         assertThat(<span class="jxr_string">"The original exception, not a wrapper"</span>, thrown.getMessage(), is(<span class="jxr_string">"mismatch"</span>));
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     }
+<a class="jxr_linenumber" name="L546" href="#L546">546</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

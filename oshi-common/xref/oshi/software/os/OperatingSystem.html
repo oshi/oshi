@@ -451,49 +451,51 @@
 <a class="jxr_linenumber" name="L443" href="#L443">443</a>             <strong class="jxr_keyword">this</strong>.codeName = codeName;
 <a class="jxr_linenumber" name="L444" href="#L444">444</a>             <strong class="jxr_keyword">this</strong>.buildNumber = buildNumber;
 <a class="jxr_linenumber" name="L445" href="#L445">445</a> 
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(getVersion() != <strong class="jxr_keyword">null</strong> ? getVersion() : Constants.UNKNOWN);
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getCodeName())) {
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>                 sb.append(<span class="jxr_string">" ("</span>).append(getCodeName()).append(')');
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>             }
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(getBuildNumber())) {
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>                 sb.append(<span class="jxr_string">" build "</span>).append(getBuildNumber());
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>             }
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>             <strong class="jxr_keyword">this</strong>.versionStr = sb.toString();
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         }
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> 
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L457" href="#L457">457</a> <em class="jxr_javadoccomment">         * Gets the operating system version.</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">         * @return The version, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <strong class="jxr_keyword">public</strong> @Nullable String getVersion() {
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>             <strong class="jxr_keyword">return</strong> version;
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         }
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L466" href="#L466">466</a> <em class="jxr_javadoccomment">         * Gets the operating system codename.</em>
-<a class="jxr_linenumber" name="L467" href="#L467">467</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a> <em class="jxr_javadoccomment">         * @return The code name, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         <strong class="jxr_keyword">public</strong> @Nullable String getCodeName() {
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>             <strong class="jxr_keyword">return</strong> codeName;
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>         }
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> 
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">         * Gets the operating system build number.</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_javadoccomment">         * @return The build number, if any. May be {@code null}.</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <strong class="jxr_keyword">public</strong> @Nullable String getBuildNumber() {
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>             <strong class="jxr_keyword">return</strong> buildNumber;
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>         }
-<a class="jxr_linenumber" name="L482" href="#L482">482</a> 
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         @Override
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.versionStr;
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         }
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>     }
-<a class="jxr_linenumber" name="L488" href="#L488">488</a> }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>             <em class="jxr_comment">// Read the fields rather than the getters: this class is not final, and an override that consulted</em>
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>             <em class="jxr_comment">// subclass state would see it uninitialized here.</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>             StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(version != <strong class="jxr_keyword">null</strong> ? version : Constants.UNKNOWN);
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(codeName)) {
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>                 sb.append(<span class="jxr_string">" ("</span>).append(codeName).append(')');
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>             }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>             <strong class="jxr_keyword">if</strong> (!Util.isBlank(buildNumber)) {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>                 sb.append(<span class="jxr_string">" build "</span>).append(buildNumber);
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>             }
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             <strong class="jxr_keyword">this</strong>.versionStr = sb.toString();
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         }
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> <em class="jxr_javadoccomment">         * Gets the operating system version.</em>
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a> <em class="jxr_javadoccomment">         * @return The version, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <strong class="jxr_keyword">public</strong> @Nullable String getVersion() {
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             <strong class="jxr_keyword">return</strong> version;
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>         }
+<a class="jxr_linenumber" name="L466" href="#L466">466</a> 
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a> <em class="jxr_javadoccomment">         * Gets the operating system codename.</em>
+<a class="jxr_linenumber" name="L469" href="#L469">469</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> <em class="jxr_javadoccomment">         * @return The code name, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L471" href="#L471">471</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">public</strong> @Nullable String getCodeName() {
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>             <strong class="jxr_keyword">return</strong> codeName;
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         }
+<a class="jxr_linenumber" name="L475" href="#L475">475</a> 
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a> <em class="jxr_javadoccomment">         * Gets the operating system build number.</em>
+<a class="jxr_linenumber" name="L478" href="#L478">478</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L479" href="#L479">479</a> <em class="jxr_javadoccomment">         * @return The build number, if any. May be {@code null}.</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         <strong class="jxr_keyword">public</strong> @Nullable String getBuildNumber() {
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>             <strong class="jxr_keyword">return</strong> buildNumber;
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         }
+<a class="jxr_linenumber" name="L484" href="#L484">484</a> 
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         @Override
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.versionStr;
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         }
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>     }
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

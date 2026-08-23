@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>              <span class="jxr_string">"Revision\t: a020d3"</span>, <span class="jxr_string">"Serial\t\t: 00000000abcdef01"</span>);
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      <em class="jxr_comment">// Fixture: x86 /proc/cpuinfo</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; CPUINFO_X86 = Arrays.asList(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"vendor_id\t: GenuineIntel"</span>,
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; CPUINFO_X86 = List.of(<span class="jxr_string">"processor\t: 0"</span>, <span class="jxr_string">"vendor_id\t: GenuineIntel"</span>,
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>              <span class="jxr_string">"model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"</span>,
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>              <span class="jxr_string">"flags\t\t: fpu vme de pse tsc msr pae mce cx8 apic"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"processor\t: 1"</span>, <span class="jxr_string">"vendor_id\t: GenuineIntel"</span>,
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>              <span class="jxr_string">"model name\t: Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz"</span>,
@@ -55,13 +55,13 @@
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>  
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">void</strong> testQueryCpuManufacturerQualcomm() {
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          List&lt;String&gt; qualcomm = Arrays.asList(<span class="jxr_string">"CPU implementer\t: 0x51"</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          List&lt;String&gt; qualcomm = List.of(<span class="jxr_string">"CPU implementer\t: 0x51"</span>);
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(CpuInfo.queryCpuManufacturer(qualcomm), is(<span class="jxr_string">"Qualcomm"</span>));
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>  
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      @Test
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">void</strong> testQueryCpuManufacturerUnknown() {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          List&lt;String&gt; unknown = Arrays.asList(<span class="jxr_string">"CPU implementer\t: 0xff"</span>);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          List&lt;String&gt; unknown = List.of(<span class="jxr_string">"CPU implementer\t: 0xff"</span>);
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(CpuInfo.queryCpuManufacturer(unknown), is(nullValue()));
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>  
@@ -88,7 +88,7 @@
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Test
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">void</strong> testQueryBoardInfoEgoman() {
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          List&lt;String&gt; egoman = Arrays.asList(<span class="jxr_string">"Revision\t: a120d3"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          List&lt;String&gt; egoman = List.of(<span class="jxr_string">"Revision\t: a120d3"</span>);
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          Quartet&lt;@Nullable String, @Nullable String, @Nullable String, @Nullable String&gt; info = CpuInfo
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                  .queryBoardInfo(egoman);
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertThat(info.getA(), is(<span class="jxr_string">"Egoman"</span>));
@@ -96,7 +96,7 @@
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>  
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      @Test
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">void</strong> testQueryBoardInfoUnknownManufacturer() {
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          List&lt;String&gt; unknown = Arrays.asList(<span class="jxr_string">"Revision\t: a920d3"</span>);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          List&lt;String&gt; unknown = List.of(<span class="jxr_string">"Revision\t: a920d3"</span>);
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>          Quartet&lt;@Nullable String, @Nullable String, @Nullable String, @Nullable String&gt; info = CpuInfo
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  .queryBoardInfo(unknown);
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(info.getA(), is(Constants.UNKNOWN));

@@ -186,83 +186,83 @@
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             ADDRESS.withName(<span class="jxr_string">"pw_gecos"</span>), <em class="jxr_comment">// Honeywell login info</em>
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>             ADDRESS.withName(<span class="jxr_string">"pw_dir"</span>), <em class="jxr_comment">// home directory</em>
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>             ADDRESS.withName(<span class="jxr_string">"pw_shell"</span>), <em class="jxr_comment">// default shell</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>             JAVA_LONG.withName(<span class="jxr_string">"pw_expire"</span>), <em class="jxr_comment">// account expiration</em>
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>             ADDRESS.withName(<span class="jxr_string">"pw_fields"</span>) <em class="jxr_comment">// internal: fields filled in</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>     );
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> 
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>     StructLayout GROUP = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>             ADDRESS.withName(<span class="jxr_string">"gr_name"</span>), <em class="jxr_comment">// group name</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>             ADDRESS.withName(<span class="jxr_string">"gr_passwd"</span>), <em class="jxr_comment">// group password</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>             ADDRESS.withName(<span class="jxr_string">"gr_gid"</span>), <em class="jxr_comment">// group id</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             ADDRESS.withName(<span class="jxr_string">"gr_mem"</span>) <em class="jxr_comment">// group members</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>     );
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> 
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     StructLayout RUSAGEINFOV2 = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>             sequenceLayout(16, JAVA_BYTE).withName(<span class="jxr_string">"ri_uuid"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_user_time"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_system_time"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_pkg_idle_wkups"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_interrupt_wkups"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_pageins"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_wired_size"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_resident_size"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_phys_footprint"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_proc_start_abstime"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_proc_exit_abstime"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_user_time"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_system_time"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_pkg_idle_wkups"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_interrupt_wkups"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_pageins"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_elapsed_abstime"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_diskio_bytesread"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_diskio_byteswritten"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     );
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     PathElement RI_DISKIO_BYTESREAD = groupElement(<span class="jxr_string">"ri_diskio_bytesread"</span>);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     PathElement RI_DISKIO_BYTESWRITTEN = groupElement(<span class="jxr_string">"ri_diskio_byteswritten"</span>);
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>     PathElement RI_PHYS_FOOTPRINT = groupElement(<span class="jxr_string">"ri_phys_footprint"</span>);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> 
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>     StructLayout VNODE_INFO_PATH = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>             paddingLayout(152 * 8), <em class="jxr_comment">// vnode_info but we don't need its data</em>
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName(<span class="jxr_string">"vip_path"</span>));
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     PathElement VIP_PATH = groupElement(<span class="jxr_string">"vip_path"</span>);
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>     StructLayout VNODE_PATH_INFO = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>             VNODE_INFO_PATH.withName(<span class="jxr_string">"pvi_cdir"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             VNODE_INFO_PATH.withName(<span class="jxr_string">"pvi_rdir"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>     );
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>     PathElement PVI_CDIR = groupElement(<span class="jxr_string">"pvi_cdir"</span>);
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> 
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>     StructLayout TIMEVAL = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>             JAVA_LONG.withName(<span class="jxr_string">"tv_sec"</span>), <em class="jxr_comment">// seconds</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>             JAVA_INT.withName(<span class="jxr_string">"tv_usec"</span>), <em class="jxr_comment">// microseconds</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>             paddingLayout(32) <em class="jxr_comment">// align to 8-byte boundary (matches struct timeval on macOS 64-bit)</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     );
-<a class="jxr_linenumber" name="L233" href="#L233">233</a> 
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>     StructLayout RLIMIT = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>             JAVA_LONG.withName(<span class="jxr_string">"rlim_cur"</span>), <em class="jxr_comment">// current (soft) limit</em>
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>             JAVA_LONG.withName(<span class="jxr_string">"rlim_max"</span>) <em class="jxr_comment">// hard limit</em>
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     );
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>     PathElement RLIM_CUR = groupElement(<span class="jxr_string">"rlim_cur"</span>);
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     PathElement RLIM_MAX = groupElement(<span class="jxr_string">"rlim_max"</span>);
-<a class="jxr_linenumber" name="L240" href="#L240">240</a> 
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>     StructLayout STATFS = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>             JAVA_INT.withName(<span class="jxr_string">"f_bsize"</span>), <em class="jxr_comment">// fundamental file system block size</em>
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>             JAVA_INT.withName(<span class="jxr_string">"f_iosize"</span>), <em class="jxr_comment">// optimal transfer block size</em>
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>             JAVA_LONG.withName(<span class="jxr_string">"f_blocks"</span>), <em class="jxr_comment">// total data blocks in file system</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>             JAVA_LONG.withName(<span class="jxr_string">"f_bfree"</span>), <em class="jxr_comment">// free blocks in fs</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>             JAVA_LONG.withName(<span class="jxr_string">"f_bavail"</span>), <em class="jxr_comment">// free blocks avail to non-superuser</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>             JAVA_LONG.withName(<span class="jxr_string">"f_files"</span>), <em class="jxr_comment">// total file nodes in file system</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>             JAVA_LONG.withName(<span class="jxr_string">"f_ffree"</span>), <em class="jxr_comment">// free file nodes in fs</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>             sequenceLayout(2, JAVA_INT).withName(<span class="jxr_string">"f_fsid"</span>), <em class="jxr_comment">// file system id</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>             JAVA_INT.withName(<span class="jxr_string">"f_owner"</span>), <em class="jxr_comment">// user that mounted the filesystem</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>             JAVA_INT.withName(<span class="jxr_string">"f_type"</span>), <em class="jxr_comment">// type of filesystem</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>             JAVA_INT.withName(<span class="jxr_string">"f_flags"</span>), <em class="jxr_comment">// copy of mount exported flags</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>             JAVA_INT.withName(<span class="jxr_string">"f_fssubtype"</span>), <em class="jxr_comment">// fs sub-type (flavor)</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>             sequenceLayout(MFSTYPENAMELEN, JAVA_BYTE).withName(<span class="jxr_string">"f_fstypename"</span>), <em class="jxr_comment">// fs type name</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName(<span class="jxr_string">"f_mntonname"</span>), <em class="jxr_comment">// directory on which mounted</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName(<span class="jxr_string">"f_mntfromname"</span>), <em class="jxr_comment">// mounted filesystem</em>
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             paddingLayout(8 * 4).withName(<span class="jxr_string">"f_reserved"</span>) <em class="jxr_comment">// For future use</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>             JAVA_LONG.withName(<span class="jxr_string">"pw_expire"</span>) <em class="jxr_comment">// account expiration</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     );
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     StructLayout GROUP = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>             ADDRESS.withName(<span class="jxr_string">"gr_name"</span>), <em class="jxr_comment">// group name</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>             ADDRESS.withName(<span class="jxr_string">"gr_passwd"</span>), <em class="jxr_comment">// group password</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>             ADDRESS.withName(<span class="jxr_string">"gr_gid"</span>), <em class="jxr_comment">// group id</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>             ADDRESS.withName(<span class="jxr_string">"gr_mem"</span>) <em class="jxr_comment">// group members</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     );
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>     StructLayout RUSAGEINFOV2 = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>             sequenceLayout(16, JAVA_BYTE).withName(<span class="jxr_string">"ri_uuid"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_user_time"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_system_time"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_pkg_idle_wkups"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_interrupt_wkups"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_pageins"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_wired_size"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_resident_size"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_phys_footprint"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_proc_start_abstime"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_proc_exit_abstime"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_user_time"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_system_time"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_pkg_idle_wkups"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_interrupt_wkups"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_pageins"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_child_elapsed_abstime"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_diskio_bytesread"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             JAVA_LONG.withName(<span class="jxr_string">"ri_diskio_byteswritten"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     );
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>     PathElement RI_DISKIO_BYTESREAD = groupElement(<span class="jxr_string">"ri_diskio_bytesread"</span>);
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>     PathElement RI_DISKIO_BYTESWRITTEN = groupElement(<span class="jxr_string">"ri_diskio_byteswritten"</span>);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>     PathElement RI_PHYS_FOOTPRINT = groupElement(<span class="jxr_string">"ri_phys_footprint"</span>);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>     StructLayout VNODE_INFO_PATH = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <em class="jxr_comment">// sizeof(struct vnode_info); paddingLayout takes bytes, not bits</em>
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             paddingLayout(152), sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName(<span class="jxr_string">"vip_path"</span>));
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>     PathElement VIP_PATH = groupElement(<span class="jxr_string">"vip_path"</span>);
+<a class="jxr_linenumber" name="L220" href="#L220">220</a> 
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     StructLayout VNODE_PATH_INFO = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>             VNODE_INFO_PATH.withName(<span class="jxr_string">"pvi_cdir"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             VNODE_INFO_PATH.withName(<span class="jxr_string">"pvi_rdir"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     );
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     PathElement PVI_CDIR = groupElement(<span class="jxr_string">"pvi_cdir"</span>);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     StructLayout TIMEVAL = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>             JAVA_LONG.withName(<span class="jxr_string">"tv_sec"</span>), <em class="jxr_comment">// seconds</em>
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             JAVA_INT.withName(<span class="jxr_string">"tv_usec"</span>), <em class="jxr_comment">// microseconds</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             paddingLayout(4) <em class="jxr_comment">// pad to the 8-byte alignment of struct timeval on macOS 64-bit</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>     );
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     StructLayout RLIMIT = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>             JAVA_LONG.withName(<span class="jxr_string">"rlim_cur"</span>), <em class="jxr_comment">// current (soft) limit</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>             JAVA_LONG.withName(<span class="jxr_string">"rlim_max"</span>) <em class="jxr_comment">// hard limit</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     );
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>     PathElement RLIM_CUR = groupElement(<span class="jxr_string">"rlim_cur"</span>);
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     PathElement RLIM_MAX = groupElement(<span class="jxr_string">"rlim_max"</span>);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     StructLayout STATFS = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>             JAVA_INT.withName(<span class="jxr_string">"f_bsize"</span>), <em class="jxr_comment">// fundamental file system block size</em>
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>             JAVA_INT.withName(<span class="jxr_string">"f_iosize"</span>), <em class="jxr_comment">// optimal transfer block size</em>
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             JAVA_LONG.withName(<span class="jxr_string">"f_blocks"</span>), <em class="jxr_comment">// total data blocks in file system</em>
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             JAVA_LONG.withName(<span class="jxr_string">"f_bfree"</span>), <em class="jxr_comment">// free blocks in fs</em>
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             JAVA_LONG.withName(<span class="jxr_string">"f_bavail"</span>), <em class="jxr_comment">// free blocks avail to non-superuser</em>
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             JAVA_LONG.withName(<span class="jxr_string">"f_files"</span>), <em class="jxr_comment">// total file nodes in file system</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             JAVA_LONG.withName(<span class="jxr_string">"f_ffree"</span>), <em class="jxr_comment">// free file nodes in fs</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             sequenceLayout(2, JAVA_INT).withName(<span class="jxr_string">"f_fsid"</span>), <em class="jxr_comment">// file system id</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>             JAVA_INT.withName(<span class="jxr_string">"f_owner"</span>), <em class="jxr_comment">// user that mounted the filesystem</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>             JAVA_INT.withName(<span class="jxr_string">"f_type"</span>), <em class="jxr_comment">// type of filesystem</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>             JAVA_INT.withName(<span class="jxr_string">"f_flags"</span>), <em class="jxr_comment">// copy of mount exported flags</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>             JAVA_INT.withName(<span class="jxr_string">"f_fssubtype"</span>), <em class="jxr_comment">// fs sub-type (flavor)</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>             sequenceLayout(MFSTYPENAMELEN, JAVA_BYTE).withName(<span class="jxr_string">"f_fstypename"</span>), <em class="jxr_comment">// fs type name</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName(<span class="jxr_string">"f_mntonname"</span>), <em class="jxr_comment">// directory on which mounted</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName(<span class="jxr_string">"f_mntfromname"</span>), <em class="jxr_comment">// mounted filesystem</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>             JAVA_INT.withName(<span class="jxr_string">"f_flags_ext"</span>), <em class="jxr_comment">// extended flags</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>             paddingLayout(7 * 4).withName(<span class="jxr_string">"f_reserved"</span>) <em class="jxr_comment">// uint32_t f_reserved[7], for future use</em>
 <a class="jxr_linenumber" name="L258" href="#L258">258</a>     );
 <a class="jxr_linenumber" name="L259" href="#L259">259</a>     PathElement F_BSIZE = groupElement(<span class="jxr_string">"f_bsize"</span>);
 <a class="jxr_linenumber" name="L260" href="#L260">260</a>     PathElement F_BLOCKS = groupElement(<span class="jxr_string">"f_blocks"</span>);
@@ -370,164 +370,170 @@
 <a class="jxr_linenumber" name="L362" href="#L362">362</a>             sequenceLayout(UTX_LINESIZE, JAVA_BYTE).withName(<span class="jxr_string">"ut_line"</span>), <em class="jxr_comment">// tty name [260..291]</em>
 <a class="jxr_linenumber" name="L363" href="#L363">363</a>             JAVA_INT.withName(<span class="jxr_string">"ut_pid"</span>), <em class="jxr_comment">// process id [292..295]</em>
 <a class="jxr_linenumber" name="L364" href="#L364">364</a>             JAVA_SHORT.withName(<span class="jxr_string">"ut_type"</span>), <em class="jxr_comment">// entry type [296..297]</em>
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>             paddingLayout(6), <em class="jxr_comment">// align tv_sec (long) to 8-byte boundary [298..303]</em>
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>             JAVA_LONG.withName(<span class="jxr_string">"ut_tv_sec"</span>), <em class="jxr_comment">// tv_sec [304..311]</em>
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>             JAVA_INT.withName(<span class="jxr_string">"ut_tv_usec"</span>), <em class="jxr_comment">// tv_usec [312..315]</em>
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>             paddingLayout(4), <em class="jxr_comment">// align ut_host to 8-byte boundary [316..319]</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>             sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName(<span class="jxr_string">"ut_host"</span>), <em class="jxr_comment">// host name [320..575]</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>             sequenceLayout(16, JAVA_BYTE).withName(<span class="jxr_string">"ut_pad"</span>) <em class="jxr_comment">// reserved [576..591]</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>     );
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     PathElement UT_USER = groupElement(<span class="jxr_string">"ut_user"</span>);
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>     PathElement UT_LINE = groupElement(<span class="jxr_string">"ut_line"</span>);
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>     PathElement UT_PID = groupElement(<span class="jxr_string">"ut_pid"</span>);
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>     PathElement UT_TYPE = groupElement(<span class="jxr_string">"ut_type"</span>);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>     PathElement UT_TV_SEC = groupElement(<span class="jxr_string">"ut_tv_sec"</span>);
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     PathElement UT_TV_USEC = groupElement(<span class="jxr_string">"ut_tv_usec"</span>);
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>     PathElement UT_HOST = groupElement(<span class="jxr_string">"ut_host"</span>);
-<a class="jxr_linenumber" name="L379" href="#L379">379</a> 
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>     <em class="jxr_comment">// addrinfo structure (netdb.h)</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>     StructLayout ADDRINFO = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>             JAVA_INT.withName(<span class="jxr_string">"ai_flags"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>             JAVA_INT.withName(<span class="jxr_string">"ai_family"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>             JAVA_INT.withName(<span class="jxr_string">"ai_socktype"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>             JAVA_INT.withName(<span class="jxr_string">"ai_protocol"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>             JAVA_INT.withName(<span class="jxr_string">"ai_addrlen"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>             paddingLayout(4), <em class="jxr_comment">// align pointer to 8 bytes</em>
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>             ADDRESS.withName(<span class="jxr_string">"ai_addr"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>             ADDRESS.withName(<span class="jxr_string">"ai_canonname"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>             ADDRESS.withName(<span class="jxr_string">"ai_next"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>     );
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>     PathElement AI_FLAGS = groupElement(<span class="jxr_string">"ai_flags"</span>);
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>     PathElement ADDRINFO_CANONNAME = groupElement(<span class="jxr_string">"ai_canonname"</span>);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a> 
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>     <em class="jxr_comment">// CGPoint structure (CoreGraphics/CGGeometry.h)</em>
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     StructLayout CG_POINT = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"x"</span>), <em class="jxr_comment">// CGFloat (double on 64-bit)</em>
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"y"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>     );
-<a class="jxr_linenumber" name="L400" href="#L400">400</a> 
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     <em class="jxr_comment">// CGSize structure (CoreGraphics/CGGeometry.h)</em>
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>     StructLayout CG_SIZE = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"width"</span>), <em class="jxr_comment">// CGFloat</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"height"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>     );
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> 
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>     <em class="jxr_comment">// CGRect structure (CoreGraphics/CGGeometry.h)</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>     StructLayout CG_RECT = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>             CG_POINT.withName(<span class="jxr_string">"origin"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>             CG_SIZE.withName(<span class="jxr_string">"size"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>     );
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>     PathElement CG_ORIGIN = groupElement(<span class="jxr_string">"origin"</span>);
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>     PathElement CG_SIZE_ELEM = groupElement(<span class="jxr_string">"size"</span>);
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>     PathElement CG_X = groupElement(<span class="jxr_string">"x"</span>);
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>     PathElement CG_Y = groupElement(<span class="jxr_string">"y"</span>);
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>     PathElement CG_WIDTH = groupElement(<span class="jxr_string">"width"</span>);
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>     PathElement CG_HEIGHT = groupElement(<span class="jxr_string">"height"</span>);
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> 
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>     <em class="jxr_comment">// host_cpu_load_info structure (cpu_ticks[CPU_STATE_MAX])</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>     StructLayout HOST_CPU_LOAD_INFO_DATA = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>             sequenceLayout(CPU_STATE_MAX, JAVA_INT).withName(<span class="jxr_string">"cpu_ticks"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>     );
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>     PathElement CPU_TICKS = groupElement(<span class="jxr_string">"cpu_ticks"</span>);
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> 
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>     <em class="jxr_comment">// VM Statistics structure for host_statistics calls</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     StructLayout VM_STATISTICS = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a>             JAVA_INT.withName(<span class="jxr_string">"free_count"</span>), <em class="jxr_comment">// # of pages free</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>             JAVA_INT.withName(<span class="jxr_string">"active_count"</span>), <em class="jxr_comment">// # of pages active</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>             JAVA_INT.withName(<span class="jxr_string">"inactive_count"</span>), <em class="jxr_comment">// # of pages inactive</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>             JAVA_INT.withName(<span class="jxr_string">"wire_count"</span>), <em class="jxr_comment">// # of pages wired down</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>             JAVA_INT.withName(<span class="jxr_string">"zero_fill_count"</span>), <em class="jxr_comment">// # of zero fill pages</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             JAVA_INT.withName(<span class="jxr_string">"reactivations"</span>), <em class="jxr_comment">// # of pages reactivated</em>
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>             JAVA_INT.withName(<span class="jxr_string">"pageins"</span>), <em class="jxr_comment">// # of pageins</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             JAVA_INT.withName(<span class="jxr_string">"pageouts"</span>), <em class="jxr_comment">// # of pageouts</em>
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>             JAVA_INT.withName(<span class="jxr_string">"faults"</span>), <em class="jxr_comment">// # of faults</em>
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>             JAVA_INT.withName(<span class="jxr_string">"cow_faults"</span>), <em class="jxr_comment">// # of copy-on-writes</em>
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>             JAVA_INT.withName(<span class="jxr_string">"lookups"</span>), <em class="jxr_comment">// object cache lookups</em>
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>             JAVA_INT.withName(<span class="jxr_string">"hits"</span>) <em class="jxr_comment">// object cache hits</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>     );
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>     PathElement VM_FREE_COUNT = groupElement(<span class="jxr_string">"free_count"</span>);
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     PathElement VM_INACTIVE_COUNT = groupElement(<span class="jxr_string">"inactive_count"</span>);
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>     PathElement VM_PAGEINS = groupElement(<span class="jxr_string">"pageins"</span>);
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     PathElement VM_PAGEOUTS = groupElement(<span class="jxr_string">"pageouts"</span>);
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     StructLayout XSW_USAGE = MemoryLayout.structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>             JAVA_LONG.withName(<span class="jxr_string">"xsu_total"</span>), <em class="jxr_comment">// total pages</em>
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             JAVA_LONG.withName(<span class="jxr_string">"xsu_avail"</span>), <em class="jxr_comment">// available pages</em>
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>             JAVA_LONG.withName(<span class="jxr_string">"xsu_used"</span>), <em class="jxr_comment">// used pages</em>
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>             JAVA_INT.withName(<span class="jxr_string">"xsu_pagesize"</span>), <em class="jxr_comment">// page size</em>
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>             JAVA_INT.withName(<span class="jxr_string">"xsu_encrypted"</span>) <em class="jxr_comment">// boolean padded to int</em>
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>     );
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     PathElement XSW_USAGE_USED = groupElement(<span class="jxr_string">"xsu_used"</span>);
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>     PathElement XSW_USAGE_TOTAL = groupElement(<span class="jxr_string">"xsu_total"</span>);
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> 
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <em class="jxr_comment">// SMC (System Management Controller) structures</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <em class="jxr_comment">// SMCKeyDataVers: major(1) + minor(1) + build(1) + reserved(1) + release(2) = 6 bytes</em>
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>     StructLayout SMC_KEY_DATA_VERS = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>             JAVA_BYTE.withName(<span class="jxr_string">"major"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>             JAVA_BYTE.withName(<span class="jxr_string">"minor"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>             JAVA_BYTE.withName(<span class="jxr_string">"build"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>             JAVA_BYTE.withName(<span class="jxr_string">"reserved"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>             JAVA_SHORT.withName(<span class="jxr_string">"release"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>     );
-<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <em class="jxr_comment">// SMCKeyDataPLimitData: version(2) + length(2) + cpuPLimit(4) + gpuPLimit(4) + memPLimit(4) = 16 bytes</em>
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>     StructLayout SMC_KEY_DATA_PLIMIT = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>             JAVA_SHORT.withName(<span class="jxr_string">"version"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>             JAVA_SHORT.withName(<span class="jxr_string">"length"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>             JAVA_INT.withName(<span class="jxr_string">"cpuPLimit"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>             JAVA_INT.withName(<span class="jxr_string">"gpuPLimit"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>             JAVA_INT.withName(<span class="jxr_string">"memPLimit"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>     );
-<a class="jxr_linenumber" name="L473" href="#L473">473</a> 
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>     <em class="jxr_comment">// SMCKeyDataKeyInfo: dataSize(4) + dataType(4) + dataAttributes(1) + padding(3) = 12 bytes</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>     StructLayout SMC_KEY_DATA_KEY_INFO = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             JAVA_INT.withName(<span class="jxr_string">"dataSize"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>             JAVA_INT.withName(<span class="jxr_string">"dataType"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>             JAVA_BYTE.withName(<span class="jxr_string">"dataAttributes"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>             paddingLayout(3) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>     );
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>     PathElement SMC_DATA_SIZE = groupElement(<span class="jxr_string">"dataSize"</span>);
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>     PathElement SMC_DATA_TYPE = groupElement(<span class="jxr_string">"dataType"</span>);
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>     PathElement SMC_DATA_ATTRIBUTES = groupElement(<span class="jxr_string">"dataAttributes"</span>);
-<a class="jxr_linenumber" name="L484" href="#L484">484</a> 
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <em class="jxr_comment">// SMCKeyData: key(4) + vers(6) + pad(2) + pLimitData(16) + keyInfo(12) + result(1) + status(1) + data8(1) +</em>
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>     <em class="jxr_comment">// pad(1) + data32(4) + bytes[32] = 80 bytes</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>     StructLayout SMC_KEY_DATA = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>             JAVA_INT.withName(<span class="jxr_string">"key"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>             SMC_KEY_DATA_VERS.withName(<span class="jxr_string">"vers"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>             paddingLayout(2), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>             SMC_KEY_DATA_PLIMIT.withName(<span class="jxr_string">"pLimitData"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>             SMC_KEY_DATA_KEY_INFO.withName(<span class="jxr_string">"keyInfo"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>             JAVA_BYTE.withName(<span class="jxr_string">"result"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>             JAVA_BYTE.withName(<span class="jxr_string">"status"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>             JAVA_BYTE.withName(<span class="jxr_string">"data8"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>             paddingLayout(1), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>             JAVA_INT.withName(<span class="jxr_string">"data32"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>             sequenceLayout(32, JAVA_BYTE).withName(<span class="jxr_string">"bytes"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>     );
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>     PathElement SMC_KEY = groupElement(<span class="jxr_string">"key"</span>);
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     PathElement SMC_KEY_INFO = groupElement(<span class="jxr_string">"keyInfo"</span>);
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>     PathElement SMC_RESULT = groupElement(<span class="jxr_string">"result"</span>);
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>     PathElement SMC_STATUS = groupElement(<span class="jxr_string">"status"</span>);
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>     PathElement SMC_DATA8 = groupElement(<span class="jxr_string">"data8"</span>);
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>     PathElement SMC_DATA32 = groupElement(<span class="jxr_string">"data32"</span>);
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>     PathElement SMC_BYTES = groupElement(<span class="jxr_string">"bytes"</span>);
-<a class="jxr_linenumber" name="L507" href="#L507">507</a> 
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>     <em class="jxr_comment">// SMCVal: key[5](5) + pad(3) + dataSize(4) + dataType[5](5) + pad(3) + bytes[32](32) = 52 bytes</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>     StructLayout SMC_VAL = structLayout(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>             sequenceLayout(5, JAVA_BYTE).withName(<span class="jxr_string">"key"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>             paddingLayout(3), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>             JAVA_INT.withName(<span class="jxr_string">"dataSize"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             sequenceLayout(5, JAVA_BYTE).withName(<span class="jxr_string">"dataType"</span>), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>             paddingLayout(3), <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>             sequenceLayout(32, JAVA_BYTE).withName(<span class="jxr_string">"bytes"</span>) <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>     );
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>     PathElement SMC_VAL_KEY = groupElement(<span class="jxr_string">"key"</span>);
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>     PathElement SMC_VAL_DATA_SIZE = groupElement(<span class="jxr_string">"dataSize"</span>);
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>     PathElement SMC_VAL_DATA_TYPE = groupElement(<span class="jxr_string">"dataType"</span>);
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>     PathElement SMC_VAL_BYTES = groupElement(<span class="jxr_string">"bytes"</span>);
-<a class="jxr_linenumber" name="L521" href="#L521">521</a> 
-<a class="jxr_linenumber" name="L522" href="#L522">522</a> }
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>             paddingLayout(6), <em class="jxr_comment">// align ut_tv (its tv_sec is a long) to 8-byte boundary [298..303]</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>             <em class="jxr_comment">// nested rather than flattened so the audit can check ut_tv's offset against the header</em>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             structLayout(JAVA_LONG.withName(<span class="jxr_string">"tv_sec"</span>), <em class="jxr_comment">// tv_sec [304..311]</em>
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>                     JAVA_INT.withName(<span class="jxr_string">"tv_usec"</span>), <em class="jxr_comment">// tv_usec [312..315]</em>
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>                     paddingLayout(4) <em class="jxr_comment">// timeval's own tail padding [316..319]</em>
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>             ).withName(<span class="jxr_string">"ut_tv"</span>), sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName(<span class="jxr_string">"ut_host"</span>), <em class="jxr_comment">// host name [320..575]</em>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>             sequenceLayout(16, JAVA_INT).withName(<span class="jxr_string">"ut_pad"</span>) <em class="jxr_comment">// __uint32_t ut_pad[16], reserved [576..639]</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>     );
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>     PathElement UT_USER = groupElement(<span class="jxr_string">"ut_user"</span>);
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>     PathElement UT_LINE = groupElement(<span class="jxr_string">"ut_line"</span>);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     PathElement UT_PID = groupElement(<span class="jxr_string">"ut_pid"</span>);
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>     PathElement UT_TYPE = groupElement(<span class="jxr_string">"ut_type"</span>);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     PathElement UT_TV = groupElement(<span class="jxr_string">"ut_tv"</span>);
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     PathElement UT_TV_SEC = groupElement(<span class="jxr_string">"tv_sec"</span>);
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>     PathElement UT_TV_USEC = groupElement(<span class="jxr_string">"tv_usec"</span>);
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>     PathElement UT_HOST = groupElement(<span class="jxr_string">"ut_host"</span>);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a> 
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>     <em class="jxr_comment">// addrinfo structure (netdb.h)</em>
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     StructLayout ADDRINFO = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>             JAVA_INT.withName(<span class="jxr_string">"ai_flags"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>             JAVA_INT.withName(<span class="jxr_string">"ai_family"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>             JAVA_INT.withName(<span class="jxr_string">"ai_socktype"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>             JAVA_INT.withName(<span class="jxr_string">"ai_protocol"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>             JAVA_INT.withName(<span class="jxr_string">"ai_addrlen"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>             paddingLayout(4), <em class="jxr_comment">// align pointer to 8 bytes</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>             <em class="jxr_comment">// BSD orders ai_canonname before ai_addr; glibc is the other way round</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>             ADDRESS.withName(<span class="jxr_string">"ai_canonname"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>             ADDRESS.withName(<span class="jxr_string">"ai_addr"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             ADDRESS.withName(<span class="jxr_string">"ai_next"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>     );
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>     PathElement AI_FLAGS = groupElement(<span class="jxr_string">"ai_flags"</span>);
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>     PathElement ADDRINFO_CANONNAME = groupElement(<span class="jxr_string">"ai_canonname"</span>);
+<a class="jxr_linenumber" name="L397" href="#L397">397</a> 
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>     <em class="jxr_comment">// CGPoint structure (CoreGraphics/CGGeometry.h)</em>
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>     StructLayout CG_POINT = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"x"</span>), <em class="jxr_comment">// CGFloat (double on 64-bit)</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"y"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>     );
+<a class="jxr_linenumber" name="L403" href="#L403">403</a> 
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>     <em class="jxr_comment">// CGSize structure (CoreGraphics/CGGeometry.h)</em>
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>     StructLayout CG_SIZE = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"width"</span>), <em class="jxr_comment">// CGFloat</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>             JAVA_DOUBLE.withName(<span class="jxr_string">"height"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>     );
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>     <em class="jxr_comment">// CGRect structure (CoreGraphics/CGGeometry.h)</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>     StructLayout CG_RECT = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>             CG_POINT.withName(<span class="jxr_string">"origin"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>             CG_SIZE.withName(<span class="jxr_string">"size"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>     );
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>     PathElement CG_ORIGIN = groupElement(<span class="jxr_string">"origin"</span>);
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>     PathElement CG_SIZE_ELEM = groupElement(<span class="jxr_string">"size"</span>);
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>     PathElement CG_X = groupElement(<span class="jxr_string">"x"</span>);
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>     PathElement CG_Y = groupElement(<span class="jxr_string">"y"</span>);
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>     PathElement CG_WIDTH = groupElement(<span class="jxr_string">"width"</span>);
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>     PathElement CG_HEIGHT = groupElement(<span class="jxr_string">"height"</span>);
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> 
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>     <em class="jxr_comment">// host_cpu_load_info structure (cpu_ticks[CPU_STATE_MAX])</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>     StructLayout HOST_CPU_LOAD_INFO_DATA = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>             sequenceLayout(CPU_STATE_MAX, JAVA_INT).withName(<span class="jxr_string">"cpu_ticks"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     );
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>     PathElement CPU_TICKS = groupElement(<span class="jxr_string">"cpu_ticks"</span>);
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <em class="jxr_comment">// VM Statistics structure for host_statistics calls</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>     StructLayout VM_STATISTICS = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>             JAVA_INT.withName(<span class="jxr_string">"free_count"</span>), <em class="jxr_comment">// # of pages free</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>             JAVA_INT.withName(<span class="jxr_string">"active_count"</span>), <em class="jxr_comment">// # of pages active</em>
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>             JAVA_INT.withName(<span class="jxr_string">"inactive_count"</span>), <em class="jxr_comment">// # of pages inactive</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>             JAVA_INT.withName(<span class="jxr_string">"wire_count"</span>), <em class="jxr_comment">// # of pages wired down</em>
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>             JAVA_INT.withName(<span class="jxr_string">"zero_fill_count"</span>), <em class="jxr_comment">// # of zero fill pages</em>
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             JAVA_INT.withName(<span class="jxr_string">"reactivations"</span>), <em class="jxr_comment">// # of pages reactivated</em>
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             JAVA_INT.withName(<span class="jxr_string">"pageins"</span>), <em class="jxr_comment">// # of pageins</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>             JAVA_INT.withName(<span class="jxr_string">"pageouts"</span>), <em class="jxr_comment">// # of pageouts</em>
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>             JAVA_INT.withName(<span class="jxr_string">"faults"</span>), <em class="jxr_comment">// # of faults</em>
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>             JAVA_INT.withName(<span class="jxr_string">"cow_faults"</span>), <em class="jxr_comment">// # of copy-on-writes</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             JAVA_INT.withName(<span class="jxr_string">"lookups"</span>), <em class="jxr_comment">// object cache lookups</em>
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             JAVA_INT.withName(<span class="jxr_string">"hits"</span>), <em class="jxr_comment">// object cache hits</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             JAVA_INT.withName(<span class="jxr_string">"purgeable_count"</span>), <em class="jxr_comment">// # of pages purgeable</em>
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>             JAVA_INT.withName(<span class="jxr_string">"purges"</span>), <em class="jxr_comment">// # of pages purged</em>
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>             JAVA_INT.withName(<span class="jxr_string">"speculative_count"</span>) <em class="jxr_comment">// # of pages speculative</em>
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     );
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>     PathElement VM_FREE_COUNT = groupElement(<span class="jxr_string">"free_count"</span>);
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     PathElement VM_INACTIVE_COUNT = groupElement(<span class="jxr_string">"inactive_count"</span>);
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>     PathElement VM_PAGEINS = groupElement(<span class="jxr_string">"pageins"</span>);
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     PathElement VM_PAGEOUTS = groupElement(<span class="jxr_string">"pageouts"</span>);
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> 
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     StructLayout XSW_USAGE = MemoryLayout.structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>             JAVA_LONG.withName(<span class="jxr_string">"xsu_total"</span>), <em class="jxr_comment">// total pages</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>             JAVA_LONG.withName(<span class="jxr_string">"xsu_avail"</span>), <em class="jxr_comment">// available pages</em>
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>             JAVA_LONG.withName(<span class="jxr_string">"xsu_used"</span>), <em class="jxr_comment">// used pages</em>
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             JAVA_INT.withName(<span class="jxr_string">"xsu_pagesize"</span>), <em class="jxr_comment">// page size</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>             JAVA_INT.withName(<span class="jxr_string">"xsu_encrypted"</span>) <em class="jxr_comment">// boolean padded to int</em>
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>     );
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     PathElement XSW_USAGE_USED = groupElement(<span class="jxr_string">"xsu_used"</span>);
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>     PathElement XSW_USAGE_TOTAL = groupElement(<span class="jxr_string">"xsu_total"</span>);
+<a class="jxr_linenumber" name="L460" href="#L460">460</a> 
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <em class="jxr_comment">// SMC (System Management Controller) structures</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <em class="jxr_comment">// SMCKeyDataVers: major(1) + minor(1) + build(1) + reserved(1) + release(2) = 6 bytes</em>
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     StructLayout SMC_KEY_DATA_VERS = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>             JAVA_BYTE.withName(<span class="jxr_string">"major"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             JAVA_BYTE.withName(<span class="jxr_string">"minor"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>             JAVA_BYTE.withName(<span class="jxr_string">"build"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>             JAVA_BYTE.withName(<span class="jxr_string">"reserved"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>             JAVA_SHORT.withName(<span class="jxr_string">"release"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>     );
+<a class="jxr_linenumber" name="L470" href="#L470">470</a> 
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>     <em class="jxr_comment">// SMCKeyDataPLimitData: version(2) + length(2) + cpuPLimit(4) + gpuPLimit(4) + memPLimit(4) = 16 bytes</em>
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>     StructLayout SMC_KEY_DATA_PLIMIT = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>             JAVA_SHORT.withName(<span class="jxr_string">"version"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>             JAVA_SHORT.withName(<span class="jxr_string">"length"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             JAVA_INT.withName(<span class="jxr_string">"cpuPLimit"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>             JAVA_INT.withName(<span class="jxr_string">"gpuPLimit"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             JAVA_INT.withName(<span class="jxr_string">"memPLimit"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>     );
+<a class="jxr_linenumber" name="L479" href="#L479">479</a> 
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>     <em class="jxr_comment">// SMCKeyDataKeyInfo: dataSize(4) + dataType(4) + dataAttributes(1) + padding(3) = 12 bytes</em>
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>     StructLayout SMC_KEY_DATA_KEY_INFO = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>             JAVA_INT.withName(<span class="jxr_string">"dataSize"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>             JAVA_INT.withName(<span class="jxr_string">"dataType"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>             JAVA_BYTE.withName(<span class="jxr_string">"dataAttributes"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>             paddingLayout(3) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>     );
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>     PathElement SMC_DATA_SIZE = groupElement(<span class="jxr_string">"dataSize"</span>);
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>     PathElement SMC_DATA_TYPE = groupElement(<span class="jxr_string">"dataType"</span>);
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>     PathElement SMC_DATA_ATTRIBUTES = groupElement(<span class="jxr_string">"dataAttributes"</span>);
+<a class="jxr_linenumber" name="L490" href="#L490">490</a> 
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <em class="jxr_comment">// SMCKeyData: key(4) + vers(6) + pad(2) + pLimitData(16) + keyInfo(12) + result(1) + status(1) + data8(1) +</em>
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>     <em class="jxr_comment">// pad(1) + data32(4) + bytes[32] = 80 bytes</em>
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>     StructLayout SMC_KEY_DATA = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>             JAVA_INT.withName(<span class="jxr_string">"key"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>             SMC_KEY_DATA_VERS.withName(<span class="jxr_string">"vers"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>             paddingLayout(2), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>             SMC_KEY_DATA_PLIMIT.withName(<span class="jxr_string">"pLimitData"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>             SMC_KEY_DATA_KEY_INFO.withName(<span class="jxr_string">"keyInfo"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>             JAVA_BYTE.withName(<span class="jxr_string">"result"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>             JAVA_BYTE.withName(<span class="jxr_string">"status"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>             JAVA_BYTE.withName(<span class="jxr_string">"data8"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>             paddingLayout(1), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>             JAVA_INT.withName(<span class="jxr_string">"data32"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>             sequenceLayout(32, JAVA_BYTE).withName(<span class="jxr_string">"bytes"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>     );
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>     PathElement SMC_KEY = groupElement(<span class="jxr_string">"key"</span>);
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>     PathElement SMC_KEY_INFO = groupElement(<span class="jxr_string">"keyInfo"</span>);
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>     PathElement SMC_RESULT = groupElement(<span class="jxr_string">"result"</span>);
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>     PathElement SMC_STATUS = groupElement(<span class="jxr_string">"status"</span>);
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     PathElement SMC_DATA8 = groupElement(<span class="jxr_string">"data8"</span>);
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>     PathElement SMC_DATA32 = groupElement(<span class="jxr_string">"data32"</span>);
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>     PathElement SMC_BYTES = groupElement(<span class="jxr_string">"bytes"</span>);
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <em class="jxr_comment">// SMCVal: key[5](5) + pad(3) + dataSize(4) + dataType[5](5) + pad(3) + bytes[32](32) = 52 bytes</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>     StructLayout SMC_VAL = structLayout(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>             sequenceLayout(5, JAVA_BYTE).withName(<span class="jxr_string">"key"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>             paddingLayout(3), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>             JAVA_INT.withName(<span class="jxr_string">"dataSize"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>             sequenceLayout(5, JAVA_BYTE).withName(<span class="jxr_string">"dataType"</span>), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>             paddingLayout(3), <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>             sequenceLayout(32, JAVA_BYTE).withName(<span class="jxr_string">"bytes"</span>) <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>     );
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>     PathElement SMC_VAL_KEY = groupElement(<span class="jxr_string">"key"</span>);
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     PathElement SMC_VAL_DATA_SIZE = groupElement(<span class="jxr_string">"dataSize"</span>);
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     PathElement SMC_VAL_DATA_TYPE = groupElement(<span class="jxr_string">"dataType"</span>);
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>     PathElement SMC_VAL_BYTES = groupElement(<span class="jxr_string">"bytes"</span>);
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -17,74 +17,73 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertEquals;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertTrue;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.function.IntPredicate;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">class</strong> <a name="WindowsCentralProcessorTest" href="../../../../../oshi/hardware/common/platform/windows/WindowsCentralProcessorTest.html#WindowsCentralProcessorTest">WindowsCentralProcessorTest</a> {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      @Test
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">void</strong> testParseIdentifier() {
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          String id = <span class="jxr_string">"Intel64 Family 6 Model 142 Stepping 12"</span>;
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>          assertThat(WindowsCentralProcessor.parseIdentifier(id, <span class="jxr_string">"Family"</span>), is(<span class="jxr_string">"6"</span>));
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(WindowsCentralProcessor.parseIdentifier(id, <span class="jxr_string">"Model"</span>), is(<span class="jxr_string">"142"</span>));
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(WindowsCentralProcessor.parseIdentifier(id, <span class="jxr_string">"Stepping"</span>), is(<span class="jxr_string">"12"</span>));
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      @Test
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">void</strong> testParseIdentifierNotFound() {
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          assertThat(WindowsCentralProcessor.parseIdentifier(<span class="jxr_string">"Intel64 Family 6"</span>, <span class="jxr_string">"Model"</span>), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      @Test
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">void</strong> testParseIdentifierKeyAtEnd() {
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <em class="jxr_comment">// Key is the last token — no value follows</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(WindowsCentralProcessor.parseIdentifier(<span class="jxr_string">"Family 6 Model"</span>, <span class="jxr_string">"Model"</span>), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Test
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">void</strong> testNoFeaturesPresent() {
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertTrue(WindowsCentralProcessor.queryFeatureFlags(f -&gt; false).isEmpty());
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      @Test
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">void</strong> testAllFeaturesPresent() {
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; all = WindowsCentralProcessor.queryFeatureFlags(f -&gt; <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertEquals(90, all.size());
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertEquals(<strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(all).size(), all.size(), <span class="jxr_string">"feature names should be unique"</span>);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">for</strong> (String name : all) {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>              assertTrue(name.startsWith(<span class="jxr_string">"PF_"</span>), name);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          }
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      @Test
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">void</strong> testOnlyRequestedFeaturesReported() {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <em class="jxr_comment">// 3 = PF_MMX_INSTRUCTIONS_AVAILABLE, 39 = PF_AVX_INSTRUCTIONS_AVAILABLE</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          Set&lt;Integer&gt; present = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Arrays.asList(3, 39));
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          IntPredicate predicate = present::contains;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertEquals(Arrays.asList(<span class="jxr_string">"PF_MMX_INSTRUCTIONS_AVAILABLE"</span>, <span class="jxr_string">"PF_AVX_INSTRUCTIONS_AVAILABLE"</span>),
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  WindowsCentralProcessor.queryFeatureFlags(predicate));
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>      @Test
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <strong class="jxr_keyword">void</strong> testFeatureValuesAreContiguous() {
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// The enum mirrors winnt.h, whose PF_ defines run 0 through 89 with no gaps</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          Set&lt;Integer&gt; queried = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          WindowsCentralProcessor.queryFeatureFlags(f -&gt; {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              queried.add(f);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          });
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          Set&lt;Integer&gt; expected = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= 89; i++) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              expected.add(i);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertEquals(expected, queried);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>  }
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.function.IntPredicate;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="WindowsCentralProcessorTest" href="../../../../../oshi/hardware/common/platform/windows/WindowsCentralProcessorTest.html#WindowsCentralProcessorTest">WindowsCentralProcessorTest</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Test
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">void</strong> testParseIdentifier() {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          String id = <span class="jxr_string">"Intel64 Family 6 Model 142 Stepping 12"</span>;
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          assertThat(WindowsCentralProcessor.parseIdentifier(id, <span class="jxr_string">"Family"</span>), is(<span class="jxr_string">"6"</span>));
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          assertThat(WindowsCentralProcessor.parseIdentifier(id, <span class="jxr_string">"Model"</span>), is(<span class="jxr_string">"142"</span>));
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(WindowsCentralProcessor.parseIdentifier(id, <span class="jxr_string">"Stepping"</span>), is(<span class="jxr_string">"12"</span>));
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      @Test
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">void</strong> testParseIdentifierNotFound() {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(WindowsCentralProcessor.parseIdentifier(<span class="jxr_string">"Intel64 Family 6"</span>, <span class="jxr_string">"Model"</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      }
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      @Test
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">void</strong> testParseIdentifierKeyAtEnd() {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <em class="jxr_comment">// Key is the last token — no value follows</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(WindowsCentralProcessor.parseIdentifier(<span class="jxr_string">"Family 6 Model"</span>, <span class="jxr_string">"Model"</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      }
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Test
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">void</strong> testNoFeaturesPresent() {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertTrue(WindowsCentralProcessor.queryFeatureFlags(f -&gt; false).isEmpty());
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      @Test
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">void</strong> testAllFeaturesPresent() {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          List&lt;String&gt; all = WindowsCentralProcessor.queryFeatureFlags(f -&gt; <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertEquals(90, all.size());
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertEquals(<strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(all).size(), all.size(), <span class="jxr_string">"feature names should be unique"</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          <strong class="jxr_keyword">for</strong> (String name : all) {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              assertTrue(name.startsWith(<span class="jxr_string">"PF_"</span>), name);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          }
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @Test
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">void</strong> testOnlyRequestedFeaturesReported() {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <em class="jxr_comment">// 3 = PF_MMX_INSTRUCTIONS_AVAILABLE, 39 = PF_AVX_INSTRUCTIONS_AVAILABLE</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          Set&lt;Integer&gt; present = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(List.of(3, 39));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          IntPredicate predicate = present::contains;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertEquals(List.of(<span class="jxr_string">"PF_MMX_INSTRUCTIONS_AVAILABLE"</span>, <span class="jxr_string">"PF_AVX_INSTRUCTIONS_AVAILABLE"</span>),
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  WindowsCentralProcessor.queryFeatureFlags(predicate));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      @Test
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>      <strong class="jxr_keyword">void</strong> testFeatureValuesAreContiguous() {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <em class="jxr_comment">// The enum mirrors winnt.h, whose PF_ defines run 0 through 89 with no gaps</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          Set&lt;Integer&gt; queried = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          WindowsCentralProcessor.queryFeatureFlags(f -&gt; {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              queried.add(f);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          });
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Set&lt;Integer&gt; expected = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt;= 89; i++) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              expected.add(i);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertEquals(expected, queried);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

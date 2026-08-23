@@ -506,83 +506,86 @@
 <a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">     * @param lists the counter lists to check</em>
 <a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">     * @return true if all are present and long enough</em>
 <a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasAll(<strong class="jxr_keyword">int</strong> size, @Nullable List&lt;Long&gt;... lists) {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>         <strong class="jxr_keyword">for</strong> (List&lt;Long&gt; list : lists) {
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>             <strong class="jxr_keyword">if</strong> (list == <strong class="jxr_keyword">null</strong> || list.size() &lt; size) {
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>             }
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>         }
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>     }
-<a class="jxr_linenumber" name="L509" href="#L509">509</a> 
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L511" href="#L511">511</a> <em class="jxr_javadoccomment">     * Every processor feature {@code IsProcessorFeaturePresent()} accepts, mirroring the {@code PF_} defines in</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a> <em class="jxr_javadoccomment">     * {@code winnt.h}. Windows returns false for a feature its build does not know, so the whole set can be queried on</em>
-<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">     * any version.</em>
-<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>     <strong class="jxr_keyword">private</strong> enum ProcessorFeature {
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         PF_FLOATING_POINT_PRECISION_ERRATA(0), PF_FLOATING_POINT_EMULATED(1), PF_COMPARE_EXCHANGE_DOUBLE(2),
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>         PF_MMX_INSTRUCTIONS_AVAILABLE(3), PF_PPC_MOVEMEM_64BIT_OK(4), PF_ALPHA_BYTE_INSTRUCTIONS(5),
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>         PF_XMMI_INSTRUCTIONS_AVAILABLE(6), PF_3DNOW_INSTRUCTIONS_AVAILABLE(7), PF_RDTSC_INSTRUCTION_AVAILABLE(8),
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>         PF_PAE_ENABLED(9), PF_XMMI64_INSTRUCTIONS_AVAILABLE(10), PF_SSE_DAZ_MODE_AVAILABLE(11), PF_NX_ENABLED(12),
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>         PF_SSE3_INSTRUCTIONS_AVAILABLE(13), PF_COMPARE_EXCHANGE128(14), PF_COMPARE64_EXCHANGE128(15),
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>         PF_CHANNELS_ENABLED(16), PF_XSAVE_ENABLED(17), PF_ARM_VFP_32_REGISTERS_AVAILABLE(18),
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>         PF_ARM_NEON_INSTRUCTIONS_AVAILABLE(19), PF_SECOND_LEVEL_ADDRESS_TRANSLATION(20), PF_VIRT_FIRMWARE_ENABLED(21),
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         PF_RDWRFSGSBASE_AVAILABLE(22), PF_FASTFAIL_AVAILABLE(23), PF_ARM_DIVIDE_INSTRUCTION_AVAILABLE(24),
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>         PF_ARM_64BIT_LOADSTORE_ATOMIC(25), PF_ARM_EXTERNAL_CACHE_AVAILABLE(26), PF_ARM_FMAC_INSTRUCTIONS_AVAILABLE(27),
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         PF_RDRAND_INSTRUCTION_AVAILABLE(28), PF_ARM_V8_INSTRUCTIONS_AVAILABLE(29),
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>         PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE(30), PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE(31),
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>         PF_RDTSCP_INSTRUCTION_AVAILABLE(32), PF_RDPID_INSTRUCTION_AVAILABLE(33),
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>         PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE(34), PF_MONITORX_INSTRUCTION_AVAILABLE(35),
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>         PF_SSSE3_INSTRUCTIONS_AVAILABLE(36), PF_SSE4_1_INSTRUCTIONS_AVAILABLE(37), PF_SSE4_2_INSTRUCTIONS_AVAILABLE(38),
-<a class="jxr_linenumber" name="L530" href="#L530">530</a>         PF_AVX_INSTRUCTIONS_AVAILABLE(39), PF_AVX2_INSTRUCTIONS_AVAILABLE(40), PF_AVX512F_INSTRUCTIONS_AVAILABLE(41),
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>         PF_ERMS_AVAILABLE(42), PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE(43), PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE(44),
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>         PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE(45), PF_ARM_SVE_INSTRUCTIONS_AVAILABLE(46),
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>         PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE(47), PF_ARM_SVE2_1_INSTRUCTIONS_AVAILABLE(48),
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>         PF_ARM_SVE_AES_INSTRUCTIONS_AVAILABLE(49), PF_ARM_SVE_PMULL128_INSTRUCTIONS_AVAILABLE(50),
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         PF_ARM_SVE_BITPERM_INSTRUCTIONS_AVAILABLE(51), PF_ARM_SVE_BF16_INSTRUCTIONS_AVAILABLE(52),
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         PF_ARM_SVE_EBF16_INSTRUCTIONS_AVAILABLE(53), PF_ARM_SVE_B16B16_INSTRUCTIONS_AVAILABLE(54),
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>         PF_ARM_SVE_SHA3_INSTRUCTIONS_AVAILABLE(55), PF_ARM_SVE_SM4_INSTRUCTIONS_AVAILABLE(56),
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         PF_ARM_SVE_I8MM_INSTRUCTIONS_AVAILABLE(57), PF_ARM_SVE_F32MM_INSTRUCTIONS_AVAILABLE(58),
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>         PF_ARM_SVE_F64MM_INSTRUCTIONS_AVAILABLE(59), PF_BMI2_INSTRUCTIONS_AVAILABLE(60),
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>         PF_MOVDIR64B_INSTRUCTION_AVAILABLE(61), PF_ARM_LSE2_AVAILABLE(62), PF_RESERVED_FEATURE(63),
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         PF_ARM_SHA3_INSTRUCTIONS_AVAILABLE(64), PF_ARM_SHA512_INSTRUCTIONS_AVAILABLE(65),
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>         PF_ARM_V82_I8MM_INSTRUCTIONS_AVAILABLE(66), PF_ARM_V82_FP16_INSTRUCTIONS_AVAILABLE(67),
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>         PF_ARM_V86_BF16_INSTRUCTIONS_AVAILABLE(68), PF_ARM_V86_EBF16_INSTRUCTIONS_AVAILABLE(69),
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>         PF_ARM_SME_INSTRUCTIONS_AVAILABLE(70), PF_ARM_SME2_INSTRUCTIONS_AVAILABLE(71),
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         PF_ARM_SME2_1_INSTRUCTIONS_AVAILABLE(72), PF_ARM_SME2_2_INSTRUCTIONS_AVAILABLE(73),
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>         PF_ARM_SME_AES_INSTRUCTIONS_AVAILABLE(74), PF_ARM_SME_SBITPERM_INSTRUCTIONS_AVAILABLE(75),
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>         PF_ARM_SME_SF8MM4_INSTRUCTIONS_AVAILABLE(76), PF_ARM_SME_SF8MM8_INSTRUCTIONS_AVAILABLE(77),
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         PF_ARM_SME_SF8DP2_INSTRUCTIONS_AVAILABLE(78), PF_ARM_SME_SF8DP4_INSTRUCTIONS_AVAILABLE(79),
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         PF_ARM_SME_SF8FMA_INSTRUCTIONS_AVAILABLE(80), PF_ARM_SME_F8F32_INSTRUCTIONS_AVAILABLE(81),
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>         PF_ARM_SME_F8F16_INSTRUCTIONS_AVAILABLE(82), PF_ARM_SME_F16F16_INSTRUCTIONS_AVAILABLE(83),
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>         PF_ARM_SME_B16B16_INSTRUCTIONS_AVAILABLE(84), PF_ARM_SME_F64F64_INSTRUCTIONS_AVAILABLE(85),
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         PF_ARM_SME_I16I64_INSTRUCTIONS_AVAILABLE(86), PF_ARM_SME_LUTv2_INSTRUCTIONS_AVAILABLE(87),
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>         PF_ARM_SME_FA64_INSTRUCTIONS_AVAILABLE(88), PF_UMONITOR_INSTRUCTION_AVAILABLE(89);
-<a class="jxr_linenumber" name="L554" href="#L554">554</a> 
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> value;
-<a class="jxr_linenumber" name="L556" href="#L556">556</a> 
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>         ProcessorFeature(<strong class="jxr_keyword">int</strong> value) {
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>             <strong class="jxr_keyword">this</strong>.value = value;
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         }
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>     }
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> 
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">     * Collects the processor features reported as present.</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">     * @param featurePresent Tests one feature value, normally the platform's {@code IsProcessorFeaturePresent()}</em>
-<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * @return The names of the features present, in ascending feature order</em>
-<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; queryFeatureFlags(IntPredicate featurePresent) {
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         List&lt;String&gt; featureFlags = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>         <strong class="jxr_keyword">for</strong> (ProcessorFeature feature : ProcessorFeature.values()) {
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>             <strong class="jxr_keyword">if</strong> (featurePresent.test(feature.value)) {
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>                 featureFlags.add(feature.name());
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>             }
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         }
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <strong class="jxr_keyword">return</strong> featureFlags;
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>     }
-<a class="jxr_linenumber" name="L577" href="#L577">577</a> }
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <em class="jxr_comment">// Only iterates the array and reads from it; nothing is stored into it and it does not escape, so the</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     <em class="jxr_comment">// generic varargs array cannot be polluted.</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>     @SafeVarargs
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> hasAll(<strong class="jxr_keyword">int</strong> size, @Nullable List&lt;Long&gt;... lists) {
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         <strong class="jxr_keyword">for</strong> (List&lt;Long&gt; list : lists) {
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>             <strong class="jxr_keyword">if</strong> (list == <strong class="jxr_keyword">null</strong> || list.size() &lt; size) {
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                 <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             }
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>         }
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>     }
+<a class="jxr_linenumber" name="L512" href="#L512">512</a> 
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     * Every processor feature {@code IsProcessorFeaturePresent()} accepts, mirroring the {@code PF_} defines in</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">     * {@code winnt.h}. Windows returns false for a feature its build does not know, so the whole set can be queried on</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">     * any version.</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>     <strong class="jxr_keyword">private</strong> enum ProcessorFeature {
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>         PF_FLOATING_POINT_PRECISION_ERRATA(0), PF_FLOATING_POINT_EMULATED(1), PF_COMPARE_EXCHANGE_DOUBLE(2),
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         PF_MMX_INSTRUCTIONS_AVAILABLE(3), PF_PPC_MOVEMEM_64BIT_OK(4), PF_ALPHA_BYTE_INSTRUCTIONS(5),
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>         PF_XMMI_INSTRUCTIONS_AVAILABLE(6), PF_3DNOW_INSTRUCTIONS_AVAILABLE(7), PF_RDTSC_INSTRUCTION_AVAILABLE(8),
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         PF_PAE_ENABLED(9), PF_XMMI64_INSTRUCTIONS_AVAILABLE(10), PF_SSE_DAZ_MODE_AVAILABLE(11), PF_NX_ENABLED(12),
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>         PF_SSE3_INSTRUCTIONS_AVAILABLE(13), PF_COMPARE_EXCHANGE128(14), PF_COMPARE64_EXCHANGE128(15),
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         PF_CHANNELS_ENABLED(16), PF_XSAVE_ENABLED(17), PF_ARM_VFP_32_REGISTERS_AVAILABLE(18),
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>         PF_ARM_NEON_INSTRUCTIONS_AVAILABLE(19), PF_SECOND_LEVEL_ADDRESS_TRANSLATION(20), PF_VIRT_FIRMWARE_ENABLED(21),
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         PF_RDWRFSGSBASE_AVAILABLE(22), PF_FASTFAIL_AVAILABLE(23), PF_ARM_DIVIDE_INSTRUCTION_AVAILABLE(24),
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>         PF_ARM_64BIT_LOADSTORE_ATOMIC(25), PF_ARM_EXTERNAL_CACHE_AVAILABLE(26), PF_ARM_FMAC_INSTRUCTIONS_AVAILABLE(27),
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>         PF_RDRAND_INSTRUCTION_AVAILABLE(28), PF_ARM_V8_INSTRUCTIONS_AVAILABLE(29),
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         PF_ARM_V8_CRYPTO_INSTRUCTIONS_AVAILABLE(30), PF_ARM_V8_CRC32_INSTRUCTIONS_AVAILABLE(31),
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         PF_RDTSCP_INSTRUCTION_AVAILABLE(32), PF_RDPID_INSTRUCTION_AVAILABLE(33),
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         PF_ARM_V81_ATOMIC_INSTRUCTIONS_AVAILABLE(34), PF_MONITORX_INSTRUCTION_AVAILABLE(35),
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         PF_SSSE3_INSTRUCTIONS_AVAILABLE(36), PF_SSE4_1_INSTRUCTIONS_AVAILABLE(37), PF_SSE4_2_INSTRUCTIONS_AVAILABLE(38),
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         PF_AVX_INSTRUCTIONS_AVAILABLE(39), PF_AVX2_INSTRUCTIONS_AVAILABLE(40), PF_AVX512F_INSTRUCTIONS_AVAILABLE(41),
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         PF_ERMS_AVAILABLE(42), PF_ARM_V82_DP_INSTRUCTIONS_AVAILABLE(43), PF_ARM_V83_JSCVT_INSTRUCTIONS_AVAILABLE(44),
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>         PF_ARM_V83_LRCPC_INSTRUCTIONS_AVAILABLE(45), PF_ARM_SVE_INSTRUCTIONS_AVAILABLE(46),
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>         PF_ARM_SVE2_INSTRUCTIONS_AVAILABLE(47), PF_ARM_SVE2_1_INSTRUCTIONS_AVAILABLE(48),
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         PF_ARM_SVE_AES_INSTRUCTIONS_AVAILABLE(49), PF_ARM_SVE_PMULL128_INSTRUCTIONS_AVAILABLE(50),
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>         PF_ARM_SVE_BITPERM_INSTRUCTIONS_AVAILABLE(51), PF_ARM_SVE_BF16_INSTRUCTIONS_AVAILABLE(52),
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         PF_ARM_SVE_EBF16_INSTRUCTIONS_AVAILABLE(53), PF_ARM_SVE_B16B16_INSTRUCTIONS_AVAILABLE(54),
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         PF_ARM_SVE_SHA3_INSTRUCTIONS_AVAILABLE(55), PF_ARM_SVE_SM4_INSTRUCTIONS_AVAILABLE(56),
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>         PF_ARM_SVE_I8MM_INSTRUCTIONS_AVAILABLE(57), PF_ARM_SVE_F32MM_INSTRUCTIONS_AVAILABLE(58),
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>         PF_ARM_SVE_F64MM_INSTRUCTIONS_AVAILABLE(59), PF_BMI2_INSTRUCTIONS_AVAILABLE(60),
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>         PF_MOVDIR64B_INSTRUCTION_AVAILABLE(61), PF_ARM_LSE2_AVAILABLE(62), PF_RESERVED_FEATURE(63),
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         PF_ARM_SHA3_INSTRUCTIONS_AVAILABLE(64), PF_ARM_SHA512_INSTRUCTIONS_AVAILABLE(65),
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>         PF_ARM_V82_I8MM_INSTRUCTIONS_AVAILABLE(66), PF_ARM_V82_FP16_INSTRUCTIONS_AVAILABLE(67),
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         PF_ARM_V86_BF16_INSTRUCTIONS_AVAILABLE(68), PF_ARM_V86_EBF16_INSTRUCTIONS_AVAILABLE(69),
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         PF_ARM_SME_INSTRUCTIONS_AVAILABLE(70), PF_ARM_SME2_INSTRUCTIONS_AVAILABLE(71),
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         PF_ARM_SME2_1_INSTRUCTIONS_AVAILABLE(72), PF_ARM_SME2_2_INSTRUCTIONS_AVAILABLE(73),
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>         PF_ARM_SME_AES_INSTRUCTIONS_AVAILABLE(74), PF_ARM_SME_SBITPERM_INSTRUCTIONS_AVAILABLE(75),
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         PF_ARM_SME_SF8MM4_INSTRUCTIONS_AVAILABLE(76), PF_ARM_SME_SF8MM8_INSTRUCTIONS_AVAILABLE(77),
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>         PF_ARM_SME_SF8DP2_INSTRUCTIONS_AVAILABLE(78), PF_ARM_SME_SF8DP4_INSTRUCTIONS_AVAILABLE(79),
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         PF_ARM_SME_SF8FMA_INSTRUCTIONS_AVAILABLE(80), PF_ARM_SME_F8F32_INSTRUCTIONS_AVAILABLE(81),
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         PF_ARM_SME_F8F16_INSTRUCTIONS_AVAILABLE(82), PF_ARM_SME_F16F16_INSTRUCTIONS_AVAILABLE(83),
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         PF_ARM_SME_B16B16_INSTRUCTIONS_AVAILABLE(84), PF_ARM_SME_F64F64_INSTRUCTIONS_AVAILABLE(85),
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         PF_ARM_SME_I16I64_INSTRUCTIONS_AVAILABLE(86), PF_ARM_SME_LUTv2_INSTRUCTIONS_AVAILABLE(87),
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         PF_ARM_SME_FA64_INSTRUCTIONS_AVAILABLE(88), PF_UMONITOR_INSTRUCTION_AVAILABLE(89);
+<a class="jxr_linenumber" name="L557" href="#L557">557</a> 
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> value;
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> 
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>         ProcessorFeature(<strong class="jxr_keyword">int</strong> value) {
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>             <strong class="jxr_keyword">this</strong>.value = value;
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         }
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>     }
+<a class="jxr_linenumber" name="L564" href="#L564">564</a> 
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a> <em class="jxr_javadoccomment">     * Collects the processor features reported as present.</em>
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L568" href="#L568">568</a> <em class="jxr_javadoccomment">     * @param featurePresent Tests one feature value, normally the platform's {@code IsProcessorFeaturePresent()}</em>
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     * @return The names of the features present, in ascending feature order</em>
+<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; queryFeatureFlags(IntPredicate featurePresent) {
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         List&lt;String&gt; featureFlags = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <strong class="jxr_keyword">for</strong> (ProcessorFeature feature : ProcessorFeature.values()) {
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>             <strong class="jxr_keyword">if</strong> (featurePresent.test(feature.value)) {
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>                 featureFlags.add(feature.name());
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>             }
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <strong class="jxr_keyword">return</strong> featureFlags;
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>     }
+<a class="jxr_linenumber" name="L580" href="#L580">580</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

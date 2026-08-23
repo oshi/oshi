@@ -237,7 +237,7 @@
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>         <strong class="jxr_keyword">int</strong> idx = 0;
 <a class="jxr_linenumber" name="L230" href="#L230">230</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">final</strong> String checkLine : pmcycles) {
 <a class="jxr_linenumber" name="L231" href="#L231">231</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(freqMarker)) {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 freqs[idx++] = ParseUtil.parseHertz(checkLine.split(freqMarker, -1)[1].trim());
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>                 freqs[idx++] = ParseUtil.parseHertz(ParseUtil.getTextAfterString(checkLine, freqMarker).trim());
 <a class="jxr_linenumber" name="L233" href="#L233">233</a>                 <strong class="jxr_keyword">if</strong> (idx &gt;= freqs.length) {
 <a class="jxr_linenumber" name="L234" href="#L234">234</a>                     <strong class="jxr_keyword">break</strong>;
 <a class="jxr_linenumber" name="L235" href="#L235">235</a>                 }

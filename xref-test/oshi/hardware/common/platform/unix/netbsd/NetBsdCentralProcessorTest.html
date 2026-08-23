@@ -16,23 +16,23 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.arrayContaining;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="NetBsdCentralProcessorTest" href="../../../../../../oshi/hardware/common/platform/unix/netbsd/NetBsdCentralProcessorTest.html#NetBsdCentralProcessorTest">NetBsdCentralProcessorTest</a> {
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Test
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">void</strong> testParseVmStats() {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          List&lt;String&gt; vmstat = Arrays.asList(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>                  <span class="jxr_string">"       42983 CPU context switches"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>                  <span class="jxr_string">"        8301 device interrupts"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>                  <span class="jxr_string">"           0 software interrupts"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  <span class="jxr_string">"       12345 some other stat"</span>);
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">class</strong> <a name="NetBsdCentralProcessorTest" href="../../../../../../oshi/hardware/common/platform/unix/netbsd/NetBsdCentralProcessorTest.html#NetBsdCentralProcessorTest">NetBsdCentralProcessorTest</a> {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      @Test
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <strong class="jxr_keyword">void</strong> testParseVmStats() {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>          List&lt;String&gt; vmstat = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>                         42983 CPU context switches
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>                          8301 device interrupts
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>                             0 software interrupts
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>                         12345 some other stat
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>          Pair&lt;Long, Long&gt; result = NetBsdCentralProcessor.parseVmStats(vmstat);
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(result.getA(), is(42983L));
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(result.getB(), is(8301L));
@@ -47,7 +47,7 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>  
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Test
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">void</strong> testParseFamilyModelStepping() {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          List&lt;String&gt; dmesg = List.of(<em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>                  <span class="jxr_string">"cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01"</span>, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>                  <span class="jxr_string">"cpu1: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01"</span>);
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
@@ -56,7 +56,7 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>  
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>      @Test
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">void</strong> testParseFamilyModelSteppingAmd() {
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          List&lt;String&gt; dmesg = List.of(<em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>                  <span class="jxr_string">"cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01"</span>);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(fms, is(arrayContaining(<span class="jxr_string">"19"</span>, <span class="jxr_string">"01"</span>, <span class="jxr_string">"01"</span>)));
@@ -70,7 +70,7 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>      @Test
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">void</strong> testParseFamilyModelSteppingNoMatch() {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          List&lt;String&gt; dmesg = List.of(<em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <span class="jxr_string">"cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4"</span>, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <span class="jxr_string">"cpu0: 32KB 64b/line 2-way L1 VIPT I-cache"</span>);
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);

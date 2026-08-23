@@ -15,8 +15,8 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertNotNull;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
@@ -32,7 +32,7 @@
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      @Test
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">void</strong> testParseServices() {
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>          <em class="jxr_comment">// lssrc -a: header row, active subsystems (with/without a Group column), and an inoperative one</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          List&lt;OSService&gt; services = AixOperatingSystem.parseServices(Arrays.asList(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          List&lt;OSService&gt; services = AixOperatingSystem.parseServices(List.of(<em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>                  <span class="jxr_string">"Subsystem         Group            PID          Status"</span>, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>                  <span class="jxr_string">" syslogd          ras              4194320      active"</span>, <em class="jxr_comment">//</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>                  <span class="jxr_string">" inetd            5218374          active"</span>, <em class="jxr_comment">// 3-token active form (no group column)</em>
@@ -40,44 +40,49 @@
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>          Map&lt;String, OSService&gt; byName = services.stream()
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>                  .collect(Collectors.toMap(OSService::getName, Function.identity()));
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(byName.get(<span class="jxr_string">"syslogd"</span>).getProcessID(), is(4194320));
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(byName.get(<span class="jxr_string">"syslogd"</span>).getState(), is(OSService.State.RUNNING));
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(byName.get(<span class="jxr_string">"inetd"</span>).getProcessID(), is(5218374));
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(byName.get(<span class="jxr_string">"inetd"</span>).getState(), is(OSService.State.RUNNING));
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertThat(byName.get(<span class="jxr_string">"portmap"</span>).getProcessID(), is(0));
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertThat(byName.get(<span class="jxr_string">"portmap"</span>).getState(), is(OSService.State.STOPPED));
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      }
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Test
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">void</strong> testParseServicesHeaderOnlyOrEmpty() {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertThat(AixOperatingSystem.parseServices(Collections.singletonList(<span class="jxr_string">"Subsystem Group PID Status"</span>)),
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  is(empty()));
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertThat(AixOperatingSystem.parseServices(Collections.emptyList()), is(empty()));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testResolveBootTimeMillis() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">long</strong> now = 1_600_000_000_000L;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">long</strong> whoBootTime = 1_500_000_000_000L;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">long</strong> upTime = 10_000_000L;
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// The up time duration is unambiguous, so it wins even when who -b also parsed</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(whoBootTime, upTime, now), is(now - upTime));
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(0L, upTime, now), is(now - upTime));
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// who -b is consulted only when the uptime command gave nothing</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(whoBootTime, 0L, now), is(whoBootTime));
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>      @Test
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <strong class="jxr_keyword">void</strong> testResolveBootTimeMillisTreatsZeroUpTimeAsUnknown() {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">long</strong> now = 1_600_000_000_000L;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <em class="jxr_comment">// who -b unparseable (its AIX output carries no year) and the uptime command failed. Reporting now - 0 would</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// claim the system booted this instant and pin uptime to zero, so both failing must yield "unknown" instead.</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(0L, 0L, now), is(0L));
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// A who -b value below the 1000 ms floor is treated as unusable rather than as a boot time in 1970</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(999L, 0L, now), is(0L));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          OSService syslogd = byName.get(<span class="jxr_string">"syslogd"</span>);
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          OSService inetd = byName.get(<span class="jxr_string">"inetd"</span>);
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          OSService portmap = byName.get(<span class="jxr_string">"portmap"</span>);
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertNotNull(syslogd);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertNotNull(inetd);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertNotNull(portmap);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          assertThat(syslogd.getProcessID(), is(4194320));
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertThat(syslogd.getState(), is(OSService.State.RUNNING));
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(inetd.getProcessID(), is(5218374));
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertThat(inetd.getState(), is(OSService.State.RUNNING));
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertThat(portmap.getProcessID(), is(0));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(portmap.getState(), is(OSService.State.STOPPED));
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      @Test
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">void</strong> testParseServicesHeaderOnlyOrEmpty() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(AixOperatingSystem.parseServices(List.of(<span class="jxr_string">"Subsystem Group PID Status"</span>)), is(empty()));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(AixOperatingSystem.parseServices(Collections.emptyList()), is(empty()));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @Test
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">void</strong> testResolveBootTimeMillis() {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">long</strong> now = 1_600_000_000_000L;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">long</strong> whoBootTime = 1_500_000_000_000L;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">long</strong> upTime = 10_000_000L;
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// The up time duration is unambiguous, so it wins even when who -b also parsed</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(whoBootTime, upTime, now), is(now - upTime));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(0L, upTime, now), is(now - upTime));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// who -b is consulted only when the uptime command gave nothing</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(whoBootTime, 0L, now), is(whoBootTime));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      @Test
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">void</strong> testResolveBootTimeMillisTreatsZeroUpTimeAsUnknown() {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">long</strong> now = 1_600_000_000_000L;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// who -b unparseable (its AIX output carries no year) and the uptime command failed. Reporting now - 0 would</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// claim the system booted this instant and pin uptime to zero, so both failing must yield "unknown" instead.</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(0L, 0L, now), is(0L));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// A who -b value below the 1000 ms floor is treated as unusable rather than as a boot time in 1970</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(AixOperatingSystem.resolveBootTimeMillis(999L, 0L, now), is(0L));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

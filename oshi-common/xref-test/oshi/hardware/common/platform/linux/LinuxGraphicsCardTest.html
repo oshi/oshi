@@ -15,18 +15,18 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.nio.charset.StandardCharsets;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.TestFileUtil.writeFile;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.function.Function;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.function.ToLongFunction;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.function.Function;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.function.ToLongFunction;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.io.TempDir;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
@@ -75,385 +75,486 @@
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      }
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>  
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>      @Test
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">void</strong> testFindDrmInfoNonexistentPath(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"01:00.0"</span>,
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  tempDir.resolve(<span class="jxr_string">"does-not-exist"</span>).toString());
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertThat(result.getA(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertThat(result.getB(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(result.getC(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      @Test
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">void</strong> testFindDrmInfoEmptyDir(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"01:00.0"</span>, tempDir.toString());
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertThat(result.getA(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(result.getB(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(result.getC(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <strong class="jxr_keyword">void</strong> testVramTotalPrefersAmdgpuSysfs(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          Path device = tempDir.resolve(<span class="jxr_string">"device"</span>);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          Files.createDirectories(device);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          writeFile(device.resolve(<span class="jxr_string">"mem_info_vram_total"</span>), <span class="jxr_string">"25753026560\n"</span>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <em class="jxr_comment">// The 20480 below is an lspci BAR size, which is the aperture the card exposes rather than the memory it has</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          LinuxGraphicsCard.Attrs attrs = <strong class="jxr_keyword">new</strong> LinuxGraphicsCard.Attrs(<span class="jxr_string">"RX 7900"</span>, <span class="jxr_string">"0x744c"</span>, <span class="jxr_string">"AMD"</span>, <span class="jxr_string">"Rev: c1"</span>, 20480L,
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  device.toString(), <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:03:00.0"</span>);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertThat(LinuxGraphicsCard.vramTotal(attrs), is(25753026560L));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      @Test
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <strong class="jxr_keyword">void</strong> testVramTotalFallsBackToParsedValue(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          Path device = tempDir.resolve(<span class="jxr_string">"device"</span>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          Files.createDirectories(device);
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      @Test
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">void</strong> testFindDrmInfoNoDriverSymlink(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// card0/device exists but no driver symlink</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          Files.createDirectories(tempDir.resolve(<span class="jxr_string">"card0/device"</span>));
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"01:00.0"</span>, tempDir.toString());
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertThat(result.getA(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertThat(result.getB(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(result.getC(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          LinuxGraphicsCard.Attrs amdNoFile = <strong class="jxr_keyword">new</strong> LinuxGraphicsCard.Attrs(<span class="jxr_string">"RX 7900"</span>, <span class="jxr_string">"0x744c"</span>, <span class="jxr_string">"AMD"</span>, <span class="jxr_string">"Rev: c1"</span>, 20480L,
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  device.toString(), <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:03:00.0"</span>);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertThat(LinuxGraphicsCard.vramTotal(amdNoFile), is(20480L));
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <em class="jxr_comment">// Only amdgpu publishes this file, so another driver must not be read out of the same path</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          writeFile(device.resolve(<span class="jxr_string">"mem_info_vram_total"</span>), <span class="jxr_string">"25753026560\n"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          LinuxGraphicsCard.Attrs intel = <strong class="jxr_keyword">new</strong> LinuxGraphicsCard.Attrs(<span class="jxr_string">"Arc A770"</span>, <span class="jxr_string">"0x56a0"</span>, <span class="jxr_string">"Intel"</span>, <span class="jxr_string">"Rev: 08"</span>, 20480L,
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  device.toString(), <span class="jxr_string">"i915"</span>, <span class="jxr_string">"0000:03:00.0"</span>);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(LinuxGraphicsCard.vramTotal(intel), is(20480L));
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Test
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">void</strong> testFindDrmInfoMatchesPciSlot(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:01:00.0"</span>);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          createCardWithDriver(tempDir, <span class="jxr_string">"card1"</span>, <span class="jxr_string">"i915"</span>, <span class="jxr_string">"0000:00:02.0"</span>);
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          LinuxGraphicsCard.Attrs noPath = <strong class="jxr_keyword">new</strong> LinuxGraphicsCard.Attrs(<span class="jxr_string">"RX 7900"</span>, <span class="jxr_string">"0x744c"</span>, <span class="jxr_string">"AMD"</span>, <span class="jxr_string">"Rev: c1"</span>, 20480L, <span class="jxr_string">""</span>,
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:03:00.0"</span>);
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          assertThat(LinuxGraphicsCard.vramTotal(noPath), is(20480L));
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
 <a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"00:02.0"</span>, tempDir.toString());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertThat(result.getB(), is(<span class="jxr_string">"i915"</span>));
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(result.getC(), is(<span class="jxr_string">"0000:00:02.0"</span>));
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     @Test
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoUnmatchedSlotReturnsEmpty(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <em class="jxr_comment">// card0 has a driver, so it is a candidate for the first-with-driver fallback. Because a slot was supplied</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">// and no card claimed it, this card has no DRM node (e.g. a GPU bound to vfio-pci) and must report nothing</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// rather than inherit card0's path, driver and metrics.</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:01:00.0"</span>);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"99:00.0"</span>, tempDir.toString());
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertThat(result.getA(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(result.getB(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertThat(result.getC(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     @Test
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoNullPciSlotFallback(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"xe"</span>, <span class="jxr_string">"0000:00:02.0"</span>);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> 
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<strong class="jxr_keyword">null</strong>, tempDir.toString());
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertThat(result.getB(), is(<span class="jxr_string">"xe"</span>));
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(result.getC(), is(<span class="jxr_string">"0000:00:02.0"</span>));
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     @Test
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoNonexistentPath(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"01:00.0"</span>,
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 tempDir.resolve(<span class="jxr_string">"does-not-exist"</span>).toString());
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(result.getA(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertThat(result.getB(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertThat(result.getC(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     }
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> 
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     @Test
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoEmptyDir(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"01:00.0"</span>, tempDir.toString());
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertThat(result.getA(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertThat(result.getB(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(result.getC(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     }
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> 
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>     @Test
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoNoDriverSymlink(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <em class="jxr_comment">// card0/device exists but no driver symlink</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"card0/device"</span>));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"01:00.0"</span>, tempDir.toString());
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertThat(result.getA(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertThat(result.getB(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(result.getC(), is(<span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
 <a class="jxr_linenumber" name="L127" href="#L127">127</a> 
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>     @Test
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoIgnoresNonCardDirs(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <em class="jxr_comment">// "renderD128" should not match the card\d+ pattern</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"renderD128/device"</span>));
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"nvidia"</span>, <span class="jxr_string">"0000:01:00.0"</span>);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> 
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<strong class="jxr_keyword">null</strong>, tempDir.toString());
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         assertThat(result.getB(), is(<span class="jxr_string">"nvidia"</span>));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoMatchesPciSlot(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:01:00.0"</span>);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card1"</span>, <span class="jxr_string">"i915"</span>, <span class="jxr_string">"0000:00:02.0"</span>);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"00:02.0"</span>, tempDir.toString());
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(result.getB(), is(<span class="jxr_string">"i915"</span>));
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         assertThat(result.getC(), is(<span class="jxr_string">"0000:00:02.0"</span>));
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
 <a class="jxr_linenumber" name="L137" href="#L137">137</a> 
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     @Test
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">void</strong> testReadUeventValue(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         Path uevent = tempDir.resolve(<span class="jxr_string">"uevent"</span>);
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         String content = <span class="jxr_string">"DRIVER=amdgpu\nPCI_SLOT_NAME=0000:01:00.0\nPCI_ID=1002:744C\n"</span>;
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         Files.write(uevent, content.getBytes(StandardCharsets.UTF_8));
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), <span class="jxr_string">"PCI_SLOT_NAME"</span>), is(<span class="jxr_string">"0000:01:00.0"</span>));
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), <span class="jxr_string">"DRIVER"</span>), is(<span class="jxr_string">"amdgpu"</span>));
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), <span class="jxr_string">"MISSING_KEY"</span>), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     @Test
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">void</strong> testReadUeventValueMissingFile(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(LinuxGraphicsCard.readUeventValue(tempDir.resolve(<span class="jxr_string">"no-uevent"</span>).toString(), <span class="jxr_string">"KEY"</span>), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>     }
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> 
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>     @Test
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <strong class="jxr_keyword">void</strong> testReadDriverNameSymlink(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <em class="jxr_comment">// Create a fake driver directory and symlink to it</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         Path driverDir = tempDir.resolve(<span class="jxr_string">"bus/pci/drivers/amdgpu"</span>);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         Files.createDirectories(driverDir);
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         Path symlink = tempDir.resolve(<span class="jxr_string">"driver"</span>);
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         Files.createSymbolicLink(symlink, driverDir);
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertThat(LinuxGraphicsCard.readDriverName(symlink.toString()), is(<span class="jxr_string">"amdgpu"</span>));
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
-<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     @Test
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">void</strong> testReadDriverNameNoSymlink(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         assertThat(LinuxGraphicsCard.readDriverName(tempDir.resolve(<span class="jxr_string">"no-driver"</span>).toString()), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoUnmatchedSlotReturnsEmpty(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <em class="jxr_comment">// card0 has a driver, so it is a candidate for the first-with-driver fallback. Because a slot was supplied</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <em class="jxr_comment">// and no card claimed it, this card has no DRM node (e.g. a GPU bound to vfio-pci) and must report nothing</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// rather than inherit card0's path, driver and metrics.</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"amdgpu"</span>, <span class="jxr_string">"0000:01:00.0"</span>);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<span class="jxr_string">"99:00.0"</span>, tempDir.toString());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(result.getA(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         assertThat(result.getB(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         assertThat(result.getC(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     @Test
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoNullPciSlotFallback(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"xe"</span>, <span class="jxr_string">"0000:00:02.0"</span>);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<strong class="jxr_keyword">null</strong>, tempDir.toString());
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         assertThat(result.getB(), is(<span class="jxr_string">"xe"</span>));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(result.getC(), is(<span class="jxr_string">"0000:00:02.0"</span>));
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     @Test
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">void</strong> testFindDrmInfoIgnoresNonCardDirs(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// "renderD128" should not match the card\d+ pattern</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         Files.createDirectories(tempDir.resolve(<span class="jxr_string">"renderD128/device"</span>));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         createCardWithDriver(tempDir, <span class="jxr_string">"card0"</span>, <span class="jxr_string">"nvidia"</span>, <span class="jxr_string">"0000:01:00.0"</span>);
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> 
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         Triplet&lt;String, String, String&gt; result = LinuxGraphicsCard.findDrmInfo(<strong class="jxr_keyword">null</strong>, tempDir.toString());
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         assertThat(result.getB(), is(<span class="jxr_string">"nvidia"</span>));
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * Creates a card directory with a driver symlink and uevent file.</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * @param drmDir     the base DRM directory</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * @param cardName   e.g. "card0"</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * @param driverName e.g. "amdgpu"</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * @param slotName   e.g. "0000:01:00.0"</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     * @throws IOException if file creation fails</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> createCardWithDriver(Path drmDir, String cardName, String driverName, String slotName)
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         Path deviceDir = drmDir.resolve(cardName + <span class="jxr_string">"/device"</span>);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         Files.createDirectories(deviceDir);
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <em class="jxr_comment">// Create a fake driver target and symlink</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         Path driverTarget = drmDir.resolve(<span class="jxr_string">"drivers/"</span> + driverName);
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         Files.createDirectories(driverTarget);
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>         Files.createSymbolicLink(deviceDir.resolve(<span class="jxr_string">"driver"</span>), driverTarget);
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <em class="jxr_comment">// Write uevent with PCI_SLOT_NAME</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         Files.write(deviceDir.resolve(<span class="jxr_string">"uevent"</span>), (<span class="jxr_string">"PCI_SLOT_NAME="</span> + slotName + <span class="jxr_string">"\n"</span>).getBytes(StandardCharsets.UTF_8));
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>     }
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> 
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>     <em class="jxr_comment">// getGraphicsCardsFromLspci parsing</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> 
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <em class="jxr_comment">// Fixture: lspci -vnnmm output with one VGA card</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSPCI_VNNMM = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>,
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>             <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>, <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>,
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>             <span class="jxr_string">"Device:\tGA102 [GeForce RTX 3090] [2204]"</span>, <span class="jxr_string">"SVendor:\tASUS [1043]"</span>,
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>             <span class="jxr_string">"SDevice:\tGA102 [GeForce RTX 3090] [8687]"</span>, <span class="jxr_string">"Rev:\ta1"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Function&lt;LinuxGraphicsCard.Attrs, GraphicsCard&gt; STUB_FACTORY = LinuxGraphicsCardTest::stubGraphicsCard;
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> GraphicsCard stubGraphicsCard(LinuxGraphicsCard.Attrs attrs) {
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> StubGraphicsCard(attrs.getName(), attrs.getDeviceId(), attrs.getVendor(), attrs.getVersionInfo(),
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>                 attrs.getVram(), attrs.getDrmDevicePath(), attrs.getDriverName(), attrs.getPciBusId());
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>     }
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> 
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <em class="jxr_comment">// No-op lookups for pure parsing tests</em>
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> ToLongFunction&lt;String&gt; NO_VRAM = LinuxGraphicsCardTest::noVram;
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Function&lt;String, Triplet&lt;String, String, String&gt;&gt; NO_DRM = LinuxGraphicsCardTest::noDrm;
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> noVram(String slot) {
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
-<a class="jxr_linenumber" name="L215" href="#L215">215</a> 
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; noDrm(String slot) {
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>     }
-<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>     @Test
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciSingleCard() {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(LSPCI_VNNMM, STUB_FACTORY, NO_VRAM,
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>                 NO_DRM);
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>         assertThat(cards.size(), is(1));
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         GraphicsCard card = cards.get(0);
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         assertThat(card.getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         assertThat(card.getDeviceId(), is(<span class="jxr_string">"0x2204"</span>));
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         assertThat(card.getVendor(), is(<span class="jxr_string">"NVIDIA Corporation (0x10de)"</span>));
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         assertThat(card.getVersionInfo(), is(<span class="jxr_string">"Rev:\ta1"</span>));
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>     }
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> 
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>     @Test
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciEmpty() {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(Collections.emptyList(), STUB_FACTORY,
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>                 NO_VRAM, NO_DRM);
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         assertThat(cards, is(empty()));
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>     }
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>     @Test
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciTwoCards() {
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         List&lt;String&gt; twoCards = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>,
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>                 <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>, <span class="jxr_string">"Device:\tGA102 [GeForce RTX 3090] [2204]"</span>, <span class="jxr_string">"Rev:\ta1"</span>, <span class="jxr_string">""</span>,
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>                 <span class="jxr_string">"Slot:\t00:02.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>, <span class="jxr_string">"Vendor:\tIntel Corporation [8086]"</span>,
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>                 <span class="jxr_string">"Device:\tUHD Graphics 630 [3E92]"</span>, <span class="jxr_string">"Rev:\t00"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(twoCards, STUB_FACTORY, NO_VRAM, NO_DRM);
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         assertThat(cards.size(), is(2));
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>         assertThat(cards.get(1).getName(), is(<span class="jxr_string">"UHD Graphics 630"</span>));
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertThat(cards.get(1).getDeviceId(), is(<span class="jxr_string">"0x3E92"</span>));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     @Test
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>     <strong class="jxr_keyword">void</strong> testReadUeventValue(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         Path uevent = tempDir.resolve(<span class="jxr_string">"uevent"</span>);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         String content = <span class="jxr_string">"DRIVER=amdgpu\nPCI_SLOT_NAME=0000:01:00.0\nPCI_ID=1002:744C\n"</span>;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         Files.writeString(uevent, content);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), <span class="jxr_string">"PCI_SLOT_NAME"</span>), is(<span class="jxr_string">"0000:01:00.0"</span>));
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), <span class="jxr_string">"DRIVER"</span>), is(<span class="jxr_string">"amdgpu"</span>));
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         assertThat(LinuxGraphicsCard.readUeventValue(uevent.toString(), <span class="jxr_string">"MISSING_KEY"</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     @Test
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">void</strong> testReadUeventValueMissingFile(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(LinuxGraphicsCard.readUeventValue(tempDir.resolve(<span class="jxr_string">"no-uevent"</span>).toString(), <span class="jxr_string">"KEY"</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     @Test
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">void</strong> testReadDriverNameSymlink(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// Create a fake driver directory and symlink to it</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         Path driverDir = tempDir.resolve(<span class="jxr_string">"bus/pci/drivers/amdgpu"</span>);
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         Files.createDirectories(driverDir);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         Path symlink = tempDir.resolve(<span class="jxr_string">"driver"</span>);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         Files.createSymbolicLink(symlink, driverDir);
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         assertThat(LinuxGraphicsCard.readDriverName(symlink.toString()), is(<span class="jxr_string">"amdgpu"</span>));
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     }
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> 
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     @Test
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>     <strong class="jxr_keyword">void</strong> testReadDriverNameNoSymlink(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         assertThat(LinuxGraphicsCard.readDriverName(tempDir.resolve(<span class="jxr_string">"no-driver"</span>).toString()), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> 
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * Creates a card directory with a driver symlink and uevent file.</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     * @param drmDir     the base DRM directory</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * @param cardName   e.g. "card0"</em>
+<a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     * @param driverName e.g. "amdgpu"</em>
+<a class="jxr_linenumber" name="L208" href="#L208">208</a> <em class="jxr_javadoccomment">     * @param slotName   e.g. "0000:01:00.0"</em>
+<a class="jxr_linenumber" name="L209" href="#L209">209</a> <em class="jxr_javadoccomment">     * @throws IOException if file creation fails</em>
+<a class="jxr_linenumber" name="L210" href="#L210">210</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> createCardWithDriver(Path drmDir, String cardName, String driverName, String slotName)
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         Path deviceDir = drmDir.resolve(cardName + <span class="jxr_string">"/device"</span>);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         Files.createDirectories(deviceDir);
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <em class="jxr_comment">// Create a fake driver target and symlink</em>
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         Path driverTarget = drmDir.resolve(<span class="jxr_string">"drivers/"</span> + driverName);
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         Files.createDirectories(driverTarget);
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>         Files.createSymbolicLink(deviceDir.resolve(<span class="jxr_string">"driver"</span>), driverTarget);
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <em class="jxr_comment">// Write uevent with PCI_SLOT_NAME</em>
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         Files.writeString(deviceDir.resolve(<span class="jxr_string">"uevent"</span>), (<span class="jxr_string">"PCI_SLOT_NAME="</span> + slotName + <span class="jxr_string">"\n"</span>));
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>     <em class="jxr_comment">// getGraphicsCardsFromLspci parsing</em>
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>     <em class="jxr_comment">// Fixture: lspci -vnnmm output with one VGA card</em>
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSPCI_VNNMM = List.of(<span class="jxr_string">"Slot:\t01:00.0"</span>,
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>             <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>, <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>,
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>             <span class="jxr_string">"Device:\tGA102 [GeForce RTX 3090] [2204]"</span>, <span class="jxr_string">"SVendor:\tASUS [1043]"</span>,
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             <span class="jxr_string">"SDevice:\tGA102 [GeForce RTX 3090] [8687]"</span>, <span class="jxr_string">"Rev:\ta1"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> 
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Function&lt;LinuxGraphicsCard.Attrs, GraphicsCard&gt; STUB_FACTORY = LinuxGraphicsCardTest::stubGraphicsCard;
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> GraphicsCard stubGraphicsCard(LinuxGraphicsCard.Attrs attrs) {
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> StubGraphicsCard(attrs.getName(), attrs.getDeviceId(), attrs.getVendor(), attrs.getVersionInfo(),
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>                 attrs.getVram(), attrs.getDrmDevicePath(), attrs.getDriverName(), attrs.getPciBusId());
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>     }
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> 
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>     <em class="jxr_comment">// No-op lookups for pure parsing tests</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> ToLongFunction&lt;String&gt; NO_VRAM = LinuxGraphicsCardTest::noVram;
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Function&lt;@Nullable String, Triplet&lt;String, String, String&gt;&gt; NO_DRM = LinuxGraphicsCardTest::noDrm;
+<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> noVram(String slot) {
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>     }
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; noDrm(@Nullable String slot) {
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
 <a class="jxr_linenumber" name="L251" href="#L251">251</a> 
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>     @Test
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspci3DController() {
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>         List&lt;String&gt; threeD = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:\t3D controller [0302]"</span>,
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>, <span class="jxr_string">"Device:\tTesla V100 [1db4]"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(threeD, STUB_FACTORY, NO_VRAM, NO_DRM);
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         assertThat(cards.size(), is(1));
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"Tesla V100"</span>));
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>     }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> 
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>     @Test
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciPassesEachSlotToLookups() {
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         List&lt;String&gt; twoCards = Arrays.asList(<span class="jxr_string">"Slot:\t00:02.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>,
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>                 <span class="jxr_string">"Vendor:\tIntel Corporation [8086]"</span>, <span class="jxr_string">"Device:\tUHD Graphics 630 [3E92]"</span>, <span class="jxr_string">"Rev:\t00"</span>, <span class="jxr_string">""</span>,
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>                 <span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>, <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>,
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>                 <span class="jxr_string">"Device:\tGA102 [GeForce RTX 3090] [2204]"</span>, <span class="jxr_string">"Rev:\ta1"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a> 
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         List&lt;String&gt; drmSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         List&lt;String&gt; vramSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(twoCards, STUB_FACTORY, slot -&gt; {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>             vramSlots.add(slot);
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>             <strong class="jxr_keyword">return</strong> 1024L;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         }, slot -&gt; {
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>             drmSlots.add(slot);
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">"/sys/class/drm/card0/device"</span>, <span class="jxr_string">"driver"</span>, slot);
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>         });
-<a class="jxr_linenumber" name="L277" href="#L277">277</a> 
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         <em class="jxr_comment">// Each card must be correlated using its own PCI slot, not null and not a shared one</em>
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         assertThat(drmSlots, is(Arrays.asList(<span class="jxr_string">"00:02.0"</span>, <span class="jxr_string">"01:00.0"</span>)));
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         assertThat(vramSlots, is(Arrays.asList(<span class="jxr_string">"00:02.0"</span>, <span class="jxr_string">"01:00.0"</span>)));
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         assertThat(((LinuxGraphicsCard) cards.get(0)).getPciBusId(), is(<span class="jxr_string">"00:02.0"</span>));
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         assertThat(((LinuxGraphicsCard) cards.get(1)).getPciBusId(), is(<span class="jxr_string">"01:00.0"</span>));
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         assertThat(cards.get(0).getVRam(), is(1024L));
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciSingleCard() {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(LSPCI_VNNMM, STUB_FACTORY, NO_VRAM,
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 NO_DRM);
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         assertThat(cards.size(), is(1));
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         GraphicsCard card = cards.get(0);
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         assertThat(card.getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         assertThat(card.getDeviceId(), is(<span class="jxr_string">"0x2204"</span>));
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         assertThat(card.getVendor(), is(<span class="jxr_string">"NVIDIA Corporation (0x10de)"</span>));
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         assertThat(card.getVersionInfo(), is(<span class="jxr_string">"Rev:\ta1"</span>));
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>     @Test
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciEmpty() {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(Collections.emptyList(), STUB_FACTORY,
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>                 NO_VRAM, NO_DRM);
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         assertThat(cards, is(empty()));
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>     }
+<a class="jxr_linenumber" name="L270" href="#L270">270</a> 
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>     @Test
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciTwoCards() {
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         List&lt;String&gt; twoCards = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 Vendor:\tNVIDIA Corporation [10de]
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 Device:\tGA102 [GeForce RTX 3090] [2204]
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 Rev:\ta1
+<a class="jxr_linenumber" name="L279" href="#L279">279</a> 
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 Slot:\t00:02.0
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 Vendor:\tIntel Corporation [8086]
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 Device:\tUHD Graphics 630 [3E92]
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 Rev:\t00
 <a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     @Test
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciSkipsNonGraphicsSlots() {
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         <em class="jxr_comment">// PCI class 0x0000 renders as "Non-VGA unclassified device", which contains "VGA"; 0x1180 is a signal</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         <em class="jxr_comment">// processing controller. Neither is a graphics card and neither may reach the DRM lookup.</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         List&lt;String&gt; mixed = Arrays.asList(<span class="jxr_string">"Slot:\t00:13.0"</span>, <span class="jxr_string">"Class:\tNon-VGA unclassified device [0000]"</span>,
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>                 <span class="jxr_string">"Vendor:\tIntel Corporation [8086]"</span>,
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 <span class="jxr_string">"Device:\t100 Series/C230 Series Chipset Family Integrated Sensor Hub [a135]"</span>, <span class="jxr_string">"Rev:\t31"</span>, <span class="jxr_string">""</span>,
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                 <span class="jxr_string">"Slot:\t00:11.0"</span>, <span class="jxr_string">"Class:\tSignal processing controller [1180]"</span>, <span class="jxr_string">"Vendor:\tIntel Corporation [8086]"</span>,
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>                 <span class="jxr_string">"Device:\tIntegrated Sensor Hub [a135]"</span>, <span class="jxr_string">"Rev:\t31"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"Slot:\t01:00.0"</span>,
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>                 <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>, <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>,
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>                 <span class="jxr_string">"Device:\tGP107GL [Quadro P400] [1cb3]"</span>, <span class="jxr_string">"Rev:\ta1"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         List&lt;String&gt; drmSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(mixed, STUB_FACTORY, NO_VRAM, slot -&gt; {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             drmSlots.add(slot);
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         });
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         assertThat(cards.size(), is(1));
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         assertThat(cards.get(0).getDeviceId(), is(<span class="jxr_string">"0x1cb3"</span>));
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         assertThat(drmSlots, is(Collections.singletonList(<span class="jxr_string">"01:00.0"</span>)));
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     }
-<a class="jxr_linenumber" name="L306" href="#L306">306</a> 
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>     @Test
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">void</strong> testIsDisplayClass() {
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"VGA compatible controller [0300]"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"XGA compatible controller [0301]"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"3D controller [0302]"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Display controller [0380]"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         <em class="jxr_comment">// Contains "VGA" but is PCI class 0x0000, not a graphics card</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Non-VGA unclassified device [0000]"</span>), is(false));
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Signal processing controller [1180]"</span>), is(false));
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Host bridge [0600]"</span>), is(false));
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <em class="jxr_comment">// Without numeric class codes, fall back to the class name</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"VGA compatible controller"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"3D controller"</span>), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Non-VGA unclassified device"</span>), is(false));
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <em class="jxr_comment">// A bracket group too short to hold a base class falls through to the name check</em>
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Bogus controller [3]"</span>), is(false));
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(twoCards, STUB_FACTORY, NO_VRAM, NO_DRM);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>         assertThat(cards.size(), is(2));
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         assertThat(cards.get(1).getName(), is(<span class="jxr_string">"UHD Graphics 630"</span>));
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>         assertThat(cards.get(1).getDeviceId(), is(<span class="jxr_string">"0x3E92"</span>));
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>     }
+<a class="jxr_linenumber" name="L293" href="#L293">293</a> 
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>     @Test
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspci3DController() {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         List&lt;String&gt; threeD = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>                 Class:\t3D controller [0302]
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                 Vendor:\tNVIDIA Corporation [10de]
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                 Device:\tTesla V100 [1db4]
+<a class="jxr_linenumber" name="L301" href="#L301">301</a> 
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(threeD, STUB_FACTORY, NO_VRAM, NO_DRM);
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         assertThat(cards.size(), is(1));
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"Tesla V100"</span>));
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     @Test
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciPassesEachSlotToLookups() {
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         List&lt;String&gt; twoCards = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>                 Slot:\t00:02.0
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 Vendor:\tIntel Corporation [8086]
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 Device:\tUHD Graphics 630 [3E92]
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>                 Rev:\t00
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>                 Vendor:\tNVIDIA Corporation [10de]
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>                 Device:\tGA102 [GeForce RTX 3090] [2204]
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>                 Rev:\ta1
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> 
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
 <a class="jxr_linenumber" name="L324" href="#L324">324</a> 
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>     @Test
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciNewRecordClearsPreviousCardState() {
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <em class="jxr_comment">// The second card omits Vendor and Rev, so any value it reports for them would be leaked from the first card</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>         List&lt;String&gt; lspci = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>,
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>, <span class="jxr_string">"Device:\tGP107GL [Quadro P400] [1cb3]"</span>, <span class="jxr_string">"Rev:\ta1"</span>, <span class="jxr_string">""</span>,
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>                 <span class="jxr_string">"Slot:\t00:02.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>, <span class="jxr_string">"Device:\tASPEED Graphics Family [2000]"</span>,
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>         List&lt;String&gt; drmSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, slot -&gt; {
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>             drmSlots.add(slot);
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, slot);
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         });
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         assertThat(cards.size(), is(2));
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"GP107GL [Quadro P400]"</span>));
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>         assertThat(cards.get(0).getVendor(), is(<span class="jxr_string">"NVIDIA Corporation (0x10de)"</span>));
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>         assertThat(cards.get(0).getVersionInfo(), is(<span class="jxr_string">"Rev:\ta1"</span>));
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>         GraphicsCard second = cards.get(1);
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>         assertThat(second.getName(), is(<span class="jxr_string">"ASPEED Graphics Family"</span>));
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>         assertThat(second.getDeviceId(), is(<span class="jxr_string">"0x2000"</span>));
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>         assertThat(second.getVendor(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>         assertThat(second.getVersionInfo(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>         assertThat(drmSlots, is(Arrays.asList(<span class="jxr_string">"01:00.0"</span>, <span class="jxr_string">"00:02.0"</span>)));
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>     }
-<a class="jxr_linenumber" name="L348" href="#L348">348</a> 
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>     @Test
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciValuelessClassLine() {
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <em class="jxr_comment">// A "Class:" line with no value must not be treated as a display controller</em>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         List&lt;String&gt; lspci = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:"</span>, <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>,
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 <span class="jxr_string">"Device:\tGP107GL [Quadro P400] [1cb3]"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         assertThat(LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM), is(empty()));
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>     <em class="jxr_comment">// queryLspciMemorySize parsing</em>
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> 
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>     @Test
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>     <strong class="jxr_keyword">void</strong> testQueryLspciMemorySize() {
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         List&lt;String&gt; lspciV = Arrays.asList(<span class="jxr_string">"01:00.0 VGA compatible controller: NVIDIA Corporation"</span>,
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 <span class="jxr_string">"\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]"</span>,
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>                 <span class="jxr_string">"\tMemory at e0000000 (64-bit, prefetchable) [size=256M]"</span>,
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 <span class="jxr_string">"\tMemory at f0000000 (64-bit, prefetchable) [size=32M]"</span>, <span class="jxr_string">"\tI/O ports at e000 [size=128]"</span>);
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>         <strong class="jxr_keyword">long</strong> vram = LinuxGraphicsCard.queryLspciMemorySize(lspciV);
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <em class="jxr_comment">// 256M + 32M = 288M</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         assertThat(vram, is(256L * 1024 * 1024 + 32L * 1024 * 1024));
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>     }
-<a class="jxr_linenumber" name="L371" href="#L371">371</a> 
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>     @Test
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>     <strong class="jxr_keyword">void</strong> testQueryLspciMemorySizeNoPrefetchable() {
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         List&lt;String&gt; noPrefetch = Arrays.asList(<span class="jxr_string">"01:00.0 VGA compatible controller: Intel"</span>,
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 <span class="jxr_string">"\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]"</span>);
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         assertThat(LinuxGraphicsCard.queryLspciMemorySize(noPrefetch), is(0L));
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>     }
-<a class="jxr_linenumber" name="L378" href="#L378">378</a> 
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>     @Test
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>     <strong class="jxr_keyword">void</strong> testQueryLspciMemorySizeEmpty() {
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>         assertThat(LinuxGraphicsCard.queryLspciMemorySize(Collections.emptyList()), is(0L));
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>     }
-<a class="jxr_linenumber" name="L383" href="#L383">383</a> 
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>     @Test
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciVendorWithoutBracket() {
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <em class="jxr_comment">// A Vendor line whose value has no "[hex]" id does not parse as machine-readable; the raw text is used</em>
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         List&lt;String&gt; lspci = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>,
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>                 <span class="jxr_string">"Vendor:\tRedHat, Inc."</span>, <span class="jxr_string">"Device:\tVirtio GPU [1050]"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>         assertThat(cards.size(), is(1));
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         assertThat(cards.get(0).getVendor(), is(<span class="jxr_string">"RedHat, Inc."</span>));
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"Virtio GPU"</span>));
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         List&lt;String&gt; drmSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         List&lt;String&gt; vramSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(twoCards, STUB_FACTORY, slot -&gt; {
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>             vramSlots.add(slot);
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>             <strong class="jxr_keyword">return</strong> 1024L;
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         }, slot -&gt; {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             drmSlots.add(slot);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">"/sys/class/drm/card0/device"</span>, <span class="jxr_string">"driver"</span>, slot);
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         });
+<a class="jxr_linenumber" name="L334" href="#L334">334</a> 
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         <em class="jxr_comment">// Each card must be correlated using its own PCI slot, not null and not a shared one</em>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>         assertThat(drmSlots, is(List.of(<span class="jxr_string">"00:02.0"</span>, <span class="jxr_string">"01:00.0"</span>)));
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>         assertThat(vramSlots, is(List.of(<span class="jxr_string">"00:02.0"</span>, <span class="jxr_string">"01:00.0"</span>)));
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>         assertThat(((LinuxGraphicsCard) cards.get(0)).getPciBusId(), is(<span class="jxr_string">"00:02.0"</span>));
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         assertThat(((LinuxGraphicsCard) cards.get(1)).getPciBusId(), is(<span class="jxr_string">"01:00.0"</span>));
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         assertThat(cards.get(0).getVRam(), is(1024L));
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     @Test
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciSkipsNonGraphicsSlots() {
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         <em class="jxr_comment">// PCI class 0x0000 renders as "Non-VGA unclassified device", which contains "VGA"; 0x1180 is a signal</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         <em class="jxr_comment">// processing controller. Neither is a graphics card and neither may reach the DRM lookup.</em>
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         List&lt;String&gt; mixed = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 Slot:\t00:13.0
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                 Class:\tNon-VGA unclassified device [0000]
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                 Vendor:\tIntel Corporation [8086]
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>                 Device:\t100 Series/C230 Series Chipset Family Integrated Sensor Hub [a135]
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>                 Rev:\t31
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>                 Slot:\t00:11.0
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>                 Class:\tSignal processing controller [1180]
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>                 Vendor:\tIntel Corporation [8086]
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>                 Device:\tIntegrated Sensor Hub [a135]
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 Rev:\t31
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>                 Vendor:\tNVIDIA Corporation [10de]
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>                 Device:\tGP107GL [Quadro P400] [1cb3]
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 Rev:\ta1
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         List&lt;String&gt; drmSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(mixed, STUB_FACTORY, NO_VRAM, slot -&gt; {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>             drmSlots.add(slot);
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         });
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         assertThat(cards.size(), is(1));
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         assertThat(cards.get(0).getDeviceId(), is(<span class="jxr_string">"0x1cb3"</span>));
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         assertThat(drmSlots, is(List.of(<span class="jxr_string">"01:00.0"</span>)));
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>     }
+<a class="jxr_linenumber" name="L376" href="#L376">376</a> 
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>     @Test
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>     <strong class="jxr_keyword">void</strong> testIsDisplayClass() {
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"VGA compatible controller [0300]"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"XGA compatible controller [0301]"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"3D controller [0302]"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Display controller [0380]"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <em class="jxr_comment">// Contains "VGA" but is PCI class 0x0000, not a graphics card</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Non-VGA unclassified device [0000]"</span>), is(false));
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Signal processing controller [1180]"</span>), is(false));
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Host bridge [0600]"</span>), is(false));
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <em class="jxr_comment">// Without numeric class codes, fall back to the class name</em>
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"VGA compatible controller"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"3D controller"</span>), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Non-VGA unclassified device"</span>), is(false));
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <em class="jxr_comment">// A bracket group too short to hold a base class falls through to the name check</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         assertThat(LinuxGraphicsCard.isDisplayClass(<span class="jxr_string">"Bogus controller [3]"</span>), is(false));
 <a class="jxr_linenumber" name="L393" href="#L393">393</a>     }
 <a class="jxr_linenumber" name="L394" href="#L394">394</a> 
 <a class="jxr_linenumber" name="L395" href="#L395">395</a>     @Test
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciNoTrailingBlankLine() {
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <em class="jxr_comment">// Output that ends mid-card (no terminating blank line) still flushes the last card</em>
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         List&lt;String&gt; lspci = Arrays.asList(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:\tVGA compatible controller [0300]"</span>,
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>, <span class="jxr_string">"Device:\tGA102 [GeForce RTX 3090] [2204]"</span>, <span class="jxr_string">"Rev:\ta1"</span>);
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         assertThat(cards.size(), is(1));
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         assertThat(cards.get(0).getVersionInfo(), is(<span class="jxr_string">"Rev:\ta1"</span>));
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>     }
-<a class="jxr_linenumber" name="L405" href="#L405">405</a> 
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>     <em class="jxr_comment">// getGraphicsCardsFromLshw parsing</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a> 
-<a class="jxr_linenumber" name="L410" href="#L410">410</a>     <em class="jxr_comment">// Fixture: `lshw -C display` output (real structure) with two display nodes. The second card has no bus info so</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>     <em class="jxr_comment">// its DRM lookup is with a null slot; resources memory ranges drive the VRAM total.</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSHW = Arrays.asList(<span class="jxr_string">"  *-display"</span>,
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>             <span class="jxr_string">"       description: VGA compatible controller"</span>, <span class="jxr_string">"       product: GA102 [GeForce RTX 3090]"</span>,
-<a class="jxr_linenumber" name="L414" href="#L414">414</a>             <span class="jxr_string">"       vendor: NVIDIA Corporation"</span>, <span class="jxr_string">"       physical id: 0"</span>, <span class="jxr_string">"       bus info: pci@0000:01:00.0"</span>,
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>             <span class="jxr_string">"       version: a1"</span>, <span class="jxr_string">"       width: 64 bits"</span>, <span class="jxr_string">"       clock: 33MHz"</span>,
-<a class="jxr_linenumber" name="L416" href="#L416">416</a>             <span class="jxr_string">"       capabilities: pm msi pciexpress vga_controller bus_master cap_list rom"</span>,
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>             <span class="jxr_string">"       configuration: driver=nvidia latency=0"</span>,
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>             <span class="jxr_string">"       resources: irq:178 memory:f6000000-f6ffffff memory:e0000000-efffffff"</span>, <span class="jxr_string">"  *-display"</span>,
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>             <span class="jxr_string">"       description: VGA compatible controller"</span>, <span class="jxr_string">"       product: UHD Graphics 630"</span>,
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>             <span class="jxr_string">"       vendor: Intel Corporation"</span>, <span class="jxr_string">"       physical id: 2"</span>,
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>             <span class="jxr_string">"       resources: irq:24 memory:db000000-dbffffff"</span>);
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> 
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>     @Test
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLshwTwoCards() {
-<a class="jxr_linenumber" name="L425" href="#L425">425</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLshw(LSHW, STUB_FACTORY, NO_DRM);
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>         assertThat(cards.size(), is(2));
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> 
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>         GraphicsCard nvidia = cards.get(0);
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         assertThat(nvidia.getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         assertThat(nvidia.getVendor(), is(<span class="jxr_string">"NVIDIA Corporation"</span>));
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         assertThat(nvidia.getVersionInfo(), is(<span class="jxr_string">"version: a1"</span>));
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <em class="jxr_comment">// 16 MiB (f6000000-f6ffffff) + 256 MiB (e0000000-efffffff)</em>
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         assertThat(nvidia.getVRam(), is(16L * 1024 * 1024 + 256L * 1024 * 1024));
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciNewRecordClearsPreviousCardState() {
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <em class="jxr_comment">// The second card omits Vendor and Rev, so any value it reports for them would be leaked from the first card</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         List&lt;String&gt; lspci = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>                 Vendor:\tNVIDIA Corporation [10de]
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>                 Device:\tGP107GL [Quadro P400] [1cb3]
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>                 Rev:\ta1
+<a class="jxr_linenumber" name="L404" href="#L404">404</a> 
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>                 Slot:\t00:02.0
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>                 Device:\tASPEED Graphics Family [2000]
+<a class="jxr_linenumber" name="L408" href="#L408">408</a> 
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         List&lt;String&gt; drmSlots = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, slot -&gt; {
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>             drmSlots.add(slot);
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, slot);
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>         });
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>         assertThat(cards.size(), is(2));
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"GP107GL [Quadro P400]"</span>));
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>         assertThat(cards.get(0).getVendor(), is(<span class="jxr_string">"NVIDIA Corporation (0x10de)"</span>));
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>         assertThat(cards.get(0).getVersionInfo(), is(<span class="jxr_string">"Rev:\ta1"</span>));
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         GraphicsCard second = cards.get(1);
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>         assertThat(second.getName(), is(<span class="jxr_string">"ASPEED Graphics Family"</span>));
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>         assertThat(second.getDeviceId(), is(<span class="jxr_string">"0x2000"</span>));
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         assertThat(second.getVendor(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         assertThat(second.getVersionInfo(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         assertThat(drmSlots, is(List.of(<span class="jxr_string">"01:00.0"</span>, <span class="jxr_string">"00:02.0"</span>)));
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>     }
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> 
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>     @Test
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciValuelessClassLine() {
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>         <em class="jxr_comment">// A "Class:" line with no value must not be treated as a display controller</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         List&lt;String&gt; lspci = List.of(<span class="jxr_string">"Slot:\t01:00.0"</span>, <span class="jxr_string">"Class:"</span>, <span class="jxr_string">"Vendor:\tNVIDIA Corporation [10de]"</span>,
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>                 <span class="jxr_string">"Device:\tGP107GL [Quadro P400] [1cb3]"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         assertThat(LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM), is(empty()));
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>     }
 <a class="jxr_linenumber" name="L434" href="#L434">434</a> 
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>         GraphicsCard intel = cards.get(1);
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>         assertThat(intel.getName(), is(<span class="jxr_string">"UHD Graphics 630"</span>));
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         assertThat(intel.getVendor(), is(<span class="jxr_string">"Intel Corporation"</span>));
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <em class="jxr_comment">// No version line -&gt; UNKNOWN version info; single 16 MiB memory range</em>
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         assertThat(intel.getVersionInfo(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>         assertThat(intel.getVRam(), is(16L * 1024 * 1024));
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>     }
-<a class="jxr_linenumber" name="L442" href="#L442">442</a> 
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>     @Test
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLshwEmpty() {
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>         assertThat(LinuxGraphicsCard.getGraphicsCardsFromLshw(Collections.emptyList(), STUB_FACTORY, NO_DRM),
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 is(empty()));
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
-<a class="jxr_linenumber" name="L448" href="#L448">448</a> }
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>     <em class="jxr_comment">// queryLspciMemorySize parsing</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L438" href="#L438">438</a> 
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>     @Test
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>     <strong class="jxr_keyword">void</strong> testQueryLspciMemorySize() {
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         List&lt;String&gt; lspciV = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>                 01:00.0 VGA compatible controller: NVIDIA Corporation
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                 \tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                 \tMemory at e0000000 (64-bit, prefetchable) [size=256M]
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                 \tMemory at f0000000 (64-bit, prefetchable) [size=32M]
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 \tI/O ports at e000 [size=128]
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>         <strong class="jxr_keyword">long</strong> vram = LinuxGraphicsCard.queryLspciMemorySize(lspciV);
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <em class="jxr_comment">// 256M + 32M = 288M</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>         assertThat(vram, is(256L * 1024 * 1024 + 32L * 1024 * 1024));
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>     }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> 
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     @Test
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     <strong class="jxr_keyword">void</strong> testQueryLspciMemorySizeNoPrefetchable() {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         List&lt;String&gt; noPrefetch = List.of(<span class="jxr_string">"01:00.0 VGA compatible controller: Intel"</span>,
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>                 <span class="jxr_string">"\tMemory at f6000000 (32-bit, non-prefetchable) [size=16M]"</span>);
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         assertThat(LinuxGraphicsCard.queryLspciMemorySize(noPrefetch), is(0L));
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>     }
+<a class="jxr_linenumber" name="L459" href="#L459">459</a> 
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>     @Test
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>     <strong class="jxr_keyword">void</strong> testQueryLspciMemorySizeEmpty() {
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>         assertThat(LinuxGraphicsCard.queryLspciMemorySize(Collections.emptyList()), is(0L));
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>     }
+<a class="jxr_linenumber" name="L464" href="#L464">464</a> 
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>     @Test
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciVendorWithoutBracket() {
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <em class="jxr_comment">// A Vendor line whose value has no "[hex]" id does not parse as machine-readable; the raw text is used</em>
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         List&lt;String&gt; lspci = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>                 Vendor:\tRedHat, Inc.
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>                 Device:\tVirtio GPU [1050]
+<a class="jxr_linenumber" name="L473" href="#L473">473</a> 
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>         assertThat(cards.size(), is(1));
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>         assertThat(cards.get(0).getVendor(), is(<span class="jxr_string">"RedHat, Inc."</span>));
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"Virtio GPU"</span>));
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     }
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>     @Test
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLspciNoTrailingBlankLine() {
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         <em class="jxr_comment">// Output that ends mid-card (no terminating blank line) still flushes the last card</em>
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         List&lt;String&gt; lspci = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>                 Slot:\t01:00.0
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>                 Class:\tVGA compatible controller [0300]
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>                 Vendor:\tNVIDIA Corporation [10de]
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>                 Device:\tGA102 [GeForce RTX 3090] [2204]
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>                 Rev:\ta1
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLspci(lspci, STUB_FACTORY, NO_VRAM, NO_DRM);
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>         assertThat(cards.size(), is(1));
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         assertThat(cards.get(0).getVersionInfo(), is(<span class="jxr_string">"Rev:\ta1"</span>));
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>     }
+<a class="jxr_linenumber" name="L496" href="#L496">496</a> 
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <em class="jxr_comment">// getGraphicsCardsFromLshw parsing</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>     <em class="jxr_comment">// -------------------------------------------------------------------------</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> 
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>     <em class="jxr_comment">// Fixture: `lshw -C display` output (real structure) with two display nodes. The second card has no bus info so</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>     <em class="jxr_comment">// its DRM lookup is with a null slot; resources memory ranges drive the VRAM total.</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSHW = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>               *-display
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                    description: VGA compatible controller
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                    product: GA102 [GeForce RTX 3090]
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                    vendor: NVIDIA Corporation
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                    physical id: 0
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>                    bus info: pci@0000:01:00.0
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>                    version: a1
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>                    width: 64 bits
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>                    clock: 33MHz
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>                    capabilities: pm msi pciexpress vga_controller bus_master cap_list rom
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>                    configuration: driver=nvidia latency=0
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>                    resources: irq:178 memory:f6000000-f6ffffff memory:e0000000-efffffff
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>               *-display
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>                    description: VGA compatible controller
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>                    product: UHD Graphics 630
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>                    vendor: Intel Corporation
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>                    physical id: 2
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>                    resources: irq:24 memory:db000000-dbffffff
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>             <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L523" href="#L523">523</a> 
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>     @Test
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLshwTwoCards() {
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         List&lt;GraphicsCard&gt; cards = LinuxGraphicsCard.getGraphicsCardsFromLshw(LSHW, STUB_FACTORY, NO_DRM);
+<a class="jxr_linenumber" name="L527" href="#L527">527</a>         assertThat(cards.size(), is(2));
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> 
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>         GraphicsCard nvidia = cards.get(0);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>         assertThat(nvidia.getName(), is(<span class="jxr_string">"GA102 [GeForce RTX 3090]"</span>));
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>         assertThat(nvidia.getVendor(), is(<span class="jxr_string">"NVIDIA Corporation"</span>));
+<a class="jxr_linenumber" name="L532" href="#L532">532</a>         assertThat(nvidia.getVersionInfo(), is(<span class="jxr_string">"version: a1"</span>));
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>         <em class="jxr_comment">// 16 MiB (f6000000-f6ffffff) + 256 MiB (e0000000-efffffff)</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>         assertThat(nvidia.getVRam(), is(16L * 1024 * 1024 + 256L * 1024 * 1024));
+<a class="jxr_linenumber" name="L535" href="#L535">535</a> 
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>         GraphicsCard intel = cards.get(1);
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         assertThat(intel.getName(), is(<span class="jxr_string">"UHD Graphics 630"</span>));
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>         assertThat(intel.getVendor(), is(<span class="jxr_string">"Intel Corporation"</span>));
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <em class="jxr_comment">// No version line -&gt; UNKNOWN version info; single 16 MiB memory range</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         assertThat(intel.getVersionInfo(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>         assertThat(intel.getVRam(), is(16L * 1024 * 1024));
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>     }
+<a class="jxr_linenumber" name="L543" href="#L543">543</a> 
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>     @Test
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>     <strong class="jxr_keyword">void</strong> testGetGraphicsCardsFromLshwEmpty() {
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         assertThat(LinuxGraphicsCard.getGraphicsCardsFromLshw(Collections.emptyList(), STUB_FACTORY, NO_DRM),
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>                 is(empty()));
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>     }
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

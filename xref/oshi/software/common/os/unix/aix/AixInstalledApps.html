@@ -30,70 +30,73 @@
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="AixInstalledApps" href="../../../../../../oshi/software/common/os/unix/aix/AixInstalledApps.html#AixInstalledApps">AixInstalledApps</a> {
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern COLON_PATTERN = Pattern.compile(<span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <strong class="jxr_keyword">private</strong> <a name="AixInstalledApps" href="../../../../../../oshi/software/common/os/unix/aix/AixInstalledApps.html#AixInstalledApps">AixInstalledApps</a>() {
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * Queries {@code lslpp} for the installed filesets.</em>
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @return the installed applications</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;ApplicationInfo&gt; queryInstalledApps() {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <em class="jxr_comment">// https://www.ibm.com/docs/en/aix/7.1.0?topic=l-lslpp-command</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>          List&lt;String&gt; output = ExecutingCommand.runNative(<span class="jxr_string">"lslpp -Lc"</span>);
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">return</strong> parseAixAppInfo(output);
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;ApplicationInfo&gt; parseAixAppInfo(List&lt;String&gt; lines) {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          Set&lt;ApplicationInfo&gt; appInfoSet = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          String architecture = System.getProperty(<span class="jxr_string">"os.arch"</span>);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          <strong class="jxr_keyword">boolean</strong> isFirstLine = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>              <strong class="jxr_keyword">if</strong> (isFirstLine) {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  isFirstLine = false;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <strong class="jxr_keyword">continue</strong>; <em class="jxr_comment">// Skip the first line as it consists column names</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              }
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_comment">             * Sample output: (1) devices.chrp.IBM.lhca:devices.chrp.IBM.lhca.rte:7.1.5.30: : :C:F:Infiniband Logical</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_comment">             * HCA Runtime Environment: : : : : : :0:0:/:1837 (2) bash:bash-5.0.18-1:5.0.18-1: : :C:R:The GNU Bourne</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_comment">             * Again shell (bash) version 5.0.18: :/bin/rpm -e bash: : : : :0: :(none):Fri Sep 18 15:53:11 2020</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_comment">             */</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>              <em class="jxr_comment">// split by the colon character</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              String[] parts = COLON_PATTERN.split(line, -1); <em class="jxr_comment">// -1 to keep empty fields</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              String name = ParseUtil.getStringValueOrUnknown(parts[0]);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">if</strong> (name.equals(Constants.UNKNOWN)) {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>              }
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>              String version = ParseUtil.getStringValueOrUnknown(parts[2]);
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              String vendor = Constants.UNKNOWN; <em class="jxr_comment">// lslpp command does not provide vendor info, hence, assigning as</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <em class="jxr_comment">// unknown</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <em class="jxr_comment">// Build Date is of two formats YYWW and EEE MMM dd HH:mm:ss yyyy</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              String buildDate = ParseUtil.getStringValueOrUnknown(parts[17]);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <strong class="jxr_keyword">long</strong> timestamp = 0;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <strong class="jxr_keyword">if</strong> (!buildDate.equals(Constants.UNKNOWN)) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  <strong class="jxr_keyword">if</strong> (buildDate.matches(<span class="jxr_string">"&#92;&#92;d{4}"</span>)) {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      <em class="jxr_comment">// Convert to ISO week date string (e.g., 1125 -&gt; 2011-W25-2 for Monday)</em>
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      String isoWeekString = <span class="jxr_string">"20"</span> + buildDate.substring(0, 2) + <span class="jxr_string">"-W"</span> + buildDate.substring(2) + <span class="jxr_string">"-2"</span>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                      timestamp = ParseUtil.parseDateToEpoch(isoWeekString, <span class="jxr_string">"YYYY-'W'ww-e"</span>);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      timestamp = ParseUtil.parseDateToEpoch(buildDate, <span class="jxr_string">"EEE MMM dd HH:mm:ss yyyy"</span>);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  }
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              String description = ParseUtil.getStringValueOrUnknown(parts[7].trim());
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              String installPath = ParseUtil.getStringValueOrUnknown(parts[16].trim());
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              Map&lt;String, String&gt; additionalInfo = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              additionalInfo.put(<span class="jxr_string">"architecture"</span>, architecture);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>              additionalInfo.put(<span class="jxr_string">"description"</span>, description);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>              additionalInfo.put(<span class="jxr_string">"installPath"</span>, installPath);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <a name="ApplicationInfo" href="../../../../../../oshi/software/os/ApplicationInfo.html#ApplicationInfo">ApplicationInfo</a> app = <strong class="jxr_keyword">new</strong> <a name="ApplicationInfo" href="../../../../../../oshi/software/os/ApplicationInfo.html#ApplicationInfo">ApplicationInfo</a>(name, version, vendor, timestamp, additionalInfo);
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              appInfoSet.add(app);
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(appInfoSet);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/** A four-digit YYWW build date, as opposed to the full {@code EEE MMM dd HH:mm:ss yyyy} form. */</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern YYWW_DATE = Pattern.compile(<span class="jxr_string">"&#92;&#92;d{4}"</span>);
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <a name="AixInstalledApps" href="../../../../../../oshi/software/common/os/unix/aix/AixInstalledApps.html#AixInstalledApps">AixInstalledApps</a>() {
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      }
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * Queries {@code lslpp} for the installed filesets.</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @return the installed applications</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;ApplicationInfo&gt; queryInstalledApps() {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <em class="jxr_comment">// https://www.ibm.com/docs/en/aix/7.1.0?topic=l-lslpp-command</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          List&lt;String&gt; output = ExecutingCommand.runNative(<span class="jxr_string">"lslpp -Lc"</span>);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          <strong class="jxr_keyword">return</strong> parseAixAppInfo(output);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;ApplicationInfo&gt; parseAixAppInfo(List&lt;String&gt; lines) {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          Set&lt;ApplicationInfo&gt; appInfoSet = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          String architecture = System.getProperty(<span class="jxr_string">"os.arch"</span>);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">boolean</strong> isFirstLine = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <strong class="jxr_keyword">if</strong> (isFirstLine) {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  isFirstLine = false;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <strong class="jxr_keyword">continue</strong>; <em class="jxr_comment">// Skip the first line as it consists column names</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>              }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>              <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_comment">             * Sample output: (1) devices.chrp.IBM.lhca:devices.chrp.IBM.lhca.rte:7.1.5.30: : :C:F:Infiniband Logical</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_comment">             * HCA Runtime Environment: : : : : : :0:0:/:1837 (2) bash:bash-5.0.18-1:5.0.18-1: : :C:R:The GNU Bourne</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_comment">             * Again shell (bash) version 5.0.18: :/bin/rpm -e bash: : : : :0: :(none):Fri Sep 18 15:53:11 2020</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_comment">             */</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>              <em class="jxr_comment">// split by the colon character</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <em class="jxr_comment">// Not a precompiled Pattern: String.split takes a regex-free fast path for a single</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <em class="jxr_comment">// non-metacharacter separator, which measures about 3x faster than Pattern.split</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              String[] parts = line.split(<span class="jxr_string">":"</span>, -1); <em class="jxr_comment">// -1 to keep empty fields</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>              String name = ParseUtil.getStringValueOrUnknown(parts[0]);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <strong class="jxr_keyword">if</strong> (name.equals(Constants.UNKNOWN)) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              String version = ParseUtil.getStringValueOrUnknown(parts[2]);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              String vendor = Constants.UNKNOWN; <em class="jxr_comment">// lslpp command does not provide vendor info, hence, assigning as</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <em class="jxr_comment">// unknown</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <em class="jxr_comment">// Build Date is of two formats YYWW and EEE MMM dd HH:mm:ss yyyy</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              String buildDate = ParseUtil.getStringValueOrUnknown(parts[17]);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">long</strong> timestamp = 0;
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">if</strong> (!buildDate.equals(Constants.UNKNOWN)) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  <strong class="jxr_keyword">if</strong> (YYWW_DATE.matcher(buildDate).matches()) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      <em class="jxr_comment">// Convert to ISO week date string (e.g., 1125 -&gt; 2011-W25-2 for Monday)</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      String isoWeekString = <span class="jxr_string">"20"</span> + buildDate.substring(0, 2) + <span class="jxr_string">"-W"</span> + buildDate.substring(2) + <span class="jxr_string">"-2"</span>;
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      timestamp = ParseUtil.parseDateToEpoch(isoWeekString, <span class="jxr_string">"YYYY-'W'ww-e"</span>);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      timestamp = ParseUtil.parseDateToEpoch(buildDate, <span class="jxr_string">"EEE MMM dd HH:mm:ss yyyy"</span>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              String description = ParseUtil.getStringValueOrUnknown(parts[7].trim());
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              String installPath = ParseUtil.getStringValueOrUnknown(parts[16].trim());
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              Map&lt;String, String&gt; additionalInfo = <strong class="jxr_keyword">new</strong> LinkedHashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              additionalInfo.put(<span class="jxr_string">"architecture"</span>, architecture);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              additionalInfo.put(<span class="jxr_string">"description"</span>, description);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              additionalInfo.put(<span class="jxr_string">"installPath"</span>, installPath);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              <a name="ApplicationInfo" href="../../../../../../oshi/software/os/ApplicationInfo.html#ApplicationInfo">ApplicationInfo</a> app = <strong class="jxr_keyword">new</strong> <a name="ApplicationInfo" href="../../../../../../oshi/software/os/ApplicationInfo.html#ApplicationInfo">ApplicationInfo</a>(name, version, vendor, timestamp, additionalInfo);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              appInfoSet.add(app);
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;(appInfoSet);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      }
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

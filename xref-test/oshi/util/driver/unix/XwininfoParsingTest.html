@@ -34,7 +34,7 @@
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>              .asList(<span class="jxr_string">"_NET_CLIENT_LIST_STACKING(WINDOW): window id # 0x1400003, 0x1600003, 0x1800003"</span>);
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>  
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <em class="jxr_comment">// Fixture: xwininfo -root -tree output (trimmed)</em>
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; XWININFO_TREE = Arrays.asList(
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; XWININFO_TREE = List.of(
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>              <span class="jxr_string">"     0x1400003 \&quot;Terminal\&quot;: (\&quot;gnome-terminal\&quot; \&quot;Gnome-terminal\&quot;)  800x600+0+0  +100+200"</span>,
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>              <span class="jxr_string">"     0x1600003 \&quot;Firefox\&quot;: (\&quot;Navigator\&quot; \&quot;firefox\&quot;)  1920x1080+0+0  +0+0"</span>,
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>              <span class="jxr_string">"     0x1800003 (has no name): ()  200x200+0+0  +50+-10"</span>,
@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testParseZOrderNoHexIds() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          List&lt;String&gt; noIds = Arrays.asList(<span class="jxr_string">"_NET_CLIENT_LIST_STACKING: no such atom on any window."</span>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          List&lt;String&gt; noIds = List.of(<span class="jxr_string">"_NET_CLIENT_LIST_STACKING: no such atom on any window."</span>);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          Map&lt;String, Integer&gt; zOrder = Xwininfo.parseZOrder(noIds);
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(zOrder, is(anEmptyMap()));
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
@@ -126,18 +126,21 @@
 <a class="jxr_linenumber" name="L118" href="#L118">118</a> 
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>     @Test
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">void</strong> testParseWindowTreeNonMatchingLines() {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         List&lt;String&gt; nonMatching = Arrays.asList(<span class="jxr_string">"xwininfo: Window id: 0x1e3 (the root window) \&quot;i3\&quot;"</span>,
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 <span class="jxr_string">"  Root window id: 0x1e3 (the root window) (has no name)"</span>, <span class="jxr_string">"  Parent window id: 0x0 (none)"</span>,
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <span class="jxr_string">"     2 children:"</span>);
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         Map&lt;String, String&gt; nameMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         Map&lt;String, String&gt; pathMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         Map&lt;String, Rectangle&gt; windows = Xwininfo.parseWindowTree(nonMatching, false, Collections.emptyMap(), nameMap,
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 pathMap);
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         List&lt;String&gt; nonMatching = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 xwininfo: Window id: 0x1e3 (the root window) <span class="jxr_string">"i3"</span>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                   Root window id: 0x1e3 (the root window) (has no name)
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                   Parent window id: 0x0 (none)
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                      2 children:
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         Map&lt;String, String&gt; nameMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         Map&lt;String, String&gt; pathMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
 <a class="jxr_linenumber" name="L129" href="#L129">129</a> 
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>         assertThat(windows, is(anEmptyMap()));
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         Map&lt;String, Rectangle&gt; windows = Xwininfo.parseWindowTree(nonMatching, false, Collections.emptyMap(), nameMap,
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 pathMap);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> 
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(windows, is(anEmptyMap()));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

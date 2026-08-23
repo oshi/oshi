@@ -958,179 +958,169 @@
 <a class="jxr_linenumber" name="L950" href="#L950">950</a>         Map&lt;Integer, List&lt;String&gt;&gt; groups = <strong class="jxr_keyword">new</strong> TreeMap&lt;&gt;();
 <a class="jxr_linenumber" name="L951" href="#L951">951</a>         <strong class="jxr_keyword">for</strong> (String channel : CpuFrequencyResidency.orderChannels(channelNames)) {
 <a class="jxr_linenumber" name="L952" href="#L952">952</a>             <strong class="jxr_keyword">int</strong> rank = CpuFrequencyResidency.prefixRank(channel);
-<a class="jxr_linenumber" name="L953" href="#L953">953</a>             List&lt;String&gt; group = groups.get(rank);
-<a class="jxr_linenumber" name="L954" href="#L954">954</a>             <strong class="jxr_keyword">if</strong> (group == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L955" href="#L955">955</a>                 group = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L956" href="#L956">956</a>                 groups.put(rank, group);
-<a class="jxr_linenumber" name="L957" href="#L957">957</a>             }
-<a class="jxr_linenumber" name="L958" href="#L958">958</a>             group.add(channel);
-<a class="jxr_linenumber" name="L959" href="#L959">959</a>         }
-<a class="jxr_linenumber" name="L960" href="#L960">960</a>         <strong class="jxr_keyword">return</strong> groups;
-<a class="jxr_linenumber" name="L961" href="#L961">961</a>     }
-<a class="jxr_linenumber" name="L962" href="#L962">962</a> 
-<a class="jxr_linenumber" name="L963" href="#L963">963</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L964" href="#L964">964</a> <em class="jxr_javadoccomment">     * Groups this processor's physical cores by efficiency class, in ascending performance order.</em>
-<a class="jxr_linenumber" name="L965" href="#L965">965</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L966" href="#L966">966</a> <em class="jxr_javadoccomment">     * @return the cores of each class, keyed by class, with the cores of one class in processor number order. A class</em>
-<a class="jxr_linenumber" name="L967" href="#L967">967</a> <em class="jxr_javadoccomment">     *         with no cores is absent.</em>
-<a class="jxr_linenumber" name="L968" href="#L968">968</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L969" href="#L969">969</a>     <strong class="jxr_keyword">private</strong> Map&lt;Integer, List&lt;PhysicalProcessor&gt;&gt; groupCoresByEfficiencyClass() {
-<a class="jxr_linenumber" name="L970" href="#L970">970</a>         Map&lt;Integer, List&lt;PhysicalProcessor&gt;&gt; groups = <strong class="jxr_keyword">new</strong> TreeMap&lt;&gt;();
-<a class="jxr_linenumber" name="L971" href="#L971">971</a>         <strong class="jxr_keyword">for</strong> (PhysicalProcessor processor : getPhysicalProcessors()) {
-<a class="jxr_linenumber" name="L972" href="#L972">972</a>             <strong class="jxr_keyword">int</strong> efficiency = Math.max(processor.getEfficiency(), 0);
-<a class="jxr_linenumber" name="L973" href="#L973">973</a>             List&lt;PhysicalProcessor&gt; group = groups.get(efficiency);
-<a class="jxr_linenumber" name="L974" href="#L974">974</a>             <strong class="jxr_keyword">if</strong> (group == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L975" href="#L975">975</a>                 group = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L976" href="#L976">976</a>                 groups.put(efficiency, group);
-<a class="jxr_linenumber" name="L977" href="#L977">977</a>             }
-<a class="jxr_linenumber" name="L978" href="#L978">978</a>             group.add(processor);
-<a class="jxr_linenumber" name="L979" href="#L979">979</a>         }
-<a class="jxr_linenumber" name="L980" href="#L980">980</a>         <strong class="jxr_keyword">for</strong> (List&lt;PhysicalProcessor&gt; group : groups.values()) {
-<a class="jxr_linenumber" name="L981" href="#L981">981</a>             Collections.sort(group,
-<a class="jxr_linenumber" name="L982" href="#L982">982</a>                     (a, b) -&gt; Integer.compare(a.getPhysicalProcessorNumber(), b.getPhysicalProcessorNumber()));
-<a class="jxr_linenumber" name="L983" href="#L983">983</a>         }
-<a class="jxr_linenumber" name="L984" href="#L984">984</a>         <strong class="jxr_keyword">return</strong> groups;
-<a class="jxr_linenumber" name="L985" href="#L985">985</a>     }
-<a class="jxr_linenumber" name="L986" href="#L986">986</a> 
-<a class="jxr_linenumber" name="L987" href="#L987">987</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L988" href="#L988">988</a> <em class="jxr_javadoccomment">     * Subscribes to the IOReport CPU performance state channels, if a live frequency was asked for and this chip</em>
-<a class="jxr_linenumber" name="L989" href="#L989">989</a> <em class="jxr_javadoccomment">     * publishes them.</em>
-<a class="jxr_linenumber" name="L990" href="#L990">990</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L991" href="#L991">991</a> <em class="jxr_javadoccomment">     * @return the sampler, or null if a live frequency is unavailable</em>
-<a class="jxr_linenumber" name="L992" href="#L992">992</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L993" href="#L993">993</a>     <strong class="jxr_keyword">private</strong> @Nullable <a name="IOReportCpuSampler" href="../../../../../oshi/hardware/common/platform/mac/IOReportCpuSampler.html#IOReportCpuSampler">IOReportCpuSampler</a> cpuFrequencySampler() {
-<a class="jxr_linenumber" name="L994" href="#L994">994</a>         <strong class="jxr_keyword">if</strong> (!isArmCpu || !GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_CPU_FREQUENCY_IOREPORT, false)) {
-<a class="jxr_linenumber" name="L995" href="#L995">995</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L996" href="#L996">996</a>         }
-<a class="jxr_linenumber" name="L997" href="#L997">997</a>         <a name="IOReportCpuSampler" href="../../../../../oshi/hardware/common/platform/mac/IOReportCpuSampler.html#IOReportCpuSampler">IOReportCpuSampler</a> sampler = createCpuFrequencySampler();
-<a class="jxr_linenumber" name="L998" href="#L998">998</a>         <strong class="jxr_keyword">if</strong> (sampler == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L999" href="#L999">999</a>             LOG.warn(<span class="jxr_string">"Unable to subscribe to the IOReport CPU performance states."</span>
-<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>                     + <span class="jxr_string">" Reporting nominal cluster frequencies instead."</span>);
-<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>         }
-<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a>         <strong class="jxr_keyword">return</strong> sampler;
-<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>     }
-<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a> 
-<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>     @Override
-<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
-<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a>         <strong class="jxr_keyword">if</strong> (isArmCpu) {
-<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>             <strong class="jxr_keyword">return</strong> getPerformanceCoreFrequency();
-<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>         }
-<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>         <strong class="jxr_keyword">return</strong> sysctlLong(<span class="jxr_string">"hw.cpufrequency_max"</span>, getProcessorIdentifier().getVendorFreq());
+<a class="jxr_linenumber" name="L953" href="#L953">953</a>             groups.computeIfAbsent(rank, k -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(channel);
+<a class="jxr_linenumber" name="L954" href="#L954">954</a>         }
+<a class="jxr_linenumber" name="L955" href="#L955">955</a>         <strong class="jxr_keyword">return</strong> groups;
+<a class="jxr_linenumber" name="L956" href="#L956">956</a>     }
+<a class="jxr_linenumber" name="L957" href="#L957">957</a> 
+<a class="jxr_linenumber" name="L958" href="#L958">958</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L959" href="#L959">959</a> <em class="jxr_javadoccomment">     * Groups this processor's physical cores by efficiency class, in ascending performance order.</em>
+<a class="jxr_linenumber" name="L960" href="#L960">960</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L961" href="#L961">961</a> <em class="jxr_javadoccomment">     * @return the cores of each class, keyed by class, with the cores of one class in processor number order. A class</em>
+<a class="jxr_linenumber" name="L962" href="#L962">962</a> <em class="jxr_javadoccomment">     *         with no cores is absent.</em>
+<a class="jxr_linenumber" name="L963" href="#L963">963</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L964" href="#L964">964</a>     <strong class="jxr_keyword">private</strong> Map&lt;Integer, List&lt;PhysicalProcessor&gt;&gt; groupCoresByEfficiencyClass() {
+<a class="jxr_linenumber" name="L965" href="#L965">965</a>         Map&lt;Integer, List&lt;PhysicalProcessor&gt;&gt; groups = <strong class="jxr_keyword">new</strong> TreeMap&lt;&gt;();
+<a class="jxr_linenumber" name="L966" href="#L966">966</a>         <strong class="jxr_keyword">for</strong> (PhysicalProcessor processor : getPhysicalProcessors()) {
+<a class="jxr_linenumber" name="L967" href="#L967">967</a>             <strong class="jxr_keyword">int</strong> efficiency = Math.max(processor.getEfficiency(), 0);
+<a class="jxr_linenumber" name="L968" href="#L968">968</a>             groups.computeIfAbsent(efficiency, k -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(processor);
+<a class="jxr_linenumber" name="L969" href="#L969">969</a>         }
+<a class="jxr_linenumber" name="L970" href="#L970">970</a>         <strong class="jxr_keyword">for</strong> (List&lt;PhysicalProcessor&gt; group : groups.values()) {
+<a class="jxr_linenumber" name="L971" href="#L971">971</a>             Collections.sort(group,
+<a class="jxr_linenumber" name="L972" href="#L972">972</a>                     (a, b) -&gt; Integer.compare(a.getPhysicalProcessorNumber(), b.getPhysicalProcessorNumber()));
+<a class="jxr_linenumber" name="L973" href="#L973">973</a>         }
+<a class="jxr_linenumber" name="L974" href="#L974">974</a>         <strong class="jxr_keyword">return</strong> groups;
+<a class="jxr_linenumber" name="L975" href="#L975">975</a>     }
+<a class="jxr_linenumber" name="L976" href="#L976">976</a> 
+<a class="jxr_linenumber" name="L977" href="#L977">977</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L978" href="#L978">978</a> <em class="jxr_javadoccomment">     * Subscribes to the IOReport CPU performance state channels, if a live frequency was asked for and this chip</em>
+<a class="jxr_linenumber" name="L979" href="#L979">979</a> <em class="jxr_javadoccomment">     * publishes them.</em>
+<a class="jxr_linenumber" name="L980" href="#L980">980</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L981" href="#L981">981</a> <em class="jxr_javadoccomment">     * @return the sampler, or null if a live frequency is unavailable</em>
+<a class="jxr_linenumber" name="L982" href="#L982">982</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L983" href="#L983">983</a>     <strong class="jxr_keyword">private</strong> @Nullable <a name="IOReportCpuSampler" href="../../../../../oshi/hardware/common/platform/mac/IOReportCpuSampler.html#IOReportCpuSampler">IOReportCpuSampler</a> cpuFrequencySampler() {
+<a class="jxr_linenumber" name="L984" href="#L984">984</a>         <strong class="jxr_keyword">if</strong> (!isArmCpu || !GlobalConfig.get(GlobalConfig.OSHI_OS_MAC_CPU_FREQUENCY_IOREPORT, false)) {
+<a class="jxr_linenumber" name="L985" href="#L985">985</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L986" href="#L986">986</a>         }
+<a class="jxr_linenumber" name="L987" href="#L987">987</a>         <a name="IOReportCpuSampler" href="../../../../../oshi/hardware/common/platform/mac/IOReportCpuSampler.html#IOReportCpuSampler">IOReportCpuSampler</a> sampler = createCpuFrequencySampler();
+<a class="jxr_linenumber" name="L988" href="#L988">988</a>         <strong class="jxr_keyword">if</strong> (sampler == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L989" href="#L989">989</a>             LOG.warn(<span class="jxr_string">"Unable to subscribe to the IOReport CPU performance states."</span>
+<a class="jxr_linenumber" name="L990" href="#L990">990</a>                     + <span class="jxr_string">" Reporting nominal cluster frequencies instead."</span>);
+<a class="jxr_linenumber" name="L991" href="#L991">991</a>         }
+<a class="jxr_linenumber" name="L992" href="#L992">992</a>         <strong class="jxr_keyword">return</strong> sampler;
+<a class="jxr_linenumber" name="L993" href="#L993">993</a>     }
+<a class="jxr_linenumber" name="L994" href="#L994">994</a> 
+<a class="jxr_linenumber" name="L995" href="#L995">995</a>     @Override
+<a class="jxr_linenumber" name="L996" href="#L996">996</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
+<a class="jxr_linenumber" name="L997" href="#L997">997</a>         <strong class="jxr_keyword">if</strong> (isArmCpu) {
+<a class="jxr_linenumber" name="L998" href="#L998">998</a>             <strong class="jxr_keyword">return</strong> getPerformanceCoreFrequency();
+<a class="jxr_linenumber" name="L999" href="#L999">999</a>         }
+<a class="jxr_linenumber" name="L1000" href="#L1000">1000</a>         <strong class="jxr_keyword">return</strong> sysctlLong(<span class="jxr_string">"hw.cpufrequency_max"</span>, getProcessorIdentifier().getVendorFreq());
+<a class="jxr_linenumber" name="L1001" href="#L1001">1001</a>     }
+<a class="jxr_linenumber" name="L1002" href="#L1002">1002</a> 
+<a class="jxr_linenumber" name="L1003" href="#L1003">1003</a>     @Override
+<a class="jxr_linenumber" name="L1004" href="#L1004">1004</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
+<a class="jxr_linenumber" name="L1005" href="#L1005">1005</a>         <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L1006" href="#L1006">1006</a>     }
+<a class="jxr_linenumber" name="L1007" href="#L1007">1007</a> 
+<a class="jxr_linenumber" name="L1008" href="#L1008">1008</a>     @Override
+<a class="jxr_linenumber" name="L1009" href="#L1009">1009</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
+<a class="jxr_linenumber" name="L1010" href="#L1010">1010</a>         <strong class="jxr_keyword">return</strong> 0L;
 <a class="jxr_linenumber" name="L1011" href="#L1011">1011</a>     }
 <a class="jxr_linenumber" name="L1012" href="#L1012">1012</a> 
-<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>     @Override
-<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
-<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>         <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a>     }
-<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a> 
-<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a>     @Override
-<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
-<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a>         <strong class="jxr_keyword">return</strong> 0L;
-<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a>     }
-<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a> 
-<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isArmCpu() {
-<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>         <strong class="jxr_keyword">return</strong> getPhysicalProcessors().stream().map(PhysicalProcessor::getIdString).anyMatch(id -&gt; id.contains(<span class="jxr_string">"arm"</span>));
-<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>     }
-<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a> 
-<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a> <em class="jxr_javadoccomment">     * Extracts the maximum frequency from a voltage state table property. Each entry pairs a frequency with the voltage</em>
-<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a> <em class="jxr_javadoccomment">     * needed to reach it, in ascending order, so the last entry holds the maximum.</em>
-<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a> <em class="jxr_javadoccomment">     * @param data the byte array from IOKit</em>
-<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a> <em class="jxr_javadoccomment">     * @return the frequency in Hz, or DEFAULT_FREQUENCY if unavailable</em>
-<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> getMaxFreqFromByteArray(byte[] data) {
-<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a>         <strong class="jxr_keyword">long</strong>[] table = parseFrequencyTable(data);
-<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a>         <strong class="jxr_keyword">return</strong> table.length == 0 ? DEFAULT_FREQUENCY : table[table.length - 1];
-<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a>     }
-<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a> 
-<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a> <em class="jxr_javadoccomment">     * Converts a voltage state table frequency to Hz.</em>
-<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a> <em class="jxr_javadoccomment">     * The M4 changed the unit of the CPU tables from Hz to kHz, which is why an unconverted value reads as a few</em>
-<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a> <em class="jxr_javadoccomment">     * megahertz. The unit is inferred from the magnitude rather than from the chip, because the two units are nearly</em>
-<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a> <em class="jxr_javadoccomment">     * two orders of magnitude apart and because they are not consistent across the tables of one chip: on the M4 the</em>
-<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a> <em class="jxr_javadoccomment">     * CPU tables are in kHz while the GPU table is still in Hz.</em>
+<a class="jxr_linenumber" name="L1013" href="#L1013">1013</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> isArmCpu() {
+<a class="jxr_linenumber" name="L1014" href="#L1014">1014</a>         <strong class="jxr_keyword">return</strong> getPhysicalProcessors().stream().map(PhysicalProcessor::getIdString).anyMatch(id -&gt; id.contains(<span class="jxr_string">"arm"</span>));
+<a class="jxr_linenumber" name="L1015" href="#L1015">1015</a>     }
+<a class="jxr_linenumber" name="L1016" href="#L1016">1016</a> 
+<a class="jxr_linenumber" name="L1017" href="#L1017">1017</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1018" href="#L1018">1018</a> <em class="jxr_javadoccomment">     * Extracts the maximum frequency from a voltage state table property. Each entry pairs a frequency with the voltage</em>
+<a class="jxr_linenumber" name="L1019" href="#L1019">1019</a> <em class="jxr_javadoccomment">     * needed to reach it, in ascending order, so the last entry holds the maximum.</em>
+<a class="jxr_linenumber" name="L1020" href="#L1020">1020</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1021" href="#L1021">1021</a> <em class="jxr_javadoccomment">     * @param data the byte array from IOKit</em>
+<a class="jxr_linenumber" name="L1022" href="#L1022">1022</a> <em class="jxr_javadoccomment">     * @return the frequency in Hz, or DEFAULT_FREQUENCY if unavailable</em>
+<a class="jxr_linenumber" name="L1023" href="#L1023">1023</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1024" href="#L1024">1024</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> getMaxFreqFromByteArray(byte[] data) {
+<a class="jxr_linenumber" name="L1025" href="#L1025">1025</a>         <strong class="jxr_keyword">long</strong>[] table = parseFrequencyTable(data);
+<a class="jxr_linenumber" name="L1026" href="#L1026">1026</a>         <strong class="jxr_keyword">return</strong> table.length == 0 ? DEFAULT_FREQUENCY : table[table.length - 1];
+<a class="jxr_linenumber" name="L1027" href="#L1027">1027</a>     }
+<a class="jxr_linenumber" name="L1028" href="#L1028">1028</a> 
+<a class="jxr_linenumber" name="L1029" href="#L1029">1029</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1030" href="#L1030">1030</a> <em class="jxr_javadoccomment">     * Converts a voltage state table frequency to Hz.</em>
+<a class="jxr_linenumber" name="L1031" href="#L1031">1031</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L1032" href="#L1032">1032</a> <em class="jxr_javadoccomment">     * The M4 changed the unit of the CPU tables from Hz to kHz, which is why an unconverted value reads as a few</em>
+<a class="jxr_linenumber" name="L1033" href="#L1033">1033</a> <em class="jxr_javadoccomment">     * megahertz. The unit is inferred from the magnitude rather than from the chip, because the two units are nearly</em>
+<a class="jxr_linenumber" name="L1034" href="#L1034">1034</a> <em class="jxr_javadoccomment">     * two orders of magnitude apart and because they are not consistent across the tables of one chip: on the M4 the</em>
+<a class="jxr_linenumber" name="L1035" href="#L1035">1035</a> <em class="jxr_javadoccomment">     * CPU tables are in kHz while the GPU table is still in Hz.</em>
+<a class="jxr_linenumber" name="L1036" href="#L1036">1036</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1037" href="#L1037">1037</a> <em class="jxr_javadoccomment">     * @param frequency the raw table value</em>
+<a class="jxr_linenumber" name="L1038" href="#L1038">1038</a> <em class="jxr_javadoccomment">     * @return the frequency in Hz</em>
+<a class="jxr_linenumber" name="L1039" href="#L1039">1039</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1040" href="#L1040">1040</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> toHz(<strong class="jxr_keyword">long</strong> frequency) {
+<a class="jxr_linenumber" name="L1041" href="#L1041">1041</a>         <strong class="jxr_keyword">return</strong> frequency &gt; 0 &amp;&amp; frequency &lt; MIN_PLAUSIBLE_HZ ? frequency * 1000L : frequency;
+<a class="jxr_linenumber" name="L1042" href="#L1042">1042</a>     }
+<a class="jxr_linenumber" name="L1043" href="#L1043">1043</a> 
+<a class="jxr_linenumber" name="L1044" href="#L1044">1044</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1045" href="#L1045">1045</a> <em class="jxr_javadoccomment">     * Reads the system-wide {@code host_cpu_load_info} CPU-tick counters.</em>
 <a class="jxr_linenumber" name="L1046" href="#L1046">1046</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a> <em class="jxr_javadoccomment">     * @param frequency the raw table value</em>
-<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a> <em class="jxr_javadoccomment">     * @return the frequency in Hz</em>
-<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> toHz(<strong class="jxr_keyword">long</strong> frequency) {
-<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>         <strong class="jxr_keyword">return</strong> frequency &gt; 0 &amp;&amp; frequency &lt; MIN_PLAUSIBLE_HZ ? frequency * 1000L : frequency;
-<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a>     }
-<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a> 
-<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a> <em class="jxr_javadoccomment">     * Reads the system-wide {@code host_cpu_load_info} CPU-tick counters.</em>
-<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a> <em class="jxr_javadoccomment">     * @return the {@code CPU_STATE_MAX} raw tick values, or a shorter/empty array on failure</em>
-<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong>[] queryHostCpuLoadTicks();
-<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a> 
-<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a> <em class="jxr_javadoccomment">     * Reads the per-processor {@code processor_cpu_load_info} CPU-tick counters as a flat array of</em>
-<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a> <em class="jxr_javadoccomment">     * {@code processorCount * CPU_STATE_MAX} values. Implementations copy the values out of native memory and release</em>
-<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a> <em class="jxr_javadoccomment">     * the kernel-allocated buffer before returning.</em>
-<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a> <em class="jxr_javadoccomment">     * @return the flat per-processor tick values, or an empty array on failure</em>
-<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong>[] queryProcessorCpuTicks();
-<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a> 
-<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a> <em class="jxr_javadoccomment">     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.</em>
-<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a> <em class="jxr_javadoccomment">     * @param loadavg the array to populate</em>
-<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a> <em class="jxr_javadoccomment">     * @param nelem   the number of elements requested</em>
-<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a> <em class="jxr_javadoccomment">     * @return the number of samples retrieved, or a negative value on failure</em>
-<a class="jxr_linenumber" name="L1076" href="#L1076">1076</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
-<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a> 
-<a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>     @Override
-<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
-<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = queryHostCpuLoadTicks();
-<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>         <strong class="jxr_keyword">if</strong> (cpuTicks.length &lt; CPU_STATE_MAX) {
-<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>         }
-<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>         ticks[TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_USER]);
-<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>         ticks[TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_NICE]);
-<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>         ticks[TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_SYSTEM]);
-<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>         ticks[TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_IDLE]);
-<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>     }
-<a class="jxr_linenumber" name="L1092" href="#L1092">1092</a> 
-<a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>     @Override
-<a class="jxr_linenumber" name="L1094" href="#L1094">1094</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
-<a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = queryProcessorCpuTicks();
-<a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>         <strong class="jxr_keyword">int</strong> procCount = cpuTicks.length / CPU_STATE_MAX;
-<a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>         <strong class="jxr_keyword">if</strong> (procCount &gt; ticks.length) {
-<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>             LOG.warn(<span class="jxr_string">"processor_cpu_load_info returned {} CPUs but expected {}; capping iteration"</span>, procCount,
-<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>                     ticks.length);
-<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>         }
-<a class="jxr_linenumber" name="L1102" href="#L1102">1102</a>         <strong class="jxr_keyword">int</strong> cpuLimit = Math.min(procCount, ticks.length);
-<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; cpuLimit; cpu++) {
-<a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>             <strong class="jxr_keyword">int</strong> offset = cpu * CPU_STATE_MAX;
-<a class="jxr_linenumber" name="L1105" href="#L1105">1105</a>             ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_USER]);
-<a class="jxr_linenumber" name="L1106" href="#L1106">1106</a>             ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_NICE]);
-<a class="jxr_linenumber" name="L1107" href="#L1107">1107</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_SYSTEM]);
-<a class="jxr_linenumber" name="L1108" href="#L1108">1108</a>             ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_IDLE]);
-<a class="jxr_linenumber" name="L1109" href="#L1109">1109</a>         }
-<a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L1111" href="#L1111">1111</a>     }
-<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a> 
-<a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>     @Override
-<a class="jxr_linenumber" name="L1114" href="#L1114">1114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L1115" href="#L1115">1115</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L1116" href="#L1116">1116</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L1117" href="#L1117">1117</a>         }
-<a class="jxr_linenumber" name="L1118" href="#L1118">1118</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L1119" href="#L1119">1119</a>         <strong class="jxr_keyword">int</strong> retval = getloadavgNative(average, nelem);
-<a class="jxr_linenumber" name="L1120" href="#L1120">1120</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
-<a class="jxr_linenumber" name="L1121" href="#L1121">1121</a>             Arrays.fill(average, -1d);
-<a class="jxr_linenumber" name="L1122" href="#L1122">1122</a>         }
-<a class="jxr_linenumber" name="L1123" href="#L1123">1123</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L1124" href="#L1124">1124</a>     }
-<a class="jxr_linenumber" name="L1125" href="#L1125">1125</a> }
+<a class="jxr_linenumber" name="L1047" href="#L1047">1047</a> <em class="jxr_javadoccomment">     * @return the {@code CPU_STATE_MAX} raw tick values, or a shorter/empty array on failure</em>
+<a class="jxr_linenumber" name="L1048" href="#L1048">1048</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1049" href="#L1049">1049</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong>[] queryHostCpuLoadTicks();
+<a class="jxr_linenumber" name="L1050" href="#L1050">1050</a> 
+<a class="jxr_linenumber" name="L1051" href="#L1051">1051</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1052" href="#L1052">1052</a> <em class="jxr_javadoccomment">     * Reads the per-processor {@code processor_cpu_load_info} CPU-tick counters as a flat array of</em>
+<a class="jxr_linenumber" name="L1053" href="#L1053">1053</a> <em class="jxr_javadoccomment">     * {@code processorCount * CPU_STATE_MAX} values. Implementations copy the values out of native memory and release</em>
+<a class="jxr_linenumber" name="L1054" href="#L1054">1054</a> <em class="jxr_javadoccomment">     * the kernel-allocated buffer before returning.</em>
+<a class="jxr_linenumber" name="L1055" href="#L1055">1055</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1056" href="#L1056">1056</a> <em class="jxr_javadoccomment">     * @return the flat per-processor tick values, or an empty array on failure</em>
+<a class="jxr_linenumber" name="L1057" href="#L1057">1057</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1058" href="#L1058">1058</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong>[] queryProcessorCpuTicks();
+<a class="jxr_linenumber" name="L1059" href="#L1059">1059</a> 
+<a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L1061" href="#L1061">1061</a> <em class="jxr_javadoccomment">     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.</em>
+<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a> <em class="jxr_javadoccomment">     * @param loadavg the array to populate</em>
+<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a> <em class="jxr_javadoccomment">     * @param nelem   the number of elements requested</em>
+<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a> <em class="jxr_javadoccomment">     * @return the number of samples retrieved, or a negative value on failure</em>
+<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
+<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a> 
+<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a>     @Override
+<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
+<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
+<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = queryHostCpuLoadTicks();
+<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>         <strong class="jxr_keyword">if</strong> (cpuTicks.length &lt; CPU_STATE_MAX) {
+<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>         }
+<a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>         ticks[TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_USER]);
+<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>         ticks[TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_NICE]);
+<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>         ticks[TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_SYSTEM]);
+<a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>         ticks[TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[CPU_STATE_IDLE]);
+<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>     }
+<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a> 
+<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>     @Override
+<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[getLogicalProcessorCount()][TickType.values().length];
+<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>         <strong class="jxr_keyword">int</strong>[] cpuTicks = queryProcessorCpuTicks();
+<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>         <strong class="jxr_keyword">int</strong> procCount = cpuTicks.length / CPU_STATE_MAX;
+<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>         <strong class="jxr_keyword">if</strong> (procCount &gt; ticks.length) {
+<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>             LOG.warn(<span class="jxr_string">"processor_cpu_load_info returned {} CPUs but expected {}; capping iteration"</span>, procCount,
+<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>                     ticks.length);
+<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>         }
+<a class="jxr_linenumber" name="L1092" href="#L1092">1092</a>         <strong class="jxr_keyword">int</strong> cpuLimit = Math.min(procCount, ticks.length);
+<a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; cpuLimit; cpu++) {
+<a class="jxr_linenumber" name="L1094" href="#L1094">1094</a>             <strong class="jxr_keyword">int</strong> offset = cpu * CPU_STATE_MAX;
+<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>             ticks[cpu][TickType.USER.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_USER]);
+<a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>             ticks[cpu][TickType.NICE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_NICE]);
+<a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>             ticks[cpu][TickType.SYSTEM.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_SYSTEM]);
+<a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>             ticks[cpu][TickType.IDLE.getIndex()] = FormatUtil.getUnsignedInt(cpuTicks[offset + CPU_STATE_IDLE]);
+<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>         }
+<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>     }
+<a class="jxr_linenumber" name="L1102" href="#L1102">1102</a> 
+<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>     @Override
+<a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L1105" href="#L1105">1105</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L1106" href="#L1106">1106</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L1107" href="#L1107">1107</a>         }
+<a class="jxr_linenumber" name="L1108" href="#L1108">1108</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L1109" href="#L1109">1109</a>         <strong class="jxr_keyword">int</strong> retval = getloadavgNative(average, nelem);
+<a class="jxr_linenumber" name="L1110" href="#L1110">1110</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L1111" href="#L1111">1111</a>             Arrays.fill(average, -1d);
+<a class="jxr_linenumber" name="L1112" href="#L1112">1112</a>         }
+<a class="jxr_linenumber" name="L1113" href="#L1113">1113</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L1114" href="#L1114">1114</a>     }
+<a class="jxr_linenumber" name="L1115" href="#L1115">1115</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

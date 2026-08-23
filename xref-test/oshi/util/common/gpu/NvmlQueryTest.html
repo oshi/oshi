@@ -16,10 +16,10 @@
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.nullValue;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashSet;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.HashSet;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.LinkedHashSet;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.List;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.Set;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.function.Function;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
@@ -128,7 +128,7 @@
 <a class="jxr_linenumber" name="L120" href="#L120">120</a> 
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>     @Test
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">void</strong> testMatchBusIdReturnsTheEnumeratedForm() {
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         Set&lt;String&gt; busIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"00000000:0a:00.0"</span>, <span class="jxr_string">"00000000:02:00.0"</span>));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         Set&lt;String&gt; busIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(List.of(<span class="jxr_string">"00000000:0a:00.0"</span>, <span class="jxr_string">"00000000:02:00.0"</span>));
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertThat(<span class="jxr_string">"returns the canonical enumerated id"</span>, NvmlQuery.matchBusId(busIds, <span class="jxr_string">"02:00.0"</span>),
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>                 is(<span class="jxr_string">"00000000:02:00.0"</span>));
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertThat(<span class="jxr_string">"is case-insensitive"</span>, NvmlQuery.matchBusId(busIds, <span class="jxr_string">"0A:00.0"</span>), is(<span class="jxr_string">"00000000:0a:00.0"</span>));
@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">void</strong> testMatchBusIdRejectsABlankFragment() {
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         <em class="jxr_comment">// Every string contains the empty string, so without an explicit guard a blank fragment would match every</em>
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         <em class="jxr_comment">// enumerated id and resolve to the longest of them.</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         Set&lt;String&gt; busIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"0000:01:00.0"</span>, <span class="jxr_string">"00000000:01:00.0"</span>));
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         Set&lt;String&gt; busIds = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(List.of(<span class="jxr_string">"0000:01:00.0"</span>, <span class="jxr_string">"00000000:01:00.0"</span>));
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>         assertThat(<span class="jxr_string">"an empty fragment matches nothing"</span>, NvmlQuery.matchBusId(busIds, <span class="jxr_string">""</span>), is(nullValue()));
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         assertThat(<span class="jxr_string">"a null fragment matches nothing"</span>, NvmlQuery.matchBusId(busIds, <strong class="jxr_keyword">null</strong>), is(nullValue()));
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>     }
@@ -149,8 +149,8 @@
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     <strong class="jxr_keyword">void</strong> testMatchBusIdPrefersTheQualifiedForm() {
 <a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// Both of a device's forms are enumerated and a bare fragment matches both, so the answer must not depend on</em>
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>         <em class="jxr_comment">// which one iteration happens to reach first.</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Set&lt;String&gt; legacyFirst = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"0000:01:00.0"</span>, <span class="jxr_string">"00000000:01:00.0"</span>));
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         Set&lt;String&gt; modernFirst = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(Arrays.asList(<span class="jxr_string">"00000000:01:00.0"</span>, <span class="jxr_string">"0000:01:00.0"</span>));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Set&lt;String&gt; legacyFirst = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(List.of(<span class="jxr_string">"0000:01:00.0"</span>, <span class="jxr_string">"00000000:01:00.0"</span>));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         Set&lt;String&gt; modernFirst = <strong class="jxr_keyword">new</strong> LinkedHashSet&lt;&gt;(List.of(<span class="jxr_string">"00000000:01:00.0"</span>, <span class="jxr_string">"0000:01:00.0"</span>));
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(<span class="jxr_string">"the domain-qualified form wins"</span>, NvmlQuery.matchBusId(legacyFirst, <span class="jxr_string">"01:00.0"</span>),
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>                 is(<span class="jxr_string">"00000000:01:00.0"</span>));
 <a class="jxr_linenumber" name="L148" href="#L148">148</a>         assertThat(<span class="jxr_string">"regardless of iteration order"</span>, NvmlQuery.matchBusId(modernFirst, <span class="jxr_string">"01:00.0"</span>),
@@ -161,7 +161,7 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">void</strong> testDeviceCacheRetriesUntilEnumerationSucceeds() {
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         NvmlDeviceCache cache = <strong class="jxr_keyword">new</strong> NvmlDeviceCache(<span class="jxr_string">"test"</span>);
 <a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">int</strong>[] calls = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[1];
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         Set&lt;String&gt; ids = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(Collections.singletonList(<span class="jxr_string">"00000000:01:00.0"</span>));
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         Set&lt;String&gt; ids = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;(List.of(<span class="jxr_string">"00000000:01:00.0"</span>));
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         calls[0] = 0;
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         assertThat(<span class="jxr_string">"a failed enumeration is not cached"</span>, cache.get(() -&gt; {

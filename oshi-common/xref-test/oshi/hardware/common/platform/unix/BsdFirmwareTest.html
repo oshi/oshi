@@ -17,10 +17,10 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.nullValue;
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.Constants;
@@ -41,93 +41,94 @@
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>          }
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>          @Override
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">protected</strong> Triplet&lt;String, String, String&gt; readFirmware() {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <strong class="jxr_keyword">protected</strong> Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; readFirmware() {
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>              <strong class="jxr_keyword">return</strong> parseDmesg(dmesg);
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          }
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>  
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;String, String, String&gt; parse(List&lt;String&gt; dmesg) {
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; parse(List&lt;String&gt; dmesg) {
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">return</strong> BsdFirmware.parseDmesg(dmesg);
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      }
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      @Test
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">void</strong> testParseDmesgNetBsd() {
 <a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// Representative NetBSD dmesg bios0 output</em>
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <span class="jxr_string">"bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  <span class="jxr_string">"bios0: vendor LENOVO version \&quot;GLET90WW (2.44 )\&quot; date 09/13/2017"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  <span class="jxr_string">"bios0: LENOVO 20AWA08J00"</span>);
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          Triplet&lt;String, String, String&gt; fw = parse(dmesg);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(fw.getA(), is(<span class="jxr_string">"LENOVO"</span>));
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(fw.getB(), is(<span class="jxr_string">"GLET90WW (2.44 )"</span>));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2017-09-13"</span>));
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      }
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      @Test
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">void</strong> testParseDmesgOpenBsd() {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <em class="jxr_comment">// Representative OpenBSD dmesg bios0 output with multi-word vendor</em>
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <span class="jxr_string">"bios0 at mainbus0: SMBIOS rev. 2.8 @ 0xe9cb0 (53 entries)"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <span class="jxr_string">"bios0: vendor American Megatrends Inc. version \&quot;F5\&quot; date 03/18/2016"</span>);
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          Triplet&lt;String, String, String&gt; fw = parse(dmesg);
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(fw.getA(), is(<span class="jxr_string">"American Megatrends Inc."</span>));
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat(fw.getB(), is(<span class="jxr_string">"F5"</span>));
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2016-03-18"</span>));
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      @Test
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">void</strong> testParseDmesgMultiWordVendor() {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          List&lt;String&gt; dmesg = Arrays.asList(<span class="jxr_string">"bios0: vendor Phoenix Technologies LTD version \&quot;6.00\&quot; date 04/14/2014"</span>);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          Triplet&lt;String, String, String&gt; fw = parse(dmesg);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertThat(fw.getA(), is(<span class="jxr_string">"Phoenix Technologies LTD"</span>));
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(fw.getB(), is(<span class="jxr_string">"6.00"</span>));
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2014-04-14"</span>));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      @Test
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">void</strong> testParseDmesgEmpty() {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          Triplet&lt;String, String, String&gt; fw = parse(Collections.emptyList());
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(fw.getA(), is(nullValue()));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(fw.getB(), is(nullValue()));
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(fw.getC(), is(emptyString()));
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      @Test
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">void</strong> testParseDmesgNoMatch() {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          List&lt;String&gt; dmesg = Arrays.asList(<em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <span class="jxr_string">"cpu0 at mainbus0: AMD EPYC 7313P"</span>, <em class="jxr_comment">//</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <span class="jxr_string">"some other line"</span>);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          Triplet&lt;String, String, String&gt; fw = parse(dmesg);
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(fw.getA(), is(nullValue()));
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(fw.getB(), is(nullValue()));
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(fw.getC(), is(emptyString()));
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      }
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>      @Test
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">void</strong> testBlankAttributesBecomeUnknown() {
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         <em class="jxr_comment">// The parse leaves absent fields null or blank; the base is what turns them into the documented sentinel.</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         BsdFirmware fw = <strong class="jxr_keyword">new</strong> TestFirmware(Collections.emptyList());
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertThat(fw.getManufacturer(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(fw.getVersion(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(fw.getReleaseDate(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Test
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">void</strong> testParsedAttributesArePassedThrough() {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         BsdFirmware fw = <strong class="jxr_keyword">new</strong> TestFirmware(Arrays.asList(<span class="jxr_string">"bios0: vendor LENOVO version \&quot;GLET90WW\&quot; date 09/13/2017"</span>));
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertThat(fw.getManufacturer(), is(<span class="jxr_string">"LENOVO"</span>));
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertThat(fw.getVersion(), is(<span class="jxr_string">"GLET90WW"</span>));
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertThat(fw.getReleaseDate(), is(<span class="jxr_string">"2017-09-13"</span>));
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     }
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> 
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     @Test
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>     <strong class="jxr_keyword">void</strong> testNameAndDescriptionKeepTheAbstractDefaults() {
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <em class="jxr_comment">// dmesg and dmidecode supply neither, so the BSDs must not start reporting something else for them.</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         BsdFirmware fw = <strong class="jxr_keyword">new</strong> TestFirmware(Collections.emptyList());
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertThat(fw.getName(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(fw.getDescription(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; dmesg = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  bios0 at mainbus0: SMBIOS rev. 2.7 @ 0xdcc0e000 (67 entries)
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>                  bios0: vendor LENOVO version <span class="jxr_string">"GLET90WW (2.44 )"</span> date 09/13/2017
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  bios0: LENOVO 20AWA08J00
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; fw = parse(dmesg);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(fw.getA(), is(<span class="jxr_string">"LENOVO"</span>));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(fw.getB(), is(<span class="jxr_string">"GLET90WW (2.44 )"</span>));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2017-09-13"</span>));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      }
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Test
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">void</strong> testParseDmesgOpenBsd() {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// Representative OpenBSD dmesg bios0 output with multi-word vendor</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          List&lt;String&gt; dmesg = List.of(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  <span class="jxr_string">"bios0 at mainbus0: SMBIOS rev. 2.8 @ 0xe9cb0 (53 entries)"</span>, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <span class="jxr_string">"bios0: vendor American Megatrends Inc. version \&quot;F5\&quot; date 03/18/2016"</span>);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; fw = parse(dmesg);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat(fw.getA(), is(<span class="jxr_string">"American Megatrends Inc."</span>));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(fw.getB(), is(<span class="jxr_string">"F5"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2016-03-18"</span>));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      @Test
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      <strong class="jxr_keyword">void</strong> testParseDmesgMultiWordVendor() {
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          List&lt;String&gt; dmesg = List.of(<span class="jxr_string">"bios0: vendor Phoenix Technologies LTD version \&quot;6.00\&quot; date 04/14/2014"</span>);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; fw = parse(dmesg);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(fw.getA(), is(<span class="jxr_string">"Phoenix Technologies LTD"</span>));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertThat(fw.getB(), is(<span class="jxr_string">"6.00"</span>));
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertThat(fw.getC(), is(<span class="jxr_string">"2014-04-14"</span>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      @Test
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">void</strong> testParseDmesgEmpty() {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; fw = parse(Collections.emptyList());
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(fw.getA(), is(nullValue()));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(fw.getB(), is(nullValue()));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertThat(fw.getC(), is(emptyString()));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      @Test
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">void</strong> testParseDmesgNoMatch() {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          List&lt;String&gt; dmesg = List.of(<em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <span class="jxr_string">"cpu0 at mainbus0: AMD EPYC 7313P"</span>, <em class="jxr_comment">//</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <span class="jxr_string">"some other line"</span>);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; fw = parse(dmesg);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(fw.getA(), is(nullValue()));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(fw.getB(), is(nullValue()));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertThat(fw.getC(), is(emptyString()));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      }
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      @Test
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <strong class="jxr_keyword">void</strong> testBlankAttributesBecomeUnknown() {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         <em class="jxr_comment">// The parse leaves absent fields null or blank; the base is what turns them into the documented sentinel.</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         BsdFirmware fw = <strong class="jxr_keyword">new</strong> TestFirmware(Collections.emptyList());
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(fw.getManufacturer(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(fw.getVersion(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(fw.getReleaseDate(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     @Test
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">void</strong> testParsedAttributesArePassedThrough() {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         BsdFirmware fw = <strong class="jxr_keyword">new</strong> TestFirmware(List.of(<span class="jxr_string">"bios0: vendor LENOVO version \&quot;GLET90WW\&quot; date 09/13/2017"</span>));
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertThat(fw.getManufacturer(), is(<span class="jxr_string">"LENOVO"</span>));
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertThat(fw.getVersion(), is(<span class="jxr_string">"GLET90WW"</span>));
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertThat(fw.getReleaseDate(), is(<span class="jxr_string">"2017-09-13"</span>));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Test
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">void</strong> testNameAndDescriptionKeepTheAbstractDefaults() {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <em class="jxr_comment">// dmesg and dmidecode supply neither, so the BSDs must not start reporting something else for them.</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         BsdFirmware fw = <strong class="jxr_keyword">new</strong> TestFirmware(Collections.emptyList());
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(fw.getName(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertThat(fw.getDescription(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

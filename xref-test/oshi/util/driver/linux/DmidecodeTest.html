@@ -83,7 +83,7 @@
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Test
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">void</strong> testQueryBiosNameRevNoRevision() {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          List&lt;String&gt; noRev = Arrays.asList(<span class="jxr_string">"SMBIOS 3.0 present."</span>, <span class="jxr_string">"Handle 0x0000, DMI type 0, 24 bytes"</span>);
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          List&lt;String&gt; noRev = List.of(<span class="jxr_string">"SMBIOS 3.0 present."</span>, <span class="jxr_string">"Handle 0x0000, DMI type 0, 24 bytes"</span>);
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          Pair&lt;@Nullable String, @Nullable String&gt; result = Dmidecode.queryBiosNameRev(noRev);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(result.getA(), is(<span class="jxr_string">"SMBIOS 3.0"</span>));
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertThat(result.getB(), is(nullValue()));
@@ -91,7 +91,7 @@
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>  
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      @Test
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">void</strong> testQueryBiosNameRevLowercaseVariant() {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          List&lt;String&gt; lowerCase = Arrays.asList(<span class="jxr_string">"SMBIOS 3.1 present."</span>, <span class="jxr_string">"\tbios revision: 1.2"</span>);
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          List&lt;String&gt; lowerCase = List.of(<span class="jxr_string">"SMBIOS 3.1 present."</span>, <span class="jxr_string">"\tbios revision: 1.2"</span>);
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>          Pair&lt;@Nullable String, @Nullable String&gt; result = Dmidecode.queryBiosNameRev(lowerCase);
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>          assertThat(result.getA(), is(<span class="jxr_string">"SMBIOS 3.1"</span>));
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          assertThat(result.getB(), is(<span class="jxr_string">"1.2"</span>));

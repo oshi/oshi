@@ -58,35 +58,38 @@
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      <em class="jxr_comment">// run(OrLog|Silently)(() -&gt; ... invokeExact with no '{' before invokeExact is an expression lambda -- the bug.</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <em class="jxr_comment">// Scanned against whole-file content, so a lambda wrapped across lines is still caught. [^{};]* stays within the</em>
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_comment">// single statement (no brace/semicolon crossing) to avoid matching an unrelated later invokeExact.</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern EXPRESSION_LAMBDA_INVOKE_EXACT = Pattern
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>              .compile(<span class="jxr_string">"run(?:OrLog|Silently)&#92;&#92;(&#92;&#92;(&#92;&#92;)&#92;&#92;s*-&gt;[^{};]*invokeExact"</span>);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <em class="jxr_javadoccomment">/** Collapses a matched lambda onto one line for the failure message. */</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern WHITESPACE_RUN = Pattern.compile(<span class="jxr_string">"&#92;&#92;s+"</span>);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>      @Test
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">void</strong> noVoidInvokeExactInExpressionLambda() <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          Path srcRoot = Path.of(<span class="jxr_string">"src"</span>, <span class="jxr_string">"main"</span>, <span class="jxr_string">"java"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assumeTrue(Files.isDirectory(srcRoot), <span class="jxr_string">"FFM source tree not on the working directory; skipping source scan"</span>);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          List&lt;String&gt; offenders = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; paths = Files.walk(srcRoot)) {
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              paths.filter(p -&gt; p.toString().endsWith(<span class="jxr_string">".java"</span>)).forEach(p -&gt; {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      String content = Files.readString(p, StandardCharsets.UTF_8);
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                      Matcher matcher = EXPRESSION_LAMBDA_INVOKE_EXACT.matcher(content);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      <strong class="jxr_keyword">while</strong> (matcher.find()) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          <strong class="jxr_keyword">long</strong> line = content.substring(0, matcher.start()).chars().filter(c -&gt; c == '\n').count() + 1;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          offenders.add(p + <span class="jxr_string">":"</span> + line + <span class="jxr_string">"  "</span> + matcher.group().replaceAll(<span class="jxr_string">"&#92;&#92;s+"</span>, <span class="jxr_string">" "</span>));
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      }
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  } <strong class="jxr_keyword">catch</strong> (IOException e) {
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UncheckedIOException(e);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              });
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertThat(<span class="jxr_string">"void invokeExact in an expression lambda infers Object and throws WrongMethodTypeException at "</span>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  + <span class="jxr_string">"runtime; use a block lambda instead: () -&gt; { handle.invokeExact(...); }. Offenders: "</span> + offenders,
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  offenders, is(empty()));
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>      }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern EXPRESSION_LAMBDA_INVOKE_EXACT = Pattern
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              .compile(<span class="jxr_string">"run(?:OrLog|Silently)&#92;&#92;(&#92;&#92;(&#92;&#92;)&#92;&#92;s*-&gt;[^{};]*invokeExact"</span>);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>      @Test
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      <strong class="jxr_keyword">void</strong> noVoidInvokeExactInExpressionLambda() <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          Path srcRoot = Path.of(<span class="jxr_string">"src"</span>, <span class="jxr_string">"main"</span>, <span class="jxr_string">"java"</span>);
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assumeTrue(Files.isDirectory(srcRoot), <span class="jxr_string">"FFM source tree not on the working directory; skipping source scan"</span>);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          List&lt;String&gt; offenders = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">try</strong> (Stream&lt;Path&gt; paths = Files.walk(srcRoot)) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>              paths.filter(p -&gt; p.toString().endsWith(<span class="jxr_string">".java"</span>)).forEach(p -&gt; {
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      String content = Files.readString(p, StandardCharsets.UTF_8);
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      Matcher matcher = EXPRESSION_LAMBDA_INVOKE_EXACT.matcher(content);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                      <strong class="jxr_keyword">while</strong> (matcher.find()) {
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                          <strong class="jxr_keyword">long</strong> line = content.substring(0, matcher.start()).chars().filter(c -&gt; c == '\n').count() + 1;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                          offenders.add(p + <span class="jxr_string">":"</span> + line + <span class="jxr_string">"  "</span> + WHITESPACE_RUN.matcher(matcher.group()).replaceAll(<span class="jxr_string">" "</span>));
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                      }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  } <strong class="jxr_keyword">catch</strong> (IOException e) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                      <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> UncheckedIOException(e);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              });
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(<span class="jxr_string">"void invokeExact in an expression lambda infers Object and throws WrongMethodTypeException at "</span>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  + <span class="jxr_string">"runtime; use a block lambda instead: () -&gt; { handle.invokeExact(...); }. Offenders: "</span> + offenders,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  offenders, is(empty()));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

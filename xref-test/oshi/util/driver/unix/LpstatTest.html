@@ -27,15 +27,15 @@
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="LpstatTest" href="../../../../oshi/util/driver/unix/LpstatTest.html#LpstatTest">LpstatTest</a> {
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_comment">// Fixture: lpstat -d</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LPSTAT_D = Arrays.asList(<span class="jxr_string">"system default destination: HP_LaserJet"</span>);
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LPSTAT_D = List.of(<span class="jxr_string">"system default destination: HP_LaserJet"</span>);
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      <em class="jxr_comment">// Fixture: lpstat -v</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LPSTAT_V = Arrays.asList(
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LPSTAT_V = List.of(
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>              <span class="jxr_string">"device for HP_LaserJet: usb://HP/LaserJet%20Pro?serial=ABC123"</span>, <span class="jxr_string">"device for PDF_Printer: cups-pdf:/"</span>,
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>              <span class="jxr_string">"device for Network_Printer: ipp://192.168.1.100/ipp/print"</span>);
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_comment">// Fixture: lpstat -l -p</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LPSTAT_LP = Arrays.asList(
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LPSTAT_LP = List.of(
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>              <span class="jxr_string">"printer HP_LaserJet is idle.  enabled since Mon 01 Jan 2024 12:00:00 AM"</span>,
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>              <span class="jxr_string">"\tDescription: HP LaserJet Pro MFP"</span>, <span class="jxr_string">"\tLocation: Office"</span>,
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>              <span class="jxr_string">"printer PDF_Printer disabled since Tue 02 Jan 2024 01:00:00 AM -"</span>,
@@ -57,7 +57,7 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testQueryDefaultPrinterNoDefault() {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          List&lt;String&gt; noDefault = Arrays.asList(<span class="jxr_string">"no system default destination"</span>);
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          List&lt;String&gt; noDefault = List.of(<span class="jxr_string">"no system default destination"</span>);
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(Lpstat.queryDefaultPrinter(noDefault), is(<span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
@@ -95,7 +95,7 @@
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      @Test
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">void</strong> testQueryDriverNotFound() {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertThat(Lpstat.queryDriver(Arrays.asList(<span class="jxr_string">"copies=1 device-uri=usb://HP"</span>)), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertThat(Lpstat.queryDriver(List.of(<span class="jxr_string">"copies=1 device-uri=usb://HP"</span>)), is(<span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
 <a class="jxr_linenumber" name="L92" href="#L92">92</a>  
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>      @Test

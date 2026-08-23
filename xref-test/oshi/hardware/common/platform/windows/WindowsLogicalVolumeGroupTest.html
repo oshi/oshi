@@ -24,11 +24,11 @@
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.driver.common.windows.wmi.WmiConstants.VT_BSTR;
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.EnumMap;
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.EnumMap;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
 <a class="jxr_linenumber" name="L25" href="#L25">25</a>  
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">import</strong> oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
@@ -69,7 +69,7 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>              }
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>  
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>              @Override
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">public</strong> Object getValue(T property, <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              <strong class="jxr_keyword">public</strong> @Nullable Object getValue(T property, <strong class="jxr_keyword">int</strong> index) {
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <strong class="jxr_keyword">return</strong> rows.get(index).get(property);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>  
@@ -254,7 +254,7 @@
 <a class="jxr_linenumber" name="L246" href="#L246">246</a>                 build(pools(<span class="jxr_string">"Pool1"</span>, SP_GUID), virtualDisks(), physicalDisks(<span class="jxr_string">"Disk1"</span>, <span class="jxr_string">"PCISlot1"</span>, PD1_GUID),
 <a class="jxr_linenumber" name="L247" href="#L247">247</a>                         poolToDisk(SP_GUID, PD1_GUID)).get(0).getPhysicalVolumes(),
 <a class="jxr_linenumber" name="L248" href="#L248">248</a>                 contains(<span class="jxr_string">"Disk1 @ PCISlot1"</span>));
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertThat(<span class="jxr_string">"VD fixture must parse into 'name guid'"</span>, Arrays.asList(
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         assertThat(<span class="jxr_string">"VD fixture must parse into 'name guid'"</span>, List.of(
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>                 build(pools(<span class="jxr_string">"Pool1"</span>, SP_GUID), virtualDisks(<span class="jxr_string">"Volume1"</span>, SP_GUID, VD_GUID), physicalDisks(), poolToDisk())
 <a class="jxr_linenumber" name="L251" href="#L251">251</a>                         .get(0).getLogicalVolumes().keySet().iterator().next()),
 <a class="jxr_linenumber" name="L252" href="#L252">252</a>                 contains(<span class="jxr_string">"Volume1 "</span> + VD_GUID));

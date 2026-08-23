@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>          String marker = <span class="jxr_string">"Serial Number:"</span>;
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">for</strong> (String checkLine : lines) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              <strong class="jxr_keyword">if</strong> (checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  <strong class="jxr_keyword">return</strong> checkLine.split(marker, -1)[1].trim();
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  <strong class="jxr_keyword">return</strong> ParseUtil.getTextAfterString(checkLine, marker).trim();
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>              }
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>          }
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -112,7 +112,7 @@
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         String marker = <span class="jxr_string">"UUID:"</span>;
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">for</strong> (String checkLine : lines) {
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">return</strong> checkLine.split(marker, -1)[1].trim();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.getTextAfterString(checkLine, marker).trim();
 <a class="jxr_linenumber" name="L108" href="#L108">108</a>             }
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         }
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;

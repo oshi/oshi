@@ -87,7 +87,7 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              <em class="jxr_comment">// Node 0x... identifies start of a new tree</em>
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"Node 0x"</span>)) {
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <em class="jxr_comment">// Remove indent for key</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  key = line.replaceFirst(<span class="jxr_string">"^&#92;&#92;s*"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  key = ParseUtil.trimLeadingWhitespace(line);
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>                  <em class="jxr_comment">// Calculate indent and store as last parent at this depth</em>
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">int</strong> depth = line.length() - key.length();
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>                  <em class="jxr_comment">// Store first indent for future use</em>

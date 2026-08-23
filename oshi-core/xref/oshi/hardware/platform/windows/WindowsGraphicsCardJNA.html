@@ -308,7 +308,7 @@
 <a class="jxr_linenumber" name="L300" href="#L300">300</a> <em class="jxr_javadoccomment">     * @param locationInfo the LocationInformation registry value</em>
 <a class="jxr_linenumber" name="L301" href="#L301">301</a> <em class="jxr_javadoccomment">     * @return PCI device number, or -1 if not parseable</em>
 <a class="jxr_linenumber" name="L302" href="#L302">302</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parsePciDevice(String locationInfo) {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parsePciDevice(@Nullable String locationInfo) {
 <a class="jxr_linenumber" name="L304" href="#L304">304</a>         <strong class="jxr_keyword">return</strong> DxgiUtil.parsePciDevice(locationInfo);
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>     }
 <a class="jxr_linenumber" name="L306" href="#L306">306</a> 
@@ -318,7 +318,7 @@
 <a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     * @param locationInfo the LocationInformation registry value</em>
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * @return PCI function number, or -1 if not parseable</em>
 <a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parsePciFunction(String locationInfo) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">int</strong> parsePciFunction(@Nullable String locationInfo) {
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>         <strong class="jxr_keyword">return</strong> DxgiUtil.parsePciFunction(locationInfo);
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>     }
 <a class="jxr_linenumber" name="L316" href="#L316">316</a> 
