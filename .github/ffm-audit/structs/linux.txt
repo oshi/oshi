@@ -1,0 +1,10 @@
+# Maps an FFM struct layout constant to the C type it mirrors, so the audit can compare its size
+# and every named field's offset against the real header. A layout with no entry here is reported
+# as unmapped and is not checked -- adding a line is the act of claiming which struct it models,
+# which is the review step this file exists to force.
+# Format: <JAVA_LAYOUT_CONSTANT> = <C type expression>, or <File.NAME> when the name is not unique.
+
+ADDRINFO_LAYOUT = struct addrinfo
+STATVFS_LAYOUT  = struct statvfs
+SYSINFO_LAYOUT  = struct sysinfo
+UTMPX_LAYOUT    = struct utmpx

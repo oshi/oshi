@@ -1,0 +1,61 @@
+# Maps an FFM struct layout constant to the C type it mirrors, so the audit can compare its size
+# and every named field's offset against the real header. A layout with no entry here is reported
+# as unmapped and is not checked -- adding a line is the act of claiming which struct it models,
+# which is the review step this file exists to force.
+# Format: <JAVA_LAYOUT_CONSTANT> = <C type expression>, or <File.NAME> when the name is not unique.
+
+# -- winnt.h / winbase.h
+EVENTLOGRECORD           = EVENTLOGRECORD
+LUID                     = LUID
+LUID_AND_ATTRIBUTES      = LUID_AND_ATTRIBUTES
+TOKEN_ELEVATION          = TOKEN_ELEVATION
+TOKEN_PRIVILEGES         = TOKEN_PRIVILEGES
+SYSTEMTIME_LAYOUT        = SYSTEMTIME
+# szCSDVersion is JAVA_CHAR[128], so this is the wide variant
+OSVERSIONINFOEX          = OSVERSIONINFOEXW
+
+# -- psapi.h; both files describe the same struct
+PERFORMANCE_INFORMATION        = PERFORMANCE_INFORMATION
+PERFORMANCE_INFORMATION_LAYOUT = PERFORMANCE_INFORMATION
+
+# -- iphlpapi.h
+FIXED_INFO_LAYOUT            = FIXED_INFO
+IP_ADDRESS_STRING_LAYOUT     = IP_ADDRESS_STRING
+IP_ADDR_STRING_LAYOUT        = IP_ADDR_STRING
+MIB_TCPROW_OWNER_PID_LAYOUT  = MIB_TCPROW_OWNER_PID
+MIB_TCP6ROW_OWNER_PID_LAYOUT = MIB_TCP6ROW_OWNER_PID
+MIB_TCPSTATS_LAYOUT          = MIB_TCPSTATS
+MIB_UDPROW_OWNER_PID_LAYOUT  = MIB_UDPROW_OWNER_PID
+MIB_UDP6ROW_OWNER_PID_LAYOUT = MIB_UDP6ROW_OWNER_PID
+MIB_UDPSTATS_LAYOUT          = MIB_UDPSTATS
+
+# -- pdh.h, setupapi.h, objbase.h, oleauto.h
+PDH_RAW_COUNTER_LAYOUT   = PDH_RAW_COUNTER
+SP_DEVICE_INTERFACE_DATA = SP_DEVICE_INTERFACE_DATA
+GuidFFM.LAYOUT           = GUID
+VariantFFM.LAYOUT        = VARIANT
+
+# -- powrprof.h / batclass.h
+BATTERY_INFORMATION      = BATTERY_INFORMATION
+BATTERY_MANUFACTURE_DATE = BATTERY_MANUFACTURE_DATE
+BATTERY_QUERY_INFORMATION = BATTERY_QUERY_INFORMATION
+BATTERY_STATUS           = BATTERY_STATUS
+BATTERY_WAIT_STATUS      = BATTERY_WAIT_STATUS
+
+# -- bluetoothapis.h
+BLUETOOTH_DEVICE_INFO_LAYOUT          = BLUETOOTH_DEVICE_INFO
+BLUETOOTH_DEVICE_SEARCH_PARAMS_LAYOUT = BLUETOOTH_DEVICE_SEARCH_PARAMS
+BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT    = BLUETOOTH_FIND_RADIO_PARAMS
+BLUETOOTH_RADIO_INFO_LAYOUT           = BLUETOOTH_RADIO_INFO
+
+# -- winternl.h. The SDK declares these with Reserved members standing in for most fields, so the
+# absent ones are skipped and the size assert carries the check.
+#
+# PEB, RTL_USER_PROCESS_PARAMETERS, CURDIR and RTL_DRIVE_LETTER_CURDIR are deliberately left
+# unmapped. The first two are published in a reduced form whose size does not match the real,
+# undocumented struct OSHI mirrors, and the last two are not declared at all. Checking any of them
+# against the SDK reports the difference that is the point of the binding. They show as unmapped,
+# which is honest.
+UNICODE_STRING                   = UNICODE_STRING
+STRING                           = STRING
+PROCESS_BASIC_INFORMATION_STRUCT = PROCESS_BASIC_INFORMATION

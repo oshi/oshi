@@ -4,6 +4,7 @@
  */
 package oshi.ffm.platform.windows;
 
+import static java.lang.foreign.MemoryLayout.paddingLayout;
 import static java.lang.foreign.MemoryLayout.sequenceLayout;
 import static java.lang.foreign.MemoryLayout.structLayout;
 import static java.lang.foreign.ValueLayout.ADDRESS;
@@ -66,13 +67,14 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
 
     public static final StructLayout IP_ADDR_STRING_LAYOUT = structLayout(ADDRESS.withName("Next"),
             IP_ADDRESS_STRING_LAYOUT.withName("IpAddress"), IP_ADDRESS_STRING_LAYOUT.withName("IpMask"),
-            JAVA_INT.withName("Context"));
+            JAVA_INT.withName("Context"), paddingLayout(4));
 
     public static final StructLayout FIXED_INFO_LAYOUT = structLayout(
             sequenceLayout(132, JAVA_BYTE).withName("HostName"), sequenceLayout(132, JAVA_BYTE).withName("DomainName"),
             ADDRESS.withName("CurrentDnsServer"), IP_ADDR_STRING_LAYOUT.withName("DnsServerList"),
             JAVA_INT.withName("NodeType"), sequenceLayout(260, JAVA_BYTE).withName("ScopeId"),
-            JAVA_INT.withName("EnableRouting"), JAVA_INT.withName("EnableProxy"), JAVA_INT.withName("EnableDns"));
+            JAVA_INT.withName("EnableRouting"), JAVA_INT.withName("EnableProxy"), JAVA_INT.withName("EnableDns"),
+            paddingLayout(4));
 
     public static int GetNetworkParams(MemorySegment fixedInfo, MemorySegment bufferSize) throws Throwable {
         return (int) GetNetworkParams.invokeExact(fixedInfo, bufferSize);

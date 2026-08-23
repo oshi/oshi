@@ -178,8 +178,7 @@ public interface MacSystem {
             ADDRESS.withName("pw_gecos"), // Honeywell login info
             ADDRESS.withName("pw_dir"), // home directory
             ADDRESS.withName("pw_shell"), // default shell
-            JAVA_LONG.withName("pw_expire"), // account expiration
-            ADDRESS.withName("pw_fields") // internal: fields filled in
+            JAVA_LONG.withName("pw_expire") // account expiration
     );
 
     StructLayout GROUP = structLayout(//
@@ -215,8 +214,8 @@ public interface MacSystem {
     PathElement RI_PHYS_FOOTPRINT = groupElement("ri_phys_footprint");
 
     StructLayout VNODE_INFO_PATH = structLayout(//
-            paddingLayout(152 * 8), // vnode_info but we don't need its data
-            sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("vip_path"));
+            // sizeof(struct vnode_info); paddingLayout takes bytes, not bits
+            paddingLayout(152), sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("vip_path"));
     PathElement VIP_PATH = groupElement("vip_path");
 
     StructLayout VNODE_PATH_INFO = structLayout(//
@@ -228,7 +227,7 @@ public interface MacSystem {
     StructLayout TIMEVAL = structLayout(//
             JAVA_LONG.withName("tv_sec"), // seconds
             JAVA_INT.withName("tv_usec"), // microseconds
-            paddingLayout(32) // align to 8-byte boundary (matches struct timeval on macOS 64-bit)
+            paddingLayout(4) // pad to the 8-byte alignment of struct timeval on macOS 64-bit
     );
 
     StructLayout RLIMIT = structLayout(//
@@ -254,7 +253,8 @@ public interface MacSystem {
             sequenceLayout(MFSTYPENAMELEN, JAVA_BYTE).withName("f_fstypename"), // fs type name
             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("f_mntonname"), // directory on which mounted
             sequenceLayout(MAXPATHLEN, JAVA_BYTE).withName("f_mntfromname"), // mounted filesystem
-            paddingLayout(8 * 4).withName("f_reserved") // For future use
+            JAVA_INT.withName("f_flags_ext"), // extended flags
+            paddingLayout(7 * 4).withName("f_reserved") // uint32_t f_reserved[7], for future use
     );
     PathElement F_BSIZE = groupElement("f_bsize");
     PathElement F_BLOCKS = groupElement("f_blocks");
@@ -367,7 +367,7 @@ public interface MacSystem {
             JAVA_INT.withName("ut_tv_usec"), // tv_usec [312..315]
             paddingLayout(4), // align ut_host to 8-byte boundary [316..319]
             sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName("ut_host"), // host name [320..575]
-            sequenceLayout(16, JAVA_BYTE).withName("ut_pad") // reserved [576..591]
+            sequenceLayout(16, JAVA_INT).withName("ut_pad") // __uint32_t ut_pad[16], reserved [576..639]
     );
     PathElement UT_USER = groupElement("ut_user");
     PathElement UT_LINE = groupElement("ut_line");
@@ -385,8 +385,9 @@ public interface MacSystem {
             JAVA_INT.withName("ai_protocol"), //
             JAVA_INT.withName("ai_addrlen"), //
             paddingLayout(4), // align pointer to 8 bytes
-            ADDRESS.withName("ai_addr"), //
+            // BSD orders ai_canonname before ai_addr; glibc is the other way round
             ADDRESS.withName("ai_canonname"), //
+            ADDRESS.withName("ai_addr"), //
             ADDRESS.withName("ai_next") //
     );
     PathElement AI_FLAGS = groupElement("ai_flags");
@@ -435,7 +436,10 @@ public interface MacSystem {
             JAVA_INT.withName("faults"), // # of faults
             JAVA_INT.withName("cow_faults"), // # of copy-on-writes
             JAVA_INT.withName("lookups"), // object cache lookups
-            JAVA_INT.withName("hits") // object cache hits
+            JAVA_INT.withName("hits"), // object cache hits
+            JAVA_INT.withName("purgeable_count"), // # of pages purgeable
+            JAVA_INT.withName("purges"), // # of pages purged
+            JAVA_INT.withName("speculative_count") // # of pages speculative
     );
     PathElement VM_FREE_COUNT = groupElement("free_count");
     PathElement VM_INACTIVE_COUNT = groupElement("inactive_count");

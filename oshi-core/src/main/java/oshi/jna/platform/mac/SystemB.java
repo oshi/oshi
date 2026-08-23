@@ -36,7 +36,7 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
         public short ut_type; // type of this entry
         public Timeval ut_tv; // time entry was created
         public byte[] ut_host = new byte[UTX_HOSTSIZE]; // host name
-        public byte[] ut_pad = new byte[16]; // reserved for future use
+        public int[] ut_pad = new int[16]; // __uint32_t ut_pad[16], reserved for future use
     }
 
     /**

@@ -25,6 +25,13 @@ jobs:
             --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/mac/**/*.java" \
             --workdir "${RUNNER_TEMP}/ffm-audit" \
             --cflags "-isysroot $(xcrun --show-sdk-path)"
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffm-audit-mac
+          path: ${{ runner.temp }}/ffm-audit
+          if-no-files-found: warn
 
   linux:
     runs-on: ubuntu-latest
@@ -37,6 +44,13 @@ jobs:
           python3 .github/ffm-audit/audit.py --platform linux --toolchain gcc \
             --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/linux/**/*.java" \
             --workdir "${RUNNER_TEMP}/ffm-audit"
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffm-audit-linux
+          path: ${{ runner.temp }}/ffm-audit
+          if-no-files-found: warn
 
   windows:
     runs-on: windows-latest
@@ -50,3 +64,10 @@ jobs:
           python .github\ffm-audit\audit.py --platform windows --toolchain msvc ^
             --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/windows/**/*.java" ^
             --workdir "%RUNNER_TEMP%\ffm-audit" --cflags "/permissive-"
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffm-audit-windows
+          path: ${{ runner.temp }}/ffm-audit
+          if-no-files-found: warn
