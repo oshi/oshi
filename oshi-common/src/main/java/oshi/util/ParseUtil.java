@@ -938,6 +938,39 @@ public final class ParseUtil {
     }
 
     /**
+     * Remove the leading whitespace from a string.
+     * <p>
+     * Equivalent to {@code s.replaceFirst("^\\s+", "")} without compiling a {@link Pattern}, and to Java 11's
+     * {@code String.stripLeading()}, which this module cannot use.
+     *
+     * @param s The string to trim
+     * @return The string with any leading whitespace removed
+     */
+    public static String trimLeadingWhitespace(String s) {
+        int start = 0;
+        while (start < s.length() && Character.isWhitespace(s.charAt(start))) {
+            start++;
+        }
+        return start == 0 ? s : s.substring(start);
+    }
+
+    /**
+     * Get the text of a line following a marker string.
+     * <p>
+     * Intended for the {@code key: value} lines that command output is full of, where the caller has already
+     * established that the marker is present. Unlike {@code line.split(marker, -1)[1]}, the marker is matched literally
+     * rather than as a regular expression, and no {@link Pattern} is compiled.
+     *
+     * @param text   Text to search for match
+     * @param marker Start matching after this text
+     * @return Text following the first occurrence of the marker, or empty string if the marker does not exist
+     */
+    public static String getTextAfterString(String text, String marker) {
+        int index = text.indexOf(marker);
+        return index < 0 ? "" : text.substring(index + marker.length());
+    }
+
+    /**
      * Convert a long representing filetime (100-ns since 1601 epoch) to ms since 1970 epoch
      *
      * @param filetime A 64-bit value equivalent to FILETIME

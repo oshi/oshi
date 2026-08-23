@@ -54,7 +54,8 @@ public class ApplicationInfo {
         this.version = ParseUtil.getStringValueOrEmpty(version);
         this.vendor = ParseUtil.getStringValueOrEmpty(vendor);
         this.timestamp = timestamp;
-        this.additionalInfo = additionalInfo != null ? new LinkedHashMap<>(additionalInfo) : Collections.emptyMap();
+        this.additionalInfo = additionalInfo != null ? Collections.unmodifiableMap(new LinkedHashMap<>(additionalInfo))
+                : Collections.emptyMap();
     }
 
     /**
@@ -103,7 +104,7 @@ public class ApplicationInfo {
      * Gets additional application details that are OS-specific and not covered by the main fields. This map may include
      * attributes like installation location, source, architecture, or other metadata.
      *
-     * @return A map containing optional key-value pairs of application details.
+     * @return An unmodifiable map containing optional key-value pairs of application details.
      */
     public Map<String, String> getAdditionalInfo() {
         return additionalInfo;

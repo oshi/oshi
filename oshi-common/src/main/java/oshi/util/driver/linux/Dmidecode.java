@@ -79,7 +79,7 @@ public final class Dmidecode {
         String marker = "Serial Number:";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
-                return checkLine.split(marker, -1)[1].trim();
+                return ParseUtil.getTextAfterString(checkLine, marker).trim();
             }
         }
         return null;
@@ -104,7 +104,7 @@ public final class Dmidecode {
         String marker = "UUID:";
         for (String checkLine : lines) {
             if (checkLine.contains(marker)) {
-                return checkLine.split(marker, -1)[1].trim();
+                return ParseUtil.getTextAfterString(checkLine, marker).trim();
             }
         }
         return null;

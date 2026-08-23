@@ -47,7 +47,8 @@ public class OSDesktopWindow {
         this.windowId = windowId;
         this.title = title;
         this.command = command;
-        this.locAndSize = locAndSize;
+        // Rectangle is mutable, so the class copies on the way in and on the way out to honor its @Immutable contract
+        this.locAndSize = new Rectangle(locAndSize);
         this.owningProcessId = owningProcessId;
         this.order = order;
         this.visible = visible;
@@ -86,10 +87,10 @@ public class OSDesktopWindow {
     /**
      * Gets a {@link Rectangle} representing the window's location and size.
      *
-     * @return the location and size
+     * @return a copy of the location and size; mutating it does not affect this window
      */
     public Rectangle getLocAndSize() {
-        return locAndSize;
+        return new Rectangle(locAndSize);
     }
 
     /**

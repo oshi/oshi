@@ -60,7 +60,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final String LSB_RELEASE_A_LOG = "lsb_release -a: {}";
     private static final String LSB_RELEASE_LOG = "lsb-release: {}";
     private static final String RELEASE_DELIM = " release ";
-    private static final String DOUBLE_QUOTES = "(?:^\"|\"$)";
+    private static final Pattern DOUBLE_QUOTES = Pattern.compile("(?:^\"|\"$)");
     private static final String FILENAME_PROPERTIES = "oshi.linux.filename.properties";
 
     private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
@@ -310,7 +310,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         for (String line : osRelease) {
             if (line.startsWith("VERSION=")) {
                 LOG.debug(OS_RELEASE_LOG, line);
-                line = line.replace("VERSION=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                line = DOUBLE_QUOTES.matcher(line.replace("VERSION=", "")).replaceAll("").trim();
                 String[] split = PARENTHESES.split(line);
                 if (split.length <= 1) {
                     split = COMMA_SPACE.split(line);
@@ -323,10 +323,10 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
                 }
             } else if (line.startsWith("NAME=") && family == null) {
                 LOG.debug(OS_RELEASE_LOG, line);
-                family = line.replace("NAME=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                family = DOUBLE_QUOTES.matcher(line.replace("NAME=", "")).replaceAll("").trim();
             } else if (line.startsWith("VERSION_ID=") && versionId.equals(Constants.UNKNOWN)) {
                 LOG.debug(OS_RELEASE_LOG, line);
-                versionId = line.replace("VERSION_ID=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                versionId = DOUBLE_QUOTES.matcher(line.replace("VERSION_ID=", "")).replaceAll("").trim();
             }
         }
         return family == null ? null : new Triplet<>(family, versionId, codeName);
@@ -405,7 +405,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
         for (String line : lines) {
             if (line.startsWith("DISTRIB_DESCRIPTION=")) {
                 LOG.debug(LSB_RELEASE_LOG, line);
-                line = line.replace("DISTRIB_DESCRIPTION=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                line = DOUBLE_QUOTES.matcher(line.replace("DISTRIB_DESCRIPTION=", "")).replaceAll("").trim();
                 if (line.contains(RELEASE_DELIM)) {
                     Triplet<String, String, String> triplet = parseRelease(line, RELEASE_DELIM);
                     family = triplet.getA();
@@ -418,13 +418,13 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
                 }
             } else if (line.startsWith("DISTRIB_ID=") && family == null) {
                 LOG.debug(LSB_RELEASE_LOG, line);
-                family = line.replace("DISTRIB_ID=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                family = DOUBLE_QUOTES.matcher(line.replace("DISTRIB_ID=", "")).replaceAll("").trim();
             } else if (line.startsWith("DISTRIB_RELEASE=") && versionId.equals(Constants.UNKNOWN)) {
                 LOG.debug(LSB_RELEASE_LOG, line);
-                versionId = line.replace("DISTRIB_RELEASE=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                versionId = DOUBLE_QUOTES.matcher(line.replace("DISTRIB_RELEASE=", "")).replaceAll("").trim();
             } else if (line.startsWith("DISTRIB_CODENAME=") && codeName.equals(Constants.UNKNOWN)) {
                 LOG.debug(LSB_RELEASE_LOG, line);
-                codeName = line.replace("DISTRIB_CODENAME=", "").replaceAll(DOUBLE_QUOTES, "").trim();
+                codeName = DOUBLE_QUOTES.matcher(line.replace("DISTRIB_CODENAME=", "")).replaceAll("").trim();
             }
         }
         return family == null ? null : new Triplet<>(family, versionId, codeName);
@@ -466,16 +466,19 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * Helper method to parse version description line style
      *
      * @param line      a String of the form "Distributor release x.x (Codename)"
-     * @param splitLine A regex to split on, e.g. " release "
+     * @param splitLine A literal delimiter to split on, e.g. " release "; matched with indexOf, not as a regex
      * @return a triplet with the parsed family, versionID and codeName
      */
     static Triplet<String, String, String> parseRelease(String line, String splitLine) {
-        String[] split = line.split(splitLine);
-        String family = split[0].trim();
+        // The delimiter is a literal, so it is matched with indexOf rather than compiled as a regex on every line
+        int delim = line.indexOf(splitLine);
+        String family = (delim < 0 ? line : line.substring(0, delim)).trim();
         String versionId = Constants.UNKNOWN;
         String codeName = Constants.UNKNOWN;
-        if (split.length > 1) {
-            split = split[1].split("[()]");
+        // An empty remainder leaves both unknown, matching split()'s dropping of a trailing empty field
+        String rest = delim < 0 ? "" : line.substring(delim + splitLine.length());
+        if (!rest.isEmpty()) {
+            String[] split = PARENTHESES.split(rest, -1);
             if (split.length > 0) {
                 versionId = split[0].trim();
             }

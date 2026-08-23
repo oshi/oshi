@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.GraphicsCard;
@@ -20,6 +21,9 @@ import oshi.util.ParseUtil;
  */
 @Immutable
 public final class AixGraphicsCard extends AbstractGraphicsCard {
+
+    /** The run of dots lscfg uses to pad a label out to its value. */
+    private static final Pattern DOT_RUN = Pattern.compile("\\.\\.+");
 
     /**
      * Constructor for AixGraphicsCard
@@ -57,7 +61,7 @@ public final class AixGraphicsCard extends AbstractGraphicsCard {
                 if (s.startsWith("Manufacture ID")) {
                     vendor = ParseUtil.removeLeadingDots(s.substring(14));
                 } else if (s.contains("Level")) {
-                    versionInfo.add(s.replaceAll("\\.\\.+", "="));
+                    versionInfo.add(DOT_RUN.matcher(s).replaceAll("="));
                 } else if (s.startsWith("Hardware Location Code")) {
                     cardList.add(new AixGraphicsCard(name, Constants.UNKNOWN, ParseUtil.getStringValueOrUnknown(vendor),
                             versionInfo.isEmpty() ? Constants.UNKNOWN : String.join(",", versionInfo), 0L));

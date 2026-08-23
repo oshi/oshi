@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.netbsd;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 
@@ -23,6 +24,11 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class NetBsdCentralProcessor extends BsdCentralProcessor {
+    /** A hyphen-separated family-model-stepping triple, e.g. {@code "06-7a-01"}. */
+    private static final Pattern CPU_SIGNATURE = Pattern.compile("[\\da-fA-F]+-[\\da-fA-F]+-[\\da-fA-F]+");
+    /** A {@code dmesg} line carrying that triple somewhere in it. */
+    private static final Pattern CPU_SIGNATURE_LINE = Pattern.compile(".*\\d+-[\\da-fA-F]+-[\\da-fA-F]+.*");
+
     private static final int CPUSTATES = 5;
     private static final int CP_USER = 0;
     private static final int CP_NICE = 1;
@@ -109,11 +115,11 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
      */
     static String[] parseFamilyModelStepping(List<String> dmesg) {
         for (String line : dmesg) {
-            if (line.startsWith("cpu0:") && line.matches(".*\\d+-[\\da-fA-F]+-[\\da-fA-F]+.*")) {
+            if (line.startsWith("cpu0:") && CPU_SIGNATURE_LINE.matcher(line).matches()) {
                 String[] parts = line.split(",", -1);
                 for (String part : parts) {
                     String trimmed = part.trim();
-                    if (trimmed.matches("[\\da-fA-F]+-[\\da-fA-F]+-[\\da-fA-F]+")) {
+                    if (CPU_SIGNATURE.matcher(trimmed).matches()) {
                         return trimmed.split("-");
                     }
                 }

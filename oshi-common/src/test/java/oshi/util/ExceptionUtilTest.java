@@ -484,7 +484,9 @@ class ExceptionUtilTest {
     @Test
     void testSignatureMismatchIsLoggedAtErrorAndRethrown() {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-        WrongMethodTypeException thrown = assertThrows(WrongMethodTypeException.class,
+        // S5778: the supplier's throw is a second call that can throw, but it is the planted fault this
+        // method is being asked to rethrow, and the assertions below pin down which call threw
+        var thrown = assertThrows(WrongMethodTypeException.class, // NOSONAR java:S5778 - planted fault
                 () -> ExceptionUtil.getIntOrDefault(() -> {
                     throw new WrongMethodTypeException("handle's method type (int)int but found (int)void");
                 }, 0, recorder.logger(), "Sizing call failed"));
@@ -500,9 +502,11 @@ class ExceptionUtilTest {
     @Test
     void testSignatureMismatchOutranksAnExplicitLevel() {
         LogUtilTest.RecordingLogger recorder = LogUtilTest.RecordingLogger.create();
-        assertThrows(WrongMethodTypeException.class, () -> ExceptionUtil.runOrLog(() -> {
-            throw new WrongMethodTypeException("mismatch");
-        }, recorder.logger(), LogLevel.TRACE, "Release failed"));
+        // S5778: the supplier's throw is the planted fault runOrLog is being asked to rethrow
+        assertThrows(WrongMethodTypeException.class, // NOSONAR java:S5778 - planted fault
+                () -> ExceptionUtil.runOrLog(() -> {
+                    throw new WrongMethodTypeException("mismatch");
+                }, recorder.logger(), LogLevel.TRACE, "Release failed"));
         assertThat("A defect outranks the level the caller asked for", recorder.onlyCall(), is("error"));
     }
 

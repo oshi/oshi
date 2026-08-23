@@ -32,6 +32,7 @@ class PsInfoJNATest {
     void testQueryPsInfo() {
         int pid = new SystemInfo().getOperatingSystem().getProcessId();
         AixPsInfo psinfo = PsInfo.queryPsInfo(pid);
+        assertNotNull(psinfo, "psinfo should be readable for the current process");
         assertThat("Process ID in structure should match PID", psinfo.pr_pid, is((long) pid));
 
         Triplet<Integer, Long, Long> addrs = PsInfo.queryArgsEnvAddrs(pid, psinfo);
@@ -45,6 +46,7 @@ class PsInfoJNATest {
         for (File lwpidFile : numericFiles) {
             int tid = ParseUtil.parseIntOrDefault(lwpidFile.getName(), 0);
             AixLwpsInfo lwpsinfo = PsInfo.queryLwpsInfo(pid, tid);
+            assertNotNull(lwpsinfo, "lwpsinfo should be readable for a live thread of the current process");
             assertThat("Thread ID in structure should match TID", lwpsinfo.pr_lwpid, is((long) tid));
         }
     }

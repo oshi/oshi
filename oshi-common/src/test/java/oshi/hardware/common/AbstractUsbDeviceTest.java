@@ -6,14 +6,17 @@ package oshi.hardware.common;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.not;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +61,58 @@ class AbstractUsbDeviceTest {
         AbstractUsbDevice b = new AbstractUsbDevice("Beta", "", "", "", "", "", Collections.emptyList()) {
         };
         assertThat(a.compareTo(b), is(lessThan(0)));
+    }
+
+    @Test
+    void testCompareToIsConsistentWithEquals() {
+        // Two distinct devices sharing a name: compareTo must not call them equal, or a sorted set would drop one
+        AbstractUsbDevice first = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN1", "USB1",
+                Collections.emptyList()) {
+        };
+        AbstractUsbDevice second = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN2", "USB2",
+                Collections.emptyList()) {
+        };
+        assertThat(first.compareTo(second), is(not(0)));
+        assertThat(first.equals(second), is(false));
+        assertThat(new TreeSet<>(List.of(first, second)), hasSize(2));
+
+        // And a device equal on every ordered field compares equal and hashes alike
+        AbstractUsbDevice copy = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN1", "USB1",
+                Collections.emptyList()) {
+        };
+        assertThat(first.compareTo(copy), is(0));
+        assertThat(first, is(copy));
+        assertThat(first.hashCode(), is(copy.hashCode()));
+    }
+
+    @Test
+    void testEqualsIsSymmetricAgainstAForeignImplementation() {
+        AbstractUsbDevice device = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN1", "USB1",
+                Collections.emptyList()) {
+        };
+        // A UsbDevice that is not an AbstractUsbDevice carries the same values but keeps Object.equals. Equality must
+        // fail in both directions, or a HashSet holding the two would behave differently depending on insertion order.
+        UsbDevice foreign = new ForeignUsbDevice();
+        assertThat(device.equals(foreign), is(false));
+        assertThat(foreign.equals(device), is(false));
+        // Ordering, unlike equality, is shared: the foreign device inherits UsbDevice's default compareTo
+        assertThat(device.compareTo(foreign), is(0));
+        assertThat(foreign.compareTo(device), is(0));
+    }
+
+    @Test
+    void testOrderingIsSignSymmetricAcrossImplementations() {
+        // Same name, different identity fields: the tie-breakers must agree on a direction from both sides
+        AbstractUsbDevice ours = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN9", "USB9",
+                Collections.emptyList()) {
+        };
+        UsbDevice foreign = new ForeignUsbDevice(); // name "Mouse", uniqueDeviceId "USB1"
+        assertThat(Integer.signum(ours.compareTo(foreign)), is(-Integer.signum(foreign.compareTo(ours))));
+        assertThat(ours.compareTo(foreign), is(greaterThan(0)));
+
+        // And a SortedSet keeps the same elements whichever order they go in
+        assertThat(new TreeSet<>(List.of(ours, foreign)), hasSize(2));
+        assertThat(new TreeSet<>(List.of(foreign, ours)), hasSize(2));
     }
 
     @Test
@@ -182,5 +237,45 @@ class AbstractUsbDeviceTest {
         assertThat(hub.getName(), is("Hub"));
         assertThat(hub.getConnectedDevices(), hasSize(1));
         assertThat(hub.getConnectedDevices().get(0).getName(), is("Keyboard"));
+    }
+
+    /** A UsbDevice that does not extend AbstractUsbDevice, so it keeps Object's identity-based equals. */
+    private static final class ForeignUsbDevice implements UsbDevice {
+        @Override
+        public String getName() {
+            return "Mouse";
+        }
+
+        @Override
+        public String getVendor() {
+            return "Logitech";
+        }
+
+        @Override
+        public String getVendorId() {
+            return "046d";
+        }
+
+        @Override
+        public String getProductId() {
+            return "c077";
+        }
+
+        @Override
+        public String getSerialNumber() {
+            return "SN1";
+        }
+
+        @Override
+        public String getUniqueDeviceId() {
+            return "USB1";
+        }
+
+        @Override
+        public List<UsbDevice> getConnectedDevices() {
+            return Collections.emptyList();
+        }
+
+        // No compareTo override: the ordering comes from UsbDevice's default method, which is the point
     }
 }

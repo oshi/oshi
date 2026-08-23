@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
@@ -87,10 +88,41 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         return this.connectedDevices;
     }
 
+    /**
+     * Compares this device to another for equality. Two devices are equal when their name, unique device ID, vendor ID,
+     * product ID and serial number all match, which are the same fields {@link UsbDevice#compareTo(UsbDevice)} orders
+     * by.
+     * <p>
+     * Only another {@link AbstractUsbDevice} can be equal to this one. Widening that to any {@link UsbDevice} would
+     * make equality asymmetric, because a foreign implementation carrying the same values is free to keep the
+     * identity-based {@code equals} it inherits from {@link Object}. Ordering has no such limitation, because
+     * {@link UsbDevice} supplies it to every implementation.
+     *
+     * @param obj the object to compare with
+     * @return {@code true} if the two devices carry the same identity fields
+     */
     @Override
-    public int compareTo(UsbDevice usb) {
-        // Naturally sort by device name
-        return getName().compareTo(usb.getName());
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof AbstractUsbDevice)) {
+            return false;
+        }
+        AbstractUsbDevice other = (AbstractUsbDevice) obj;
+        return getName().equals(other.getName()) && getUniqueDeviceId().equals(other.getUniqueDeviceId())
+                && getVendorId().equals(other.getVendorId()) && getProductId().equals(other.getProductId())
+                && getSerialNumber().equals(other.getSerialNumber());
+    }
+
+    /**
+     * Returns a hash code over the same identity fields {@link #equals(Object)} compares.
+     *
+     * @return the hash code
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getUniqueDeviceId(), getVendorId(), getProductId(), getSerialNumber());
     }
 
     /**

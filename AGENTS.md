@@ -289,10 +289,12 @@ after a dash. Two things to know:
 
 - **`NOSONAR` suppresses every issue on that line, whatever the rule.** The rule id after it is documentation
   only — Sonar does not parse it. So keep the suppressed line short, or a future real bug on it is silenced too.
-- **Prefer `@SuppressWarnings("java:Sxxxx")` when there is a declaration to annotate**, because that *is*
-  rule-scoped. Sonar honors it with no configuration; measured on `Memoizer`'s volatile field, where swapping
-  the comment for the annotation kept `S3077` quiet. Reach for `NOSONAR` when the issue is on a statement,
-  a `catch`, or anything else you cannot annotate.
+- **`NOSONAR` is the house form. Reach for it first**, on the line Sonar reports. Sonar honors
+  `@SuppressWarnings("java:Sxxxx")` for some rules and silently ignores it for others, so an annotation that
+  looks right may suppress nothing: `S5778` on a test method went on reporting through one. A few annotations
+  remain where they are known to work (`S107` on the two long signatures in `DisplayInfoImpl` and `EdidUtil`,
+  `S3077` on `Memoizer`'s volatile field); do not add new ones without confirming against SonarCloud that the
+  issue actually disappears.
 
 Merely writing the word `NOSONAR` in prose suppresses that line, so describe one as "the suppression below"
 rather than repeating the keyword.

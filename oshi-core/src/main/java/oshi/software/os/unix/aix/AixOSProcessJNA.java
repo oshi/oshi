@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -38,7 +40,7 @@ public final class AixOSProcessJNA extends AixOSProcess {
     }
 
     @Override
-    protected Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
+    protected Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable AixPsInfo psinfo) {
         return PsInfoJNA.queryArgsEnv(pid, psinfo);
     }
 

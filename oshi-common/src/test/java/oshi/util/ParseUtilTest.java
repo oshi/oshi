@@ -850,6 +850,34 @@ class ParseUtilTest {
     }
 
     @Test
+    void testGetTextAfterString() {
+        assertThat(ParseUtil.getTextAfterString("Serial Number: ABC123", "Serial Number:"), is(" ABC123"));
+        // Marker at the start, as the startsWith-guarded call sites have it
+        assertThat(ParseUtil.getTextAfterString("modelname       IBM,9114-275", "modelname"),
+                is("       IBM,9114-275"));
+        // Marker absent, and marker at the very end
+        assertThat(ParseUtil.getTextAfterString("no marker here", "uuid:"), is(""));
+        assertThat(ParseUtil.getTextAfterString("label:", "label:"), is(""));
+        // A repeated marker keeps everything after the FIRST occurrence, where split(marker, -1)[1] would have
+        // stopped at the second one
+        assertThat(ParseUtil.getTextAfterString("Version 1 Version 2", "Version "), is("1 Version 2"));
+        // Regex metacharacters in the marker are matched literally, unlike split()
+        assertThat(ParseUtil.getTextAfterString("Rev. 2.1 build", "Rev. "), is("2.1 build"));
+        assertThat(ParseUtil.getTextAfterString("x(1)y", "(1)"), is("y"));
+    }
+
+    @Test
+    void testTrimLeadingWhitespace() {
+        assertThat(ParseUtil.trimLeadingWhitespace("no leading space"), is("no leading space"));
+        assertThat(ParseUtil.trimLeadingWhitespace("   Node 0x1"), is("Node 0x1"));
+        assertThat(ParseUtil.trimLeadingWhitespace("\t \tgateway: 10.0.0.1"), is("gateway: 10.0.0.1"));
+        // Trailing whitespace is left alone
+        assertThat(ParseUtil.trimLeadingWhitespace("  value  "), is("value  "));
+        assertThat(ParseUtil.trimLeadingWhitespace("   "), is(""));
+        assertThat(ParseUtil.trimLeadingWhitespace(""), is(""));
+    }
+
+    @Test
     void testParseMultipliedToLongs() {
         assertThat(ParseUtil.parseMultipliedToLongs("Not a number"), is(0L));
         assertThat(ParseUtil.parseMultipliedToLongs("1"), is(1L));

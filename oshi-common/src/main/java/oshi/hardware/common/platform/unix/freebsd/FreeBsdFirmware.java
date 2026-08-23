@@ -58,11 +58,11 @@ public class FreeBsdFirmware extends BsdFirmware {
 
         for (final String checkLine : dmidecode) {
             if (checkLine.contains(manufacturerMarker)) {
-                manufacturer = checkLine.split(manufacturerMarker, -1)[1].trim();
+                manufacturer = ParseUtil.getTextAfterString(checkLine, manufacturerMarker).trim();
             } else if (checkLine.contains(versionMarker)) {
-                version = checkLine.split(versionMarker, -1)[1].trim();
+                version = ParseUtil.getTextAfterString(checkLine, versionMarker).trim();
             } else if (checkLine.contains(releaseDateMarker)) {
-                releaseDate = checkLine.split(releaseDateMarker, -1)[1].trim();
+                releaseDate = ParseUtil.getTextAfterString(checkLine, releaseDateMarker).trim();
             }
         }
         releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(releaseDate);
