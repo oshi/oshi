@@ -21,17 +21,19 @@ Supported Platforms
 Supported Features
 ------------------
 * Computer System and firmware, baseboard
-* Operating System and Version/Build
-* Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes
+* Operating System and Version/Build, virtualization (hypervisor) detection
+* Physical (core) and Logical (hyperthreaded) CPUs, processor groups, NUMA nodes, caches, feature flags
 * System and per-processor load, usage tick counters, interrupts, uptime
 * Process uptime, CPU, memory usage, user/group, command line args, thread details
+* Services and daemons, login sessions, desktop windows, installed applications
 * Physical and virtual memory used/available
 * Mounted filesystems (type, usable and total space, options, reads and writes)
-* Disk drives (model, serial, size, reads and writes) and partitions
-* Network interfaces (IPs, bandwidth in/out), network parameters, TCP/UDP statistics
+* Disk drives (model, serial, size, reads and writes), partitions, and logical volume groups
+* Network interfaces (IPs, bandwidth in/out), network parameters, routing table, TCP/UDP statistics
 * Battery state (% capacity, time remaining, power usage stats)
 * Peripheral devices (USB, Bluetooth)
 * Connected displays (with EDID info), graphics and audio cards
+* GPU utilization, VRAM and shared memory used, temperature, power draw, clock speeds
 * Sensors (temperature, fan speeds, voltage) on some hardware
 * Container resource limits and usage (cgroup v1/v2)
 * Printers (name, status, driver)
@@ -44,15 +46,19 @@ OSHI provides two native access implementations:
 
 Both implementations share the same API interfaces from `oshi-common`. Choose one at compile time, or include both and select at runtime (see [Usage](#usage) below).
 
+`oshi-common` also carries a third, pure-Java implementation (`oshi.nativefree`) that reads only procfs, sysfs, `sysctl` and other command-line tools. It needs no native access at all, so it runs without an `--enable-native-access` flag and without the warning the JDK prints when one is missing. It covers Linux and NetBSD only, and is selected when neither `oshi-core` nor `oshi-core-ffm` is on the classpath.
+
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.5.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.5.0)
-  * FFM: [oshi-core-ffm-7.5.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.5.0)
+  * JNA: [oshi-core-7.6.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.6.0)
+  * FFM: [oshi-core-ffm-7.6.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.6.0)
 
 Current Development (SNAPSHOT) Versions
-  * JNA: [oshi-core-7.6.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core/7.6.0-SNAPSHOT/)
-  * FFM: [oshi-core-ffm-7.6.0-SNAPSHOT](https://central.sonatype.com/service/rest/repository/browse/maven-snapshots/com/github/oshi/oshi-core-ffm/7.6.0-SNAPSHOT/)
+  * JNA: [oshi-core-7.6.1-SNAPSHOT](https://central.sonatype.com/repository/maven-snapshots/com/github/oshi/oshi-core/7.6.1-SNAPSHOT/maven-metadata.xml)
+  * FFM: [oshi-core-ffm-7.6.1-SNAPSHOT](https://central.sonatype.com/repository/maven-snapshots/com/github/oshi/oshi-core-ffm/7.6.1-SNAPSHOT/maven-metadata.xml)
+
+Snapshots are published to `https://central.sonatype.com/repository/maven-snapshots/`, which your build must be configured to use. Sonatype's web UI cannot currently browse snapshots, so the links above go to each artifact's metadata, which names the latest timestamped build.
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
@@ -69,33 +75,33 @@ Usage
 
 2. Create a new instance of `SystemInfo` (implementing `SystemInfoProvider`):
 
-```java
-// Automatically selects the best available implementation based on your classpath and runtime.
-SystemInfoProvider si = SystemInfoFactory.create();
-```
+   ```java
+   // Automatically selects the best available implementation based on your classpath and runtime.
+   SystemInfoProvider si = SystemInfoFactory.create();
+   ```
 
-| Classpath | JDK | Selected implementation |
-|-----------|-----|------------------------|
-| `oshi-core` only | 8+ | JNA (`oshi.SystemInfo`) |
-| `oshi-core-ffm` only | 25+ | FFM (`oshi.ffm.SystemInfo`) |
-| Both `oshi-core` and `oshi-core-ffm` | 8+ | FFM (JDK 25+), otherwise JNA |
-| `oshi-common` only | 8+ | No `--enable-native-access` required — Linux and NetBSD only (`oshi.nativefree.SystemInfo`) |
+   | Classpath | JDK | Selected implementation |
+   |-----------|-----|------------------------|
+   | `oshi-core` only | 8+ | JNA (`oshi.SystemInfo`) |
+   | `oshi-core-ffm` only | 25+ | FFM (`oshi.ffm.SystemInfo`) |
+   | Both `oshi-core` and `oshi-core-ffm` | 8+ | FFM (JDK 25+), otherwise JNA |
+   | `oshi-common` only | 8+ | No `--enable-native-access` required — Linux and NetBSD only (`oshi.nativefree.SystemInfo`) |
 
-You can also instantiate directly:
+   You can also instantiate directly:
 
-```java
-SystemInfoProvider si = new oshi.SystemInfo();            // JNA (oshi-core)
-SystemInfoProvider si = new oshi.ffm.SystemInfo();        // FFM (oshi-core-ffm, JDK 25+)
-SystemInfoProvider si = new oshi.nativefree.SystemInfo(); // no native access (oshi-common)
-```
+   ```java
+   SystemInfoProvider si = new oshi.SystemInfo();            // JNA (oshi-core)
+   SystemInfoProvider si = new oshi.ffm.SystemInfo();        // FFM (oshi-core-ffm, JDK 25+)
+   SystemInfoProvider si = new oshi.nativefree.SystemInfo(); // no native access (oshi-common)
+   ```
 
 3. Use the getters from `SystemInfo` to access hardware or operating system components, such as:
 
-```java
-HardwareAbstractionLayer hal = si.getHardware();
-CentralProcessor cpu = hal.getProcessor();
-OperatingSystem os = si.getOperatingSystem();
-```
+   ```java
+   HardwareAbstractionLayer hal = si.getHardware();
+   CentralProcessor cpu = hal.getProcessor();
+   OperatingSystem os = si.getOperatingSystem();
+   ```
 
 Some settings are configurable in the [`oshi.properties`](https://github.com/oshi/oshi/blob/master/oshi-common/src/main/resources/oshi.properties) file, which may also be manipulated using the [`GlobalConfig`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/util/GlobalConfig.html) class or using Java System Properties. This should be done at startup, as configuration is not thread-safe and OSHI does not guarantee re-reading the configuration during operation.
 

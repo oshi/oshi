@@ -498,6 +498,9 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @param lists the counter lists to check
      * @return true if all are present and long enough
      */
+    // Only iterates the array and reads from it; nothing is stored into it and it does not escape, so the
+    // generic varargs array cannot be polluted.
+    @SafeVarargs
     private static boolean hasAll(int size, @Nullable List<Long>... lists) {
         for (List<Long> list : lists) {
             if (list == null || list.size() < size) {

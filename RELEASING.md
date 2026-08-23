@@ -80,18 +80,26 @@ grep '^\[WARNING\]' /tmp/lint.log | sed -E 's/.*\[([a-z-]+)\].*/\1/' | sort | un
 * Use a JDK 25+ toolchain, or `oshi-core-ffm`, `oshi-benchmark`, and `oshi-dist` are silently skipped.
   Findings are *not* OS-dependent — javac compiles every platform's sources on every host — so a
   single sweep on any one machine covers all supported platforms.
-* **The value is the delta, not the total.** As of 7.5.0 the expected result is 455 findings in
-  exactly three categories, all structural and all deliberate:
+* **The value is the delta, not the total.** As of 7.6.0 the expected result is 528 findings in
+  exactly four categories, all structural and all deliberate:
 
   | Category | Count | Why it is expected |
   |---|---|---|
-  | `restricted` | 285 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
-  | `this-escape` | 149 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
-  | `exports` | 21 | Public `oshi.ffm` methods returning types from non-exported packages, which [AGENTS.md](AGENTS.md) already declares off-limits to dependents |
+  | `restricted` | 287 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
+  | `this-escape` | 153 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
+  | `exports` | 86 | Public `oshi.ffm` methods returning types from non-exported packages, which [AGENTS.md](AGENTS.md) already declares off-limits to dependents |
+  | `missing-explicit-ctor` | 2 | The two `SystemInfoTest` report classes. JUnit constructs them reflectively, so a private constructor would break the build, and neither is published |
 
-  Anything in a fourth category is new and worth reading. The 7.5.0 sweep surfaced two real defects
-  this way — a missing `serialVersionUID` and a raw `List` array — both of which had been hidden
-  under the 100-warning cap through several earlier passes.
+  `exports` grew from 21 in 7.5.0 without any new API leakage. Two changes account for all of it:
+  every `@Nullable` in a public `oshi.ffm` signature now reports, because `org.jspecify` is
+  deliberately `requires static` rather than `requires transitive`; and test sources compile at
+  release 17 on the module path, so JUnit's annotations count as unexported in the three
+  `SystemInfoTest` classes. `missing-explicit-ctor` is new for the same module-path reason.
+
+  Anything in a fifth category is new and worth reading. The 7.5.0 sweep surfaced two real defects
+  this way — a missing `serialVersionUID` and a raw `List` array — both hidden under the 100-warning
+  cap through several earlier passes. The 7.6.0 sweep surfaced an `unchecked` pair on a generic
+  varargs method that wanted `@SafeVarargs`.
 
 ### Release
 

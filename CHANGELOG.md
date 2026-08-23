@@ -1,4 +1,8 @@
-# 7.6.0 (in progress)
+# 7.6.1 (in progress)
+
+* Your contribution here!
+
+# 7.6.0 (2026-08-23)
 
 The `oshi-dist` zip is no longer published to Maven Central; download it from the [GitHub release](https://github.com/oshi/oshi/releases) instead.
 
@@ -29,10 +33,9 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 * [#3681](https://github.com/oshi/oshi/pull/3681): `GpuStats.getGpuUtilization()` on Linux reads NVIDIA GPU utilization from NVML. It previously read only the amdgpu/i915/xe sysfs paths, none of which the NVIDIA driver exposes, so an NVIDIA card always returned the -1 sentinel - [@Krillsson](https://github.com/Krillsson).
 * [#3686](https://github.com/oshi/oshi/pull/3686): `GpuStats.getGpuUtilization()` on Windows reads NVIDIA utilization from NVML and AMD utilization from ADL, matching the source order of every other metric on the class. It previously ran only LibreHardwareMonitor and a PDH engine-tick delta, which needs two samples, so the first call returned the -1 sentinel - [@dbwiddis](https://github.com/dbwiddis).
 * [#3687](https://github.com/oshi/oshi/pull/3687): `GpuStats.getSharedMemoryUsed()` on Linux reports the amdgpu GTT memory in use rather than always returning -1, and `GraphicsCard.getVRam()` on an amdgpu card reports the driver's own figure rather than the memory BAR size parsed from `lspci` or `lshw`. Several `GpuStats` metrics on Linux also now return the -1 sentinel when the sysfs file behind them is absent; they previously reported 0, so a card whose hwmon directory omits `power1_average` read as drawing 0.0 W - [@dbwiddis](https://github.com/dbwiddis).
-* [#3698](https://github.com/oshi/oshi/pull/3698): `OSProcess.getCurrentWorkingDirectory()` on macOS returns the directory rather than an empty string in the FFM implementation, and `NetworkParams.getDomainName()` on macOS and the BSDs returns the canonical name rather than an empty string in both implementations. The `vnode_info_path` and `addrinfo` struct mappings were wrong: BSD orders `ai_canonname` before `ai_addr` where glibc does the reverse, and a padding value was expressed in bits rather than bytes. Corrections to the `utmpx`, `vm_statistics`, `statfs`, `passwd` and `timeval` mappings are included; those were latent - [@dbwiddis](https://github.com/dbwiddis).
-* [#3705](https://github.com/oshi/oshi/pull/3705): An AIX process or thread that exits between enumeration and the `/proc` read is reported as invalid rather than as a live process owned by root. `PsInfo.queryPsInfo()` and `queryLwpsInfo()` built a structure from the unread buffer instead of returning null, so every field read as zero: the state came back as `OTHER`, the parent process ID and user ID as 0, and the start time as the epoch, giving an uptime of decades - [@dbwiddis](https://github.com/dbwiddis).
+* [#3698](https://github.com/oshi/oshi/pull/3698): `OSProcess.getCurrentWorkingDirectory()` on macOS returns the directory rather than an empty string in the FFM implementation, and `NetworkParams.getDomainName()` on macOS and the BSDs returns the canonical name rather than an empty string in both implementations - [@dbwiddis](https://github.com/dbwiddis).
+* [#3705](https://github.com/oshi/oshi/pull/3705): An AIX process or thread that exits between enumeration and the `/proc` read is now reported as invalid rather than as a live process owned by root - [@dbwiddis](https://github.com/dbwiddis).
 * [#3705](https://github.com/oshi/oshi/pull/3705): A failure of `kstat_open()` on Solaris throws rather than releasing no lock and passing a null control structure to the kernel. The chain lock is static, so a failed open previously blocked every later kstat query on any thread - [@dbwiddis](https://github.com/dbwiddis).
-* [#3706](https://github.com/oshi/oshi/pull/3706): A missing SMC on macOS is reported once at WARN rather than at ERROR on every sensor reading. Every temperature, fan speed and voltage query opens its own SMC connection, so a virtual machine, which does not virtualize the SMC, logged several ERROR lines per sampling interval for the life of the process - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 
