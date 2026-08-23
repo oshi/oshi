@@ -59,7 +59,8 @@ public final class AixOperatingSystemJNA extends AixOperatingSystem {
 
     @Override
     public int getThreadId() {
-        return AixLibc.INSTANCE.thread_self();
+        // OSThread.getThreadId() is int, so narrow at the API boundary
+        return AixLibc.INSTANCE.thread_self().intValue();
     }
 
     @Override

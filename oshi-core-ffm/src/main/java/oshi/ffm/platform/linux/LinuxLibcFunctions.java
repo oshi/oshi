@@ -104,7 +104,11 @@ public final class LinuxLibcFunctions extends PosixLibcFunctions {
             JAVA_LONG.withName("f_frsize"), JAVA_LONG.withName("f_blocks"), JAVA_LONG.withName("f_bfree"),
             JAVA_LONG.withName("f_bavail"), JAVA_LONG.withName("f_files"), JAVA_LONG.withName("f_ffree"),
             JAVA_LONG.withName("f_favail"), JAVA_LONG.withName("f_fsid"), JAVA_LONG.withName("f_flag"),
-            JAVA_LONG.withName("f_namemax"), MemoryLayout.sequenceLayout(6, JAVA_INT).withName("_f_spare"));
+            JAVA_LONG.withName("f_namemax"),
+            // 24 reserved bytes OSHI does not read, left unnamed because their shape is a glibc
+            // version: up to 2.36 it is __f_spare[6]; from 2.37 an f_type was carved out of the
+            // front, leaving __f_spare[5]. The total is 112 either way, which is what matters here.
+            MemoryLayout.paddingLayout(24));
 
     private static final VarHandle STATVFS_F_FRSIZE = STATVFS_LAYOUT
             .varHandle(MemoryLayout.PathElement.groupElement("f_frsize"));
@@ -174,30 +178,31 @@ public final class LinuxLibcFunctions extends PosixLibcFunctions {
      *   char    ut_host[256] (256)
      *   short[2] ut_exit     (4)
      *   int     ut_session   (4)
-     *   int     tv_sec       (4)
-     *   int     tv_usec      (4)
+     *   int     ut_tv.tv_sec (4)
+     *   int     ut_tv.tv_usec(4)
      *   int[4]  ut_addr_v6   (16)
-     *   char[20] reserved    (20)
+     *   char[20] __glibc_reserved (20)
      *   total = 384
      * </pre>
      */
-    public static final StructLayout UTMPX_LAYOUT = MemoryLayout.structLayout(JAVA_SHORT.withName("ut_type"),
-            MemoryLayout.paddingLayout(2), JAVA_INT.withName("ut_pid"),
-            MemoryLayout.sequenceLayout(UT_LINESIZE, JAVA_BYTE).withName("ut_line"),
-            MemoryLayout.sequenceLayout(4, JAVA_BYTE).withName("ut_id"),
-            MemoryLayout.sequenceLayout(UT_NAMESIZE, JAVA_BYTE).withName("ut_user"),
-            MemoryLayout.sequenceLayout(UT_HOSTSIZE, JAVA_BYTE).withName("ut_host"),
-            MemoryLayout.sequenceLayout(2, JAVA_SHORT).withName("ut_exit"), JAVA_INT.withName("ut_session"),
-            JAVA_INT.withName("tv_sec"), JAVA_INT.withName("tv_usec"),
-            MemoryLayout.sequenceLayout(4, JAVA_INT).withName("ut_addr_v6"),
-            MemoryLayout.sequenceLayout(20, JAVA_BYTE).withName("reserved"));
+    public static final StructLayout UTMPX_LAYOUT = MemoryLayout
+            .structLayout(JAVA_SHORT.withName("ut_type"), MemoryLayout.paddingLayout(2), JAVA_INT.withName("ut_pid"),
+                    MemoryLayout.sequenceLayout(UT_LINESIZE, JAVA_BYTE).withName("ut_line"),
+                    MemoryLayout.sequenceLayout(4, JAVA_BYTE).withName("ut_id"),
+                    MemoryLayout.sequenceLayout(UT_NAMESIZE, JAVA_BYTE).withName("ut_user"),
+                    MemoryLayout.sequenceLayout(UT_HOSTSIZE, JAVA_BYTE).withName("ut_host"),
+                    MemoryLayout.sequenceLayout(2, JAVA_SHORT).withName("ut_exit"), JAVA_INT.withName("ut_session"),
+                    MemoryLayout.structLayout(JAVA_INT.withName("tv_sec"), JAVA_INT.withName("tv_usec"))
+                            .withName("ut_tv"),
+                    MemoryLayout.sequenceLayout(4, JAVA_INT).withName("ut_addr_v6"),
+                    MemoryLayout.sequenceLayout(20, JAVA_BYTE).withName("__glibc_reserved"));
 
     private static final VarHandle UTMPX_TYPE = UTMPX_LAYOUT
             .varHandle(MemoryLayout.PathElement.groupElement("ut_type"));
-    private static final VarHandle UTMPX_TV_SEC = UTMPX_LAYOUT
-            .varHandle(MemoryLayout.PathElement.groupElement("tv_sec"));
-    private static final VarHandle UTMPX_TV_USEC = UTMPX_LAYOUT
-            .varHandle(MemoryLayout.PathElement.groupElement("tv_usec"));
+    private static final VarHandle UTMPX_TV_SEC = UTMPX_LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("ut_tv"),
+            MemoryLayout.PathElement.groupElement("tv_sec"));
+    private static final VarHandle UTMPX_TV_USEC = UTMPX_LAYOUT.varHandle(
+            MemoryLayout.PathElement.groupElement("ut_tv"), MemoryLayout.PathElement.groupElement("tv_usec"));
 
     // ---- Method handles ----
 

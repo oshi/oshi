@@ -362,19 +362,21 @@ public interface MacSystem {
             sequenceLayout(UTX_LINESIZE, JAVA_BYTE).withName("ut_line"), // tty name [260..291]
             JAVA_INT.withName("ut_pid"), // process id [292..295]
             JAVA_SHORT.withName("ut_type"), // entry type [296..297]
-            paddingLayout(6), // align tv_sec (long) to 8-byte boundary [298..303]
-            JAVA_LONG.withName("ut_tv_sec"), // tv_sec [304..311]
-            JAVA_INT.withName("ut_tv_usec"), // tv_usec [312..315]
-            paddingLayout(4), // align ut_host to 8-byte boundary [316..319]
-            sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName("ut_host"), // host name [320..575]
+            paddingLayout(6), // align ut_tv (its tv_sec is a long) to 8-byte boundary [298..303]
+            // nested rather than flattened so the audit can check ut_tv's offset against the header
+            structLayout(JAVA_LONG.withName("tv_sec"), // tv_sec [304..311]
+                    JAVA_INT.withName("tv_usec"), // tv_usec [312..315]
+                    paddingLayout(4) // timeval's own tail padding [316..319]
+            ).withName("ut_tv"), sequenceLayout(UTX_HOSTSIZE, JAVA_BYTE).withName("ut_host"), // host name [320..575]
             sequenceLayout(16, JAVA_INT).withName("ut_pad") // __uint32_t ut_pad[16], reserved [576..639]
     );
     PathElement UT_USER = groupElement("ut_user");
     PathElement UT_LINE = groupElement("ut_line");
     PathElement UT_PID = groupElement("ut_pid");
     PathElement UT_TYPE = groupElement("ut_type");
-    PathElement UT_TV_SEC = groupElement("ut_tv_sec");
-    PathElement UT_TV_USEC = groupElement("ut_tv_usec");
+    PathElement UT_TV = groupElement("ut_tv");
+    PathElement UT_TV_SEC = groupElement("tv_sec");
+    PathElement UT_TV_USEC = groupElement("tv_usec");
     PathElement UT_HOST = groupElement("ut_host");
 
     // addrinfo structure (netdb.h)

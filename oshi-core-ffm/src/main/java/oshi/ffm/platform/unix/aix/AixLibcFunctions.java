@@ -34,9 +34,12 @@ public final class AixLibcFunctions extends PosixLibcFunctions {
     /** {@code getrlimit} resource: maximum number of open file descriptors. AIX value (7). */
     public static final int RLIMIT_NOFILE = 7;
 
-    // tid_t thread_self(void); // AIX-specific
+    // tid_t thread_self(void); // AIX-specific. tid_t follows long -- measured at 4 bytes compiling
+    // with -maix32 and 8 with -maix64 -- so it is 8 here, as SIZE_T above is, because FFM needs a
+    // 64-bit JVM. Declaring it 4 read only the low half of the returned register. The JNA twin maps
+    // it to NativeLong instead, which is the same width here and stays correct in either model.
     private static final MethodHandle thread_self = LINKER.downcallHandle(LIBC.findOrThrow("thread_self"),
-            FunctionDescriptor.of(JAVA_INT));
+            FunctionDescriptor.of(JAVA_LONG));
 
     /**
      * Calls {@code thread_self()} — returns the kernel thread ID of the calling thread (AIX).
@@ -44,8 +47,8 @@ public final class AixLibcFunctions extends PosixLibcFunctions {
      * @return the kernel thread ID of the calling thread
      * @throws Throwable on FFM invocation error
      */
-    public static int thread_self() throws Throwable {
-        return (int) thread_self.invokeExact();
+    public static long thread_self() throws Throwable {
+        return (long) thread_self.invokeExact();
     }
 
     // int open(const char *path, int flags);

@@ -16,6 +16,7 @@ import static oshi.ffm.platform.mac.MacSystem.UTX_LINESIZE;
 import static oshi.ffm.platform.mac.MacSystem.UTX_USERSIZE;
 import static oshi.ffm.platform.mac.MacSystem.UT_HOST;
 import static oshi.ffm.platform.mac.MacSystem.UT_LINE;
+import static oshi.ffm.platform.mac.MacSystem.UT_TV;
 import static oshi.ffm.platform.mac.MacSystem.UT_TV_SEC;
 import static oshi.ffm.platform.mac.MacSystem.UT_TV_USEC;
 import static oshi.ffm.platform.mac.MacSystem.UT_TYPE;
@@ -60,8 +61,8 @@ public final class WhoFFM {
                         String user = readFixedWidthString(ut, UTMPX.byteOffset(UT_USER), UTX_USERSIZE);
                         String device = readFixedWidthString(ut, UTMPX.byteOffset(UT_LINE), UTX_LINESIZE);
                         String host = readFixedWidthString(ut, UTMPX.byteOffset(UT_HOST), UTX_HOSTSIZE);
-                        long tvSec = ut.get(JAVA_LONG, UTMPX.byteOffset(UT_TV_SEC));
-                        int tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV_USEC));
+                        long tvSec = ut.get(JAVA_LONG, UTMPX.byteOffset(UT_TV, UT_TV_SEC));
+                        int tvUsec = ut.get(JAVA_INT, UTMPX.byteOffset(UT_TV, UT_TV_USEC));
                         long loginTime = tvSec * 1000L + tvUsec / 1000L;
                         // The utmpx table is not reentrant. A session ending while this loop runs can hand
                         // back a partially written entry, so drop that one rather than abandoning a read

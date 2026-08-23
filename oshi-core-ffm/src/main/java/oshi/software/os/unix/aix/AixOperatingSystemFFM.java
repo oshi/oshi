@@ -62,7 +62,8 @@ public final class AixOperatingSystemFFM extends AixOperatingSystem {
     @Override
     public int getThreadId() {
         try {
-            return AixLibcFunctions.thread_self();
+            // OSThread.getThreadId() is int, so narrow at the API boundary
+            return (int) AixLibcFunctions.thread_self();
         } catch (Throwable _) {
             return 0;
         }
