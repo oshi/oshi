@@ -5,6 +5,7 @@
 package oshi.hardware;
 
 import java.util.List;
+import java.util.SortedSet;
 
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.Immutable;
@@ -90,8 +91,8 @@ public interface UsbDevice extends Comparable<UsbDevice> {
      * The ordering is defined here rather than in each implementation so that every {@code UsbDevice} agrees on it.
      * That matters because {@link Comparable} requires {@code sgn(a.compareTo(b)) == -sgn(b.compareTo(a))} for every
      * pair: were one implementation to order by name alone while another broke ties, two devices sharing a name would
-     * compare as equal in one direction and not the other, and a {@link java.util.SortedSet} of them would keep a
-     * different number of elements depending on insertion order. Implementations should not override this method.
+     * compare as equal in one direction and not the other, and a {@link SortedSet} of them would keep a different
+     * number of elements depending on insertion order. Implementations should not override this method.
      * <p>
      * Because the tie-breakers are the fields that identify a device, this returns zero only for devices that carry the
      * same identity. Note that a class implementing this interface without also overriding
