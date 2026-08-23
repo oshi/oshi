@@ -86,7 +86,7 @@ public interface WinNTFFM {
     StructLayout EVENTLOGRECORD = structLayout(JAVA_INT.withName("Length"), JAVA_INT.withName("Reserved"),
             JAVA_INT.withName("RecordNumber"), JAVA_INT.withName("TimeGenerated"), JAVA_INT.withName("TimeWritten"),
             JAVA_INT.withName("EventID"), JAVA_SHORT.withName("EventType"), JAVA_SHORT.withName("NumStrings"),
-            JAVA_SHORT.withName("EventCategory"), JAVA_SHORT.withName("ReservedFlags"), MemoryLayout.paddingLayout(4),
+            JAVA_SHORT.withName("EventCategory"), JAVA_SHORT.withName("ReservedFlags"),
             JAVA_INT.withName("ClosingRecordNumber"), JAVA_INT.withName("StringOffset"),
             JAVA_INT.withName("UserSidLength"), JAVA_INT.withName("UserSidOffset"), JAVA_INT.withName("DataLength"),
             JAVA_INT.withName("DataOffset"));

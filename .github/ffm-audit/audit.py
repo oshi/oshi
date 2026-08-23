@@ -120,14 +120,19 @@ def main():
         # a type or member the SDK does not declare: drop that layout and retry
         # a field the SDK does not declare drops just that field; an unknown type drops the layout
         drop = set()
-        ctype_owner = {mapping[n].split()[-1]: n for n in mapping}
+        # MSVC names the struct tag where the mapping names the typedef -- '_BLUETOOTH_DEVICE_INFO'
+        # for BLUETOOTH_DEVICE_INFO -- so match on the tag/typedef stem rather than the spelling.
+        def stem(n):
+            return re.sub(r'^(?:_+|tag)', '', n).upper()
+
+        ctype_owner = {stem(mapping[n].split()[-1]): n for n in mapping}
         for m in re.finditer(tc['no_member'], slog):
-            owner, fld = m.group('type'), m.group('member')
+            owner, fld = stem(m.group('type')), m.group('member')
             if owner in ctype_owner:
                 drop.add((ctype_owner[owner], fld))
         for typ in re.findall(tc['unknown_type'], slog) + re.findall(tc['undeclared'], slog):
-            if typ in ctype_owner:
-                drop.add(ctype_owner[typ])
+            if stem(typ) in ctype_owner:
+                drop.add(ctype_owner[stem(typ)])
         drop -= sskip
         if not drop:
             break

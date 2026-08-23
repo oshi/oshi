@@ -51,14 +51,16 @@ public class PdhFFM extends WindowsForeignFunctions {
         return (int) PdhGetRawCounterValue.invokeExact(counter, type, value);
     }
 
-    // PDH_RAW_COUNTER: CStatus(4) + pad(4) + TimeStamp(8) + FirstValue(8) + SecondValue(8) + MultiCount(4) + pad(4)
-    // MSVC aligns LONGLONG to 8 bytes, so 4 bytes padding after FILETIME (offset 12 → 16)
+    // PDH_RAW_COUNTER: CStatus(4) + TimeStamp(8) + pad(4) + FirstValue(8) + SecondValue(8) + MultiCount(4) + pad(4)
+    // TimeStamp is a FILETIME, two DWORDs, so it is only 4-aligned and starts at offset 4. The padding
+    // that 8-aligns the LONGLONGs goes after it (12 -> 16), not before it.
     public static final int PDH_CSTATUS_VALID_DATA = 0;
     public static final int PDH_CSTATUS_NEW_DATA = 1;
 
     public static final StructLayout PDH_RAW_COUNTER_LAYOUT = structLayout(JAVA_INT.withName("CStatus"),
-            MemoryLayout.paddingLayout(4), JAVA_LONG.withName("TimeStamp"), JAVA_LONG.withName("FirstValue"),
-            JAVA_LONG.withName("SecondValue"), JAVA_INT.withName("MultiCount"), MemoryLayout.paddingLayout(4));
+            structLayout(JAVA_INT.withName("dwLowDateTime"), JAVA_INT.withName("dwHighDateTime")).withName("TimeStamp"),
+            MemoryLayout.paddingLayout(4), JAVA_LONG.withName("FirstValue"), JAVA_LONG.withName("SecondValue"),
+            JAVA_INT.withName("MultiCount"), MemoryLayout.paddingLayout(4));
 
     private static final MethodHandle PdhLookupPerfNameByIndexW = downcall(Pdh, "PdhLookupPerfNameByIndexW", JAVA_INT,
             ADDRESS, JAVA_INT, ADDRESS, ADDRESS);

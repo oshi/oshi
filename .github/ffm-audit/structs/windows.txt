@@ -48,13 +48,14 @@ BLUETOOTH_DEVICE_SEARCH_PARAMS_LAYOUT = BLUETOOTH_DEVICE_SEARCH_PARAMS
 BLUETOOTH_FIND_RADIO_PARAMS_LAYOUT    = BLUETOOTH_FIND_RADIO_PARAMS
 BLUETOOTH_RADIO_INFO_LAYOUT           = BLUETOOTH_RADIO_INFO
 
-# -- winternl.h. The SDK declares these only as partial stubs with Reserved members, so most of
-# their fields report as absent and are skipped; the size assert is still worth having.
+# -- winternl.h. The SDK declares these with Reserved members standing in for most fields, so the
+# absent ones are skipped and the size assert carries the check.
 #
-# CURDIR and RTL_DRIVE_LETTER_CURDIR are deliberately left unmapped: winternl.h does not declare
-# them at all, so there is nothing to compare against. They will show as unmapped, which is honest.
+# PEB, RTL_USER_PROCESS_PARAMETERS, CURDIR and RTL_DRIVE_LETTER_CURDIR are deliberately left
+# unmapped. The first two are published in a reduced form whose size does not match the real,
+# undocumented struct OSHI mirrors, and the last two are not declared at all. Checking any of them
+# against the SDK reports the difference that is the point of the binding. They show as unmapped,
+# which is honest.
 UNICODE_STRING                   = UNICODE_STRING
 STRING                           = STRING
-PEB                              = PEB
 PROCESS_BASIC_INFORMATION_STRUCT = PROCESS_BASIC_INFORMATION
-RTL_USER_PROCESS_PARAMETERS      = RTL_USER_PROCESS_PARAMETERS
