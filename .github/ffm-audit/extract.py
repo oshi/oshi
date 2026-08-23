@@ -26,7 +26,7 @@ def split_top(s):
     return out
 
 def extract(path):
-    src = open(path).read()
+    src = open(path, encoding='utf-8').read()
     # strip comments so they can't contain matches
     src = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)
     src = re.sub(r'//[^\n]*', ' ', src)
@@ -85,7 +85,7 @@ def extract_structs(path):
     each named field's offset is the running sum of the sizes before it. That is what makes the
     offsets checkable arithmetically against the real header.
     """
-    src = open(path).read()
+    src = open(path, encoding='utf-8').read()
     src = re.sub(r'/\*.*?\*/', ' ', src, flags=re.S)
     src = re.sub(r'//[^\n]*', ' ', src)
     flat = re.sub(r'\s+', ' ', src)
@@ -97,7 +97,9 @@ def extract_structs(path):
         except ValueError:
             pass
     out = []
-    for m in re.finditer(r'(\w+)\s*=\s*(?:MemoryLayout\.)?(?:struct|union)Layout\s*\(', flat):
+    # spotless is free to wrap between MemoryLayout and .structLayout, so allow whitespace there --
+    # requiring them adjacent made the extractor drop a layout silently, with no count to notice it by
+    for m in re.finditer(r'(\w+)\s*=\s*(?:MemoryLayout\s*\.\s*)?(?:struct|union)Layout\s*\(', flat):
         inner, _ = balanced(flat, m.end() - 1)
         elems = []
         for part in split_top(inner):
@@ -108,4 +110,13 @@ def extract_structs(path):
             elems.append({'name': nm.group(1) if nm else None, 'expr': part})
         out.append({'name': m.group(1), 'elems': elems, 'file': path, 'consts': consts,
                     'union': 'unionLayout' in flat[m.start():m.end()]})
+    # Independent of the regex above: a StructLayout declared from a layout literal must have been
+    # extracted, so a name here that is missing above means the parse dropped one rather than the file
+    # having none. Layouts handed over by the JDK -- Linker.Option.captureStateLayout() -- are not
+    # literals and have nothing to check, so they are not counted.
+    declared = {m.group(1) for m in re.finditer(r'\bStructLayout\s+(\w+)\s*=\s*([^;]*)', flat)
+                if re.search(r'(?:struct|union)Layout\s*\(', m.group(2))}
+    missed = sorted(declared - {o['name'] for o in out})
+    if missed:
+        raise ValueError('%s: declared but not extracted: %s' % (path, ', '.join(missed)))
     return out

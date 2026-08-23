@@ -73,8 +73,25 @@ template <class R, class... A> struct sig<R(A..., ...) noexcept> {
 };
 '''
 
+def include_block(includes):
+    """The #include preamble. A header written with a leading `?` is optional.
+
+    Not every platform ships every header a binding needs -- cups is a package on the BSDs, not a
+    base header -- and a hard #include of a missing one kills the whole compile. Guarding it means
+    the layouts that need it are reported as unresolvable against the SDK, which is the honest
+    answer, instead of taking the rest of the audit down with them.
+    """
+    out = []
+    for h in includes:
+        if h.startswith('?'):
+            out.append('#if __has_include(<%s>)\n#include <%s>\n#endif' % (h[1:], h[1:]))
+        else:
+            out.append('#include <%s>' % h)
+    return '\n'.join(out)
+
+
 def emit(bindings, includes, skip):
-    out = [PRE % '\n'.join('#include <%s>' % h for h in includes)]
+    out = [PRE % include_block(includes)]
     checked = 0
     for b in bindings:
         s = b['symbol']
@@ -138,13 +155,15 @@ def _size_of(expr, sizes, consts=None):
         cnt = _int(m.group(1), consts)
         inner = _size_of(m.group(2), sizes, consts)
         return None if (cnt is None or inner is None) else cnt * inner
-    # an inline anonymous struct/union used as one element
-    m = re.match(r'(?:MemoryLayout\s*\.\s*)?(struct|union)Layout\s*\((.*)\)\s*(?:\.withName\("[^"]*"\))?\s*$',
-                 expr, re.S)
+    # an inline nested struct/union used as one element. The closing paren has to be found by
+    # matching, not by regex: a greedy `.*` runs past it into the trailing .withName(...) and pulls
+    # that text into the last element, which then sizes as whatever token happens to start it.
+    m = re.match(r'(?:MemoryLayout\s*\.\s*)?(struct|union)Layout\s*\(', expr, re.S)
     if m:
         import extract as _x
+        inner, _end = _x.balanced(expr, m.end() - 1)
         total = 0
-        for part in _x.split_top(m.group(2)):
+        for part in _x.split_top(inner):
             n = _size_of(part, sizes, consts)
             if n is None:
                 return None

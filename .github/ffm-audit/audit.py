@@ -50,7 +50,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--platform', required=True, help='mac | linux | windows | <unix flavor>')
     ap.add_argument('--toolchain', required=True, choices=sorted(TOOLCHAINS))
-    ap.add_argument('--sources', required=True, help='glob for the FFM binding sources')
+    ap.add_argument('--sources', required=True, action='append',
+                    help='glob for the FFM binding sources; repeat to add the shared unix package')
     ap.add_argument('--workdir', default='.')
     ap.add_argument('--cflags', default='', help='extra compiler flags, space separated')
     args = ap.parse_args()
@@ -64,8 +65,9 @@ def main():
     sys.path.insert(0, HERE)
     import extract, gen
 
+    sources = sorted({f for g in args.sources for f in glob.glob(g, recursive=True)})
     bindings = []
-    for f in glob.glob(args.sources, recursive=True):
+    for f in sources:
         bindings += extract.extract(f)
     for e in bindings:
         e['args'] = [extract_norm(a) for a in e['args']
@@ -101,7 +103,7 @@ def main():
 
     # --- struct layout pass -------------------------------------------------
     structs = []
-    for f in glob.glob(args.sources, recursive=True):
+    for f in sources:
         structs += extract.extract_structs(f)
     mapping, map_file = {}, os.path.join(HERE, 'structs', args.platform + '.txt')
     if os.path.exists(map_file):
@@ -115,7 +117,7 @@ def main():
     sskip, slog = set(), ''
     for _ in range(8):
         scode, schecked, sfields = gen.emit_structs(structs, mapping, sizes, offsets, sskip)
-        open(ssrc, 'w').write(PRE_INCLUDES % '\n'.join('#include <%s>' % h for h in includes) + scode)
+        open(ssrc, 'w').write(PRE_INCLUDES % gen.include_block(includes) + scode)
         slog = run(cmd, ssrc)
         # a type or member the SDK does not declare: drop that layout and retry
         # a field the SDK does not declare drops just that field; an unknown type drops the layout

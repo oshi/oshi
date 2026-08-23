@@ -1,0 +1,16 @@
+sys/types.h
+sys/param.h
+sys/resource.h
+sys/sysctl.h
+sys/socket.h
+sys/stat.h
+unistd.h
+stdlib.h
+string.h
+stdio.h
+time.h
+fcntl.h
+netdb.h
+pwd.h
+grp.h
+?cups/cups.h
