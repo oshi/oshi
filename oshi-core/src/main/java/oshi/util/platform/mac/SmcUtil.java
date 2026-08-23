@@ -9,7 +9,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,6 +33,7 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.mac.SmcKeyCache;
 import oshi.util.common.platform.mac.SmcKeyIndex;
+import oshi.util.common.platform.mac.SmcOpenFailure;
 import oshi.util.common.platform.mac.SmcSensorValues;
 
 /**
@@ -45,6 +45,9 @@ public final class SmcUtil {
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtil.class);
 
     private static final IOKit IO = IOKit.INSTANCE;
+
+    /** Reports a connection failure once rather than on every sensor query. */
+    private static final SmcOpenFailure OPEN_FAILURE = new SmcOpenFailure(LOG);
 
     /**
      * Thread-safe map for caching info retrieved by a key necessary for subsequent calls.
@@ -143,15 +146,13 @@ public final class SmcUtil {
                 int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
                 if (result == 0) {
                     return new IOConnect(connPtr.getValue());
-                } else if (LOG.isErrorEnabled()) {
-                    LOG.error("Unable to open connection to AppleSMC service. Error: 0x{}",
-                            String.format(Locale.ROOT, "%08x", result));
                 }
+                OPEN_FAILURE.openFailed(result);
             } finally {
                 smcService.release();
             }
         } else {
-            LOG.error("Unable to locate AppleSMC service");
+            OPEN_FAILURE.serviceNotFound();
         }
         return null;
     }

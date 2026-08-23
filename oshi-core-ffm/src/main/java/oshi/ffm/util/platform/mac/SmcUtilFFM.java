@@ -40,7 +40,6 @@ import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,6 +53,7 @@ import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.mac.SmcKeyCache;
 import oshi.util.common.platform.mac.SmcKeyIndex;
+import oshi.util.common.platform.mac.SmcOpenFailure;
 import oshi.util.common.platform.mac.SmcSensorValues;
 
 /**
@@ -63,6 +63,9 @@ import oshi.util.common.platform.mac.SmcSensorValues;
 public final class SmcUtilFFM {
 
     private static final Logger LOG = LoggerFactory.getLogger(SmcUtilFFM.class);
+
+    /** Reports a connection failure once rather than on every sensor query. */
+    private static final SmcOpenFailure OPEN_FAILURE = new SmcOpenFailure(LOG);
 
     // Cached key info: maps SMC key (int) to [dataSize(int), dataType(int), dataAttributes(byte)]
     private static final Map<Integer, int[]> KEY_INFO_CACHE = new ConcurrentHashMap<>();
@@ -154,7 +157,7 @@ public final class SmcUtilFFM {
     public static int smcOpen() {
         IOService smcService = IOKitUtilFFM.getMatchingService("AppleSMC");
         if (smcService == null) {
-            LOG.error("Unable to locate AppleSMC service");
+            OPEN_FAILURE.serviceNotFound();
             return 0;
         }
         try {
@@ -165,13 +168,12 @@ public final class SmcUtilFFM {
                 if (result == 0) {
                     int conn = connPtr.get(JAVA_INT, 0);
                     if (conn == 0) {
-                        LOG.error("IOServiceOpen returned null connect handle");
+                        OPEN_FAILURE.nullConnection();
                         return 0;
                     }
                     return conn;
                 }
-                String hex = String.format(Locale.ROOT, "0x%08x", result);
-                LOG.error("Unable to open connection to AppleSMC service. Error: {}", hex);
+                OPEN_FAILURE.openFailed(result);
                 return 0;
             }, LOG, ERROR, "Exception opening SMC connection", 0);
         } finally {
