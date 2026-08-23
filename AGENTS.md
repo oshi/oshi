@@ -200,8 +200,10 @@ house style in `oshi-core-ffm`. Two cautions:
   on the module path, which brings `module-info.java`'s `@NullMarked` into scope for test packages.
   A stub override must repeat the parent's `@Nullable`; a `Map.get()` needs a local plus
   `assertNotNull`, which narrows where Hamcrest's `is(notNullValue())` does not.
-- **17 is a ceiling.** It is exactly the lowest JDK running tests in CI — AppVeyor Windows and
-  Solaris SPARC, both with no headroom. Do not raise it without moving those first.
+- **17 is pinned from both directions.** JUnit 6 requires 17+, so it is also a floor. The ceiling is
+  Solaris SPARC on the GCC compile farm, the lowest JDK running tests in CI: it runs Oracle's JDK 17
+  for Solaris 11.4, a build made specifically for that platform, with no 21 or 25 successor. It does
+  not move while that platform is tested. Every other job is 21 or newer.
 - **Do not sweep `Arrays.asList` to `List.of`.** `List.of` rejects nulls and is immutable, and
   fixtures here model real-world output where a null is sometimes deliberate. Prefer `List.of` in
   new code; leave working call sites alone.

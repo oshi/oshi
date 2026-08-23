@@ -73,11 +73,17 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <maven.compiler.release>8</maven.compiler.release>
         <!-- Test sources compile at a higher level than main sources: they are never published, so the Java 8
-        guarantee oshi-core makes to consumers does not apply to them. 17 is a ceiling, not a preference - it is
-        exactly the lowest JDK that runs tests anywhere in CI, in two places with no headroom: AppVeyor Windows
-        (appveyor.yml, pinned to jdk17) and Solaris SPARC on the GCC compile farm (.github/workflows/cfarm.yaml,
-        whose JDK comes from the remote host's profile and is not set in this repository). Raising this above 17
-        means moving both of those first. Modules needing a different level set their own testRelease. -->
+        guarantee oshi-core makes to consumers does not apply to them. 17 is exactly pinned, from both directions,
+        and is not a preference:
+
+        Floor - JUnit 6 requires 17+, so this cannot go lower.
+
+        Ceiling - Solaris SPARC on the GCC compile farm (.github/workflows/cfarm.yaml) is the lowest JDK running
+        tests anywhere in CI. Its JDK comes from the remote host's profile rather than from this repository, and is
+        Oracle's JDK 17 for Solaris 11.4, a build made specifically for that platform. There is no 21 or 25 for it,
+        so this does not move while that platform is tested. Every other job is 21 or newer.
+
+        Modules needing a different level set their own testRelease. -->
         <maven.compiler.testRelease>17</maven.compiler.testRelease>
         <!-- Release level for the FFM-based modules (oshi-core-ffm, oshi-benchmark). Defaults to the 25 baseline
         OSHI ships. Overridable on the command line (e.g. -Doshi.ffm.release=23) so the Coverity scan can compile the
