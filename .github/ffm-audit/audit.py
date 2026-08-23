@@ -146,11 +146,20 @@ def main():
             print('  no SDK declaration: ' + ', '.join(layouts))
         if fields:
             print('  fields absent from the SDK struct: ' + ', '.join(fields))
-    # anything the compiler reported that is neither a skip nor an assert means the harness itself
-    # is broken on this platform, and must not be mistaken for a clean run
-    other = [l for l in log.splitlines()
-             if re.search(r'\berror\b', l) and 'FFMAUDIT' not in l
-             and not re.search(tc['undeclared'], l)]
+    # Anything either pass reported that is neither a recognized finding nor a documented skip means
+    # the harness itself is broken on this platform, and must not be mistaken for a clean run. Both
+    # passes need this: a structs.cpp that fails to compile for an unexpected reason produces no
+    # cmp<> findings at all, which would otherwise read as a clean struct audit.
+    def unexpected(text, recognized):
+        return [l for l in text.splitlines()
+                if re.search(r'\berror\b', l) and not re.search(tc['undeclared'], l)
+                and not any(re.search(p, l) for p in recognized)]
+
+    # signature pass: a failed static_assert carries the FFMAUDIT message on the diagnostic line
+    other = unexpected(log, [r'FFMAUDIT'])
+    # struct pass: a mismatch is an undefined cmp<actual, expected>; the rest are the skip patterns
+    other += unexpected(slog, [r"undefined template 'cmp<", r'no member named',
+                               r'incomplete type', r'unknown type name'])
 
     undeclared_only = skip - exceptions
     print(f'{args.platform}: checked {checked} bindings, {len(undeclared_only)} with no SDK '
