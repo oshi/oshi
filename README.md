@@ -58,7 +58,7 @@ Current Development (SNAPSHOT) Versions
   * JNA: [oshi-core-7.6.1-SNAPSHOT](https://central.sonatype.com/repository/maven-snapshots/com/github/oshi/oshi-core/7.6.1-SNAPSHOT/maven-metadata.xml)
   * FFM: [oshi-core-ffm-7.6.1-SNAPSHOT](https://central.sonatype.com/repository/maven-snapshots/com/github/oshi/oshi-core-ffm/7.6.1-SNAPSHOT/maven-metadata.xml)
 
-Snapshots are published to `https://central.sonatype.com/repository/maven-snapshots/`, which your build must be configured to use. Sonatype's web UI cannot currently browse snapshots, so the links above go to each artifact's metadata, which names the latest timestamped build.
+Snapshots are published to `https://central.sonatype.com/repository/maven-snapshots/`, which your build must be configured to use. Sonatype's web UI cannot currently browse snapshots, so the links above go to each artifact's metadata, which names the latest timestamped build. To download that build by hand, replace `maven-metadata.xml` in the same URL with the jar it names, for example `oshi-core-7.6.1-20260823.183059-1.jar`.
 
 Legacy Versions
   * JDK7: [oshi-core-3.13.6](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/3.13.6)
