@@ -6,10 +6,8 @@ package oshi.util;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -134,14 +132,9 @@ public final class SystemInfoHelper {
     public static void printProcessor(List<String> lines, CentralProcessor processor) {
         lines.add(processor.toString());
 
-        Map<Integer, Integer> efficiencyCount = new HashMap<>();
         int maxEfficiency = 0;
         for (PhysicalProcessor cpu : processor.getPhysicalProcessors()) {
-            int eff = cpu.getEfficiency();
-            efficiencyCount.merge(eff, 1, Integer::sum);
-            if (eff > maxEfficiency) {
-                maxEfficiency = eff;
-            }
+            maxEfficiency = Math.max(maxEfficiency, cpu.getEfficiency());
         }
         lines.add(" Topology:");
         lines.add(String.format(Locale.ROOT, "  %7s %4s %4s %4s %4s %4s", "LogProc", "P/E", "Proc", "Pkg", "NUMA",

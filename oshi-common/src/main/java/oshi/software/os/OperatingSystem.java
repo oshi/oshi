@@ -443,12 +443,14 @@ public interface OperatingSystem {
             this.codeName = codeName;
             this.buildNumber = buildNumber;
 
-            StringBuilder sb = new StringBuilder(getVersion() != null ? getVersion() : Constants.UNKNOWN);
-            if (!Util.isBlank(getCodeName())) {
-                sb.append(" (").append(getCodeName()).append(')');
+            // Read the fields rather than the getters: this class is not final, and an override that consulted
+            // subclass state would see it uninitialized here.
+            StringBuilder sb = new StringBuilder(version != null ? version : Constants.UNKNOWN);
+            if (!Util.isBlank(codeName)) {
+                sb.append(" (").append(codeName).append(')');
             }
-            if (!Util.isBlank(getBuildNumber())) {
-                sb.append(" build ").append(getBuildNumber());
+            if (!Util.isBlank(buildNumber)) {
+                sb.append(" build ").append(buildNumber);
             }
             this.versionStr = sb.toString();
         }

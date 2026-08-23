@@ -15,6 +15,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixLwpsInfo;
 import oshi.driver.common.unix.aix.AixPerfstatProcess;
@@ -36,7 +38,7 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public abstract class AixOSProcess extends AbstractProcOSProcess {
 
-    private final Supplier<AixPsInfo> psinfo = memoize(this::queryPsInfoMemo, defaultExpiration());
+    private final Supplier<@Nullable AixPsInfo> psinfo = memoize(this::queryPsInfoMemo, defaultExpiration());
     private final Supplier<AixPerfstatProcess[]> procCpu;
     private final AixOperatingSystem os;
 
@@ -56,7 +58,7 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
         updateAttributes(cpuMem);
     }
 
-    private AixPsInfo queryPsInfoMemo() {
+    private @Nullable AixPsInfo queryPsInfoMemo() {
         return PsInfo.queryPsInfo(this.getProcessID());
     }
 
@@ -169,10 +171,10 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
      * Performs the address-space read for command-line arguments and environment variables.
      *
      * @param pid    the process id
-     * @param psinfo a populated {@link AixPsInfo}
+     * @param psinfo a populated {@link AixPsInfo}, or {@code null} if the psinfo file was not readable
      * @return (argv list, env map) — may be empty if the address-space cannot be read
      */
-    protected abstract Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo);
+    protected abstract Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable AixPsInfo psinfo);
 
     /**
      * Returns the per-process CPU affinity mask (from {@code PerfstatCpu.queryCpuAffinityMask}).

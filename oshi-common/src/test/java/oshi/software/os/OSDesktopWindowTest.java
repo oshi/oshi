@@ -29,6 +29,20 @@ class OSDesktopWindowTest {
     }
 
     @Test
+    void testLocAndSizeIsDefensivelyCopied() {
+        Rectangle supplied = new Rectangle(1, 2, 3, 4);
+        OSDesktopWindow window = new OSDesktopWindow(1L, "t", "c", supplied, 2L, 0, true);
+
+        // Mutating the caller's rectangle must not reach into the window
+        supplied.setBounds(99, 99, 99, 99);
+        assertThat(window.getLocAndSize(), is(new Rectangle(1, 2, 3, 4)));
+
+        // Nor must mutating what the getter handed back
+        window.getLocAndSize().setBounds(77, 77, 77, 77);
+        assertThat(window.getLocAndSize(), is(new Rectangle(1, 2, 3, 4)));
+    }
+
+    @Test
     void testToString() {
         String s = WINDOW.toString();
         assertThat(s, containsString("42"));

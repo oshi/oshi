@@ -164,11 +164,19 @@ public final class KstatUtil {
      *
      * @return A locked copy of the chain. It should be unlocked/released when you are done with it with
      *         {@link KstatChain#close()}.
+     * @throws IllegalStateException if {@link LibKstat#kstat_open} fails, in which case the lock is released first
      */
     public static synchronized KstatChain openChain() {
         CHAIN.lock();
         if (kstatCtl == null) {
-            kstatCtl = LibKstat.INSTANCE.kstat_open();
+            KstatCtl ctl = LibKstat.INSTANCE.kstat_open();
+            if (ctl == null) {
+                // Releasing the lock here is what keeps a failed open from wedging every later query: the chain is a
+                // static ReentrantLock, so an exception thrown while holding it would block all other threads forever.
+                CHAIN.unlock();
+                throw new IllegalStateException("kstat_open returned NULL");
+            }
+            kstatCtl = ctl;
         }
         return new KstatChain(kstatCtl);
     }

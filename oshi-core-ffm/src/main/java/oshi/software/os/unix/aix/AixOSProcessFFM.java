@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPerfstatProcess;
 import oshi.driver.common.unix.aix.AixPsInfo;
@@ -39,7 +41,7 @@ public final class AixOSProcessFFM extends AixOSProcess {
     }
 
     @Override
-    protected Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
+    protected Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable AixPsInfo psinfo) {
         return PsInfoFFM.queryArgsEnv(pid, psinfo);
     }
 

@@ -81,7 +81,7 @@ public class JMXOshiAgentServer implements JMXOshiAgent {
      * @return the agent server instance
      * @throws Exception if creation fails
      */
-    protected static JMXOshiAgentServer getInstance(String host, Integer port, Map<String, ?> properties,
+    protected static synchronized JMXOshiAgentServer getInstance(String host, Integer port, Map<String, ?> properties,
             ContextRegistrationPlatform platform) throws Exception {
         if (jmxOshiAgentServer == null) {
             jmxOshiAgentServer = new JMXOshiAgentServer(port, host, properties, platform);

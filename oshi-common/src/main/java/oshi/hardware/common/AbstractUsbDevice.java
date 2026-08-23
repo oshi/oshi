@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 
@@ -89,8 +90,43 @@ public abstract class AbstractUsbDevice implements UsbDevice {
 
     @Override
     public int compareTo(UsbDevice usb) {
-        // Naturally sort by device name
-        return getName().compareTo(usb.getName());
+        // Naturally sort by device name, then break ties on the identity fields so that the ordering is total and
+        // compareTo() returns zero only for devices that equals() also considers equal.
+        int cmp = getName().compareTo(usb.getName());
+        if (cmp == 0) {
+            cmp = getUniqueDeviceId().compareTo(usb.getUniqueDeviceId());
+        }
+        if (cmp == 0) {
+            cmp = getVendorId().compareTo(usb.getVendorId());
+        }
+        if (cmp == 0) {
+            cmp = getProductId().compareTo(usb.getProductId());
+        }
+        if (cmp == 0) {
+            cmp = getSerialNumber().compareTo(usb.getSerialNumber());
+        }
+        return cmp;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof UsbDevice)) {
+            return false;
+        }
+        // Defined over the same fields compareTo() orders by, so the two agree; any UsbDevice implementation is a
+        // candidate, because compareTo() likewise accepts one.
+        UsbDevice other = (UsbDevice) obj;
+        return getName().equals(other.getName()) && getUniqueDeviceId().equals(other.getUniqueDeviceId())
+                && getVendorId().equals(other.getVendorId()) && getProductId().equals(other.getProductId())
+                && getSerialNumber().equals(other.getSerialNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getName(), getUniqueDeviceId(), getVendorId(), getProductId(), getSerialNumber());
     }
 
     /**

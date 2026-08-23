@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,10 +49,10 @@ public final class PsInfoFFM {
      * Reads the argument and environment strings from process address space using FFM-bound libc calls.
      *
      * @param pid    the process id
-     * @param psinfo a populated {@link AixPsInfo} containing the offset pointers
+     * @param psinfo a populated {@link AixPsInfo} containing the offset pointers, or {@code null} if absent
      * @return a pair of (argv list, env map)
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable AixPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 

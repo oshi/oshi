@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -26,6 +27,20 @@ class ApplicationInfoTest {
         assertThat(app.getVendor(), is("Acme"));
         assertThat(app.getTimestamp(), is(1_000_000L));
         assertThat(app.getAdditionalInfo().get("location"), is("/Applications/App.app"));
+    }
+
+    @Test
+    void testAdditionalInfoIsUnmodifiable() {
+        Map<String, String> extra = new LinkedHashMap<>();
+        extra.put("location", "/Applications/App.app");
+        ApplicationInfo app = new ApplicationInfo("MyApp", "2.0", "Acme", 1_000_000L, extra);
+
+        // The caller's map is copied, so later edits to it do not show up
+        extra.put("source", "added later");
+        assertThat(app.getAdditionalInfo().containsKey("source"), is(false));
+
+        // And what the getter returns cannot be written to
+        assertThrows(UnsupportedOperationException.class, () -> app.getAdditionalInfo().put("k", "v"));
     }
 
     @Test

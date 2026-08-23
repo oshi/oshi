@@ -13,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.unix.aix.AixPsInfo;
 import oshi.driver.common.unix.aix.PsInfo;
@@ -41,10 +43,10 @@ public final class PsInfoJNA {
      * Reads the argument and environment strings from process address space.
      *
      * @param pid    the process id
-     * @param psinfo a populated {@link AixPsInfo} containing the offset pointers
+     * @param psinfo a populated {@link AixPsInfo} containing the offset pointers, or {@code null} if absent
      * @return a pair of (argv list, env map)
      */
-    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, AixPsInfo psinfo) {
+    public static Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable AixPsInfo psinfo) {
         List<String> args = new ArrayList<>();
         Map<String, String> env = new LinkedHashMap<>();
 
