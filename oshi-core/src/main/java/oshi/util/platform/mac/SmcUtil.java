@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.NativeLong;
+import com.sun.jna.Pointer;
 import com.sun.jna.platform.mac.IOKit.IOConnect;
 import com.sun.jna.platform.mac.IOKit.IOService;
 import com.sun.jna.platform.mac.IOKitUtil;
@@ -145,9 +146,15 @@ public final class SmcUtil {
             try (CloseablePointerByReference connPtr = new CloseablePointerByReference()) {
                 int result = IO.IOServiceOpen(smcService, SystemB.INSTANCE.mach_task_self(), 0, connPtr);
                 if (result == 0) {
-                    return new IOConnect(connPtr.getValue());
+                    Pointer conn = connPtr.getValue();
+                    if (conn == null) {
+                        OPEN_FAILURE.nullConnection();
+                    } else {
+                        return new IOConnect(conn);
+                    }
+                } else {
+                    OPEN_FAILURE.openFailed(result);
                 }
-                OPEN_FAILURE.openFailed(result);
             } finally {
                 smcService.release();
             }
