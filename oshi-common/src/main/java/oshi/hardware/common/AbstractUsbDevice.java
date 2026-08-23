@@ -91,7 +91,9 @@ public abstract class AbstractUsbDevice implements UsbDevice {
     @Override
     public int compareTo(UsbDevice usb) {
         // Naturally sort by device name, then break ties on the identity fields so that the ordering is total and
-        // compareTo() returns zero only for devices that equals() also considers equal.
+        // compareTo() returns zero only for AbstractUsbDevice instances that equals() also considers equal. A foreign
+        // UsbDevice carrying the same values still compares zero without being equal; equals() cannot widen to match
+        // without becoming asymmetric.
         int cmp = getName().compareTo(usb.getName());
         if (cmp == 0) {
             cmp = getUniqueDeviceId().compareTo(usb.getUniqueDeviceId());
@@ -108,22 +110,36 @@ public abstract class AbstractUsbDevice implements UsbDevice {
         return cmp;
     }
 
+    /**
+     * Compares this device to another for equality. Two devices are equal when their name, unique device ID, vendor ID,
+     * product ID and serial number all match, which are the same fields {@link #compareTo(UsbDevice)} orders by.
+     * <p>
+     * Only another {@link AbstractUsbDevice} can be equal to this one. Widening that to any {@link UsbDevice} would
+     * make equality asymmetric, because a foreign implementation carrying the same values is free to keep the
+     * identity-based {@code equals} it inherits from {@link Object}.
+     *
+     * @param obj the object to compare with
+     * @return {@code true} if the two devices carry the same identity fields
+     */
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof UsbDevice)) {
+        if (!(obj instanceof AbstractUsbDevice)) {
             return false;
         }
-        // Defined over the same fields compareTo() orders by, so the two agree; any UsbDevice implementation is a
-        // candidate, because compareTo() likewise accepts one.
-        UsbDevice other = (UsbDevice) obj;
+        AbstractUsbDevice other = (AbstractUsbDevice) obj;
         return getName().equals(other.getName()) && getUniqueDeviceId().equals(other.getUniqueDeviceId())
                 && getVendorId().equals(other.getVendorId()) && getProductId().equals(other.getProductId())
                 && getSerialNumber().equals(other.getSerialNumber());
     }
 
+    /**
+     * Returns a hash code over the same identity fields {@link #equals(Object)} compares.
+     *
+     * @return the hash code
+     */
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getUniqueDeviceId(), getVendorId(), getProductId(), getSerialNumber());

@@ -34,7 +34,8 @@ public final class PsInfo {
      * Reads {@code /proc/<pid>/psinfo}.
      *
      * @param pid the process ID
-     * @return a structure containing information for the requested process, or {@code null} if the file isn't readable
+     * @return a structure containing information for the requested process, or {@code null} if the file could not be
+     *         read or could not be parsed
      */
     public static @Nullable AixPsInfo queryPsInfo(int pid) {
         String path = String.format(Locale.ROOT, "/proc/%d/psinfo", pid);
@@ -59,7 +60,8 @@ public final class PsInfo {
      *
      * @param pid the process ID
      * @param tid the thread ID (lwpid)
-     * @return a structure containing information for the requested thread, or {@code null} if the file isn't readable
+     * @return a structure containing information for the requested thread, or {@code null} if the file could not be
+     *         read or could not be parsed
      */
     public static @Nullable AixLwpsInfo queryLwpsInfo(int pid, int tid) {
         String path = String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpsinfo", pid, tid);

@@ -855,10 +855,12 @@ class ParseUtilTest {
         // Marker at the start, as the startsWith-guarded call sites have it
         assertThat(ParseUtil.getTextAfterString("modelname       IBM,9114-275", "modelname"),
                 is("       IBM,9114-275"));
-        // Marker absent, at the very end, and repeated
+        // Marker absent, and marker at the very end
         assertThat(ParseUtil.getTextAfterString("no marker here", "uuid:"), is(""));
         assertThat(ParseUtil.getTextAfterString("label:", "label:"), is(""));
-        assertThat(ParseUtil.getTextAfterString("a: b: c", "a: "), is("b: c"));
+        // A repeated marker keeps everything after the FIRST occurrence, where split(marker, -1)[1] would have
+        // stopped at the second one
+        assertThat(ParseUtil.getTextAfterString("Version 1 Version 2", "Version "), is("1 Version 2"));
         // Regex metacharacters in the marker are matched literally, unlike split()
         assertThat(ParseUtil.getTextAfterString("Rev. 2.1 build", "Rev. "), is("2.1 build"));
         assertThat(ParseUtil.getTextAfterString("x(1)y", "(1)"), is("y"));

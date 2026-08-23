@@ -466,7 +466,7 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
      * Helper method to parse version description line style
      *
      * @param line      a String of the form "Distributor release x.x (Codename)"
-     * @param splitLine A regex to split on, e.g. " release "
+     * @param splitLine A literal delimiter to split on, e.g. " release "; matched with indexOf, not as a regex
      * @return a triplet with the parsed family, versionID and codeName
      */
     static Triplet<String, String, String> parseRelease(String line, String splitLine) {

@@ -171,7 +171,7 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
      * Performs the address-space read for command-line arguments and environment variables.
      *
      * @param pid    the process id
-     * @param psinfo a populated {@link AixPsInfo}, or {@code null} if the psinfo file was not readable
+     * @param psinfo a populated {@link AixPsInfo}, or {@code null} if the psinfo file could not be read or parsed
      * @return (argv list, env map) — may be empty if the address-space cannot be read
      */
     protected abstract Pair<List<String>, Map<String, String>> queryArgsEnv(int pid, @Nullable AixPsInfo psinfo);

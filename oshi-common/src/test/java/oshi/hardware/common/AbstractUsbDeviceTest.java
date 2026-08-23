@@ -85,6 +85,20 @@ class AbstractUsbDeviceTest {
     }
 
     @Test
+    void testEqualsIsSymmetricAgainstAForeignImplementation() {
+        AbstractUsbDevice device = new AbstractUsbDevice("Mouse", "Logitech", "046d", "c077", "SN1", "USB1",
+                Collections.emptyList()) {
+        };
+        // A UsbDevice that is not an AbstractUsbDevice carries the same values but keeps Object.equals. Equality must
+        // fail in both directions, or a HashSet holding the two would behave differently depending on insertion order.
+        UsbDevice foreign = new ForeignUsbDevice();
+        assertThat(device.equals(foreign), is(false));
+        assertThat(foreign.equals(device), is(false));
+        // compareTo still accepts it, and reports no ordering difference; that gap is documented on equals
+        assertThat(device.compareTo(foreign), is(0));
+    }
+
+    @Test
     void testToStringWithChildren() {
         AbstractUsbDevice child = new AbstractUsbDevice("Mouse", "Logitech", "", "", "SN1", "",
                 Collections.emptyList()) {
@@ -206,5 +220,48 @@ class AbstractUsbDeviceTest {
         assertThat(hub.getName(), is("Hub"));
         assertThat(hub.getConnectedDevices(), hasSize(1));
         assertThat(hub.getConnectedDevices().get(0).getName(), is("Keyboard"));
+    }
+
+    /** A UsbDevice that does not extend AbstractUsbDevice, so it keeps Object's identity-based equals. */
+    private static final class ForeignUsbDevice implements UsbDevice {
+        @Override
+        public String getName() {
+            return "Mouse";
+        }
+
+        @Override
+        public String getVendor() {
+            return "Logitech";
+        }
+
+        @Override
+        public String getVendorId() {
+            return "046d";
+        }
+
+        @Override
+        public String getProductId() {
+            return "c077";
+        }
+
+        @Override
+        public String getSerialNumber() {
+            return "SN1";
+        }
+
+        @Override
+        public String getUniqueDeviceId() {
+            return "USB1";
+        }
+
+        @Override
+        public List<UsbDevice> getConnectedDevices() {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public int compareTo(UsbDevice o) {
+            return getName().compareTo(o.getName());
+        }
     }
 }
