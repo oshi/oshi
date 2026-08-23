@@ -214,7 +214,9 @@ class MacCentralProcessorTest {
     // Builds a pmgr acc-clusters property from alternating voltage state table number and cluster tier.
     private static byte[] accClusters(int... tableAndTier) {
         byte[] data = new byte[tableAndTier.length / 2 * 8];
-        for (int i = 0; i < tableAndTier.length; i += 2) {
+        // Bounded on the last index the body reads, not the first of the pair, so an odd-length argument list
+        // truncates rather than running off either array.
+        for (int i = 0; i + 1 < tableAndTier.length; i += 2) {
             data[i / 2 * 8] = (byte) tableAndTier[i];
             data[i / 2 * 8 + 1] = (byte) tableAndTier[i + 1];
         }
@@ -780,8 +782,12 @@ class MacCentralProcessorTest {
      */
     static class StubMacCentralProcessor extends MacCentralProcessor {
 
-        private final Map<String, Integer> sysctlInts = new HashMap<>();
-        private final Map<String, Long> sysctlLongs = new HashMap<>();
+        // None of these three carries a field initializer, and that is load-bearing rather than incidental. The
+        // superclass constructor calls the overridable sysctl accessors below before any subclass field
+        // initializer runs, so a field populated here would still be read as null during construction. Assigning
+        // them in the constructor body puts the null where the guards can be seen to need it.
+        private final Map<String, Integer> sysctlInts;
+        private final Map<String, Long> sysctlLongs;
         private final Map<String, String> sysctlStrings;
         private final int[] hostCpuTicks;
         private final int[] processorCpuTicks;
@@ -805,6 +811,8 @@ class MacCentralProcessorTest {
             defaults.put("machdep.cpu.brand_string", "Test CPU");
             defaults.putAll(extraStrings);
             this.sysctlStrings = defaults;
+            this.sysctlInts = new HashMap<>();
+            this.sysctlLongs = new HashMap<>();
             sysctlInts.put("hw.logicalcpu", 1);
             sysctlInts.put("hw.physicalcpu", 1);
             sysctlInts.put("hw.packages", 1);
