@@ -104,7 +104,11 @@ public final class LinuxLibcFunctions extends PosixLibcFunctions {
             JAVA_LONG.withName("f_frsize"), JAVA_LONG.withName("f_blocks"), JAVA_LONG.withName("f_bfree"),
             JAVA_LONG.withName("f_bavail"), JAVA_LONG.withName("f_files"), JAVA_LONG.withName("f_ffree"),
             JAVA_LONG.withName("f_favail"), JAVA_LONG.withName("f_fsid"), JAVA_LONG.withName("f_flag"),
-            JAVA_LONG.withName("f_namemax"), MemoryLayout.sequenceLayout(6, JAVA_INT).withName("__f_spare"));
+            JAVA_LONG.withName("f_namemax"),
+            // 24 reserved bytes OSHI does not read, left unnamed because their shape is a glibc
+            // version: up to 2.36 it is __f_spare[6]; from 2.37 an f_type was carved out of the
+            // front, leaving __f_spare[5]. The total is 112 either way, which is what matters here.
+            MemoryLayout.paddingLayout(24));
 
     private static final VarHandle STATVFS_F_FRSIZE = STATVFS_LAYOUT
             .varHandle(MemoryLayout.PathElement.groupElement("f_frsize"));
