@@ -109,6 +109,14 @@
         <jna.version>5.19.1</jna.version>
         <slf4j.version>2.0.18</slf4j.version>
         <osgi.slf4j.import.packages>org.slf4j;version="[1.7,3.0)"</osgi.slf4j.import.packages>
+        <!-- Optional OSGi imports, one property per <optional> Maven dependency. A module's bnd
+        Import-Package instruction replaces the parent's wholesale rather than adding to it, so every
+        module that overrides it has to restate each of these; spelling them out inline is what let
+        oshi-core and oshi-core-ffm hard-require org.jspecify.annotations through 7.6.0 (#3708). List
+        only the ones a given bundle actually references — bnd warns on an instruction that matches
+        nothing. -->
+        <osgi.jspecify.import.packages>org.jspecify.annotations;resolution:=optional</osgi.jspecify.import.packages>
+        <osgi.jlhm.import.packages>io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional</osgi.jlhm.import.packages>
         <junit.version>6.1.3</junit.version>
         <!-- JUnit parallel-execution config; overridable per CI run (see OpenIndiana). -->
         <junit.parallel.executor-service>WORKER_THREAD_POOL</junit.parallel.executor-service>
@@ -387,7 +395,7 @@
                     <version>${bnd-maven-plugin.version}</version>
                     <configuration>
                         <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true
-                        Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, ${osgi.slf4j.import.packages}, *
+                        Import-Package: ${osgi.jlhm.import.packages}, ${osgi.jspecify.import.packages}, ${osgi.slf4j.import.packages}, *
                         Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
                         -snapshot: SNAPSHOT]]></bnd>
                     </configuration>

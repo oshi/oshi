@@ -1,6 +1,8 @@
 # 7.6.1 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3710](https://github.com/oshi/oshi/pull/3710): Fix the bnd imports for `oshi-core` and `oshi-core-ffm` to make the JSpecify annotations optional, so both bundles resolve in an OSGi container without JSpecify - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23)
 

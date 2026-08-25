@@ -49,16 +49,8 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>biz.aQute.bnd</groupId>
-                <artifactId>bnd-maven-plugin</artifactId>
-                <configuration>
-                    <bnd><![CDATA[Export-Package: oshi.*;-noimport:=true
-                    Import-Package: io.github.pandalxb.jlibrehardwaremonitor.*;resolution:=optional, org.jspecify.annotations;resolution:=optional, ${osgi.slf4j.import.packages}, *
-                    Bundle-SymbolicName: ${project.groupId}.${project.artifactId}
-                    -snapshot: SNAPSHOT]]></bnd>
-                </configuration>
-            </plugin>
+            <!-- No bnd override: the parent's default instruction (Export-Package: oshi.*) already
+            describes this module exactly. -->
             <plugin>
                 <groupId>com.github.siom79.japicmp</groupId>
                 <artifactId>japicmp-maven-plugin</artifactId>
