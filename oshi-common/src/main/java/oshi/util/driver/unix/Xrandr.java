@@ -95,7 +95,8 @@ public final class Xrandr {
     /**
      * Parse the connected outputs from xrandr verbose output. For each connected output, extracts the xrandr port name
      * (the first whitespace-delimited token on the output header line), the {@code CONNECTOR_ID} property (if present,
-     * requires Linux 6.5+), the EDID byte array, and the current mode. The parser is order-independent:
+     * requires Linux 6.5+), the EDID byte array, the current mode, and the primary status. The parser is
+     * order-independent:
      * {@code CONNECTOR_ID} may appear before or after {@code EDID:}.
      * <p>
      * The current mode combines the output header, which gives the output's area on the X screen and its rotation (e.g.
@@ -187,6 +188,41 @@ public final class Xrandr {
         return Optional.empty();
     }
 
+    /**
+     * Finds the primary status for a display identified by its DRM connector ID and/or EDID, matching by
+     * {@code CONNECTOR_ID} first (Linux 6.5+) and falling back to EDID comparison.
+     *
+     * @param outputs     xrandr outputs as returned by {@link #getOutputs()}, which the caller is expected to share
+     *                    among the displays it is naming rather than querying per display
+     * @param connectorId the DRM connector ID ({@code -1} if not available)
+     * @param edid        the EDID byte array from DRM sysfs
+     * @return {@code true} if the matched xrandr output is marked as primary, {@code false} otherwise
+     */
+    public static boolean findPrimaryStatus(List<Output> outputs, int connectorId, byte[] edid) {
+        if (outputs.isEmpty()) {
+            return false;
+        }
+        // First try matching by CONNECTOR_ID (Linux 6.5+)
+        if (connectorId >= 0) {
+            for (Output output : outputs) {
+                if (output.getConnectorId() == connectorId) {
+                    return output.isPrimary();
+                }
+            }
+        }
+        // Fallback: match by first 128 bytes of EDID
+        if (edid.length >= 128) {
+            byte[] edid128 = Arrays.copyOf(edid, 128);
+            for (Output output : outputs) {
+                byte[] xrandrEdid = output.edid;
+                if (xrandrEdid.length >= 128 && Arrays.equals(edid128, Arrays.copyOf(xrandrEdid, 128))) {
+                    return output.isPrimary();
+                }
+            }
+        }
+        return false;
+    }
+
     private static List<String> runXrandr() {
         if (System.getenv("DISPLAY") == null) {
             return Collections.emptyList();
@@ -204,6 +240,7 @@ public final class Xrandr {
         private final int connectorId;
         private final byte[] edid;
         private final @Nullable DisplayMode mode;
+        private final boolean primary;
 
         /**
          * Constructor for Output.
@@ -212,12 +249,14 @@ public final class Xrandr {
          * @param connectorId the DRM connector ID, or {@code -1} if not available
          * @param edid        the EDID byte array
          * @param mode        the current mode, or {@code null} if the output is not enabled
+         * @param primary     whether the output is marked primary
          */
-        public Output(String name, int connectorId, byte[] edid, @Nullable DisplayMode mode) {
+        public Output(String name, int connectorId, byte[] edid, @Nullable DisplayMode mode, boolean primary) {
             this.name = name;
             this.connectorId = connectorId;
             this.edid = Arrays.copyOf(edid, edid.length);
             this.mode = mode;
+            this.primary = primary;
         }
 
         /**
@@ -255,6 +294,15 @@ public final class Xrandr {
         public Optional<DisplayMode> getMode() {
             return Optional.ofNullable(mode);
         }
+
+        /**
+         * Whether the output is marked primary.
+         *
+         * @return {@code true} if the output is marked primary
+         */
+        public boolean isPrimary() {
+            return primary;
+        }
     }
 
     /**
@@ -266,6 +314,7 @@ public final class Xrandr {
         private final String name;
         private int connectorId = -1;
         private byte @Nullable [] edid;
+        private final boolean primary;
 
         // From the header line; a width of 0 means the output has no geometry and is not enabled
         private int width;
@@ -282,6 +331,7 @@ public final class Xrandr {
 
         private OutputBuilder(String[] header) {
             this.name = header[0];
+            this.primary = header.length > 2 && "primary".equals(header[2]);
             // Tokens after "connected": an optional "primary", the geometry, the mode ID (verbose only), the rotation,
             // an optional reflection, then the parenthesized list of supported rotations
             for (int i = 2; i < header.length; i++) {
@@ -339,7 +389,7 @@ public final class Xrandr {
                 }
                 mode = new DisplayModeImpl(x, y, width, height, pixelWidth, pixelHeight, refreshRate, rotation);
             }
-            return new Output(name, connectorId, edidBytes, mode);
+            return new Output(name, connectorId, edidBytes, mode, primary);
         }
 
         private static int parseTimingValue(String line, String key) {

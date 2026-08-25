@@ -15,9 +15,11 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -56,9 +58,35 @@ final class WindowsDisplayFFM extends WindowsDisplay {
     // Attempts allowed for the QueryDisplayConfig size-then-query pair, in case the topology changes between them.
     private static final int QDC_ATTEMPTS = 3;
 
+    private final boolean primary;
+
+    /**
+     * Value object holding the results of a CCD display configuration query: the connector map and the set of
+     * normalized monitor device paths that belong to the Windows primary display (source mode position 0,0).
+     */
+    private static final class DisplayConfig {
+        private final Map<String, Connector> connectorByPath;
+        private final Set<String> primaryPaths;
+
+        DisplayConfig(Map<String, Connector> connectorByPath, Set<String> primaryPaths) {
+            this.connectorByPath = connectorByPath;
+            this.primaryPaths = primaryPaths;
+        }
+    }
+
     WindowsDisplayFFM(byte[] edid, @Nullable Connector connector) {
+        this(edid, connector, false);
+    }
+
+    WindowsDisplayFFM(byte[] edid, @Nullable Connector connector, boolean primary) {
         super(edid, connector);
+        this.primary = primary;
         LOG.debug("Initialized WindowsDisplayFFM");
+    }
+
+    @Override
+    public boolean isPrimary() {
+        return this.primary;
     }
 
     /**
@@ -73,8 +101,8 @@ final class WindowsDisplayFFM extends WindowsDisplay {
             MemorySegment guidSeg = arena.allocate(16);
             guidSeg.copyFrom(MemorySegment.ofArray(GUID_DEVINTERFACE_MONITOR));
 
-            // Map every active connector's device interface path to its connector and mode.
-            Map<String, Connector> connectorByPath = queryConnectors(arena);
+            // Query the CCD display configuration for connectors and primary display identity.
+            DisplayConfig config = queryDisplayConfig(arena);
 
             Optional<MemorySegment> hDevInfoOpt = SetupApiFFM.SetupDiGetClassDevs(guidSeg,
                     SetupApiFFM.DIGCF_PRESENT | SetupApiFFM.DIGCF_DEVICEINTERFACE);
@@ -102,11 +130,14 @@ final class WindowsDisplayFFM extends WindowsDisplay {
                     }
                     // wrapped only to release the native handle on close
                     try (var _ = NativeHandle.of(key, Advapi32FFM::RegCloseKey)) {
-                        byte @Nullable [] edid = queryEdidFromKey(key, edidName, arena);
+                        byte[] edid = queryEdidFromKey(key, edidName, arena);
                         if (edid != null) {
-                            Connector connector = lookupConnector(hDevInfo, devInfoData, guidSeg, did, connectorByPath,
-                                    arena);
-                            displays.add(new WindowsDisplayFFM(edid, connector));
+                            String path = getDeviceInterfacePath(hDevInfo, devInfoData, guidSeg, did, arena);
+                            String normalizedPath = path != null ? DisplayConnector.normalizePath(path)
+                                    : Constants.UNKNOWN;
+                            Connector connector = config.connectorByPath.get(normalizedPath);
+                            boolean primary = config.primaryPaths.contains(normalizedPath);
+                            displays.add(new WindowsDisplayFFM(edid, connector, primary));
                         }
                     }
                 }
@@ -137,10 +168,10 @@ final class WindowsDisplayFFM extends WindowsDisplay {
         }, null, LOG, "Failed to read EDID from registry");
     }
 
-    // Resolves the connector for the current device by fetching its device interface path and looking it up in the
-    // CCD-derived map. Returns null if the interface or path cannot be obtained or is not an active connector.
-    private static @Nullable Connector lookupConnector(MemorySegment hDevInfo, MemorySegment devInfoData,
-            MemorySegment guidSeg, MemorySegment did, Map<String, Connector> connectorByPath, Arena arena) {
+    // Obtains the device interface path for the current device: enumerates the monitor interface, then reads the path.
+    // Returns null if the interface or path cannot be obtained.
+    private static @Nullable String getDeviceInterfacePath(MemorySegment hDevInfo, MemorySegment devInfoData,
+            MemorySegment guidSeg, MemorySegment did, Arena arena) {
         did.fill((byte) 0);
         did.set(JAVA_INT, 0, (int) SP_DEVICE_INTERFACE_DATA.byteSize());
         if (SetupApiFFM.SetupDiEnumDeviceInterfaces(hDevInfo, devInfoData, guidSeg, 0, did) != 1) {
@@ -150,40 +181,37 @@ final class WindowsDisplayFFM extends WindowsDisplay {
         if (size <= 0) {
             return null;
         }
-        Optional<String> path = SetupApiFFM.SetupDiGetDeviceInterfaceDetail(hDevInfo, did, size, arena);
-        if (!path.isPresent()) {
-            return null;
-        }
-        return connectorByPath.get(DisplayConnector.normalizePath(path.get()));
+        return SetupApiFFM.SetupDiGetDeviceInterfaceDetail(hDevInfo, did, size, arena).orElse(null);
     }
 
-    // Builds a map from normalized monitor device interface path to connector and mode, from the CCD active paths. A
-    // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
+    // Builds a DisplayConfig from the CCD active paths, containing both the connector map and the set of primary
+    // device paths. A topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
     // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
-    private static Map<String, Connector> queryConnectors(Arena arena) {
+    private static DisplayConfig queryDisplayConfig(Arena arena) {
         for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
-            Map<String, Connector> map = queryConnectorsOnce(arena);
-            if (map != null) {
-                return map;
+            DisplayConfig config = queryDisplayConfigOnce(arena);
+            if (config != null) {
+                return config;
             }
         }
         LOG.debug("Display configuration kept changing; unable to map connectors.");
-        return new HashMap<>();
+        return new DisplayConfig(new HashMap<>(), new HashSet<>());
     }
 
     // Returns null if the buffers were too small and the caller should re-size and retry.
-    private static @Nullable Map<String, Connector> queryConnectorsOnce(Arena arena) {
-        Map<String, Connector> map = new HashMap<>();
+    private static @Nullable DisplayConfig queryDisplayConfigOnce(Arena arena) {
+        Map<String, Connector> connectorMap = new HashMap<>();
+        Set<String> primaryPaths = new HashSet<>();
         MemorySegment numPaths = arena.allocate(JAVA_INT);
         MemorySegment numModes = arena.allocate(JAVA_INT);
         if (User32FFM.GetDisplayConfigBufferSizes(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths,
                 numModes) != ERROR_SUCCESS) {
-            return map;
+            return new DisplayConfig(connectorMap, primaryPaths);
         }
         int pathCount = numPaths.get(JAVA_INT, 0);
         int modeCount = numModes.get(JAVA_INT, 0);
         if (pathCount <= 0) {
-            return map;
+            return new DisplayConfig(connectorMap, primaryPaths);
         }
         MemorySegment paths = arena.allocate((long) pathCount * DisplayConnector.PATH_INFO_SIZE);
         MemorySegment modes = arena.allocate(Math.max(1L, (long) modeCount * DisplayConnector.MODE_INFO_SIZE));
@@ -193,7 +221,7 @@ final class WindowsDisplayFFM extends WindowsDisplay {
             return null;
         }
         if (rc != ERROR_SUCCESS) {
-            return map;
+            return new DisplayConfig(connectorMap, primaryPaths);
         }
         int actualPaths = numPaths.get(JAVA_INT, 0);
         int actualModes = numModes.get(JAVA_INT, 0);
@@ -207,14 +235,34 @@ final class WindowsDisplayFFM extends WindowsDisplay {
             int targetId = paths.get(JAVA_INT, base + DisplayConnector.PATH_TARGET_ID_OFFSET);
             DisplayMode mode = DisplayConnector.readMode(off -> paths.get(JAVA_INT, base + off),
                     off -> modes.get(JAVA_INT, off), actualModes);
-            addConnector(map, arena, adapterId, targetId, mode);
+            // Check whether this path's source mode is at desktop position (0, 0), which Windows
+            // defines as the primary display.
+            boolean primaryPath = isSourceAtOrigin(paths, base, modes, actualModes);
+            addConnector(connectorMap, primaryPaths, arena, adapterId, targetId, mode, primaryPath);
         }
-        return map;
+        return new DisplayConfig(connectorMap, primaryPaths);
     }
 
-    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector.
-    private static void addConnector(Map<String, Connector> map, Arena arena, long adapterId, int targetId,
-            @Nullable DisplayMode mode) {
+    // Returns true if the source mode for the given path has desktop position (0, 0).
+    private static boolean isSourceAtOrigin(MemorySegment paths, long pathBase, MemorySegment modes, int modeCount) {
+        int modeIdx = paths.get(JAVA_INT, pathBase + DisplayConnector.PATH_SOURCE_MODE_IDX_OFFSET);
+        if (modeIdx < 0 || modeIdx >= modeCount) {
+            return false;
+        }
+        long modeBase = (long) modeIdx * DisplayConnector.MODE_INFO_SIZE;
+        int infoType = modes.get(JAVA_INT, modeBase + DisplayConnector.MODE_INFO_TYPE_OFFSET);
+        if (infoType != DisplayConnector.MODE_INFO_TYPE_SOURCE) {
+            return false;
+        }
+        int posX = modes.get(JAVA_INT, modeBase + DisplayConnector.SOURCE_MODE_POSITION_X_OFFSET);
+        int posY = modes.get(JAVA_INT, modeBase + DisplayConnector.SOURCE_MODE_POSITION_Y_OFFSET);
+        return posX == 0 && posY == 0;
+    }
+
+    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector. If primaryPath
+    // is true, the normalized device path is also added to the primary set.
+    private static void addConnector(Map<String, Connector> connectorMap, Set<String> primaryPaths, Arena arena,
+            long adapterId, int targetId, @Nullable DisplayMode mode, boolean primaryPath) {
         MemorySegment tdn = arena.allocate(DisplayConnector.TARGET_DEVICE_NAME_SIZE);
         tdn.set(JAVA_INT, 0, DisplayConnector.DEVICE_INFO_GET_TARGET_NAME);
         tdn.set(JAVA_INT, DisplayConnector.TDN_HEADER_SIZE_OFFSET, DisplayConnector.TARGET_DEVICE_NAME_SIZE);
@@ -228,7 +276,10 @@ final class WindowsDisplayFFM extends WindowsDisplay {
         String path = readWideString(tdn.asSlice(DisplayConnector.TDN_MONITOR_DEVICE_PATH_OFFSET));
         String key = DisplayConnector.normalizePath(path);
         if (!Constants.UNKNOWN.equals(key)) {
-            map.put(key, new Connector(outputTechnology, connectorInstance, mode));
+            connectorMap.put(key, new Connector(outputTechnology, connectorInstance, mode));
+            if (primaryPath) {
+                primaryPaths.add(key);
+            }
         }
     }
 }

@@ -6,8 +6,10 @@ package oshi.hardware.platform.windows;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -57,6 +59,22 @@ final class WindowsDisplayJNA extends WindowsDisplay {
     // Attempts allowed for the QueryDisplayConfig size-then-query pair, in case the topology changes between them.
     private static final int QDC_ATTEMPTS = 3;
 
+    private final boolean primary;
+
+    /**
+     * Value object holding the results of a CCD display configuration query: the connector map and the set of
+     * normalized monitor device paths that belong to the Windows primary display (source mode position 0,0).
+     */
+    private static final class DisplayConfig {
+        private final Map<String, Connector> connectorByPath;
+        private final Set<String> primaryPaths;
+
+        DisplayConfig(Map<String, Connector> connectorByPath, Set<String> primaryPaths) {
+            this.connectorByPath = connectorByPath;
+            this.primaryPaths = primaryPaths;
+        }
+    }
+
     /**
      * Constructor for WindowsDisplay.
      *
@@ -64,8 +82,25 @@ final class WindowsDisplayJNA extends WindowsDisplay {
      * @param connector the connector this display is attached to, or {@code null} if it cannot be resolved
      */
     WindowsDisplayJNA(byte[] edid, @Nullable Connector connector) {
+        this(edid, connector, false);
+    }
+
+    /**
+     * Constructor for WindowsDisplay with a connector and primary status.
+     *
+     * @param edid      a byte array representing a display EDID
+     * @param connector the connector this display is attached to, or {@code null} if it cannot be resolved
+     * @param primary   whether this display is the primary display
+     */
+    WindowsDisplayJNA(byte[] edid, @Nullable Connector connector, boolean primary) {
         super(edid, connector);
+        this.primary = primary;
         LOG.debug("Initialized WindowsDisplay");
+    }
+
+    @Override
+    public boolean isPrimary() {
+        return this.primary;
     }
 
     /**
@@ -76,8 +111,8 @@ final class WindowsDisplayJNA extends WindowsDisplay {
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
 
-        // Map every active connector's device interface path to its connector (e.g. "HDMI", "DisplayPort-1") and mode.
-        Map<String, Connector> connectorByPath = queryConnectors();
+        // Query the CCD display configuration for connectors and primary display identity.
+        DisplayConfig config = queryDisplayConfig();
 
         HANDLE hDevInfo = SU.SetupDiGetClassDevs(GUID_DEVINTERFACE_MONITOR, null, null,
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
@@ -99,9 +134,12 @@ final class WindowsDisplayJNA extends WindowsDisplay {
                                 edid = new byte[lpcbData.getValue()];
                                 if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid,
                                         lpcbData) == WinError.ERROR_SUCCESS) {
-                                    Connector connector = lookupConnector(hDevInfo, info, deviceInterfaceData,
-                                            connectorByPath);
-                                    displays.add(new WindowsDisplayJNA(edid, connector));
+                                    String path = getDeviceInterfacePath(hDevInfo, deviceInterfaceData, info);
+                                    String normalizedPath = path != null ? DisplayConnector.normalizePath(path)
+                                            : Constants.UNKNOWN;
+                                    Connector connector = config.connectorByPath.get(normalizedPath);
+                                    boolean primary = config.primaryPaths.contains(normalizedPath);
+                                    displays.add(new WindowsDisplayJNA(edid, connector, primary));
                                 }
                             }
                         }
@@ -116,23 +154,19 @@ final class WindowsDisplayJNA extends WindowsDisplay {
         return displays;
     }
 
-    // Resolves the connector for the current device by fetching its device interface path and looking it up in the
-    // CCD-derived map. Returns null if the interface or path cannot be obtained or is not an active connector.
-    private static @Nullable Connector lookupConnector(HANDLE hDevInfo, CloseableSpDevinfoData info,
-            CloseableSpDeviceInterfaceData deviceInterfaceData, Map<String, Connector> connectorByPath) {
+    // Obtains the device interface path for the current device: enumerates the monitor interface, then reads the path.
+    // Returns null if the interface or path cannot be obtained.
+    private static @Nullable String getDeviceInterfacePath(HANDLE hDevInfo,
+            CloseableSpDeviceInterfaceData deviceInterfaceData, CloseableSpDevinfoData info) {
         if (!SU.SetupDiEnumDeviceInterfaces(hDevInfo, info.getPointer(), GUID_DEVINTERFACE_MONITOR, 0,
                 deviceInterfaceData)) {
             return null;
         }
-        String path = getDeviceInterfacePath(hDevInfo, deviceInterfaceData);
-        if (path == null) {
-            return null;
-        }
-        return connectorByPath.get(DisplayConnector.normalizePath(path));
+        return getDeviceInterfaceDetail(hDevInfo, deviceInterfaceData);
     }
 
     // Two-call SetupDiGetDeviceInterfaceDetail: first for the required size, then to read the device path.
-    private static @Nullable String getDeviceInterfacePath(HANDLE hDevInfo,
+    private static @Nullable String getDeviceInterfaceDetail(HANDLE hDevInfo,
             CloseableSpDeviceInterfaceData deviceInterfaceData) {
         try (CloseableIntByReference requiredSize = new CloseableIntByReference()) {
             SU.SetupDiGetDeviceInterfaceDetail(hDevInfo, deviceInterfaceData, null, 0, requiredSize, null);
@@ -152,34 +186,35 @@ final class WindowsDisplayJNA extends WindowsDisplay {
         return null;
     }
 
-    // Builds a map from normalized monitor device interface path to connector and mode, from the CCD active paths. A
-    // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
+    // Builds a DisplayConfig from the CCD active paths, containing both the connector map and the set of primary
+    // device paths. A topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
     // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
-    private static Map<String, Connector> queryConnectors() {
+    private static DisplayConfig queryDisplayConfig() {
         User32 u32 = User32.INSTANCE;
         for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
-            Map<String, Connector> map = queryConnectorsOnce(u32);
-            if (map != null) {
-                return map;
+            DisplayConfig config = queryDisplayConfigOnce(u32);
+            if (config != null) {
+                return config;
             }
         }
         LOG.debug("Display configuration kept changing; unable to map connectors.");
-        return new HashMap<>();
+        return new DisplayConfig(new HashMap<>(), new HashSet<>());
     }
 
     // Returns null if the buffers were too small and the caller should re-size and retry.
-    private static @Nullable Map<String, Connector> queryConnectorsOnce(User32 u32) {
-        Map<String, Connector> map = new HashMap<>();
+    private static @Nullable DisplayConfig queryDisplayConfigOnce(User32 u32) {
+        Map<String, Connector> connectorMap = new HashMap<>();
+        Set<String> primaryPaths = new HashSet<>();
         try (CloseableIntByReference numPaths = new CloseableIntByReference();
                 CloseableIntByReference numModes = new CloseableIntByReference()) {
             if (u32.GetDisplayConfigBufferSizes(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths,
                     numModes) != WinError.ERROR_SUCCESS) {
-                return map;
+                return new DisplayConfig(connectorMap, primaryPaths);
             }
             int pathCount = numPaths.getValue();
             int modeCount = numModes.getValue();
             if (pathCount <= 0) {
-                return map;
+                return new DisplayConfig(connectorMap, primaryPaths);
             }
             try (Memory paths = new Memory((long) pathCount * DisplayConnector.PATH_INFO_SIZE);
                     Memory modes = new Memory(Math.max(1L, (long) modeCount * DisplayConnector.MODE_INFO_SIZE))) {
@@ -191,7 +226,7 @@ final class WindowsDisplayJNA extends WindowsDisplay {
                     return null;
                 }
                 if (rc != WinError.ERROR_SUCCESS) {
-                    return map;
+                    return new DisplayConfig(connectorMap, primaryPaths);
                 }
                 int actualPaths = numPaths.getValue();
                 int actualModes = numModes.getValue();
@@ -205,16 +240,36 @@ final class WindowsDisplayJNA extends WindowsDisplay {
                     int targetId = paths.getInt(base + DisplayConnector.PATH_TARGET_ID_OFFSET);
                     DisplayMode mode = DisplayConnector.readMode(off -> paths.getInt(base + off), modes::getInt,
                             actualModes);
-                    addConnector(map, u32, adapterId, targetId, mode);
+                    // Check whether this path's source mode is at desktop position (0, 0), which Windows
+                    // defines as the primary display.
+                    boolean primaryPath = isSourceAtOrigin(paths, base, modes, actualModes);
+                    addConnector(connectorMap, primaryPaths, u32, adapterId, targetId, mode, primaryPath);
                 }
             }
         }
-        return map;
+        return new DisplayConfig(connectorMap, primaryPaths);
     }
 
-    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector.
-    private static void addConnector(Map<String, Connector> map, User32 u32, long adapterId, int targetId,
-            @Nullable DisplayMode mode) {
+    // Returns true if the source mode for the given path has desktop position (0, 0).
+    private static boolean isSourceAtOrigin(Memory paths, long pathBase, Memory modes, int modeCount) {
+        int modeIdx = paths.getInt(pathBase + DisplayConnector.PATH_SOURCE_MODE_IDX_OFFSET);
+        if (modeIdx < 0 || modeIdx >= modeCount) {
+            return false;
+        }
+        long modeBase = (long) modeIdx * DisplayConnector.MODE_INFO_SIZE;
+        int infoType = modes.getInt(modeBase + DisplayConnector.MODE_INFO_TYPE_OFFSET);
+        if (infoType != DisplayConnector.MODE_INFO_TYPE_SOURCE) {
+            return false;
+        }
+        int posX = modes.getInt(modeBase + DisplayConnector.SOURCE_MODE_POSITION_X_OFFSET);
+        int posY = modes.getInt(modeBase + DisplayConnector.SOURCE_MODE_POSITION_Y_OFFSET);
+        return posX == 0 && posY == 0;
+    }
+
+    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector. If primaryPath
+    // is true, the normalized device path is also added to the primary set.
+    private static void addConnector(Map<String, Connector> connectorMap, Set<String> primaryPaths, User32 u32,
+            long adapterId, int targetId, @Nullable DisplayMode mode, boolean primaryPath) {
         try (Memory tdn = new Memory(DisplayConnector.TARGET_DEVICE_NAME_SIZE)) {
             tdn.clear();
             tdn.setInt(0, DisplayConnector.DEVICE_INFO_GET_TARGET_NAME);
@@ -229,7 +284,10 @@ final class WindowsDisplayJNA extends WindowsDisplay {
             String key = DisplayConnector
                     .normalizePath(tdn.getWideString(DisplayConnector.TDN_MONITOR_DEVICE_PATH_OFFSET));
             if (!Constants.UNKNOWN.equals(key)) {
-                map.put(key, new Connector(outputTechnology, connectorInstance, mode));
+                connectorMap.put(key, new Connector(outputTechnology, connectorInstance, mode));
+                if (primaryPath) {
+                    primaryPaths.add(key);
+                }
             }
         }
     }

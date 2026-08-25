@@ -162,6 +162,7 @@ class XrandrTest {
         assertThat(pair.getEdid().length, is(128));
         assertThat(pair.getEdid()[0], is((byte) 0x00));
         assertThat(pair.getEdid()[1], is((byte) 0xFF));
+        assertThat(pair.isPrimary(), is(true)); // DP2 is marked primary
     }
 
     @Test
@@ -173,6 +174,7 @@ class XrandrTest {
         assertNotNull(pair);
         assertThat(pair.getConnectorId(), is(-1));
         assertThat(pair.getEdid().length, is(128));
+        assertThat(pair.isPrimary(), is(true)); // HDMI-1 is marked primary
     }
 
     @Test
@@ -191,6 +193,9 @@ class XrandrTest {
         // Both have valid EDIDs
         assertThat(dp2.getEdid().length, is(128));
         assertThat(hdmi1.getEdid().length, is(128));
+        // DP2 is primary, HDMI1 is not
+        assertThat(dp2.isPrimary(), is(true));
+        assertThat(hdmi1.isPrimary(), is(false));
     }
 
     @Test
@@ -214,6 +219,8 @@ class XrandrTest {
         assertNotNull(edp);
         // eDP's own CONNECTOR_ID is 51, not 70 or 80 from the disconnected outputs
         assertThat(edp.getConnectorId(), is(51));
+        // eDP is primary
+        assertThat(edp.isPrimary(), is(true));
         // Disconnected outputs should not appear
         assertThat(data.containsKey("DP-1"), is(false));
         assertThat(data.containsKey("HDMI-A-1"), is(false));
@@ -241,6 +248,7 @@ class XrandrTest {
         Output pair = data.get("HDMI-1");
         assertNotNull(pair);
         assertThat(pair.getEdid().length, is(128));
+        assertThat(pair.isPrimary(), is(true)); // HDMI-1 is marked primary
     }
 
     @Test
@@ -251,6 +259,7 @@ class XrandrTest {
         Output pair = data.get("HDMI-1");
         assertNotNull(pair);
         assertThat(pair.getEdid().length, is(128));
+        assertThat(pair.isPrimary(), is(true)); // HDMI-1 is marked primary
     }
 
     @Test
@@ -460,6 +469,36 @@ class XrandrTest {
         assertThat(mode.getPixelWidth(), is(1920));
         assertThat(mode.getRefreshRate(), is(0d));
         assertThat(mode.getX(), is(1920));
+    }
+
+    @Test
+    void testFindPrimaryStatusByConnectorId() {
+        List<Output> data = Xrandr.getOutputs(createXrandrTwoDisplays());
+        // A connector ID match returns the primary status
+        assertThat(Xrandr.findPrimaryStatus(data, 96, new byte[0]), is(true)); // DP2 is primary
+        assertThat(Xrandr.findPrimaryStatus(data, 80, new byte[0]), is(false)); // HDMI1 is not primary
+    }
+
+    @Test
+    void testFindPrimaryStatusByEdid() {
+        List<Output> data = Xrandr.getOutputs(createXrandrTwoDisplays());
+        Output hdmi1 = byName(data).get("HDMI1");
+        assertNotNull(hdmi1);
+        // HDMI1 has no connector ID in xrandr, so only the EDID can identify it
+        assertThat(Xrandr.findPrimaryStatus(data, -1, hdmi1.getEdid()), is(false)); // HDMI1 is not primary
+    }
+
+    @Test
+    void testFindPrimaryStatusNoMatch() {
+        List<Output> data = Xrandr.getOutputs(createXrandrTwoDisplays());
+        byte[] unknownEdid = new byte[128];
+        Arrays.fill(unknownEdid, (byte) 0x5A);
+        assertThat(Xrandr.findPrimaryStatus(data, 1234, unknownEdid), is(false));
+    }
+
+    @Test
+    void testFindPrimaryStatusEmptyData() {
+        assertThat(Xrandr.findPrimaryStatus(Collections.emptyList(), 96, new byte[128]), is(false));
     }
 
     @Nested

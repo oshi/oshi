@@ -58,16 +58,13 @@ class UnixDisplayTest {
     }
 
     @Test
-    void testBatchQueryIsNotRunUntilXrandrDataIsRequested() {
+    void testBatchQueryIsRunOnceForPrimaryStatus() {
         AtomicInteger queries = new AtomicInteger();
-        List<Display> displays = UnixDisplay.getDisplays(drmData(), () -> {
+        UnixDisplay.getDisplays(drmData(), () -> {
             queries.incrementAndGet();
             return xrandrData();
         });
-        // The DRM connector name answers isBuiltIn() without xrandr
-        assertThat(displays.get(0).isBuiltIn(), is(Optional.of(Boolean.FALSE)));
-        assertThat(queries.get(), is(0));
-        displays.get(0).getCurrentMode();
+        // Primary status is computed eagerly during display construction
         assertThat(queries.get(), is(1));
     }
 
@@ -101,6 +98,30 @@ class UnixDisplayTest {
         }
     }
 
+    @Test
+    void testPrimaryStatusFromXrandr() {
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), () -> xrandrData());
+        assertThat(displays.size(), is(2));
+        // DP-2 is marked primary in xrandr data
+        assertThat(displays.get(0).isPrimary(), is(true));
+        // HDMI-1 is not marked primary
+        assertThat(displays.get(1).isPrimary(), is(false));
+    }
+
+    @Test
+    void testPrimaryStatusDefaultsToFalse() {
+        // When xrandr data is empty (e.g., Wayland), all displays are non-primary
+        AtomicInteger queries = new AtomicInteger();
+        Supplier<List<Output>> emptyQuery = () -> {
+            queries.incrementAndGet();
+            return new ArrayList<>();
+        };
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), emptyQuery);
+        assertThat(displays.size(), is(2));
+        assertThat(displays.get(0).isPrimary(), is(false));
+        assertThat(displays.get(1).isPrimary(), is(false));
+    }
+
     // Two displays as DRM sysfs reports them: connector name, connector ID, EDID
     private static List<Triplet<String, Integer, byte[]>> drmData() {
         List<Triplet<String, Integer, byte[]>> drmData = new ArrayList<>();
@@ -114,8 +135,8 @@ class UnixDisplayTest {
     // The same two displays as xrandr names them, matched to the DRM data by connector ID
     private static List<Output> xrandrData() {
         List<Output> data = new ArrayList<>();
-        data.add(new Output("DP-2", 96, edid((byte) 0x01), DP_2_MODE));
-        data.add(new Output("HDMI-1", 80, edid((byte) 0x02), null));
+        data.add(new Output("DP-2", 96, edid((byte) 0x01), DP_2_MODE, true));
+        data.add(new Output("HDMI-1", 80, edid((byte) 0x02), null, false));
         return data;
     }
 
