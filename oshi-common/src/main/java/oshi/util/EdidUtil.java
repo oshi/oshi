@@ -115,6 +115,41 @@ public final class EdidUtil {
                 getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 1]), getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET]));
     }
 
+    /**
+     * Gets the packed 16-bit manufacturer/vendor number from EDID bytes 8 and 9, as a numeric value matching the macOS
+     * {@code CGDisplayVendorNumber} and the IOKit {@code kDisplayVendorID} property.
+     *
+     * @param edid The EDID byte array
+     * @return The packed vendor number (unsigned 16-bit value in the low 16 bits)
+     */
+    public static int getVendorNumber(byte[] edid) {
+        return ((edid[MANUFACTURER_ID_OFFSET] & 0xFF) << 8) | (edid[MANUFACTURER_ID_OFFSET + 1] & 0xFF);
+    }
+
+    /**
+     * Gets the 16-bit product/model number from EDID bytes 10 and 11 (little-endian), as a numeric value matching the
+     * macOS {@code CGDisplayModelNumber} and the IOKit {@code kDisplayProductID} property.
+     *
+     * @param edid The EDID byte array
+     * @return The product/model number (unsigned 16-bit value in the low 16 bits)
+     */
+    public static int getProductNumber(byte[] edid) {
+        return (edid[PRODUCT_ID_OFFSET] & 0xFF) | ((edid[PRODUCT_ID_OFFSET + 1] & 0xFF) << 8);
+    }
+
+    /**
+     * Gets the 32-bit serial number from EDID bytes 12-15 (little-endian), as a numeric value matching the macOS
+     * {@code CGDisplaySerialNumber} and the IOKit {@code kDisplaySerialNumber} property. The bit pattern is preserved
+     * in a signed Java {@code int}; equality comparisons against the corresponding CoreGraphics value are valid.
+     *
+     * @param edid The EDID byte array
+     * @return The serial number (bit pattern of the unsigned 32-bit value)
+     */
+    public static int getSerialNumber(byte[] edid) {
+        return (edid[SERIAL_NUMBER_OFFSET] & 0xFF) | ((edid[SERIAL_NUMBER_OFFSET + 1] & 0xFF) << 8)
+                | ((edid[SERIAL_NUMBER_OFFSET + 2] & 0xFF) << 16) | ((edid[SERIAL_NUMBER_OFFSET + 3] & 0xFF) << 24);
+    }
+
     private static String getAlphaNumericOrHex(byte b) {
         return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b)
                 : String.format(Locale.ROOT, "%02X", b);

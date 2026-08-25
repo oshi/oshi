@@ -88,4 +88,15 @@ public interface Display {
     default Optional<String> getOutputName() {
         return Optional.empty();
     }
+
+    /**
+     * Whether this display is the primary display. Returns {@code true} only when the platform positively identifies
+     * this display as primary; returns {@code false} when the primary display cannot be determined (e.g. under Wayland,
+     * on headless systems, or on platforms that do not expose primary-display information).
+     *
+     * @return {@code true} if this display is the primary display, {@code false} otherwise
+     */
+    default boolean isPrimary() {
+        return false;
+    }
 }
