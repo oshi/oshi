@@ -102,7 +102,7 @@ jobs:
           persist-credentials: false
       - name: Test on OpenIndiana
         id: test-openindiana
-        uses: vmactions/openindiana-vm@52f16d4534fe3edd9d9621621c238398d4d2a698 # v1
+        uses: vmactions/openindiana-vm@21e57a45fc8dbfc8b20804ba707c1dad6c271b4f # v1
         with:
           # Sizing, not a fix for anything: the guest peaks at 1.5 GiB of virtual memory across a
           # full test run, so 12288 bought nothing and left only ~4 GB of the runner's 16 GB for the
