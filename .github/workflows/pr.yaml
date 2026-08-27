@@ -211,7 +211,7 @@ jobs:
           persist-credentials: false
       - name: Test in FreeBSD with aggregate coverage
         id: test-freebsd
-        uses: vmactions/freebsd-vm@d0518f912576ae759075aa00fb9fe27037940271 # v1
+        uses: vmactions/freebsd-vm@f0552d3b69211736abd97f02ff3d4674c56b73b1 # v1
         with:
           # Caching the base image is a slower copy of a download that happens anyway: restoring
           # it measured 54s against 48s to fetch from source, and a miss also uploads ~970 MB.
