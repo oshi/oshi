@@ -1,10 +1,8 @@
-# 7.6.1 (in progress)
+# 7.6.2 (in progress)
 
-##### Bug Fixes and Improvements
+* Your contribution here!
 
-* [#3710](https://github.com/oshi/oshi/pull/3710): Fix the bnd imports for `oshi-core` and `oshi-core-ffm` to make the JSpecify annotations optional, so both bundles resolve in an OSGi container without JSpecify - [@dbwiddis](https://github.com/dbwiddis).
-
-# 7.6.0 (2026-08-23)
+# 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 
 The `oshi-dist` zip is no longer published to Maven Central; download it from the [GitHub release](https://github.com/oshi/oshi/releases) instead.
 
@@ -38,6 +36,7 @@ The `oshi-dist` zip is no longer published to Maven Central; download it from th
 * [#3698](https://github.com/oshi/oshi/pull/3698): `OSProcess.getCurrentWorkingDirectory()` on macOS returns the directory rather than an empty string in the FFM implementation, and `NetworkParams.getDomainName()` on macOS and the BSDs returns the canonical name rather than an empty string in both implementations - [@dbwiddis](https://github.com/dbwiddis).
 * [#3705](https://github.com/oshi/oshi/pull/3705): An AIX process or thread that exits between enumeration and the `/proc` read is now reported as invalid rather than as a live process owned by root - [@dbwiddis](https://github.com/dbwiddis).
 * [#3705](https://github.com/oshi/oshi/pull/3705): A failure of `kstat_open()` on Solaris throws rather than releasing no lock and passing a null control structure to the kernel. The chain lock is static, so a failed open previously blocked every later kstat query on any thread - [@dbwiddis](https://github.com/dbwiddis).
+* [#3710](https://github.com/oshi/oshi/pull/3710): Fix the bnd imports for `oshi-core` and `oshi-core-ffm` to make the JSpecify annotations optional, so both bundles resolve in an OSGi container without JSpecify - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.5.0 (2026-08-16)
 
