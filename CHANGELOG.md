@@ -1,6 +1,8 @@
 # 7.6.2 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 

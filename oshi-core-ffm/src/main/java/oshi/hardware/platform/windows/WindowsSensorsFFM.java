@@ -36,29 +36,30 @@ final class WindowsSensorsFFM extends WindowsSensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensorsFFM.class);
 
     @Override
-    protected @Nullable WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName,
-            String sensorType, boolean searchCpu) {
-        return getOhmSensors(typeToQuery, typeName, sensorType, (h, ohmHardware) -> {
-            String cpuIdentifier = selectOhmCpuIdentifier(ohmHardware, searchCpu);
+    protected @Nullable WmiResult<ValueProperty> queryHardwareMonitorSensor(String namespace, String typeToQuery,
+            String typeName, String sensorType, boolean searchCpu) {
+        return getHardwareMonitorSensors(namespace, typeToQuery, typeName, sensorType, (h, hwIdentifiers) -> {
+            String cpuIdentifier = selectOhmCpuIdentifier(hwIdentifiers, searchCpu);
             if (!cpuIdentifier.isEmpty()) {
-                return OhmSensor.querySensorValue(h, cpuIdentifier, sensorType);
+                return OhmSensor.querySensorValue(h, namespace, cpuIdentifier, sensorType);
             }
             return null;
         });
     }
 
-    private static @Nullable WmiResult<ValueProperty> getOhmSensors(String typeToQuery, String typeName,
-            String sensorType,
+    private static @Nullable WmiResult<ValueProperty> getHardwareMonitorSensors(String namespace, String typeToQuery,
+            String typeName, String sensorType,
             BiFunction<WmiQueryHandlerFFM, WmiResult<IdentifierProperty>, WmiResult<ValueProperty>> querySensorFunction) {
         WmiQueryHandlerFFM h = Objects.requireNonNull(WmiQueryHandlerFFM.createInstance());
         boolean comInit = false;
-        WmiResult<ValueProperty> ohmSensors = null;
+        WmiResult<ValueProperty> sensors = null;
         try {
             comInit = h.initCOM();
-            WmiResult<IdentifierProperty> ohmHardware = OhmHardware.queryHwIdentifier(h, typeToQuery, typeName);
-            if (ohmHardware.getResultCount() > 0) {
-                LOG.debug("Found {} data in Open Hardware Monitor", sensorType);
-                ohmSensors = querySensorFunction.apply(h, ohmHardware);
+            WmiResult<IdentifierProperty> hwIdentifiers = OhmHardware.queryHwIdentifier(h, namespace, typeToQuery,
+                    typeName);
+            if (hwIdentifiers.getResultCount() > 0) {
+                LOG.debug("Found {} data in {}", sensorType, namespace);
+                sensors = querySensorFunction.apply(h, hwIdentifiers);
             }
         } catch (FfmComException e) {
             LOG.warn(COM_EXCEPTION_MSG, e);
@@ -67,7 +68,7 @@ final class WindowsSensorsFFM extends WindowsSensors {
                 h.unInitCOM();
             }
         }
-        return ohmSensors;
+        return sensors;
     }
 
     @Override
