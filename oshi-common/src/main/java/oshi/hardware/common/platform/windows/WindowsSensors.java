@@ -15,7 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.LhmSensor;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
+import oshi.driver.common.windows.wmi.OhmHardware;
 import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
 import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
@@ -40,11 +42,22 @@ public abstract class WindowsSensors extends AbstractSensors {
 
     private static final String JLIBREHARDWAREMONITOR_PACKAGE = "io.github.pandalxb.jlibrehardwaremonitor";
 
+    /** Open Hardware Monitor's {@code HardwareType} value for a processor. */
+    private static final String OHM_CPU = "CPU";
+
+    /** Libre Hardware Monitor's {@code HardwareType} value for a processor, which OHM spells {@code CPU}. */
+    private static final String LHM_CPU = "Cpu";
+
     @Override
     public double queryCpuTemperature() {
         // Attempt to fetch value from Open Hardware Monitor if it is running, as it will give the most accurate results
         // and the time to query (or attempt) is trivial
-        double tempC = getTempFromOHM();
+        double tempC = getTempFromMonitorWmi(OhmHardware.OHM_NAMESPACE, OHM_CPU);
+        if (tempC > 0d) {
+            return tempC;
+        }
+        // Then Libre Hardware Monitor, the maintained successor, which publishes the same schema
+        tempC = getTempFromMonitorWmi(LhmSensor.LHM_NAMESPACE, LHM_CPU);
         if (tempC > 0d) {
             return tempC;
         }
@@ -57,8 +70,9 @@ public abstract class WindowsSensors extends AbstractSensors {
         return getTempFromWMI();
     }
 
-    private double getTempFromOHM() {
-        WmiResult<ValueProperty> ohmSensors = queryOhmCpuSensor("Hardware", "CPU", "Temperature", false);
+    private double getTempFromMonitorWmi(String namespace, String cpuTypeName) {
+        WmiResult<ValueProperty> ohmSensors = queryHardwareMonitorSensor(namespace, "Hardware", cpuTypeName,
+                "Temperature", false);
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             double sum = 0;
             for (int i = 0; i < ohmSensors.getResultCount(); i++) {
@@ -93,7 +107,12 @@ public abstract class WindowsSensors extends AbstractSensors {
     @Override
     public int[] queryFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        int[] fanSpeeds = getFansFromOHM();
+        int[] fanSpeeds = getFansFromMonitorWmi(OhmHardware.OHM_NAMESPACE, OHM_CPU);
+        if (fanSpeeds.length > 0) {
+            return fanSpeeds;
+        }
+        // Then Libre Hardware Monitor, the maintained successor, which publishes the same schema
+        fanSpeeds = getFansFromMonitorWmi(LhmSensor.LHM_NAMESPACE, LHM_CPU);
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
@@ -111,8 +130,9 @@ public abstract class WindowsSensors extends AbstractSensors {
         return new int[0];
     }
 
-    private int[] getFansFromOHM() {
-        WmiResult<ValueProperty> ohmSensors = queryOhmCpuSensor("Hardware", "CPU", "Fan", false);
+    private int[] getFansFromMonitorWmi(String namespace, String cpuTypeName) {
+        WmiResult<ValueProperty> ohmSensors = queryHardwareMonitorSensor(namespace, "Hardware", cpuTypeName, "Fan",
+                false);
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             int[] fanSpeeds = new int[ohmSensors.getResultCount()];
             for (int i = 0; i < ohmSensors.getResultCount(); i++) {
@@ -172,7 +192,12 @@ public abstract class WindowsSensors extends AbstractSensors {
     @Override
     public double queryCpuVoltage() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        double volts = getVoltsFromOHM();
+        double volts = getVoltsFromMonitorWmi(OhmHardware.OHM_NAMESPACE);
+        if (volts > 0d) {
+            return volts;
+        }
+        // Then Libre Hardware Monitor, the maintained successor, which publishes the same schema
+        volts = getVoltsFromMonitorWmi(LhmSensor.LHM_NAMESPACE);
         if (volts > 0d) {
             return volts;
         }
@@ -185,8 +210,9 @@ public abstract class WindowsSensors extends AbstractSensors {
         return getVoltsFromWMI();
     }
 
-    private double getVoltsFromOHM() {
-        WmiResult<ValueProperty> ohmSensors = queryOhmCpuSensor("Sensor", "Voltage", "Voltage", true);
+    private double getVoltsFromMonitorWmi(String namespace) {
+        WmiResult<ValueProperty> ohmSensors = queryHardwareMonitorSensor(namespace, "Sensor", "Voltage", "Voltage",
+                true);
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
         }
@@ -306,16 +332,18 @@ public abstract class WindowsSensors extends AbstractSensors {
     }
 
     /**
-     * Queries an Open Hardware Monitor CPU sensor via the backend-specific WMI handler.
+     * Queries a hardware-monitor CPU sensor via the backend-specific WMI handler. Open Hardware Monitor and Libre
+     * Hardware Monitor publish the same schema under their own namespaces, so the namespace selects which is queried.
      *
-     * @param typeToQuery the OHM hardware type to query
-     * @param typeName    the OHM hardware type name
+     * @param namespace   the WMI namespace, either {@link OhmHardware#OHM_NAMESPACE} or {@link LhmSensor#LHM_NAMESPACE}
+     * @param typeToQuery the hardware type to query
+     * @param typeName    the hardware type name, which differs between the two monitors
      * @param sensorType  the sensor type
      * @param searchCpu   whether to search for a {@code cpu} identifier (vs. using the first)
      * @return the sensor values, or {@code null} if unavailable
      */
-    protected abstract @Nullable WmiResult<ValueProperty> queryOhmCpuSensor(String typeToQuery, String typeName,
-            String sensorType, boolean searchCpu);
+    protected abstract @Nullable WmiResult<ValueProperty> queryHardwareMonitorSensor(String namespace,
+            String typeToQuery, String typeName, String sensorType, boolean searchCpu);
 
     /**
      * Queries the current temperature from WMI {@code MSAcpi_ThermalZoneTemperature}.

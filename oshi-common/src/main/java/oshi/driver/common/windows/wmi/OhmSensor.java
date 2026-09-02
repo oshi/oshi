@@ -54,12 +54,14 @@ public class OhmSensor {
      * Queries the sensor value of a hardware identifier and sensor type.
      *
      * @param h          An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @param namespace  the WMI namespace to query, either {@link #OHM_NAMESPACE} or {@link LhmSensor#LHM_NAMESPACE}
      * @param identifier The identifier whose value to query.
      * @param sensorType The type of sensor to query.
      * @return The sensor value.
      */
-    public static WmiResult<ValueProperty> querySensorValue(WmiQueryExecutor h, String identifier, String sensorType) {
-        WmiQuery<ValueProperty> ohmSensorQuery = new WmiQuery<>(OHM_NAMESPACE,
+    public static WmiResult<ValueProperty> querySensorValue(WmiQueryExecutor h, String namespace, String identifier,
+            String sensorType) {
+        WmiQuery<ValueProperty> ohmSensorQuery = new WmiQuery<>(namespace,
                 buildSensorWmiClassNameWithWhere(identifier, sensorType), ValueProperty.class);
         return h.queryWMI(ohmSensorQuery, false);
     }

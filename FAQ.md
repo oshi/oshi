@@ -136,20 +136,44 @@ The FFM implementation (`oshi-core-ffm`) supports the same platforms as the JNA 
 
 ## How can I get reliable sensor information on Windows?
 
-Windows sensor information is unreliable via the supported Windows API.  OSHI includes an optional dependency on [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) which gives much more reliable sensor data, but is not included transitively due to its single-OS relevance and MPL 2.0-licensed binary DLLs. To include it, define the dependency in your own project.  You can do so using Maven:
+Windows sensor information is unreliable via the supported Windows API. There are two ways to get better data,
+and OSHI will use whichever is available.
 
-```
+### Option 1: run a hardware monitoring application
+
+If [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) or the older
+[OpenHardwareMonitor](https://openhardwaremonitor.org/) is running **as Administrator** with WMI publishing enabled,
+OSHI reads its published data directly. No extra dependency is needed. LibreHardwareMonitor is the maintained one and
+additionally provides GPU temperature, power, clocks, fan, utilization and memory.
+
+### Option 2: the optional jLibreHardwareMonitor dependency
+
+[jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) ships the monitoring libraries itself, so no
+application has to be running. It is not included transitively, due to its single-OS relevance and MPL 2.0-licensed
+binary DLLs. To include it, define the dependency in your own project **with an explicit version** — OSHI publishes no
+BOM and manages only the JNA artifacts, so a version-less declaration will not resolve. Using Maven:
+
+```xml
 <dependency>
     <groupId>io.github.pandalxb</groupId>
     <artifactId>jLibreHardwareMonitor</artifactId>
+    <version>1.0.6</version>
 </dependency>
 ```
 
 Or Gradle:
 
+```groovy
+implementation("io.github.pandalxb:jLibreHardwareMonitor:1.0.6")
 ```
-implementation("io.github.pandalxb:jLibreHardwareMonitor")
-```
+
+Your JVM must run **as Administrator**, as the underlying library loads a kernel driver for most sensors.
+
+Note one known limitation: this dependency reaches the monitoring libraries through a PowerShell session, and on
+Windows Server 2019 / Windows 10 1809-era hosts whose console handle is not a real screen buffer — a CI build agent,
+for example — PowerShell writes an error banner into the output being parsed, so no sensor data is returned and the
+dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
+[issue #3707](https://github.com/oshi/oshi/issues/3707) for the details and current status.
 
 ## How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?
 
@@ -338,7 +362,7 @@ However, some specific features require elevated permissions to access. Rather t
 
 **Windows:**
 - Process command lines and environment variables for processes owned by other users (requires `SeDebugPrivilege` or Administrator)
-- Sensor data (temperature, fan speeds) via [jLibreHardwareMonitor](https://github.com/oshi/jLibreHardwareMonitor)
+- Sensor data (temperature, fan speeds) via a hardware monitoring application or the optional [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) dependency
 
 **macOS:**
 - TCP/UDP connection details (without elevation, connection data is limited)
