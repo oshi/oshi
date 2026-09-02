@@ -424,12 +424,14 @@ class WmiComparisonTest {
         boolean jnaComInit = jnaHandler.initCOM();
         boolean ffmComInit = ffmHandler.initCOM();
         try {
-            WmiResult<ValueProperty> jna = OhmSensor.querySensorValue(jnaHandler, null, null);
-            WmiResult<ValueProperty> ffm = OhmSensor.querySensorValue(ffmHandler, null, null);
+            WmiResult<ValueProperty> jna = OhmSensor.querySensorValue(jnaHandler, OhmSensor.OHM_NAMESPACE, null, null);
+            WmiResult<ValueProperty> ffm = OhmSensor.querySensorValue(ffmHandler, OhmSensor.OHM_NAMESPACE, null, null);
             assertThat(ffm.getResultCount()).as("OhmSensor count").isEqualTo(jna.getResultCount());
 
-            WmiResult<IdentifierProperty> jnaHw = OhmHardware.queryHwIdentifier(jnaHandler, null, null);
-            WmiResult<IdentifierProperty> ffmHw = OhmHardware.queryHwIdentifier(ffmHandler, null, null);
+            WmiResult<IdentifierProperty> jnaHw = OhmHardware.queryHwIdentifier(jnaHandler, OhmHardware.OHM_NAMESPACE,
+                    null, null);
+            WmiResult<IdentifierProperty> ffmHw = OhmHardware.queryHwIdentifier(ffmHandler, OhmHardware.OHM_NAMESPACE,
+                    null, null);
             assertThat(ffmHw.getResultCount()).as("OhmHardware count").isEqualTo(jnaHw.getResultCount());
         } finally {
             if (ffmComInit) {
