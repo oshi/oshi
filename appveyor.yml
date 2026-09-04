@@ -9,11 +9,29 @@ branches:
     - master
     - debug
 
-only_commits:
+# Skip a build only when EVERY file in the head commit is provably irrelevant to Windows: another
+# platform's implementation tree, documentation, or another CI system's configuration. Anything else
+# runs, including shared code, build inputs and paths that do not exist yet.
+#
+# This is deliberately an exclusion list. The include list it replaces ('**/windows/**',
+# '**/common/**', '**/util/**') was written in 2020, when oshi-core was the only module holding code
+# and `common` could only mean one source tree. Across five modules those are Java package names
+# that appear everywhere, so the list both over-matched (63% of runs came from non-Windows code) and
+# silently missed real Windows changes: the three Windows comparison tests, oshi.properties, every
+# pom.xml, and the oshi-demo Windows classes. A miss is invisible - AppVeyor is not a required
+# check, so a skipped build leaves no status at all and the pull request still reads as green.
+#
+# Note that AppVeyor evaluates these against the HEAD COMMIT of a push, not the whole pull request.
+skip_commits:
   files:
-    - '**/windows/**'
-    - '**/common/**'
-    - '**/util/**'
+    - '**/*.md'
+    - '**/mac/**'
+    - '**/linux/**'
+    - '**/unix/**'
+    - '**/nativefree/**'
+    - '.github/**'
+    - '.circleci/**'
+    - 'src/site/**'
 
 environment:
   TERM: dumb
