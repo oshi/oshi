@@ -53,8 +53,12 @@ install:
 build_script:
   - appveyor-retry ./mvnw -B -DskipTests=true clean package
 
-# -Paggregate-coverage turns off oshi-benchmark's own maven.test.skip, which otherwise suppresses
+# -Pnative-comparison turns off oshi-benchmark's own maven.test.skip, which otherwise suppresses
 # test *compilation*, so the oshi.comparison tests are neither built nor run. Three of them
 # (WMI, perfmon, registry) exercise Windows-only code paths and have no other Windows runner.
+#
+# Not -Paggregate-coverage, which would enable the same tests: nothing here uploads to Codecov, and
+# the GitHub-hosted windows job already owns that flag, so the aggregate report would be built and
+# discarded. If an upload is ever added, decide which flag it carries first.
 test_script:
-  - ./mvnw -B test -Paggregate-coverage
+  - ./mvnw -B test -Pnative-comparison
