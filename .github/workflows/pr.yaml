@@ -20,7 +20,8 @@ jobs:
   # The nested-VM Unix coverage jobs (freebsd/openbsd/openindiana) are gated on this
   # so an unrelated PR doesn't spin up slow VMs. Generic shared source is covered by
   # the always-on ubuntu/mac/windows jobs, Codecov carryforward, and the authoritative
-  # master run. A `full-coverage` label overrides the gate to force the VM jobs on.
+  # master run. A `full-coverage` label overrides the gate to force the VM jobs on; the same label
+  # starts an AppVeyor build, which is path-filtered in the same spirit (see appveyor-dispatch.yaml).
   changes:
     # On a `labeled` event only proceed for the full-coverage label, so adding an
     # unrelated label doesn't re-run CI. opened/synchronize/reopened always run.
@@ -33,28 +34,36 @@ jobs:
     outputs:
       unix: ${{ steps.filter.outputs.unix }}
     steps:
+      # Skip the Unix VM jobs only when EVERY changed file is provably irrelevant to them: another
+      # platform's implementation tree, documentation, or CI configuration. Anything else runs them,
+      # including shared code and paths that do not exist yet.
+      #
+      # The include list this replaces looked for a `unix/` path segment plus the build inputs, which
+      # missed everything Unix depends on without saying "unix" in its path: oshi.properties carries
+      # the filesystem exclude lists for AIX, FreeBSD, DragonFly, OpenBSD and Solaris, and every Unix
+      # driver calls shared code such as ParseUtil. PR #3727 changed oshi.properties and all six Unix
+      # jobs reported "skipping".
+      #
+      # predicate-quantifier: some-with-excludes makes a file count when it matches at least one
+      # pattern and no negated one, so `**` minus the exclusions below is the whole rule, and the
+      # filter is true when at least one changed file survives it. No checkout is needed: on a
+      # pull_request event the action reads the file list from the API, which is what
+      # `pull-requests: read` above is for.
       - name: Detect Unix-relevant changes
         id: filter
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if ! CHANGED=$(gh pr view "${{ github.event.pull_request.number }}" \
-              --repo "${{ github.repository }}" --json files --jq '.files[].path'); then
-            # Fail safe: if the file list can't be read, run the Unix jobs rather than
-            # silently skip them and drop coverage.
-            echo "Could not read changed files; defaulting to running the Unix jobs"
-            echo "unix=true" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          echo "Changed files:"; echo "$CHANGED"
-          # Run the Unix VM jobs when Unix-platform code (any `unix/` path segment across
-          # oshi-common/oshi-core: hardware, software, driver, util, ffm, jna) or build
-          # infrastructure (any pom.xml, the Maven wrapper) changes.
-          if echo "$CHANGED" | grep -qE '(^|/)unix/|(^|/)pom\.xml$|^\.mvn/|^mvnw'; then
-            echo "unix=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "unix=false" >> "$GITHUB_OUTPUT"
-          fi
+        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+        with:
+          predicate-quantifier: 'some-with-excludes'
+          filters: |
+            unix:
+              - '**'
+              - '!**/*.md'
+              - '!.github/**'
+              - '!.circleci/**'
+              - '!appveyor.yml'
+              - '!src/site/**'
+              - '!**/mac/**'
+              - '!**/windows/**'
 
   # Static analysis, split into parallel jobs so no single job's sequential Maven
   # invocations dominate the critical path.
@@ -202,9 +211,14 @@ jobs:
     needs: changes
     permissions:
       contents: read
+    # !cancelled() rather than a bare success dependency, so a failed detection step runs these
+    # instead of silently skipping them: an unreadable file list must not read as "nothing relevant
+    # changed". `result != 'skipped'` keeps that from also running them when the changes job itself
+    # was skipped, on an unrelated label. Neither runs when the workflow is cancelled.
     if: >-
-      needs.changes.outputs.unix == 'true' ||
-      contains(github.event.pull_request.labels.*.name, 'full-coverage')
+      !cancelled() && needs.changes.result != 'skipped' &&
+      (needs.changes.outputs.unix != 'false' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage'))
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -242,9 +256,14 @@ jobs:
     needs: changes
     permissions:
       contents: read
+    # !cancelled() rather than a bare success dependency, so a failed detection step runs these
+    # instead of silently skipping them: an unreadable file list must not read as "nothing relevant
+    # changed". `result != 'skipped'` keeps that from also running them when the changes job itself
+    # was skipped, on an unrelated label. Neither runs when the workflow is cancelled.
     if: >-
-      needs.changes.outputs.unix == 'true' ||
-      contains(github.event.pull_request.labels.*.name, 'full-coverage')
+      !cancelled() && needs.changes.result != 'skipped' &&
+      (needs.changes.outputs.unix != 'false' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage'))
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
@@ -287,9 +306,14 @@ jobs:
     needs: changes
     permissions:
       contents: read
+    # !cancelled() rather than a bare success dependency, so a failed detection step runs these
+    # instead of silently skipping them: an unreadable file list must not read as "nothing relevant
+    # changed". `result != 'skipped'` keeps that from also running them when the changes job itself
+    # was skipped, on an unrelated label. Neither runs when the workflow is cancelled.
     if: >-
-      needs.changes.outputs.unix == 'true' ||
-      contains(github.event.pull_request.labels.*.name, 'full-coverage')
+      !cancelled() && needs.changes.result != 'skipped' &&
+      (needs.changes.outputs.unix != 'false' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage'))
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
