@@ -140,8 +140,14 @@ The FFM implementation (`oshi-core-ffm`) supports the same platforms as the JNA 
 OSHI bundles no native libraries and requires nothing beyond a JDK. Everything on this page is
 **optional**: OSHI probes for each item at the moment it needs it, and when it is absent the affected
 value degrades to a sentinel — `Constants.UNKNOWN`, an empty list, `0` or `-1` — or falls back to a
-coarser source. Nothing here throws, and nothing here is needed for OSHI to start. Install an item
-only if you want the data it unlocks.
+coarser source. Nothing here is needed for OSHI to start. Install an item only if you want the data
+it unlocks.
+
+That holds unconditionally for the **command-line tools** below: OSHI runs one, gets nothing, and
+moves on. It holds for the **shared libraries** on any current release, where OSHI tests for the
+library when it first needs it and skips the calls that depend on it. Releases before 6.2 could
+instead throw `UnsatisfiedLinkError` when `libudev` was missing, which the
+[containers answer](#does-oshi-work-in-containers-docker-kubernetes) covers.
 
 Two related sections: several of these commands must run as root, which
 [the least-privilege section](#how-does-oshi-support-the-principle-of-least-privilege) covers, and a
