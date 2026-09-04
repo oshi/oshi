@@ -1,0 +1,43 @@
+# Force an AppVeyor build for a pull request by adding the `full-coverage` label.
+#
+# AppVeyor is the only Windows Server 2019 runner and it is path-filtered (see the skip_commits
+# block in appveyor.yml), so a change it skips has no Windows Server coverage at all. Commits
+# filtering does not apply to builds started through the API, so this is the escape hatch for a
+# change whose Windows relevance the filter cannot see.
+#
+# The label is the same one pr.yaml uses to force the Unix VM jobs on, so one label means "run the
+# long jobs regardless of what changed" across both CI systems.
+#
+# This needs an APPVEYOR_TOKEN repository secret, from https://ci.appveyor.com/api-keys. Without it
+# the job fails with a message saying so rather than appearing to succeed.
+#
+# pull_request_target, not pull_request, because secrets are not available to pull_request runs from
+# a fork, which is where every contributor pull request comes from. It is safe here for the reason
+# that makes pull_request_target dangerous elsewhere: this workflow never checks out the pull
+# request's code, and only reads its number.
+name: AppVeyor on demand
+
+on:
+  pull_request_target:
+    types: [labeled]
+
+permissions: {}
+
+jobs:
+  appveyor:
+    if: github.event.label.name == 'full-coverage'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start an AppVeyor build for this pull request
+        env:
+          APPVEYOR_TOKEN: ${{ secrets.APPVEYOR_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if [ -z "$APPVEYOR_TOKEN" ]; then
+            echo "::error::APPVEYOR_TOKEN secret is not set. Add it from https://ci.appveyor.com/api-keys."
+            exit 1
+          fi
+          curl -sS --fail-with-body -X POST https://ci.appveyor.com/api/builds \
+            -H "Authorization: Bearer $APPVEYOR_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"accountName\":\"dbwiddis\",\"projectSlug\":\"oshi\",\"pullRequestId\":$PR_NUMBER}"

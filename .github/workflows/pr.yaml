@@ -20,7 +20,8 @@ jobs:
   # The nested-VM Unix coverage jobs (freebsd/openbsd/openindiana) are gated on this
   # so an unrelated PR doesn't spin up slow VMs. Generic shared source is covered by
   # the always-on ubuntu/mac/windows jobs, Codecov carryforward, and the authoritative
-  # master run. A `full-coverage` label overrides the gate to force the VM jobs on.
+  # master run. A `full-coverage` label overrides the gate to force the VM jobs on; the same label
+  # starts an AppVeyor build, which is path-filtered in the same spirit (see appveyor-dispatch.yaml).
   changes:
     # On a `labeled` event only proceed for the full-coverage label, so adding an
     # unrelated label doesn't re-run CI. opened/synchronize/reopened always run.
