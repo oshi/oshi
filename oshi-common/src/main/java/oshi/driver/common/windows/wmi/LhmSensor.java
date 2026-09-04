@@ -88,9 +88,12 @@ public class LhmSensor {
      * @param h          An instantiated {@link WmiQueryExecutor}.
      * @param parent     the LHM hardware identifier (e.g. {@code /gpu-nvidia/0})
      * @param sensorType the sensor type string (e.g. {@code "Load"}, {@code "SmallData"})
-     * @return WMI result containing NAME, VALUE, and PARENT columns
+     * @return WMI result containing NAME, VALUE, and PARENT columns, or an empty result if LHM queries are disabled
      */
     public static WmiResult<LhmSensorProperty> querySensors(WmiQueryExecutor h, String parent, String sensorType) {
+        if (HardwareMonitorDisabled.isWmiDisabled(LHM_NAMESPACE)) {
+            return WmiResult.empty();
+        }
         WmiQuery<LhmSensorProperty> query = new WmiQuery<>(LHM_NAMESPACE,
                 buildSensorWmiClassNameWithWhere(parent, sensorType), LhmSensorProperty.class);
         return h.queryWMI(query);
@@ -100,9 +103,13 @@ public class LhmSensor {
      * Queries all GPU hardware entries from LHM to discover parent identifiers.
      *
      * @param h An instantiated {@link WmiQueryExecutor}.
-     * @return WMI result with IDENTIFIER and NAME columns for all GPU hardware entries
+     * @return WMI result with IDENTIFIER and NAME columns for all GPU hardware entries, or an empty result if LHM
+     *         queries are disabled
      */
     public static WmiResult<LhmHardwareProperty> queryGpuHardware(WmiQueryExecutor h) {
+        if (HardwareMonitorDisabled.isWmiDisabled(LHM_NAMESPACE)) {
+            return WmiResult.empty();
+        }
         WmiQuery<LhmHardwareProperty> query = new WmiQuery<>(LHM_NAMESPACE, buildGpuHardwareWmiClassName(),
                 LhmHardwareProperty.class);
         return h.queryWMI(query);

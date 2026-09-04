@@ -13,6 +13,8 @@ public final class WmiConstants {
     }
 
     // CIM types (from Wbemcli.h)
+    /** CIM type for an absent value. */
+    public static final int CIM_EMPTY = 0;
     /** CIM type for signed 32-bit integer. */
     public static final int CIM_SINT32 = 3;
     /** CIM type for 32-bit real. */
@@ -33,6 +35,8 @@ public final class WmiConstants {
     public static final int CIM_REFERENCE = 102;
 
     // Variant types (from OAIdl.h)
+    /** Variant type for an absent value. */
+    public static final int VT_EMPTY = 0;
     /** Variant type for 32-bit integer. */
     public static final int VT_I4 = 3;
     /** Variant type for 32-bit real. */
