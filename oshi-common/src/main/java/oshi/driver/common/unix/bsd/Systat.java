@@ -76,7 +76,7 @@ public final class Systat {
             }
         }
         // Prefer cpu temps
-        double temp = cpuTemps.isEmpty() ? listAverage(allTemps) : listAverage(cpuTemps);
+        double temp = listAverage(cpuTemps.isEmpty() ? allTemps : cpuTemps);
         int[] fans = new int[fanRPMs.size()];
         for (int i = 0; i < fans.length; i++) {
             fans[i] = fanRPMs.get(i);

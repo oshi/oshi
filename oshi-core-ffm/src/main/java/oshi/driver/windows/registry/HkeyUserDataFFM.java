@@ -126,7 +126,7 @@ public final class HkeyUserDataFFM {
                     return null;
                 }
                 MemorySegment nameBuf = arena.allocate((long) nameLen * 2);
-                MemorySegment domainBuf = domainLen > 0 ? arena.allocate((long) domainLen * 2) : arena.allocate(2);
+                MemorySegment domainBuf = arena.allocate(domainLen > 0 ? (long) domainLen * 2 : 2);
                 cchName.set(JAVA_INT, 0, nameLen);
                 cchDomain.set(JAVA_INT, 0, domainLen);
                 if (!LookupAccountSid(NULL, pSid, nameBuf, cchName, domainBuf, cchDomain, peUse)) {

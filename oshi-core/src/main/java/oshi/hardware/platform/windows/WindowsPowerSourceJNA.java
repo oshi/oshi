@@ -273,14 +273,10 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                             }
                                                             // Fallback if BatteryEstimatedTime query failed
                                                             if (psTimeRemainingInstant <= 0 && psPowerUsageRate != 0) {
-                                                                psTimeRemainingInstant = psDischarging
-                                                                        ? Math.max(0d,
-                                                                                psCurrentCapacity * 3600d
-                                                                                        / Math.abs(psPowerUsageRate))
-                                                                        : Math.max(0d,
-                                                                                (maxCapacitySafe - psCurrentCapacity)
-                                                                                        * 3600d
-                                                                                        / Math.abs(psPowerUsageRate));
+                                                                psTimeRemainingInstant = Math.max(0d,
+                                                                        (psDischarging ? psCurrentCapacity
+                                                                                : maxCapacitySafe - psCurrentCapacity)
+                                                                                * 3600d / Math.abs(psPowerUsageRate));
                                                             }
                                                             if (psDischarging && psTimeRemainingInstant > 0) {
                                                                 psTimeRemainingEstimated = psTimeRemainingInstant;

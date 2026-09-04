@@ -41,40 +41,41 @@ final class MacFirmwareFFM extends MacFirmware {
                                 String entryName = current.getName();
                                 if (entryName != null) {
                                     switch (entryName) {
-                                        case "rom":
-                                            byte[] data = current.getByteArrayProperty("vendor");
-                                            if (data != null) {
-                                                manufacturer = ParseUtil.decodeNulTerminated(data,
+                                        case "rom" -> {
+                                            byte[] vendor = current.getByteArrayProperty("vendor");
+                                            if (vendor != null) {
+                                                manufacturer = ParseUtil.decodeNulTerminated(vendor,
                                                         StandardCharsets.UTF_8);
                                             }
-                                            data = current.getByteArrayProperty("version");
-                                            if (data != null) {
-                                                version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
-                                            }
-                                            data = current.getByteArrayProperty("release-date");
-                                            if (data != null) {
-                                                releaseDate = ParseUtil.decodeNulTerminated(data,
+                                            byte[] romVersion = current.getByteArrayProperty("version");
+                                            if (romVersion != null) {
+                                                version = ParseUtil.decodeNulTerminated(romVersion,
                                                         StandardCharsets.UTF_8);
                                             }
-                                            break;
-                                        case "chosen":
-                                            data = current.getByteArrayProperty("booter-name");
-                                            if (data != null) {
-                                                name = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
-                                            }
-                                            break;
-                                        case "efi":
-                                            data = current.getByteArrayProperty("firmware-abi");
-                                            if (data != null) {
-                                                description = ParseUtil.decodeNulTerminated(data,
+                                            byte[] date = current.getByteArrayProperty("release-date");
+                                            if (date != null) {
+                                                releaseDate = ParseUtil.decodeNulTerminated(date,
                                                         StandardCharsets.UTF_8);
                                             }
-                                            break;
-                                        default:
+                                        }
+                                        case "chosen" -> {
+                                            byte[] booter = current.getByteArrayProperty("booter-name");
+                                            if (booter != null) {
+                                                name = ParseUtil.decodeNulTerminated(booter, StandardCharsets.UTF_8);
+                                            }
+                                        }
+                                        case "efi" -> {
+                                            byte[] abi = current.getByteArrayProperty("firmware-abi");
+                                            if (abi != null) {
+                                                description = ParseUtil.decodeNulTerminated(abi,
+                                                        StandardCharsets.UTF_8);
+                                            }
+                                        }
+                                        default -> {
                                             if (Util.isBlank(name)) {
                                                 name = current.getStringProperty("IONameMatch");
                                             }
-                                            break;
+                                        }
                                     }
                                 }
                             }
