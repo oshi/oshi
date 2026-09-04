@@ -175,6 +175,21 @@ for example — PowerShell writes an error banner into the output being parsed, 
 dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
 [issue #3707](https://github.com/oshi/oshi/issues/3707) for the details and current status.
 
+### Turning off the sources you do not use
+
+Either application can be started or stopped at any time, so OSHI queries their namespaces on each sensor read, in the
+order below, until one returns data, and gets no results when neither is running. If you know you do not run one of
+them, say so up front and OSHI will not attempt the query:
+
+| Property | Skips |
+|---|---|
+| `oshi.os.windows.ohm.disabled` | The `ROOT\OpenHardwareMonitor` namespace |
+| `oshi.os.windows.lhm.disabled` | The `ROOT\LibreHardwareMonitor` namespace, for GPU metrics as well as sensors |
+
+Both default to `false`. The jLibreHardwareMonitor dependency needs no such switch: it is not transitive, so declaring
+it is itself the decision to use it, and OSHI checks once whether it is on the class path. If the PowerShell limitation
+above affects you, remove the dependency.
+
 ## How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?
 
 OSHI (and many other programs) rely on the English Performance Counter indices in the registry. These are located at `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Perflib\009\Counter`. Sometimes when configuring localized Windows installations, these values become corrupt or are missing.
