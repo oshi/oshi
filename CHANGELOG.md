@@ -4,6 +4,7 @@
 
 * [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).
 * [#3727](https://github.com/oshi/oshi/pull/3727): The `oshi.os.windows.ohm.disabled` and `oshi.os.windows.lhm.disabled` configuration properties skip the Open Hardware Monitor and Libre Hardware Monitor WMI namespaces, which OSHI otherwise queries on each sensor read until one returns data. The latter also covers GPU metrics - [@dbwiddis](https://github.com/dbwiddis).
+* [#3730](https://github.com/oshi/oshi/pull/3730): `Sensors.getCpuVoltage()` on Windows reports the voltage published by Open Hardware Monitor or LibreHardwareMonitor. The query asked the WMI `Hardware` class to filter on a `SensorType` property that class does not have, so it could never match and the value always came from a lower-priority source - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 

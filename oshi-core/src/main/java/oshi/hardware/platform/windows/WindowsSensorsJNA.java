@@ -38,9 +38,9 @@ final class WindowsSensorsJNA extends WindowsSensors {
 
     @Override
     protected @Nullable WmiResult<ValueProperty> queryHardwareMonitorSensor(String namespace, String typeToQuery,
-            String typeName, String sensorType, boolean searchCpu) {
+            String typeName, String sensorType) {
         return getHardwareMonitorSensors(namespace, typeToQuery, typeName, sensorType, (h, hwIdentifiers) -> {
-            String cpuIdentifier = selectOhmCpuIdentifier(hwIdentifiers, searchCpu);
+            String cpuIdentifier = selectOhmCpuIdentifier(hwIdentifiers);
             if (!cpuIdentifier.isEmpty()) {
                 return OhmSensor.querySensorValue(h, namespace, cpuIdentifier, sensorType);
             }

@@ -97,7 +97,7 @@ class WindowsSensorsDisabledTest {
 
         @Override
         protected @Nullable WmiResult<ValueProperty> queryHardwareMonitorSensor(String namespace, String typeToQuery,
-                String typeName, String sensorType, boolean searchCpu) {
+                String typeName, String sensorType) {
             namespaces.add(namespace);
             return null;
         }
