@@ -58,18 +58,26 @@ jobs:
           # every Unix driver calls shared code such as ParseUtil. PR #3727 changed oshi.properties
           # and all six Unix jobs reported "skipping".
           #
-          # grep -v prints the lines that do NOT match, so a non-empty result means something
-          # relevant changed. The jobs still report as skipped rather than vanishing, which is what
-          # keeps a skip visible on the pull request.
+          # Written as a case over shell globs rather than a grep pipeline. `grep -v ... | grep -q .`
+          # is wrong here: the reader exits on its first line, the writer takes SIGPIPE, and this
+          # step runs under bash -eo pipefail, so the pipeline reports 141. Inside `if` that reads as
+          # false, silently skipping the Unix jobs for a pull request that does touch relevant files.
+          # It is a race with the file count, so it would have passed review and failed later, on a
+          # large pull request. (`grep -qv` is no better: BSD grep ignores -v when setting -q's exit
+          # status, so it is correct only on the runner's GNU grep.)
           #
-          # `grep -v ... | grep -q .` rather than `grep -qv ...`: BSD grep ignores -v when setting
-          # -q's exit status, so the single-command form is correct on the GNU grep this runner has
-          # and silently inverted for anyone testing it on macOS.
-          if echo "$CHANGED" | grep -vE '\.md$|(^|/)(mac|windows)/|^\.github/|^\.circleci/|^appveyor\.yml$|^src/site/' | grep -q .; then
-            echo "unix=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "unix=false" >> "$GITHUB_OUTPUT"
-          fi
+          # The jobs still report as skipped rather than vanishing, which keeps a skip visible on the
+          # pull request.
+          UNIX=false
+          while IFS= read -r FILE; do
+            [ -n "$FILE" ] || continue
+            case "$FILE" in
+              *.md|.github/*|.circleci/*|appveyor.yml|src/site/*) ;;
+              mac/*|*/mac/*|windows/*|*/windows/*) ;;
+              *) UNIX=true; break ;;
+            esac
+          done <<< "$CHANGED"
+          echo "unix=$UNIX" >> "$GITHUB_OUTPUT"
 
   # Static analysis, split into parallel jobs so no single job's sequential Maven
   # invocations dominate the critical path.
