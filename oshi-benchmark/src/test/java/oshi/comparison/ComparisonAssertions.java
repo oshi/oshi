@@ -9,7 +9,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 /**
  * Shared assertion helpers for JNA vs FFM comparison tests.
  */
-final class ComparisonAssertions {
+public final class ComparisonAssertions {
 
     private ComparisonAssertions() {
     }
@@ -22,7 +22,7 @@ final class ComparisonAssertions {
      * @param ratio       the maximum allowed deviation (0.0–1.0)
      * @param description a label for assertion failure messages
      */
-    static void assertWithinRatio(long actual, long expected, double ratio, String description) {
+    public static void assertWithinRatio(long actual, long expected, double ratio, String description) {
         assertWithinRatio((double) actual, (double) expected, ratio, description);
     }
 
@@ -34,7 +34,7 @@ final class ComparisonAssertions {
      * @param ratio       the maximum allowed deviation (0.0–1.0)
      * @param description a label for assertion failure messages
      */
-    static void assertWithinRatio(double actual, double expected, double ratio, String description) {
+    public static void assertWithinRatio(double actual, double expected, double ratio, String description) {
         // Sensors that aren't available on a platform return NaN from both implementations (e.g. CPU temperature on a
         // FreeBSD VM without the coretemp kld module). Treat that as "equal: both are 'no data'" since NaN arithmetic
         // would otherwise make the ratio comparison fail.

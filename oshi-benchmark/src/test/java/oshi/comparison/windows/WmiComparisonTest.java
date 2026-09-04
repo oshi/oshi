@@ -2,7 +2,7 @@
  * Copyright 2026 The OSHI Project Contributors
  * SPDX-License-Identifier: MIT
  */
-package oshi.comparison;
+package oshi.comparison.windows;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
