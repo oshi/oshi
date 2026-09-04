@@ -11,6 +11,7 @@
   * [Is OSHI Thread Safe?](#is-oshi-thread-safe)
   * [What minimum Java version is required?](#what-minimum-java-version-is-required)
   * [Which operating systems are supported?](#which-operating-systems-are-supported)
+  * [What optional software gives OSHI more to report?](#what-optional-software-gives-oshi-more-to-report)
   * [How can I get reliable sensor information on Windows?](#how-can-i-get-reliable-sensor-information-on-windows)
   * [How do I resolve `Pdh call failed with error code 0xC0000BB8` issues?](#how-do-i-resolve-pdh-call-failed-with-error-code-0xc0000bb8-issues)
   * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
@@ -18,8 +19,8 @@
   * [How do I configure OSHI?](#how-do-i-configure-oshi)
   * [How does OSHI support the Principle of Least Privilege?](#how-does-oshi-support-the-principle-of-least-privilege)
   * [How do I get CPU usage?](#how-do-i-get-cpu-usage)
-  * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
-  * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshi-s-process-cpu-usage-differ-from-the-windows-task-manager)
+  * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshis-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
+  * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshis-process-cpu-usage-differ-from-the-windows-task-manager)
   * [Why does OSHI freeze for 20 seconds (or larger multiples of 20 seconds) on Windows when it first starts up?](#why-does-oshi-freeze-for-20-seconds-or-larger-multiples-of-20-seconds-on-windows-when-it-first-starts-up)
   * [How is OSHI different from SIGAR?](#how-is-oshi-different-from-sigar)
   * [Does OSHI work on ...](#does-oshi-work-on)
@@ -134,19 +135,91 @@ OSHI has been implemented and tested on the following systems.  Some features ma
 
 The FFM implementation (`oshi-core-ffm`) supports the same platforms as the JNA implementation and assumes a 64-bit operating system.
 
+## What optional software gives OSHI more to report?
+
+OSHI bundles no native libraries and requires nothing beyond a JDK. Everything on this page is
+**optional**: OSHI probes for each item at the moment it needs it, and when it is absent the affected
+value degrades to a sentinel — `Constants.UNKNOWN`, an empty list, `0` or `-1` — or falls back to a
+coarser source. Nothing here is needed for OSHI to start. Install an item only if you want the data
+it unlocks.
+
+That holds unconditionally for the **command-line tools** below: OSHI runs one, gets nothing, and
+moves on. It holds for the **shared libraries** on any current release, where OSHI tests for the
+library when it first needs it and skips the calls that depend on it. Releases before 6.2 could
+instead throw `UnsatisfiedLinkError` when `libudev` was missing, which the
+[containers answer](#does-oshi-work-in-containers-docker-kubernetes) covers.
+
+Two related sections: several of these commands must run as root, which
+[the least-privilege section](#how-does-oshi-support-the-principle-of-least-privilege) covers, and a
+few can be switched off explicitly, which [configuration](#how-do-i-configure-oshi) covers.
+
+### Linux
+
+| Install | What it adds |
+|---|---|
+| **udev** — the `libudev.so.1` library, packaged as `libudev1`, `systemd-libs` or similar | USB device tree, power source details, disk model and serial, and some network and volume-group details. Frequently missing from slim container images — set `oshi.os.linux.allowudev=false` to skip the probe. |
+| **systemd** (`libsystemd`) | `OperatingSystem.getSessions()` through logind, where `utmp` is unavailable or deprecated. Set `oshi.os.linux.allowsystemd=false` to use the file-based or `who` fallback instead. |
+| **dmidecode** | Baseboard, firmware and computer-system serial numbers and UUID, physical memory module details, and the processor ID. Needs root. |
+| **lshw** | Graphics card enumeration and some processor details. Needs root. |
+| **lspci** | Graphics cards and their VRAM aperture, without root, when `lshw` is unavailable. |
+| **lscpu** | CPU cache sizes, NUMA node mapping, and processor identity. |
+| **cpuid** | The processor ID, when `dmidecode` is absent or not permitted. |
+| **NVIDIA driver / NVML** — the `libnvidia-ml` library, which ships with the proprietary driver | GPU utilization, memory, temperature, power and clocks on NVIDIA cards. |
+| **vcgencmd** (Raspberry Pi only; present in Raspberry Pi OS, packaged separately elsewhere) | Firmware version, SoC temperature and core voltage. |
+
+### Windows
+
+| Install | What it adds |
+|---|---|
+| **LibreHardwareMonitor**, or the older **OpenHardwareMonitor**, running as Administrator with WMI publishing enabled | CPU temperature, fan speeds and voltage. LibreHardwareMonitor is the maintained one and also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. |
+| The optional **jLibreHardwareMonitor** dependency | The same sensors with no monitoring application running — it ships the monitoring libraries itself. See the details and caveats below. |
+| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, memory, temperature, power and clocks. Normally already present with the driver. |
+
+### macOS
+
+Nothing to install. Sensor, GPU and hardware data all come from system frameworks (SMC, IOKit,
+CoreGraphics) that ship with the OS.
+
+### FreeBSD
+
+| Install | What it adds |
+|---|---|
+| **dmidecode** | Firmware, baseboard and computer-system identity, and the processor ID. |
+
+OSHI also reads `lshal` for the USB device tree and the system serial number and UUID, but that is a
+legacy path rather than something to install: HAL was abandoned upstream and its FreeBSD port was
+deleted in 2021, so on a current system the command is absent and those values report their
+sentinels.
+
+### Solaris / illumos
+
+| Install | What it adds |
+|---|---|
+| **sneep** | The system serial number. |
+| **PICL** (`prtpicl`) | Temperature, fan speed and voltage sensors. Present on Solaris; check your illumos distribution. |
+
+### NetBSD
+
+| Install | What it adds |
+|---|---|
+| pkgsrc **`java-jna`**, with `-Djna.boot.library.path=/usr/pkg/lib` | The native path for `oshi-core`. JNA cannot extract a NetBSD `libjnidispatch` from its own jar, so without the pkgsrc build every native call is skipped and those values report their sentinels. |
+
+### AIX
+
+Nothing to install; `libperfstat` is part of the base system.
+
 ## How can I get reliable sensor information on Windows?
 
-Windows sensor information is unreliable via the supported Windows API. There are two ways to get better data,
-and OSHI will use whichever is available.
+Windows sensor information is unreliable through the supported Windows API: `Win32_Fan` and
+`MSAcpi_ThermalZoneTemperature` are frequently unimplemented, and `Win32_Processor` reports voltage as a handful of
+capability bits. The two better sources are listed under
+[optional software](#what-optional-software-gives-oshi-more-to-report) above; OSHI tries them in order and uses
+whichever answers, so nothing needs configuring to prefer one.
 
-### Option 1: run a hardware monitoring application
+The monitoring applications need no dependency at all. The second source does, and it comes with caveats worth reading
+before you adopt it.
 
-If [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) or the older
-[OpenHardwareMonitor](https://openhardwaremonitor.org/) is running **as Administrator** with WMI publishing enabled,
-OSHI reads its published data directly. No extra dependency is needed. LibreHardwareMonitor is the maintained one and
-additionally provides GPU temperature, power, clocks, fan, utilization and memory.
-
-### Option 2: the optional jLibreHardwareMonitor dependency
+### The optional jLibreHardwareMonitor dependency
 
 [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) ships the monitoring libraries itself, so no
 application has to be running. It is not included transitively, due to its single-OS relevance and MPL 2.0-licensed
@@ -223,7 +296,7 @@ OSHI reads from the same OS-level sources (procfs, sysfs, WMI, etc.) regardless 
 
  - **CPU ticks reflect the host.** `getSystemCpuLoadTicks()` reads `/proc/stat`, which shows all host CPUs even when the container has a CPU limit. On Windows Server 2019 containers, performance counters may be entirely absent, causing all tick values to be zero ([#1976](https://github.com/oshi/oshi/issues/1976), [#2217](https://github.com/oshi/oshi/issues/2217)).
  - **Memory reports host totals.** `getTotal()` returns the host's physical memory, not the cgroup memory limit ([#893](https://github.com/oshi/oshi/issues/893)).
- - **Missing native libraries.** Minimal base images (Alpine, distroless) may lack `libudev`, causing `UnsatisfiedLinkError` when accessing the processor or disk stores. Ensure your image includes `libudev` or use OSHI 6.2+ which added a fallback ([#2032](https://github.com/oshi/oshi/issues/2032), [#2092](https://github.com/oshi/oshi/issues/2092)).
+ - **Missing native libraries.** Minimal base images (Alpine, distroless) may lack `libudev`, causing `UnsatisfiedLinkError` when accessing the processor or disk stores. Ensure your image includes `libudev` or use OSHI 6.2+ which added a fallback ([#2032](https://github.com/oshi/oshi/issues/2032), [#2092](https://github.com/oshi/oshi/issues/2092)). See [optional software](#what-optional-software-gives-oshi-more-to-report) for what else a slim image leaves out and what each item costs you.
  - **Hardware identifiers are unavailable.** Serial numbers, baseboard info, and disk details are typically not exposed to containers and will return "unknown" ([#2620](https://github.com/oshi/oshi/issues/2620)).
  - **File store duplication.** Docker's overlay mounts can cause the same device to appear multiple times in `getFileStores()` ([#438](https://github.com/oshi/oshi/issues/438)).
 
