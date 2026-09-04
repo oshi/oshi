@@ -281,9 +281,9 @@ public final class GlobalConfig {
     public static final String OSHI_OS_WINDOWS_OHM_DISABLED = "oshi.os.windows.ohm.disabled";
     /**
      * Whether queries to the Libre Hardware Monitor WMI namespace ({@code ROOT\LibreHardwareMonitor}) are disabled.
-     * OSHI queries that namespace on every sensor read and for GPU metrics, as the application may be started or
-     * stopped while OSHI is running. Set this to {@code true} to skip those queries entirely on a system where Libre
-     * Hardware Monitor is known not to be used. Default is {@code false}.
+     * OSHI queries that namespace for GPU metrics, and on any sensor read which Open Hardware Monitor did not satisfy,
+     * as the application may be started or stopped while OSHI is running. Set this to {@code true} to skip those
+     * queries entirely on a system where Libre Hardware Monitor is known not to be used. Default is {@code false}.
      *
      * @see #OSHI_OS_WINDOWS_OHM_DISABLED
      */

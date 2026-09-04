@@ -177,9 +177,9 @@ dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
 
 ### Turning off the sources you do not use
 
-Either application can be started or stopped at any time, so OSHI queries both WMI namespaces on every sensor read and
-simply gets no results when the application is not running. If you know you do not run one of them, say so up front and
-OSHI will not attempt the query:
+Either application can be started or stopped at any time, so OSHI queries their namespaces on each sensor read, in the
+order below, until one returns data, and gets no results when neither is running. If you know you do not run one of
+them, say so up front and OSHI will not attempt the query:
 
 | Property | Skips |
 |---|---|
