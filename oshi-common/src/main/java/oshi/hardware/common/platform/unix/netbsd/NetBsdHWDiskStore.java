@@ -31,8 +31,8 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
 
     private final Supplier<List<String>> iostat;
 
-    private NetBsdHWDiskStore(String name, String model, String serial, long size,
-            Supplier<List<String>> iostatSupplier) {
+    // Package-private for the fixture test, which supplies its own iostat output
+    NetBsdHWDiskStore(String name, String model, String serial, long size, Supplier<List<String>> iostatSupplier) {
         super(name, model, serial, size);
         this.iostat = iostatSupplier;
     }
@@ -106,20 +106,20 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
             String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
             // iostat -x -I output (cumulative totals, 9 fields):
             // device read KB/t xfr time MB write KB/t xfr time MB
-            // ld0 27.74 38896 14.03 1356 36.19 0 0.00 0.000
+            // ld0 26.36 2087 8.23 53.72 25.42 74725 8.23 1855.30
             // [0] [1] [2] [3] [4] [5] [6] [7] [8]
             if (split.length >= 9 && split[0].equals(getName())) {
                 diskFound = true;
-                long reads = ParseUtil.parseLongOrDefault(split[2], 0L);
-                long writes = ParseUtil.parseLongOrDefault(split[6], 0L);
-                double readKBPerTransfer = ParseUtil.parseDoubleOrDefault(split[1], 0d);
-                double writeKBPerTransfer = ParseUtil.parseDoubleOrDefault(split[5], 0d);
-                this.reads = reads;
-                this.writes = writes;
-                this.readBytes = (long) (readKBPerTransfer * reads * 1024);
-                this.writeBytes = (long) (writeKBPerTransfer * writes * 1024);
-                this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1000)
-                        + (long) (ParseUtil.parseDoubleOrDefault(split[7], 0d) * 1000);
+                this.reads = ParseUtil.parseLongOrDefault(split[2], 0L);
+                this.writes = ParseUtil.parseLongOrDefault(split[6], 0L);
+                // Bytes come from the MB totals, not from KB-per-transfer times transfers: iostat rounds KB/t to two
+                // decimals, and multiplying that by a transfer count scales the rounding error up with it, enough that
+                // two readings seconds apart can go backwards. Rounding a total cannot.
+                this.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[4], 0d) * 1024 * 1024);
+                this.writeBytes = (long) (ParseUtil.parseDoubleOrDefault(split[8], 0d) * 1024 * 1024);
+                // Both time columns carry the same drive-busy total (cur.time[dn] in iostat's drive_statsx), which
+                // covers reads and writes together, so it is counted once.
+                this.transferTime = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1000);
                 this.timeStamp = now;
                 break;
             }
