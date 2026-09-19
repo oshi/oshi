@@ -137,11 +137,11 @@
         older error_prone_check_api than ${error-prone.version} but declares it compileOnly, so it contributes
         no transitive dependency; verified working against 2.50.0. -->
         <errorprone-slf4j.version>0.1.29</errorprone-slf4j.version>
-        <maven-deploy-plugin.version>3.1.4</maven-deploy-plugin.version>
+        <maven-deploy-plugin.version>3.2.0</maven-deploy-plugin.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <restrict-imports-enforcer-rule.version>3.0.2-develop</restrict-imports-enforcer-rule.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
-        <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
+        <maven-install-plugin.version>3.2.0</maven-install-plugin.version>
         <maven-resources-plugin.version>3.5.0</maven-resources-plugin.version>
         <maven-scm-publish-plugin.version>3.3.0</maven-scm-publish-plugin.version>
         <maven-site-plugin.version>3.22.0</maven-site-plugin.version>
@@ -149,7 +149,7 @@
         <maven-fluido-skin.version>2.1.0</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>10.0.1</git-commit-id-maven-plugin.version>
-        <build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
         <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
         <bnd-maven-plugin.version>7.4.0</bnd-maven-plugin.version>
         <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
@@ -167,7 +167,7 @@
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
         <central-publishing-maven-plugin.version>0.11.0</central-publishing-maven-plugin.version>
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
-        <properties-maven-plugin.version>1.3.0</properties-maven-plugin.version>
+        <properties-maven-plugin.version>1.3.1</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.15</jacoco-maven-plugin.version>
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
         <spotless-plugin.version>3.10.2</spotless-plugin.version>
@@ -181,10 +181,10 @@
         <maven-jxr-plugin.version>3.6.0</maven-jxr-plugin.version>
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.6.0</maven-surefire-report-plugin.version>
-        <taglist-maven-plugin.version>3.2.2</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.21.0</versions-maven-plugin.version>
+        <taglist-maven-plugin.version>3.2.3</taglist-maven-plugin.version>
+        <versions-maven-plugin.version>2.22.0</versions-maven-plugin.version>
         <!-- Misc. -->
-        <sonar-maven-plugin.version>5.7.0.6970</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
         <dependency-check-maven.version>13.0.0</dependency-check-maven.version>
         <!-- OWASP dependency-check NVD tuning: treat cached data as fresh for a week (skips updates on a
              warm cache) and ride out NVD API throttling. See the NVD Cache Warmer and Site workflows. -->
