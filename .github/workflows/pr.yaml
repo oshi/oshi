@@ -205,7 +205,7 @@ jobs:
   # Codecov under the `freebsd` flag — this is the only PR job that exercises
   # the FreeBSD-specific classes.
   testfreebsd:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     name: Test JDK 25, FreeBSD
     needs: changes
@@ -250,7 +250,7 @@ jobs:
 
   # OpenBSD VM, JDK 25. Same pattern as FreeBSD above.
   testopenbsd:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     name: Test JDK 25, OpenBSD
     needs: changes
@@ -300,7 +300,7 @@ jobs:
   # OpenIndiana (illumos/Solaris) VM, JDK 25. Same pattern as FreeBSD/OpenBSD above, plus the
   # libumem preload that keeps illumos malloc off the break -- see the run: script below.
   testopenindiana:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     name: Test JDK 25, OpenIndiana
     needs: changes
