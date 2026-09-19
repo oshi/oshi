@@ -45,7 +45,7 @@ jobs:
             ./mvnw clean test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
@@ -84,7 +84,7 @@ jobs:
             ./mvnw clean test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
@@ -211,7 +211,7 @@ jobs:
       # reach them. The run: script cats the dump inside the guest instead.
       - name: Upload Coverage
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
@@ -247,7 +247,7 @@ jobs:
             ./mvnw clean test -Pjna-aggregate -B
       - name: Upload Coverage
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
@@ -284,7 +284,7 @@ jobs:
             ./mvnw clean test -Pjna-aggregate -B
       - name: Upload Coverage
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
@@ -323,7 +323,7 @@ jobs:
             ./mvnw clean test -Pjna-aggregate -B
       - name: Upload Coverage
         if: always()
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
