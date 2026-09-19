@@ -81,7 +81,7 @@ jobs:
   # AIX and DragonFly BSD are audited by hand on the GCC compile farm instead. Neither declares a
   # struct layout of its own, and neither has a VM image here.
   freebsd:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
@@ -107,7 +107,7 @@ jobs:
           if-no-files-found: warn
 
   openbsd:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
@@ -135,7 +135,7 @@ jobs:
           if-no-files-found: warn
 
   solaris:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7

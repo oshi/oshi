@@ -20,7 +20,7 @@ jobs:
   # FreeBSD-specific classes).
   testfreebsd:
     name: Test JDK 25, FreeBSD
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -54,7 +54,7 @@ jobs:
   # Runs on OpenBSD 7.9 x86 VM with aggregate-coverage uploaded
   # to Codecov under the `openbsd` flag.
   testopenbsd:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     name: Test JDK 25, OpenBSD
     steps:
@@ -94,7 +94,7 @@ jobs:
   # to Codecov under the `solaris` flag.
   testopenindiana:
     name: Test JDK 25, OpenIndiana
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -220,7 +220,7 @@ jobs:
   # Runs on DragonFly BSD 6.4 x86 VM
   testdragonflybsd:
     name: Test JDK 21, DragonFly BSD
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -257,7 +257,7 @@ jobs:
   # command-line fallback path (NetBsdSysctlUtil.JNA_AVAILABLE == false).
   testnetbsd:
     name: Test JDK 21, NetBSD (no JNA)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
@@ -294,7 +294,7 @@ jobs:
   # (NetBsdSysctlUtil.JNA_AVAILABLE == true). jna.boot.library.path points JNA at the pkgsrc libjnidispatch.
   testnetbsdjna:
     name: Test JDK 21, NetBSD (JNA)
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7

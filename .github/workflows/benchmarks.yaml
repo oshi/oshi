@@ -96,7 +96,7 @@ jobs:
 
   benchfreebsd:
     name: JMH benchmarks, FreeBSD
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -118,7 +118,7 @@ jobs:
 
   benchopenbsd:
     name: JMH benchmarks, OpenBSD
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
@@ -217,7 +217,7 @@ jobs:
 
   benchopenindiana:
     name: JMH benchmarks, OpenIndiana
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     steps:
