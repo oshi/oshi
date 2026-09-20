@@ -236,14 +236,12 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             this.startTime = now - this.upTime;
         }
         this.path = queryPath(psMap);
-        this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
+        this.name = queryName(psMap, this.path);
         this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MINFLT), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MAJFLT), 0L);
         this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NVCSW), 0L);
         this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NIVCSW), 0L);
-        // Command-line fallback: the full args column (named "command" on DragonFly)
-        this.commandLineBackup = ParseUtil.getStringValueOrEmpty(
-                psMap.get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS));
+        this.commandLineBackup = queryCommandLineBackup(psMap);
         return true;
     }
 
@@ -341,6 +339,18 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     }
 
     /**
+     * Returns the command line to fall back on where the arguments cannot be read: the full args column, named
+     * {@code command} on DragonFly. NetBSD overrides it, because its {@code ps} may print a placeholder there.
+     *
+     * @param psMap the parsed {@code ps} columns for this process
+     * @return the command line, or an empty string if the column is absent
+     */
+    protected String queryCommandLineBackup(Map<BsdPsKeyword, String> psMap) {
+        return ParseUtil.getStringValueOrEmpty(
+                psMap.get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS));
+    }
+
+    /**
      * Returns the executable path for this row. The default reads the {@code comm} column, or {@code ucomm} where that
      * is the one queried (DragonFly); NetBSD overrides it, because its {@code ps} truncates that column.
      *
@@ -350,6 +360,17 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     protected String queryPath(Map<BsdPsKeyword, String> psMap) {
         return ParseUtil.getStringValueOrEmpty(
                 psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM));
+    }
+
+    /**
+     * Returns the process name for this row. The default takes the last element of the path.
+     *
+     * @param psMap the parsed {@code ps} columns for this process
+     * @param path  the path this row yielded, from {@link #queryPath(Map)}
+     * @return the name, or an empty string if neither is known
+     */
+    protected String queryName(Map<BsdPsKeyword, String> psMap, String path) {
+        return path.substring(path.lastIndexOf('/') + 1);
     }
 
     /**

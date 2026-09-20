@@ -98,20 +98,58 @@ public class NetBsdOSProcess extends BsdOSProcess {
         // NetBSD's ps prints argv[0] in the comm column, the same value the args column begins with, but clips it to
         // the width of its "COMMAND" header - seven characters - because only the last column is left unbounded. So the
         // path is taken from the args column, which is queried last and is therefore printed in full.
-        return parsePath(psMap.get(BsdPsKeyword.ARGS));
+        String argv = parseArgv0(psMap.get(BsdPsKeyword.ARGS));
+        // The placeholder says the arguments were unavailable, so no path is known
+        return isPlaceholder(argv) ? "" : argv;
+    }
+
+    @Override
+    protected String queryCommandLineBackup(Map<BsdPsKeyword, String> psMap) {
+        return parseCommandLine(psMap.get(BsdPsKeyword.ARGS));
     }
 
     /**
-     * Extracts the executable path from a {@code ps} args column.
+     * Extracts the command line from a {@code ps} args column.
      *
      * @param args the args column, the process's arguments separated by spaces
-     * @return {@code argv[0]}, which is a path when the process was started by one. Where the kernel would not release
-     *         the arguments, {@code ps} substitutes the command in parentheses, and that is returned as it stands.
+     * @return the arguments, or an empty string where {@code ps} substituted the parenthesized command because the
+     *         kernel would not release them, which is a placeholder rather than a command line
      */
-    static String parsePath(@Nullable String args) {
+    static String parseCommandLine(@Nullable String args) {
+        String argv = ParseUtil.getStringValueOrEmpty(args);
+        return isPlaceholder(parseArgv0(argv)) ? "" : argv;
+    }
+
+    @Override
+    protected String queryName(Map<BsdPsKeyword, String> psMap, String path) {
+        String argv = parseArgv0(psMap.get(BsdPsKeyword.ARGS));
+        // The placeholder wraps the kernel's own name for the process, which is the name whether or not the arguments
+        // could be read; unwrap it rather than reporting ps's punctuation as the name
+        return isPlaceholder(argv) ? argv.substring(1, argv.length() - 1) : path.substring(path.lastIndexOf('/') + 1);
+    }
+
+    /**
+     * Extracts {@code argv[0]} from a {@code ps} args column.
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return {@code argv[0]}, which is a path when the process was started by one, or the command in parentheses where
+     *         the kernel would not release the arguments
+     */
+    static String parseArgv0(@Nullable String args) {
         String argv = ParseUtil.getStringValueOrEmpty(args).trim();
         int space = argv.indexOf(' ');
         return space < 0 ? argv : argv.substring(0, space);
+    }
+
+    /**
+     * Whether a {@code ps} args column holds the parenthesized command that {@code ps} substitutes when the kernel
+     * refuses a process's arguments, which it does while that process is inside {@code posix_spawn}.
+     *
+     * @param argv the value from {@link #parseArgv0(String)}
+     * @return {@code true} if it is that placeholder rather than a real {@code argv[0]}
+     */
+    static boolean isPlaceholder(String argv) {
+        return argv.length() > 2 && argv.charAt(0) == '(' && argv.charAt(argv.length() - 1) == ')';
     }
 
     @Override
