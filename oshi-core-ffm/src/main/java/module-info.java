@@ -27,6 +27,7 @@ import org.jspecify.annotations.NullMarked;
     exports oshi.ffm.util.platform.mac;
     exports oshi.ffm.platform.unix.dragonflybsd;
     exports oshi.ffm.util.platform.unix.freebsd;
+    exports oshi.ffm.util.platform.unix.netbsd;
     exports oshi.ffm.util.platform.unix.openbsd;
     exports oshi.ffm.util.platform.unix.solaris;
     exports oshi.ffm.util.platform.windows;

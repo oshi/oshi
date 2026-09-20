@@ -6,7 +6,7 @@
 OSHI provides two native access implementations:
 
 - **JNA** (`oshi-core`): Supports JDK 8+ and all platforms OSHI targets. JNA uses reflection-based marshalling for native calls, which adds overhead per invocation.
-- **FFM** (`oshi-core-ffm`): Requires JDK 25+ and currently supports Linux, macOS, Windows, FreeBSD, OpenBSD, Solaris (illumos), and AIX. FFM (Foreign Function & Memory API) uses compiler-optimized stubs for native calls, reducing per-call overhead.
+- **FFM** (`oshi-core-ffm`): Requires JDK 25+ and supports the same platforms as the JNA implementation. FFM (Foreign Function & Memory API) uses compiler-optimized stubs for native calls, reducing per-call overhead.
 
 The tables below show approximate average times from JMH benchmarks (5 warmup iterations, 7 measurement iterations, 5 forks) captured by the manually-triggered `Benchmarks (manual)` workflow (`.github/workflows/benchmarks.yaml`) on GitHub Actions runners. The workflow is `workflow_dispatch`-only so it doesn't burn CI time on every push/PR; re-run it when adding a platform or making a perf-relevant change.
 

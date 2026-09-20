@@ -26,9 +26,10 @@ import oshi.util.tuples.Pair;
  * NetBsd is a free and open-source Unix-like operating system descended from the Berkeley Software Distribution (BSD),
  * which was based on Research Unix.
  * <p>
- * The cross-BSD-common pieces live in {@link BsdOperatingSystem}; NetBSD has no native-access split, so this single
- * class also provides the {@code ps} process enumeration, the text-parsed boot time, the current-thread factory, and
- * the sysctl version / file-system / network queries.
+ * The cross-BSD-common pieces live in {@link BsdOperatingSystem}. This class needs no native access: it provides the
+ * {@code ps} process enumeration, the text-parsed boot time, the current-thread factory, and the sysctl version /
+ * file-system / network queries by running commands. The JNA and FFM subclasses replace a few of these with native
+ * calls when their native access is available, and fall back to this class otherwise.
  */
 @ThreadSafe
 public class NetBsdOperatingSystem extends BsdOperatingSystem {
@@ -88,8 +89,8 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
     }
 
     /**
-     * Creates a process object from parsed {@code ps} output. Overridden by the JNA subclass to return a native-capable
-     * {@link NetBsdOSProcess} implementation.
+     * Creates a process object from parsed {@code ps} output. Overridden by the JNA and FFM subclasses to return a
+     * native-capable {@link NetBsdOSProcess} implementation.
      *
      * @param pid   the process ID
      * @param psMap the parsed {@code ps} columns for the process

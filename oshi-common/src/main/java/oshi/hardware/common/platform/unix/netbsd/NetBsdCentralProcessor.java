@@ -128,44 +128,47 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         return new String[] { "", "", "" };
     }
 
-    /**
-     * Get the system CPU load ticks
-     *
-     * @return The system CPU load ticks
-     */
     @Override
     protected long[] querySystemCpuLoadTicks() {
-        long[] ticks = new long[TickType.values().length];
-        // Parse "kern.cp_time: user = N, nice = N, sys = N, intr = N, idle = N"
-        long[] cpuTicks = parseCpTime(ExecutingCommand.getFirstAnswer("sysctl kern.cp_time"));
-        if (cpuTicks.length >= CPUSTATES) {
-            ticks[TickType.USER.getIndex()] = cpuTicks[CP_USER];
-            ticks[TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-            ticks[TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-            ticks[TickType.IRQ.getIndex()] = cpuTicks[CP_INTR];
-            ticks[TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE];
+        return cpTimeToTicks(queryCpTime(-1));
+    }
+
+    @Override
+    protected long[][] queryProcessorCpuLoadTicks() {
+        long[][] ticks = new long[getLogicalProcessorCount()][];
+        for (int cpu = 0; cpu < ticks.length; cpu++) {
+            ticks[cpu] = cpTimeToTicks(queryCpTime(cpu));
         }
         return ticks;
     }
 
     /**
-     * Get the processor CPU load ticks
+     * Queries the {@code kern.cp_time} counters, for the whole system or for one processor.
      *
-     * @return The processor CPU load ticks
+     * @param cpu The processor number, or a negative value for the system total
+     * @return The counters indexed by the {@code CP_*} states, {@code [user, nice, sys, intr, idle]}; shorter than
+     *         {@code CPUSTATES} if they could not be read
      */
-    @Override
-    protected long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        for (int cpu = 0; cpu < getLogicalProcessorCount(); cpu++) {
-            // Per-CPU: "kern.cp_time.N: user = ..., nice = ..., sys = ..., intr = ..., idle = ..."
-            long[] cpuTicks = parseCpTime(ExecutingCommand.getFirstAnswer("sysctl kern.cp_time." + cpu));
-            if (cpuTicks.length >= CPUSTATES) {
-                ticks[cpu][TickType.USER.getIndex()] = cpuTicks[CP_USER];
-                ticks[cpu][TickType.NICE.getIndex()] = cpuTicks[CP_NICE];
-                ticks[cpu][TickType.SYSTEM.getIndex()] = cpuTicks[CP_SYS];
-                ticks[cpu][TickType.IRQ.getIndex()] = cpuTicks[CP_INTR];
-                ticks[cpu][TickType.IDLE.getIndex()] = cpuTicks[CP_IDLE];
-            }
+    protected long[] queryCpTime(int cpu) {
+        // "kern.cp_time: user = N, nice = N, sys = N, intr = N, idle = N", or "kern.cp_time.N: ..." per processor
+        return parseCpTime(
+                ExecutingCommand.getFirstAnswer(cpu < 0 ? "sysctl kern.cp_time" : "sysctl kern.cp_time." + cpu));
+    }
+
+    /**
+     * Maps the {@code kern.cp_time} counters onto the {@link TickType} indices.
+     *
+     * @param cpTime The counters indexed by the {@code CP_*} states
+     * @return The ticks, all zero if {@code cpTime} is shorter than {@code CPUSTATES}
+     */
+    static long[] cpTimeToTicks(long[] cpTime) {
+        long[] ticks = new long[TickType.values().length];
+        if (cpTime.length >= CPUSTATES) {
+            ticks[TickType.USER.getIndex()] = cpTime[CP_USER];
+            ticks[TickType.NICE.getIndex()] = cpTime[CP_NICE];
+            ticks[TickType.SYSTEM.getIndex()] = cpTime[CP_SYS];
+            ticks[TickType.IRQ.getIndex()] = cpTime[CP_INTR];
+            ticks[TickType.IDLE.getIndex()] = cpTime[CP_IDLE];
         }
         return ticks;
     }
@@ -238,6 +241,16 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         if (nelem < 1 || nelem > 3) {
             throw new IllegalArgumentException("Must include from one to three elements.");
         }
+        return queryLoadAverage(nelem);
+    }
+
+    /**
+     * Queries the system load average.
+     *
+     * @param nelem Number of elements to return, already validated to be from one to three
+     * @return the load averages for 1, 5, and 15 minutes, truncated to {@code nelem}; -1 for any not available
+     */
+    protected double[] queryLoadAverage(int nelem) {
         double[] average = new double[nelem];
         Arrays.fill(average, -1d);
         // Parse "vm.loadavg: 1.59 0.47 0.18"

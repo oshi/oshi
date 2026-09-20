@@ -17,8 +17,10 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -60,7 +62,7 @@ import oshi.util.platform.mac.SmcUtil;
  * <p>
  * Activate with: {@code mvn test -pl oshi-benchmark -Pnative-comparison}
  */
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS, OS.AIX })
+@EnabledIf("isComparedPlatform")
 class NativeComparisonTest {
 
     // Snapshot all values once; JNA first (baseline), then FFM
@@ -408,6 +410,12 @@ class NativeComparisonTest {
         assertThat(ffmOs.getProcessId()).isEqualTo(pid);
         OSProcess jna = jnaOs.getProcess(pid);
         OSProcess ffm = ffmOs.getProcess(pid);
+        for (int attempt = 0; attempt < 10 && isDegradedOnNetBsd(jna, ffm); attempt++) {
+            Util.sleep(50);
+            jna = jnaOs.getProcess(pid);
+            ffm = ffmOs.getProcess(pid);
+        }
+        assertThat(jna).isNotNull();
         assertThat(ffm).isNotNull();
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         assertThat(ffm.getName()).isEqualTo(jna.getName());
@@ -422,7 +430,9 @@ class NativeComparisonTest {
         // OpenIndiana's TS scheduler re-prioritizes aggressively enough between back-to-back snapshots that even
         // ±20 isn't sufficient — values swing across the full TS range. Skip the assertion there entirely; the
         // other parity checks above still catch wrong-field bugs.
-        if (!isSolaris()) {
+        // NetBSD's pri column is the dynamic priority from lwp_eprio, which swings for a JVM under load in the same
+        // way, so it is skipped there too.
+        if (!isSolaris() && !isNetBsd()) {
             assertThat(Math.abs(ffm.getPriority() - jna.getPriority())).as("process.priority").isLessThanOrEqualTo(20);
         }
         // Memory values should be in the same ballpark
@@ -463,6 +473,11 @@ class NativeComparisonTest {
         int pid = jnaOs.getProcessId();
         OSProcess jna = jnaOs.getProcess(pid);
         OSProcess ffm = ffmOs.getProcess(pid);
+        for (int attempt = 0; attempt < 10 && isDegradedOnNetBsd(jna, ffm); attempt++) {
+            Util.sleep(50);
+            jna = jnaOs.getProcess(pid);
+            ffm = ffmOs.getProcess(pid);
+        }
         assertThat(jna).isNotNull();
         assertThat(ffm).isNotNull();
         // Snapshot initial times
@@ -475,6 +490,12 @@ class NativeComparisonTest {
         // Call updateAttributes to refresh and verify it succeeds
         assertThat(jna.updateAttributes()).as("JNA process updateAttributes").isTrue();
         assertThat(ffm.updateAttributes()).as("FFM process updateAttributes").isTrue();
+        // The refresh re-reads ps, so it can land mid-spawn even though the snapshots above did not
+        for (int attempt = 0; attempt < 10 && isDegradedOnNetBsd(jna, ffm); attempt++) {
+            Util.sleep(50);
+            assertThat(jna.updateAttributes()).as("JNA process updateAttributes").isTrue();
+            assertThat(ffm.updateAttributes()).as("FFM process updateAttributes").isTrue();
+        }
         // After refresh, basic fields should still match
         assertThat(ffm.getName()).isEqualTo(jna.getName());
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
@@ -949,13 +970,47 @@ class NativeComparisonTest {
 
     // ---- Conditions ----
 
+    /**
+     * The platforms with both a JNA and an FFM implementation to compare. A condition rather than {@code @EnabledOnOs},
+     * whose OS enum has no NetBSD constant.
+     */
+    static boolean isComparedPlatform() {
+        return switch (PlatformEnum.getCurrentPlatform()) {
+            case LINUX, MACOS, WINDOWS, FREEBSD, OPENBSD, NETBSD, SOLARIS, AIX -> true;
+            default -> false;
+        };
+    }
+
     static boolean isLinux() {
         return PlatformEnum.getCurrentPlatform() == PlatformEnum.LINUX;
     }
 
     static boolean isBsd() {
         PlatformEnum p = PlatformEnum.getCurrentPlatform();
-        return p == PlatformEnum.FREEBSD || p == PlatformEnum.OPENBSD;
+        return p == PlatformEnum.FREEBSD || p == PlatformEnum.OPENBSD || p == PlatformEnum.NETBSD;
+    }
+
+    /**
+     * Whether either snapshot was taken while the JVM was inside {@code posix_spawn}, which the other tests here do
+     * constantly. NetBSD's kernel then reports the process as if it were a zombie, leaving the memory, priority and LWP
+     * fields zero ({@code fill_kproc2}), and refuses to hand out its arguments, so {@code ps} substitutes
+     * {@code (comm)} for both the command and the command-line columns ({@code sysctl_kern_proc_args} returning EBUSY).
+     * A live JVM has neither a zero address space nor a parenthesized name, so both mark a snapshot worth taking again.
+     */
+    private static boolean isDegradedOnNetBsd(@Nullable OSProcess jna, @Nullable OSProcess ffm) {
+        if (!isNetBsd()) {
+            return false;
+        }
+        if (jna == null || ffm == null) {
+            return true;
+        }
+        // A live process has an address space and a path; either missing means ps could not read the row
+        return jna.getVirtualSize() == 0 || ffm.getVirtualSize() == 0 || jna.getPath().isEmpty()
+                || ffm.getPath().isEmpty();
+    }
+
+    static boolean isNetBsd() {
+        return PlatformEnum.getCurrentPlatform() == PlatformEnum.NETBSD;
     }
 
     static boolean isSolaris() {
@@ -963,10 +1018,10 @@ class NativeComparisonTest {
     }
 
     /**
-     * On FreeBSD/OpenBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is the
-     * seconds-resolution {@code ps -o etimes/etime} value. JNA and FFM each capture {@code now} at slightly different
-     * timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows expose the kernel's
-     * exact start time, so they keep strict equality.
+     * On FreeBSD/OpenBSD/NetBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is
+     * the seconds-resolution {@code ps -o etimes/etime} value. JNA and FFM each capture {@code now} at slightly
+     * different timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows expose the
+     * kernel's exact start time, so they keep strict equality.
      */
     private static void assertStartTimeMatches(long actual, long expected, String description) {
         if (isBsd()) {
