@@ -92,8 +92,10 @@ jobs:
           usesh: true
           copyback: true
           prepare: |
-            pkg install -y python3
+            pkg install -y python3 cups
           run: |
+            # Ports install headers under /usr/local, which the compiler does not search by default
+            export CPATH=/usr/local/include
             python3 .github/ffm-audit/audit.py --platform freebsd --toolchain clang \
               --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/freebsd/**/*.java" \
               --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/*.java" \
@@ -120,8 +122,10 @@ jobs:
           copyback: true
           cache-after-prepare: true
           prepare: |
-            pkg_add python%3
+            pkg_add python%3 cups-libs
           run: |
+            # Packages install headers under /usr/local, which the compiler does not search by default
+            export CPATH=/usr/local/include
             python3 .github/ffm-audit/audit.py --platform openbsd --toolchain clang \
               --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/openbsd/**/*.java" \
               --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/*.java" \
@@ -131,6 +135,36 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: ffm-audit-openbsd
+          path: ffm-audit-work
+          if-no-files-found: warn
+
+  netbsd:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Audit NetBSD bindings
+        uses: vmactions/netbsd-vm@20ee93a005c9fc78743e6e05269f4cb023b87413 # v1
+        with:
+          disable-cache: true
+          release: "10.1"
+          usesh: true
+          copyback: true
+          prepare: |
+            pkg_add python313 libcups
+          run: |
+            # pkgsrc installs headers under /usr/pkg, which the compiler does not search by default
+            export CPATH=/usr/pkg/include
+            # pkgsrc installs a versioned interpreter and no python3 link; base gcc supplies g++
+            python3.13 .github/ffm-audit/audit.py --platform netbsd --toolchain gcc \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/netbsd/**/*.java" \
+              --sources "oshi-core-ffm/src/main/java/oshi/ffm/platform/unix/*.java" \
+              --workdir ffm-audit-work
+      - name: Upload the generated sources and compiler logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ffm-audit-netbsd
           path: ffm-audit-work
           if-no-files-found: warn
 
@@ -148,6 +182,7 @@ jobs:
           copyback: true
           prepare: |
             pkg install gcc-14 || true
+            pkg install print/cups || true
           run: |
             PATH=/usr/gcc/14/bin:$PATH
             export PATH
