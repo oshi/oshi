@@ -5,7 +5,6 @@
 package oshi.software.common.os.unix.netbsd;
 
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.ARGS;
-import static oshi.software.common.os.unix.bsd.BsdPsKeyword.COMM;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.CPUTIME;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.ETIME;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.GID;
@@ -24,6 +23,7 @@ import static oshi.software.common.os.unix.bsd.BsdPsKeyword.USER;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.VSZ;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +33,8 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOSProcess;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
@@ -41,6 +43,7 @@ import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.common.platform.unix.netbsd.FstatUtil;
 
@@ -51,13 +54,16 @@ import oshi.util.common.platform.unix.netbsd.FstatUtil;
 public class NetBsdOSProcess extends BsdOSProcess {
     private static final Pattern AFFINITY = Pattern.compile("Affinity:");
     private static final Pattern COMMA_OR_WHITESPACE = Pattern.compile("[,\\s]+");
+    private static final int ARGS_READ_ATTEMPTS_SELF = 15;
+    private static final int ARGS_READ_ATTEMPTS_OTHER = 2;
+    private static final long ARGS_READ_RETRY_MILLIS = 20L;
 
     /**
      * Ordered {@code ps} columns queried for each process. Shared by NetBsdOSProcess and the NetBSD OperatingSystem so
      * the column list and parsing stay in lockstep. {@code ARGS} must remain last.
      */
     public static final List<BsdPsKeyword> PS_KEYWORDS = Collections.unmodifiableList(Arrays.asList(STATE, PID, PPID,
-            USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
+            USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
@@ -88,13 +94,84 @@ public class NetBsdOSProcess extends BsdOSProcess {
     }
 
     @Override
+    protected String queryPath(Map<BsdPsKeyword, String> psMap) {
+        // NetBSD's ps prints argv[0] in the comm column, the same value the args column begins with, but clips it to
+        // the width of its "COMMAND" header - seven characters - because only the last column is left unbounded. So the
+        // path is taken from the args column, which is queried last and is therefore printed in full.
+        String argv = parseArgv0(psMap.get(BsdPsKeyword.ARGS));
+        // The placeholder says the arguments were unavailable, so no path is known
+        return isPlaceholder(argv) ? "" : argv;
+    }
+
+    @Override
+    protected String queryCommandLineBackup(Map<BsdPsKeyword, String> psMap) {
+        return parseCommandLine(psMap.get(BsdPsKeyword.ARGS));
+    }
+
+    /**
+     * Extracts the command line from a {@code ps} args column.
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return the arguments, or an empty string where {@code ps} substituted the parenthesized command because the
+     *         kernel would not release them, which is a placeholder rather than a command line
+     */
+    static String parseCommandLine(@Nullable String args) {
+        String argv = ParseUtil.getStringValueOrEmpty(args);
+        return isPlaceholder(parseArgv0(argv)) ? "" : argv;
+    }
+
+    @Override
+    protected String queryName(Map<BsdPsKeyword, String> psMap, String path) {
+        String argv = parseArgv0(psMap.get(BsdPsKeyword.ARGS));
+        // The placeholder wraps the kernel's own name for the process, which is the name whether or not the arguments
+        // could be read; unwrap it rather than reporting ps's punctuation as the name
+        return isPlaceholder(argv) ? argv.substring(1, argv.length() - 1) : path.substring(path.lastIndexOf('/') + 1);
+    }
+
+    /**
+     * Extracts {@code argv[0]} from a {@code ps} args column.
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return {@code argv[0]}, which is a path when the process was started by one, or the command in parentheses where
+     *         the kernel would not release the arguments
+     */
+    static String parseArgv0(@Nullable String args) {
+        String argv = ParseUtil.getStringValueOrEmpty(args).trim();
+        int space = argv.indexOf(' ');
+        return space < 0 ? argv : argv.substring(0, space);
+    }
+
+    /**
+     * Whether a {@code ps} args column holds the parenthesized command that {@code ps} substitutes when the kernel
+     * refuses a process's arguments, which it does while that process is inside {@code posix_spawn}.
+     *
+     * @param argv the value from {@link #parseArgv0(String)}
+     * @return {@code true} if it is that placeholder rather than a real {@code argv[0]}
+     */
+    static boolean isPlaceholder(String argv) {
+        return argv.length() > 2 && argv.charAt(0) == '(' && argv.charAt(argv.length() - 1) == ')';
+    }
+
+    @Override
     protected List<String> queryArguments() {
         // NetBSD provides command line via /proc filesystem
-        byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        if (cmdBytes.length > 0) {
-            return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
+        String cmdline = "/proc/" + getProcessID() + "/cmdline";
+        // The kernel refuses to read a process's arguments while that process is inside posix_spawn, which a JVM is
+        // whenever it runs a command, so an empty read of a file that exists is retried. This process is the case OSHI
+        // provokes itself, by running ps while another thread spawns, and so is given the longer budget; for any other
+        // process an empty read is usually genuine. The result is memoized for the life of this object, so a single
+        // refusal would otherwise stick.
+        int attempts = getProcessID() == this.os.getProcessId() ? ARGS_READ_ATTEMPTS_SELF : ARGS_READ_ATTEMPTS_OTHER;
+        for (int attempt = 1;; attempt++) {
+            byte[] cmdBytes = FileUtil.readAllBytes(cmdline, false);
+            if (cmdBytes.length > 0) {
+                return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
+            }
+            if (attempt >= attempts || !new File(cmdline).exists()) {
+                return Collections.emptyList();
+            }
+            Util.sleep(ARGS_READ_RETRY_MILLIS);
         }
-        return Collections.emptyList();
     }
 
     @Override
