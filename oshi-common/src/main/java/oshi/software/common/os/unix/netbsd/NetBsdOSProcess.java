@@ -24,6 +24,7 @@ import static oshi.software.common.os.unix.bsd.BsdPsKeyword.USER;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.VSZ;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -41,6 +42,7 @@ import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.common.platform.unix.netbsd.FstatUtil;
 
@@ -51,6 +53,9 @@ import oshi.util.common.platform.unix.netbsd.FstatUtil;
 public class NetBsdOSProcess extends BsdOSProcess {
     private static final Pattern AFFINITY = Pattern.compile("Affinity:");
     private static final Pattern COMMA_OR_WHITESPACE = Pattern.compile("[,\\s]+");
+    private static final int ARGS_READ_ATTEMPTS_SELF = 15;
+    private static final int ARGS_READ_ATTEMPTS_OTHER = 2;
+    private static final long ARGS_READ_RETRY_MILLIS = 20L;
 
     /**
      * Ordered {@code ps} columns queried for each process. Shared by NetBsdOSProcess and the NetBSD OperatingSystem so
@@ -90,11 +95,23 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     protected List<String> queryArguments() {
         // NetBSD provides command line via /proc filesystem
-        byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        if (cmdBytes.length > 0) {
-            return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
+        String cmdline = "/proc/" + getProcessID() + "/cmdline";
+        // The kernel refuses to read a process's arguments while that process is inside posix_spawn, which a JVM is
+        // whenever it runs a command, so an empty read of a file that exists is retried. This process is the case OSHI
+        // provokes itself, by running ps while another thread spawns, and so is given the longer budget; for any other
+        // process an empty read is usually genuine. The result is memoized for the life of this object, so a single
+        // refusal would otherwise stick.
+        int attempts = getProcessID() == this.os.getProcessId() ? ARGS_READ_ATTEMPTS_SELF : ARGS_READ_ATTEMPTS_OTHER;
+        for (int attempt = 1;; attempt++) {
+            byte[] cmdBytes = FileUtil.readAllBytes(cmdline, false);
+            if (cmdBytes.length > 0) {
+                return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
+            }
+            if (attempt >= attempts || !new File(cmdline).exists()) {
+                return Collections.emptyList();
+            }
+            Util.sleep(ARGS_READ_RETRY_MILLIS);
         }
-        return Collections.emptyList();
     }
 
     @Override
