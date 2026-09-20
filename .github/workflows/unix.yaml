@@ -290,10 +290,12 @@ jobs:
           files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
           flags: netbsd-nojna
 
-  # Runs on NetBSD 10.1 x86 VM WITH the JNA native library (pkgsrc java-jna), exercising the native path
-  # (NetBsdSysctlUtil.JNA_AVAILABLE == true). jna.boot.library.path points JNA at the pkgsrc libjnidispatch.
+  # Runs on NetBSD 10.1 x86 VM WITH the JNA native library (pkgsrc java-jna), exercising both native paths:
+  # the JNA one (NetBsdSysctlUtil.JNA_AVAILABLE == true, with jna.boot.library.path pointing JNA at the
+  # pkgsrc libjnidispatch) and the FFM one, which needs JDK 25. The command-line fallback is covered by the
+  # no-JNA job above, which stays on JDK 21.
   testnetbsdjna:
-    name: Test JDK 21, NetBSD (JNA)
+    name: Test JDK 25, NetBSD (JNA and FFM)
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
@@ -312,19 +314,39 @@ jobs:
           copyback: true
           prepare: |
             pkg_add curl
-            pkg_add openjdk21
             pkg_add java-jna
+            # pkgsrc has no binary openjdk25 package yet; prefer it the moment it appears, and until then
+            # use a pinned mirror of the pkgsrc-wip bootstrap JDK. A missing or altered file fails the job
+            # rather than quietly dropping FFM coverage.
+            if pkg_add openjdk25 2>/dev/null; then
+              echo "using pkgsrc openjdk25"
+            else
+              BS=bootstrap-jdk-1.25.0.4.7-netbsd-9-amd64-20260908.tar.xz
+              SHA=4587a19dea5edd24ccafb251221ee6177e788ae9ad6c0bf49be11ef900bbe7f75a0db77eb151edf12f8378aab8a7b9651043f31e98864317faf3ecb2533b34eb
+              URL=https://github.com/dbwiddis/oshi/releases/download/netbsd-jdk25-bootstrap/$BS
+              curl -sSfLo /tmp/$BS "$URL" || { echo "FATAL: could not fetch $URL"; exit 1; }
+              [ "$(cksum -a sha512 -n /tmp/$BS | cut -d' ' -f1)" = "$SHA" ] || { echo "FATAL: checksum mismatch for $BS"; exit 1; }
+              mkdir -p /opt && tar -xJf /tmp/$BS -C /opt
+              echo "using the bootstrap JDK mirror"
+            fi
           run: |
-            export JAVA_HOME=/usr/pkg/java/openjdk21
+            if [ -d /usr/pkg/java/openjdk25 ]; then
+              export JAVA_HOME=/usr/pkg/java/openjdk25
+            else
+              export JAVA_HOME=/opt/bootstrap
+              # The bootstrap kit's RPATH points at the pkgsrc prefix it was built for
+              export LD_LIBRARY_PATH=$JAVA_HOME/lib:$JAVA_HOME/lib/server
+            fi
             export PATH=$JAVA_HOME/bin:$PATH
+            # Point JNA at the pkgsrc libjnidispatch, so both implementations run natively
             export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
-            # jna-aggregate: JDK 21 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo.
-            ./mvnw clean test -Pjna-aggregate -B
+            # aggregate-coverage: oshi-common + oshi-core + oshi-core-ffm, and the oshi.comparison tests
+            ./mvnw clean test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
-          flags: netbsd-jna
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: netbsd
