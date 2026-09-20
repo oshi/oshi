@@ -68,15 +68,18 @@ public final class Disklabel {
         // The `c' partition describes the entire physical disk. By convention `a' of the boot disk is root,
         // `b' is swap, and `i' is usually the boot record.
         List<HWPartition> partitions = new ArrayList<>();
-        long totalSectors = 1L;
-        int bytesPerSector = 1;
+        // Zero, not one: a drive with no media in it, and a disklabel read that fails for want of root, both produce
+        // no output at all, and a size of 1 byte reads as a fact where 0 is the project's sentinel for "unknown".
+        // Both markers appear together in real disklabel output, so a successful parse never sees these defaults.
+        long totalSectors = 0L;
+        int bytesPerSector = 0;
         String label = "";
         String duid = "";
         for (String line : disklabelLines) {
             if (line.contains(TOTAL_MARKER)) {
                 // Parse as long to avoid int overflow for disks larger than ~2 TiB at 512-byte sectors.
                 totalSectors = ParseUtil.parseLongOrDefault(ParseUtil.getTextAfterString(line, TOTAL_MARKER).trim(),
-                        1L);
+                        0L);
             } else if (line.contains(BPS_MARKER)) {
                 bytesPerSector = ParseUtil.getFirstIntValue(line);
             } else if (line.contains(LABEL_MARKER)) {
@@ -120,7 +123,8 @@ public final class Disklabel {
                 if (split.length > 5) {
                     String name = split[0].substring(5 + diskName.length());
                     Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
-                    long partSize = ParseUtil.parseLongOrDefault(split[1], 1L) * 512L;
+                    // 0, not one 512-byte block, where the column will not parse: the size is unknown
+                    long partSize = ParseUtil.parseLongOrDefault(split[1], 0L) * 512L;
                     partitions.add(new HWPartition(split[0], split[0].substring(5), Constants.UNKNOWN,
                             Constants.UNKNOWN, partSize, majorMinor.getA(), majorMinor.getB(), split[5]));
                 }

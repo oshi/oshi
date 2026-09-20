@@ -115,8 +115,25 @@ class DisklabelTest {
 
         assertThat(result.getA(), is(""));
         assertThat(result.getB(), is(""));
-        assertThat(result.getC(), is(1L)); // default 1 sector x 1 byte
+        // No disklabel output at all: an empty drive, or a read without root. 0 is the unknown-size sentinel; the
+        // callers treat anything <= 1 as unknown and look to dmesg next
+        assertThat(result.getC(), is(0L));
         assertThat(result.getD(), is(empty()));
+    }
+
+    @Test
+    void testParseDiskParamsUnparsableTotalIsUnknownSize() {
+        // A header whose total is not a number leaves the size unknown, the same as no header at all
+        List<String> disklabelOut = """
+                # /dev/rsd0c:
+                total sectors: unknown
+                bytes/sector: 512
+                """.lines().toList();
+
+        Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("sd0", disklabelOut,
+                ZERO_MAJOR_MINOR);
+
+        assertThat(result.getC(), is(0L));
     }
 
     @Test
@@ -161,6 +178,21 @@ class DisklabelTest {
         assertThat(rootPart.getMountPoint(), is("/"));
         // 1024000 1K blocks x 512 (df fallback assumes 512-byte units)
         assertThat(rootPart.getSize(), is(1024000L * 512L));
+    }
+
+    @Test
+    void testParseDfFallbackUnparsableBlocksIsUnknownSize() {
+        // A row whose block count will not parse leaves that partition's size unknown, not one 512-byte block
+        List<String> dfOut = """
+                Filesystem  1K-blocks    Used   Avail Capacity  Mounted on
+                /dev/sd0a           -  500000  524000     49%  /
+                """.lines().toList();
+
+        Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDfFallback("sd0", dfOut,
+                ZERO_MAJOR_MINOR);
+
+        assertThat(result.getD(), hasSize(1));
+        assertThat(result.getD().get(0).getSize(), is(0L));
     }
 
     @Test
