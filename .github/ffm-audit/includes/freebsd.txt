@@ -15,4 +15,4 @@ netdb.h
 pwd.h
 grp.h
 utmpx.h
-?cups/cups.h
+cups/cups.h
