@@ -7,6 +7,7 @@
 * [#3730](https://github.com/oshi/oshi/pull/3730): `Sensors.getCpuVoltage()` on Windows reports the voltage published by Open Hardware Monitor or LibreHardwareMonitor. The query asked the WMI `Hardware` class to filter on a `SensorType` property that class does not have, so it could never match and the value always came from a lower-priority source - [@dbwiddis](https://github.com/dbwiddis).
 * [#3742](https://github.com/oshi/oshi/pull/3742): `NetworkParams.getRoutes()` on NetBSD reads the routing table from the kernel where the JNA native library is available, as the other BSDs do. It previously fell back to `netstat`, which reports interface-local multicast routes as `ff01:1::` rather than `ff01::` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3743](https://github.com/oshi/oshi/pull/3743): Fixed three `HWDiskStore` faults on NetBSD: read and write byte totals that could decrease between readings, a doubled `getTransferTime()`, and a 1-byte disk or 512-byte partition size where the size is unknown, which also affected OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
+* [#3744](https://github.com/oshi/oshi/pull/3744): Fixed `OSProcess` naming on NetBSD: `getPath()` and `getName()` were truncated to seven characters, and where the kernel withholds a process's arguments, `getCommandLine()` returned `ps`'s `(command)` placeholder and `getName()` kept its parentheses - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 
