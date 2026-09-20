@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.tuples.Pair;
 
 class NetBsdCentralProcessorTest {
@@ -107,5 +108,27 @@ class NetBsdCentralProcessorTest {
         assertThat(ticks[2], is(50L));
         assertThat(ticks[3], is(10L));
         assertThat(ticks[4], is(840L));
+    }
+
+    @Test
+    void testCpTimeToTicks() {
+        long[] ticks = NetBsdCentralProcessor.cpTimeToTicks(new long[] { 2930, 42, 1334, 1877, 46354 });
+        assertThat(ticks[TickType.USER.getIndex()], is(2930L));
+        assertThat(ticks[TickType.NICE.getIndex()], is(42L));
+        assertThat(ticks[TickType.SYSTEM.getIndex()], is(1334L));
+        assertThat(ticks[TickType.IRQ.getIndex()], is(1877L));
+        assertThat(ticks[TickType.IDLE.getIndex()], is(46354L));
+        assertThat(ticks[TickType.IOWAIT.getIndex()], is(0L));
+        assertThat(ticks[TickType.SOFTIRQ.getIndex()], is(0L));
+        assertThat(ticks[TickType.STEAL.getIndex()], is(0L));
+    }
+
+    @Test
+    void testCpTimeToTicksShort() {
+        long[] ticks = NetBsdCentralProcessor.cpTimeToTicks(new long[] { 1, 2, 3 });
+        assertThat(ticks.length, is(TickType.values().length));
+        for (long tick : ticks) {
+            assertThat(tick, is(0L));
+        }
     }
 }

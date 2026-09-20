@@ -11,6 +11,10 @@
 --add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
+  com.github.oshi.ffm/oshi.ffm.util.platform.unix.netbsd=org.junit.platform.commons
+--add-opens
+  com.github.oshi.ffm/oshi.software.os.unix.netbsd=org.junit.platform.commons
+--add-opens
   com.github.oshi.ffm/oshi.ffm.util.platform.unix.openbsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.ffm/oshi.ffm.platform.unix.solaris=org.junit.platform.commons

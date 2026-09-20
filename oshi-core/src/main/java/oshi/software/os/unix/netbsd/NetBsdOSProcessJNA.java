@@ -4,8 +4,6 @@
  */
 package oshi.software.os.unix.netbsd;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -22,7 +20,6 @@ import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.netbsd.NetBsdOSProcess;
 import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
-import oshi.util.ParseUtil;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
@@ -62,54 +59,29 @@ public class NetBsdOSProcessJNA extends NetBsdOSProcess {
     }
 
     @Override
-    public long getSoftOpenFileLimit() {
-        // getrlimit only reports limits for the calling (current) process
-        if (!NetBsdSysctlUtil.JNA_AVAILABLE || getProcessID() != this.os.getProcessId()) {
-            return super.getSoftOpenFileLimit();
+    protected long queryRlimitNofile(boolean soft) {
+        if (!NetBsdSysctlUtil.JNA_AVAILABLE) {
+            return super.queryRlimitNofile(soft);
         }
         Resource.Rlimit rlimit = new Resource.Rlimit();
-        NetBsdLibc.INSTANCE.getrlimit(NetBsdLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_cur;
+        if (NetBsdLibc.INSTANCE.getrlimit(NetBsdLibc.RLIMIT_NOFILE, rlimit) != 0) {
+            return -1L;
+        }
+        return soft ? rlimit.rlim_cur : rlimit.rlim_max;
     }
 
     @Override
-    public long getHardOpenFileLimit() {
-        if (!NetBsdSysctlUtil.JNA_AVAILABLE || getProcessID() != this.os.getProcessId()) {
-            return super.getHardOpenFileLimit();
-        }
-        Resource.Rlimit rlimit = new Resource.Rlimit();
-        NetBsdLibc.INSTANCE.getrlimit(NetBsdLibc.RLIMIT_NOFILE, rlimit);
-        return rlimit.rlim_max;
-    }
-
-    @Override
-    protected Map<String, String> queryEnvironmentVariables() {
-        // For the current process, use Java's System.getenv()
-        if (getProcessID() == this.os.getProcessId()) {
-            return System.getenv();
-        }
-        // Other processes' environment is only accessible natively; fall back to the (empty) command-line result
+    protected byte[] queryEnvironmentBytes() {
+        // Other processes' environment is only accessible natively
         if (!NetBsdSysctlUtil.JNA_AVAILABLE || ARGMAX <= 0) {
-            return super.queryEnvironmentVariables();
+            return super.queryEnvironmentBytes();
         }
         int[] mib = { NetBsdLibc.CTL_KERN, KERN_PROC_ARGS, getProcessID(), KERN_PROC_ENV };
         try (Memory m = new Memory(ARGMAX); CloseableSizeTByReference size = new CloseableSizeTByReference(ARGMAX)) {
             if (NetBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0) {
-                // The payload is a NUL-delimited byte buffer of KEY=VALUE entries. Parse by raw bytes rather than
-                // Memory.getString/String.length, which would misalign the offset on a multibyte charset.
-                byte[] envBytes = m.getByteArray(0, (int) size.getValue().longValue());
-                Map<String, String> env = new LinkedHashMap<>();
-                for (String envStr : ParseUtil.parseByteArrayToStrings(envBytes)) {
-                    int idx = envStr.indexOf('=');
-                    if (idx > 0) {
-                        env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
-                    }
-                }
-                if (!env.isEmpty()) {
-                    return Collections.unmodifiableMap(env);
-                }
+                return m.getByteArray(0, (int) size.getValue().longValue());
             }
         }
-        return super.queryEnvironmentVariables();
+        return super.queryEnvironmentBytes();
     }
 }

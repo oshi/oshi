@@ -26,6 +26,7 @@ import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -180,8 +181,36 @@ public class NetBsdOSProcess extends BsdOSProcess {
         if (getProcessID() == this.os.getProcessId()) {
             return System.getenv();
         }
-        // Environment of other processes is not accessible without JNA on NetBSD
-        return Collections.emptyMap();
+        return parseEnvironment(queryEnvironmentBytes());
+    }
+
+    /**
+     * Queries the environment of this process from the kernel, the {@code kern.proc_args} sysctl with
+     * {@code KERN_PROC_ENV}.
+     *
+     * @return The NUL-delimited {@code KEY=VALUE} entries, or an empty array if this build cannot make the call; NetBSD
+     *         offers no command that reads another process's environment
+     */
+    protected byte[] queryEnvironmentBytes() {
+        return new byte[0];
+    }
+
+    /**
+     * Parses the environment returned by the {@code kern.proc_args} sysctl.
+     *
+     * @param envBytes NUL-delimited {@code KEY=VALUE} entries
+     * @return the environment, empty if there were no entries
+     */
+    static Map<String, String> parseEnvironment(byte[] envBytes) {
+        // Parse by raw bytes rather than by String offsets, which would misalign on a multibyte charset
+        Map<String, String> env = new LinkedHashMap<>();
+        for (String envStr : ParseUtil.parseByteArrayToStrings(envBytes)) {
+            int idx = envStr.indexOf('=');
+            if (idx > 0) {
+                env.put(envStr.substring(0, idx), envStr.substring(idx + 1));
+            }
+        }
+        return env.isEmpty() ? Collections.emptyMap() : Collections.unmodifiableMap(env);
     }
 
     @Override
@@ -197,7 +226,12 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     public long getSoftOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            long limit = BsdSysctlUtil.sysctl("kern.maxfilesperproc", 0L);
+            // This process's own limit where a backend can call getrlimit, the system-wide maximum otherwise
+            long limit = queryRlimitNofile(true);
+            if (limit >= 0) {
+                return limit;
+            }
+            limit = BsdSysctlUtil.sysctl("kern.maxfilesperproc", 0L);
             if (limit <= 0) {
                 limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
             }
@@ -209,7 +243,11 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     public long getHardOpenFileLimit() {
         if (getProcessID() == this.os.getProcessId()) {
-            long limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+            long limit = queryRlimitNofile(false);
+            if (limit >= 0) {
+                return limit;
+            }
+            limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
             return limit > 0 ? limit : -1L;
         }
         return -1L;

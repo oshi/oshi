@@ -1,5 +1,9 @@
 # 7.6.2 (in progress)
 
+##### New Features
+
+* [#3745](https://github.com/oshi/oshi/pull/3745): The FFM implementation reads NetBSD natively, through `sysctl`, `getloadavg`, `_lwp_self` and `getrlimit`, where it previously ran commands and parsed their output. NetBSD was the last platform with no native FFM code of its own - [@dbwiddis](https://github.com/dbwiddis).
+
 ##### Bug Fixes and Improvements
 
 * [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).

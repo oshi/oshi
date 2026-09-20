@@ -10,22 +10,22 @@ import java.util.function.Supplier;
 
 import oshi.annotation.PublicApi;
 import oshi.hardware.HardwareAbstractionLayer;
-import oshi.hardware.common.platform.unix.netbsd.NetBsdHardwareAbstractionLayer;
 import oshi.hardware.platform.linux.LinuxHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.mac.MacHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.aix.AixHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.dragonflybsd.DragonFlyBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.freebsd.FreeBsdHardwareAbstractionLayerFFM;
+import oshi.hardware.platform.unix.netbsd.NetBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.openbsd.OpenBsdHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.unix.solaris.SolarisHardwareAbstractionLayerFFM;
 import oshi.hardware.platform.windows.WindowsHardwareAbstractionLayerFFM;
-import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
 import oshi.software.os.OperatingSystem;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 import oshi.software.os.unix.aix.AixOperatingSystemFFM;
 import oshi.software.os.unix.dragonflybsd.DragonFlyBsdOperatingSystemFFM;
 import oshi.software.os.unix.freebsd.FreeBsdOperatingSystemFFM;
+import oshi.software.os.unix.netbsd.NetBsdOperatingSystemFFM;
 import oshi.software.os.unix.openbsd.OpenBsdOperatingSystemFFM;
 import oshi.software.os.unix.solaris.SolarisOperatingSystemFFM;
 import oshi.software.os.windows.WindowsOperatingSystemFFM;
@@ -109,7 +109,7 @@ public class SystemInfo implements SystemInfoProvider {
             case FREEBSD:
                 return new FreeBsdOperatingSystemFFM();
             case NETBSD:
-                return new NetBsdOperatingSystem();
+                return new NetBsdOperatingSystemFFM();
             case OPENBSD:
                 return new OpenBsdOperatingSystemFFM();
             case DRAGONFLYBSD:
@@ -138,7 +138,7 @@ public class SystemInfo implements SystemInfoProvider {
             case FREEBSD:
                 return new FreeBsdHardwareAbstractionLayerFFM();
             case NETBSD:
-                return new NetBsdHardwareAbstractionLayer();
+                return new NetBsdHardwareAbstractionLayerFFM();
             case OPENBSD:
                 return new OpenBsdHardwareAbstractionLayerFFM();
             case DRAGONFLYBSD:
