@@ -235,9 +235,7 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
             this.startTime = now - this.upTime;
         }
-        // Path/name come from comm (ucomm on DragonFly)
-        this.path = ParseUtil.getStringValueOrEmpty(
-                psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM));
+        this.path = queryPath(psMap);
         this.name = this.path.substring(this.path.lastIndexOf('/') + 1);
         this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MINFLT), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MAJFLT), 0L);
@@ -340,6 +338,18 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
      */
     protected long queryRlimitNofile(boolean soft) {
         return -1L;
+    }
+
+    /**
+     * Returns the executable path for this row. The default reads the {@code comm} column, or {@code ucomm} where that
+     * is the one queried (DragonFly); NetBSD overrides it, because its {@code ps} truncates that column.
+     *
+     * @param psMap the parsed {@code ps} columns for this process
+     * @return the path, or an empty string if the column is absent
+     */
+    protected String queryPath(Map<BsdPsKeyword, String> psMap) {
+        return ParseUtil.getStringValueOrEmpty(
+                psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM));
     }
 
     /**

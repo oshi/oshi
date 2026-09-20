@@ -5,7 +5,6 @@
 package oshi.software.common.os.unix.netbsd;
 
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.ARGS;
-import static oshi.software.common.os.unix.bsd.BsdPsKeyword.COMM;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.CPUTIME;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.ETIME;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.GID;
@@ -33,6 +32,8 @@ import java.util.Map;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOSProcess;
@@ -62,7 +63,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
      * the column list and parsing stay in lockstep. {@code ARGS} must remain last.
      */
     public static final List<BsdPsKeyword> PS_KEYWORDS = Collections.unmodifiableList(Arrays.asList(STATE, PID, PPID,
-            USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
+            USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
@@ -90,6 +91,27 @@ public class NetBsdOSProcess extends BsdOSProcess {
     @Override
     protected String psCommandArgs() {
         return PS_COMMAND_ARGS;
+    }
+
+    @Override
+    protected String queryPath(Map<BsdPsKeyword, String> psMap) {
+        // NetBSD's ps prints argv[0] in the comm column, the same value the args column begins with, but clips it to
+        // the width of its "COMMAND" header - seven characters - because only the last column is left unbounded. So the
+        // path is taken from the args column, which is queried last and is therefore printed in full.
+        return parsePath(psMap.get(BsdPsKeyword.ARGS));
+    }
+
+    /**
+     * Extracts the executable path from a {@code ps} args column.
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return {@code argv[0]}, which is a path when the process was started by one. Where the kernel would not release
+     *         the arguments, {@code ps} substitutes the command in parentheses, and that is returned as it stands.
+     */
+    static String parsePath(@Nullable String args) {
+        String argv = ParseUtil.getStringValueOrEmpty(args).trim();
+        int space = argv.indexOf(' ');
+        return space < 0 ? argv : argv.substring(0, space);
     }
 
     @Override
