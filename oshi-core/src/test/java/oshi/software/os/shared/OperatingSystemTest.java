@@ -18,6 +18,7 @@ import static org.hamcrest.Matchers.lessThan;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.oneOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -107,6 +108,15 @@ class OperatingSystemTest {
 
         assertThat("OS should have at least 1 currently running process", os.getProcesses(null, null, 0),
                 is(not(empty())));
+    }
+
+    @Test
+    void testCurrentIdsAndNegativePid() {
+        OperatingSystem os = this.os;
+        assertThat("current process ID should be positive", os.getProcessId(), is(greaterThan(0)));
+        assertThat("current thread ID should be 0 if unknown, never negative", os.getThreadId(),
+                is(greaterThanOrEqualTo(0)));
+        assertThat("a negative PID is not a process", os.getProcess(-1), is(nullValue()));
     }
 
     @Test

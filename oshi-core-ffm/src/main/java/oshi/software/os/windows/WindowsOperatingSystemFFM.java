@@ -212,7 +212,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     @Override
     public int getProcessId() {
-        return Kernel32FFM.GetCurrentProcessId().orElse(-1);
+        return Kernel32FFM.GetCurrentProcessId().orElse(0);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
 
     @Override
     public int getThreadId() {
-        return Kernel32FFM.GetCurrentThreadId().orElse(-1);
+        return Kernel32FFM.GetCurrentThreadId().orElse(0);
     }
 
     @Override

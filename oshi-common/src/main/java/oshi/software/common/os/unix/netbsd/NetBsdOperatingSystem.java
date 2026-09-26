@@ -104,7 +104,7 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
     public int getProcessId() {
         // RuntimeMXBean name format is "pid@hostname"
         String name = ManagementFactory.getRuntimeMXBean().getName();
-        return ParseUtil.parseIntOrDefault(name.split("@", -1)[0], -1);
+        return ParseUtil.parseIntOrDefault(name.split("@", -1)[0], 0);
     }
 
     @Override
