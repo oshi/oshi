@@ -37,7 +37,7 @@ jobs:
           distribution: temurin
           java-version: 25
       - name: Set SONAR_SCANNER_JAVA_OPTS
-        run: echo "SONAR_SCANNER_JAVA_OPTS=-Xmx512m" >> $GITHUB_ENV
+        run: echo "SONAR_SCANNER_JAVA_OPTS=-Xmx2g" >> $GITHUB_ENV
       - name: Analyze with SonarCloud
         # sonar-maven-plugin reads SONAR_TOKEN from the env, so it does not
         # need to appear on the command line (and shouldn't, to keep it out

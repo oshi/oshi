@@ -43,8 +43,9 @@ public final class NetBsdSysctlUtilFFM {
     static {
         boolean available = false;
         try {
-            // Loading the bindings creates the native linker, which throws on a JVM that has none
-            available = NetBsdLibcFunctions.getpid() >= 0;
+            // Loading the bindings creates the native linker, which throws on a JVM that has none. Call through the
+            // subclass so its own symbol lookups are initialized, and fail, here rather than at a later caller.
+            available = NetBsdLibcFunctions.getpid() >= 0; // NOSONAR java:S3252 - forces subclass init
         } catch (Throwable e) { // NOSONAR java:S1181 - a missing linker throws an Error
             LOG.info("FFM native access is not available on NetBSD; using command-line fallbacks.");
         }
