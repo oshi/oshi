@@ -207,6 +207,48 @@ class OperatingSystemTest {
         assertThat("user not null", proc.getUser(), is(notNullValue()));
     }
 
+    /**
+     * An unknown process ID is reported as 0, which names a real kernel or idle process on most platforms, so
+     * getCurrentProcess() must return the stand-in rather than look it up.
+     */
+    @Test
+    void testDefaultGetCurrentProcessUnknownPid() {
+        OperatingSystem unknownPid = new StubOperatingSystem() {
+            @Override
+            public String getFamily() {
+                return "TestOS";
+            }
+
+            @Override
+            public String getManufacturer() {
+                return "TestCorp";
+            }
+
+            @Override
+            public OSVersionInfo getVersionInfo() {
+                return new OSVersionInfo("1.0", null, null);
+            }
+
+            @Override
+            public int getProcessId() {
+                return 0;
+            }
+
+            @Override
+            public int getThreadId() {
+                return 0;
+            }
+
+            @Override
+            public @Nullable OSProcess getProcess(int pid) {
+                throw new AssertionError("getCurrentProcess() looked up pid " + pid);
+            }
+        };
+        OSProcess proc = unknownPid.getCurrentProcess();
+        assertThat("never null", proc, is(notNullValue()));
+        assertThat("reports the unknown process ID", proc.getProcessID(), is(0));
+    }
+
     @Test
     void testDefaultIsElevated() {
         assertThat(MINIMAL.isElevated(), is(false));

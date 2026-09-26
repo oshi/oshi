@@ -118,6 +118,10 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public @Nullable OSProcess getProcess(int pid) {
+        if (pid < 0) {
+            // A negative pid is the getProcessListFromProcfs "all processes" sentinel, not a real process
+            return null;
+        }
         List<OSProcess> procs = getProcessListFromProcfs(pid);
         return procs.isEmpty() ? null : procs.get(0);
     }
