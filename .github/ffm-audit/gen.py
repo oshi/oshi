@@ -192,7 +192,7 @@ def struct_sizes(structs):
     one is left unresolved rather than silently matched to the wrong struct.
     """
     per_file, sizes, offsets = {}, {}, {}
-    unresolved = set((s['file'], s['name']) for s in structs)
+    unresolved = {(s['file'], s['name']) for s in structs}
     by_key = {(s['file'], s['name']): s for s in structs}
     global_names = {}
     for s in structs:
@@ -268,7 +268,7 @@ def emit_structs(structs, mapping, sizes, offsets, skip):
     out = [STRUCT_PRE]
     checked = fields = 0
     for s in sorted(structs, key=lambda x: (x['name'], x['file'])):
-        name, key = s['name'], (s['file'], s['name'])
+        key = (s['file'], s['name'])
         ctype, mkey = ctype_for(s, mapping), map_key(s, mapping)
         if not ctype or mkey in skip or key not in sizes:
             continue

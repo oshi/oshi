@@ -1,7 +1,7 @@
 import re, sys, json, glob, os
 
 def balanced(s, i):
-    """s[i] == '('; return (inner, index_after_close)"""
+    """Return (inner, index_after_close) for the parenthesized group that opens at s[i]."""
     d = 0
     for j in range(i, len(s)):
         if s[j] == '(':
@@ -91,7 +91,7 @@ def extract_structs(path):
     flat = re.sub(r'\s+', ' ', src)
     # int constants declared in the same file, for sequenceLayout counts and padding arithmetic
     consts = {}
-    for cm in re.finditer(r'(?:static\s+final\s+)?int\s+([A-Z][A-Z0-9_]*)\s*=\s*([0-9][0-9xXa-fA-F ]*)\s*;', flat):
+    for cm in re.finditer(r'(?:static\s+final\s+)?int\s+([A-Z][A-Z0-9_]*)\s*=\s*(\d[\dxXa-fA-F ]*)\s*;', flat):
         try:
             consts[cm.group(1)] = int(cm.group(2).strip(), 0)
         except ValueError:

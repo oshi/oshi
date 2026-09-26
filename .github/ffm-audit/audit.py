@@ -19,25 +19,25 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 Q = r"[\u2018']"      # opening quote: gcc uses a curly one unless the locale forbids it
 QE = r"[\u2019']"     # closing quote
 TOOLCHAINS = {
-    'clang': dict(
-        cmd=['clang++', '-std=c++17', '-fsyntax-only', '-ferror-limit=0'],
-        undeclared=r"use of undeclared identifier '([A-Za-z0-9_]+)'",
-        no_member=r"no member named '(?P<member>\w+)' in '(?:struct )?(?P<type>\w+)'",
-        unknown_type=r"(?:incomplete type|unknown type name) '(?:struct )?(\w+)'"),
-    'gcc': dict(
-        cmd=['g++', '-std=c++17', '-fsyntax-only', '-fmax-errors=0'],
-        undeclared=r"error: " + Q + r"([A-Za-z0-9_]+)" + QE + r" (?:was|has) not (?:been )?declared",
+    'clang': {
+        'cmd': ['clang++', '-std=c++17', '-fsyntax-only', '-ferror-limit=0'],
+        'undeclared': r"use of undeclared identifier '(\w+)'",
+        'no_member': r"no member named '(?P<member>\w+)' in '(?:struct )?(?P<type>\w+)'",
+        'unknown_type': r"(?:incomplete type|unknown type name) '(?:struct )?(\w+)'"},
+    'gcc': {
+        'cmd': ['g++', '-std=c++17', '-fsyntax-only', '-fmax-errors=0'],
+        'undeclared': r"error: " + Q + r"(\w+)" + QE + r" (?:was|has) not (?:been )?declared",
         # gcc names the type first: 'struct statvfs' has no member named '_f_spare'
-        no_member=Q + r"(?:struct |union )?(?P<type>\w+)" + QE + r" has no member named " + Q
+        'no_member': Q + r"(?:struct |union )?(?P<type>\w+)" + QE + r" has no member named " + Q
                   + r"(?P<member>\w+)" + QE,
         # covers both "invalid use of incomplete type 'struct x'" and the sizeof wording
-        unknown_type=r"incomplete type " + Q + r"(?:struct |union )?(\w+)" + QE),
-    'msvc': dict(
-        cmd=['cl', '/std:c++17', '/Zs', '/nologo', '/D_CRT_SECURE_NO_WARNINGS'],
-        undeclared=r"error C2065: '([A-Za-z0-9_]+)': undeclared identifier",
+        'unknown_type': r"incomplete type " + Q + r"(?:struct |union )?(\w+)" + QE},
+    'msvc': {
+        'cmd': ['cl', '/std:c++17', '/Zs', '/nologo', '/D_CRT_SECURE_NO_WARNINGS'],
+        'undeclared': r"error C2065: '(\w+)': undeclared identifier",
         # C2039: 'ut_pad': is not a member of 'utmpx'
-        no_member=r"error C2039: '(?P<member>\w+)': is not a member of '(?:struct )?(?P<type>\w+)'",
-        unknown_type=r"error C2027: use of undefined type '(?:struct )?(\w+)'"),
+        'no_member': r"error C2039: '(?P<member>\w+)': is not a member of '(?:struct )?(?P<type>\w+)'",
+        'unknown_type': r"error C2027: use of undefined type '(?:struct )?(\w+)'"},
 }
 
 
@@ -99,7 +99,7 @@ def main():
     open(os.path.join(work, 'compile.log'), 'w').write(log)
 
     findings = sorted({m for l in log.splitlines() if 'static_assert(' not in l
-                       for m in re.findall(r"FFMAUDIT ([A-Za-z0-9_]+: [^\"']+)", l)})
+                       for m in re.findall(r"FFMAUDIT (\w+: [^\"']+)", l)})
 
     # --- struct layout pass -------------------------------------------------
     structs = []
@@ -134,8 +134,7 @@ def main():
             for owner in ctype_owners.get(stem(m.group('type')), ()):
                 drop.add((owner, m.group('member')))
         for typ in re.findall(tc['unknown_type'], slog) + re.findall(tc['undeclared'], slog):
-            for owner in ctype_owners.get(stem(typ), ()):
-                drop.add(owner)
+            drop.update(ctype_owners.get(stem(typ), ()))
         drop -= sskip
         if not drop:
             break
