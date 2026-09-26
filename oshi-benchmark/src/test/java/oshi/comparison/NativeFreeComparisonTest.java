@@ -12,8 +12,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -29,15 +31,21 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OperatingSystem;
+import oshi.util.PlatformEnum;
+import oshi.util.Util;
 
 /**
- * Compares the native-free (NF) provider against the JNA provider on Linux to verify that procfs/sysfs/command-line
- * implementations produce the same results as native calls.
+ * Compares the native-free (NF) provider against the JNA provider on the platforms the NF provider supports, Linux and
+ * NetBSD, to verify that procfs/sysfs/command-line implementations produce the same results as native calls.
  * <p>
  * JNA is the baseline (stable, well-tested). NF values should match for deterministic fields and be within tolerance
  * for dynamic values.
+ * <p>
+ * On NetBSD the comparison is only meaningful where pkgsrc's {@code java-jna} supplies {@code libjnidispatch}: without
+ * it the JNA provider falls back to the same command-line code the NF provider uses, and every assertion compares a
+ * class against itself.
  */
-@EnabledOnOs(OS.LINUX)
+@EnabledIf("isComparedPlatform")
 class NativeFreeComparisonTest {
 
     private static HardwareAbstractionLayer jnaHal;
@@ -59,12 +67,14 @@ class NativeFreeComparisonTest {
     // ---- OS: System constants (getconf vs native) ----
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void hzMatchesNative() {
         assertThat(((LinuxOperatingSystem) nfOs).getHz()).as("CLK_TCK: getconf vs native")
                 .isEqualTo(((LinuxOperatingSystem) jnaOs).getHz());
     }
 
     @Test
+    @EnabledOnOs(OS.LINUX)
     void pageSizeMatchesNative() {
         assertThat(((LinuxOperatingSystem) nfOs).getPageSize()).as("PAGE_SIZE: getconf vs native")
                 .isEqualTo(((LinuxOperatingSystem) jnaOs).getPageSize());
@@ -81,8 +91,9 @@ class NativeFreeComparisonTest {
         assertThat(nfOs.getSystemBootTime()).isEqualTo(jnaOs.getSystemBootTime());
         assertThat(nfOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime());
         assertThat(nfOs.getProcessId()).isEqualTo(jnaOs.getProcessId());
-        assertThat(nfOs.getThreadId()).isEqualTo(jnaOs.getThreadId());
         assertWithinRatio(nfOs.getThreadCount(), jnaOs.getThreadCount(), 0.1, "threadCount");
+        // Last, so a mismatch does not hide the assertions above
+        assertThat(nfOs.getThreadId()).as("threadId").isEqualTo(jnaOs.getThreadId());
     }
 
     // ---- Hardware: Processor ----
@@ -160,6 +171,12 @@ class NativeFreeComparisonTest {
         int pid = jnaOs.getProcessId();
         OSProcess jna = jnaOs.getProcess(pid);
         OSProcess nf = nfOs.getProcess(pid);
+        for (int attempt = 0; attempt < 10 && isDegradedOnNetBsd(jna, nf); attempt++) {
+            Util.sleep(50);
+            jna = jnaOs.getProcess(pid);
+            nf = nfOs.getProcess(pid);
+        }
+        assertThat(jna).isNotNull();
         assertThat(nf).isNotNull();
         assertThat(nf.getProcessID()).isEqualTo(jna.getProcessID());
         assertThat(nf.getName()).isEqualTo(jna.getName());
@@ -170,7 +187,14 @@ class NativeFreeComparisonTest {
         assertThat(nf.getGroupID()).isEqualTo(jna.getGroupID());
         assertThat(nf.getParentProcessID()).isEqualTo(jna.getParentProcessID());
         assertThat(nf.getCommandLine()).isEqualTo(jna.getCommandLine());
-        assertThat(nf.getStartTime()).isEqualTo(jna.getStartTime());
+        if (isNetBsd()) {
+            // NetBSD derives the start time as now minus the seconds-resolution ps elapsed time, and each provider
+            // reads its own now
+            assertThat(Math.abs(nf.getStartTime() - jna.getStartTime())).as("startTime (NetBSD tolerance)")
+                    .isLessThanOrEqualTo(2000L);
+        } else {
+            assertThat(nf.getStartTime()).isEqualTo(jna.getStartTime());
+        }
     }
 
     // ---- Hardware: Disks ----
@@ -247,11 +271,36 @@ class NativeFreeComparisonTest {
     void networkParams() {
         NetworkParams jna = jnaOs.getNetworkParams();
         NetworkParams nf = nfOs.getNetworkParams();
-        // Both backends inherit the procfs host name read from LinuxNetworkParams, so they agree exactly, FQDN and
-        // all; this guards against either one re-introducing an override that diverges
+        // Both backends inherit the same host name read (procfs on Linux, InetAddress on NetBSD), so they agree
+        // exactly, FQDN and all; this guards against either one re-introducing an override that diverges
         assertThat(nf.getHostName()).isEqualTo(jna.getHostName());
         assertThat(nf.getDnsServers()).isEqualTo(jna.getDnsServers());
         assertThat(nf.getIpv4DefaultGateway()).isEqualTo(jna.getIpv4DefaultGateway());
         assertThat(nf.getIpv6DefaultGateway()).isEqualTo(jna.getIpv6DefaultGateway());
+    }
+
+    static boolean isComparedPlatform() {
+        PlatformEnum p = PlatformEnum.getCurrentPlatform();
+        return p == PlatformEnum.LINUX || p == PlatformEnum.NETBSD;
+    }
+
+    static boolean isNetBsd() {
+        return PlatformEnum.getCurrentPlatform() == PlatformEnum.NETBSD;
+    }
+
+    /**
+     * Whether either snapshot was taken while the JVM was inside {@code posix_spawn}. NetBSD's kernel then reports the
+     * process as if it were a zombie and refuses to hand out its arguments, so {@code ps} leaves the memory fields zero
+     * and substitutes {@code (comm)} for the command. See the same check in {@link NativeComparisonTest}.
+     */
+    private static boolean isDegradedOnNetBsd(@Nullable OSProcess jna, @Nullable OSProcess nf) {
+        if (!isNetBsd()) {
+            return false;
+        }
+        if (jna == null || nf == null) {
+            return true;
+        }
+        return jna.getVirtualSize() == 0 || nf.getVirtualSize() == 0 || jna.getPath().isEmpty()
+                || nf.getPath().isEmpty();
     }
 }
