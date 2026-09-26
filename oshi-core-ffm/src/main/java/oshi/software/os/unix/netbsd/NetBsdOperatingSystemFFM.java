@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.ForeignFunctions;
+import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.netbsd.NetBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.netbsd.NetBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
@@ -35,7 +36,7 @@ public class NetBsdOperatingSystemFFM extends NetBsdOperatingSystem {
         if (!NetBsdSysctlUtilFFM.FFM_AVAILABLE) {
             return super.getProcessId();
         }
-        return ForeignFunctions.callInArenaIntOrDefault(arena -> NetBsdLibcFunctions.getpid(), LOG, WARN,
+        return ForeignFunctions.callInArenaIntOrDefault(arena -> PosixLibcFunctions.getpid(), LOG, WARN,
                 "Failed getpid", -1);
     }
 
