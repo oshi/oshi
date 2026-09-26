@@ -92,8 +92,13 @@ class NativeFreeComparisonTest {
         assertThat(nfOs.getSystemUptime()).isGreaterThanOrEqualTo(jnaOs.getSystemUptime());
         assertThat(nfOs.getProcessId()).isEqualTo(jnaOs.getProcessId());
         assertWithinRatio(nfOs.getThreadCount(), jnaOs.getThreadCount(), 0.1, "threadCount");
-        // Last, so a mismatch does not hide the assertions above
-        assertThat(nfOs.getThreadId()).as("threadId").isEqualTo(jnaOs.getThreadId());
+        if (isNetBsd()) {
+            // The LWP ID needs a native call, so the NF provider reports it as unknown
+            assertThat(nfOs.getThreadId()).as("threadId").isZero();
+            assertThat(jnaOs.getThreadId()).as("JNA threadId").isPositive();
+        } else {
+            assertThat(nfOs.getThreadId()).as("threadId").isEqualTo(jnaOs.getThreadId());
+        }
     }
 
     // ---- Hardware: Processor ----
