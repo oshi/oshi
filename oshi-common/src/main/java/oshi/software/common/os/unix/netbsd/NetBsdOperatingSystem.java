@@ -104,14 +104,14 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
     public int getProcessId() {
         // RuntimeMXBean name format is "pid@hostname"
         String name = ManagementFactory.getRuntimeMXBean().getName();
-        return ParseUtil.parseIntOrDefault(name.split("@", -1)[0], -1);
+        return ParseUtil.parseIntOrDefault(name.split("@", -1)[0], 0);
     }
 
     @Override
-    // Thread.threadId() (the non-deprecated replacement) requires Java 19; this module compiles to Java 8.
-    @SuppressWarnings({ "deprecation", "java:S1874" })
     public int getThreadId() {
-        return (int) Thread.currentThread().getId();
+        // The kernel LWP ID needs _lwp_self(); without a native call it is unknown. Java's own thread ID is a
+        // different numbering and could match another LWP in getCurrentThread().
+        return 0;
     }
 
     @Override

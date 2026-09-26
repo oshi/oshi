@@ -73,6 +73,10 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public @Nullable OSProcess getProcess(int pid) {
+        if (pid < 0) {
+            // A negative pid is the getProcessListFromProcfs "all processes" sentinel, not a real process
+            return null;
+        }
         List<OSProcess> procs = getProcessListFromProcfs(pid);
         if (procs.isEmpty()) {
             return null;

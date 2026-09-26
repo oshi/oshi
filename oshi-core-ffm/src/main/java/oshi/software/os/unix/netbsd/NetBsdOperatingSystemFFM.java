@@ -37,7 +37,7 @@ public class NetBsdOperatingSystemFFM extends NetBsdOperatingSystem {
             return super.getProcessId();
         }
         return ForeignFunctions.callInArenaIntOrDefault(arena -> PosixLibcFunctions.getpid(), LOG, WARN,
-                "Failed getpid", -1);
+                "Failed getpid", 0);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class NetBsdOperatingSystemFFM extends NetBsdOperatingSystem {
             return super.getThreadId();
         }
         return ForeignFunctions.callInArenaIntOrDefault(arena -> NetBsdLibcFunctions.lwpSelf(), LOG, WARN,
-                "Failed _lwp_self", -1);
+                "Failed _lwp_self", 0);
     }
 
     @Override

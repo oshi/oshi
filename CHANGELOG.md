@@ -12,6 +12,7 @@
 * [#3742](https://github.com/oshi/oshi/pull/3742): `NetworkParams.getRoutes()` on NetBSD reads the routing table from the kernel where the JNA native library is available, as the other BSDs do. It previously fell back to `netstat`, which reports interface-local multicast routes as `ff01:1::` rather than `ff01::` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3743](https://github.com/oshi/oshi/pull/3743): Fixed three `HWDiskStore` faults on NetBSD: read and write byte totals that could decrease between readings, a doubled `getTransferTime()`, and a 1-byte disk or 512-byte partition size where the size is unknown, which also affected OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#3744](https://github.com/oshi/oshi/pull/3744): Fixed `OSProcess` naming on NetBSD: `getPath()` and `getName()` were truncated to seven characters, and where the kernel withholds a process's arguments, `getCommandLine()` returned `ps`'s `(command)` placeholder and `getName()` kept its parentheses - [@dbwiddis](https://github.com/dbwiddis).
+* [#3754](https://github.com/oshi/oshi/pull/3754): `OperatingSystem.getProcessId()` and `getThreadId()` return 0 when the ID is unknown on every platform. On NetBSD without JNA, `getThreadId()` returned a Java thread ID, and on failure some implementations returned -1, which led `getCurrentProcess()` to return an arbitrary process on the BSDs, Solaris and AIX. `getProcess()` with a negative PID now returns null on Solaris and AIX - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 

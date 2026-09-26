@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,6 +40,15 @@ class OperatingSystemFFMTest {
         assertThat("OS should have 1 or more currently running processes", os.getProcessCount(), is(greaterThan(0)));
         assertThat("OS should have at least 1 currently running process", os.getProcesses(null, null, 0),
                 is(not(empty())));
+    }
+
+    @Test
+    void testCurrentIdsAndNegativePid() {
+        OperatingSystem os = new SystemInfo().getOperatingSystem();
+        assertThat("current process ID should be positive", os.getProcessId(), is(greaterThan(0)));
+        assertThat("current thread ID should be 0 if unknown, never negative", os.getThreadId(),
+                is(greaterThanOrEqualTo(0)));
+        assertThat("a negative PID is not a process", os.getProcess(-1), is(nullValue()));
     }
 
     @Test
