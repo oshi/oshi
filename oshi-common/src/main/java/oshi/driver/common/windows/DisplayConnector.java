@@ -64,6 +64,19 @@ public final class DisplayConnector {
     /** Offset of {@code monitorDevicePath} (a {@code WCHAR[128]}) within a {@code DISPLAYCONFIG_TARGET_DEVICE_NAME}. */
     public static final int TDN_MONITOR_DEVICE_PATH_OFFSET = 164;
 
+    // Offsets for determining the primary display from the DISPLAYCONFIG_PATH_INFO and DISPLAYCONFIG_MODE_INFO arrays.
+    // The Windows primary display is the active path whose source mode desktop position is (0, 0).
+    /** Offset of {@code sourceInfo.modeInfoIdx} (a {@code UINT32}) within a {@code DISPLAYCONFIG_PATH_INFO}. */
+    public static final int PATH_SOURCE_MODE_IDX_OFFSET = 12;
+    /** {@code DISPLAYCONFIG_MODE_INFO_TYPE_SOURCE} value for the {@code infoType} field. */
+    public static final int MODE_INFO_TYPE_SOURCE = 1;
+    /** Offset of {@code sourceMode.position.x} (a {@code LONG}) within a {@code DISPLAYCONFIG_MODE_INFO}. */
+    public static final int SOURCE_MODE_POSITION_X_OFFSET = 28;
+    /** Offset of {@code sourceMode.position.y} (a {@code LONG}) within a {@code DISPLAYCONFIG_MODE_INFO}. */
+    public static final int SOURCE_MODE_POSITION_Y_OFFSET = 32;
+    /** Offset of {@code infoType} (a {@code UINT32}) within a {@code DISPLAYCONFIG_MODE_INFO}. */
+    public static final int MODE_INFO_TYPE_OFFSET = 0;
+
     // DISPLAYCONFIG_VIDEO_OUTPUT_TECHNOLOGY values (shared with the D3DKMDT_VIDEO_OUTPUT_TECHNOLOGY enum).
     private static final int VOT_HD15 = 0;
     private static final int VOT_SVIDEO = 1;

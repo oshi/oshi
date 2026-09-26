@@ -19,7 +19,6 @@ import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.Display;
-import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -40,7 +39,7 @@ class UnixDisplayTest {
     @Test
     void testBatchSharesOneXrandrQuery() {
         AtomicInteger queries = new AtomicInteger();
-        Supplier<Map<String, Pair<Integer, byte[]>>> countingQuery = () -> {
+        Supplier<Map<String, Triplet<Integer, byte[], Boolean>>> countingQuery = () -> {
             queries.incrementAndGet();
             return xrandrData();
         };
@@ -57,13 +56,38 @@ class UnixDisplayTest {
     }
 
     @Test
-    void testBatchQueryIsNotRunUntilOutputNameIsRequested() {
+    void testBatchQueryIsRunOnceForPrimaryStatus() {
         AtomicInteger queries = new AtomicInteger();
         UnixDisplay.getDisplays(drmData(), () -> {
             queries.incrementAndGet();
             return xrandrData();
         });
-        assertThat(queries.get(), is(0));
+        // Primary status is computed eagerly during display construction
+        assertThat(queries.get(), is(1));
+    }
+
+    @Test
+    void testPrimaryStatusFromXrandr() {
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), () -> xrandrData());
+        assertThat(displays.size(), is(2));
+        // DP-2 is marked primary in xrandr data
+        assertThat(displays.get(0).isPrimary(), is(true));
+        // HDMI-1 is not marked primary
+        assertThat(displays.get(1).isPrimary(), is(false));
+    }
+
+    @Test
+    void testPrimaryStatusDefaultsToFalse() {
+        // When xrandr data is empty (e.g., Wayland), all displays are non-primary
+        AtomicInteger queries = new AtomicInteger();
+        Supplier<Map<String, Triplet<Integer, byte[], Boolean>>> emptyQuery = () -> {
+            queries.incrementAndGet();
+            return new LinkedHashMap<>();
+        };
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), emptyQuery);
+        assertThat(displays.size(), is(2));
+        assertThat(displays.get(0).isPrimary(), is(false));
+        assertThat(displays.get(1).isPrimary(), is(false));
     }
 
     // Two displays as DRM sysfs reports them: connector name, connector ID, EDID
@@ -75,10 +99,10 @@ class UnixDisplayTest {
     }
 
     // The same two displays as xrandr names them, matched to the DRM data by connector ID
-    private static Map<String, Pair<Integer, byte[]>> xrandrData() {
-        Map<String, Pair<Integer, byte[]>> data = new LinkedHashMap<>();
-        data.put("DP-2", new Pair<>(96, edid((byte) 0x01)));
-        data.put("HDMI-1", new Pair<>(80, edid((byte) 0x02)));
+    private static Map<String, Triplet<Integer, byte[], Boolean>> xrandrData() {
+        Map<String, Triplet<Integer, byte[], Boolean>> data = new LinkedHashMap<>();
+        data.put("DP-2", new Triplet<>(96, edid((byte) 0x01), true));
+        data.put("HDMI-1", new Triplet<>(80, edid((byte) 0x02), false));
         return data;
     }
 

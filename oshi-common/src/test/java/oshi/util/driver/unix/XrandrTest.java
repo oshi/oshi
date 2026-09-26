@@ -24,7 +24,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 class XrandrTest {
 
@@ -150,36 +150,38 @@ class XrandrTest {
 
     @Test
     void testGetDisplayDataSingleWithConnectorId() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithConnectorId());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrWithConnectorId());
         assertThat(data.size(), is(1));
         assertThat(data.containsKey("DP2"), is(true));
-        Pair<Integer, byte[]> pair = data.get("DP2");
-        assertNotNull(pair);
-        assertThat(pair.getA(), is(96));
-        assertThat(pair.getB().length, is(128));
-        assertThat(pair.getB()[0], is((byte) 0x00));
-        assertThat(pair.getB()[1], is((byte) 0xFF));
+        Triplet<Integer, byte[], Boolean> triplet = data.get("DP2");
+        assertNotNull(triplet);
+        assertThat(triplet.getA(), is(96));
+        assertThat(triplet.getB().length, is(128));
+        assertThat(triplet.getB()[0], is((byte) 0x00));
+        assertThat(triplet.getB()[1], is((byte) 0xFF));
+        assertThat(triplet.getC(), is(true)); // DP2 is marked primary
     }
 
     @Test
     void testGetDisplayDataWithoutConnectorId() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdid());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrWithEdid());
         assertThat(data.size(), is(1));
         assertThat(data.containsKey("HDMI-1"), is(true));
-        Pair<Integer, byte[]> pair = data.get("HDMI-1");
-        assertNotNull(pair);
-        assertThat(pair.getA(), is(-1));
-        assertThat(pair.getB().length, is(128));
+        Triplet<Integer, byte[], Boolean> triplet = data.get("HDMI-1");
+        assertNotNull(triplet);
+        assertThat(triplet.getA(), is(-1));
+        assertThat(triplet.getB().length, is(128));
+        assertThat(triplet.getC(), is(true)); // HDMI-1 is marked primary
     }
 
     @Test
     void testGetDisplayDataTwoDisplays() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
         assertThat(data.size(), is(2));
         assertThat(data.containsKey("DP2"), is(true));
         assertThat(data.containsKey("HDMI1"), is(true));
-        Pair<Integer, byte[]> dp2 = data.get("DP2");
-        Pair<Integer, byte[]> hdmi1 = data.get("HDMI1");
+        Triplet<Integer, byte[], Boolean> dp2 = data.get("DP2");
+        Triplet<Integer, byte[], Boolean> hdmi1 = data.get("HDMI1");
         assertNotNull(dp2);
         assertNotNull(hdmi1);
         // DP2 has CONNECTOR_ID, HDMI1 does not
@@ -188,6 +190,9 @@ class XrandrTest {
         // Both have valid EDIDs
         assertThat(dp2.getB().length, is(128));
         assertThat(hdmi1.getB().length, is(128));
+        // DP2 is primary, HDMI1 is not
+        assertThat(dp2.getC(), is(true));
+        assertThat(hdmi1.getC(), is(false));
     }
 
     @Test
@@ -197,20 +202,22 @@ class XrandrTest {
 
     @Test
     void testGetDisplayDataDisconnectedSkipped() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
         // DP1 is disconnected and has no EDID, should not appear
         assertThat(data.containsKey("DP1"), is(false));
     }
 
     @Test
     void testGetDisplayDataDisconnectedDoesNotLeakState() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrDisconnectedWithConnectorId());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrDisconnectedWithConnectorId());
         assertThat(data.size(), is(1));
         assertThat(data.containsKey("eDP"), is(true));
-        Pair<Integer, byte[]> edp = data.get("eDP");
+        Triplet<Integer, byte[], Boolean> edp = data.get("eDP");
         assertNotNull(edp);
         // eDP's own CONNECTOR_ID is 51, not 70 or 80 from the disconnected outputs
         assertThat(edp.getA(), is(51));
+        // eDP is primary
+        assertThat(edp.getC(), is(true));
         // Disconnected outputs should not appear
         assertThat(data.containsKey("DP-1"), is(false));
         assertThat(data.containsKey("HDMI-A-1"), is(false));
@@ -233,41 +240,43 @@ class XrandrTest {
     @Test
     void testGetDisplayDataLegacyEdidDataProperty() {
         // X.Org Server through 1.6 published the driver-side atom EDID_DATA
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("EDID_DATA:"));
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("EDID_DATA:"));
         assertThat(data.size(), is(1));
-        Pair<Integer, byte[]> pair = data.get("HDMI-1");
-        assertNotNull(pair);
-        assertThat(pair.getB().length, is(128));
+        Triplet<Integer, byte[], Boolean> triplet = data.get("HDMI-1");
+        assertNotNull(triplet);
+        assertThat(triplet.getB().length, is(128));
+        assertThat(triplet.getC(), is(true)); // HDMI-1 is marked primary
     }
 
     @Test
     void testGetDisplayDataLegacyRandrEdidProperty() {
         // randrproto before 1.3 named the conventional property RANDR_EDID
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("RANDR_EDID:"));
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("RANDR_EDID:"));
         assertThat(data.size(), is(1));
-        Pair<Integer, byte[]> pair = data.get("HDMI-1");
-        assertNotNull(pair);
-        assertThat(pair.getB().length, is(128));
+        Triplet<Integer, byte[], Boolean> triplet = data.get("HDMI-1");
+        assertNotNull(triplet);
+        assertThat(triplet.getB().length, is(128));
+        assertThat(triplet.getC(), is(true)); // HDMI-1 is marked primary
     }
 
     @Test
     void testGetDisplayDataIgnoresOtherEdidNamedProperties() {
         // A property whose name merely contains EDID must not start an EDID block
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("EDID_HASH:"));
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrWithEdidProperty("EDID_HASH:"));
         assertThat(data.isEmpty(), is(true));
     }
 
     @Test
     void testFindOutputNameByConnectorId() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
         // A connector ID match wins even though the EDID passed here belongs to no display
         assertThat(Xrandr.findOutputName(data, 96, new byte[0]), is(Optional.of("DP2")));
     }
 
     @Test
     void testFindOutputNameByEdid() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
-        Pair<Integer, byte[]> hdmi1 = data.get("HDMI1");
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Triplet<Integer, byte[], Boolean> hdmi1 = data.get("HDMI1");
         assertNotNull(hdmi1);
         // HDMI1 has no connector ID in xrandr, so only the EDID can identify it
         assertThat(Xrandr.findOutputName(data, -1, hdmi1.getB()), is(Optional.of("HDMI1")));
@@ -275,15 +284,15 @@ class XrandrTest {
 
     @Test
     void testFindOutputNameFallsBackToEdidWhenConnectorIdIsUnmatched() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
-        Pair<Integer, byte[]> dp2 = data.get("DP2");
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Triplet<Integer, byte[], Boolean> dp2 = data.get("DP2");
         assertNotNull(dp2);
         assertThat(Xrandr.findOutputName(data, 1234, dp2.getB()), is(Optional.of("DP2")));
     }
 
     @Test
     void testFindOutputNameNoMatch() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
         byte[] unknownEdid = new byte[128];
         Arrays.fill(unknownEdid, (byte) 0x5A);
         assertThat(Xrandr.findOutputName(data, 1234, unknownEdid).isPresent(), is(false));
@@ -292,6 +301,36 @@ class XrandrTest {
     @Test
     void testFindOutputNameEmptyData() {
         assertThat(Xrandr.findOutputName(Collections.emptyMap(), 96, new byte[128]).isPresent(), is(false));
+    }
+
+    @Test
+    void testFindPrimaryStatusByConnectorId() {
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        // A connector ID match returns the primary status
+        assertThat(Xrandr.findPrimaryStatus(data, 96, new byte[0]), is(true)); // DP2 is primary
+        assertThat(Xrandr.findPrimaryStatus(data, 80, new byte[0]), is(false)); // HDMI1 is not primary
+    }
+
+    @Test
+    void testFindPrimaryStatusByEdid() {
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        Triplet<Integer, byte[], Boolean> hdmi1 = data.get("HDMI1");
+        assertNotNull(hdmi1);
+        // HDMI1 has no connector ID in xrandr, so only the EDID can identify it
+        assertThat(Xrandr.findPrimaryStatus(data, -1, hdmi1.getB()), is(false)); // HDMI1 is not primary
+    }
+
+    @Test
+    void testFindPrimaryStatusNoMatch() {
+        Map<String, Triplet<Integer, byte[], Boolean>> data = Xrandr.getDisplayData(createXrandrTwoDisplays());
+        byte[] unknownEdid = new byte[128];
+        Arrays.fill(unknownEdid, (byte) 0x5A);
+        assertThat(Xrandr.findPrimaryStatus(data, 1234, unknownEdid), is(false));
+    }
+
+    @Test
+    void testFindPrimaryStatusEmptyData() {
+        assertThat(Xrandr.findPrimaryStatus(Collections.emptyMap(), 96, new byte[128]), is(false));
     }
 
     @Nested

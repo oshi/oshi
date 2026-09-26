@@ -43,20 +43,50 @@ final class MacDisplayFFM extends AbstractDisplay {
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplayFFM.class);
 
     private final String devicePort;
+    private final boolean primary;
+
+    /**
+     * Value object holding the CoreGraphics main display identity for correlating IOKit-enumerated external displays.
+     */
+    private static final class MainDisplayIdentity {
+        private final boolean valid;
+        private final boolean ambiguous;
+        private final int vendor;
+        private final int product;
+        private final int serial;
+
+        MainDisplayIdentity(boolean valid, boolean ambiguous, int vendor, int product, int serial) {
+            this.valid = valid;
+            this.ambiguous = ambiguous;
+            this.vendor = vendor;
+            this.product = product;
+            this.serial = serial;
+        }
+    }
 
     MacDisplayFFM(byte[] edid) {
-        this(edid, Constants.UNKNOWN);
+        this(edid, Constants.UNKNOWN, false);
     }
 
     MacDisplayFFM(byte[] edid, String devicePort) {
+        this(edid, devicePort, false);
+    }
+
+    MacDisplayFFM(byte[] edid, String devicePort, boolean primary) {
         super(edid);
         this.devicePort = devicePort;
+        this.primary = primary;
         LOG.debug("Initialized MacDisplayFFM");
     }
 
     MacDisplayFFM(DisplayInfo displayInfo, String devicePort) {
+        this(displayInfo, devicePort, false);
+    }
+
+    MacDisplayFFM(DisplayInfo displayInfo, String devicePort, boolean primary) {
         super(displayInfo);
         this.devicePort = devicePort;
+        this.primary = primary;
         LOG.debug("Initialized MacDisplayFFM (synthetic)");
     }
 
@@ -65,20 +95,52 @@ final class MacDisplayFFM extends AbstractDisplay {
         return this.devicePort;
     }
 
+    @Override
+    public boolean isPrimary() {
+        return this.primary;
+    }
+
     public static List<Display> getDisplays() {
+        int mainDisplayId = ExceptionUtil.getIntOrDefault(() -> CoreGraphicsFunctions.CGMainDisplayID(), -1, LOG,
+                "Failed to get main display ID");
+        MainDisplayIdentity mainIdentity = getMainDisplayIdentity(mainDisplayId);
         List<Display> displays = new ArrayList<>();
         // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available.
-        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null));
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, mainIdentity));
         // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
         displays.addAll(
-                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription"));
+                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription",
+                        mainIdentity));
         // Apple Silicon built-in panel: no real EDID exposed, synthesize from DisplayAttributes.
-        displays.addAll(getAppleSiliconBuiltInDisplay());
+        displays.addAll(getAppleSiliconBuiltInDisplay(mainDisplayId));
         return displays;
     }
 
+    /**
+     * Gets the CoreGraphics main display identity for correlating IOKit-enumerated external displays.
+     *
+     * @param mainDisplayId The CGDirectDisplayID of the main display, or -1 if unavailable
+     * @return A MainDisplayIdentity object containing the main display's vendor/product/serial and validity/ambiguity
+     *         flags
+     */
+    private static MainDisplayIdentity getMainDisplayIdentity(int mainDisplayId) {
+        if (mainDisplayId < 0) {
+            return new MainDisplayIdentity(false, false, 0, 0, 0);
+        }
+        try {
+            int vendor = CoreGraphicsFunctions.CGDisplayVendorNumber(mainDisplayId);
+            int product = CoreGraphicsFunctions.CGDisplayModelNumber(mainDisplayId);
+            int serial = CoreGraphicsFunctions.CGDisplaySerialNumber(mainDisplayId);
+            boolean ambiguous = countDisplaysWithIdentity(vendor, product, serial) > 1;
+            return new MainDisplayIdentity(true, ambiguous, vendor, product, serial);
+        } catch (Throwable t) {
+            LOG.debug("Failed to get main display identity", t);
+            return new MainDisplayIdentity(false, false, 0, 0, 0);
+        }
+    }
+
     private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
-            @Nullable String childEntryName, @Nullable String portKeyName) {
+            @Nullable String childEntryName, @Nullable String portKeyName, MainDisplayIdentity mainIdentity) {
         List<Display> displays = new ArrayList<>();
         IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(serviceName);
         if (serviceIterator == null) {
@@ -104,7 +166,14 @@ final class MacDisplayFFM extends AbstractDisplay {
                                             : propertySource.getStringProperty(portKeyName);
                                     String devicePort = ParseUtil
                                             .getStringValueOrUnknown(ParseUtil.getStringBefore(transport, '/'));
-                                    displays.add(new MacDisplayFFM(bytes, devicePort));
+                                    // Correlate EDID identity with the CoreGraphics main display identity.
+                                    boolean primary = false;
+                                    if (mainIdentity.valid && !mainIdentity.ambiguous) {
+                                        primary = EdidUtil.getVendorNumber(bytes) == mainIdentity.vendor
+                                                && EdidUtil.getProductNumber(bytes) == mainIdentity.product
+                                                && EdidUtil.getSerialNumber(bytes) == mainIdentity.serial;
+                                    }
+                                    displays.add(new MacDisplayFFM(bytes, devicePort, primary));
                                 }
                             }
                         }
@@ -126,9 +195,10 @@ final class MacDisplayFFM extends AbstractDisplay {
      * {@code IOPortTransportStateDisplayPort} with their real EDID); only the built-in panel, which has no physical
      * EDID EPROM, is synthesized from {@code DisplayAttributes}.
      *
+     * @param mainDisplayId the CGDirectDisplayID of the main display, or -1 if unavailable
      * @return A list containing the built-in display, or empty if not found
      */
-    private static List<Display> getAppleSiliconBuiltInDisplay() {
+    private static List<Display> getAppleSiliconBuiltInDisplay(int mainDisplayId) {
         List<Display> displays = new ArrayList<>();
         IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMobileFramebuffer");
         if (iter == null) {
@@ -140,7 +210,7 @@ final class MacDisplayFFM extends AbstractDisplay {
             IORegistryEntry fb = iter.next();
             while (fb != null) {
                 try (IORegistryEntry current = fb) {
-                    addBuiltInDisplay(current, cfExternal, cfAttrs, displays);
+                    addBuiltInDisplay(current, cfExternal, cfAttrs, displays, mainDisplayId);
                 }
                 fb = iter.next();
             }
@@ -151,7 +221,7 @@ final class MacDisplayFFM extends AbstractDisplay {
     // Synthesizes a display for the built-in panel from its DisplayAttributes dictionary. External framebuffer nodes
     // (marked with "external" = true) are skipped, as are idle pipes with no DisplayAttributes.
     private static void addBuiltInDisplay(IORegistryEntry fb, CFStringRef cfExternal, CFStringRef cfAttrs,
-            List<Display> displays) {
+            List<Display> displays, int mainDisplayId) {
         // Skip external monitors — they are already enumerated via IOPortTransportStateDisplayPort.
         MemorySegment externalRaw = fb.createCFProperty(cfExternal.segment());
         if (externalRaw != null && !externalRaw.equals(MemorySegment.NULL)) {
@@ -180,7 +250,16 @@ final class MacDisplayFFM extends AbstractDisplay {
         try (CFDictionaryRef attrs = new CFDictionaryRef(attrsRaw)) {
             DisplayInfo info = synthesize(fb, attrs, devicePort);
             if (info != null) {
-                displays.add(new MacDisplayFFM(info, devicePort));
+                int builtInId = findBuiltInDisplayId();
+                boolean primary = false;
+                if (builtInId >= 0) {
+                    try {
+                        primary = CoreGraphicsFunctions.CGDisplayIsMain(builtInId) != 0;
+                    } catch (Throwable t) {
+                        LOG.debug("Failed to query CGDisplayIsMain for built-in display", t);
+                    }
+                }
+                displays.add(new MacDisplayFFM(info, devicePort, primary));
             }
         }
     }
@@ -312,5 +391,35 @@ final class MacDisplayFFM extends AbstractDisplay {
             }
         }
         return null;
+    }
+
+    // Counts how many active CoreGraphics displays share the given (vendor, product, serial) identity.
+    private static int countDisplaysWithIdentity(int vendor, int product, int serial) {
+        return ExceptionUtil.getIntOrDefault(() -> {
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment countSeg = arena.allocate(ValueLayout.JAVA_INT);
+                if (CoreGraphicsFunctions.CGGetActiveDisplayList(0, MemorySegment.NULL, countSeg) != 0) {
+                    return 0;
+                }
+                int count = countSeg.get(ValueLayout.JAVA_INT, 0);
+                if (count == 0) {
+                    return 0;
+                }
+                MemorySegment idsSeg = arena.allocate(ValueLayout.JAVA_INT, count);
+                if (CoreGraphicsFunctions.CGGetActiveDisplayList(count, idsSeg, countSeg) != 0) {
+                    return 0;
+                }
+                int matches = 0;
+                for (int i = 0; i < count; i++) {
+                    int id = idsSeg.getAtIndex(ValueLayout.JAVA_INT, i);
+                    if (CoreGraphicsFunctions.CGDisplayVendorNumber(id) == vendor
+                            && CoreGraphicsFunctions.CGDisplayModelNumber(id) == product
+                            && CoreGraphicsFunctions.CGDisplaySerialNumber(id) == serial) {
+                        matches++;
+                    }
+                }
+                return matches;
+            }
+        }, 0, LOG, "Failed to count displays with identity");
     }
 }

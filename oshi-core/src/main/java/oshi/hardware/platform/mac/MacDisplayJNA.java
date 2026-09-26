@@ -53,6 +53,26 @@ final class MacDisplayJNA extends AbstractDisplay {
     private static final CFIndex K_CF_NUMBER_SINT64 = new CFIndex(4);
 
     private final String devicePort;
+    private final boolean primary;
+
+    /**
+     * Value object holding the CoreGraphics main display identity for correlating IOKit-enumerated external displays.
+     */
+    private static final class MainDisplayIdentity {
+        private final boolean valid;
+        private final boolean ambiguous;
+        private final int vendor;
+        private final int product;
+        private final int serial;
+
+        MainDisplayIdentity(boolean valid, boolean ambiguous, int vendor, int product, int serial) {
+            this.valid = valid;
+            this.ambiguous = ambiguous;
+            this.vendor = vendor;
+            this.product = product;
+            this.serial = serial;
+        }
+    }
 
     /**
      * Constructor for MacDisplayJNA from a real EDID byte array.
@@ -60,7 +80,7 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param edid a byte array representing a display EDID
      */
     MacDisplayJNA(byte[] edid) {
-        this(edid, Constants.UNKNOWN);
+        this(edid, Constants.UNKNOWN, false);
     }
 
     /**
@@ -70,8 +90,20 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param devicePort the device port this display is attached to
      */
     MacDisplayJNA(byte[] edid, String devicePort) {
+        this(edid, devicePort, false);
+    }
+
+    /**
+     * Constructor for MacDisplayJNA from a real EDID byte array with a device port and primary status.
+     *
+     * @param edid       a byte array representing a display EDID
+     * @param devicePort the device port this display is attached to
+     * @param primary    whether this display is the primary display
+     */
+    MacDisplayJNA(byte[] edid, String devicePort, boolean primary) {
         super(edid);
         this.devicePort = devicePort;
+        this.primary = primary;
         LOG.debug("Initialized MacDisplayJNA");
     }
 
@@ -83,8 +115,20 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param devicePort  the device port this display is attached to
      */
     MacDisplayJNA(DisplayInfo displayInfo, String devicePort) {
+        this(displayInfo, devicePort, false);
+    }
+
+    /**
+     * Constructor for MacDisplayJNA from a synthetic {@link DisplayInfo} with primary status.
+     *
+     * @param displayInfo the synthesized display info
+     * @param devicePort  the device port this display is attached to
+     * @param primary     whether this display is the primary display
+     */
+    MacDisplayJNA(DisplayInfo displayInfo, String devicePort, boolean primary) {
         super(displayInfo);
         this.devicePort = devicePort;
+        this.primary = primary;
         LOG.debug("Initialized MacDisplayJNA (synthetic)");
     }
 
@@ -93,21 +137,57 @@ final class MacDisplayJNA extends AbstractDisplay {
         return this.devicePort;
     }
 
+    @Override
+    public boolean isPrimary() {
+        return this.primary;
+    }
+
     /**
      * Gets Display Information
      *
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
+        // Get the main display ID from CoreGraphics
+        int mainDisplayId = ExceptionUtil.getIntOrDefault(CoreGraphics.INSTANCE::CGMainDisplayID, -1, LOG,
+                "Failed to get main display ID");
+        // Identity of the CoreGraphics main display for correlating IOKit-enumerated external displays.
+        MainDisplayIdentity mainIdentity = getMainDisplayIdentity(mainDisplayId);
+
         List<Display> displays = new ArrayList<>();
         // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available.
-        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null));
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, mainIdentity));
         // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
         displays.addAll(
-                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription"));
+                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription",
+                        mainIdentity));
         // Apple Silicon built-in panel: no real EDID exposed, synthesize from DisplayAttributes.
-        displays.addAll(getAppleSiliconBuiltInDisplay());
+        displays.addAll(getAppleSiliconBuiltInDisplay(mainDisplayId));
         return displays;
+    }
+
+    /**
+     * Gets the CoreGraphics main display identity for correlating IOKit-enumerated external displays.
+     *
+     * @param mainDisplayId The CGDirectDisplayID of the main display, or -1 if unavailable
+     * @return A MainDisplayIdentity object containing the main display's vendor/product/serial and validity/ambiguity
+     *         flags
+     */
+    private static MainDisplayIdentity getMainDisplayIdentity(int mainDisplayId) {
+        if (mainDisplayId < 0) {
+            return new MainDisplayIdentity(false, false, 0, 0, 0);
+        }
+        try {
+            CoreGraphics cg = CoreGraphics.INSTANCE;
+            int vendor = cg.CGDisplayVendorNumber(mainDisplayId);
+            int product = cg.CGDisplayModelNumber(mainDisplayId);
+            int serial = cg.CGDisplaySerialNumber(mainDisplayId);
+            boolean ambiguous = countDisplaysWithIdentity(cg, vendor, product, serial) > 1;
+            return new MainDisplayIdentity(true, ambiguous, vendor, product, serial);
+        } catch (Exception e) {
+            LOG.debug("Failed to get main display identity", e);
+            return new MainDisplayIdentity(false, false, 0, 0, 0);
+        }
     }
 
     /**
@@ -118,10 +198,11 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param childEntryName The name of the child entry to search in, or null to search directly in the service
      * @param portKeyName    The key name for the port property (e.g. {@code TransportDescription}), or null if the
      *                       service does not expose one
+     * @param mainIdentity   The CoreGraphics main display identity for correlation
      * @return List of Display objects found using this service
      */
     private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
-            @Nullable String childEntryName, @Nullable String portKeyName) {
+            @Nullable String childEntryName, @Nullable String portKeyName, MainDisplayIdentity mainIdentity) {
         List<Display> displays = new ArrayList<>();
 
         IOIterator serviceIterator = IOKitUtil.getMatchingServices(serviceName);
@@ -150,7 +231,15 @@ final class MacDisplayJNA extends AbstractDisplay {
                                             : propertySource.getStringProperty(portKeyName);
                                     String devicePort = ParseUtil
                                             .getStringValueOrUnknown(ParseUtil.getStringBefore(transport, '/'));
-                                    displays.add(new MacDisplayJNA(p.getByteArray(0, length), devicePort));
+                                    byte[] edidBytes = p.getByteArray(0, length);
+                                    // Correlate EDID identity with the CoreGraphics main display identity.
+                                    boolean primary = false;
+                                    if (mainIdentity.valid && !mainIdentity.ambiguous) {
+                                        primary = EdidUtil.getVendorNumber(edidBytes) == mainIdentity.vendor
+                                                && EdidUtil.getProductNumber(edidBytes) == mainIdentity.product
+                                                && EdidUtil.getSerialNumber(edidBytes) == mainIdentity.serial;
+                                    }
+                                    displays.add(new MacDisplayJNA(edidBytes, devicePort, primary));
                                 }
                             } finally {
                                 edid.release();
@@ -178,9 +267,10 @@ final class MacDisplayJNA extends AbstractDisplay {
      * already enumerated via {@code IOPortTransportStateDisplayPort} with their real EDID); only the built-in panel,
      * which has no physical EDID EPROM, is synthesized from {@code DisplayAttributes}.
      *
+     * @param mainDisplayId The CGDirectDisplayID of the main display, or -1 if unavailable
      * @return A list containing the built-in display, or empty if not found
      */
-    private static List<Display> getAppleSiliconBuiltInDisplay() {
+    private static List<Display> getAppleSiliconBuiltInDisplay(int mainDisplayId) {
         List<Display> displays = new ArrayList<>();
         IOIterator iter = IOKitUtil.getMatchingServices("IOMobileFramebuffer");
         if (iter == null) {
@@ -192,7 +282,7 @@ final class MacDisplayJNA extends AbstractDisplay {
             IORegistryEntry fb = iter.next();
             while (fb != null) {
                 try {
-                    addBuiltInDisplay(fb, cfExternal, cfAttrs, displays);
+                    addBuiltInDisplay(fb, cfExternal, cfAttrs, displays, mainDisplayId);
                 } finally {
                     fb.release();
                 }
@@ -209,7 +299,7 @@ final class MacDisplayJNA extends AbstractDisplay {
     // Synthesizes a display for the built-in panel from its DisplayAttributes dictionary. External framebuffer nodes
     // (marked with "external" = true) are skipped, as are idle pipes with no DisplayAttributes.
     private static void addBuiltInDisplay(IORegistryEntry fb, CFStringRef cfExternal, CFStringRef cfAttrs,
-            List<Display> displays) {
+            List<Display> displays, int mainDisplayId) {
         // Skip external monitors — they are already enumerated via IOPortTransportStateDisplayPort.
         CFTypeRef externalRef = fb.createCFProperty(cfExternal);
         if (externalRef != null) {
@@ -242,7 +332,16 @@ final class MacDisplayJNA extends AbstractDisplay {
         try {
             DisplayInfo info = synthesize(fb, new CFDictionaryRef(attrsRaw.getPointer()), devicePort);
             if (info != null) {
-                displays.add(new MacDisplayJNA(info, devicePort));
+                int builtInId = findBuiltInDisplayId();
+                boolean primary = false;
+                if (builtInId >= 0) {
+                    try {
+                        primary = CoreGraphics.INSTANCE.CGDisplayIsMain(builtInId) != 0;
+                    } catch (Exception e) {
+                        LOG.debug("Failed to query CGDisplayIsMain for built-in display", e);
+                    }
+                }
+                displays.add(new MacDisplayJNA(info, devicePort, primary));
             }
         } finally {
             attrsRaw.release();
@@ -368,5 +467,25 @@ final class MacDisplayJNA extends AbstractDisplay {
             cfKey.release();
         }
         return null;
+    }
+
+    // Counts how many active CoreGraphics displays share the given (vendor, product, serial) identity.
+    private static int countDisplaysWithIdentity(CoreGraphics cg, int vendor, int product, int serial) {
+        IntByReference count = new IntByReference();
+        if (cg.CGGetActiveDisplayList(0, null, count) != 0 || count.getValue() == 0) {
+            return 0;
+        }
+        int[] displayIds = new int[count.getValue()];
+        if (cg.CGGetActiveDisplayList(displayIds.length, displayIds, count) != 0) {
+            return 0;
+        }
+        int matches = 0;
+        for (int id : displayIds) {
+            if (cg.CGDisplayVendorNumber(id) == vendor && cg.CGDisplayModelNumber(id) == product
+                    && cg.CGDisplaySerialNumber(id) == serial) {
+                matches++;
+            }
+        }
+        return matches;
     }
 }
