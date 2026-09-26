@@ -4,7 +4,7 @@
 # Intended for occasional re-capture of the numbers reported in PERFORMANCE.md
 # (e.g. when adding a new platform or making a perf-relevant change).
 #
-# Native runners (Linux/macOS/Windows) produce stable numbers; FreeBSD,
+# Native runners (Linux/macOS/Windows) produce stable numbers; FreeBSD, NetBSD,
 # OpenBSD and OpenIndiana all run inside a nested QEMU VM on an Ubuntu runner,
 # so absolute numbers are noisier and only the relative JNA-vs-FFM comparison
 # within a single run is meaningful. illumos is especially fragile under
@@ -141,6 +141,52 @@ jobs:
             export JAVA_HOME=/usr/local/jdk-25
             export PATH=$JAVA_HOME/bin:$PATH
             mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
+            java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
+
+  benchnetbsd:
+    name: JMH benchmarks, NetBSD
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Benchmark on NetBSD
+        uses: vmactions/netbsd-vm@20ee93a005c9fc78743e6e05269f4cb023b87413 # v1
+        with:
+          disable-cache: true
+          release: "10.1"
+          usesh: true
+          # java-jna so the JNA column measures JNA's native path, not the command-line fallback. The JDK 25
+          # resolution matches unix.yaml's testnetbsdjna: pkgsrc openjdk25 if it exists, else the pinned mirror.
+          prepare: |
+            pkg_add curl
+            pkg_add java-jna
+            if pkg_add openjdk25 2>/dev/null; then
+              echo "using pkgsrc openjdk25"
+            else
+              BS=bootstrap-jdk-1.25.0.4.7-netbsd-9-amd64-20260908.tar.xz
+              SHA=4587a19dea5edd24ccafb251221ee6177e788ae9ad6c0bf49be11ef900bbe7f75a0db77eb151edf12f8378aab8a7b9651043f31e98864317faf3ecb2533b34eb
+              URL=https://github.com/dbwiddis/oshi/releases/download/netbsd-jdk25-bootstrap/$BS
+              curl -sSfLo /tmp/$BS "$URL" || { echo "FATAL: could not fetch $URL"; exit 1; }
+              [ "$(cksum -a sha512 -n /tmp/$BS | cut -d' ' -f1)" = "$SHA" ] || { echo "FATAL: checksum mismatch for $BS"; exit 1; }
+              mkdir -p /opt && tar -xJf /tmp/$BS -C /opt
+              echo "using the bootstrap JDK mirror"
+            fi
+          run: |
+            if [ -d /usr/pkg/java/openjdk25 ]; then
+              export JAVA_HOME=/usr/pkg/java/openjdk25
+            else
+              export JAVA_HOME=/opt/bootstrap
+              # The bootstrap kit's RPATH points at the pkgsrc prefix it was built for
+              export LD_LIBRARY_PATH=$JAVA_HOME/lib:$JAVA_HOME/lib/server
+            fi
+            export PATH=$JAVA_HOME/bin:$PATH
+            mount -t procfs procfs /proc 2>/dev/null || true
+            ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
+            # Set after the build, so only the JMH JVM and its forks see it: points JNA at the pkgsrc libjnidispatch
+            export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
 
   benchaix:

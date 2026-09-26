@@ -56,7 +56,19 @@ Linux shows minimal difference between FFM and JNA for most benchmarks. This is 
 | NetworkIF  | ~11 ms  | ~11 ms  |
 | Processes  | ~2.9 ms | ~3.0 ms |
 
-FreeBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap because most data comes from `sysctl` reads that don't bottleneck on per-call overhead.
+FreeBSD, NetBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap because most data comes from `sysctl` reads that don't bottleneck on per-call overhead.
+
+### NetBSD
+
+| Benchmark  | FFM     | JNA     |
+|------------|---------|---------|
+| CpuTicks   | ~4 µs   | ~11 µs  |
+| FileStore  | ~9.2 ms | ~9.2 ms |
+| Memory     | ~2.8 ms | ~2.7 ms |
+| NetworkIF  | ~9 ms   | ~9 ms   |
+| Processes  | ~30 ms  | ~28 ms  |
+
+NetBSD's JNA column requires pkgsrc's `java-jna` for the native `libjnidispatch`; without it, OSHI's JNA implementation falls back to the command-line path the native-free provider uses. Only `CpuTicks`, one `kern.cp_time` sysctl per processor, is dominated by the native calls, and FFM's lower per-call overhead shows there. The other benchmarks spend their time outside the binding, so the two implementations are indistinguishable. One JNA `NetworkIF` iteration hit a ~63 ms outlier in the capture; the steady-state figure is shown. Same nested-VM caveat as FreeBSD.
 
 ### OpenBSD
 
