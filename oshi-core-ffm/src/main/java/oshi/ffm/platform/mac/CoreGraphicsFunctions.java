@@ -8,6 +8,7 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BOOLEAN;
 import static java.lang.foreign.ValueLayout.JAVA_DOUBLE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.FunctionDescriptor;
 import java.lang.foreign.MemoryLayout;
@@ -98,5 +99,82 @@ public final class CoreGraphicsFunctions extends MacForeignFunctions {
 
     public static MemorySegment CGDisplayScreenSize(SegmentAllocator allocator, int display) throws Throwable {
         return (MemorySegment) CGDisplayScreenSize.invokeExact(allocator, display);
+    }
+
+    // uint32_t CGDisplayVendorNumber(CGDirectDisplayID display);
+
+    private static final MethodHandle CGDisplayVendorNumber = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayVendorNumber"), FunctionDescriptor.of(JAVA_INT, JAVA_INT));
+
+    public static int CGDisplayVendorNumber(int display) throws Throwable {
+        return (int) CGDisplayVendorNumber.invokeExact(display);
+    }
+
+    // CGRect CGDisplayBounds(CGDirectDisplayID display); — returns a struct { CGPoint origin; CGSize size; }, four
+    // doubles: origin.x, origin.y, size.width and size.height at offsets 0, 8, 16 and 24
+
+    private static final MemoryLayout CG_RECT_LAYOUT = MemoryLayout.structLayout(
+            MemoryLayout.structLayout(JAVA_DOUBLE.withName("x"), JAVA_DOUBLE.withName("y")).withName("origin"),
+            CG_SIZE_LAYOUT.withName("size"));
+
+    private static final MethodHandle CGDisplayBounds = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayBounds"), FunctionDescriptor.of(CG_RECT_LAYOUT, JAVA_INT));
+
+    public static MemorySegment CGDisplayBounds(SegmentAllocator allocator, int display) throws Throwable {
+        return (MemorySegment) CGDisplayBounds.invokeExact(allocator, display);
+    }
+
+    // double CGDisplayRotation(CGDirectDisplayID display);
+
+    private static final MethodHandle CGDisplayRotation = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayRotation"), FunctionDescriptor.of(JAVA_DOUBLE, JAVA_INT));
+
+    public static double CGDisplayRotation(int display) throws Throwable {
+        return (double) CGDisplayRotation.invokeExact(display);
+    }
+
+    // CGDisplayModeRef CGDisplayCopyDisplayMode(CGDirectDisplayID display);
+
+    private static final MethodHandle CGDisplayCopyDisplayMode = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayCopyDisplayMode"), FunctionDescriptor.of(ADDRESS, JAVA_INT));
+
+    public static MemorySegment CGDisplayCopyDisplayMode(int display) throws Throwable {
+        return (MemorySegment) CGDisplayCopyDisplayMode.invokeExact(display);
+    }
+
+    // size_t CGDisplayModeGetPixelWidth(CGDisplayModeRef mode); — size_t is 64 bits on every macOS architecture
+
+    private static final MethodHandle CGDisplayModeGetPixelWidth = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayModeGetPixelWidth"), FunctionDescriptor.of(JAVA_LONG, ADDRESS));
+
+    public static long CGDisplayModeGetPixelWidth(MemorySegment mode) throws Throwable {
+        return (long) CGDisplayModeGetPixelWidth.invokeExact(mode);
+    }
+
+    // size_t CGDisplayModeGetPixelHeight(CGDisplayModeRef mode);
+
+    private static final MethodHandle CGDisplayModeGetPixelHeight = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayModeGetPixelHeight"), FunctionDescriptor.of(JAVA_LONG, ADDRESS));
+
+    public static long CGDisplayModeGetPixelHeight(MemorySegment mode) throws Throwable {
+        return (long) CGDisplayModeGetPixelHeight.invokeExact(mode);
+    }
+
+    // double CGDisplayModeGetRefreshRate(CGDisplayModeRef mode);
+
+    private static final MethodHandle CGDisplayModeGetRefreshRate = LINKER.downcallHandle(
+            CORE_GRAPHICS.findOrThrow("CGDisplayModeGetRefreshRate"), FunctionDescriptor.of(JAVA_DOUBLE, ADDRESS));
+
+    public static double CGDisplayModeGetRefreshRate(MemorySegment mode) throws Throwable {
+        return (double) CGDisplayModeGetRefreshRate.invokeExact(mode);
+    }
+
+    // void CGDisplayModeRelease(CGDisplayModeRef mode);
+
+    private static final MethodHandle CGDisplayModeRelease = LINKER
+            .downcallHandle(CORE_GRAPHICS.findOrThrow("CGDisplayModeRelease"), FunctionDescriptor.ofVoid(ADDRESS));
+
+    public static void CGDisplayModeRelease(MemorySegment mode) throws Throwable {
+        CGDisplayModeRelease.invokeExact(mode);
     }
 }
