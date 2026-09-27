@@ -4,17 +4,21 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import oshi.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.mac.CoreGraphicsDisplay;
 import oshi.ffm.platform.mac.CoreFoundation.CFBooleanRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFDataRef;
 import oshi.ffm.platform.mac.CoreFoundation.CFDictionaryRef;
@@ -28,7 +32,8 @@ import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
-import oshi.hardware.common.AbstractDisplay;
+import oshi.hardware.DisplayMode;
+import oshi.hardware.common.platform.mac.MacDisplay;
 import oshi.util.Constants;
 import oshi.util.EdidUtil;
 import oshi.util.ExceptionUtil;
@@ -37,48 +42,42 @@ import oshi.util.ParseUtil;
 /**
  * A Display
  */
-@Immutable
-final class MacDisplayFFM extends AbstractDisplay {
+@ThreadSafe
+final class MacDisplayFFM extends MacDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplayFFM.class);
 
-    private final String devicePort;
-
-    MacDisplayFFM(byte[] edid) {
-        this(edid, Constants.UNKNOWN);
-    }
-
-    MacDisplayFFM(byte[] edid, String devicePort) {
-        super(edid);
-        this.devicePort = devicePort;
+    MacDisplayFFM(byte[] edid, String devicePort, @Nullable Boolean builtIn,
+            Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays) {
+        super(edid, devicePort, builtIn, coreGraphicsDisplays);
         LOG.debug("Initialized MacDisplayFFM");
     }
 
-    MacDisplayFFM(DisplayInfo displayInfo, String devicePort) {
-        super(displayInfo);
-        this.devicePort = devicePort;
+    MacDisplayFFM(DisplayInfo displayInfo, String devicePort,
+            Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays) {
+        super(displayInfo, devicePort, coreGraphicsDisplays);
         LOG.debug("Initialized MacDisplayFFM (synthetic)");
-    }
-
-    @Override
-    public String getDevicePort() {
-        return this.devicePort;
     }
 
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available.
-        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null));
-        // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
+        // One CoreGraphics query for the whole batch, run only if a display's mode or built-in status is requested
+        Supplier<List<CoreGraphicsDisplay>> cgDisplays = memoize(MacDisplayFFM::queryCoreGraphicsDisplays);
+        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available,
+        // and the built-in panel is enumerated here too, so ask CoreGraphics which is which.
         displays.addAll(
-                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription"));
+                getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, null, cgDisplays));
+        // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
+        displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription",
+                Boolean.FALSE, cgDisplays));
         // Apple Silicon built-in panel: no real EDID exposed, synthesize from DisplayAttributes.
-        displays.addAll(getAppleSiliconBuiltInDisplay());
+        displays.addAll(getAppleSiliconBuiltInDisplay(cgDisplays));
         return displays;
     }
 
     private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
-            @Nullable String childEntryName, @Nullable String portKeyName) {
+            @Nullable String childEntryName, @Nullable String portKeyName, @Nullable Boolean builtIn,
+            Supplier<List<CoreGraphicsDisplay>> cgDisplays) {
         List<Display> displays = new ArrayList<>();
         IOIterator serviceIterator = IOKitUtilFFM.getMatchingServices(serviceName);
         if (serviceIterator == null) {
@@ -104,7 +103,7 @@ final class MacDisplayFFM extends AbstractDisplay {
                                             : propertySource.getStringProperty(portKeyName);
                                     String devicePort = ParseUtil
                                             .getStringValueOrUnknown(ParseUtil.getStringBefore(transport, '/'));
-                                    displays.add(new MacDisplayFFM(bytes, devicePort));
+                                    displays.add(new MacDisplayFFM(bytes, devicePort, builtIn, cgDisplays));
                                 }
                             }
                         }
@@ -126,9 +125,10 @@ final class MacDisplayFFM extends AbstractDisplay {
      * {@code IOPortTransportStateDisplayPort} with their real EDID); only the built-in panel, which has no physical
      * EDID EPROM, is synthesized from {@code DisplayAttributes}.
      *
+     * @param cgDisplays The batch's memoized CoreGraphics query
      * @return A list containing the built-in display, or empty if not found
      */
-    private static List<Display> getAppleSiliconBuiltInDisplay() {
+    private static List<Display> getAppleSiliconBuiltInDisplay(Supplier<List<CoreGraphicsDisplay>> cgDisplays) {
         List<Display> displays = new ArrayList<>();
         IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMobileFramebuffer");
         if (iter == null) {
@@ -140,7 +140,7 @@ final class MacDisplayFFM extends AbstractDisplay {
             IORegistryEntry fb = iter.next();
             while (fb != null) {
                 try (IORegistryEntry current = fb) {
-                    addBuiltInDisplay(current, cfExternal, cfAttrs, displays);
+                    addBuiltInDisplay(current, cfExternal, cfAttrs, displays, cgDisplays);
                 }
                 fb = iter.next();
             }
@@ -151,7 +151,7 @@ final class MacDisplayFFM extends AbstractDisplay {
     // Synthesizes a display for the built-in panel from its DisplayAttributes dictionary. External framebuffer nodes
     // (marked with "external" = true) are skipped, as are idle pipes with no DisplayAttributes.
     private static void addBuiltInDisplay(IORegistryEntry fb, CFStringRef cfExternal, CFStringRef cfAttrs,
-            List<Display> displays) {
+            List<Display> displays, Supplier<List<CoreGraphicsDisplay>> cgDisplays) {
         // Skip external monitors — they are already enumerated via IOPortTransportStateDisplayPort.
         MemorySegment externalRaw = fb.createCFProperty(cfExternal.segment());
         if (externalRaw != null && !externalRaw.equals(MemorySegment.NULL)) {
@@ -180,7 +180,7 @@ final class MacDisplayFFM extends AbstractDisplay {
         try (CFDictionaryRef attrs = new CFDictionaryRef(attrsRaw)) {
             DisplayInfo info = synthesize(fb, attrs, devicePort);
             if (info != null) {
-                displays.add(new MacDisplayFFM(info, devicePort));
+                displays.add(new MacDisplayFFM(info, devicePort, cgDisplays));
             }
         }
     }
@@ -229,28 +229,64 @@ final class MacDisplayFFM extends AbstractDisplay {
     // Returns the CGDirectDisplayID of the built-in display, or -1 if not found.
     private static int findBuiltInDisplayId() {
         return ExceptionUtil.getIntOrDefault(() -> {
-            try (Arena arena = Arena.ofConfined()) {
-                MemorySegment countSeg = arena.allocate(ValueLayout.JAVA_INT);
-                if (CoreGraphicsFunctions.CGGetActiveDisplayList(0, MemorySegment.NULL, countSeg) != 0) {
-                    return -1;
-                }
-                int count = countSeg.get(ValueLayout.JAVA_INT, 0);
-                if (count == 0) {
-                    return -1;
-                }
-                MemorySegment idsSeg = arena.allocate(ValueLayout.JAVA_INT, count);
-                if (CoreGraphicsFunctions.CGGetActiveDisplayList(count, idsSeg, countSeg) != 0) {
-                    return -1;
-                }
-                for (int i = 0; i < count; i++) {
-                    int id = idsSeg.getAtIndex(ValueLayout.JAVA_INT, i);
-                    if (CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0) {
-                        return id;
-                    }
+            for (int id : getActiveDisplayIds()) {
+                if (CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0) {
+                    return id;
                 }
             }
             return -1;
         }, -1, LOG, "Failed to find built-in display ID");
+    }
+
+    // Returns the CGDirectDisplayIDs of the active displays, or an empty array if they cannot be listed.
+    private static int[] getActiveDisplayIds() throws Throwable {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment countSeg = arena.allocate(ValueLayout.JAVA_INT);
+            if (CoreGraphicsFunctions.CGGetActiveDisplayList(0, MemorySegment.NULL, countSeg) != 0) {
+                return new int[0];
+            }
+            int count = countSeg.get(ValueLayout.JAVA_INT, 0);
+            if (count <= 0) {
+                return new int[0];
+            }
+            MemorySegment idsSeg = arena.allocate(ValueLayout.JAVA_INT, count);
+            if (CoreGraphicsFunctions.CGGetActiveDisplayList(count, idsSeg, countSeg) != 0) {
+                return new int[0];
+            }
+            int actual = Math.min(count, countSeg.get(ValueLayout.JAVA_INT, 0));
+            return idsSeg.asSlice(0, (long) actual * Integer.BYTES).toArray(ValueLayout.JAVA_INT);
+        }
+    }
+
+    // Describes each active display as CoreGraphics reports it, for matching to the IOKit-enumerated displays.
+    private static List<CoreGraphicsDisplay> queryCoreGraphicsDisplays() {
+        return ExceptionUtil.getOrDefault(() -> {
+            List<CoreGraphicsDisplay> cgDisplays = new ArrayList<>();
+            for (int id : getActiveDisplayIds()) {
+                cgDisplays.add(new CoreGraphicsDisplay(CoreGraphicsFunctions.CGDisplayVendorNumber(id),
+                        CoreGraphicsFunctions.CGDisplayModelNumber(id), CoreGraphicsFunctions.CGDisplaySerialNumber(id),
+                        CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0, readMode(id)));
+            }
+            return cgDisplays;
+        }, List.of(), LOG, "Failed to query CoreGraphics displays");
+    }
+
+    private static @Nullable DisplayMode readMode(int id) throws Throwable {
+        MemorySegment mode = CoreGraphicsFunctions.CGDisplayCopyDisplayMode(id);
+        if (mode.address() == 0) {
+            return null;
+        }
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment bounds = CoreGraphicsFunctions.CGDisplayBounds(arena, id);
+            return CoreGraphicsDisplay.toMode(bounds.get(ValueLayout.JAVA_DOUBLE, 0),
+                    bounds.get(ValueLayout.JAVA_DOUBLE, 8), bounds.get(ValueLayout.JAVA_DOUBLE, 16),
+                    bounds.get(ValueLayout.JAVA_DOUBLE, 24), CoreGraphicsFunctions.CGDisplayModeGetPixelWidth(mode),
+                    CoreGraphicsFunctions.CGDisplayModeGetPixelHeight(mode),
+                    CoreGraphicsFunctions.CGDisplayModeGetRefreshRate(mode),
+                    CoreGraphicsFunctions.CGDisplayRotation(id));
+        } finally {
+            CoreGraphicsFunctions.CGDisplayModeRelease(mode);
+        }
     }
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.

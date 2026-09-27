@@ -26,8 +26,10 @@ import com.sun.jna.platform.win32.WinReg.HKEY;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.DisplayConnector;
+import oshi.driver.common.windows.DisplayConnector.Connector;
 import oshi.hardware.Display;
-import oshi.hardware.common.AbstractDisplay;
+import oshi.hardware.DisplayMode;
+import oshi.hardware.common.platform.windows.WindowsDisplay;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.Struct.CloseableSpDeviceInterfaceData;
 import oshi.jna.Struct.CloseableSpDevinfoData;
@@ -38,7 +40,7 @@ import oshi.util.Constants;
  * A Display
  */
 @Immutable
-final class WindowsDisplayJNA extends AbstractDisplay {
+final class WindowsDisplayJNA extends WindowsDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplayJNA.class);
 
@@ -55,32 +57,15 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     // Attempts allowed for the QueryDisplayConfig size-then-query pair, in case the topology changes between them.
     private static final int QDC_ATTEMPTS = 3;
 
-    private final String devicePort;
-
     /**
      * Constructor for WindowsDisplay.
      *
-     * @param edid a byte array representing a display EDID
+     * @param edid      a byte array representing a display EDID
+     * @param connector the connector this display is attached to, or {@code null} if it cannot be resolved
      */
-    WindowsDisplayJNA(byte[] edid) {
-        this(edid, Constants.UNKNOWN);
-    }
-
-    /**
-     * Constructor for WindowsDisplay with a device port.
-     *
-     * @param edid       a byte array representing a display EDID
-     * @param devicePort the connector this display is attached to
-     */
-    WindowsDisplayJNA(byte[] edid, String devicePort) {
-        super(edid);
-        this.devicePort = devicePort;
+    WindowsDisplayJNA(byte[] edid, @Nullable Connector connector) {
+        super(edid, connector);
         LOG.debug("Initialized WindowsDisplay");
-    }
-
-    @Override
-    public String getDevicePort() {
-        return this.devicePort;
     }
 
     /**
@@ -91,8 +76,8 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
 
-        // Map every active connector's device interface path to its connector name (e.g. "HDMI", "DisplayPort-1").
-        Map<String, String> portByPath = queryConnectorPorts();
+        // Map every active connector's device interface path to its connector (e.g. "HDMI", "DisplayPort-1") and mode.
+        Map<String, Connector> connectorByPath = queryConnectors();
 
         HANDLE hDevInfo = SU.SetupDiGetClassDevs(GUID_DEVINTERFACE_MONITOR, null, null,
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
@@ -114,8 +99,9 @@ final class WindowsDisplayJNA extends AbstractDisplay {
                                 edid = new byte[lpcbData.getValue()];
                                 if (ADV.RegQueryValueEx(key, "EDID", 0, pType, edid,
                                         lpcbData) == WinError.ERROR_SUCCESS) {
-                                    String port = lookupPort(hDevInfo, info, deviceInterfaceData, portByPath);
-                                    displays.add(new WindowsDisplayJNA(edid, port));
+                                    Connector connector = lookupConnector(hDevInfo, info, deviceInterfaceData,
+                                            connectorByPath);
+                                    displays.add(new WindowsDisplayJNA(edid, connector));
                                 }
                             }
                         }
@@ -130,19 +116,19 @@ final class WindowsDisplayJNA extends AbstractDisplay {
         return displays;
     }
 
-    // Resolves the connector name for the current device by fetching its device interface path and looking it up in the
-    // CCD-derived map. Returns the sentinel if the interface or path cannot be obtained.
-    private static String lookupPort(HANDLE hDevInfo, CloseableSpDevinfoData info,
-            CloseableSpDeviceInterfaceData deviceInterfaceData, Map<String, String> portByPath) {
+    // Resolves the connector for the current device by fetching its device interface path and looking it up in the
+    // CCD-derived map. Returns null if the interface or path cannot be obtained or is not an active connector.
+    private static @Nullable Connector lookupConnector(HANDLE hDevInfo, CloseableSpDevinfoData info,
+            CloseableSpDeviceInterfaceData deviceInterfaceData, Map<String, Connector> connectorByPath) {
         if (!SU.SetupDiEnumDeviceInterfaces(hDevInfo, info.getPointer(), GUID_DEVINTERFACE_MONITOR, 0,
                 deviceInterfaceData)) {
-            return Constants.UNKNOWN;
+            return null;
         }
         String path = getDeviceInterfacePath(hDevInfo, deviceInterfaceData);
         if (path == null) {
-            return Constants.UNKNOWN;
+            return null;
         }
-        return portByPath.getOrDefault(DisplayConnector.normalizePath(path), Constants.UNKNOWN);
+        return connectorByPath.get(DisplayConnector.normalizePath(path));
     }
 
     // Two-call SetupDiGetDeviceInterfaceDetail: first for the required size, then to read the device path.
@@ -166,13 +152,13 @@ final class WindowsDisplayJNA extends AbstractDisplay {
         return null;
     }
 
-    // Builds a map from normalized monitor device interface path to connector name, from the CCD active paths. A
+    // Builds a map from normalized monitor device interface path to connector and mode, from the CCD active paths. A
     // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
     // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
-    private static Map<String, String> queryConnectorPorts() {
+    private static Map<String, Connector> queryConnectors() {
         User32 u32 = User32.INSTANCE;
         for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
-            Map<String, String> map = queryConnectorPortsOnce(u32);
+            Map<String, Connector> map = queryConnectorsOnce(u32);
             if (map != null) {
                 return map;
             }
@@ -182,8 +168,8 @@ final class WindowsDisplayJNA extends AbstractDisplay {
     }
 
     // Returns null if the buffers were too small and the caller should re-size and retry.
-    private static @Nullable Map<String, String> queryConnectorPortsOnce(User32 u32) {
-        Map<String, String> map = new HashMap<>();
+    private static @Nullable Map<String, Connector> queryConnectorsOnce(User32 u32) {
+        Map<String, Connector> map = new HashMap<>();
         try (CloseableIntByReference numPaths = new CloseableIntByReference();
                 CloseableIntByReference numModes = new CloseableIntByReference()) {
             if (u32.GetDisplayConfigBufferSizes(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths,
@@ -208,6 +194,7 @@ final class WindowsDisplayJNA extends AbstractDisplay {
                     return map;
                 }
                 int actualPaths = numPaths.getValue();
+                int actualModes = numModes.getValue();
                 for (int i = 0; i < actualPaths; i++) {
                     long base = (long) i * DisplayConnector.PATH_INFO_SIZE;
                     int flags = paths.getInt(base + DisplayConnector.PATH_FLAGS_OFFSET);
@@ -216,15 +203,18 @@ final class WindowsDisplayJNA extends AbstractDisplay {
                     }
                     long adapterId = paths.getLong(base + DisplayConnector.PATH_TARGET_ADAPTER_ID_OFFSET);
                     int targetId = paths.getInt(base + DisplayConnector.PATH_TARGET_ID_OFFSET);
-                    addConnector(map, u32, adapterId, targetId);
+                    DisplayMode mode = DisplayConnector.readMode(off -> paths.getInt(base + off), modes::getInt,
+                            actualModes);
+                    addConnector(map, u32, adapterId, targetId, mode);
                 }
             }
         }
         return map;
     }
 
-    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector name.
-    private static void addConnector(Map<String, String> map, User32 u32, long adapterId, int targetId) {
+    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector.
+    private static void addConnector(Map<String, Connector> map, User32 u32, long adapterId, int targetId,
+            @Nullable DisplayMode mode) {
         try (Memory tdn = new Memory(DisplayConnector.TARGET_DEVICE_NAME_SIZE)) {
             tdn.clear();
             tdn.setInt(0, DisplayConnector.DEVICE_INFO_GET_TARGET_NAME);
@@ -239,7 +229,7 @@ final class WindowsDisplayJNA extends AbstractDisplay {
             String key = DisplayConnector
                     .normalizePath(tdn.getWideString(DisplayConnector.TDN_MONITOR_DEVICE_PATH_OFFSET));
             if (!Constants.UNKNOWN.equals(key)) {
-                map.put(key, DisplayConnector.connectorName(outputTechnology, connectorInstance));
+                map.put(key, new Connector(outputTechnology, connectorInstance, mode));
             }
         }
     }

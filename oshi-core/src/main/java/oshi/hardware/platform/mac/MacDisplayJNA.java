@@ -4,8 +4,13 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -21,16 +26,19 @@ import com.sun.jna.platform.mac.CoreFoundation.CFNumberRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFStringRef;
 import com.sun.jna.platform.mac.CoreFoundation.CFTypeRef;
 import com.sun.jna.platform.mac.CoreGraphics;
+import com.sun.jna.platform.mac.CoreGraphics.CGRect;
 import com.sun.jna.platform.mac.IOKit.IOIterator;
 import com.sun.jna.platform.mac.IOKit.IORegistryEntry;
 import com.sun.jna.platform.mac.IOKitUtil;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
-import oshi.annotation.concurrent.Immutable;
+import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.mac.CoreGraphicsDisplay;
 import oshi.hardware.Display;
 import oshi.hardware.DisplayInfo;
-import oshi.hardware.common.AbstractDisplay;
+import oshi.hardware.DisplayMode;
+import oshi.hardware.common.platform.mac.MacDisplay;
 import oshi.jna.platform.mac.CoreGraphicsExt;
 import oshi.jna.platform.mac.ObjCRuntime;
 import oshi.util.Constants;
@@ -42,8 +50,8 @@ import oshi.util.platform.mac.CFUtil;
 /**
  * A Display
  */
-@Immutable
-final class MacDisplayJNA extends AbstractDisplay {
+@ThreadSafe
+final class MacDisplayJNA extends MacDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(MacDisplayJNA.class);
 
@@ -52,26 +60,17 @@ final class MacDisplayJNA extends AbstractDisplay {
     /** kCFNumberSInt64Type, as the CFIndex expected by CFNumberGetValue. */
     private static final CFIndex K_CF_NUMBER_SINT64 = new CFIndex(4);
 
-    private final String devicePort;
-
-    /**
-     * Constructor for MacDisplayJNA from a real EDID byte array.
-     *
-     * @param edid a byte array representing a display EDID
-     */
-    MacDisplayJNA(byte[] edid) {
-        this(edid, Constants.UNKNOWN);
-    }
-
     /**
      * Constructor for MacDisplayJNA from a real EDID byte array with a device port.
      *
-     * @param edid       a byte array representing a display EDID
-     * @param devicePort the device port this display is attached to
+     * @param edid                 a byte array representing a display EDID
+     * @param devicePort           the device port this display is attached to
+     * @param builtIn              whether the display is built in, or {@code null} to ask CoreGraphics
+     * @param coreGraphicsDisplays the batch's memoized CoreGraphics query
      */
-    MacDisplayJNA(byte[] edid, String devicePort) {
-        super(edid);
-        this.devicePort = devicePort;
+    MacDisplayJNA(byte[] edid, String devicePort, @Nullable Boolean builtIn,
+            Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays) {
+        super(edid, devicePort, builtIn, coreGraphicsDisplays);
         LOG.debug("Initialized MacDisplayJNA");
     }
 
@@ -79,18 +78,14 @@ final class MacDisplayJNA extends AbstractDisplay {
      * Constructor for MacDisplayJNA from a synthetic {@link DisplayInfo}, used for the Apple Silicon built-in panel
      * which has no EDID EPROM.
      *
-     * @param displayInfo the synthesized display info
-     * @param devicePort  the device port this display is attached to
+     * @param displayInfo          the synthesized display info
+     * @param devicePort           the device port this display is attached to
+     * @param coreGraphicsDisplays the batch's memoized CoreGraphics query
      */
-    MacDisplayJNA(DisplayInfo displayInfo, String devicePort) {
-        super(displayInfo);
-        this.devicePort = devicePort;
+    MacDisplayJNA(DisplayInfo displayInfo, String devicePort,
+            Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays) {
+        super(displayInfo, devicePort, coreGraphicsDisplays);
         LOG.debug("Initialized MacDisplayJNA (synthetic)");
-    }
-
-    @Override
-    public String getDevicePort() {
-        return this.devicePort;
     }
 
     /**
@@ -100,13 +95,17 @@ final class MacDisplayJNA extends AbstractDisplay {
      */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available.
-        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null));
-        // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
+        // One CoreGraphics query for the whole batch, run only if a display's mode or built-in status is requested
+        Supplier<List<CoreGraphicsDisplay>> cgDisplays = memoize(MacDisplayJNA::queryCoreGraphicsDisplays);
+        // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available,
+        // and the built-in panel is enumerated here too, so ask CoreGraphics which is which.
         displays.addAll(
-                getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription"));
+                getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, null, cgDisplays));
+        // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
+        displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription",
+                Boolean.FALSE, cgDisplays));
         // Apple Silicon built-in panel: no real EDID exposed, synthesize from DisplayAttributes.
-        displays.addAll(getAppleSiliconBuiltInDisplay());
+        displays.addAll(getAppleSiliconBuiltInDisplay(cgDisplays));
         return displays;
     }
 
@@ -118,10 +117,13 @@ final class MacDisplayJNA extends AbstractDisplay {
      * @param childEntryName The name of the child entry to search in, or null to search directly in the service
      * @param portKeyName    The key name for the port property (e.g. {@code TransportDescription}), or null if the
      *                       service does not expose one
+     * @param builtIn        Whether displays found through this service are built in, or null if it varies
+     * @param cgDisplays     The batch's memoized CoreGraphics query
      * @return List of Display objects found using this service
      */
     private static List<Display> getDisplaysFromService(String serviceName, String edidKeyName,
-            @Nullable String childEntryName, @Nullable String portKeyName) {
+            @Nullable String childEntryName, @Nullable String portKeyName, @Nullable Boolean builtIn,
+            Supplier<List<CoreGraphicsDisplay>> cgDisplays) {
         List<Display> displays = new ArrayList<>();
 
         IOIterator serviceIterator = IOKitUtil.getMatchingServices(serviceName);
@@ -150,7 +152,8 @@ final class MacDisplayJNA extends AbstractDisplay {
                                             : propertySource.getStringProperty(portKeyName);
                                     String devicePort = ParseUtil
                                             .getStringValueOrUnknown(ParseUtil.getStringBefore(transport, '/'));
-                                    displays.add(new MacDisplayJNA(p.getByteArray(0, length), devicePort));
+                                    displays.add(new MacDisplayJNA(p.getByteArray(0, length), devicePort, builtIn,
+                                            cgDisplays));
                                 }
                             } finally {
                                 edid.release();
@@ -178,9 +181,10 @@ final class MacDisplayJNA extends AbstractDisplay {
      * already enumerated via {@code IOPortTransportStateDisplayPort} with their real EDID); only the built-in panel,
      * which has no physical EDID EPROM, is synthesized from {@code DisplayAttributes}.
      *
+     * @param cgDisplays The batch's memoized CoreGraphics query
      * @return A list containing the built-in display, or empty if not found
      */
-    private static List<Display> getAppleSiliconBuiltInDisplay() {
+    private static List<Display> getAppleSiliconBuiltInDisplay(Supplier<List<CoreGraphicsDisplay>> cgDisplays) {
         List<Display> displays = new ArrayList<>();
         IOIterator iter = IOKitUtil.getMatchingServices("IOMobileFramebuffer");
         if (iter == null) {
@@ -192,7 +196,7 @@ final class MacDisplayJNA extends AbstractDisplay {
             IORegistryEntry fb = iter.next();
             while (fb != null) {
                 try {
-                    addBuiltInDisplay(fb, cfExternal, cfAttrs, displays);
+                    addBuiltInDisplay(fb, cfExternal, cfAttrs, displays, cgDisplays);
                 } finally {
                     fb.release();
                 }
@@ -209,7 +213,7 @@ final class MacDisplayJNA extends AbstractDisplay {
     // Synthesizes a display for the built-in panel from its DisplayAttributes dictionary. External framebuffer nodes
     // (marked with "external" = true) are skipped, as are idle pipes with no DisplayAttributes.
     private static void addBuiltInDisplay(IORegistryEntry fb, CFStringRef cfExternal, CFStringRef cfAttrs,
-            List<Display> displays) {
+            List<Display> displays, Supplier<List<CoreGraphicsDisplay>> cgDisplays) {
         // Skip external monitors — they are already enumerated via IOPortTransportStateDisplayPort.
         CFTypeRef externalRef = fb.createCFProperty(cfExternal);
         if (externalRef != null) {
@@ -242,7 +246,7 @@ final class MacDisplayJNA extends AbstractDisplay {
         try {
             DisplayInfo info = synthesize(fb, new CFDictionaryRef(attrsRaw.getPointer()), devicePort);
             if (info != null) {
-                displays.add(new MacDisplayJNA(info, devicePort));
+                displays.add(new MacDisplayJNA(info, devicePort, cgDisplays));
             }
         } finally {
             attrsRaw.release();
@@ -294,20 +298,53 @@ final class MacDisplayJNA extends AbstractDisplay {
     // Returns the CGDirectDisplayID of the built-in display, or -1 if not found.
     private static int findBuiltInDisplayId() {
         CoreGraphics cg = CoreGraphics.INSTANCE;
-        IntByReference count = new IntByReference();
-        if (cg.CGGetActiveDisplayList(0, null, count) != 0 || count.getValue() == 0) {
-            return -1;
-        }
-        int[] displayIds = new int[count.getValue()];
-        if (cg.CGGetActiveDisplayList(displayIds.length, displayIds, count) != 0) {
-            return -1;
-        }
-        for (int id : displayIds) {
+        for (int id : getActiveDisplayIds(cg)) {
             if (cg.CGDisplayIsBuiltin(id) != 0) {
                 return id;
             }
         }
         return -1;
+    }
+
+    // Returns the CGDirectDisplayIDs of the active displays, or an empty array if they cannot be listed.
+    private static int[] getActiveDisplayIds(CoreGraphics cg) {
+        IntByReference count = new IntByReference();
+        if (cg.CGGetActiveDisplayList(0, null, count) != 0 || count.getValue() == 0) {
+            return new int[0];
+        }
+        int[] displayIds = new int[count.getValue()];
+        if (cg.CGGetActiveDisplayList(displayIds.length, displayIds, count) != 0) {
+            return new int[0];
+        }
+        return Arrays.copyOf(displayIds, Math.min(count.getValue(), displayIds.length));
+    }
+
+    // Describes each active display as CoreGraphics reports it, for matching to the IOKit-enumerated displays.
+    private static List<CoreGraphicsDisplay> queryCoreGraphicsDisplays() {
+        return ExceptionUtil.getOrDefault(() -> {
+            CoreGraphicsExt cg = CoreGraphicsExt.INSTANCE;
+            List<CoreGraphicsDisplay> cgDisplays = new ArrayList<>();
+            for (int id : getActiveDisplayIds(cg)) {
+                cgDisplays.add(new CoreGraphicsDisplay(cg.CGDisplayVendorNumber(id), cg.CGDisplayModelNumber(id),
+                        cg.CGDisplaySerialNumber(id), cg.CGDisplayIsBuiltin(id) != 0, readMode(cg, id)));
+            }
+            return cgDisplays;
+        }, Collections.<CoreGraphicsDisplay>emptyList(), LOG, "Failed to query CoreGraphics displays");
+    }
+
+    private static @Nullable DisplayMode readMode(CoreGraphicsExt cg, int id) {
+        Pointer mode = cg.CGDisplayCopyDisplayMode(id);
+        if (mode == null) {
+            return null;
+        }
+        try {
+            CGRect bounds = cg.CGDisplayBounds(id);
+            return CoreGraphicsDisplay.toMode(bounds.origin.x, bounds.origin.y, bounds.size.width, bounds.size.height,
+                    cg.CGDisplayModeGetPixelWidth(mode), cg.CGDisplayModeGetPixelHeight(mode),
+                    cg.CGDisplayModeGetRefreshRate(mode), cg.CGDisplayRotation(id));
+        } finally {
+            cg.CGDisplayModeRelease(mode);
+        }
     }
 
     // Returns the NSScreen.localizedName for the given CGDirectDisplayID, or null.

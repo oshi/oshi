@@ -31,8 +31,12 @@ import oshi.util.Constants;
  * For displays that report their attributes without providing an EDID (such as a built-in macOS Retina panel),
  * {@link DisplayInfo#isEdidSynthetic()} returns {@code true} and {@link DisplayInfo#getEdid()} returns an EDID
  * synthesized from those attributes.
+ * <p>
+ * What the display is, as described by its EDID, is on {@link DisplayInfo}. How it is attached and how the windowing
+ * system is currently driving it, such as {@link #getDevicePort()} and {@link #getCurrentMode()}, is on this interface.
  *
  * @see DisplayInfo
+ * @see DisplayMode
  * @see oshi.util.EdidUtil
  */
 @PublicApi
@@ -86,6 +90,46 @@ public interface Display {
      * @return An {@link Optional} containing the xrandr output name, or empty if not available.
      */
     default Optional<String> getOutputName() {
+        return Optional.empty();
+    }
+
+    /**
+     * The mode the windowing system is currently driving this display in: its size, pixel resolution, refresh rate,
+     * rotation, and position on the desktop.
+     * <p>
+     * The display must be matched to the windowing system's own view of it, which is done lazily on the first call:
+     * <ul>
+     * <li>macOS: by comparing the EDID's vendor, product and serial numbers with those CoreGraphics reports. Two
+     * connected monitors that report identical numbers cannot be told apart, and neither returns a mode.</li>
+     * <li>Windows: by the monitor's device path, through the Connecting and Configuring Displays (CCD) API.</li>
+     * <li>Linux and the other UNIX platforms: by the {@code xrandr} output that {@link #getOutputName()} names, so an X
+     * server with the RandR extension must be reachable.</li>
+     * </ul>
+     * A {@link Display} is a snapshot, so the mode is read once and not refreshed; query the displays again to see a
+     * change.
+     *
+     * @return An {@link Optional} containing the current mode, or empty if the display is not active on the desktop or
+     *         cannot be matched to the windowing system.
+     */
+    default Optional<DisplayMode> getCurrentMode() {
+        return Optional.empty();
+    }
+
+    /**
+     * Whether this display is built into the device, such as a laptop panel, rather than an external monitor.
+     * <ul>
+     * <li>macOS: CoreGraphics' own classification for a display it can match, and known directly for the Apple Silicon
+     * built-in panel and external ports.</li>
+     * <li>Windows: from the output technology the CCD API reports for the display's connector, where embedded
+     * DisplayPort, LVDS, embedded UDI and internal connections are built in.</li>
+     * <li>Linux and the other UNIX platforms: from the connector name, where {@code eDP}, {@code LVDS} and {@code DSI}
+     * connectors are built in.</li>
+     * </ul>
+     *
+     * @return An {@link Optional} containing {@code true} if the display is built in, {@code false} if it is external,
+     *         or empty if it cannot be determined.
+     */
+    default Optional<Boolean> isBuiltIn() {
         return Optional.empty();
     }
 }

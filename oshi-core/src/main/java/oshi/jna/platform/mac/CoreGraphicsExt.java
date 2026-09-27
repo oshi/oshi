@@ -5,6 +5,7 @@
 package oshi.jna.platform.mac;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
 import com.sun.jna.platform.mac.CoreGraphics;
@@ -34,4 +35,45 @@ public interface CoreGraphicsExt extends CoreGraphics {
      * @return A {@link CGSizeByValue} containing the width and height in millimeters.
      */
     CGSizeByValue CGDisplayScreenSize(int display);
+
+    /**
+     * Returns the display's current mode. The caller must release it with {@link #CGDisplayModeRelease(Pointer)}.
+     *
+     * @param display The display identifier.
+     * @return A {@code CGDisplayModeRef}, or {@code null} if the display is invalid.
+     */
+    Pointer CGDisplayCopyDisplayMode(int display);
+
+    /**
+     * Returns the width of a display mode in pixels. The return type is {@code size_t}, 64 bits on every macOS
+     * architecture.
+     *
+     * @param mode The display mode.
+     * @return The width in pixels.
+     */
+    long CGDisplayModeGetPixelWidth(Pointer mode);
+
+    /**
+     * Returns the height of a display mode in pixels. The return type is {@code size_t}, 64 bits on every macOS
+     * architecture.
+     *
+     * @param mode The display mode.
+     * @return The height in pixels.
+     */
+    long CGDisplayModeGetPixelHeight(Pointer mode);
+
+    /**
+     * Returns the refresh rate of a display mode.
+     *
+     * @param mode The display mode.
+     * @return The refresh rate in hertz, or 0 for a display with no fixed rate.
+     */
+    double CGDisplayModeGetRefreshRate(Pointer mode);
+
+    /**
+     * Releases a display mode.
+     *
+     * @param mode The display mode.
+     */
+    void CGDisplayModeRelease(Pointer mode);
 }

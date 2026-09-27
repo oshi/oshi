@@ -347,6 +347,11 @@ class NativeComparisonTest {
         List<Display> jna = jnaHal.getDisplays();
         List<Display> ffm = ffmHal.getDisplays();
         assertThat(ffm).usingRecursiveComparison().isEqualTo(jna);
+        // The windowing-system state is read lazily, so compare it through the getters rather than the fields
+        assertThat(ffm.stream().map(Display::getCurrentMode).toList()).usingRecursiveComparison()
+                .isEqualTo(jna.stream().map(Display::getCurrentMode).toList());
+        assertThat(ffm.stream().map(Display::isBuiltIn).toList())
+                .isEqualTo(jna.stream().map(Display::isBuiltIn).toList());
     }
 
     // ---- Hardware: USB Devices ----

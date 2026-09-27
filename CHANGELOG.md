@@ -3,6 +3,7 @@
 ##### New Features
 
 * [#3745](https://github.com/oshi/oshi/pull/3745): The FFM implementation reads NetBSD natively, through `sysctl`, `getloadavg`, `_lwp_self` and `getrlimit`, where it previously ran commands and parsed their output. NetBSD was the last platform with no native FFM code of its own - [@dbwiddis](https://github.com/dbwiddis).
+* [#3757](https://github.com/oshi/oshi/pull/3757): `Display.getCurrentMode()` returns the mode a display is driven in: its logical and pixel resolution, refresh rate, rotation, and position on the desktop. `Display.isBuiltIn()` reports whether it is a built-in panel. Both are available on Windows, macOS, and on Linux and the other UNIX platforms through X11 - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

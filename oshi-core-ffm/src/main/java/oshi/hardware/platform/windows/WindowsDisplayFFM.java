@@ -25,19 +25,21 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.driver.common.windows.DisplayConnector;
+import oshi.driver.common.windows.DisplayConnector.Connector;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.windows.Advapi32FFM;
 import oshi.ffm.platform.windows.SetupApiFFM;
 import oshi.ffm.platform.windows.User32FFM;
 import oshi.hardware.Display;
-import oshi.hardware.common.AbstractDisplay;
+import oshi.hardware.DisplayMode;
+import oshi.hardware.common.platform.windows.WindowsDisplay;
 import oshi.util.Constants;
 
 /**
  * A Display using FFM for native access.
  */
 @Immutable
-final class WindowsDisplayFFM extends AbstractDisplay {
+final class WindowsDisplayFFM extends WindowsDisplay {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsDisplayFFM.class);
 
@@ -54,21 +56,9 @@ final class WindowsDisplayFFM extends AbstractDisplay {
     // Attempts allowed for the QueryDisplayConfig size-then-query pair, in case the topology changes between them.
     private static final int QDC_ATTEMPTS = 3;
 
-    private final String devicePort;
-
-    WindowsDisplayFFM(byte[] edid) {
-        this(edid, Constants.UNKNOWN);
-    }
-
-    WindowsDisplayFFM(byte[] edid, String devicePort) {
-        super(edid);
-        this.devicePort = devicePort;
+    WindowsDisplayFFM(byte[] edid, @Nullable Connector connector) {
+        super(edid, connector);
         LOG.debug("Initialized WindowsDisplayFFM");
-    }
-
-    @Override
-    public String getDevicePort() {
-        return this.devicePort;
     }
 
     /**
@@ -83,8 +73,8 @@ final class WindowsDisplayFFM extends AbstractDisplay {
             MemorySegment guidSeg = arena.allocate(16);
             guidSeg.copyFrom(MemorySegment.ofArray(GUID_DEVINTERFACE_MONITOR));
 
-            // Map every active connector's device interface path to its connector name.
-            Map<String, String> portByPath = queryConnectorPorts(arena);
+            // Map every active connector's device interface path to its connector and mode.
+            Map<String, Connector> connectorByPath = queryConnectors(arena);
 
             Optional<MemorySegment> hDevInfoOpt = SetupApiFFM.SetupDiGetClassDevs(guidSeg,
                     SetupApiFFM.DIGCF_PRESENT | SetupApiFFM.DIGCF_DEVICEINTERFACE);
@@ -114,8 +104,9 @@ final class WindowsDisplayFFM extends AbstractDisplay {
                     try (var _ = NativeHandle.of(key, Advapi32FFM::RegCloseKey)) {
                         byte @Nullable [] edid = queryEdidFromKey(key, edidName, arena);
                         if (edid != null) {
-                            String port = lookupPort(hDevInfo, devInfoData, guidSeg, did, portByPath, arena);
-                            displays.add(new WindowsDisplayFFM(edid, port));
+                            Connector connector = lookupConnector(hDevInfo, devInfoData, guidSeg, did, connectorByPath,
+                                    arena);
+                            displays.add(new WindowsDisplayFFM(edid, connector));
                         }
                     }
                 }
@@ -146,32 +137,32 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         }, null, LOG, "Failed to read EDID from registry");
     }
 
-    // Resolves the connector name for the current device by fetching its device interface path and looking it up in the
-    // CCD-derived map. Returns the sentinel if the interface or path cannot be obtained.
-    private static String lookupPort(MemorySegment hDevInfo, MemorySegment devInfoData, MemorySegment guidSeg,
-            MemorySegment did, Map<String, String> portByPath, Arena arena) {
+    // Resolves the connector for the current device by fetching its device interface path and looking it up in the
+    // CCD-derived map. Returns null if the interface or path cannot be obtained or is not an active connector.
+    private static @Nullable Connector lookupConnector(MemorySegment hDevInfo, MemorySegment devInfoData,
+            MemorySegment guidSeg, MemorySegment did, Map<String, Connector> connectorByPath, Arena arena) {
         did.fill((byte) 0);
         did.set(JAVA_INT, 0, (int) SP_DEVICE_INTERFACE_DATA.byteSize());
         if (SetupApiFFM.SetupDiEnumDeviceInterfaces(hDevInfo, devInfoData, guidSeg, 0, did) != 1) {
-            return Constants.UNKNOWN;
+            return null;
         }
         int size = SetupApiFFM.SetupDiGetDeviceInterfaceDetailSize(hDevInfo, did, arena);
         if (size <= 0) {
-            return Constants.UNKNOWN;
+            return null;
         }
         Optional<String> path = SetupApiFFM.SetupDiGetDeviceInterfaceDetail(hDevInfo, did, size, arena);
         if (!path.isPresent()) {
-            return Constants.UNKNOWN;
+            return null;
         }
-        return portByPath.getOrDefault(DisplayConnector.normalizePath(path.get()), Constants.UNKNOWN);
+        return connectorByPath.get(DisplayConnector.normalizePath(path.get()));
     }
 
-    // Builds a map from normalized monitor device interface path to connector name, from the CCD active paths. A
+    // Builds a map from normalized monitor device interface path to connector and mode, from the CCD active paths. A
     // topology change between sizing and querying the buffers makes QueryDisplayConfig fail with
     // ERROR_INSUFFICIENT_BUFFER, which is retryable by re-sizing.
-    private static Map<String, String> queryConnectorPorts(Arena arena) {
+    private static Map<String, Connector> queryConnectors(Arena arena) {
         for (int attempt = 0; attempt < QDC_ATTEMPTS; attempt++) {
-            Map<String, String> map = queryConnectorPortsOnce(arena);
+            Map<String, Connector> map = queryConnectorsOnce(arena);
             if (map != null) {
                 return map;
             }
@@ -181,8 +172,8 @@ final class WindowsDisplayFFM extends AbstractDisplay {
     }
 
     // Returns null if the buffers were too small and the caller should re-size and retry.
-    private static @Nullable Map<String, String> queryConnectorPortsOnce(Arena arena) {
-        Map<String, String> map = new HashMap<>();
+    private static @Nullable Map<String, Connector> queryConnectorsOnce(Arena arena) {
+        Map<String, Connector> map = new HashMap<>();
         MemorySegment numPaths = arena.allocate(JAVA_INT);
         MemorySegment numModes = arena.allocate(JAVA_INT);
         if (User32FFM.GetDisplayConfigBufferSizes(DisplayConnector.QDC_ONLY_ACTIVE_PATHS, numPaths,
@@ -205,6 +196,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
             return map;
         }
         int actualPaths = numPaths.get(JAVA_INT, 0);
+        int actualModes = numModes.get(JAVA_INT, 0);
         for (int i = 0; i < actualPaths; i++) {
             long base = (long) i * DisplayConnector.PATH_INFO_SIZE;
             int flags = paths.get(JAVA_INT, base + DisplayConnector.PATH_FLAGS_OFFSET);
@@ -213,13 +205,16 @@ final class WindowsDisplayFFM extends AbstractDisplay {
             }
             long adapterId = paths.get(JAVA_LONG_UNALIGNED, base + DisplayConnector.PATH_TARGET_ADAPTER_ID_OFFSET);
             int targetId = paths.get(JAVA_INT, base + DisplayConnector.PATH_TARGET_ID_OFFSET);
-            addConnector(map, arena, adapterId, targetId);
+            DisplayMode mode = DisplayConnector.readMode(off -> paths.get(JAVA_INT, base + off),
+                    off -> modes.get(JAVA_INT, off), actualModes);
+            addConnector(map, arena, adapterId, targetId, mode);
         }
         return map;
     }
 
-    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector name.
-    private static void addConnector(Map<String, String> map, Arena arena, long adapterId, int targetId) {
+    // Fetches one target's DISPLAYCONFIG_TARGET_DEVICE_NAME and records its device path -> connector.
+    private static void addConnector(Map<String, Connector> map, Arena arena, long adapterId, int targetId,
+            @Nullable DisplayMode mode) {
         MemorySegment tdn = arena.allocate(DisplayConnector.TARGET_DEVICE_NAME_SIZE);
         tdn.set(JAVA_INT, 0, DisplayConnector.DEVICE_INFO_GET_TARGET_NAME);
         tdn.set(JAVA_INT, DisplayConnector.TDN_HEADER_SIZE_OFFSET, DisplayConnector.TARGET_DEVICE_NAME_SIZE);
@@ -233,7 +228,7 @@ final class WindowsDisplayFFM extends AbstractDisplay {
         String path = readWideString(tdn.asSlice(DisplayConnector.TDN_MONITOR_DEVICE_PATH_OFFSET));
         String key = DisplayConnector.normalizePath(path);
         if (!Constants.UNKNOWN.equals(key)) {
-            map.put(key, DisplayConnector.connectorName(outputTechnology, connectorInstance));
+            map.put(key, new Connector(outputTechnology, connectorInstance, mode));
         }
     }
 }

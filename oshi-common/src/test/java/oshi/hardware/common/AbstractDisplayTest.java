@@ -82,4 +82,12 @@ class AbstractDisplayTest {
         };
         assertThat(display.getOutputName().isPresent(), is(false));
     }
+
+    @Test
+    void testDefaultCurrentModeAndBuiltInAreEmpty() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128]) {
+        };
+        assertThat(display.getCurrentMode().isPresent(), is(false));
+        assertThat(display.isBuiltIn().isPresent(), is(false));
+    }
 }

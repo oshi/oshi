@@ -473,6 +473,8 @@ public final class SystemInfoHelper {
         for (Display display : list) {
             lines.add(" Display " + i + ":");
             lines.add("  Device Port: " + display.getDevicePort());
+            lines.add("  Built In: " + display.isBuiltIn().map(String::valueOf).orElse(Constants.UNKNOWN));
+            lines.add("  Current Mode: " + display.getCurrentMode().map(String::valueOf).orElse(Constants.UNKNOWN));
             lines.add(String.valueOf(display));
             i++;
         }

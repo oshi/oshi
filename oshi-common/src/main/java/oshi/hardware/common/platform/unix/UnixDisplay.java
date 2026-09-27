@@ -8,16 +8,16 @@ import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.Display;
+import oshi.hardware.DisplayMode;
 import oshi.hardware.common.AbstractDisplay;
 import oshi.util.Constants;
 import oshi.util.driver.unix.Xrandr;
-import oshi.util.tuples.Pair;
+import oshi.util.driver.unix.Xrandr.Output;
 import oshi.util.tuples.Triplet;
 
 /**
@@ -26,9 +26,14 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class UnixDisplay extends AbstractDisplay {
 
+    private static final String[] BUILT_IN_CONNECTORS = { "eDP", "LVDS", "DSI" };
+    // The amdgpu and radeon X drivers spell DisplayPort out (DisplayPort-0) where DRM and other drivers use DP
+    private static final String[] EXTERNAL_CONNECTORS = { "DP", "DisplayPort", "HDMI", "DVI", "VGA", "TV", "Composite",
+            "SVIDEO", "S-video", "Component", "DIN", "USB" };
+
     private final String devicePort;
     private final int connectorId;
-    private final Supplier<Map<String, Pair<Integer, byte[]>>> xrandrData;
+    private final Supplier<List<Output>> xrandrData;
 
     /**
      * Constructor for UnixDisplay.
@@ -47,7 +52,7 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param connectorId the DRM connector ID ({@code -1} if not available)
      */
     public UnixDisplay(byte[] edid, String devicePort, int connectorId) {
-        this(edid, devicePort, connectorId, memoize(Xrandr::getDisplayData));
+        this(edid, devicePort, connectorId, memoize(Xrandr::getOutputs));
     }
 
     /**
@@ -58,8 +63,7 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param connectorId the DRM connector ID ({@code -1} if not available)
      * @param xrandrData  the display's source of xrandr data, expected to be memoized or already realized
      */
-    private UnixDisplay(byte[] edid, String devicePort, int connectorId,
-            Supplier<Map<String, Pair<Integer, byte[]>>> xrandrData) {
+    private UnixDisplay(byte[] edid, String devicePort, int connectorId, Supplier<List<Output>> xrandrData) {
         super(edid);
         this.devicePort = devicePort;
         this.connectorId = connectorId;
@@ -73,7 +77,51 @@ public final class UnixDisplay extends AbstractDisplay {
 
     @Override
     public Optional<String> getOutputName() {
-        return Xrandr.findOutputName(this.xrandrData.get(), this.connectorId, this.getDisplayInfo().getEdid());
+        return findOutput().map(Output::getName);
+    }
+
+    @Override
+    public Optional<DisplayMode> getCurrentMode() {
+        return findOutput().flatMap(Output::getMode);
+    }
+
+    @Override
+    public Optional<Boolean> isBuiltIn() {
+        if (!Constants.UNKNOWN.equals(this.devicePort)) {
+            return isBuiltInConnector(this.devicePort);
+        }
+        return getOutputName().flatMap(UnixDisplay::isBuiltInConnector);
+    }
+
+    private Optional<Output> findOutput() {
+        return Xrandr.findOutput(this.xrandrData.get(), this.connectorId, this.getDisplayInfo().getEdid());
+    }
+
+    /**
+     * Classifies a connector as built in or external by its name. DRM names connectors by type ({@code eDP-1},
+     * {@code HDMI-A-1}), and X drivers follow the same convention with or without the hyphen ({@code eDP1},
+     * {@code HDMI1}).
+     *
+     * @param connector a DRM connector name or xrandr output name
+     * @return {@code true} for an embedded panel connector ({@code eDP}, {@code LVDS}, {@code DSI}), {@code false} for
+     *         an external connector type, or empty for a name that does not identify its type, such as a virtual output
+     */
+    static Optional<Boolean> isBuiltInConnector(String connector) {
+        for (String prefix : BUILT_IN_CONNECTORS) {
+            if (connector.startsWith(prefix)) {
+                return Optional.of(Boolean.TRUE);
+            }
+        }
+        // DPI (parallel RGB) drives both embedded panels and external adapters, and shares a prefix with DP
+        if (connector.startsWith("DPI")) {
+            return Optional.empty();
+        }
+        for (String prefix : EXTERNAL_CONNECTORS) {
+            if (connector.startsWith(prefix)) {
+                return Optional.of(Boolean.FALSE);
+            }
+        }
+        return Optional.empty();
     }
 
     /**
@@ -82,12 +130,12 @@ public final class UnixDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays() {
-        Map<String, Pair<Integer, byte[]>> data = Xrandr.getDisplayData();
-        List<Display> displays = new ArrayList<>(data.size());
+        List<Output> outputs = Xrandr.getOutputs();
+        List<Display> displays = new ArrayList<>(outputs.size());
         // The data is already in hand, so these displays need no further xrandr query
-        Supplier<Map<String, Pair<Integer, byte[]>>> sharedData = () -> data;
-        for (Map.Entry<String, Pair<Integer, byte[]>> entry : data.entrySet()) {
-            displays.add(new UnixDisplay(entry.getValue().getB(), entry.getKey(), entry.getValue().getA(), sharedData));
+        Supplier<List<Output>> sharedData = () -> outputs;
+        for (Output output : outputs) {
+            displays.add(new UnixDisplay(output.getEdid(), output.getName(), output.getConnectorId(), sharedData));
         }
         return displays;
     }
@@ -101,24 +149,26 @@ public final class UnixDisplay extends AbstractDisplay {
      * @return An array of Display objects representing monitors, etc.
      */
     public static List<Display> getDisplays(List<Triplet<String, Integer, byte[]>> drmData) {
-        return getDisplays(drmData, Xrandr::getDisplayData);
+        return getDisplays(drmData, Xrandr::getOutputs);
     }
 
     /**
-     * Builds a batch of displays sharing one query for the xrandr data behind {@link #getOutputName()}.
+     * Builds a batch of displays sharing one query for the xrandr data behind {@link #getOutputName()} and
+     * {@link #getCurrentMode()}.
      * <p>
-     * The query is memoized indefinitely, because a {@link Display} is an immutable snapshot: the output name matching
-     * its connector cannot change over the object's lifetime. The hardware abstraction layer re-queries displays on its
-     * own schedule, building a new batch with a new supplier, so a topology change is picked up there.
+     * The query is memoized indefinitely, because a {@link Display} is an immutable snapshot: the output matching its
+     * connector, and the mode read with it, do not change over the object's lifetime. The hardware abstraction layer
+     * re-queries displays on its own schedule, building a new batch with a new supplier, so a topology change is picked
+     * up there.
      *
      * @param drmData     the DRM sysfs data to build displays from
      * @param xrandrQuery the query for xrandr display data, run at most once for the whole batch
      * @return An array of Display objects representing monitors, etc.
      */
     static List<Display> getDisplays(List<Triplet<String, Integer, byte[]>> drmData,
-            Supplier<Map<String, Pair<Integer, byte[]>>> xrandrQuery) {
+            Supplier<List<Output>> xrandrQuery) {
         List<Display> displays = new ArrayList<>(drmData.size());
-        Supplier<Map<String, Pair<Integer, byte[]>>> sharedData = memoize(xrandrQuery);
+        Supplier<List<Output>> sharedData = memoize(xrandrQuery);
         for (Triplet<String, Integer, byte[]> drm : drmData) {
             displays.add(new UnixDisplay(drm.getC(), drm.getA(), drm.getB(), sharedData));
         }
