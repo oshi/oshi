@@ -1,4 +1,4 @@
-# 7.6.2 (in progress)
+# 7.7.0 (in progress)
 
 ##### New Features
 
