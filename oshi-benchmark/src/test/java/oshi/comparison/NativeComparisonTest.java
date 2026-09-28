@@ -352,6 +352,8 @@ class NativeComparisonTest {
                 .isEqualTo(jna.stream().map(Display::getCurrentMode).toList());
         assertThat(ffm.stream().map(Display::isBuiltIn).toList())
                 .isEqualTo(jna.stream().map(Display::isBuiltIn).toList());
+        assertThat(ffm.stream().map(Display::isPrimary).toList())
+                .isEqualTo(jna.stream().map(Display::isPrimary).toList());
     }
 
     // ---- Hardware: USB Devices ----

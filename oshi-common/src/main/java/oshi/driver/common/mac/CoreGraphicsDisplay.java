@@ -30,6 +30,7 @@ public final class CoreGraphicsDisplay {
     private final int model;
     private final int serial;
     private final boolean builtIn;
+    private final boolean main;
     private final @Nullable DisplayMode mode;
 
     /**
@@ -39,13 +40,16 @@ public final class CoreGraphicsDisplay {
      * @param model   the value of {@code CGDisplayModelNumber}
      * @param serial  the value of {@code CGDisplaySerialNumber}
      * @param builtIn the value of {@code CGDisplayIsBuiltin}
+     * @param main    the value of {@code CGDisplayIsMain}
      * @param mode    the display's current mode, as built by {@link #toMode}, or {@code null} if it could not be read
      */
-    public CoreGraphicsDisplay(int vendor, int model, int serial, boolean builtIn, @Nullable DisplayMode mode) {
+    public CoreGraphicsDisplay(int vendor, int model, int serial, boolean builtIn, boolean main,
+            @Nullable DisplayMode mode) {
         this.vendor = vendor;
         this.model = model;
         this.serial = serial;
         this.builtIn = builtIn;
+        this.main = main;
         this.mode = mode;
     }
 
@@ -56,6 +60,16 @@ public final class CoreGraphicsDisplay {
      */
     public boolean isBuiltIn() {
         return builtIn;
+    }
+
+    /**
+     * Whether CoreGraphics reports this display as the main display, the one holding the menu bar and the desktop
+     * origin.
+     *
+     * @return true if the main display
+     */
+    public boolean isMain() {
+        return main;
     }
 
     /**

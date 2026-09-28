@@ -132,4 +132,37 @@ public interface Display {
     default Optional<Boolean> isBuiltIn() {
         return Optional.empty();
     }
+
+    /**
+     * Whether this display is the primary display: the one the windowing system treats as the main desktop, placing it
+     * at the desktop origin and, on macOS, giving it the menu bar.
+     * <p>
+     * As for {@link #getCurrentMode()}, the display must be matched to the windowing system's own view of it, which is
+     * done lazily on the first call:
+     * <ul>
+     * <li>macOS: CoreGraphics' main display, as {@code CGDisplayIsMain} reports it. A display is matched by comparing
+     * the EDID's vendor, product and serial numbers with those CoreGraphics reports, and the Apple Silicon built-in
+     * panel by its built-in flag. Two active monitors that report identical numbers cannot be told apart, and neither
+     * returns a value; if CoreGraphics lists only one of them as active, both are matched to it and report its
+     * status.</li>
+     * <li>Windows: the display whose desktop position in its current mode is the origin, which is how Windows defines
+     * the primary display. A display that is attached but not active on the desktop has no current mode, and returns no
+     * value.</li>
+     * <li>Linux and the other UNIX platforms: the {@code xrandr} output marked {@code primary}, matched as
+     * {@link #getOutputName()} describes, so an X server with the RandR extension must be reachable. Under Wayland
+     * without an X server, or on a headless system, no value is returned.</li>
+     * </ul>
+     * Exactly one display reporting {@code true} is not guaranteed. On Windows, a display cloning the primary display
+     * shares its desktop position and also reports {@code true}. X11 need not designate a primary output at all, in
+     * which case every output reports {@code false}.
+     * <p>
+     * A {@link Display} is a snapshot, so the status is read once and not refreshed; query the displays again to see a
+     * change.
+     *
+     * @return An {@link Optional} containing {@code true} if the display is the primary display, {@code false} if it is
+     *         not, or empty if it cannot be determined because the display cannot be matched to the windowing system.
+     */
+    default Optional<Boolean> isPrimary() {
+        return Optional.empty();
+    }
 }

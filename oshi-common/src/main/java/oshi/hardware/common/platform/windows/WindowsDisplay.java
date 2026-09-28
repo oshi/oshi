@@ -49,4 +49,11 @@ public abstract class WindowsDisplay extends AbstractDisplay {
     public Optional<Boolean> isBuiltIn() {
         return connector == null ? Optional.empty() : Optional.of(connector.isBuiltIn());
     }
+
+    @Override
+    public Optional<Boolean> isPrimary() {
+        // Windows defines the primary display as the one whose desktop origin is (0, 0). Displays cloning it share its
+        // source mode and position, so each of them reports primary too.
+        return getCurrentMode().map(mode -> mode.getX() == 0 && mode.getY() == 0);
+    }
 }

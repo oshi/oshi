@@ -95,8 +95,8 @@ public final class Xrandr {
     /**
      * Parse the connected outputs from xrandr verbose output. For each connected output, extracts the xrandr port name
      * (the first whitespace-delimited token on the output header line), the {@code CONNECTOR_ID} property (if present,
-     * requires Linux 6.5+), the EDID byte array, and the current mode. The parser is order-independent:
-     * {@code CONNECTOR_ID} may appear before or after {@code EDID:}.
+     * requires Linux 6.5+), the EDID byte array, the current mode, and the primary status. The parser is
+     * order-independent: {@code CONNECTOR_ID} may appear before or after {@code EDID:}.
      * <p>
      * The current mode combines the output header, which gives the output's area on the X screen and its rotation (e.g.
      * {@code HDMI-1 connected primary 1920x1080+1920+0 (0x46) left (normal left inverted right ...)}), with the mode
@@ -204,6 +204,7 @@ public final class Xrandr {
         private final int connectorId;
         private final byte[] edid;
         private final @Nullable DisplayMode mode;
+        private final boolean primary;
 
         /**
          * Constructor for Output.
@@ -212,12 +213,14 @@ public final class Xrandr {
          * @param connectorId the DRM connector ID, or {@code -1} if not available
          * @param edid        the EDID byte array
          * @param mode        the current mode, or {@code null} if the output is not enabled
+         * @param primary     whether the output is marked primary
          */
-        public Output(String name, int connectorId, byte[] edid, @Nullable DisplayMode mode) {
+        public Output(String name, int connectorId, byte[] edid, @Nullable DisplayMode mode, boolean primary) {
             this.name = name;
             this.connectorId = connectorId;
             this.edid = Arrays.copyOf(edid, edid.length);
             this.mode = mode;
+            this.primary = primary;
         }
 
         /**
@@ -255,6 +258,15 @@ public final class Xrandr {
         public Optional<DisplayMode> getMode() {
             return Optional.ofNullable(mode);
         }
+
+        /**
+         * Whether the output is marked primary.
+         *
+         * @return {@code true} if the output is marked primary
+         */
+        public boolean isPrimary() {
+            return primary;
+        }
     }
 
     /**
@@ -266,6 +278,7 @@ public final class Xrandr {
         private final String name;
         private int connectorId = -1;
         private byte @Nullable [] edid;
+        private boolean primary;
 
         // From the header line; a width of 0 means the output has no geometry and is not enabled
         private int width;
@@ -287,7 +300,9 @@ public final class Xrandr {
             for (int i = 2; i < header.length; i++) {
                 String token = header[i];
                 Matcher m = GEOMETRY.matcher(token);
-                if (m.matches()) {
+                if ("primary".equals(token)) {
+                    this.primary = true;
+                } else if (m.matches()) {
                     this.width = ParseUtil.parseIntOrDefault(m.group(1), 0);
                     this.height = ParseUtil.parseIntOrDefault(m.group(2), 0);
                     this.x = ParseUtil.parseIntOrDefault(m.group(3), 0);
@@ -339,7 +354,7 @@ public final class Xrandr {
                 }
                 mode = new DisplayModeImpl(x, y, width, height, pixelWidth, pixelHeight, refreshRate, rotation);
             }
-            return new Output(name, connectorId, edidBytes, mode);
+            return new Output(name, connectorId, edidBytes, mode, primary);
         }
 
         private static int parseTimingValue(String line, String key) {

@@ -71,6 +71,15 @@ public final class CoreGraphicsFunctions extends MacForeignFunctions {
         return (int) CGDisplayIsBuiltin.invokeExact(display);
     }
 
+    // boolean_t CGDisplayIsMain(CGDirectDisplayID display);
+
+    private static final MethodHandle CGDisplayIsMain = LINKER
+            .downcallHandle(CORE_GRAPHICS.findOrThrow("CGDisplayIsMain"), FunctionDescriptor.of(JAVA_INT, JAVA_INT));
+
+    public static int CGDisplayIsMain(int display) throws Throwable {
+        return (int) CGDisplayIsMain.invokeExact(display);
+    }
+
     // uint32_t CGDisplayModelNumber(CGDirectDisplayID display);
 
     private static final MethodHandle CGDisplayModelNumber = LINKER.downcallHandle(

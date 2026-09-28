@@ -59,9 +59,15 @@ final class MacDisplayFFM extends MacDisplay {
         LOG.debug("Initialized MacDisplayFFM (synthetic)");
     }
 
+    /**
+     * Gets Display Information
+     *
+     * @return A list of Display objects representing monitors, etc.
+     */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // One CoreGraphics query for the whole batch, run only if a display's mode or built-in status is requested
+        // One CoreGraphics query for the whole batch, run only if a display's mode, built-in or primary status is
+        // requested
         Supplier<List<CoreGraphicsDisplay>> cgDisplays = memoize(MacDisplayFFM::queryCoreGraphicsDisplays);
         // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available,
         // and the built-in panel is enumerated here too, so ask CoreGraphics which is which.
@@ -265,7 +271,8 @@ final class MacDisplayFFM extends MacDisplay {
             for (int id : getActiveDisplayIds()) {
                 cgDisplays.add(new CoreGraphicsDisplay(CoreGraphicsFunctions.CGDisplayVendorNumber(id),
                         CoreGraphicsFunctions.CGDisplayModelNumber(id), CoreGraphicsFunctions.CGDisplaySerialNumber(id),
-                        CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0, readMode(id)));
+                        CoreGraphicsFunctions.CGDisplayIsBuiltin(id) != 0,
+                        CoreGraphicsFunctions.CGDisplayIsMain(id) != 0, readMode(id)));
             }
             return cgDisplays;
         }, List.of(), LOG, "Failed to query CoreGraphics displays");

@@ -93,6 +93,11 @@ public final class UnixDisplay extends AbstractDisplay {
         return getOutputName().flatMap(UnixDisplay::isBuiltInConnector);
     }
 
+    @Override
+    public Optional<Boolean> isPrimary() {
+        return findOutput().map(Output::isPrimary);
+    }
+
     private Optional<Output> findOutput() {
         return Xrandr.findOutput(this.xrandrData.get(), this.connectorId, this.getDisplayInfo().getEdid());
     }
@@ -153,13 +158,13 @@ public final class UnixDisplay extends AbstractDisplay {
     }
 
     /**
-     * Builds a batch of displays sharing one query for the xrandr data behind {@link #getOutputName()} and
-     * {@link #getCurrentMode()}.
+     * Builds a batch of displays sharing one query for the xrandr data behind {@link #getOutputName()},
+     * {@link #getCurrentMode()} and {@link #isPrimary()}.
      * <p>
      * The query is memoized indefinitely, because a {@link Display} is an immutable snapshot: the output matching its
-     * connector, and the mode read with it, do not change over the object's lifetime. The hardware abstraction layer
-     * re-queries displays on its own schedule, building a new batch with a new supplier, so a topology change is picked
-     * up there.
+     * connector, and the mode and primary status read with it, do not change over the object's lifetime. The hardware
+     * abstraction layer re-queries displays on its own schedule, building a new batch with a new supplier, so a
+     * topology change is picked up there.
      *
      * @param drmData     the DRM sysfs data to build displays from
      * @param xrandrQuery the query for xrandr display data, run at most once for the whole batch

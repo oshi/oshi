@@ -196,6 +196,8 @@ public final class DisplayConnector {
      * @return the path's current mode, or {@code null} if it does not index a source mode
      */
     public static @Nullable DisplayMode readMode(LongToIntFunction path, LongToIntFunction modes, int modeCount) {
+        // A flat UINT32 because QueryDisplayConfig is called without QDC_VIRTUAL_MODE_AWARE; with that flag the field
+        // becomes a union of cloneGroupId and sourceModeInfoIdx bitfields
         int index = path.applyAsInt(PATH_SOURCE_MODE_IDX_OFFSET);
         // DISPLAYCONFIG_PATH_MODE_IDX_INVALID is 0xffffffff, negative as an int
         if (index < 0 || index >= modeCount) {

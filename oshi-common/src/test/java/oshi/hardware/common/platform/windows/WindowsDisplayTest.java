@@ -30,6 +30,7 @@ class WindowsDisplayTest {
         assertThat(display.getDevicePort(), is("unknown"));
         assertThat(display.getCurrentMode().isPresent(), is(false));
         assertThat(display.isBuiltIn().isPresent(), is(false));
+        assertThat(display.isPrimary().isPresent(), is(false));
     }
 
     @Test
@@ -40,6 +41,15 @@ class WindowsDisplayTest {
         assertThat(display.getDevicePort(), is("eDP"));
         assertThat(display.getCurrentMode(), is(Optional.of(mode)));
         assertThat(display.isBuiltIn(), is(Optional.of(Boolean.TRUE)));
+        // Its desktop origin is (0, 0)
+        assertThat(display.isPrimary(), is(Optional.of(Boolean.TRUE)));
+    }
+
+    @Test
+    void testSecondaryDisplayIsNotPrimary() {
+        DisplayMode mode = new DisplayModeImpl(2560, 0, 1920, 1080, 1920, 1080, 60d, 0);
+        TestDisplay display = new TestDisplay(new Connector(5, 0, mode));
+        assertThat(display.isPrimary(), is(Optional.of(Boolean.FALSE)));
     }
 
     @Test
@@ -49,5 +59,6 @@ class WindowsDisplayTest {
         assertThat(display.getDevicePort(), is("HDMI-1"));
         assertThat(display.getCurrentMode().isPresent(), is(false));
         assertThat(display.isBuiltIn(), is(Optional.of(Boolean.FALSE)));
+        assertThat(display.isPrimary().isPresent(), is(false));
     }
 }

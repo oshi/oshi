@@ -90,4 +90,11 @@ class AbstractDisplayTest {
         assertThat(display.getCurrentMode().isPresent(), is(false));
         assertThat(display.isBuiltIn().isPresent(), is(false));
     }
+
+    @Test
+    void testDefaultIsPrimaryIsEmpty() {
+        AbstractDisplay display = new AbstractDisplay(new byte[128]) {
+        };
+        assertThat(display.isPrimary().isPresent(), is(false));
+    }
 }

@@ -101,6 +101,25 @@ class UnixDisplayTest {
         }
     }
 
+    @Test
+    void testPrimaryStatusFromXrandr() {
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), () -> xrandrData());
+        assertThat(displays.size(), is(2));
+        // DP-2 is marked primary in xrandr data
+        assertThat(displays.get(0).isPrimary(), is(Optional.of(Boolean.TRUE)));
+        // HDMI-1 is not marked primary
+        assertThat(displays.get(1).isPrimary(), is(Optional.of(Boolean.FALSE)));
+    }
+
+    @Test
+    void testPrimaryStatusEmptyWithoutXrandr() {
+        // When xrandr data is empty (e.g., Wayland), primary status cannot be determined
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), Collections::emptyList);
+        assertThat(displays.size(), is(2));
+        assertThat(displays.get(0).isPrimary().isPresent(), is(false));
+        assertThat(displays.get(1).isPrimary().isPresent(), is(false));
+    }
+
     // Two displays as DRM sysfs reports them: connector name, connector ID, EDID
     private static List<Triplet<String, Integer, byte[]>> drmData() {
         List<Triplet<String, Integer, byte[]>> drmData = new ArrayList<>();
@@ -114,8 +133,8 @@ class UnixDisplayTest {
     // The same two displays as xrandr names them, matched to the DRM data by connector ID
     private static List<Output> xrandrData() {
         List<Output> data = new ArrayList<>();
-        data.add(new Output("DP-2", 96, edid((byte) 0x01), DP_2_MODE));
-        data.add(new Output("HDMI-1", 80, edid((byte) 0x02), null));
+        data.add(new Output("DP-2", 96, edid((byte) 0x01), DP_2_MODE, true));
+        data.add(new Output("HDMI-1", 80, edid((byte) 0x02), null, false));
         return data;
     }
 
