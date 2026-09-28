@@ -137,6 +137,9 @@ public interface Display {
      * Whether this display is the primary display. Returns {@code true} only when the platform positively identifies
      * this display as primary; returns {@code false} when the primary display cannot be determined (e.g. under Wayland,
      * on headless systems, or on platforms that do not expose primary-display information).
+     * <p>
+     * The result is not guaranteed to be unique: on Windows, a display cloning the primary display shares its desktop
+     * position, and also reports {@code true}.
      *
      * @return {@code true} if this display is the primary display, {@code false} otherwise
      */

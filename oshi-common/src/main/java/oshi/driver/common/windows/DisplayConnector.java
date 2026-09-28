@@ -66,16 +66,12 @@ public final class DisplayConnector {
 
     // DISPLAYCONFIG_MODE_INFO: infoType@0, id@4, adapterId@8, then a union at 16 which, for a source mode, is a
     // DISPLAYCONFIG_SOURCE_MODE of width, height, pixelFormat, and a POINTL position.
-    /** Offset of {@code infoType} (a {@code UINT32}) within a {@code DISPLAYCONFIG_MODE_INFO}. */
-    public static final int MODE_INFO_TYPE_OFFSET = 0;
-    /** {@code DISPLAYCONFIG_MODE_INFO_TYPE_SOURCE} value for the {@code infoType} field. */
-    public static final int MODE_INFO_TYPE_SOURCE = 1;
+    private static final int MODE_INFO_TYPE_OFFSET = 0;
+    private static final int MODE_INFO_TYPE_SOURCE = 1;
     private static final int SOURCE_MODE_WIDTH_OFFSET = 16;
     private static final int SOURCE_MODE_HEIGHT_OFFSET = 20;
-    /** Offset of {@code sourceMode.position.x} (a {@code LONG}) within a {@code DISPLAYCONFIG_MODE_INFO}. */
-    public static final int SOURCE_MODE_POSITION_X_OFFSET = 28;
-    /** Offset of {@code sourceMode.position.y} (a {@code LONG}) within a {@code DISPLAYCONFIG_MODE_INFO}. */
-    public static final int SOURCE_MODE_POSITION_Y_OFFSET = 32;
+    private static final int SOURCE_MODE_POSITION_X_OFFSET = 28;
+    private static final int SOURCE_MODE_POSITION_Y_OFFSET = 32;
 
     // DISPLAYCONFIG_ROTATION values, each a clockwise rotation of the desktop.
     private static final int ROTATION_IDENTITY = 1;
@@ -200,6 +196,8 @@ public final class DisplayConnector {
      * @return the path's current mode, or {@code null} if it does not index a source mode
      */
     public static @Nullable DisplayMode readMode(LongToIntFunction path, LongToIntFunction modes, int modeCount) {
+        // A flat UINT32 because QueryDisplayConfig is called without QDC_VIRTUAL_MODE_AWARE; with that flag the field
+        // becomes a union of cloneGroupId and sourceModeInfoIdx bitfields
         int index = path.applyAsInt(PATH_SOURCE_MODE_IDX_OFFSET);
         // DISPLAYCONFIG_PATH_MODE_IDX_INVALID is 0xffffffff, negative as an int
         if (index < 0 || index >= modeCount) {
