@@ -131,8 +131,8 @@ final class MacDisplayJNA extends MacDisplay {
      * @param coreGraphicsDisplays the batch's memoized CoreGraphics query
      * @param primary              whether this display is the primary display
      */
-    MacDisplayJNA(DisplayInfo displayInfo, String devicePort,
-            Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays, boolean primary) {
+    MacDisplayJNA(DisplayInfo displayInfo, String devicePort, Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays,
+            boolean primary) {
         super(displayInfo, devicePort, coreGraphicsDisplays);
         this.primary = primary;
         LOG.debug("Initialized MacDisplayJNA (synthetic)");
@@ -160,9 +160,8 @@ final class MacDisplayJNA extends MacDisplay {
         Supplier<List<CoreGraphicsDisplay>> cgDisplays = memoize(MacDisplayJNA::queryCoreGraphicsDisplays);
         // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available,
         // and the built-in panel is enumerated here too, so ask CoreGraphics which is which.
-        displays.addAll(
-                getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, null, cgDisplays,
-                        mainIdentity));
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, null, cgDisplays,
+                mainIdentity));
         // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
         displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription",
                 Boolean.FALSE, cgDisplays, mainIdentity));
@@ -247,8 +246,8 @@ final class MacDisplayJNA extends MacDisplay {
                                                 && EdidUtil.getProductNumber(edidBytes) == mainIdentity.product
                                                 && EdidUtil.getSerialNumber(edidBytes) == mainIdentity.serial;
                                     }
-                                    displays.add(new MacDisplayJNA(edidBytes, devicePort, builtIn, cgDisplays,
-                                            primary));
+                                    displays.add(
+                                            new MacDisplayJNA(edidBytes, devicePort, builtIn, cgDisplays, primary));
                                 }
                             } finally {
                                 edid.release();

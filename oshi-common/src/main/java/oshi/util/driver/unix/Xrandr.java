@@ -96,8 +96,7 @@ public final class Xrandr {
      * Parse the connected outputs from xrandr verbose output. For each connected output, extracts the xrandr port name
      * (the first whitespace-delimited token on the output header line), the {@code CONNECTOR_ID} property (if present,
      * requires Linux 6.5+), the EDID byte array, the current mode, and the primary status. The parser is
-     * order-independent:
-     * {@code CONNECTOR_ID} may appear before or after {@code EDID:}.
+     * order-independent: {@code CONNECTOR_ID} may appear before or after {@code EDID:}.
      * <p>
      * The current mode combines the output header, which gives the output's area on the X screen and its rotation (e.g.
      * {@code HDMI-1 connected primary 1920x1080+1920+0 (0x46) left (normal left inverted right ...)}), with the mode

@@ -179,9 +179,9 @@ public final class UnixDisplay extends AbstractDisplay {
      * {@link #getCurrentMode()} and {@link #isPrimary()}.
      * <p>
      * The query is memoized indefinitely, because a {@link Display} is an immutable snapshot: the output matching its
-     * connector, and the mode and primary status read with it, do not change over the object's lifetime. The hardware abstraction layer
-     * re-queries displays on its own schedule, building a new batch with a new supplier, so a topology change is picked
-     * up there.
+     * connector, and the mode and primary status read with it, do not change over the object's lifetime. The hardware
+     * abstraction layer re-queries displays on its own schedule, building a new batch with a new supplier, so a
+     * topology change is picked up there.
      *
      * @param drmData     the DRM sysfs data to build displays from
      * @param xrandrQuery the query for xrandr display data, run at most once for the whole batch

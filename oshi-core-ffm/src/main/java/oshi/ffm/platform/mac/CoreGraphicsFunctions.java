@@ -189,8 +189,8 @@ public final class CoreGraphicsFunctions extends MacForeignFunctions {
 
     // CGDirectDisplayID CGMainDisplayID();
 
-    private static final MethodHandle CGMainDisplayID = LINKER.downcallHandle(CORE_GRAPHICS.findOrThrow("CGMainDisplayID"),
-            FunctionDescriptor.of(JAVA_INT));
+    private static final MethodHandle CGMainDisplayID = LINKER
+            .downcallHandle(CORE_GRAPHICS.findOrThrow("CGMainDisplayID"), FunctionDescriptor.of(JAVA_INT));
 
     public static int CGMainDisplayID() throws Throwable {
         return (int) CGMainDisplayID.invokeExact();

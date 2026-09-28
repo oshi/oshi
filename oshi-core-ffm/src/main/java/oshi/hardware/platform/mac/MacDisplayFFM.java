@@ -85,8 +85,8 @@ final class MacDisplayFFM extends MacDisplay {
         this(displayInfo, devicePort, coreGraphicsDisplays, false);
     }
 
-    MacDisplayFFM(DisplayInfo displayInfo, String devicePort,
-            Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays, boolean primary) {
+    MacDisplayFFM(DisplayInfo displayInfo, String devicePort, Supplier<List<CoreGraphicsDisplay>> coreGraphicsDisplays,
+            boolean primary) {
         super(displayInfo, devicePort, coreGraphicsDisplays);
         this.primary = primary;
         LOG.debug("Initialized MacDisplayFFM (synthetic)");
@@ -106,9 +106,8 @@ final class MacDisplayFFM extends MacDisplay {
         Supplier<List<CoreGraphicsDisplay>> cgDisplays = memoize(MacDisplayFFM::queryCoreGraphicsDisplays);
         // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available,
         // and the built-in panel is enumerated here too, so ask CoreGraphics which is which.
-        displays.addAll(
-                getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, null, cgDisplays,
-                        mainIdentity));
+        displays.addAll(getDisplaysFromService("IODisplayConnect", "IODisplayEDID", "IOService", null, null, cgDisplays,
+                mainIdentity));
         // Apple Silicon external monitors: same stripped EDID as Intel path, plus the port from TransportDescription.
         displays.addAll(getDisplaysFromService("IOPortTransportStateDisplayPort", "EDID", null, "TransportDescription",
                 Boolean.FALSE, cgDisplays, mainIdentity));
