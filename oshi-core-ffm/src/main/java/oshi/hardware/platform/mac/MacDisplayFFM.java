@@ -59,6 +59,11 @@ final class MacDisplayFFM extends MacDisplay {
         LOG.debug("Initialized MacDisplayFFM (synthetic)");
     }
 
+    /**
+     * Gets Display Information
+     *
+     * @return A list of Display objects representing monitors, etc.
+     */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
         // One CoreGraphics query for the whole batch, run only if a display's mode or built-in status is requested

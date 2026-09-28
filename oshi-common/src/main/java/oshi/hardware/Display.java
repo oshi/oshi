@@ -134,16 +134,23 @@ public interface Display {
     }
 
     /**
-     * Whether this display is the primary display. Returns {@code true} only when the platform positively identifies
-     * this display as primary; returns {@code false} when the primary display cannot be determined (e.g. under Wayland,
-     * on headless systems, or on platforms that do not expose primary-display information).
-     * <p>
+     * Whether this display is the primary display, the one the windowing system places at the desktop origin.
+     * <ul>
+     * <li>macOS: CoreGraphics' main display, for a display it can match as {@link #getCurrentMode()} describes. If two
+     * connected monitors report identical numbers and CoreGraphics lists only one of them as active, both are matched
+     * to it.</li>
+     * <li>Windows: the display whose desktop position in the current mode is the origin.</li>
+     * <li>Linux and the other UNIX platforms: the {@code xrandr} output marked {@code primary}, so an X server with the
+     * RandR extension must be reachable.</li>
+     * </ul>
      * The result is not guaranteed to be unique: on Windows, a display cloning the primary display shares its desktop
      * position, and also reports {@code true}.
      *
-     * @return {@code true} if this display is the primary display, {@code false} otherwise
+     * @return An {@link Optional} containing {@code true} if the display is the primary display, {@code false} if it is
+     *         not, or empty if it cannot be determined, such as under Wayland or when the display cannot be matched to
+     *         the windowing system.
      */
-    default boolean isPrimary() {
-        return false;
+    default Optional<Boolean> isPrimary() {
+        return Optional.empty();
     }
 }

@@ -92,9 +92,9 @@ class AbstractDisplayTest {
     }
 
     @Test
-    void testDefaultIsPrimaryIsFalse() {
+    void testDefaultIsPrimaryIsEmpty() {
         AbstractDisplay display = new AbstractDisplay(new byte[128]) {
         };
-        assertThat(display.isPrimary(), is(false));
+        assertThat(display.isPrimary().isPresent(), is(false));
     }
 }

@@ -94,8 +94,8 @@ public final class UnixDisplay extends AbstractDisplay {
     }
 
     @Override
-    public boolean isPrimary() {
-        return findOutput().map(Output::isPrimary).orElse(false);
+    public Optional<Boolean> isPrimary() {
+        return findOutput().map(Output::isPrimary);
     }
 
     private Optional<Output> findOutput() {

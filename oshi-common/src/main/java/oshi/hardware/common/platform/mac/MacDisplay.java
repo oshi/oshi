@@ -84,8 +84,8 @@ public abstract class MacDisplay extends AbstractDisplay {
     }
 
     @Override
-    public boolean isPrimary() {
-        return findCoreGraphicsDisplay().map(CoreGraphicsDisplay::isMain).orElse(false);
+    public Optional<Boolean> isPrimary() {
+        return findCoreGraphicsDisplay().map(CoreGraphicsDisplay::isMain);
     }
 
     private Optional<CoreGraphicsDisplay> findCoreGraphicsDisplay() {

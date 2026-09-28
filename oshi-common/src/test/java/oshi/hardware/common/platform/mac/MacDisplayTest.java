@@ -64,7 +64,7 @@ class MacDisplayTest {
         assertThat(display.getCurrentMode(), is(Optional.of(EXTERNAL_MODE)));
         assertThat(display.isBuiltIn(), is(Optional.of(Boolean.FALSE)));
         assertThat(display.getDevicePort(), is("Port-HDMI@1"));
-        assertThat(display.isPrimary(), is(false));
+        assertThat(display.isPrimary(), is(Optional.of(Boolean.FALSE)));
     }
 
     @Test
@@ -72,7 +72,7 @@ class MacDisplayTest {
         Supplier<List<CoreGraphicsDisplay>> externalMain = () -> List.of(
                 new CoreGraphicsDisplay(0x610, 0xa050, 0, true, false, BUILT_IN_MODE),
                 new CoreGraphicsDisplay(0x1e6d, 0x5b08, 0x0b0b0b0b, false, true, EXTERNAL_MODE));
-        assertThat(new TestDisplay(externalEdid(), null, externalMain).isPrimary(), is(true));
+        assertThat(new TestDisplay(externalEdid(), null, externalMain).isPrimary(), is(Optional.of(Boolean.TRUE)));
     }
 
     @Test
@@ -89,7 +89,7 @@ class MacDisplayTest {
         TestDisplay display = new TestDisplay(info, cgDisplays);
         assertThat(display.getCurrentMode(), is(Optional.of(BUILT_IN_MODE)));
         assertThat(display.isBuiltIn(), is(Optional.of(Boolean.TRUE)));
-        assertThat(display.isPrimary(), is(true));
+        assertThat(display.isPrimary(), is(Optional.of(Boolean.TRUE)));
     }
 
     @Test
@@ -97,6 +97,6 @@ class MacDisplayTest {
         TestDisplay display = new TestDisplay(EdidUtil.newEdidTemplate(), null, cgDisplays);
         assertThat(display.getCurrentMode().isPresent(), is(false));
         assertThat(display.isBuiltIn().isPresent(), is(false));
-        assertThat(display.isPrimary(), is(false));
+        assertThat(display.isPrimary().isPresent(), is(false));
     }
 }

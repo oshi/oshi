@@ -106,14 +106,14 @@ class UnixDisplayTest {
         List<Display> displays = UnixDisplay.getDisplays(drmData(), () -> xrandrData());
         assertThat(displays.size(), is(2));
         // DP-2 is marked primary in xrandr data
-        assertThat(displays.get(0).isPrimary(), is(true));
+        assertThat(displays.get(0).isPrimary(), is(Optional.of(Boolean.TRUE)));
         // HDMI-1 is not marked primary
-        assertThat(displays.get(1).isPrimary(), is(false));
+        assertThat(displays.get(1).isPrimary(), is(Optional.of(Boolean.FALSE)));
     }
 
     @Test
-    void testPrimaryStatusDefaultsToFalse() {
-        // When xrandr data is empty (e.g., Wayland), all displays are non-primary
+    void testPrimaryStatusEmptyWithoutXrandr() {
+        // When xrandr data is empty (e.g., Wayland), primary status cannot be determined
         AtomicInteger queries = new AtomicInteger();
         Supplier<List<Output>> emptyQuery = () -> {
             queries.incrementAndGet();
@@ -121,8 +121,8 @@ class UnixDisplayTest {
         };
         List<Display> displays = UnixDisplay.getDisplays(drmData(), emptyQuery);
         assertThat(displays.size(), is(2));
-        assertThat(displays.get(0).isPrimary(), is(false));
-        assertThat(displays.get(1).isPrimary(), is(false));
+        assertThat(displays.get(0).isPrimary().isPresent(), is(false));
+        assertThat(displays.get(1).isPrimary().isPresent(), is(false));
     }
 
     // Two displays as DRM sysfs reports them: connector name, connector ID, EDID
