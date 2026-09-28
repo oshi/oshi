@@ -95,7 +95,8 @@ final class MacDisplayJNA extends MacDisplay {
      */
     public static List<Display> getDisplays() {
         List<Display> displays = new ArrayList<>();
-        // One CoreGraphics query for the whole batch, run only if a display's mode or built-in status is requested
+        // One CoreGraphics query for the whole batch, run only if a display's mode, built-in or primary status is
+        // requested
         Supplier<List<CoreGraphicsDisplay>> cgDisplays = memoize(MacDisplayJNA::queryCoreGraphicsDisplays);
         // Intel: real EDID exposed under IODisplayConnect (returns nothing on Apple Silicon). No port name available,
         // and the built-in panel is enumerated here too, so ask CoreGraphics which is which.

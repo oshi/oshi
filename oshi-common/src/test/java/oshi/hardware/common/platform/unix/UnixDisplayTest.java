@@ -114,12 +114,7 @@ class UnixDisplayTest {
     @Test
     void testPrimaryStatusEmptyWithoutXrandr() {
         // When xrandr data is empty (e.g., Wayland), primary status cannot be determined
-        AtomicInteger queries = new AtomicInteger();
-        Supplier<List<Output>> emptyQuery = () -> {
-            queries.incrementAndGet();
-            return new ArrayList<>();
-        };
-        List<Display> displays = UnixDisplay.getDisplays(drmData(), emptyQuery);
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), Collections::emptyList);
         assertThat(displays.size(), is(2));
         assertThat(displays.get(0).isPrimary().isPresent(), is(false));
         assertThat(displays.get(1).isPrimary().isPresent(), is(false));
