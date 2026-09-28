@@ -265,7 +265,7 @@ jobs:
           persist-credentials: false
       - name: Test in NetBSD
         id: test-netbsd
-        uses: vmactions/netbsd-vm@20ee93a005c9fc78743e6e05269f4cb023b87413 # v1
+        uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92 # v1
         with:
           # See the FreeBSD job: caching a base image costs more than it saves. These also have
           # no pr.yaml counterpart, so nothing could restore them in the first place.
@@ -304,7 +304,7 @@ jobs:
           persist-credentials: false
       - name: Test in NetBSD
         id: test-netbsd-jna
-        uses: vmactions/netbsd-vm@20ee93a005c9fc78743e6e05269f4cb023b87413 # v1
+        uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92 # v1
         with:
           # See the FreeBSD job: caching a base image costs more than it saves. These also have
           # no pr.yaml counterpart, so nothing could restore them in the first place.

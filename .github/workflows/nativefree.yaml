@@ -58,7 +58,7 @@ jobs:
           persist-credentials: false
       - name: Test in NetBSD
         id: test-nativefree-netbsd
-        uses: vmactions/netbsd-vm@20ee93a005c9fc78743e6e05269f4cb023b87413 # v1
+        uses: vmactions/netbsd-vm@c8a0d7ddb84619a7a8cc4e652efa7950b3fd9f92 # v1
         with:
           # Caching the base image is a slower copy of a download that happens anyway, and it
           # spends a chunk of the repo's 10 GB cache budget that the prepared Unix images need.
