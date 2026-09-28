@@ -471,36 +471,6 @@ class XrandrTest {
         assertThat(mode.getX(), is(1920));
     }
 
-    @Test
-    void testFindPrimaryStatusByConnectorId() {
-        List<Output> data = Xrandr.getOutputs(createXrandrTwoDisplays());
-        // A connector ID match returns the primary status
-        assertThat(Xrandr.findPrimaryStatus(data, 96, new byte[0]), is(true)); // DP2 is primary
-        assertThat(Xrandr.findPrimaryStatus(data, 80, new byte[0]), is(false)); // HDMI1 is not primary
-    }
-
-    @Test
-    void testFindPrimaryStatusByEdid() {
-        List<Output> data = Xrandr.getOutputs(createXrandrTwoDisplays());
-        Output hdmi1 = byName(data).get("HDMI1");
-        assertNotNull(hdmi1);
-        // HDMI1 has no connector ID in xrandr, so only the EDID can identify it
-        assertThat(Xrandr.findPrimaryStatus(data, -1, hdmi1.getEdid()), is(false)); // HDMI1 is not primary
-    }
-
-    @Test
-    void testFindPrimaryStatusNoMatch() {
-        List<Output> data = Xrandr.getOutputs(createXrandrTwoDisplays());
-        byte[] unknownEdid = new byte[128];
-        Arrays.fill(unknownEdid, (byte) 0x5A);
-        assertThat(Xrandr.findPrimaryStatus(data, 1234, unknownEdid), is(false));
-    }
-
-    @Test
-    void testFindPrimaryStatusEmptyData() {
-        assertThat(Xrandr.findPrimaryStatus(Collections.emptyList(), 96, new byte[128]), is(false));
-    }
-
     @Nested
     @DisabledOnOs({ OS.WINDOWS, OS.MAC })
     class LiveTests {

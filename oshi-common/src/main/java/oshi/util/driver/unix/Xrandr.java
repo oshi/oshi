@@ -187,41 +187,6 @@ public final class Xrandr {
         return Optional.empty();
     }
 
-    /**
-     * Finds the primary status for a display identified by its DRM connector ID and/or EDID, matching by
-     * {@code CONNECTOR_ID} first (Linux 6.5+) and falling back to EDID comparison.
-     *
-     * @param outputs     xrandr outputs as returned by {@link #getOutputs()}, which the caller is expected to share
-     *                    among the displays it is naming rather than querying per display
-     * @param connectorId the DRM connector ID ({@code -1} if not available)
-     * @param edid        the EDID byte array from DRM sysfs
-     * @return {@code true} if the matched xrandr output is marked as primary, {@code false} otherwise
-     */
-    public static boolean findPrimaryStatus(List<Output> outputs, int connectorId, byte[] edid) {
-        if (outputs.isEmpty()) {
-            return false;
-        }
-        // First try matching by CONNECTOR_ID (Linux 6.5+)
-        if (connectorId >= 0) {
-            for (Output output : outputs) {
-                if (output.getConnectorId() == connectorId) {
-                    return output.isPrimary();
-                }
-            }
-        }
-        // Fallback: match by first 128 bytes of EDID
-        if (edid.length >= 128) {
-            byte[] edid128 = Arrays.copyOf(edid, 128);
-            for (Output output : outputs) {
-                byte[] xrandrEdid = output.edid;
-                if (xrandrEdid.length >= 128 && Arrays.equals(edid128, Arrays.copyOf(xrandrEdid, 128))) {
-                    return output.isPrimary();
-                }
-            }
-        }
-        return false;
-    }
-
     private static List<String> runXrandr() {
         if (System.getenv("DISPLAY") == null) {
             return Collections.emptyList();
@@ -313,7 +278,7 @@ public final class Xrandr {
         private final String name;
         private int connectorId = -1;
         private byte @Nullable [] edid;
-        private final boolean primary;
+        private boolean primary;
 
         // From the header line; a width of 0 means the output has no geometry and is not enabled
         private int width;
@@ -330,13 +295,14 @@ public final class Xrandr {
 
         private OutputBuilder(String[] header) {
             this.name = header[0];
-            this.primary = header.length > 2 && "primary".equals(header[2]);
             // Tokens after "connected": an optional "primary", the geometry, the mode ID (verbose only), the rotation,
             // an optional reflection, then the parenthesized list of supported rotations
             for (int i = 2; i < header.length; i++) {
                 String token = header[i];
                 Matcher m = GEOMETRY.matcher(token);
-                if (m.matches()) {
+                if ("primary".equals(token)) {
+                    this.primary = true;
+                } else if (m.matches()) {
                     this.width = ParseUtil.parseIntOrDefault(m.group(1), 0);
                     this.height = ParseUtil.parseIntOrDefault(m.group(2), 0);
                     this.x = ParseUtil.parseIntOrDefault(m.group(3), 0);

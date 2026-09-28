@@ -33,7 +33,6 @@ public final class UnixDisplay extends AbstractDisplay {
 
     private final String devicePort;
     private final int connectorId;
-    private final boolean primary;
     private final Supplier<List<Output>> xrandrData;
 
     /**
@@ -42,7 +41,7 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param edid a byte array representing a display EDID
      */
     public UnixDisplay(byte[] edid) {
-        this(edid, Constants.UNKNOWN, -1, false);
+        this(edid, Constants.UNKNOWN, -1);
     }
 
     /**
@@ -53,19 +52,7 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param connectorId the DRM connector ID ({@code -1} if not available)
      */
     public UnixDisplay(byte[] edid, String devicePort, int connectorId) {
-        this(edid, devicePort, connectorId, false);
-    }
-
-    /**
-     * Constructor for UnixDisplay with device port, DRM connector ID, and primary status.
-     *
-     * @param edid        a byte array representing a display EDID
-     * @param devicePort  the DRM connector name (e.g. {@code HDMI-A-1})
-     * @param connectorId the DRM connector ID ({@code -1} if not available)
-     * @param primary     whether this display is the primary display
-     */
-    public UnixDisplay(byte[] edid, String devicePort, int connectorId, boolean primary) {
-        this(edid, devicePort, connectorId, primary, memoize(Xrandr::getOutputs));
+        this(edid, devicePort, connectorId, memoize(Xrandr::getOutputs));
     }
 
     /**
@@ -74,15 +61,12 @@ public final class UnixDisplay extends AbstractDisplay {
      * @param edid        a byte array representing a display EDID
      * @param devicePort  the DRM connector name (e.g. {@code HDMI-A-1})
      * @param connectorId the DRM connector ID ({@code -1} if not available)
-     * @param primary     whether this display is the primary display
      * @param xrandrData  the display's source of xrandr data, expected to be memoized or already realized
      */
-    private UnixDisplay(byte[] edid, String devicePort, int connectorId, boolean primary,
-            Supplier<List<Output>> xrandrData) {
+    private UnixDisplay(byte[] edid, String devicePort, int connectorId, Supplier<List<Output>> xrandrData) {
         super(edid);
         this.devicePort = devicePort;
         this.connectorId = connectorId;
-        this.primary = primary;
         this.xrandrData = xrandrData;
     }
 
@@ -111,7 +95,7 @@ public final class UnixDisplay extends AbstractDisplay {
 
     @Override
     public boolean isPrimary() {
-        return this.primary;
+        return findOutput().map(Output::isPrimary).orElse(false);
     }
 
     private Optional<Output> findOutput() {
@@ -156,8 +140,7 @@ public final class UnixDisplay extends AbstractDisplay {
         // The data is already in hand, so these displays need no further xrandr query
         Supplier<List<Output>> sharedData = () -> outputs;
         for (Output output : outputs) {
-            displays.add(new UnixDisplay(output.getEdid(), output.getName(), output.getConnectorId(),
-                    output.isPrimary(), sharedData));
+            displays.add(new UnixDisplay(output.getEdid(), output.getName(), output.getConnectorId(), sharedData));
         }
         return displays;
     }
@@ -192,8 +175,7 @@ public final class UnixDisplay extends AbstractDisplay {
         List<Display> displays = new ArrayList<>(drmData.size());
         Supplier<List<Output>> sharedData = memoize(xrandrQuery);
         for (Triplet<String, Integer, byte[]> drm : drmData) {
-            boolean primary = Xrandr.findPrimaryStatus(sharedData.get(), drm.getB(), drm.getC());
-            displays.add(new UnixDisplay(drm.getC(), drm.getA(), drm.getB(), primary, sharedData));
+            displays.add(new UnixDisplay(drm.getC(), drm.getA(), drm.getB(), sharedData));
         }
         return displays;
     }

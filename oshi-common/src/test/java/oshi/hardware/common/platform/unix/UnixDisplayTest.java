@@ -58,13 +58,16 @@ class UnixDisplayTest {
     }
 
     @Test
-    void testBatchQueryIsRunOnceForPrimaryStatus() {
+    void testBatchQueryIsNotRunUntilXrandrDataIsRequested() {
         AtomicInteger queries = new AtomicInteger();
-        UnixDisplay.getDisplays(drmData(), () -> {
+        List<Display> displays = UnixDisplay.getDisplays(drmData(), () -> {
             queries.incrementAndGet();
             return xrandrData();
         });
-        // Primary status is computed eagerly during display construction
+        // The DRM connector name answers isBuiltIn() without xrandr
+        assertThat(displays.get(0).isBuiltIn(), is(Optional.of(Boolean.FALSE)));
+        assertThat(queries.get(), is(0));
+        displays.get(0).getCurrentMode();
         assertThat(queries.get(), is(1));
     }
 
