@@ -83,6 +83,11 @@ public abstract class MacDisplay extends AbstractDisplay {
         return findCoreGraphicsDisplay().map(CoreGraphicsDisplay::isBuiltIn);
     }
 
+    @Override
+    public boolean isPrimary() {
+        return findCoreGraphicsDisplay().map(CoreGraphicsDisplay::isMain).orElse(false);
+    }
+
     private Optional<CoreGraphicsDisplay> findCoreGraphicsDisplay() {
         List<CoreGraphicsDisplay> displays = this.coreGraphicsDisplays.get();
         // Only the Apple Silicon built-in panel lacks an EDID to match on

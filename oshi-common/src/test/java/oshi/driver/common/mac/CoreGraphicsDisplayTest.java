@@ -25,10 +25,11 @@ class CoreGraphicsDisplayTest {
                     + "35000f282100001a000000fd00384b1e" + "5a1900000a202020202020000000fc00"
                     + "4c4720554c545241474541520000ff00" + "3630344e54505a4832313337370a0100");
 
-    private static final CoreGraphicsDisplay BUILT_IN = new CoreGraphicsDisplay(0x610, 0xa050, 0, true, null);
-    private static final CoreGraphicsDisplay LG = new CoreGraphicsDisplay(0x1e6d, 0x5b08, 0x0b0b0b0b, false,
+    private static final CoreGraphicsDisplay BUILT_IN = new CoreGraphicsDisplay(0x610, 0xa050, 0, true, true, null);
+    private static final CoreGraphicsDisplay LG = new CoreGraphicsDisplay(0x1e6d, 0x5b08, 0x0b0b0b0b, false, false,
             CoreGraphicsDisplay.toMode(1728, 0, 2560, 1440, 2560, 1440, 60, 0));
-    private static final CoreGraphicsDisplay OTHER = new CoreGraphicsDisplay(0x10ac, 0x4114, 0x42543034, false, null);
+    private static final CoreGraphicsDisplay OTHER = new CoreGraphicsDisplay(0x10ac, 0x4114, 0x42543034, false, false,
+            null);
 
     @Test
     void testMatchEdidByVendorModelAndSerial() {
@@ -40,7 +41,7 @@ class CoreGraphicsDisplayTest {
     @Test
     void testMatchEdidAmbiguousIsEmpty() {
         // Two monitors reporting the same identity cannot be told apart
-        CoreGraphicsDisplay twin = new CoreGraphicsDisplay(0x1e6d, 0x5b08, 0x0b0b0b0b, false, null);
+        CoreGraphicsDisplay twin = new CoreGraphicsDisplay(0x1e6d, 0x5b08, 0x0b0b0b0b, false, false, null);
         assertThat(CoreGraphicsDisplay.matchEdid(List.of(LG, twin), EDID).isPresent(), is(false));
     }
 
