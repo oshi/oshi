@@ -253,13 +253,13 @@ final class MacDisplayFFM extends MacDisplay {
         try (CFDictionaryRef attrs = new CFDictionaryRef(attrsRaw)) {
             DisplayInfo info = synthesize(fb, attrs, devicePort);
             if (info != null) {
-                int builtInId = findBuiltInDisplayId();
+                // The built-in panel is the main display exactly when the main display is built in
                 boolean primary = false;
-                if (builtInId >= 0) {
+                if (mainDisplayId >= 0) {
                     try {
-                        primary = CoreGraphicsFunctions.CGDisplayIsMain(builtInId) != 0;
+                        primary = CoreGraphicsFunctions.CGDisplayIsBuiltin(mainDisplayId) != 0;
                     } catch (Throwable t) {
-                        LOG.debug("Failed to query CGDisplayIsMain for built-in display", t);
+                        LOG.debug("Failed to query CGDisplayIsBuiltin for main display", t);
                     }
                 }
                 displays.add(new MacDisplayFFM(info, devicePort, cgDisplays, primary));

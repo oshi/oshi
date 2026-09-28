@@ -342,13 +342,13 @@ final class MacDisplayJNA extends MacDisplay {
         try {
             DisplayInfo info = synthesize(fb, new CFDictionaryRef(attrsRaw.getPointer()), devicePort);
             if (info != null) {
-                int builtInId = findBuiltInDisplayId();
+                // The built-in panel is the main display exactly when the main display is built in
                 boolean primary = false;
-                if (builtInId >= 0) {
+                if (mainDisplayId >= 0) {
                     try {
-                        primary = CoreGraphics.INSTANCE.CGDisplayIsMain(builtInId) != 0;
+                        primary = CoreGraphics.INSTANCE.CGDisplayIsBuiltin(mainDisplayId) != 0;
                     } catch (Exception e) {
-                        LOG.debug("Failed to query CGDisplayIsMain for built-in display", e);
+                        LOG.debug("Failed to query CGDisplayIsBuiltin for main display", e);
                     }
                 }
                 displays.add(new MacDisplayJNA(info, devicePort, cgDisplays, primary));
