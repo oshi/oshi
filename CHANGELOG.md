@@ -1,17 +1,21 @@
-# 7.7.0 (in progress)
+# 7.7.1 (in progress)
+
+* Your contribution here!
+
+# 7.7.0 (2026-09-29)
 
 ##### New Features
 
-* [#3745](https://github.com/oshi/oshi/pull/3745): The FFM implementation reads NetBSD natively, through `sysctl`, `getloadavg`, `_lwp_self` and `getrlimit`, where it previously ran commands and parsed their output. NetBSD was the last platform with no native FFM code of its own - [@dbwiddis](https://github.com/dbwiddis).
+* [#3745](https://github.com/oshi/oshi/pull/3745): The FFM implementation now reads NetBSD natively, through `sysctl`, `getloadavg`, `_lwp_self` and `getrlimit`, where it previously ran commands and parsed their output - [@dbwiddis](https://github.com/dbwiddis).
 * [#3709](https://github.com/oshi/oshi/pull/3709),
   [#3757](https://github.com/oshi/oshi/pull/3757): `Display.getCurrentMode()` returns the mode a display is driven in: its logical and pixel resolution, refresh rate, rotation, and position on the desktop. `Display.isBuiltIn()` reports whether it is a built-in panel, and `Display.isPrimary()` whether it is the primary display. All three are available on Windows, macOS, and on Linux and the other UNIX platforms through X11 - [@ayonization](https://github.com/ayonization), [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
-* [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).
-* [#3727](https://github.com/oshi/oshi/pull/3727): The `oshi.os.windows.ohm.disabled` and `oshi.os.windows.lhm.disabled` configuration properties skip the Open Hardware Monitor and Libre Hardware Monitor WMI namespaces, which OSHI otherwise queries on each sensor read until one returns data. The latter also covers GPU metrics - [@dbwiddis](https://github.com/dbwiddis).
-* [#3730](https://github.com/oshi/oshi/pull/3730): `Sensors.getCpuVoltage()` on Windows reports the voltage published by Open Hardware Monitor or LibreHardwareMonitor. The query asked the WMI `Hardware` class to filter on a `SensorType` property that class does not have, so it could never match and the value always came from a lower-priority source - [@dbwiddis](https://github.com/dbwiddis).
-* [#3742](https://github.com/oshi/oshi/pull/3742): `NetworkParams.getRoutes()` on NetBSD reads the routing table from the kernel where the JNA native library is available, as the other BSDs do. It previously fell back to `netstat`, which reports interface-local multicast routes as `ff01:1::` rather than `ff01::` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` now reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).
+* [#3727](https://github.com/oshi/oshi/pull/3727): The `oshi.os.windows.ohm.disabled` and `oshi.os.windows.lhm.disabled` configuration properties now skip the Open Hardware Monitor and Libre Hardware Monitor WMI namespaces, which OSHI otherwise queries on each sensor read until one returns data. The latter also covers GPU metrics - [@dbwiddis](https://github.com/dbwiddis).
+* [#3730](https://github.com/oshi/oshi/pull/3730): Fixed `Sensors.getCpuVoltage()` on Windows when using the voltage published by Open Hardware Monitor or LibreHardwareMonitor - [@dbwiddis](https://github.com/dbwiddis).
+* [#3742](https://github.com/oshi/oshi/pull/3742): `NetworkParams.getRoutes()` on NetBSD now reads the routing table from the kernel where the JNA native library is available - [@dbwiddis](https://github.com/dbwiddis).
 * [#3743](https://github.com/oshi/oshi/pull/3743): Fixed three `HWDiskStore` faults on NetBSD: read and write byte totals that could decrease between readings, a doubled `getTransferTime()`, and a 1-byte disk or 512-byte partition size where the size is unknown, which also affected OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#3744](https://github.com/oshi/oshi/pull/3744): Fixed `OSProcess` naming on NetBSD: `getPath()` and `getName()` were truncated to seven characters, and where the kernel withholds a process's arguments, `getCommandLine()` returned `ps`'s `(command)` placeholder and `getName()` kept its parentheses - [@dbwiddis](https://github.com/dbwiddis).
 * [#3754](https://github.com/oshi/oshi/pull/3754): `OperatingSystem.getProcessId()` and `getThreadId()` return 0 when the ID is unknown on every platform. On NetBSD without JNA, `getThreadId()` returned a Java thread ID, and on failure some implementations returned -1, which led `getCurrentProcess()` to return an arbitrary process on the BSDs, Solaris and AIX. `getProcess()` with a negative PID now returns null on Solaris and AIX - [@dbwiddis](https://github.com/dbwiddis).
