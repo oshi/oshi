@@ -62,7 +62,7 @@
 <a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> Pointer readPointerFromBuffer(ByteBuffer buff) {
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">if</strong> (buff.position() &lt;= buff.limit() - Native.POINTER_SIZE) {
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> Native.POINTER_SIZE == 4 ? <strong class="jxr_keyword">new</strong> Pointer(buff.getInt()) : <strong class="jxr_keyword">new</strong> Pointer(buff.getLong());
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pointer(Native.POINTER_SIZE == 4 ? buff.getInt() : buff.getLong());
 <a class="jxr_linenumber" name="L58" href="#L58">58</a>          }
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">return</strong> Pointer.NULL;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>      }

@@ -17,7 +17,7 @@
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> * Shared assertion helpers for JNA vs FFM comparison tests.</em>
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="ComparisonAssertions" href="../../oshi/comparison/ComparisonAssertions.html#ComparisonAssertions">ComparisonAssertions</a> {
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="ComparisonAssertions" href="../../oshi/comparison/ComparisonAssertions.html#ComparisonAssertions">ComparisonAssertions</a> {
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>      <strong class="jxr_keyword">private</strong> <a name="ComparisonAssertions" href="../../oshi/comparison/ComparisonAssertions.html#ComparisonAssertions">ComparisonAssertions</a>() {
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>      }
@@ -30,7 +30,7 @@
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * @param ratio       the maximum allowed deviation (0.0–1.0)</em>
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * @param description a label for assertion failure messages</em>
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertWithinRatio(<strong class="jxr_keyword">long</strong> actual, <strong class="jxr_keyword">long</strong> expected, <strong class="jxr_keyword">double</strong> ratio, String description) {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertWithinRatio(<strong class="jxr_keyword">long</strong> actual, <strong class="jxr_keyword">long</strong> expected, <strong class="jxr_keyword">double</strong> ratio, String description) {
 <a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertWithinRatio((<strong class="jxr_keyword">double</strong>) actual, (<strong class="jxr_keyword">double</strong>) expected, ratio, description);
 <a class="jxr_linenumber" name="L27" href="#L27">27</a>      }
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>  
@@ -42,7 +42,7 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param ratio       the maximum allowed deviation (0.0–1.0)</em>
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param description a label for assertion failure messages</em>
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertWithinRatio(<strong class="jxr_keyword">double</strong> actual, <strong class="jxr_keyword">double</strong> expected, <strong class="jxr_keyword">double</strong> ratio, String description) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertWithinRatio(<strong class="jxr_keyword">double</strong> actual, <strong class="jxr_keyword">double</strong> expected, <strong class="jxr_keyword">double</strong> ratio, String description) {
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// Sensors that aren't available on a platform return NaN from both implementations (e.g. CPU temperature on a</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>          <em class="jxr_comment">// FreeBSD VM without the coretemp kld module). Treat that as "equal: both are 'no data'" since NaN arithmetic</em>
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          <em class="jxr_comment">// would otherwise make the ratio comparison fail.</em>

@@ -59,6 +59,7 @@ oshi.ffm.util
 oshi.ffm.util.gpu
 oshi.ffm.util.platform.mac
 oshi.ffm.util.platform.unix.freebsd
+oshi.ffm.util.platform.unix.netbsd
 oshi.ffm.util.platform.unix.openbsd
 oshi.ffm.util.platform.unix.solaris
 oshi.ffm.util.platform.windows

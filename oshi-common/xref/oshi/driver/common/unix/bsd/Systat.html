@@ -84,7 +84,7 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>              }
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// Prefer cpu temps</em>
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">double</strong> temp = cpuTemps.isEmpty() ? listAverage(allTemps) : listAverage(cpuTemps);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">double</strong> temp = listAverage(cpuTemps.isEmpty() ? allTemps : cpuTemps);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">int</strong>[] fans = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[fanRPMs.size()];
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; fans.length; i++) {
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>              fans[i] = fanRPMs.get(i);

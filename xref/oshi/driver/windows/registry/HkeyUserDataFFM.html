@@ -134,7 +134,7 @@
 <a class="jxr_linenumber" name="L126" href="#L126">126</a>                     <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>                 }
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>                 MemorySegment nameBuf = arena.allocate((<strong class="jxr_keyword">long</strong>) nameLen * 2);
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 MemorySegment domainBuf = domainLen &gt; 0 ? arena.allocate((<strong class="jxr_keyword">long</strong>) domainLen * 2) : arena.allocate(2);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>                 MemorySegment domainBuf = arena.allocate(domainLen &gt; 0 ? (<strong class="jxr_keyword">long</strong>) domainLen * 2 : 2);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a>                 cchName.set(JAVA_INT, 0, nameLen);
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>                 cchDomain.set(JAVA_INT, 0, domainLen);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>                 <strong class="jxr_keyword">if</strong> (!LookupAccountSid(NULL, pSid, nameBuf, cchName, domainBuf, cchDomain, peUse)) {

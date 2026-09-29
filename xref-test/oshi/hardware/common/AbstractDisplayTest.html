@@ -90,7 +90,22 @@
 <a class="jxr_linenumber" name="L82" href="#L82">82</a>          };
 <a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(display.getOutputName().isPresent(), is(false));
 <a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      @Test
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">void</strong> testDefaultCurrentModeAndBuiltInAreEmpty() {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          AbstractDisplay display = <strong class="jxr_keyword">new</strong> AbstractDisplay(<strong class="jxr_keyword">new</strong> byte[128]) {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          };
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertThat(display.getCurrentMode().isPresent(), is(false));
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertThat(display.isBuiltIn().isPresent(), is(false));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      @Test
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">void</strong> testDefaultIsPrimaryIsEmpty() {
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          AbstractDisplay display = <strong class="jxr_keyword">new</strong> AbstractDisplay(<strong class="jxr_keyword">new</strong> byte[128]) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          };
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          assertThat(display.isPrimary().isPresent(), is(false));
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

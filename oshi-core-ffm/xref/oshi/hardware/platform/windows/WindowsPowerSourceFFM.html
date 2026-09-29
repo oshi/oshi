@@ -296,39 +296,38 @@
 <a class="jxr_linenumber" name="L288" href="#L288">288</a>                             }
 <a class="jxr_linenumber" name="L289" href="#L289">289</a>                             <em class="jxr_comment">// Fallback if BatteryEstimatedTime query failed</em>
 <a class="jxr_linenumber" name="L290" href="#L290">290</a>                             <strong class="jxr_keyword">if</strong> (psTimeRemainingInstant &lt;= 0 &amp;&amp; psPowerUsageRate != 0) {
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>                                 psTimeRemainingInstant = psDischarging
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>                                         ? Math.max(0d, psCurrentCapacity * 3600d / Math.abs(psPowerUsageRate))
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                                         : Math.max(0d, (maxCapacitySafe - psCurrentCapacity) * 3600d
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>                                                 / Math.abs(psPowerUsageRate));
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>                             }
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>                             <strong class="jxr_keyword">if</strong> (psDischarging &amp;&amp; psTimeRemainingInstant &gt; 0) {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>                                 psTimeRemainingEstimated = psTimeRemainingInstant;
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>                             }
-<a class="jxr_linenumber" name="L299" href="#L299">299</a> 
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>                             batteryFound = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>                         }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>                     }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 }
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>             }
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         }
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSourceFFM" href="../../../../oshi/hardware/platform/windows/WindowsPowerSourceFFM.html#WindowsPowerSourceFFM">WindowsPowerSourceFFM</a>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>     }
-<a class="jxr_linenumber" name="L311" href="#L311">311</a> 
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String batteryQueryString(MemorySegment hBattery, <strong class="jxr_keyword">int</strong> tag, <strong class="jxr_keyword">int</strong> infoLevel, MemorySegment bqi,
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>             MemorySegment nameBuf) {
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         bqi.set(JAVA_INT, OFF_BQI_TAG, tag);
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         bqi.set(JAVA_INT, OFF_BQI_LEVEL, infoLevel);
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <strong class="jxr_keyword">if</strong> (!Kernel32FFM.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi, (<strong class="jxr_keyword">int</strong>) bqi.byteSize(), nameBuf,
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>                 (<strong class="jxr_keyword">int</strong>) nameBuf.byteSize())) {
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>             <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         }
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         String result = WindowsForeignFunctions.readWideString(nameBuf);
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         <strong class="jxr_keyword">return</strong> result.isEmpty() ? Constants.UNKNOWN : result;
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>     }
-<a class="jxr_linenumber" name="L323" href="#L323">323</a> }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                                 psTimeRemainingInstant = Math.max(0d,
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                                         (psDischarging ? psCurrentCapacity : maxCapacitySafe - psCurrentCapacity)
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>                                                 * 3600d / Math.abs(psPowerUsageRate));
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>                             }
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>                             <strong class="jxr_keyword">if</strong> (psDischarging &amp;&amp; psTimeRemainingInstant &gt; 0) {
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>                                 psTimeRemainingEstimated = psTimeRemainingInstant;
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>                             }
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>                             batteryFound = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>                         }
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>                     }
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>                 }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             }
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <a name="WindowsPowerSourceFFM" href="../../../../oshi/hardware/platform/windows/WindowsPowerSourceFFM.html#WindowsPowerSourceFFM">WindowsPowerSourceFFM</a>(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                 psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>                 psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>                 psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>     }
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> 
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String batteryQueryString(MemorySegment hBattery, <strong class="jxr_keyword">int</strong> tag, <strong class="jxr_keyword">int</strong> infoLevel, MemorySegment bqi,
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>             MemorySegment nameBuf) {
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         bqi.set(JAVA_INT, OFF_BQI_TAG, tag);
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>         bqi.set(JAVA_INT, OFF_BQI_LEVEL, infoLevel);
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <strong class="jxr_keyword">if</strong> (!Kernel32FFM.DeviceIoControl(hBattery, IOCTL_BATTERY_QUERY_INFORMATION, bqi, (<strong class="jxr_keyword">int</strong>) bqi.byteSize(), nameBuf,
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 (<strong class="jxr_keyword">int</strong>) nameBuf.byteSize())) {
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>             <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         }
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         String result = WindowsForeignFunctions.readWideString(nameBuf);
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <strong class="jxr_keyword">return</strong> result.isEmpty() ? Constants.UNKNOWN : result;
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
