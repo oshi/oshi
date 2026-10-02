@@ -246,6 +246,49 @@ class NetStatTest {
     }
 
     @Test
+    void testQueryNetstatAll() {
+        // Captured on AIX 7.3 with netstat -an, trimmed; the BSDs print the same layout
+        List<String> lines = """
+                Active Internet connections (including servers)
+                Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+                tcp        0      0  *.*                    *.*                    CLOSED
+                tcp6       0      0  *.22                   *.*                    LISTEN
+                tcp4       0      0  *.22                   *.*                    LISTEN
+                tcp4       0      0  140.211.9.96.199       45.33.14.5.44782       ESTABLISHED
+                udp6       0      0  ::1.123                                       *.*
+                udp4       0      0  *.123                  *.*
+                """.lines().toList();
+        List<IPConnection> connections = NetStat.queryNetstat(lines);
+        assertThat(connections, hasSize(6));
+        assertThat(connections.get(0).getType(), is("tcp"));
+        assertThat(connections.get(0).getState(), is(TcpState.CLOSED));
+        assertThat(connections.get(0).getLocalAddress().length, is(0));
+        assertThat(connections.get(0).getLocalPort(), is(0));
+
+        IPConnection listen6 = connections.get(1);
+        assertThat(listen6.getType(), is("tcp6"));
+        assertThat(listen6.getLocalAddress().length, is(0));
+        assertThat(listen6.getLocalPort(), is(22));
+        assertThat(listen6.getForeignAddress().length, is(0));
+        assertThat(listen6.getState(), is(TcpState.LISTEN));
+
+        assertThat(connections.get(3).getForeignAddress(), is(new byte[] { 45, 33, 14, 5 }));
+        assertThat(connections.get(4).getLocalAddress(),
+                is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(connections.get(4).getForeignAddress().length, is(0));
+        assertThat(connections.get(5).getLocalPort(), is(123));
+        assertThat(connections.get(5).getState(), is(TcpState.NONE));
+    }
+
+    @Test
+    void testQueryNetstatUnknownState() {
+        List<IPConnection> connections = NetStat.queryNetstat(
+                List.of("tcp4       0      0  10.0.0.1.8080          10.0.0.2.54321         NOT_A_STATE"));
+        assertThat(connections, hasSize(1));
+        assertThat(connections.get(0).getState(), is(TcpState.UNKNOWN));
+    }
+
+    @Test
     void testQuerySolarisNetstat() {
         // Captured on Solaris 11.4 SPARC with Java holding IPv4 and IPv6 loopback TCP and UDP connections. The SCTP
         // section is not captured; it checks that rows after a section the parser does not read are skipped
@@ -408,7 +451,7 @@ class NetStatTest {
     @Nested
     @DisabledOnOs(OS.WINDOWS)
     class LiveTests {
-        // netstat -n output format varies across platforms; live parsing only verified on FreeBSD/OpenBSD
+        // netstat -an output format varies across platforms; live parsing only verified on FreeBSD/OpenBSD
         @DisabledOnOs({ OS.WINDOWS, OS.MAC, OS.LINUX })
         @Test
         void testQueryNetstat() {

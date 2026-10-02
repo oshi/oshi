@@ -60,18 +60,18 @@ public final class NetStat {
     }
 
     /**
-     * Query netstat to all TCP and UDP connections
+     * Query netstat for all TCP and UDP connections, including listening and unconnected sockets.
      *
      * @return A list of TCP and UDP connections
      */
     public static List<IPConnection> queryNetstat() {
-        return queryNetstat(ExecutingCommand.runNative("netstat -n"));
+        return queryNetstat(ExecutingCommand.runNative("netstat -an"));
     }
 
     /**
      * Parse netstat output for TCP and UDP connections.
      *
-     * @param lines output of {@code netstat -n}
+     * @param lines output of {@code netstat -an}
      * @return A list of TCP and UDP connections
      */
     static List<IPConnection> queryNetstat(List<String> lines) {
@@ -81,16 +81,11 @@ public final class NetStat {
             if (s.startsWith("tcp") || s.startsWith("udp")) {
                 split = ParseUtil.whitespaces.split(s);
                 if (split.length >= 5) {
-                    String state = (split.length == 6) ? split[5] : null;
-                    // Substitution if required
-                    if ("SYN_RCVD".equals(state)) {
-                        state = "SYN_RECV";
-                    }
                     String type = split[0];
                     Pair<byte[], Integer> local = parseIP(split[3]);
                     Pair<byte[], Integer> foreign = parseIP(split[4]);
                     connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),
-                            state == null ? TcpState.NONE : TcpState.valueOf(state),
+                            split.length == 6 ? parseTcpState(split[5]) : TcpState.NONE,
                             ParseUtil.parseIntOrDefault(split[2], 0), ParseUtil.parseIntOrDefault(split[1], 0), -1));
                 }
             }
@@ -140,7 +135,7 @@ public final class NetStat {
                 // Local Address, Remote Address, Swind, Send-Q, Rwind, Recv-Q, State, and If on IPv6
                 if (split.length >= 7) {
                     connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),
-                            solarisTcpState(split[6]), ParseUtil.parseIntOrDefault(split[3], 0),
+                            parseTcpState(split[6]), ParseUtil.parseIntOrDefault(split[3], 0),
                             ParseUtil.parseIntOrDefault(split[5], 0), -1));
                 }
             } else if (split.length >= 3) {
@@ -168,7 +163,7 @@ public final class NetStat {
         }
     }
 
-    private static TcpState solarisTcpState(String state) {
+    private static TcpState parseTcpState(String state) {
         switch (state) {
             case "SYN_RCVD":
             case "SYN_RECEIVED":
