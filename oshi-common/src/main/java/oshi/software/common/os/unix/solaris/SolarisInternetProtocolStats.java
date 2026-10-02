@@ -11,6 +11,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractInternetProtocolStats;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.NetStat;
 
 /**
  * Internet Protocol Stats implementation
@@ -26,6 +27,11 @@ public class SolarisInternetProtocolStats extends AbstractInternetProtocolStats 
     @Override
     public UdpStats getUDPv4Stats() {
         return getUdpStats();
+    }
+
+    @Override
+    public List<IPConnection> getConnections() {
+        return NetStat.querySolarisNetstat();
     }
 
     private static TcpStats getTcpStats() {

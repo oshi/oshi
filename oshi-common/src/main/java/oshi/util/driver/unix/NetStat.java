@@ -9,6 +9,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.os.InternetProtocolStats.IPConnection;
 import oshi.software.os.InternetProtocolStats.TcpState;
@@ -96,6 +98,98 @@ public final class NetStat {
         return connections;
     }
 
+    /**
+     * Query Solaris netstat for all TCP and UDP connections, including listening and unconnected sockets.
+     *
+     * @return A list of TCP and UDP connections
+     */
+    public static List<IPConnection> querySolarisNetstat() {
+        return querySolarisNetstat(ExecutingCommand.runNative("netstat -an"));
+    }
+
+    /**
+     * Parse Solaris netstat output for TCP and UDP connections. Solaris groups connections into sections headed by
+     * protocol and address family, such as {@code TCP: IPv4}, and each row starts with the local address.
+     *
+     * @param lines output of {@code netstat -an}
+     * @return A list of TCP and UDP connections
+     */
+    static List<IPConnection> querySolarisNetstat(List<String> lines) {
+        List<IPConnection> connections = new ArrayList<>();
+        String type = null;
+        for (String s : lines) {
+            String line = s.trim();
+            if (line.isEmpty()) {
+                continue;
+            }
+            String[] split = ParseUtil.whitespaces.split(line, -1);
+            if (split[0].indexOf('.') < 0) {
+                // Every row starts with an address.port; anything else is a section heading, or a column heading or
+                // rule within one
+                type = solarisSectionType(line, type);
+                continue;
+            }
+            if (type == null) {
+                continue;
+            }
+            Pair<byte[], Integer> local = parseIP(split[0]);
+            // An unconnected UDP socket leaves the remote address blank, putting the state in the second field
+            Pair<byte[], Integer> foreign = split.length > 1 && split[1].indexOf('.') >= 0 ? parseIP(split[1])
+                    : new Pair<>(new byte[0], 0);
+            if (type.startsWith("tcp")) {
+                // Local Address, Remote Address, Swind, Send-Q, Rwind, Recv-Q, State, and If on IPv6
+                if (split.length >= 7) {
+                    connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),
+                            solarisTcpState(split[6]), ParseUtil.parseIntOrDefault(split[3], 0),
+                            ParseUtil.parseIntOrDefault(split[5], 0), -1));
+                }
+            } else if (split.length >= 3) {
+                // Local Address, Remote Address, State, buffer sizes and overflow counts; UDP has no queues
+                connections.add(new IPConnection(type, local.getA(), local.getB(), foreign.getA(), foreign.getB(),
+                        TcpState.NONE, 0, 0, -1));
+            }
+        }
+        return connections;
+    }
+
+    private static @Nullable String solarisSectionType(String line, @Nullable String type) {
+        switch (line) {
+            case "TCP: IPv4":
+                return "tcp4";
+            case "TCP: IPv6":
+                return "tcp6";
+            case "UDP: IPv4":
+                return "udp4";
+            case "UDP: IPv6":
+                return "udp6";
+            default:
+                // Column headings and rules stay in the current section; any other heading leaves it
+                return line.startsWith("Local Address") || line.startsWith("-") ? type : null;
+        }
+    }
+
+    private static TcpState solarisTcpState(String state) {
+        switch (state) {
+            case "SYN_RCVD":
+            case "SYN_RECEIVED":
+                return TcpState.SYN_RECV;
+            case "CLOSED":
+            case "LISTEN":
+            case "SYN_SENT":
+            case "ESTABLISHED":
+            case "FIN_WAIT_1":
+            case "FIN_WAIT_2":
+            case "CLOSE_WAIT":
+            case "CLOSING":
+            case "LAST_ACK":
+            case "TIME_WAIT":
+                return TcpState.valueOf(state);
+            default:
+                // Solaris also reports IDLE and BOUND, which have no equivalent
+                return TcpState.UNKNOWN;
+        }
+    }
+
     private static Pair<byte[], Integer> parseIP(String s) {
         // 73.169.134.6.9599 to 73.169.134.6 port 9599
         // or
@@ -104,6 +198,10 @@ public final class NetStat {
         if (portPos > 0 && s.length() > portPos) {
             int port = ParseUtil.parseIntOrDefault(s.substring(portPos + 1), 0);
             String ip = s.substring(0, portPos);
+            if ("*".equals(ip)) {
+                // Any address; not a host name to look up
+                return new Pair<>(new byte[0], port);
+            }
             try {
                 // Try to parse existing IP
                 return new Pair<>(toAddressBytes(ip), port);
