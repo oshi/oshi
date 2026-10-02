@@ -106,7 +106,7 @@ public final class NetStat {
             String ip = s.substring(0, portPos);
             try {
                 // Try to parse existing IP
-                return new Pair<>(InetAddress.getByName(ip).getAddress(), port);
+                return new Pair<>(toAddressBytes(ip), port);
             } catch (UnknownHostException e) {
                 try {
                     // Try again with trailing ::
@@ -117,13 +117,27 @@ public final class NetStat {
                     } else {
                         ip = ip + "::0";
                     }
-                    return new Pair<>(InetAddress.getByName(ip).getAddress(), port);
+                    return new Pair<>(toAddressBytes(ip), port);
                 } catch (UnknownHostException e2) {
                     return new Pair<>(new byte[0], port);
                 }
             }
         }
         return new Pair<>(new byte[0], 0);
+    }
+
+    private static byte[] toAddressBytes(String ip) throws UnknownHostException {
+        byte[] addr = InetAddress.getByName(ip).getAddress();
+        // InetAddress collapses an IPv4-mapped IPv6 address (::ffff:a.b.c.d) to its 4-byte IPv4 form, but it was
+        // written in IPv6 notation, so return the 16 bytes the socket actually holds
+        if (addr.length == 4 && ip.indexOf(':') >= 0) {
+            byte[] mapped = new byte[16];
+            mapped[10] = (byte) 0xff;
+            mapped[11] = (byte) 0xff;
+            System.arraycopy(addr, 0, mapped, 12, 4);
+            return mapped;
+        }
+        return addr;
     }
 
     /**

@@ -1,6 +1,8 @@
 # 7.7.1 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3763](https://github.com/oshi/oshi/pull/3763): `InternetProtocolStats.getConnections()` now returns a 16-byte address for an IPv4-mapped IPv6 address such as `::ffff:10.0.2.2` on the UNIX platforms, which read connections from `netstat`. It previously returned the 4-byte IPv4 address on a `tcp6` or `udp6` connection - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29)
 

@@ -231,6 +231,20 @@ class NetStatTest {
         assertThat(connections.get(2).getState(), is(TcpState.ESTABLISHED));
     }
 
+    @Test
+    void testQueryNetstatIpv4MappedIpv6Address() {
+        // A dual-stack socket reports an IPv4 peer in IPv6 notation
+        List<IPConnection> connections = NetStat.queryNetstat(
+                List.of("tcp6       0      0  ::ffff:10.0.2.15.65432 ::ffff:10.0.2.2.443    ESTABLISHED"));
+        assertThat(connections, hasSize(1));
+        byte[] expectedLocal = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff, 10, 0, 2, 15 };
+        byte[] expectedForeign = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff, 10, 0, 2, 2 };
+        assertThat(connections.get(0).getLocalAddress(), is(expectedLocal));
+        assertThat(connections.get(0).getLocalPort(), is(65432));
+        assertThat(connections.get(0).getForeignAddress(), is(expectedForeign));
+        assertThat(connections.get(0).getForeignPort(), is(443));
+    }
+
     @Nested
     @DisabledOnOs(OS.WINDOWS)
     class LiveTests {
