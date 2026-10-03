@@ -442,10 +442,10 @@ class NativeComparisonTest {
             assertThat(Math.abs(ffm.getPriority() - jna.getPriority())).as("process.priority").isLessThanOrEqualTo(20);
         }
         assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.10, "process.virtualSize");
-        // Windows resident memory differs by 30-42% in about a quarter of runs and under 5% in the rest, which is too
-        // often to be a race between the two snapshots, so it keeps its old bound until that is explained.
-        assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), isWindows() ? 0.75 : 0.10,
-                "process.residentMemory");
+        // On Windows the young JVM releases about 100 MB of private memory once, early on, and a read either side of
+        // that drop differs by about 40%. The working set then stays at the new level, so the retry's next attempt
+        // agrees: the best of three back-to-back pairs never differed by more than 4.4% across 180 runs.
+        assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), 0.10, "process.residentMemory");
         // Time counters: snapshots taken close together, allow small difference
         assertThat(ffm.getKernelTime()).as("process.kernelTime").isGreaterThanOrEqualTo(jna.getKernelTime());
         assertThat(ffm.getUserTime()).as("process.userTime").isGreaterThanOrEqualTo(jna.getUserTime());
@@ -991,10 +991,6 @@ class NativeComparisonTest {
             case LINUX, MACOS, WINDOWS, FREEBSD, OPENBSD, NETBSD, SOLARIS, AIX -> true;
             default -> false;
         };
-    }
-
-    static boolean isWindows() {
-        return PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS;
     }
 
     static boolean isLinux() {
