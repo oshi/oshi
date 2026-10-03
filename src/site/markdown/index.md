@@ -2,7 +2,7 @@
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Maven Central](https://img.shields.io/maven-central/v/com.github.oshi/oshi-core.svg?label=Maven%20Central)](https://central.sonatype.com/search?namespace=com.github.oshi&amp;sort=name)
-[![javadoc](https://javadoc.io/badge2/com.github.oshi/oshi-core/javadoc.svg)](https://javadoc.io/doc/com.github.oshi/oshi-core)
+[![javadoc](https://javadoc.io/badge2/com.github.oshi/oshi-core/javadoc.svg)](https://javadoc.io/doc/com.github.oshi)
 [![first-timers-only](https://img.shields.io/badge/first--timers--only-friendly-blue.svg?style=flat-square)](https://www.firsttimersonly.com/)
 [![GitHub contributors](https://img.shields.io/github/contributors/oshi/oshi)](https://github.com/oshi/oshi/graphs/contributors)
 
