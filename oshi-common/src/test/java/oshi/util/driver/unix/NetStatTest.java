@@ -231,10 +231,227 @@ class NetStatTest {
         assertThat(connections.get(2).getState(), is(TcpState.ESTABLISHED));
     }
 
+    @Test
+    void testQueryNetstatIpv4MappedIpv6Address() {
+        // A dual-stack socket reports an IPv4 peer in IPv6 notation
+        List<IPConnection> connections = NetStat.queryNetstat(
+                List.of("tcp6       0      0  ::ffff:10.0.2.15.65432 ::ffff:10.0.2.2.443    ESTABLISHED"));
+        assertThat(connections, hasSize(1));
+        byte[] expectedLocal = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff, 10, 0, 2, 15 };
+        byte[] expectedForeign = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff, 10, 0, 2, 2 };
+        assertThat(connections.get(0).getLocalAddress(), is(expectedLocal));
+        assertThat(connections.get(0).getLocalPort(), is(65432));
+        assertThat(connections.get(0).getForeignAddress(), is(expectedForeign));
+        assertThat(connections.get(0).getForeignPort(), is(443));
+    }
+
+    @Test
+    void testQueryNetstatAll() {
+        // Captured on AIX 7.3 with netstat -an, trimmed; the BSDs print the same layout
+        List<String> lines = """
+                Active Internet connections (including servers)
+                Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+                tcp        0      0  *.*                    *.*                    CLOSED
+                tcp6       0      0  *.22                   *.*                    LISTEN
+                tcp4       0      0  *.22                   *.*                    LISTEN
+                tcp4       0      0  140.211.9.96.199       45.33.14.5.44782       ESTABLISHED
+                udp6       0      0  ::1.123                                       *.*
+                udp4       0      0  *.123                  *.*
+                """.lines().toList();
+        List<IPConnection> connections = NetStat.queryNetstat(lines);
+        assertThat(connections, hasSize(6));
+        assertThat(connections.get(0).getType(), is("tcp"));
+        assertThat(connections.get(0).getState(), is(TcpState.CLOSED));
+        assertThat(connections.get(0).getLocalAddress().length, is(0));
+        assertThat(connections.get(0).getLocalPort(), is(0));
+
+        IPConnection listen6 = connections.get(1);
+        assertThat(listen6.getType(), is("tcp6"));
+        assertThat(listen6.getLocalAddress().length, is(0));
+        assertThat(listen6.getLocalPort(), is(22));
+        assertThat(listen6.getForeignAddress().length, is(0));
+        assertThat(listen6.getState(), is(TcpState.LISTEN));
+
+        assertThat(connections.get(3).getForeignAddress(), is(new byte[] { 45, 33, 14, 5 }));
+        assertThat(connections.get(4).getLocalAddress(),
+                is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(connections.get(4).getForeignAddress().length, is(0));
+        assertThat(connections.get(5).getLocalPort(), is(123));
+        assertThat(connections.get(5).getState(), is(TcpState.NONE));
+    }
+
+    @Test
+    void testQueryNetstatUnknownState() {
+        List<IPConnection> connections = NetStat.queryNetstat(
+                List.of("tcp4       0      0  10.0.0.1.8080          10.0.0.2.54321         NOT_A_STATE"));
+        assertThat(connections, hasSize(1));
+        assertThat(connections.get(0).getState(), is(TcpState.UNKNOWN));
+    }
+
+    @Test
+    void testQuerySolarisNetstat() {
+        // Captured on Solaris 11.4 SPARC with Java holding IPv4 and IPv6 loopback TCP and UDP connections. The SCTP
+        // section is not captured; it checks that rows after a section the parser does not read are skipped
+        List<String> lines = """
+
+                UDP: IPv4
+                   Local Address        Remote Address      State      Send Buf     TxOverflows     Recv Buf     RxOverflows
+                -------------------- -------------------- ---------- ------------ --------------- ------------ ---------------
+                129.70.163.179.43864 129.70.161.2.53      Connected         57344               0        57344               0
+                127.0.0.1.63157      127.0.0.1.9          Connected         57344               0        57344               0
+
+                UDP: IPv6
+                   Local Address                     Remote Address                   State      If    Send Buf     TxOverflows     Recv Buf     RxOverflows
+                --------------------------------- --------------------------------- ---------- ----- ------------ --------------- ------------ ---------------
+                ::1.63188                         ::1.9                             Connected               57344               0        57344               0
+
+                TCP: IPv4
+                   Local Address        Remote Address     Swind  Send-Q  Rwind  Recv-Q    State
+                -------------------- -------------------- ------- ------ ------- ------ -----------
+                129.70.163.179.22    129.70.160.90.43210    55296      0  256960      0 ESTABLISHED
+                129.70.163.179.22    64.110.156.149.50538  131072     67  256296      0 ESTABLISHED
+                127.0.0.1.40237      127.0.0.1.64211       269936      0  261760      0 ESTABLISHED
+
+                TCP: IPv6
+                   Local Address                     Remote Address                  Swind  Send-Q  Rwind  Recv-Q   State      If
+                --------------------------------- --------------------------------- ------- ------ ------- ------ ----------- -----
+                ::1.58103                         ::1.40237                          261760      0  270336      0 ESTABLISHED
+
+                SCTP:
+                        Local Address                   Remote Address          Swind  Send-Q Rwind  Recv-Q StrsI/O  State
+                ------------------------------- ------------------------------- ------ ------ ------ ------ ------- -----------
+                127.0.0.1.5000                  127.0.0.1.5001                   102400      0 102400      0  32/32 ESTABLISHED
+
+                Active UNIX domain sockets
+                Type       Local Address                           Remote Address
+                stream-ord /var/run/dbus/system_bus_socket
+                """
+                .lines().toList();
+        List<IPConnection> connections = NetStat.querySolarisNetstat(lines);
+        assertThat(connections, hasSize(7));
+
+        IPConnection udp4 = connections.get(1);
+        assertThat(udp4.getType(), is("udp4"));
+        assertThat(udp4.getLocalAddress(), is(new byte[] { 127, 0, 0, 1 }));
+        assertThat(udp4.getLocalPort(), is(63157));
+        assertThat(udp4.getForeignPort(), is(9));
+        assertThat(udp4.getState(), is(TcpState.NONE));
+
+        IPConnection udp6 = connections.get(2);
+        assertThat(udp6.getType(), is("udp6"));
+        assertThat(udp6.getLocalAddress(), is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(udp6.getLocalPort(), is(63188));
+
+        IPConnection tcp4 = connections.get(4);
+        assertThat(tcp4.getType(), is("tcp4"));
+        assertThat(tcp4.getForeignAddress(), is(new byte[] { 64, 110, (byte) 156, (byte) 149 }));
+        assertThat(tcp4.getForeignPort(), is(50538));
+        assertThat(tcp4.getTransmitQueue(), is(67));
+        assertThat(tcp4.getReceiveQueue(), is(0));
+        assertThat(tcp4.getState(), is(TcpState.ESTABLISHED));
+
+        IPConnection tcp6 = connections.get(6);
+        assertThat(tcp6.getType(), is("tcp6"));
+        assertThat(tcp6.getLocalAddress(), is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(tcp6.getForeignAddress(), is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(tcp6.getLocalPort(), is(58103));
+        assertThat(tcp6.getForeignPort(), is(40237));
+        assertThat(tcp6.getState(), is(TcpState.ESTABLISHED));
+    }
+
+    @Test
+    void testQuerySolarisNetstatStates() {
+        // A row whose address starts with a letter, and the states that need mapping
+        List<String> lines = """
+                TCP: IPv6
+                fe80::1.22                        fe80::2.50000                      49152      0  49152      0 SYN_RCVD
+                fe80::1.22                        fe80::3.50001                      49152      0  49152      0 SYN_RECEIVED
+                fe80::1.22                        fe80::4.50002                      49152      0  49152      0 BOUND
+                """
+                .lines().toList();
+        List<IPConnection> connections = NetStat.querySolarisNetstat(lines);
+        assertThat(connections, hasSize(3));
+        assertThat(connections.get(0).getLocalAddress(),
+                is(new byte[] { (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(connections.get(0).getState(), is(TcpState.SYN_RECV));
+        // The man page spells it SYN_RECEIVED; the netstat binary prints SYN_RCVD
+        assertThat(connections.get(1).getState(), is(TcpState.SYN_RECV));
+        assertThat(connections.get(2).getState(), is(TcpState.UNKNOWN));
+    }
+
+    @Test
+    void testQuerySolarisNetstatAll() {
+        // Captured on Solaris 11.4 SPARC with netstat -an, trimmed to a few rows per section
+        List<String> lines = """
+
+                UDP: IPv4
+                   Local Address        Remote Address      State      Send Buf     TxOverflows     Recv Buf     RxOverflows
+                -------------------- -------------------- ---------- ------------ --------------- ------------ ---------------
+                      *.*                                 Unbound           57344               0        57344               0
+                127.0.0.1.123                             Idle              57344               0        57344               0
+                129.70.163.179.51841 129.70.161.2.53      Connected         57344               0        57344               0
+
+                UDP: IPv6
+                   Local Address                     Remote Address                   State      If    Send Buf     TxOverflows     Recv Buf     RxOverflows
+                --------------------------------- --------------------------------- ---------- ----- ------------ --------------- ------------ ---------------
+                fe80::214:4fff:fefb:a5d7.123                                        Idle       net0         57344               0        57344               0
+
+                TCP: IPv4
+                   Local Address        Remote Address     Swind  Send-Q  Rwind  Recv-Q    State
+                -------------------- -------------------- ------- ------ ------- ------ -----------
+                      *.22                 *.*                  0      0  256000      0 LISTEN
+                      *.*                  *.*                  0      0  256000      0 IDLE
+                127.0.0.1.4999             *.*                  0      0  256000      0 LISTEN
+
+                TCP: IPv6
+                   Local Address                     Remote Address                  Swind  Send-Q  Rwind  Recv-Q   State      If
+                --------------------------------- --------------------------------- ------- ------ ------- ------ ----------- -----
+                ::1.6010                                *.*                               0      0  256000      0 LISTEN
+
+                Active UNIX domain sockets
+                """
+                .lines().toList();
+        List<IPConnection> connections = NetStat.querySolarisNetstat(lines);
+        assertThat(connections, hasSize(8));
+
+        IPConnection unbound = connections.get(0);
+        assertThat(unbound.getLocalAddress().length, is(0));
+        assertThat(unbound.getLocalPort(), is(0));
+        assertThat(unbound.getForeignAddress().length, is(0));
+
+        // The remote address column is blank, not the state
+        IPConnection idle = connections.get(1);
+        assertThat(idle.getLocalAddress(), is(new byte[] { 127, 0, 0, 1 }));
+        assertThat(idle.getLocalPort(), is(123));
+        assertThat(idle.getForeignAddress().length, is(0));
+        assertThat(idle.getForeignPort(), is(0));
+
+        IPConnection udp6 = connections.get(3);
+        assertThat(udp6.getType(), is("udp6"));
+        assertThat(udp6.getLocalAddress(), is(new byte[] { (byte) 0xfe, (byte) 0x80, 0, 0, 0, 0, 0, 0, 2, 0x14, 0x4f,
+                (byte) 0xff, (byte) 0xfe, (byte) 0xfb, (byte) 0xa5, (byte) 0xd7 }));
+        assertThat(udp6.getForeignAddress().length, is(0));
+
+        IPConnection listen = connections.get(4);
+        assertThat(listen.getType(), is("tcp4"));
+        assertThat(listen.getLocalAddress().length, is(0));
+        assertThat(listen.getLocalPort(), is(22));
+        assertThat(listen.getForeignAddress().length, is(0));
+        assertThat(listen.getState(), is(TcpState.LISTEN));
+        assertThat(connections.get(5).getState(), is(TcpState.UNKNOWN));
+        assertThat(connections.get(6).getLocalAddress(), is(new byte[] { 127, 0, 0, 1 }));
+
+        IPConnection listen6 = connections.get(7);
+        assertThat(listen6.getType(), is("tcp6"));
+        assertThat(listen6.getLocalAddress(), is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1 }));
+        assertThat(listen6.getLocalPort(), is(6010));
+        assertThat(listen6.getState(), is(TcpState.LISTEN));
+    }
+
     @Nested
     @DisabledOnOs(OS.WINDOWS)
     class LiveTests {
-        // netstat -n output format varies across platforms; live parsing only verified on FreeBSD/OpenBSD
+        // netstat -an output format varies across platforms; live parsing only verified on FreeBSD/OpenBSD
         @DisabledOnOs({ OS.WINDOWS, OS.MAC, OS.LINUX })
         @Test
         void testQueryNetstat() {
