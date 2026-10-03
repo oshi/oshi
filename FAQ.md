@@ -177,13 +177,13 @@ The annotations in `oshi.annotation.concurrent` are modeled on those in *Java Co
 
 OSHI uses [JSpecify](https://jspecify.dev/) annotations to document which values can be `null`. A package annotated `@NullMarked` (in its `package-info.java`) declares that **every type usage in a signature is non-null unless it is explicitly annotated `@Nullable`** — parameters, return types, and fields alike. Every package in `oshi-common`, `oshi-core` and `oshi-core-ffm` is marked. The API packages — `oshi`, `oshi.hardware`, `oshi.software.os`, `oshi.util` and its subpackages, `oshi.spi`, `oshi.annotation` and `oshi.ffm` — carry `@NullMarked` in their `package-info.java`, which every consumer sees, including on a Java 8 or classpath build. The implementation packages behind them are marked on their module descriptors instead, which a consumer sees only on the module path; they are internal either way. The native mapping packages under `oshi.jna` and `oshi.ffm.platform` are explicitly `@NullUnmarked`: they mirror C structs and libraries, where nullability is the operating system's to state and not OSHI's. The Micrometer bindings in `oshi-metrics` are not marked; they implement Micrometer interfaces that carry no nullability annotations of their own, so a marking there would mostly be OSHI asserting a contract belonging to another project.
 
-Very little in the API is nullable, because OSHI reports a value it could not read as a sentinel rather than as `null`:
+Very little in the API is nullable, because OSHI reports a value it could not read as a sentinel rather than as `null`. Generally:
 
 - strings become `oshi.util.Constants.UNKNOWN` or the empty string,
 - collections and arrays become empty rather than `null`,
 - numbers become `0`, `-1`, or `Double.NaN` depending on which is out of the value's legitimate range.
 
-Prefer testing for those over a null check; an existing null check on a member that is not `@Nullable` is dead code. The handful of genuinely nullable API members — such as `OperatingSystem.getProcess(int)` for a process that is not running, and `PowerSource.getManufactureDate()` for a battery that does not report one — are annotated `@Nullable` and say so in their Javadoc. Nullable *parameters* are more common, and mark an argument as optional: passing `null` for the `filter` and `sort` arguments of `OperatingSystem.getProcesses(Predicate, Comparator, int)` requests no filtering and no sorting.
+The Javadoc for the [`oshi.hardware`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/hardware/package-summary.html) and [`oshi.software.os`](https://www.oshi.ooo/oshi-core/apidocs/com.github.oshi.common/oshi/software/os/package-summary.html) packages lists these sentinels, and a getter that uses a more specific one names it in its own Javadoc. Prefer testing for those over a null check; an existing null check on a member that is not `@Nullable` is dead code. The handful of genuinely nullable API members — such as `OperatingSystem.getProcess(int)` for a process that is not running, and `PowerSource.getManufactureDate()` for a battery that does not report one — are annotated `@Nullable` and say so in their Javadoc. Nullable *parameters* are more common, and mark an argument as optional: passing `null` for the `filter` and `sort` arguments of `OperatingSystem.getProcesses(Predicate, Comparator, int)` requests no filtering and no sorting.
 
 OSHI's own build enforces all of this: [NullAway](https://github.com/uber/NullAway) runs over the marked packages in `@NullMarked`-only, JSpecify mode, at `ERROR` severity, so a violation fails the build. The annotations are a checked guarantee rather than an aspiration.
 
@@ -265,16 +265,17 @@ However, some specific features require elevated permissions to access. Rather t
 #### What requires elevated permissions?
 
 **Linux:**
-- Hardware details via `dmidecode` (serial numbers, BIOS info, physical memory details)
-- Some `/proc/<pid>` files (e.g., `/proc/<pid>/io` for per-process I/O stats)
-- Logical volume group information via `pvs`/`lvs`
+- Physical memory module details via `dmidecode`, and the system serial number and UUID, from root-only DMI files or `dmidecode` (OSHI also tries `lshal` and `lshw` for those two)
+- Some `/proc/<pid>` files of other users' processes, such as `/proc/<pid>/io` for per-process I/O stats, which otherwise read as `0`
+- The physical volumes of logical volume groups, via `pvs`. Groups and their logical volumes are listed without it. OSHI runs `pvs` without the privileged prefix described below, so it needs the application itself to have the permission.
 
 **Windows:**
-- Process command lines and environment variables for processes owned by other users (requires `SeDebugPrivilege` or Administrator)
+- Environment variables of processes owned by other users, which are otherwise empty (requires `SeDebugPrivilege` or Administrator). Their command lines are read directly with the same privilege; without it, OSHI asks WMI instead.
 - Sensor data (temperature, fan speeds) via a hardware monitoring application or the optional [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) dependency
 
 **macOS:**
-- TCP/UDP connection details (without elevation, connection data is limited)
+- Sockets of processes owned by other users, which `getConnections()` otherwise leaves out
+- Exact TCPv4 segment and error counts, which are otherwise estimated from the IP and UDP totals
 
 #### Linux: Configurable privilege escalation via sudo
 
@@ -435,10 +436,10 @@ java -Doshi.os.linux.privileged.prefix="sudo -n" -jar myapp.jar
 ### What optional software gives OSHI more to report?
 
 OSHI bundles no native libraries and requires nothing beyond a JDK. Everything on this page is
-**optional**: OSHI probes for each item at the moment it needs it, and when it is absent the affected
-value degrades to a sentinel — `Constants.UNKNOWN`, an empty list, `0` or `-1` — or falls back to a
-coarser source. Nothing here is needed for OSHI to start. Install an item only if you want the data
-it unlocks.
+**optional**: OSHI probes for each item at the moment it needs it. When an item is absent, OSHI
+reads the value from another source where one exists, sometimes a less detailed one, and reports a
+sentinel only when no source has it. Nothing here is needed for OSHI to start. Install an item only
+if you want the data or detail it adds.
 
 That holds unconditionally for the **command-line tools** below: OSHI runs one, gets nothing, and
 moves on. It holds for the **shared libraries** on any current release, where OSHI tests for the
@@ -454,23 +455,23 @@ few can be switched off explicitly, which [configuration](#how-do-i-configure-os
 
 | Install | What it adds |
 |---|---|
-| **udev** — the `libudev.so.1` library, packaged as `libudev1`, `systemd-libs` or similar | USB device tree, power source details, disk model and serial, and some network and volume-group details. Frequently missing from slim container images — set `oshi.os.linux.allowudev=false` to skip the probe. |
-| **systemd** (`libsystemd`) | `OperatingSystem.getSessions()` through logind, where `utmp` is unavailable or deprecated. Set `oshi.os.linux.allowsystemd=false` to use the file-based or `who` fallback instead. |
-| **dmidecode** | Baseboard, firmware and computer-system serial numbers and UUID, physical memory module details, and the processor ID. Needs root. |
-| **lshw** | Graphics card enumeration and some processor details. Needs root. |
-| **lspci** | Graphics cards and their VRAM aperture, without root, when `lshw` is unavailable. |
-| **lscpu** | CPU cache sizes, NUMA node mapping, and processor identity. |
-| **cpuid** | The processor ID, when `dmidecode` is absent or not permitted. |
-| **NVIDIA driver / NVML** — the `libnvidia-ml` library, which ships with the proprietary driver | GPU utilization, memory, temperature, power and clocks on NVIDIA cards. |
-| **vcgencmd** (Raspberry Pi only; present in Raspberry Pi OS, packaged separately elsewhere) | Firmware version, SoC temperature and core voltage. |
+| **udev** — the `libudev.so.1` library, packaged as `libudev1`, `systemd-libs` or similar | Disk stores, the USB device tree and logical volume groups: without it, `oshi-core` and `oshi-core-ffm` return those lists empty, while the native-free implementation reads disks and USB devices from sysfs. Also network interface model names, which otherwise come from sysfs and are often just the interface name. Power sources lose nothing; OSHI reads the same data from sysfs. Frequently missing from slim container images — set `oshi.os.linux.allowudev=false` to skip the probe. |
+| **systemd** (`libsystemd`) | `OperatingSystem.getSessions()` through logind, where `utmp` is unavailable or deprecated. Without it, or with `oshi.os.linux.allowsystemd=false`, OSHI reads `utmp`, then the logind session files, then runs `who`. |
+| **dmidecode** | Physical memory module details, which have no other source. Also the firmware name and the revision in its version, and the system serial number and UUID when the root-only DMI files under `/sys/devices/virtual/dmi/id` cannot be read; OSHI then tries `lshal` and `lshw`. Without it, the processor ID comes from `cpuid` or is built from `/proc/cpuinfo`. Needs root. |
+| **lshw** | Graphics cards when `lspci` finds none, the last fallback for the system model, serial number and UUID, and the processor's rated frequency where its name does not state one (otherwise `/proc/cpuinfo` and cpufreq). Needs root. |
+| **lspci** | Graphics cards and their VRAM aperture, without root. It is the first source OSHI tries, with `lshw` as the fallback; with neither, the card list is empty. |
+| **lscpu** | CPU cache sizes and NUMA node mapping when the sysfs CPU topology is missing, and the processor vendor and name where `/proc/cpuinfo` lacks them, which is common on ARM. |
+| **cpuid** | The processor ID, when `dmidecode` is absent or not permitted. Without either, OSHI builds the ID from `/proc/cpuinfo`. |
+| **NVIDIA driver / NVML** — the `libnvidia-ml` library, which ships with the proprietary driver | GPU utilization, memory, temperature, power and clocks on NVIDIA cards, whose proprietary driver publishes none of them through sysfs. AMD and Intel cards report these through sysfs and hwmon without it. |
+| **vcgencmd** (Raspberry Pi only; present in Raspberry Pi OS, packaged separately elsewhere) | Firmware details, which a Pi has no DMI data to supply. SoC temperature and core voltage come from it first, and otherwise from the kernel's hwmon and thermal sensors. |
 
 #### Windows
 
 | Install | What it adds |
 |---|---|
-| **LibreHardwareMonitor**, or the older **OpenHardwareMonitor**, running as Administrator with WMI publishing enabled | CPU temperature, fan speeds and voltage. LibreHardwareMonitor is the maintained one and also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. |
+| **LibreHardwareMonitor**, or the older **OpenHardwareMonitor**, running as Administrator with WMI publishing enabled | CPU temperature, fan speeds and voltage. LibreHardwareMonitor is the maintained one and also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
 | The optional **jLibreHardwareMonitor** dependency | The same sensors with no monitoring application running — it ships the monitoring libraries itself. See the details and caveats below. |
-| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, memory, temperature, power and clocks. Normally already present with the driver. |
+| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if it is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
 
 #### macOS
 
@@ -481,25 +482,25 @@ CoreGraphics) that ship with the OS.
 
 | Install | What it adds |
 |---|---|
-| **dmidecode** | Firmware, baseboard and computer-system identity, and the processor ID. |
+| **dmidecode** | Firmware, baseboard and computer-system manufacturer, model, version and serial number, and the processor ID. Without it, the system UUID still comes from `kern.hostuuid` and the processor ID from `/var/run/dmesg.boot`. |
 
-OSHI also reads `lshal` for the USB device tree and the system serial number and UUID, but that is a
-legacy path rather than something to install: HAL was abandoned upstream and its FreeBSD port was
-deleted in 2021, so on a current system the command is absent and those values report their
-sentinels.
+OSHI also reads `lshal` for the USB device tree and as a second source for the system serial
+number, but that is a legacy path rather than something to install: HAL was abandoned upstream and
+its FreeBSD port was deleted in 2021. On a current system the command is absent, so the USB device
+list is empty and the serial number comes only from `dmidecode`.
 
 #### Solaris / illumos
 
 | Install | What it adds |
 |---|---|
-| **sneep** | The system serial number. |
+| **sneep** | The system serial number, when `smbios` does not report one. OSHI also tries `prtconf` after it. |
 | **PICL** (`prtpicl`) | Temperature, fan speed and voltage sensors. Present on Solaris; check your illumos distribution. |
 
 #### NetBSD
 
 | Install | What it adds |
 |---|---|
-| pkgsrc **`java-jna`**, with `-Djna.boot.library.path=/usr/pkg/lib` | The native path for `oshi-core`. JNA cannot extract a NetBSD `libjnidispatch` from its own jar, so without the pkgsrc build every native call is skipped and those values report their sentinels. |
+| pkgsrc **`java-jna`**, with `-Djna.boot.library.path=/usr/pkg/lib` | Native calls for `oshi-core`, which JNA cannot load from its own jar on NetBSD. Without it, `oshi-core` runs commands instead (`sysctl` for CPU ticks and load average, `netstat` for the routing table), which is slower but reports the same values, with three exceptions: the current thread ID is `0`, other processes' environment variables are empty, and the current process's open-file limits are the system-wide ones. `oshi-core-ffm` does not need it. |
 
 #### AIX
 
@@ -536,7 +537,8 @@ Windows sensor information is unreliable through the supported Windows API: `Win
 `MSAcpi_ThermalZoneTemperature` are frequently unimplemented, and `Win32_Processor` reports voltage as a handful of
 capability bits. The two better sources are listed under
 [optional software](#what-optional-software-gives-oshi-more-to-report) above; OSHI tries them in order and uses
-whichever answers, so nothing needs configuring to prefer one.
+whichever answers, so nothing needs configuring to prefer one. When neither answers, OSHI still asks those Windows
+classes.
 
 The monitoring applications need no dependency at all. The second source does, and it comes with caveats worth reading
 before you adopt it.
@@ -573,7 +575,7 @@ dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
 #### Turning off the sources you do not use
 
 Either application can be started or stopped at any time, so OSHI queries their namespaces on each sensor read, in the
-order below, until one returns data, and gets no results when neither is running. If you know you do not run one of
+order below, until one returns data, and moves on to the next source when neither is running. If you know you do not run one of
 them, say so up front and OSHI will not attempt the query:
 
 | Property | Skips |
