@@ -125,6 +125,7 @@
         <junit.parallel.fixed.max-pool-size>4</junit.parallel.fixed.max-pool-size>
         <hamcrest.version>3.0</hamcrest.version>
         <assertj.version>3.27.7</assertj.version>
+        <junit-pioneer.version>2.3.0</junit-pioneer.version>
         <!-- Compile versions -->
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>

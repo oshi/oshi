@@ -73,6 +73,24 @@
             <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- @RetryingTest for comparison tests whose two snapshots can race. Its JUnit 5 artifacts are excluded
+        so the JUnit 6 ones above are the only Jupiter and Platform on the test path. -->
+        <dependency>
+            <groupId>org.junit-pioneer</groupId>
+            <artifactId>junit-pioneer</artifactId>
+            <version>${junit-pioneer.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.junit.jupiter</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.junit.platform</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
     </dependencies>
 
     <build>

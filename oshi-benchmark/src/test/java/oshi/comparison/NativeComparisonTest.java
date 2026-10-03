@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junitpioneer.jupiter.RetryingTest;
 
 import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.hardware.CentralProcessor;
@@ -899,7 +900,9 @@ class NativeComparisonTest {
 
     // ---- OS: Current Thread ----
 
-    @Test
+    // NetBSD reads the thread name from the same ps args column as the process, which comes back blank while any
+    // thread of the JVM is inside posix_spawn (see isDegradedOnNetBsd), so a single snapshot can lose the race.
+    @RetryingTest(2)
     void currentThread() {
         int jnaTid = jnaOs.getThreadId();
         int ffmTid = ffmOs.getThreadId();
