@@ -13,6 +13,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIf;
 
+import oshi.comparison.RetryingComparison;
 import oshi.driver.common.windows.perfmon.GpuInformation.GpuEngineProperty;
 import oshi.driver.common.windows.perfmon.MemoryInformation.PageSwapProperty;
 import oshi.driver.common.windows.perfmon.PagingFile.PagingPercentProperty;
@@ -57,12 +58,12 @@ import oshi.util.tuples.Pair;
 @DisabledIf("isNotWindows")
 class PerfmonComparisonTest {
 
-    // Cumulative counters grow between queries; 50% tolerance for timing differences
-    private static final double CUMULATIVE_RATIO = 0.5;
-    // Instantaneous gauges should be close
-    private static final double GAUGE_RATIO = 0.25;
+    // Cumulative counters grow between queries; measured under 0.5% apart
+    private static final double CUMULATIVE_RATIO = 0.05;
+    // Instantaneous gauges; measured under 0.5% apart
+    private static final double GAUGE_RATIO = 0.05;
 
-    @Test
+    @RetryingComparison
     void testPageSwaps() {
         Map<PageSwapProperty, Long> jna = MemoryInformationJNA.queryPageSwaps();
         Map<PageSwapProperty, Long> ffm = MemoryInformationFFM.queryPageSwaps();
@@ -70,7 +71,7 @@ class PerfmonComparisonTest {
         assertNonWildcardValuesClose(jna, ffm, CUMULATIVE_RATIO, "PageSwap");
     }
 
-    @Test
+    @RetryingComparison
     void testSwapUsed() {
         Map<PagingPercentProperty, Long> jna = PagingFileJNA.querySwapUsed();
         Map<PagingPercentProperty, Long> ffm = PagingFileFFM.querySwapUsed();
@@ -94,7 +95,7 @@ class PerfmonComparisonTest {
         assertThat(ffm.getB().keySet()).as("Process counter keys").isEqualTo(jna.getB().keySet());
     }
 
-    @Test
+    @RetryingComparison
     void testHandles() {
         Map<HandleCountProperty, Long> jna = ProcessInformationJNA.queryHandles();
         Map<HandleCountProperty, Long> ffm = ProcessInformationFFM.queryHandles();
@@ -120,7 +121,7 @@ class PerfmonComparisonTest {
         assertWildcardStructureMatch(jna, ffm, "Processor");
     }
 
-    @Test
+    @RetryingComparison
     void testSystemCounters() {
         Map<SystemTickCountProperty, Long> jna = ProcessorInformationJNA.querySystemCounters();
         Map<SystemTickCountProperty, Long> ffm = ProcessorInformationFFM.querySystemCounters();
@@ -137,7 +138,7 @@ class PerfmonComparisonTest {
         assertWildcardStructureMatch(jna, ffm, "ProcessorCapacity");
     }
 
-    @Test
+    @RetryingComparison
     void testInterruptCounters() {
         Map<InterruptsProperty, Long> jna = ProcessorInformationJNA.queryInterruptCounters();
         Map<InterruptsProperty, Long> ffm = ProcessorInformationFFM.queryInterruptCounters();
@@ -154,7 +155,7 @@ class PerfmonComparisonTest {
         assertWildcardStructureMatch(jna, ffm, "Frequency");
     }
 
-    @Test
+    @RetryingComparison
     void testContextSwitchCounters() {
         Map<ContextSwitchProperty, Long> jna = SystemInformationJNA.queryContextSwitchCounters();
         Map<ContextSwitchProperty, Long> ffm = SystemInformationFFM.queryContextSwitchCounters();

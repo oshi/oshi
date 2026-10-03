@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
-import org.junitpioneer.jupiter.RetryingTest;
 
 import oshi.ffm.util.platform.mac.SmcUtilFFM;
 import oshi.hardware.CentralProcessor;
@@ -131,7 +130,7 @@ class NativeComparisonTest {
     }
 
     /** Compares max and per-core current CPU frequencies. */
-    @Test
+    @RetryingComparison
     void processorFrequencies() {
         CentralProcessor jna = jnaHal.getProcessor();
         CentralProcessor ffm = ffmHal.getProcessor();
@@ -140,7 +139,7 @@ class NativeComparisonTest {
         long[] ffmFreqs = ffm.getCurrentFreq();
         assertThat(ffmFreqs).hasSameSizeAs(jnaFreqs);
         for (int i = 0; i < jnaFreqs.length; i++) {
-            assertWithinRatio(ffmFreqs[i], jnaFreqs[i], 0.5, "currentFreq[" + i + "]");
+            assertWithinRatio(ffmFreqs[i], jnaFreqs[i], 0.25, "currentFreq[" + i + "]");
         }
     }
 
@@ -163,13 +162,13 @@ class NativeComparisonTest {
     }
 
     /** Compares 1-, 5-, and 15-minute system load averages. */
-    @Test
+    @RetryingComparison
     void processorLoadAverage() {
         double[] jna = jnaHal.getProcessor().getSystemLoadAverage(3);
         double[] ffm = ffmHal.getProcessor().getSystemLoadAverage(3);
         assertThat(ffm).hasSameSizeAs(jna);
         for (int i = 0; i < jna.length; i++) {
-            assertWithinRatio(ffm[i], jna[i], 0.25, "loadAverage[" + i + "]");
+            assertWithinRatio(ffm[i], jna[i], 0.10, "loadAverage[" + i + "]");
         }
     }
 
@@ -187,25 +186,24 @@ class NativeComparisonTest {
     // ---- Hardware: Memory ----
 
     /** Compares total, page size, and available memory. */
-    @Test
+    @RetryingComparison
     void globalMemory() {
         GlobalMemory jna = jnaHal.getMemory();
         GlobalMemory ffm = ffmHal.getMemory();
         assertThat(ffm.getTotal()).isEqualTo(jna.getTotal());
         assertThat(ffm.getPageSize()).isEqualTo(jna.getPageSize());
-        // Available memory fluctuates but should be in the same ballpark
-        assertWithinRatio(ffm.getAvailable(), jna.getAvailable(), 0.25, "availableMemory");
+        assertWithinRatio(ffm.getAvailable(), jna.getAvailable(), 0.05, "availableMemory");
     }
 
     /** Compares swap and virtual memory statistics. */
-    @Test
+    @RetryingComparison
     void virtualMemory() {
         VirtualMemory jna = jnaHal.getMemory().getVirtualMemory();
         VirtualMemory ffm = ffmHal.getMemory().getVirtualMemory();
         assertThat(ffm.getSwapTotal()).isEqualTo(jna.getSwapTotal());
-        assertWithinRatio(ffm.getSwapUsed(), jna.getSwapUsed(), 0.25, "swapUsed");
-        assertWithinRatio(ffm.getVirtualMax(), jna.getVirtualMax(), 0.25, "virtualMax");
-        assertWithinRatio(ffm.getVirtualInUse(), jna.getVirtualInUse(), 0.25, "virtualInUse");
+        assertWithinRatio(ffm.getSwapUsed(), jna.getSwapUsed(), 0.05, "swapUsed");
+        assertWithinRatio(ffm.getVirtualMax(), jna.getVirtualMax(), 0.05, "virtualMax");
+        assertWithinRatio(ffm.getVirtualInUse(), jna.getVirtualInUse(), 0.05, "virtualInUse");
     }
 
     /** Compares physical memory DIMM details. */
@@ -412,7 +410,7 @@ class NativeComparisonTest {
 
     // ---- OS: Current Process ----
 
-    @Test
+    @RetryingComparison
     void currentProcess() {
         int pid = jnaOs.getProcessId();
         assertThat(ffmOs.getProcessId()).isEqualTo(pid);
@@ -443,20 +441,25 @@ class NativeComparisonTest {
         if (!isSolaris() && !isNetBsd()) {
             assertThat(Math.abs(ffm.getPriority() - jna.getPriority())).as("process.priority").isLessThanOrEqualTo(20);
         }
-        // Memory values should be in the same ballpark
-        // Virtual size can differ significantly between JNA and FFM due to timing of memory-mapped regions
-        // and DLL loading between the two snapshots; 0.95 tolerance accommodates this variance
-        assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.95, "process.virtualSize");
-        assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), 0.75, "process.residentMemory");
+        assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.10, "process.virtualSize");
+        // Windows resident memory differs by 30-42% in about a quarter of runs and under 5% in the rest, which is too
+        // often to be a race between the two snapshots, so it keeps its old bound until that is explained.
+        assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), isWindows() ? 0.75 : 0.10,
+                "process.residentMemory");
         // Time counters: snapshots taken close together, allow small difference
         assertThat(ffm.getKernelTime()).as("process.kernelTime").isGreaterThanOrEqualTo(jna.getKernelTime());
         assertThat(ffm.getUserTime()).as("process.userTime").isGreaterThanOrEqualTo(jna.getUserTime());
+        // FFM reads second, so it can be ahead, but only by the CPU time used between the snapshots: 720ms at most
+        // measured across seven platforms. A wrong-field or wrong-unit read would be ahead by far more.
+        assertThat(ffm.getKernelTime() + ffm.getUserTime() - jna.getKernelTime() - jna.getUserTime())
+                .as("process.kernel+userTime gap").isLessThanOrEqualTo(1000L);
         // The two snapshots are taken in sequence, so this difference is the wall-clock gap between them: the
         // cost of building two process maps through a cold native stack. Memoization is not a factor - setUp sets
         // the memoizer expiration to 0. The gap is unrelated to how long the process has been up, so the
         // percentage term is far too tight on a freshly started JVM, which is when this test runs, and the floor
-        // is what actually governs. 300ms did not cover it on Windows. BSD reads seconds-resolution ps output.
-        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 1500L);
+        // is what actually governs. 300ms did not cover it on Windows; 226ms was the most measured there across 180
+        // runs. BSD reads seconds-resolution ps output, so its gap is a whole second or more.
+        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 500L);
         assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
                 .isLessThanOrEqualTo(upTimeTolerance);
         assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");
@@ -689,12 +692,12 @@ class NativeComparisonTest {
 
     // ---- OS: FileSystem ----
 
-    @Test
+    @RetryingComparison
     void fileSystem() {
         FileSystem jnaFs = jnaOs.getFileSystem();
         FileSystem ffmFs = ffmOs.getFileSystem();
         assertThat(ffmFs.getMaxFileDescriptors()).isEqualTo(jnaFs.getMaxFileDescriptors());
-        assertWithinRatio(ffmFs.getOpenFileDescriptors(), jnaFs.getOpenFileDescriptors(), 0.25, "openFileDescriptors");
+        assertWithinRatio(ffmFs.getOpenFileDescriptors(), jnaFs.getOpenFileDescriptors(), 0.10, "openFileDescriptors");
 
         List<OSFileStore> jnaStores = jnaFs.getFileStores();
         List<OSFileStore> ffmStores = ffmFs.getFileStores();
@@ -710,8 +713,7 @@ class NativeComparisonTest {
             // Total space can drift on tmpfs and live filesystems between back-to-back snapshots
             // (e.g. Solaris /var/run grows/shrinks with memory pressure); allow a small ratio.
             assertWithinRatio(f.getTotalSpace(), j.getTotalSpace(), 0.01, "totalSpace(" + j.getMount() + ")");
-            // Usable space fluctuates
-            assertWithinRatio(f.getUsableSpace(), j.getUsableSpace(), 0.25, "usableSpace(" + j.getMount() + ")");
+            assertWithinRatio(f.getUsableSpace(), j.getUsableSpace(), 0.05, "usableSpace(" + j.getMount() + ")");
         }
     }
 
@@ -775,7 +777,7 @@ class NativeComparisonTest {
                 "UDPv6 datagramsReceived");
     }
 
-    @Test
+    @RetryingComparison
     void internetProtocolConnections() {
         InternetProtocolStats jna = jnaOs.getInternetProtocolStats();
         InternetProtocolStats ffm = ffmOs.getInternetProtocolStats();
@@ -791,8 +793,8 @@ class NativeComparisonTest {
             return;
         }
 
-        // Connection counts can fluctuate significantly between the two reads
-        assertWithinRatio(ffmConns.size(), jnaConns.size(), 0.50, "connections.size");
+        // Connection counts move between the two reads more than most values here
+        assertWithinRatio(ffmConns.size(), jnaConns.size(), 0.25, "connections.size");
 
         // Build unique tuple sets for overlap check
         Set<String> jnaKeys = new HashSet<>();
@@ -902,7 +904,7 @@ class NativeComparisonTest {
 
     // NetBSD reads the thread name from the same ps args column as the process, which comes back blank while any
     // thread of the JVM is inside posix_spawn (see isDegradedOnNetBsd), so a single snapshot can lose the race.
-    @RetryingTest(2)
+    @RetryingComparison
     void currentThread() {
         int jnaTid = jnaOs.getThreadId();
         int ffmTid = ffmOs.getThreadId();
@@ -938,14 +940,14 @@ class NativeComparisonTest {
 
     // ---- OS: Processes (structural) ----
 
-    @Test
+    @RetryingComparison
     void processListStructure() {
         // Both should return a non-empty process list
         List<OSProcess> jna = jnaOs.getProcesses(null, null, 0);
         List<OSProcess> ffm = ffmOs.getProcesses(null, null, 0);
         assertThat(ffm).isNotEmpty();
-        // Process counts can differ slightly but should be in the same ballpark
-        assertWithinRatio(ffm.size(), jna.size(), 0.25, "processCount");
+        // A VM runs few enough processes that one starting or exiting between the reads moves the ratio by several %
+        assertWithinRatio(ffm.size(), jna.size(), 0.15, "processCount");
 
         // The longest-lived processes should be present in both lists
         List<OSProcess> jnaSorted = jna.stream().sorted(Comparator.comparingLong(OSProcess::getStartTime)).limit(10)
@@ -967,15 +969,15 @@ class NativeComparisonTest {
 
     // ---- OS: Threads of current process ----
 
-    @Test
+    @RetryingComparison
     void currentProcessThreads() {
         int pid = jnaOs.getProcessId();
         OSProcess jna = jnaOs.getProcess(pid);
         OSProcess ffm = ffmOs.getProcess(pid);
         List<OSThread> jnaThreads = jna.getThreadDetails();
         List<OSThread> ffmThreads = ffm.getThreadDetails();
-        // Thread count can change but should be in the same ballpark
-        assertWithinRatio(ffmThreads.size(), jnaThreads.size(), 0.5, "threadDetails.size");
+        // Thread count can change between the reads, by a large fraction of a small count
+        assertWithinRatio(ffmThreads.size(), jnaThreads.size(), 0.20, "threadDetails.size");
     }
 
     // ---- Conditions ----
@@ -989,6 +991,10 @@ class NativeComparisonTest {
             case LINUX, MACOS, WINDOWS, FREEBSD, OPENBSD, NETBSD, SOLARIS, AIX -> true;
             default -> false;
         };
+    }
+
+    static boolean isWindows() {
+        return PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS;
     }
 
     static boolean isLinux() {

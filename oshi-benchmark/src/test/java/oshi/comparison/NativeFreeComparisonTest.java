@@ -152,21 +152,21 @@ class NativeFreeComparisonTest {
 
     // ---- Hardware: Memory ----
 
-    @Test
+    @RetryingComparison
     void globalMemory() {
         GlobalMemory jna = jnaHal.getMemory();
         GlobalMemory nf = nfHal.getMemory();
         assertThat(nf.getTotal()).isEqualTo(jna.getTotal());
         assertThat(nf.getPageSize()).isEqualTo(jna.getPageSize());
-        assertWithinRatio(nf.getAvailable(), jna.getAvailable(), 0.25, "availableMemory");
+        assertWithinRatio(nf.getAvailable(), jna.getAvailable(), 0.05, "availableMemory");
     }
 
-    @Test
+    @RetryingComparison
     void virtualMemory() {
         VirtualMemory jna = jnaHal.getMemory().getVirtualMemory();
         VirtualMemory nf = nfHal.getMemory().getVirtualMemory();
         assertThat(nf.getSwapTotal()).isEqualTo(jna.getSwapTotal());
-        assertWithinRatio(nf.getSwapUsed(), jna.getSwapUsed(), 0.25, "swapUsed");
+        assertWithinRatio(nf.getSwapUsed(), jna.getSwapUsed(), 0.05, "swapUsed");
     }
 
     // ---- OS: Current Process ----
@@ -249,7 +249,7 @@ class NativeFreeComparisonTest {
 
     // ---- OS: FileSystem ----
 
-    @Test
+    @RetryingComparison
     void fileSystem() {
         FileSystem jnaFs = jnaOs.getFileSystem();
         FileSystem nfFs = nfOs.getFileSystem();
@@ -266,7 +266,7 @@ class NativeFreeComparisonTest {
             assertThat(nf.getType()).isEqualTo(j.getType());
             assertThat(nf.getVolume()).isEqualTo(j.getVolume());
             assertThat(nf.getTotalSpace()).isEqualTo(j.getTotalSpace());
-            assertWithinRatio(nf.getUsableSpace(), j.getUsableSpace(), 0.25, "usableSpace(" + j.getMount() + ")");
+            assertWithinRatio(nf.getUsableSpace(), j.getUsableSpace(), 0.05, "usableSpace(" + j.getMount() + ")");
         }
     }
 
