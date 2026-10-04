@@ -5,7 +5,6 @@
 package oshi.util.driver.linux;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
@@ -15,6 +14,9 @@ import static org.hamcrest.Matchers.nullValue;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+
+import oshi.util.FileUtil;
+import oshi.util.linux.SysPath;
 
 /**
  * Extended tests for Sysfs that exercise all return paths.
@@ -95,10 +97,14 @@ class SysfsExtendedTest {
     }
 
     @Test
-    void testQueryBiosVendorReturnsNullOrEmpty() {
-        // Note: queryBiosVendor has inverted logic - returns empty string when non-empty, null when empty
+    void testQueryBiosVendorMatchesSysfs() {
+        String raw = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_vendor").trim();
         String vendor = Sysfs.queryBiosVendor();
-        assertThat(vendor, anyOf(is(nullValue()), is("")));
+        if (raw.isEmpty()) {
+            assertThat(vendor, is(nullValue()));
+        } else {
+            assertThat(vendor, is(raw));
+        }
     }
 
     @Test

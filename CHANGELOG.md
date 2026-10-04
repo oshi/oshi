@@ -3,6 +3,7 @@
 ##### Bug Fixes and Improvements
 
 * [#3763](https://github.com/oshi/oshi/pull/3763): Standardizes connection reporting from `InternetProtocolStats.getConnections()` on the UNIX platforms. It now includes listening and unconnected sockets, as on Linux, and returns connections on Solaris, where it returned none. A `tcp6` or `udp6` connection to an IPv4 peer now has a 16-byte IPv4-mapped address rather than a 4-byte one - [@dbwiddis](https://github.com/dbwiddis).
+* [#3771](https://github.com/oshi/oshi/pull/3771): Fixed `Firmware.getManufacturer()` on Linux, which never read the BIOS vendor from sysfs. It returned `vcgencmd`'s value or `unknown`, or an empty string where the sysfs file was empty - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29)
 
