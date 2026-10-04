@@ -84,8 +84,11 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
+          # Restore master's caches but never save: a PR's caches are invisible to other PRs, so every
+          # copy it saves (the Maven repository, and since setup-java v6 the JDK as well) is never reused.
+          cache-read-only: true
       - name: Install
         run: ./mvnw install -DskipTests -q
       - name: Spotless
@@ -110,8 +113,9 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
+          cache-read-only: true
       - name: Install (release profile, catches javadoc-jar errors javadoc:javadoc misses)
         # -Prelease exercises the same attach-javadocs execution used at release:perform time,
         # which RELEASING.md notes is stricter than the javadoc:javadoc report goal below about
@@ -143,8 +147,9 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
+          cache-read-only: true
       - name: Error Prone
         run: ./mvnw install -DskipTests -Perror-prone
 
@@ -184,8 +189,9 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
+          cache-read-only: true
       - name: Test with Maven
         if: ${{ !contains(matrix.java, '25') }}
         run: ./mvnw test -B

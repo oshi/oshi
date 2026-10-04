@@ -32,7 +32,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Build benchmark jar
         run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
@@ -57,7 +57,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Build benchmark jar
         run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q

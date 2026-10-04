@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Install
         run: ./mvnw install -DskipTests -q
@@ -54,7 +54,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Install (release profile, catches javadoc-jar errors javadoc:javadoc misses)
         # -Prelease exercises the same attach-javadocs execution used at release:perform time,
@@ -83,7 +83,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 25
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Error Prone
         run: ./mvnw install -DskipTests -Perror-prone
@@ -109,7 +109,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: ${{ matrix.java }}
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Install with Maven
         if: ${{ !contains(matrix.java, '25') }}
@@ -140,7 +140,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 21
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Build oshi-common
         run: ./mvnw install -pl oshi-common -am -DskipTests -q

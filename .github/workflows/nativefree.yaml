@@ -31,7 +31,7 @@ jobs:
         uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
         with:
           java-version: 21
-          distribution: 'zulu'
+          distribution: 'temurin'
           cache: 'maven'
       - name: Test oshi-common alone (native-free)
         run: ./mvnw clean test -pl oshi-common -B
