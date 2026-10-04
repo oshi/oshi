@@ -389,7 +389,7 @@ jobs:
           persist-credentials: false
       - name: Test on OpenIndiana with aggregate coverage
         id: test-openindiana
-        uses: vmactions/openindiana-vm@d82e6302d027df92e66e4fec862e5236c89b305f # v1
+        uses: vmactions/openindiana-vm@f0ed27ca85a6d1f5b11e4242eba1d6effa5aaae2 # v1
         with:
           # Sizing only, matching unix.yaml: the guest peaks at 1.5 GiB across a full test run, and
           # 12288 left only ~4 GB of the runner's 16 GB for the host, QEMU, and the runner agent.
