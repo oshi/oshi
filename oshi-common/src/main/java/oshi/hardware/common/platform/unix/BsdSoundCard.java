@@ -4,15 +4,14 @@
  */
 package oshi.hardware.common.platform.unix;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -85,11 +84,7 @@ public final class BsdSoundCard extends AbstractSoundCard {
                 key = "";
             }
         }
-        List<SoundCard> soundCards = new ArrayList<>();
-        for (Entry<String, String> entry : nameMap.entrySet()) {
-            soundCards.add(
-                    new BsdSoundCard(versionMap.get(entry.getKey()), entry.getValue(), codecMap.get(entry.getKey())));
-        }
-        return soundCards;
+        return nameMap.entrySet().stream().map(entry -> new BsdSoundCard(versionMap.get(entry.getKey()),
+                entry.getValue(), codecMap.get(entry.getKey()))).collect(Collectors.toList());
     }
 }

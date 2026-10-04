@@ -4,7 +4,6 @@
  */
 package oshi.hardware.common.platform.unix.solaris;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import oshi.annotation.concurrent.ThreadSafe;
@@ -59,13 +58,8 @@ public final class SolarisSensors extends AbstractSensors {
      * @return an array of fan speeds
      */
     static int[] parseFanSpeeds(List<String> prtpicl) {
-        List<Integer> speedList = new ArrayList<>();
-        for (String line : prtpicl) {
-            if (line.trim().startsWith("Speed:")) {
-                speedList.add(ParseUtil.parseLastInt(line, 0));
-            }
-        }
-        return speedList.stream().mapToInt(Integer::intValue).toArray();
+        return prtpicl.stream().filter(line -> line.trim().startsWith("Speed:"))
+                .mapToInt(line -> ParseUtil.parseLastInt(line, 0)).toArray();
     }
 
     @Override

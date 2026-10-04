@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -123,15 +124,12 @@ public class SolarisUsbDevice extends AbstractUsbDevice {
         }
 
         // Build tree and return
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String controller : usbControllers) {
-            // Only do controllers that are USB device type
-            if (PCI_TYPE_USB.equals(deviceTypeMap.getOrDefault(controller, ""))
-                    || "usb".equals(deviceTypeMap.getOrDefault(controller, ""))) {
-                controllerDevices.add(buildDeviceTree(controller, "0000", "0000", nameMap, emptyMap(), vendorIdMap,
-                        productIdMap, emptyMap(), hubMap, SolarisUsbDevice::new));
-            }
-        }
-        return unmodifiableList(controllerDevices);
+        // Only do controllers that are USB device type
+        return unmodifiableList(usbControllers.stream()
+                .filter(controller -> PCI_TYPE_USB.equals(deviceTypeMap.getOrDefault(controller, ""))
+                        || "usb".equals(deviceTypeMap.getOrDefault(controller, "")))
+                .map(controller -> buildDeviceTree(controller, "0000", "0000", nameMap, emptyMap(), vendorIdMap,
+                        productIdMap, emptyMap(), hubMap, SolarisUsbDevice::new))
+                .collect(Collectors.toList()));
     }
 }

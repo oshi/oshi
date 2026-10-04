@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -150,11 +151,9 @@ class LinuxSoundCard extends AbstractSoundCard {
     }
 
     static List<SoundCard> getSoundCards(String asoundPath) {
-        List<SoundCard> soundCards = new ArrayList<>();
         String version = getSoundCardVersion(asoundPath);
-        for (File cardFile : getCardFolders(asoundPath)) {
-            soundCards.add(new LinuxSoundCard(version, getCardName(cardFile, asoundPath), getCardCodec(cardFile)));
-        }
-        return soundCards;
+        return getCardFolders(asoundPath).stream()
+                .map(cardFile -> new LinuxSoundCard(version, getCardName(cardFile, asoundPath), getCardCodec(cardFile)))
+                .collect(Collectors.toList());
     }
 }

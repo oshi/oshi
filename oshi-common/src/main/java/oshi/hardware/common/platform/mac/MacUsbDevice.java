@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -187,12 +188,11 @@ public final class MacUsbDevice extends AbstractUsbDevice {
         }
         root.release();
 
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String controller : usbControllers) {
-            controllerDevices.add(buildDeviceTree(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap, MacUsbDevice::new));
-        }
-        return unmodifiableList(controllerDevices);
+        return unmodifiableList(
+                usbControllers
+                        .stream().map(controller -> buildDeviceTree(controller, "0000", "0000", nameMap, vendorMap,
+                                vendorIdMap, productIdMap, serialMap, hubMap, MacUsbDevice::new))
+                        .collect(Collectors.toList()));
     }
 
     /**

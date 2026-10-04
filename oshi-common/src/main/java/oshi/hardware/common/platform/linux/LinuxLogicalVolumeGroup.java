@@ -5,14 +5,13 @@
 package oshi.hardware.common.platform.linux;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -167,13 +166,11 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
                 }
             }
         }
-        List<LogicalVolumeGroup> lvgList = new ArrayList<>();
-        for (Entry<String, Map<String, Set<String>>> entry : logicalVolumesMap.entrySet()) {
-            // Every key here was added to physicalVolumesMap above, but default rather than risk a null set reaching
-            // the immutable-copy constructor.
-            lvgList.add(factory.create(entry.getKey(), entry.getValue(),
-                    physicalVolumesMap.getOrDefault(entry.getKey(), Collections.emptySet())));
-        }
-        return lvgList;
+        // Every key here was added to physicalVolumesMap above, but default rather than risk a null set reaching the
+        // immutable-copy constructor.
+        return logicalVolumesMap.entrySet().stream()
+                .map(entry -> factory.create(entry.getKey(), entry.getValue(),
+                        physicalVolumesMap.getOrDefault(entry.getKey(), Collections.emptySet())))
+                .collect(Collectors.toList());
     }
 }

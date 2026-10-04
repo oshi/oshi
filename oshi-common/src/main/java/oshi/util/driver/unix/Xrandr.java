@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -75,12 +76,8 @@ public final class Xrandr {
      * @return a list of EDID byte arrays (at least 128 bytes each)
      */
     static List<byte[]> getEdidArrays(List<String> xrandr) {
-        List<Output> outputs = getOutputs(xrandr);
-        List<byte[]> edids = new ArrayList<>(outputs.size());
-        for (Output output : outputs) {
-            edids.add(output.getEdid());
-        }
-        return Collections.unmodifiableList(edids);
+        return Collections
+                .unmodifiableList(getOutputs(xrandr).stream().map(Output::getEdid).collect(Collectors.toList()));
     }
 
     /**

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -183,11 +184,8 @@ public final class PerfCounterWildcardQuery {
                 // Start at 1, first counter defines instance filter
                 for (int i = 1; i < props.length; i++) {
                     T prop = props[i];
-                    List<Long> values = new ArrayList<>();
-                    for (PerfCounter counter : counterListMap.getOrDefault(prop, Collections.emptyList())) {
-                        values.add(pdhQueryHandler.queryCounter(counter));
-                    }
-                    valuesMap.put(prop, values);
+                    valuesMap.put(prop, counterListMap.getOrDefault(prop, Collections.emptyList()).stream()
+                            .map(pdhQueryHandler::queryCounter).collect(Collectors.toList()));
                 }
             } else {
                 // The PDH data collection failed. Return an empty pair (per this method's contract) so the caller
