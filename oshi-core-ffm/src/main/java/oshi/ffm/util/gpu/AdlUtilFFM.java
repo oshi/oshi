@@ -428,7 +428,7 @@ public final class AdlUtilFFM {
      * @return the utilization percentage, or -1 on failure
      */
     public static double getGpuUtilization(int adapterIndex) {
-        return performanceStatusField(adapterIndex, PERF_GPU_ACTIVITY_OFFSET, "getGpuUtilization");
+        return (double) performanceStatusField(adapterIndex, PERF_GPU_ACTIVITY_OFFSET, "getGpuUtilization");
     }
 
     /**

@@ -188,6 +188,6 @@ public class NetworkMetrics implements MeterBinder {
 
     private double getCachedUdpCount() {
         refreshCache();
-        return udpCount;
+        return (double) udpCount;
     }
 }
