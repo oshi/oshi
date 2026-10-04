@@ -174,7 +174,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Audit Solaris bindings
-        uses: vmactions/openindiana-vm@d82e6302d027df92e66e4fec862e5236c89b305f # v1
+        uses: vmactions/openindiana-vm@f0ed27ca85a6d1f5b11e4242eba1d6effa5aaae2 # v1
         with:
           mem: 4096
           cpu: 2
