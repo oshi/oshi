@@ -145,11 +145,18 @@ public final class Sysfs {
      * @return The bios vendor if available, null otherwise
      */
     public static @Nullable String queryBiosVendor() {
-        final String biosVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_vendor").trim();
-        if (biosVendor.isEmpty()) {
-            return biosVendor;
-        }
-        return null;
+        return parseBiosVendor(FileUtil.getStringFromFile(SysPath.DMI_ID + "bios_vendor"));
+    }
+
+    /**
+     * Parse the contents of the sysfs {@code bios_vendor} file
+     *
+     * @param biosVendor the file contents
+     * @return The trimmed bios vendor if not blank, null otherwise
+     */
+    static @Nullable String parseBiosVendor(String biosVendor) {
+        final String trimmed = biosVendor.trim();
+        return trimmed.isEmpty() ? null : trimmed;
     }
 
     /**
