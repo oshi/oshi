@@ -106,6 +106,9 @@ jobs:
       - name: Benchmark on FreeBSD
         uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1
         with:
+          # Manual runs only: a cached base image would sit in the shared 10 GB Actions cache between
+          # them, and restoring one is no faster than downloading it. See unix.yaml.
+          disable-cache: true
           usesh: true
           prepare: |
             pkg install -y curl
@@ -128,6 +131,9 @@ jobs:
       - name: Benchmark on OpenBSD
         uses: vmactions/openbsd-vm@5f7b2c933b8846a138361d6843c52af4bef5d945 # v1
         with:
+          # Manual runs only: a cached base image would sit in the shared 10 GB Actions cache between
+          # them, and restoring one is no faster than downloading it. See unix.yaml.
+          disable-cache: true
           release: "7.9"
           usesh: false
           mem: 4096
@@ -273,6 +279,9 @@ jobs:
       - name: Benchmark on OpenIndiana
         uses: vmactions/openindiana-vm@d82e6302d027df92e66e4fec862e5236c89b305f # v1
         with:
+          # Manual runs only: a cached base image would sit in the shared 10 GB Actions cache between
+          # them, and restoring one is no faster than downloading it. See unix.yaml.
+          disable-cache: true
           # Bumped above the 8 GB used by the regular CI job because JMH forks
           # a fresh JVM per benchmark and illumos's native malloc pool is the
           # OOM bottleneck under back-to-back forks.
