@@ -410,19 +410,41 @@ class NativeComparisonTest {
 
     // ---- OS: Current Process ----
 
-    @RetryingComparison
-    void currentProcess() {
+    /**
+     * One JNA and one FFM snapshot of the current process, taken back to back, and how long the pair took.
+     */
+    private record ProcessPair(OSProcess jna, OSProcess ffm, long pairMillis) {
+    }
+
+    /**
+     * Takes the pair of snapshots every current-process comparison starts from. Each of those comparisons is its own
+     * test so that it retries on its own: a value that moved between the reads no longer costs another check an
+     * attempt.
+     */
+    private static ProcessPair currentProcessPair() {
         int pid = jnaOs.getProcessId();
         assertThat(ffmOs.getProcessId()).isEqualTo(pid);
+        long pairStart = System.nanoTime();
         OSProcess jna = jnaOs.getProcess(pid);
         OSProcess ffm = ffmOs.getProcess(pid);
+        long pairMillis = (System.nanoTime() - pairStart) / 1_000_000L;
         for (int attempt = 0; attempt < 10 && isDegradedOnNetBsd(jna, ffm); attempt++) {
             Util.sleep(50);
+            pairStart = System.nanoTime();
             jna = jnaOs.getProcess(pid);
             ffm = ffmOs.getProcess(pid);
+            pairMillis = (System.nanoTime() - pairStart) / 1_000_000L;
         }
         assertThat(jna).isNotNull();
         assertThat(ffm).isNotNull();
+        return new ProcessPair(jna, ffm, pairMillis);
+    }
+
+    @RetryingComparison
+    void currentProcess() {
+        ProcessPair pair = currentProcessPair();
+        OSProcess jna = pair.jna();
+        OSProcess ffm = pair.ffm();
         assertThat(ffm.getProcessID()).isEqualTo(jna.getProcessID());
         assertThat(ffm.getName()).isEqualTo(jna.getName());
         assertThat(ffm.getPath()).isEqualTo(jna.getPath());
@@ -431,6 +453,56 @@ class NativeComparisonTest {
         assertThat(ffm.getGroup()).isEqualTo(jna.getGroup());
         assertThat(ffm.getGroupID()).isEqualTo(jna.getGroupID());
         assertThat(ffm.getParentProcessID()).isEqualTo(jna.getParentProcessID());
+        assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");
+        assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
+        assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
+        assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
+    }
+
+    @RetryingComparison
+    void currentProcessMemory() {
+        ProcessPair pair = currentProcessPair();
+        OSProcess jna = pair.jna();
+        OSProcess ffm = pair.ffm();
+        assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.10, "process.virtualSize");
+        // On Windows the young JVM releases about 100 MB of private memory once, early on, and a read either side of
+        // that drop differs by about 40%. The working set then stays at the new level, so the retry's next attempt
+        // agrees: the best of three back-to-back pairs never differed by more than 4.4% across 180 runs.
+        assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), 0.10, "process.residentMemory");
+    }
+
+    @RetryingComparison
+    void currentProcessCpuTime() {
+        ProcessPair pair = currentProcessPair();
+        OSProcess jna = pair.jna();
+        OSProcess ffm = pair.ffm();
+        long pairMillis = pair.pairMillis();
+        // Time counters: snapshots taken close together, allow small difference
+        assertThat(ffm.getKernelTime()).as("process.kernelTime").isGreaterThanOrEqualTo(jna.getKernelTime());
+        assertThat(ffm.getUserTime()).as("process.userTime").isGreaterThanOrEqualTo(jna.getUserTime());
+        // FFM reads second, so it can be ahead, but by no more than the CPU time every logical processor could have
+        // used while the two snapshots were taken, plus a tick-resolution allowance (BSD ps reports centiseconds). A
+        // fixed bound does not work: a JVM running parallel tests under a coverage agent accrues several seconds of
+        // CPU per wall-clock second, and an OpenBSD run measured 5040ms. A wrong-unit read would still exceed this.
+        long cpuBudget = (pairMillis + 100L) * jnaHal.getProcessor().getLogicalProcessorCount();
+        assertThat(ffm.getKernelTime() + ffm.getUserTime() - jna.getKernelTime() - jna.getUserTime())
+                .as("process.kernel+userTime gap (pair took %dms)", pairMillis).isLessThanOrEqualTo(cpuBudget);
+    }
+
+    @RetryingComparison
+    void currentProcessUpTimeAndPriority() {
+        ProcessPair pair = currentProcessPair();
+        OSProcess jna = pair.jna();
+        OSProcess ffm = pair.ffm();
+        // The two snapshots are taken in sequence, so this difference is the wall-clock gap between them: the
+        // cost of building two process maps through a cold native stack. Memoization is not a factor - setUp sets
+        // the memoizer expiration to 0. The gap is unrelated to how long the process has been up, so the
+        // percentage term is far too tight on a freshly started JVM, which is when this test runs, and the floor
+        // is what actually governs. 300ms did not cover it on Windows; 226ms was the most measured there across 180
+        // runs. BSD reads seconds-resolution ps output, so its gap is a whole second or more.
+        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 500L);
+        assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
+                .isLessThanOrEqualTo(upTimeTolerance);
         // Priority can drift between JNA and FFM snapshots (e.g. Solaris TS scheduler re-prioritizes by CPU usage);
         // tolerate ±20 — wide enough for scheduler drift, tight enough to catch a wrong-field bug.
         // OpenIndiana's TS scheduler re-prioritizes aggressively enough between back-to-back snapshots that even
@@ -441,33 +513,16 @@ class NativeComparisonTest {
         if (!isSolaris() && !isNetBsd()) {
             assertThat(Math.abs(ffm.getPriority() - jna.getPriority())).as("process.priority").isLessThanOrEqualTo(20);
         }
-        assertWithinRatio(ffm.getVirtualSize(), jna.getVirtualSize(), 0.10, "process.virtualSize");
-        // On Windows the young JVM releases about 100 MB of private memory once, early on, and a read either side of
-        // that drop differs by about 40%. The working set then stays at the new level, so the retry's next attempt
-        // agrees: the best of three back-to-back pairs never differed by more than 4.4% across 180 runs.
-        assertWithinRatio(ffm.getResidentMemory(), jna.getResidentMemory(), 0.10, "process.residentMemory");
-        // Time counters: snapshots taken close together, allow small difference
-        assertThat(ffm.getKernelTime()).as("process.kernelTime").isGreaterThanOrEqualTo(jna.getKernelTime());
-        assertThat(ffm.getUserTime()).as("process.userTime").isGreaterThanOrEqualTo(jna.getUserTime());
-        // FFM reads second, so it can be ahead, but only by the CPU time used between the snapshots: 720ms at most
-        // measured across seven platforms. A wrong-field or wrong-unit read would be ahead by far more.
-        assertThat(ffm.getKernelTime() + ffm.getUserTime() - jna.getKernelTime() - jna.getUserTime())
-                .as("process.kernel+userTime gap").isLessThanOrEqualTo(1000L);
-        // The two snapshots are taken in sequence, so this difference is the wall-clock gap between them: the
-        // cost of building two process maps through a cold native stack. Memoization is not a factor - setUp sets
-        // the memoizer expiration to 0. The gap is unrelated to how long the process has been up, so the
-        // percentage term is far too tight on a freshly started JVM, which is when this test runs, and the floor
-        // is what actually governs. 300ms did not cover it on Windows; 226ms was the most measured there across 180
-        // runs. BSD reads seconds-resolution ps output, so its gap is a whole second or more.
-        long upTimeTolerance = isBsd() ? Math.max(jna.getUpTime() / 10, 2000L) : Math.max(jna.getUpTime() / 10, 500L);
-        assertThat(Math.abs(ffm.getUpTime() - jna.getUpTime())).as("process.upTime")
-                .isLessThanOrEqualTo(upTimeTolerance);
-        assertStartTimeMatches(ffm.getStartTime(), jna.getStartTime(), "process.startTime");
-        assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
-        assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
-        assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
+    }
+
+    @RetryingComparison
+    void currentProcessContextSwitches() {
+        ProcessPair pair = currentProcessPair();
+        OSProcess jna = pair.jna();
+        OSProcess ffm = pair.ffm();
         // Context switches are cumulative and the FFM snapshot is taken second, so it cannot be the lower of the
-        // two - the same shape as the kernel and user time assertions above. A ratio bound is unusable here: a JVM
+        // two - the same shape as the kernel and user time assertions in
+        // currentProcessCpuTime(). A ratio bound is unusable here: a JVM
         // accumulates thousands of switches per second, and this test runs on one only seconds old, so 20% amounts
         // to requiring the two snapshots be under half a second apart. An OpenIndiana run measured 2708 against
         // 3496. Ordering still catches the wrong-field or wrong-process binding this is here to detect.
