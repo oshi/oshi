@@ -104,7 +104,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Benchmark on FreeBSD
-        uses: vmactions/freebsd-vm@a2f9a41fa97f6848b8c3b791087dfcdaa5b473ff # v1
+        uses: vmactions/freebsd-vm@c46abacb49f09938ca4e1702d15d836285d694cc # v1
         with:
           # Manual runs only: a cached base image would sit in the shared 10 GB Actions cache between
           # them, and restoring one is no faster than downloading it. See unix.yaml.
