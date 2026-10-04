@@ -6,10 +6,10 @@ package oshi.hardware.common.platform.unix;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.Display;
@@ -136,13 +136,11 @@ public final class UnixDisplay extends AbstractDisplay {
      */
     public static List<Display> getDisplays() {
         List<Output> outputs = Xrandr.getOutputs();
-        List<Display> displays = new ArrayList<>(outputs.size());
         // The data is already in hand, so these displays need no further xrandr query
         Supplier<List<Output>> sharedData = () -> outputs;
-        for (Output output : outputs) {
-            displays.add(new UnixDisplay(output.getEdid(), output.getName(), output.getConnectorId(), sharedData));
-        }
-        return displays;
+        return outputs.stream()
+                .map(output -> new UnixDisplay(output.getEdid(), output.getName(), output.getConnectorId(), sharedData))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -172,11 +170,8 @@ public final class UnixDisplay extends AbstractDisplay {
      */
     static List<Display> getDisplays(List<Triplet<String, Integer, byte[]>> drmData,
             Supplier<List<Output>> xrandrQuery) {
-        List<Display> displays = new ArrayList<>(drmData.size());
         Supplier<List<Output>> sharedData = memoize(xrandrQuery);
-        for (Triplet<String, Integer, byte[]> drm : drmData) {
-            displays.add(new UnixDisplay(drm.getC(), drm.getA(), drm.getB(), sharedData));
-        }
-        return displays;
+        return drmData.stream().map(drm -> new UnixDisplay(drm.getC(), drm.getA(), drm.getB(), sharedData))
+                .collect(Collectors.toList());
     }
 }

@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -73,12 +74,8 @@ public final class LinuxUsbDevice extends AbstractUsbDevice {
             }
         }
 
-        List<UsbDevice> controllerDevices = new ArrayList<>();
-        for (String controller : usbControllers) {
-            controllerDevices.add(buildDeviceTree(controller, "0000", "0000", nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap, LinuxUsbDevice::new));
-        }
-        return controllerDevices;
+        return usbControllers.stream().map(controller -> buildDeviceTree(controller, "0000", "0000", nameMap, vendorMap,
+                vendorIdMap, productIdMap, serialMap, hubMap, LinuxUsbDevice::new)).collect(Collectors.toList());
     }
 
 }

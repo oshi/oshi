@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -172,12 +173,8 @@ public final class MacInstalledApps {
             return Collections.emptyList();
         }
 
-        List<String> dictBlocks = extractTopLevelBlocks(arrayBody, "<dict>", "</dict>");
-        List<Map<String, String>> out = new ArrayList<>();
-        for (String dictInner : dictBlocks) {
-            out.add(parseDict(dictInner));
-        }
-        return Collections.unmodifiableList(out);
+        return Collections.unmodifiableList(extractTopLevelBlocks(arrayBody, "<dict>", "</dict>").stream()
+                .map(MacInstalledApps::parseDict).collect(Collectors.toList()));
     }
 
     static Map<String, String> parseDict(String dictInner) {

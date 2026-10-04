@@ -4,12 +4,12 @@
  */
 package oshi.hardware.common;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -161,12 +161,10 @@ public abstract class AbstractUsbDevice implements UsbDevice {
             Map<String, String> serialMap, Map<String, List<String>> hubMap, UsbDeviceFactory factory) {
         String vendorId = vendorIdMap.getOrDefault(id, vid);
         String productId = productIdMap.getOrDefault(id, pid);
-        List<UsbDevice> connectedDevices = new ArrayList<>();
-        for (String childId : hubMap.getOrDefault(id, Collections.emptyList())) {
-            connectedDevices.add(buildDeviceTree(childId, vendorId, productId, nameMap, vendorMap, vendorIdMap,
-                    productIdMap, serialMap, hubMap, factory));
-        }
-        Collections.sort(connectedDevices);
+        List<UsbDevice> connectedDevices = hubMap
+                .getOrDefault(id, Collections.emptyList()).stream().map(childId -> buildDeviceTree(childId, vendorId,
+                        productId, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap, hubMap, factory))
+                .sorted().collect(Collectors.toList());
         return factory.create(nameMap.getOrDefault(id, vendorId + ":" + productId), vendorMap.getOrDefault(id, ""),
                 vendorId, productId, serialMap.getOrDefault(id, ""), id, connectedDevices);
     }

@@ -6,7 +6,6 @@ package oshi.hardware.common.platform.windows;
 
 import static oshi.util.Memoizer.memoize;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -17,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntPredicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -569,12 +569,7 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return The names of the features present, in ascending feature order
      */
     protected static List<String> queryFeatureFlags(IntPredicate featurePresent) {
-        List<String> featureFlags = new ArrayList<>();
-        for (ProcessorFeature feature : ProcessorFeature.values()) {
-            if (featurePresent.test(feature.value)) {
-                featureFlags.add(feature.name());
-            }
-        }
-        return featureFlags;
+        return Arrays.stream(ProcessorFeature.values()).filter(feature -> featurePresent.test(feature.value))
+                .map(ProcessorFeature::name).collect(Collectors.toList());
     }
 }

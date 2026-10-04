@@ -186,7 +186,7 @@ public abstract class SolarisPowerSource extends AbstractPowerSource {
             if (powerNow == UNKNOWN_CAP) {
                 powerNow = 0L;
             }
-            psPowerUsageRate = powerNow;
+            psPowerUsageRate = (double) powerNow;
             // Battery State:
             // bit 0 = discharging
             // bit 1 = charging

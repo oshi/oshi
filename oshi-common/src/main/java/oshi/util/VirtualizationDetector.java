@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HardwareAbstractionLayer;
@@ -92,13 +93,8 @@ public final class VirtualizationDetector {
      * @return The MAC addresses to test, in interface order.
      */
     private static List<String> candidateMacAddresses(List<NetworkIF> networkIFs) {
-        List<String> macs = new ArrayList<>();
-        for (NetworkIF nif : networkIFs) {
-            if (!CONNECTOR_REPORTED || nif.isConnectorPresent()) {
-                macs.add(nif.getMacaddr());
-            }
-        }
-        return macs;
+        return networkIFs.stream().filter(nif -> !CONNECTOR_REPORTED || nif.isConnectorPresent())
+                .map(NetworkIF::getMacaddr).collect(Collectors.toList());
     }
 
     /**

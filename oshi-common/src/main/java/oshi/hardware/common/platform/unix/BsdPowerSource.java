@@ -5,8 +5,8 @@
 package oshi.hardware.common.platform.unix;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -50,11 +50,8 @@ public final class BsdPowerSource extends AbstractPowerSource {
      */
     public static List<PowerSource> getPowerSources() {
         List<String> sensorLines = Systat.querySensorLines();
-        List<PowerSource> psList = new ArrayList<>();
-        for (String name : Systat.parsePowerSourceNames(sensorLines)) {
-            psList.add(getPowerSource(name, sensorLines));
-        }
-        return psList;
+        return Systat.parsePowerSourceNames(sensorLines).stream().map(name -> getPowerSource(name, sensorLines))
+                .collect(Collectors.toList());
     }
 
     private static BsdPowerSource getPowerSource(String name, List<String> sensorLines) {

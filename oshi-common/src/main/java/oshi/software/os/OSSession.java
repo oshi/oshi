@@ -91,6 +91,6 @@ public class OSSession {
         if (!host.isEmpty() && !host.equals("::") && !host.equals("0.0.0.0")) {
             hostStr = ", (" + host + ")";
         }
-        return String.format(Locale.ROOT, "%s, %s, %s%s", userName, terminalDevice, loginStr, hostStr);
+        return userName + ", " + terminalDevice + ", " + loginStr + hostStr;
     }
 }

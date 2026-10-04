@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.util.FileUtil;
@@ -42,12 +43,8 @@ public final class DrmEdid {
      * @return a list of EDID byte arrays (at least 128 bytes each), or empty if none found
      */
     static List<byte[]> getEdidArrays(File drmDir) {
-        List<Triplet<String, Integer, byte[]>> data = getDisplayData(drmDir);
-        List<byte[]> edids = new ArrayList<>(data.size());
-        for (Triplet<String, Integer, byte[]> t : data) {
-            edids.add(t.getC());
-        }
-        return Collections.unmodifiableList(edids);
+        return Collections
+                .unmodifiableList(getDisplayData(drmDir).stream().map(Triplet::getC).collect(Collectors.toList()));
     }
 
     /**
