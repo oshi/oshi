@@ -11,7 +11,6 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.OptionalInt;
 
@@ -74,8 +73,8 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
             WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive(h);
             for (int i = 0; i < vals.getResultCount(); i++) {
                 WindowsHWDiskStoreFFM ds = new WindowsHWDiskStoreFFM(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
-                        String.format(Locale.ROOT, "%s %s", WmiUtil.getString(vals, DiskDriveProperty.MODEL, i),
-                                WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
+                        (WmiUtil.getString(vals, DiskDriveProperty.MODEL, i) + " "
+                                + WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
                         WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i),
                         parseWindowsMediaType(WmiUtil.getString(vals, DiskDriveProperty.MEDIATYPE, i)));

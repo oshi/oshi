@@ -110,14 +110,14 @@ public final class EdidUtil {
             LOG.debug("Serial number: {}",
                     Arrays.toString(Arrays.copyOfRange(edid, SERIAL_NUMBER_OFFSET, SERIAL_NUMBER_OFFSET + 4)));
         }
-        return String.format(Locale.ROOT, "%s%s%s%s", getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 3]),
-                getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 2]),
-                getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 1]), getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET]));
+        return getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 3])
+                + getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 2])
+                + getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET + 1])
+                + getAlphaNumericOrHex(edid[SERIAL_NUMBER_OFFSET]);
     }
 
     private static String getAlphaNumericOrHex(byte b) {
-        return Character.isLetterOrDigit((char) b) ? String.format(Locale.ROOT, "%s", (char) b)
-                : String.format(Locale.ROOT, "%02X", b);
+        return Character.isLetterOrDigit((char) b) ? String.valueOf((char) b) : String.format(Locale.ROOT, "%02X", b);
     }
 
     /**

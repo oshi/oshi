@@ -991,8 +991,7 @@ public final class ParseUtil {
     public static String parseMmDdYyyyToYyyyMmDD(String dateString) {
         try {
             // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-            return String.format(Locale.ROOT, "%s-%s-%s", dateString.substring(6, 10), dateString.substring(0, 2),
-                    dateString.substring(3, 5));
+            return dateString.substring(6, 10) + "-" + dateString.substring(0, 2) + "-" + dateString.substring(3, 5);
         } catch (StringIndexOutOfBoundsException e) {
             return dateString;
         }

@@ -186,9 +186,9 @@ final class MemoizerTest {
             final long minExpectedNumberOfIncrements = 2L;
             final long maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * NUMBER_OF_THREADS;
 
-            assertThat(String.format(Locale.ROOT, "ttlNanos=%s", ttlNanos), minExpectedNumberOfIncrements,
+            assertThat("ttlNanos=" + ttlNanos, minExpectedNumberOfIncrements,
                     is(lessThanOrEqualTo(actualNumberOfIncrements)));
-            assertThat(String.format(Locale.ROOT, "ttlNanos=%s", ttlNanos), actualNumberOfIncrements,
+            assertThat("ttlNanos=" + ttlNanos, actualNumberOfIncrements,
                     is(lessThanOrEqualTo(maxExpectedNumberOfIncrements)));
         }
     }
