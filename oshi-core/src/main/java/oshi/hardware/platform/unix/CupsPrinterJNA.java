@@ -18,6 +18,7 @@ import com.sun.jna.ptr.PointerByReference;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Printer;
 import oshi.hardware.common.platform.unix.CupsPrinter;
+import oshi.util.NativeLibraryUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -32,12 +33,15 @@ public final class CupsPrinterJNA extends CupsPrinter {
 
     static {
         boolean hasCups = false;
-        try {
-            @SuppressWarnings("unused")
-            Cups lib = Cups.INSTANCE;
-            hasCups = true;
-        } catch (UnsatisfiedLinkError e) {
-            LOG.debug("libcups not found. Falling back to lpstat command.");
+        // A failed load can crash the JVM on illumos, so check the file exists first; see NativeLibraryUtil.
+        if (NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("cups"))) {
+            try {
+                @SuppressWarnings("unused")
+                Cups lib = Cups.INSTANCE;
+                hasCups = true;
+            } catch (UnsatisfiedLinkError e) {
+                LOG.debug("libcups not found. Falling back to lpstat command.");
+            }
         }
         HAS_CUPS = hasCups;
     }
