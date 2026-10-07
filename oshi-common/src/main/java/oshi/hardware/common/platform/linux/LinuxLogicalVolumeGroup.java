@@ -54,7 +54,7 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
      * @return map of VG name to set of PV device paths
      */
     protected static Map<String, Set<String>> queryPhysicalVolumes() {
-        return parsePhysicalVolumes(ExecutingCommand.runNative("pvs -o vg_name,pv_name"));
+        return parsePhysicalVolumes(ExecutingCommand.runPrivilegedNative("pvs -o vg_name,pv_name"));
     }
 
     /**

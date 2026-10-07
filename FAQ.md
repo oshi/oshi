@@ -267,7 +267,7 @@ However, some specific features require elevated permissions to access. Rather t
 **Linux:**
 - Physical memory module details via `dmidecode`, and the system serial number and UUID, from root-only DMI files or `dmidecode` (OSHI also tries `lshal` and `lshw` for those two)
 - Some `/proc/<pid>` files of other users' processes, such as `/proc/<pid>/io` for per-process I/O stats, which otherwise read as `0`
-- The physical volumes of logical volume groups, via `pvs`. Groups and their logical volumes are listed without it. OSHI runs `pvs` without the privileged prefix described below, so it needs the application itself to have the permission.
+- Physical volumes that hold no logical volume, via `pvs`. Groups, their logical volumes, and the physical volumes backing those are read from sysfs without it.
 
 **Windows:**
 - Environment variables of processes owned by other users, which are otherwise empty (requires `SeDebugPrivilege` or Administrator). Their command lines are read directly with the same privilege; without it, OSHI asks WMI instead.
