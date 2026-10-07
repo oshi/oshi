@@ -24,11 +24,11 @@ import com.sun.jna.platform.unix.solaris.Kstat2.Kstat2MatcherList;
 import com.sun.jna.platform.unix.solaris.Kstat2StatusException;
 import com.sun.jna.platform.unix.solaris.LibKstat;
 import com.sun.jna.platform.unix.solaris.LibKstat.Kstat;
-import com.sun.jna.platform.unix.solaris.LibKstat.KstatCtl;
 import com.sun.jna.platform.unix.solaris.LibKstat.KstatNamed;
 
 import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.SolarisLibKstat;
 import oshi.software.os.unix.solaris.SolarisOperatingSystemJNA;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
@@ -44,8 +44,9 @@ public final class KstatUtil {
     private static final Lock CHAIN = new ReentrantLock();
     // Only one thread may access the chain at any time, so we wrap this object in
     // the KstatChain class locked until the lock is released on auto-close.
+    // The kstat_ctl_t stays an opaque Pointer rather than JNA's KstatCtl structure; see SolarisLibKstat.
     @GuardedBy("CHAIN")
-    private static @Nullable KstatCtl kstatCtl = null;
+    private static @Nullable Pointer kstatCtl = null;
 
     private KstatUtil() {
     }
@@ -54,26 +55,26 @@ public final class KstatUtil {
      * A copy of the Kstat chain, encapsulating a {@code kstat_ctl_t} object. Only one thread may actively use this
      * object at any time.
      * <p>
-     * The chain is created once calling {@link LibKstat#kstat_open} and then this object is instantiated using the
-     * {@link KstatUtil#openChain} method. Instantiating this object updates the chain using
-     * {@link LibKstat#kstat_chain_update}. The control object should be closed with {@link #close}, which releases the
-     * lock and allows another instance to be instantiated.
+     * The chain is created once calling {@link SolarisLibKstat#kstat_open} and then this object is instantiated using
+     * the {@link KstatUtil#openChain} method. Instantiating this object updates the chain using
+     * {@link SolarisLibKstat#kstat_chain_update}. The control object should be closed with {@link #close}, which
+     * releases the lock and allows another instance to be instantiated.
      */
     public static final class KstatChain implements AutoCloseable {
 
-        private final KstatCtl localCtlRef;
+        private final Pointer localCtlRef;
 
-        private KstatChain(KstatCtl ctl) {
+        private KstatChain(Pointer ctl) {
             this.localCtlRef = ctl;
             update();
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_read} which gets data from the kernel for the kstat pointed to
-         * by {@code ksp}. {@code ksp.ks_data} is automatically allocated (or reallocated) to be large enough to hold
-         * all of the data. {@code ksp.ks_ndata} is set to the number of data fields, {@code ksp.ks_data_size} is set to
-         * the total size of the data, and ksp.ks_snaptime is set to the high-resolution time at which the data snapshot
-         * was taken.
+         * Convenience method for {@link SolarisLibKstat#kstat_read} which gets data from the kernel for the kstat
+         * pointed to by {@code ksp}. {@code ksp.ks_data} is automatically allocated (or reallocated) to be large enough
+         * to hold all of the data. {@code ksp.ks_ndata} is set to the number of data fields, {@code ksp.ks_data_size}
+         * is set to the total size of the data, and ksp.ks_snaptime is set to the high-resolution time at which the
+         * data snapshot was taken.
          *
          * @param ksp The kstat from which to retrieve data
          * @return {@code true} if successful; {@code false} otherwise
@@ -81,7 +82,7 @@ public final class KstatUtil {
         @GuardedBy("CHAIN")
         public boolean read(Kstat ksp) {
             int retry = 0;
-            while (0 > LibKstat.INSTANCE.kstat_read(localCtlRef, ksp, null)) {
+            while (0 > SolarisLibKstat.INSTANCE.kstat_read(localCtlRef, ksp, null)) {
                 if (LibKstat.EAGAIN != Native.getLastError() || 5 <= ++retry) {
                     if (LOG.isDebugEnabled()) {
                         LOG.debug("Failed to read kstat {}:{}:{}",
@@ -96,10 +97,10 @@ public final class KstatUtil {
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat chain, searching for a kstat with
-         * the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a kstat.
-         * If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those fields
-         * will be ignored in the search.
+         * Convenience method for {@link SolarisLibKstat#kstat_lookup}. Traverses the kstat chain, searching for a kstat
+         * with the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a
+         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those
+         * fields will be ignored in the search.
          *
          * @param module   The module, or null to ignore
          * @param instance The instance, or -1 to ignore
@@ -108,14 +109,14 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public @Nullable Kstat lookup(@Nullable String module, int instance, @Nullable String name) {
-            return LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);
+            return SolarisLibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name);
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_lookup}. Traverses the kstat chain, searching for all kstats
-         * with the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely identifies a
-         * kstat. If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is {@code null}, then those
-         * fields will be ignored in the search.
+         * Convenience method for {@link SolarisLibKstat#kstat_lookup}. Traverses the kstat chain, searching for all
+         * kstats with the same {@code module}, {@code instance}, and {@code name} fields; this triplet uniquely
+         * identifies a kstat. If {@code module} is {@code null}, {@code instance} is -1, or {@code name} is
+         * {@code null}, then those fields will be ignored in the search.
          *
          * @param module   The module, or null to ignore
          * @param instance The instance, or -1 to ignore
@@ -125,8 +126,8 @@ public final class KstatUtil {
         @GuardedBy("CHAIN")
         public List<Kstat> lookupAll(@Nullable String module, int instance, @Nullable String name) {
             List<Kstat> kstats = new ArrayList<>();
-            for (Kstat ksp = LibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance, name); ksp != null; ksp = ksp
-                    .next()) {
+            for (Kstat ksp = SolarisLibKstat.INSTANCE.kstat_lookup(localCtlRef, module, instance,
+                    name); ksp != null; ksp = ksp.next()) {
                 if ((module == null || module.equals(Native.toString(ksp.ks_module, StandardCharsets.US_ASCII)))
                         && (instance < 0 || instance == ksp.ks_instance)
                         && (name == null || name.equals(Native.toString(ksp.ks_name, StandardCharsets.US_ASCII)))) {
@@ -137,8 +138,8 @@ public final class KstatUtil {
         }
 
         /**
-         * Convenience method for {@link LibKstat#kstat_chain_update}. Brings this kstat header chain in sync with that
-         * of the kernel.
+         * Convenience method for {@link SolarisLibKstat#kstat_chain_update}. Brings this kstat header chain in sync
+         * with that of the kernel.
          * <p>
          * This function compares the kernel's current kstat chain ID(KCID), which is incremented every time the kstat
          * chain changes, to this object's KCID.
@@ -147,7 +148,7 @@ public final class KstatUtil {
          */
         @GuardedBy("CHAIN")
         public int update() {
-            return LibKstat.INSTANCE.kstat_chain_update(localCtlRef);
+            return SolarisLibKstat.INSTANCE.kstat_chain_update(localCtlRef);
         }
 
         /**
@@ -164,12 +165,13 @@ public final class KstatUtil {
      *
      * @return A locked copy of the chain. It should be unlocked/released when you are done with it with
      *         {@link KstatChain#close()}.
-     * @throws IllegalStateException if {@link LibKstat#kstat_open} fails, in which case the lock is released first
+     * @throws IllegalStateException if {@link SolarisLibKstat#kstat_open} fails, in which case the lock is released
+     *                               first
      */
     public static synchronized KstatChain openChain() {
         CHAIN.lock();
         if (kstatCtl == null) {
-            KstatCtl ctl = LibKstat.INSTANCE.kstat_open();
+            Pointer ctl = SolarisLibKstat.INSTANCE.kstat_open();
             if (ctl == null) {
                 // Releasing the lock here is what keeps a failed open from wedging every later query: the chain is a
                 // static ReentrantLock, so an exception thrown while holding it would block all other threads forever.
@@ -182,9 +184,9 @@ public final class KstatUtil {
     }
 
     /**
-     * Convenience method for {@link LibKstat#kstat_data_lookup} with String return values. Searches the kstat's data
-     * section for the record with the specified name. This operation is valid only for kstat types which have named
-     * data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
+     * Convenience method for {@link SolarisLibKstat#kstat_data_lookup} with String return values. Searches the kstat's
+     * data section for the record with the specified name. This operation is valid only for kstat types which have
+     * named data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
      *
      * @param ksp  The kstat to search
      * @param name The key for the name-value pair, or name of the timer as applicable
@@ -194,7 +196,7 @@ public final class KstatUtil {
         if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED && ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {
             throw new IllegalArgumentException("Not a kstat_named or kstat_timer kstat.");
         }
-        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
+        Pointer p = SolarisLibKstat.INSTANCE.kstat_data_lookup(ksp, name);
         if (p == null) {
             LOG.debug("Failed to lookup kstat value for key {}", name);
             return "";
@@ -220,9 +222,9 @@ public final class KstatUtil {
     }
 
     /**
-     * Convenience method for {@link LibKstat#kstat_data_lookup} with numeric return values. Searches the kstat's data
-     * section for the record with the specified name. This operation is valid only for kstat types which have named
-     * data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
+     * Convenience method for {@link SolarisLibKstat#kstat_data_lookup} with numeric return values. Searches the kstat's
+     * data section for the record with the specified name. This operation is valid only for kstat types which have
+     * named data records. Currently, only the KSTAT_TYPE_NAMED and KSTAT_TYPE_TIMER kstats have named data records.
      *
      * @param ksp  The kstat to search
      * @param name The key for the name-value pair, or name of the timer as applicable
@@ -232,7 +234,7 @@ public final class KstatUtil {
         if (ksp.ks_type != LibKstat.KSTAT_TYPE_NAMED && ksp.ks_type != LibKstat.KSTAT_TYPE_TIMER) {
             throw new IllegalArgumentException("Not a kstat_named or kstat_timer kstat.");
         }
-        Pointer p = LibKstat.INSTANCE.kstat_data_lookup(ksp, name);
+        Pointer p = SolarisLibKstat.INSTANCE.kstat_data_lookup(ksp, name);
         if (p == null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Failed lo lookup kstat value on {}:{}:{} for key {}",
