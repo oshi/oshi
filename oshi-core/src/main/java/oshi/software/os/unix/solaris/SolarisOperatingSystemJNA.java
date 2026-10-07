@@ -6,7 +6,6 @@ package oshi.software.os.unix.solaris;
 
 import static oshi.util.Memoizer.defaultExpiration;
 
-import java.io.File;
 import java.util.List;
 import java.util.function.Supplier;
 
@@ -27,6 +26,7 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
 import oshi.util.Memoizer;
+import oshi.util.NativeLibraryUtil;
 import oshi.util.platform.unix.solaris.KstatUtil;
 import oshi.util.platform.unix.solaris.KstatUtil.KstatChain;
 
@@ -46,12 +46,10 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
     public static final boolean HAS_KSTAT2;
     static {
         boolean kstat2Available = false;
-        // Check the library file's existence on disk before letting JNA Native.load attempt
-        // to dlopen it. On illumos / Solaris < 11.4 the file simply doesn't exist, and on
-        // JDK 25 + JNA the failed Native.load has been seen to SIGSEGV in libc strlen
-        // instead of throwing UnsatisfiedLinkError cleanly.
+        // illumos and Solaris < 11.4 have no libkstat2, and a failed load there can crash the JVM; see
+        // NativeLibraryUtil.
         try {
-            if (ALLOW_KSTAT2 && libkstat2Present()) {
+            if (ALLOW_KSTAT2 && NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("kstat2"))) {
                 Kstat2 lib = Kstat2.INSTANCE;
                 if (lib != null) {
                     // Validate kstat2 returns data with a universal kstat path
@@ -70,23 +68,6 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
             // 11.3 or earlier, no kstat2
         }
         HAS_KSTAT2 = kstat2Available;
-    }
-
-    /**
-     * Returns {@code true} if any {@code libkstat2.so*} file is present on the standard Solaris/illumos library search
-     * paths. Solaris 11.4+ ships it (currently as {@code libkstat2.so.1}); illumos and Solaris &lt; 11.4 do not.
-     * Matches any suffix to survive future SONAME bumps.
-     *
-     * @return whether a libkstat2 shared object exists on disk
-     */
-    private static boolean libkstat2Present() {
-        for (String dir : new String[] { "/lib/64", "/usr/lib/64", "/lib", "/usr/lib" }) {
-            String[] hits = new File(dir).list((d, name) -> name.startsWith("libkstat2.so"));
-            if (hits != null && hits.length > 0) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static final long BOOTTIME = querySystemBootTime();

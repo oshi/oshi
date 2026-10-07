@@ -17,6 +17,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.VarHandle;
 
 import oshi.ffm.ForeignFunctions;
+import oshi.util.NativeLibraryUtil;
 
 /**
  * FFM bindings for the CUPS (Common Unix Printing System) library.
@@ -85,18 +86,22 @@ public final class CupsFunctions extends ForeignFunctions {
         MethodHandle hFreeDests = null;
         MethodHandle hGetOption = null;
         MethodHandle hGetDefault = null;
-        try {
-            lookup = libraryLookup("cups");
-            hGetDests = LINKER.downcallHandle(lookup.findOrThrow("cupsGetDests"),
-                    FunctionDescriptor.of(JAVA_INT, ADDRESS));
-            hFreeDests = LINKER.downcallHandle(lookup.findOrThrow("cupsFreeDests"),
-                    FunctionDescriptor.ofVoid(JAVA_INT, ADDRESS));
-            hGetOption = LINKER.downcallHandle(lookup.findOrThrow("cupsGetOption"),
-                    FunctionDescriptor.of(ADDRESS, ADDRESS, JAVA_INT, ADDRESS));
-            hGetDefault = LINKER.downcallHandle(lookup.findOrThrow("cupsGetDefault"), FunctionDescriptor.of(ADDRESS));
-            available = true;
-        } catch (Throwable _) {
-            // libcups not available or symbol binding failed; callers should fall back to lpstat
+        // A failed load can crash the JVM on illumos, so check the file exists first; see NativeLibraryUtil.
+        if (NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("cups"))) {
+            try {
+                lookup = libraryLookup("cups");
+                hGetDests = LINKER.downcallHandle(lookup.findOrThrow("cupsGetDests"),
+                        FunctionDescriptor.of(JAVA_INT, ADDRESS));
+                hFreeDests = LINKER.downcallHandle(lookup.findOrThrow("cupsFreeDests"),
+                        FunctionDescriptor.ofVoid(JAVA_INT, ADDRESS));
+                hGetOption = LINKER.downcallHandle(lookup.findOrThrow("cupsGetOption"),
+                        FunctionDescriptor.of(ADDRESS, ADDRESS, JAVA_INT, ADDRESS));
+                hGetDefault = LINKER.downcallHandle(lookup.findOrThrow("cupsGetDefault"),
+                        FunctionDescriptor.of(ADDRESS));
+                available = true;
+            } catch (Throwable _) {
+                // libcups not available or symbol binding failed; callers should fall back to lpstat
+            }
         }
         AVAILABLE = available;
         cupsGetDests = hGetDests;
