@@ -10,6 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.unix.Cups;
 import com.sun.jna.platform.unix.Cups.CupsDest;
@@ -33,8 +34,13 @@ public final class CupsPrinterJNA extends CupsPrinter {
 
     static {
         boolean hasCups = false;
-        // A failed load can crash the JVM on illumos, so check the file exists first; see NativeLibraryUtil.
-        if (NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("cups"))) {
+        // A failed load can crash the JVM where dlerror() state is process-wide; see NativeLibraryUtil.
+        // On AIX, JNA opens the archive name in place of a shared-object name.
+        String fileName = System.mapLibraryName("cups");
+        if (Platform.isAIX()) {
+            fileName = fileName.replaceAll("\\.so$", ".a");
+        }
+        if (NativeLibraryUtil.isSafeToLoad(fileName, System.getProperty("jna.library.path"))) {
             try {
                 @SuppressWarnings("unused")
                 Cups lib = Cups.INSTANCE;
