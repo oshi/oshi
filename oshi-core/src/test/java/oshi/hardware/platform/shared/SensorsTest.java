@@ -10,7 +10,6 @@ import static org.hamcrest.Matchers.either;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.Matchers.notANumber;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
@@ -34,8 +33,8 @@ class SensorsTest {
     @Test
     @DisabledIfEnvironmentVariable(named = "GITHUB_ACTIONS", matches = "true")
     void testSensors() {
-        assertThat("CPU Temperature should be NaN or between 0 and 100", s.getCpuTemperature(),
-                either(notANumber()).or(both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(100d))));
+        assertThat("CPU Temperature should be between 0 and 100", s.getCpuTemperature(),
+                both(greaterThanOrEqualTo(0d)).and(lessThanOrEqualTo(100d)));
         assertThat("CPU voltage shouldn't be negative", s.getCpuVoltage(), is(greaterThanOrEqualTo(0d)));
     }
 
@@ -67,8 +66,7 @@ class SensorsTest {
     @EnabledOnOs(OS.MAC)
     void testMacCpuTemperatureIsPlausibleOrUnavailable() {
         assertThat("CPU temperature must be unavailable or plausible, never a parked sensor value",
-                s.getCpuTemperature(),
-                either(notANumber()).or(is(0d)).or(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_TEMPERATURE)));
+                s.getCpuTemperature(), either(is(0d)).or(greaterThanOrEqualTo(SmcUtil.MIN_PLAUSIBLE_TEMPERATURE)));
     }
 
     @Test

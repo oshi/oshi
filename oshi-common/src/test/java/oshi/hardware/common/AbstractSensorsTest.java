@@ -39,6 +39,27 @@ class AbstractSensorsTest {
     }
 
     @Test
+    void testUnavailableTemperatureIsZero() {
+        AbstractSensors sensors = new AbstractSensors() {
+            @Override
+            protected double queryCpuTemperature() {
+                return Double.NaN;
+            }
+
+            @Override
+            protected int[] queryFanSpeeds() {
+                return new int[0];
+            }
+
+            @Override
+            protected double queryCpuVoltage() {
+                return 0d;
+            }
+        };
+        assertThat(sensors.getCpuTemperature(), is(0d));
+    }
+
+    @Test
     void testToString() {
         String s = SENSORS.toString();
         assertThat(s, containsString("55.5"));

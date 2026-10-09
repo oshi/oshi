@@ -25,7 +25,10 @@ public abstract class AbstractSensors implements Sensors {
     protected AbstractSensors() {
     }
 
-    private final Supplier<Double> cpuTemperature = memoize(this::queryCpuTemperature, defaultExpiration());
+    private final Supplier<Double> cpuTemperature = memoize(() -> {
+        double temp = queryCpuTemperature();
+        return Double.isNaN(temp) ? 0d : temp;
+    }, defaultExpiration());
 
     private final Supplier<int[]> fanSpeeds = memoize(this::queryFanSpeeds, defaultExpiration());
 
@@ -39,7 +42,7 @@ public abstract class AbstractSensors implements Sensors {
     /**
      * Queries the CPU temperature.
      *
-     * @return the CPU temperature in degrees Celsius
+     * @return the CPU temperature in degrees Celsius, or 0 or {@link Double#NaN} if unavailable
      */
     protected abstract double queryCpuTemperature();
 
