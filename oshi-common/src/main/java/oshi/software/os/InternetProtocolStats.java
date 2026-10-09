@@ -482,7 +482,7 @@ public interface InternetProtocolStats {
         private final int localPort;
         private final byte[] foreignAddress;
         private final int foreignPort;
-        private final @Nullable TcpState state;
+        private final TcpState state;
         private final int transmitQueue;
         private final int receiveQueue;
         private int owningProcessId;
@@ -495,7 +495,8 @@ public interface InternetProtocolStats {
          * @param localPort       the local port
          * @param foreignAddress  the remote address bytes
          * @param foreignPort     the remote port
-         * @param state           the TCP state, or {@code null} for a UDP connection or when not known
+         * @param state           the TCP state, {@link TcpState#NONE} for a UDP connection, or {@link TcpState#UNKNOWN}
+         *                        (or {@code null}) when not known
          * @param transmitQueue   the transmit queue size
          * @param receiveQueue    the receive queue size
          * @param owningProcessId the PID of the owning process
@@ -507,7 +508,7 @@ public interface InternetProtocolStats {
             this.localPort = localPort;
             this.foreignAddress = Arrays.copyOf(foreignAddress, foreignAddress.length);
             this.foreignPort = foreignPort;
-            this.state = state;
+            this.state = state == null ? TcpState.UNKNOWN : state;
             this.transmitQueue = transmitQueue;
             this.receiveQueue = receiveQueue;
             this.owningProcessId = owningProcessId;
@@ -569,9 +570,10 @@ public interface InternetProtocolStats {
         /**
          * Gets the connection state (TCP connections only).
          *
-         * @return The connection state if known or relevant, null otherwise.
+         * @return The connection state: {@link TcpState#NONE} for a UDP connection, and {@link TcpState#UNKNOWN} when
+         *         it is not known.
          */
-        public @Nullable TcpState getState() {
+        public TcpState getState() {
             return state;
         }
 

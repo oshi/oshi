@@ -14,7 +14,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThanOrEqualTo;
-import static org.hamcrest.Matchers.notANumber;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
@@ -97,7 +96,7 @@ class MacSensorsPlausibilityFFMTest {
     void testCpuTemperatureIsPlausibleOrUnavailable() {
         double temp = SystemInfoFactory.create().getHardware().getSensors().getCpuTemperature();
         assertThat("CPU temperature must be unavailable or plausible, never a sentinel", temp,
-                either(notANumber()).or(is(0d)).or(greaterThanOrEqualTo(SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE)));
+                either(is(0d)).or(greaterThanOrEqualTo(SmcUtilFFM.MIN_PLAUSIBLE_TEMPERATURE)));
     }
 
     /**

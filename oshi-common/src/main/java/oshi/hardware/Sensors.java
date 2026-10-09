@@ -29,8 +29,7 @@ public interface Sensors {
     /**
      * CPU Temperature
      *
-     * @return CPU Temperature in degrees Celsius if available, 0 or {@link Double#NaN} otherwise. Callers should check
-     *         for both zero and NaN to detect unavailable data.
+     * @return CPU Temperature in degrees Celsius if available, 0 otherwise.
      *         <p>
      *         On Windows, requires the optional
      *         <a href="https://github.com/pandalxb/jLibreHardwareMonitor">jLibreHardwareMonitor</a> dependency for
