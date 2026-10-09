@@ -8,7 +8,7 @@
 # The bundle is typically at: target/central-publishing/central-bundle.zip
 # or after release:perform:  target/checkout/target/central-publishing/central-bundle.zip
 #
-# Credentials are read from the "central" server in ~/.m2/settings.xml.
+# Credentials are read from the "sonatype-central" server in ~/.m2/settings.xml.
 #
 # Usage:
 #   ./scripts/upload-to-central.sh [path/to/central-bundle.zip]
@@ -16,7 +16,7 @@
 set -euo pipefail
 
 CENTRAL_API="https://central.sonatype.com/api/v1/publisher"
-SERVER_ID="central"
+SERVER_ID="sonatype-central"
 
 # --- Locate bundle -----------------------------------------------------------
 if [[ $# -ge 1 ]]; then

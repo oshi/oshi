@@ -5,7 +5,7 @@ Releasing OSHI
 
 * Put your [repository credentials in your Maven settings.xml file](https://central.sonatype.org/pages/apache-maven.html#distribution-management-and-authentication) for both snapshot and staging repositories in [pom.xml](pom.xml).
 * Put your [gpg certificate credentials in the settings.xml file](https://central.sonatype.org/pages/apache-maven.html#gpg-signed-components)
-* The `central` server in `settings.xml` is also used by the upload script (see below).
+* The `sonatype-central` server in `settings.xml` is also used by the upload script (see below).
 
 ### Snapshots
 

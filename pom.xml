@@ -57,7 +57,7 @@
     </ciManagement>
     <distributionManagement>
         <snapshotRepository>
-            <id>central</id>
+            <id>sonatype-central</id>
             <url>https://central.sonatype.com/repository/maven-snapshots/</url>
         </snapshotRepository>
         <site>
@@ -237,7 +237,7 @@
                     <version>${central-publishing-maven-plugin.version}</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <publishingServerId>central</publishingServerId>
+                        <publishingServerId>sonatype-central</publishingServerId>
                         <autoPublish>true</autoPublish>
                     </configuration>
                 </plugin>
@@ -1033,7 +1033,7 @@
                 <artifactId>central-publishing-maven-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
-                    <publishingServerId>central</publishingServerId>
+                    <publishingServerId>sonatype-central</publishingServerId>
                     <autoPublish>true</autoPublish>
                     <!-- Artifacts with no consumer value on Central; keeping them out of the release also keeps
                     us under Sonatype's per-organization monthly publishing limits. oshi-benchmark is a local-only
