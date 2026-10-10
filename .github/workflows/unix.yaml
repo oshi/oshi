@@ -316,18 +316,19 @@ jobs:
             pkg_add curl
             pkg_add java-jna
             # pkgsrc has no binary openjdk25 package yet; prefer it the moment it appears, and until then
-            # use a pinned mirror of the pkgsrc-wip bootstrap JDK. A missing or altered file fails the job
-            # rather than quietly dropping FFM coverage.
+            # use the bootstrap JDK that lang/openjdk25 itself builds from, fetched from NetBSD.org and pinned
+            # to the SHA-512 in its distinfo. A missing or altered file fails the job rather than quietly
+            # dropping FFM coverage.
             if pkg_add openjdk25 2>/dev/null; then
               echo "using pkgsrc openjdk25"
             else
               BS=bootstrap-jdk-1.25.0.4.7-netbsd-9-amd64-20260908.tar.xz
               SHA=4587a19dea5edd24ccafb251221ee6177e788ae9ad6c0bf49be11ef900bbe7f75a0db77eb151edf12f8378aab8a7b9651043f31e98864317faf3ecb2533b34eb
-              URL=https://github.com/dbwiddis/oshi/releases/download/netbsd-jdk25-bootstrap/$BS
+              URL=https://cdn.netbsd.org/pub/pkgsrc/distfiles/LOCAL_PORTS/openjdk25/$BS
               curl -sSfLo /tmp/$BS "$URL" || { echo "FATAL: could not fetch $URL"; exit 1; }
               [ "$(cksum -a sha512 -n /tmp/$BS | cut -d' ' -f1)" = "$SHA" ] || { echo "FATAL: checksum mismatch for $BS"; exit 1; }
               mkdir -p /opt && tar -xJf /tmp/$BS -C /opt
-              echo "using the bootstrap JDK mirror"
+              echo "using the pkgsrc bootstrap JDK"
             fi
           run: |
             if [ -d /usr/pkg/java/openjdk25 ]; then
