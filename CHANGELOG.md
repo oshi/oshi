@@ -1,16 +1,8 @@
-# 7.7.1 (in progress)
+# 7.7.2 (in progress)
 
-##### Bug Fixes and Improvements
+* Your contribution here!
 
-* [#3763](https://github.com/oshi/oshi/pull/3763): Standardizes connection reporting from `InternetProtocolStats.getConnections()` on the UNIX platforms. It now includes listening and unconnected sockets, as on Linux, and returns connections on Solaris, where it returned none. A `tcp6` or `udp6` connection to an IPv4 peer now has a 16-byte IPv4-mapped address rather than a 4-byte one - [@dbwiddis](https://github.com/dbwiddis).
-* [#3771](https://github.com/oshi/oshi/pull/3771): Fixed `Firmware.getManufacturer()` on Linux, which never read the BIOS vendor from sysfs. It returned `vcgencmd`'s value or `unknown`, or an empty string where the sysfs file was empty - [@dbwiddis](https://github.com/dbwiddis).
-* [#3774](https://github.com/oshi/oshi/pull/3774): `LogicalVolumeGroup.getPhysicalVolumes()` on Linux now runs `pvs` through the `oshi.os.linux.privileged.prefix` when `pvs` is in `oshi.os.linux.privileged.allowlist`, so physical volumes that hold no logical volume can be listed without running the application as root - [@dbwiddis](https://github.com/dbwiddis).
-* [#3776](https://github.com/oshi/oshi/pull/3776): Fixed intermittent JVM crashes on Solaris and illumos when `libcups` is not installed. OSHI now checks that an optional native library exists before loading it there, because a failed load can corrupt native memory when another thread is loading native code at the same time - [@dbwiddis](https://github.com/dbwiddis).
-* [#3777](https://github.com/oshi/oshi/pull/3777): Fixed the heap corruption behind the intermittent JVM crashes on Solaris and illumos that persisted after [#3776](https://github.com/oshi/oshi/pull/3776). Every `kstat` query wrote 176 bytes past the end of the control structure `kstat_open()` allocates, because JNA's `kstat_ctl_t` mapping declares the chain as an inline `kstat_t` rather than a pointer to one ([jna#1740](https://github.com/java-native-access/jna/issues/1740)). Any OSHI call that reads CPU, memory, disk, or network statistics could silently overwrite unrelated allocations - [@dbwiddis](https://github.com/dbwiddis).
-* [#3781](https://github.com/oshi/oshi/pull/3781): `Sensors.getCpuTemperature()` returns 0 when the temperature is unavailable on every platform. FreeBSD returned `NaN` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3782](https://github.com/oshi/oshi/pull/3782): Fixed intermittent JVM crashes on AIX, OpenBSD and DragonFly BSD when `libcups` is not installed. As on Solaris and illumos since [#3776](https://github.com/oshi/oshi/pull/3776), OSHI now checks that an optional native library exists before loading it - [@dbwiddis](https://github.com/dbwiddis).
-
-# 7.7.0 (2026-09-29)
+# 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
 
 ##### New Features
 
@@ -27,6 +19,13 @@
 * [#3743](https://github.com/oshi/oshi/pull/3743): Fixed three `HWDiskStore` faults on NetBSD: read and write byte totals that could decrease between readings, a doubled `getTransferTime()`, and a 1-byte disk or 512-byte partition size where the size is unknown, which also affected OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
 * [#3744](https://github.com/oshi/oshi/pull/3744): Fixed `OSProcess` naming on NetBSD: `getPath()` and `getName()` were truncated to seven characters, and where the kernel withholds a process's arguments, `getCommandLine()` returned `ps`'s `(command)` placeholder and `getName()` kept its parentheses - [@dbwiddis](https://github.com/dbwiddis).
 * [#3754](https://github.com/oshi/oshi/pull/3754): `OperatingSystem.getProcessId()` and `getThreadId()` return 0 when the ID is unknown on every platform. On NetBSD without JNA, `getThreadId()` returned a Java thread ID, and on failure some implementations returned -1, which led `getCurrentProcess()` to return an arbitrary process on the BSDs, Solaris and AIX. `getProcess()` with a negative PID now returns null on Solaris and AIX - [@dbwiddis](https://github.com/dbwiddis).
+* [#3763](https://github.com/oshi/oshi/pull/3763): Standardizes connection reporting from `InternetProtocolStats.getConnections()` on the UNIX platforms. It now includes listening and unconnected sockets, as on Linux, and returns connections on Solaris, where it returned none. A `tcp6` or `udp6` connection to an IPv4 peer now has a 16-byte IPv4-mapped address rather than a 4-byte one - [@dbwiddis](https://github.com/dbwiddis).
+* [#3771](https://github.com/oshi/oshi/pull/3771): Fixed `Firmware.getManufacturer()` on Linux, which never read the BIOS vendor from sysfs - [@dbwiddis](https://github.com/dbwiddis).
+* [#3774](https://github.com/oshi/oshi/pull/3774): `LogicalVolumeGroup.getPhysicalVolumes()` on Linux now runs `pvs` through the `oshi.os.linux.privileged.prefix` when `pvs` is in `oshi.os.linux.privileged.allowlist`, so physical volumes that hold no logical volume can be listed without running the application as root - [@dbwiddis](https://github.com/dbwiddis).
+* [#3777](https://github.com/oshi/oshi/pull/3777): Fixed the heap corruption behind intermittent JVM crashes on Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
+* [#3781](https://github.com/oshi/oshi/pull/3781): `Sensors.getCpuTemperature()` now returns a 0.0 sentinel on all platforms when the temperature is unavailable. FreeBSD previously returned `NaN` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3776](https://github.com/oshi/oshi/pull/3776),
+  [#3782](https://github.com/oshi/oshi/pull/3782): Fixed intermittent JVM crashes on Solaris (illumos), OpenBSD and DragonFly BSD when `libcups` is not installed - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 
