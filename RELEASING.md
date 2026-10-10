@@ -154,6 +154,40 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
       gh workflow run site.yaml --ref oshi-parent-x.x.x
       ```
 
+### After the Release
+
+* Watch for the release on Maven Central. Expect it about 10 minutes after the Portal deployment
+  reaches `PUBLISHED`:
+    ```sh
+    for a in oshi-parent oshi-common oshi-core oshi-core-ffm oshi-metrics oshi-demo; do
+        echo "$a: $(curl -s https://repo1.maven.org/maven2/com/github/oshi/$a/maven-metadata.xml | grep -o '<release>[^<]*' | cut -c10-)"
+    done
+    ```
+    * Every artifact should report the new version. `oshi-dist` is not published to Central.
+    * The search pages at `central.sonatype.com` can take hours longer to catch up; the metadata
+      above is what Maven resolves against.
+    * If it has not appeared after 30 minutes, log on to the
+      [Central Portal](https://central.sonatype.com/publishing) and check the deployment. One still
+      `PUBLISHING` needs only more time. One sitting at `VALIDATED` was not auto-published: publish
+      it. A `FAILED` one lists its validation errors: drop it, fix the bundle at
+      `target/checkout/target/central-publishing/central-bundle.zip`, and upload it again with
+      `./scripts/upload-to-central.sh`.
+* Confirm that both release workflows succeeded. Each takes about 6 minutes:
+    ```sh
+    gh run list --workflow dist-release.yaml --limit 1
+    gh run list --workflow site.yaml --limit 1
+    ```
+    * The release should have `oshi-dist-x.x.x.zip` attached:
+      `gh release view oshi-parent-x.x.x --json assets --jq '.assets[].name'`
+    * The site should show the new version: `curl -sL https://oshi.ooo | grep x.x.x`. The `-L` is
+      required, because `oshi.ooo` redirects to `www.oshi.ooo`, and without it the check reads the
+      redirect page and never finds the version.
+    * If either workflow failed, re-run it as described in the previous section.
+* Once Central has the release, update [javadoc.io](https://javadoc.io/doc/com.github.oshi). For
+  each of `oshi-common`, `oshi-core`, `oshi-core-ffm`, and `oshi-metrics`, open its versions page
+  from the `com.github.oshi` summary, refresh the latest versions, select the new version, and
+  upload it. The docs appear about 10 minutes later.
+
 ### Ongoing Maintenance
 
 As development progresses, update version in [pom.xml](pom.xml) using -SNAPSHOT appended to the new version using [Semantic Versioning](https://semver.org/) standards:
