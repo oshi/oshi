@@ -71,6 +71,9 @@
         <copyright>2010 - 2026</copyright>
         <!-- Build Settings -->
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
+        <!-- Maven 3.10 defaults this to 1980-02-01 in the super-POM, which the site renders as "Last Published".
+        The release plugin rewrites it to the release time on release:prepare. -->
+        <project.build.outputTimestamp>2026-10-10T16:25:26Z</project.build.outputTimestamp>
         <maven.compiler.release>8</maven.compiler.release>
         <!-- Test sources compile at a higher level than main sources: they are never published, so the Java 8
         guarantee oshi-core makes to consumers does not apply to them. 17 is exactly pinned, from both directions,
