@@ -86,7 +86,7 @@ public final class CupsFunctions extends ForeignFunctions {
         MethodHandle hFreeDests = null;
         MethodHandle hGetOption = null;
         MethodHandle hGetDefault = null;
-        // A failed load can crash the JVM on illumos, so check the file exists first; see NativeLibraryUtil.
+        // A failed load can crash the JVM where dlerror() state is process-wide; see NativeLibraryUtil.
         if (NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("cups"))) {
             try {
                 lookup = libraryLookup("cups");

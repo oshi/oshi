@@ -49,7 +49,8 @@ public class SolarisOperatingSystemJNA extends SolarisOperatingSystem {
         // illumos and Solaris < 11.4 have no libkstat2, and a failed load there can crash the JVM; see
         // NativeLibraryUtil.
         try {
-            if (ALLOW_KSTAT2 && NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("kstat2"))) {
+            if (ALLOW_KSTAT2 && NativeLibraryUtil.isSafeToLoad(System.mapLibraryName("kstat2"),
+                    System.getProperty("jna.library.path"))) {
                 Kstat2 lib = Kstat2.INSTANCE;
                 if (lib != null) {
                     // Validate kstat2 returns data with a universal kstat path
