@@ -16,11 +16,14 @@ on:
 permissions:
   contents: read
 
+# Pushes run only on the canonical repo, so syncing a fork's master does not spend its CI minutes;
+# forks still run a branch on demand with workflow_dispatch.
 jobs:
   # Builds and tests ONLY oshi-common on Linux, so neither oshi-core (JNA) nor
   # oshi-core-ffm is on the classpath. Verifies the native-free provider is
   # selected and works using procfs/sysfs alone.
   testnativefreelinux:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-latest
     name: Native-Free JDK 21, Linux
     steps:
@@ -50,6 +53,7 @@ jobs:
   # uploaded under the `nativefree-netbsd` flag. (The plain `netbsd` flag is reserved
   # for a future JNA-NetBSD aggregate-coverage job.)
   testnativefreenetbsd:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-26.04
     name: Native-Free JDK 21, NetBSD
     steps:

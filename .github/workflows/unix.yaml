@@ -14,11 +14,14 @@ on:
 permissions:
   contents: read
 
+# Pushes run only on the canonical repo, so syncing a fork's master does not spend its CI minutes;
+# forks still run a branch on demand with workflow_dispatch.
 jobs:
   # Runs current branch on FreeBSD in a VM, with aggregate-coverage uploaded
   # to Codecov under the `freebsd` flag (no other CI job exercises the
   # FreeBSD-specific classes).
   testfreebsd:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 25, FreeBSD
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -54,6 +57,7 @@ jobs:
   # Runs on OpenBSD 7.9 x86 VM with aggregate-coverage uploaded
   # to Codecov under the `openbsd` flag.
   testopenbsd:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     name: Test JDK 25, OpenBSD
@@ -93,6 +97,7 @@ jobs:
   # Runs on OpenIndiana (illumos/Solaris) x86 VM with aggregate-coverage uploaded
   # to Codecov under the `solaris` flag.
   testopenindiana:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 25, OpenIndiana
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -219,6 +224,7 @@ jobs:
 
   # Runs on DragonFly BSD 6.4 x86 VM
   testdragonflybsd:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 21, DragonFly BSD
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -256,6 +262,7 @@ jobs:
   # Runs on NetBSD 10.1 x86 VM WITHOUT the JNA native library (java-jna not installed), exercising the
   # command-line fallback path (NetBsdSysctlUtil.JNA_AVAILABLE == false).
   testnetbsd:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 21, NetBSD (no JNA)
     runs-on: ubuntu-26.04
     timeout-minutes: 30
@@ -295,6 +302,7 @@ jobs:
   # pkgsrc libjnidispatch) and the FFM one, which needs JDK 25. The command-line fallback is covered by the
   # no-JNA job above, which stays on JDK 21.
   testnetbsdjna:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     name: Test JDK 25, NetBSD (JNA and FFM)
     runs-on: ubuntu-26.04
     timeout-minutes: 30

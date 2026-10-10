@@ -14,12 +14,15 @@ on:
 permissions:
   contents: read
 
+# Pushes run only on the canonical repo, so syncing a fork's master does not spend its CI minutes;
+# forks still run a branch on demand with workflow_dispatch.
 jobs:
   # Static analysis, split into parallel jobs so no single job's sequential Maven
   # invocations dominate the critical path. Kept in sync with pr.yaml's lint jobs.
 
   # Formatting and style — the fastest of the static-analysis jobs.
   lint-format:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-latest
     name: Lint (Spotless, Checkstyle)
     steps:
@@ -43,6 +46,7 @@ jobs:
   # API restrictions, javadoc, and SLF4J compatibility.
   # Runs on ubuntu/JDK 25 (javadoc for oshi-core-ffm requires JDK 25).
   lint-verify:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-latest
     name: Lint (ForbiddenAPIs, Javadoc, SLF4J)
     steps:
@@ -72,6 +76,7 @@ jobs:
   # findings fail this job (javac's own default behavior); WARNING-severity findings don't, and
   # accumulate for ongoing triage.
   error-prone:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-latest
     name: Error Prone
     steps:
@@ -90,6 +95,7 @@ jobs:
 
   # Runs full project on multiple JDKs
   testmatrix:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -130,6 +136,7 @@ jobs:
 
   # Cgroup integration test — runs inside a Docker container with known resource limits
   container-cgroup:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ubuntu-latest
     name: Container Cgroup Test
     steps:

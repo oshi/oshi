@@ -14,9 +14,12 @@ on:
 permissions:
   contents: read
 
+# Pushes run only on the canonical repo, so syncing a fork's master does not spend its CI minutes;
+# forks still run a branch on demand with workflow_dispatch.
 jobs:
   # Runs full project on multiple JDKs
   testmatrix:
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
