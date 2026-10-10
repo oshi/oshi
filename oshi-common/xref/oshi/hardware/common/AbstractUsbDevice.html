@@ -12,12 +12,12 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Objects;
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Locale;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Objects;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  
@@ -169,67 +169,65 @@
 <a class="jxr_linenumber" name="L161" href="#L161">161</a>             Map&lt;String, String&gt; serialMap, Map&lt;String, List&lt;String&gt;&gt; hubMap, UsbDeviceFactory factory) {
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>         String vendorId = vendorIdMap.getOrDefault(id, vid);
 <a class="jxr_linenumber" name="L163" href="#L163">163</a>         String productId = productIdMap.getOrDefault(id, pid);
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         List&lt;UsbDevice&gt; connectedDevices = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">for</strong> (String childId : hubMap.getOrDefault(id, Collections.emptyList())) {
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             connectedDevices.add(buildDeviceTree(childId, vendorId, productId, nameMap, vendorMap, vendorIdMap,
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>                     productIdMap, serialMap, hubMap, factory));
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         }
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         Collections.sort(connectedDevices);
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">return</strong> factory.create(nameMap.getOrDefault(id, vendorId + <span class="jxr_string">":"</span> + productId), vendorMap.getOrDefault(id, <span class="jxr_string">""</span>),
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>                 vendorId, productId, serialMap.getOrDefault(id, <span class="jxr_string">""</span>), id, connectedDevices);
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>     }
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> 
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     * Constructs a platform-specific {@link UsbDevice} from resolved fields; supplied to {@link #buildDeviceTree} so</em>
-<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * the shared tree assembly can create the correct per-platform type.</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>     @FunctionalInterface
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> UsbDeviceFactory {
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">         * Creates a {@link UsbDevice}.</em>
-<a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">         * @param name             the device name</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">         * @param vendor           the vendor name, or an empty string if the platform did not report one</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">         * @param vendorId         the vendor ID</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">         * @param productId        the product ID</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">         * @param serialNumber     the serial number</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">         * @param uniqueDeviceId   the unique device ID, or {@code null} if the platform did not report one</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">         * @param connectedDevices the connected child devices</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">         * @return the created device</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <a name="UsbDevice" href="../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> create(String name, String vendor, String vendorId, String productId, String serialNumber,
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>                 @Nullable String uniqueDeviceId, List&lt;UsbDevice&gt; connectedDevices);
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>     }
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> 
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>     @Override
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>     <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>         <strong class="jxr_keyword">return</strong> indentUsb(<strong class="jxr_keyword">this</strong>, 1);
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>     }
-<a class="jxr_linenumber" name="L200" href="#L200">200</a> 
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * Helper method for indenting chained USB devices</em>
-<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * @param usbDevice A USB device to print</em>
-<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     * @param indent    number of spaces to indent</em>
-<a class="jxr_linenumber" name="L206" href="#L206">206</a> <em class="jxr_javadoccomment">     * @return The device toString, indented</em>
-<a class="jxr_linenumber" name="L207" href="#L207">207</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String indentUsb(<a name="UsbDevice" href="../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> usbDevice, <strong class="jxr_keyword">int</strong> indent) {
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         String indentFmt = indent &gt; 4 ? String.format(Locale.ROOT, <span class="jxr_string">"%%%ds|-- "</span>, indent - 4)
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                 : String.format(Locale.ROOT, <span class="jxr_string">"%%%ds"</span>, indent);
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(String.format(Locale.ROOT, indentFmt, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         sb.append(usbDevice.getName());
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         <strong class="jxr_keyword">if</strong> (!usbDevice.getVendor().isEmpty()) {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             sb.append(<span class="jxr_string">" ("</span>).append(usbDevice.getVendor()).append(')');
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         }
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">if</strong> (!usbDevice.getSerialNumber().isEmpty()) {
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>             sb.append(<span class="jxr_string">" [s/n: "</span>).append(usbDevice.getSerialNumber()).append(']');
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         }
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">for</strong> (<a name="UsbDevice" href="../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> connected : usbDevice.getConnectedDevices()) {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             sb.append('\n').append(indentUsb(connected, indent + 4));
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">return</strong> sb.toString();
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>     }
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> }
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         List&lt;UsbDevice&gt; connectedDevices = hubMap
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>                 .getOrDefault(id, Collections.emptyList()).stream().map(childId -&gt; buildDeviceTree(childId, vendorId,
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                         productId, nameMap, vendorMap, vendorIdMap, productIdMap, serialMap, hubMap, factory))
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 .sorted().collect(Collectors.toList());
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">return</strong> factory.create(nameMap.getOrDefault(id, vendorId + <span class="jxr_string">":"</span> + productId), vendorMap.getOrDefault(id, <span class="jxr_string">""</span>),
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 vendorId, productId, serialMap.getOrDefault(id, <span class="jxr_string">""</span>), id, connectedDevices);
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
+<a class="jxr_linenumber" name="L171" href="#L171">171</a> 
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     * Constructs a platform-specific {@link UsbDevice} from resolved fields; supplied to {@link #buildDeviceTree} so</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> <em class="jxr_javadoccomment">     * the shared tree assembly can create the correct per-platform type.</em>
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     @FunctionalInterface
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> UsbDeviceFactory {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">         * Creates a {@link UsbDevice}.</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a> <em class="jxr_javadoccomment">         * @param name             the device name</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a> <em class="jxr_javadoccomment">         * @param vendor           the vendor name, or an empty string if the platform did not report one</em>
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">         * @param vendorId         the vendor ID</em>
+<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">         * @param productId        the product ID</em>
+<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">         * @param serialNumber     the serial number</em>
+<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">         * @param uniqueDeviceId   the unique device ID, or {@code null} if the platform did not report one</em>
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> <em class="jxr_javadoccomment">         * @param connectedDevices the connected child devices</em>
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">         * @return the created device</em>
+<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <a name="UsbDevice" href="../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> create(String name, String vendor, String vendorId, String productId, String serialNumber,
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>                 @Nullable String uniqueDeviceId, List&lt;UsbDevice&gt; connectedDevices);
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>     }
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> 
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     @Override
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>     <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> indentUsb(<strong class="jxr_keyword">this</strong>, 1);
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> 
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">     * Helper method for indenting chained USB devices</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">     * @param usbDevice A USB device to print</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">     * @param indent    number of spaces to indent</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">     * @return The device toString, indented</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String indentUsb(<a name="UsbDevice" href="../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> usbDevice, <strong class="jxr_keyword">int</strong> indent) {
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         String indentFmt = indent &gt; 4 ? String.format(Locale.ROOT, <span class="jxr_string">"%%%ds|-- "</span>, indent - 4)
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>                 : String.format(Locale.ROOT, <span class="jxr_string">"%%%ds"</span>, indent);
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         StringBuilder sb = <strong class="jxr_keyword">new</strong> StringBuilder(String.format(Locale.ROOT, indentFmt, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         sb.append(usbDevice.getName());
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">if</strong> (!usbDevice.getVendor().isEmpty()) {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             sb.append(<span class="jxr_string">" ("</span>).append(usbDevice.getVendor()).append(')');
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         }
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">if</strong> (!usbDevice.getSerialNumber().isEmpty()) {
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             sb.append(<span class="jxr_string">" [s/n: "</span>).append(usbDevice.getSerialNumber()).append(']');
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>         }
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">for</strong> (<a name="UsbDevice" href="../../../oshi/hardware/UsbDevice.html#UsbDevice">UsbDevice</a> connected : usbDevice.getConnectedDevices()) {
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             sb.append('\n').append(indentUsb(connected, indent + 4));
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>         }
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">return</strong> sb.toString();
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     }
+<a class="jxr_linenumber" name="L222" href="#L222">222</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

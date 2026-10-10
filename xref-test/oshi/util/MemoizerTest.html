@@ -194,9 +194,9 @@
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> minExpectedNumberOfIncrements = 2L;
 <a class="jxr_linenumber" name="L187" href="#L187">187</a>             <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> maxExpectedNumberOfIncrements = (iterationDurationNanos / ttlNanos) + 2L * NUMBER_OF_THREADS;
 <a class="jxr_linenumber" name="L188" href="#L188">188</a> 
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>             assertThat(String.format(Locale.ROOT, <span class="jxr_string">"ttlNanos=%s"</span>, ttlNanos), minExpectedNumberOfIncrements,
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>             assertThat(<span class="jxr_string">"ttlNanos="</span> + ttlNanos, minExpectedNumberOfIncrements,
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>                     is(lessThanOrEqualTo(actualNumberOfIncrements)));
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>             assertThat(String.format(Locale.ROOT, <span class="jxr_string">"ttlNanos=%s"</span>, ttlNanos), actualNumberOfIncrements,
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             assertThat(<span class="jxr_string">"ttlNanos="</span> + ttlNanos, actualNumberOfIncrements,
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>                     is(lessThanOrEqualTo(maxExpectedNumberOfIncrements)));
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>         }
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>     }

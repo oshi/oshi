@@ -313,11 +313,11 @@
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">for</strong> (OSProcess p : processes) {
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>             <strong class="jxr_keyword">int</strong> ppid = p.getParentProcessID();
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>             <strong class="jxr_keyword">long</strong> startTime = p.getStartTime();
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">if</strong> (zeroChildMap.containsKey(ppid) &amp;&amp; zeroChildMap.get(ppid) &gt;= startTime) {
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">if</strong> (zeroChildMap.containsKey(ppid) &amp;&amp; startTime &gt;= zeroChildMap.get(ppid)) {
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>                 <em class="jxr_comment">// Zero to One</em>
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>                 oneChildMap.put(ppid, zeroChildMap.get(ppid));
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>                 zeroChildMap.remove(ppid);
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (oneChildMap.containsKey(ppid) &amp;&amp; oneChildMap.get(ppid) &gt;= startTime) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (oneChildMap.containsKey(ppid) &amp;&amp; startTime &gt;= oneChildMap.get(ppid)) {
 <a class="jxr_linenumber" name="L313" href="#L313">313</a>                 <em class="jxr_comment">// One to many</em>
 <a class="jxr_linenumber" name="L314" href="#L314">314</a>                 manyChildMap.put(ppid, oneChildMap.get(ppid));
 <a class="jxr_linenumber" name="L315" href="#L315">315</a>                 oneChildMap.remove(ppid);

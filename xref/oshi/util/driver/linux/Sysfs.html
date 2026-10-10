@@ -153,53 +153,60 @@
 <a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * @return The bios vendor if available, null otherwise</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosVendor() {
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">final</strong> String biosVendor = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"bios_vendor"</span>).trim();
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         <strong class="jxr_keyword">if</strong> (biosVendor.isEmpty()) {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>             <strong class="jxr_keyword">return</strong> biosVendor;
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         }
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     * Query the bios description from sysfs</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">     * @return The bios description if available, null otherwise</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosDescription() {
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         <strong class="jxr_keyword">final</strong> String modalias = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"modalias"</span>).trim();
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">if</strong> (!modalias.isEmpty()) {
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">return</strong> modalias;
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         }
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>     }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L169" href="#L169">169</a> <em class="jxr_javadoccomment">     * Query the bios version from sysfs</em>
-<a class="jxr_linenumber" name="L170" href="#L170">170</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a> <em class="jxr_javadoccomment">     * @param biosRevision A revision string to append</em>
-<a class="jxr_linenumber" name="L172" href="#L172">172</a> <em class="jxr_javadoccomment">     * @return The bios version if available, null otherwise</em>
-<a class="jxr_linenumber" name="L173" href="#L173">173</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosVersion(@Nullable String biosRevision) {
-<a class="jxr_linenumber" name="L175" href="#L175">175</a>         <strong class="jxr_keyword">final</strong> String biosVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"bios_version"</span>).trim();
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">if</strong> (!biosVersion.isEmpty()) {
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">return</strong> biosVersion + (Util.isBlank(biosRevision) ? <span class="jxr_string">""</span> : <span class="jxr_string">" (revision "</span> + biosRevision + <span class="jxr_string">")"</span>);
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         }
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>     }
-<a class="jxr_linenumber" name="L181" href="#L181">181</a> 
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L183" href="#L183">183</a> <em class="jxr_javadoccomment">     * Query the bios release date from sysfs</em>
-<a class="jxr_linenumber" name="L184" href="#L184">184</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> <em class="jxr_javadoccomment">     * @return The bios release date if available, null otherwise</em>
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosReleaseDate() {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">final</strong> String biosDate = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"bios_date"</span>).trim();
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">if</strong> (!biosDate.isEmpty()) {
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         }
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>     }
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">return</strong> parseBiosVendor(FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"bios_vendor"</span>));
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     * Parse the contents of the sysfs {@code bios_vendor} file</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     * @param biosVendor the file contents</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     * @return The trimmed bios vendor if not blank, null otherwise</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">static</strong> @Nullable String parseBiosVendor(String biosVendor) {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">final</strong> String trimmed = biosVendor.trim();
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">return</strong> trimmed.isEmpty() ? <strong class="jxr_keyword">null</strong> : trimmed;
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">     * Query the bios description from sysfs</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a> <em class="jxr_javadoccomment">     * @return The bios description if available, null otherwise</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosDescription() {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">final</strong> String modalias = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"modalias"</span>).trim();
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">if</strong> (!modalias.isEmpty()) {
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">return</strong> modalias;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         }
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>     }
+<a class="jxr_linenumber" name="L174" href="#L174">174</a> 
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> <em class="jxr_javadoccomment">     * Query the bios version from sysfs</em>
+<a class="jxr_linenumber" name="L177" href="#L177">177</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> <em class="jxr_javadoccomment">     * @param biosRevision A revision string to append</em>
+<a class="jxr_linenumber" name="L179" href="#L179">179</a> <em class="jxr_javadoccomment">     * @return The bios version if available, null otherwise</em>
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosVersion(@Nullable String biosRevision) {
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">final</strong> String biosVersion = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"bios_version"</span>).trim();
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">if</strong> (!biosVersion.isEmpty()) {
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>             <strong class="jxr_keyword">return</strong> biosVersion + (Util.isBlank(biosRevision) ? <span class="jxr_string">""</span> : <span class="jxr_string">" (revision "</span> + biosRevision + <span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         }
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">     * Query the bios release date from sysfs</em>
+<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">     * @return The bios release date if available, null otherwise</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> @Nullable String queryBiosReleaseDate() {
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>         <strong class="jxr_keyword">final</strong> String biosDate = FileUtil.getStringFromFile(SysPath.DMI_ID + <span class="jxr_string">"bios_date"</span>).trim();
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">if</strong> (!biosDate.isEmpty()) {
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>             <strong class="jxr_keyword">return</strong> ParseUtil.parseMmDdYyyyToYyyyMmDD(biosDate);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     }
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

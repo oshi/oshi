@@ -217,7 +217,7 @@
 <a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
 <a class="jxr_linenumber" name="L210" href="#L210">210</a> 
 <a class="jxr_linenumber" name="L211" href="#L211">211</a>         <strong class="jxr_keyword">if</strong> (selectedPath != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">this</strong>.sensorsMap.put(sensor, String.format(Locale.ROOT, <span class="jxr_string">"%s/%s"</span>, selectedPath, sensor));
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">this</strong>.sensorsMap.put(sensor, selectedPath + <span class="jxr_string">"/"</span> + sensor);
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>         }
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>     }
 <a class="jxr_linenumber" name="L215" href="#L215">215</a> 
@@ -231,7 +231,7 @@
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">long</strong> millidegrees = 0;
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>             <strong class="jxr_keyword">if</strong> (tempStr.contains(HWMON)) {
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>                 <em class="jxr_comment">// First attempt should be CPU temperature at index 1, if available</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 millidegrees = FileUtil.getLongFromFile(String.format(Locale.ROOT, <span class="jxr_string">"%s1%s"</span>, tempStr, INPUT_SUFFIX));
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>                 millidegrees = FileUtil.getLongFromFile(tempStr + <span class="jxr_string">"1"</span> + INPUT_SUFFIX);
 <a class="jxr_linenumber" name="L227" href="#L227">227</a>                 <em class="jxr_comment">// Should return a single line of millidegrees Celsius</em>
 <a class="jxr_linenumber" name="L228" href="#L228">228</a>                 <strong class="jxr_keyword">if</strong> (millidegrees &gt; 0) {
 <a class="jxr_linenumber" name="L229" href="#L229">229</a>                     <strong class="jxr_keyword">return</strong> millidegrees / 1000d;
@@ -313,7 +313,7 @@
 <a class="jxr_linenumber" name="L305" href="#L305">305</a>         String voltageStr = <strong class="jxr_keyword">this</strong>.sensorsMap.get(VOLTAGE);
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">if</strong> (voltageStr != <strong class="jxr_keyword">null</strong>) {
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>             <em class="jxr_comment">// Should return a single line of millivolt</em>
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">return</strong> FileUtil.getIntFromFile(String.format(Locale.ROOT, <span class="jxr_string">"%s1%s"</span>, voltageStr, INPUT_SUFFIX)) / 1000d;
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>             <strong class="jxr_keyword">return</strong> FileUtil.getIntFromFile(voltageStr + <span class="jxr_string">"1"</span> + INPUT_SUFFIX) / 1000d;
 <a class="jxr_linenumber" name="L309" href="#L309">309</a>         }
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>         <strong class="jxr_keyword">return</strong> 0d;
 <a class="jxr_linenumber" name="L311" href="#L311">311</a>     }

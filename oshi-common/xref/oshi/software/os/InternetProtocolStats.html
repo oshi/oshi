@@ -490,7 +490,7 @@
 <a class="jxr_linenumber" name="L482" href="#L482">482</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> localPort;
 <a class="jxr_linenumber" name="L483" href="#L483">483</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> byte[] foreignAddress;
 <a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> foreignPort;
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> @Nullable TcpState state;
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> TcpState state;
 <a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> transmitQueue;
 <a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> receiveQueue;
 <a class="jxr_linenumber" name="L488" href="#L488">488</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">int</strong> owningProcessId;
@@ -503,132 +503,134 @@
 <a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">         * @param localPort       the local port</em>
 <a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">         * @param foreignAddress  the remote address bytes</em>
 <a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">         * @param foreignPort     the remote port</em>
-<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">         * @param state           the TCP state, or {@code null} for a UDP connection or when not known</em>
-<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">         * @param transmitQueue   the transmit queue size</em>
-<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">         * @param receiveQueue    the receive queue size</em>
-<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">         * @param owningProcessId the PID of the owning process</em>
-<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">public</strong> IPConnection(String type, byte[] localAddress, <strong class="jxr_keyword">int</strong> localPort, byte[] foreignAddress, <strong class="jxr_keyword">int</strong> foreignPort,
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                 @Nullable TcpState state, <strong class="jxr_keyword">int</strong> transmitQueue, <strong class="jxr_keyword">int</strong> receiveQueue, <strong class="jxr_keyword">int</strong> owningProcessId) {
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>             <strong class="jxr_keyword">this</strong>.type = type;
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>             <strong class="jxr_keyword">this</strong>.localAddress = Arrays.copyOf(localAddress, localAddress.length);
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <strong class="jxr_keyword">this</strong>.localPort = localPort;
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">this</strong>.foreignAddress = Arrays.copyOf(foreignAddress, foreignAddress.length);
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>             <strong class="jxr_keyword">this</strong>.foreignPort = foreignPort;
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>             <strong class="jxr_keyword">this</strong>.state = state;
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>             <strong class="jxr_keyword">this</strong>.transmitQueue = transmitQueue;
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <strong class="jxr_keyword">this</strong>.receiveQueue = receiveQueue;
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">this</strong>.owningProcessId = owningProcessId;
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         }
-<a class="jxr_linenumber" name="L515" href="#L515">515</a> 
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">         * Returns the connection protocol type, e.g., tcp4, tcp6, tcp46, udp4, udp6, udp46</em>
-<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">         * @return The protocol type</em>
-<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>         <strong class="jxr_keyword">public</strong> String getType() {
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>             <strong class="jxr_keyword">return</strong> type;
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>         }
-<a class="jxr_linenumber" name="L524" href="#L524">524</a> 
-<a class="jxr_linenumber" name="L525" href="#L525">525</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6 addresses this is a 16-byte</em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">         * array.</em>
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">         * On Unix operating systems, the 16-bit value may be truncated, giving only the high order bytes. IPv6</em>
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">         * addresses ending in zeroes should be considered suspect.</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">         * @return The local address, or an empty array if the listener can accept a connection on any interface.</em>
-<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>         <strong class="jxr_keyword">public</strong> byte[] getLocalAddress() {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>             <strong class="jxr_keyword">return</strong> Arrays.copyOf(localAddress, localAddress.length);
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         }
-<a class="jxr_linenumber" name="L537" href="#L537">537</a> 
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L539" href="#L539">539</a> <em class="jxr_javadoccomment">         * Gets the local port.</em>
-<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">         * @return The local port, or 0 if unknown, or any port.</em>
-<a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getLocalPort() {
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>             <strong class="jxr_keyword">return</strong> localPort;
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         }
-<a class="jxr_linenumber" name="L546" href="#L546">546</a> 
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L548" href="#L548">548</a> <em class="jxr_javadoccomment">         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array. For IPv6 addresses this is a</em>
-<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">         * 16-byte array.</em>
-<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">         * On Unix operating systems, this value may be truncated. IPv6 addresses ending in zeroes should be considered</em>
-<a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">         * suspect.</em>
-<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">         * @return The foreign/remote address, or an empty array if unknown. An empty array will also result if</em>
-<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>         <strong class="jxr_keyword">public</strong> byte[] getForeignAddress() {
-<a class="jxr_linenumber" name="L557" href="#L557">557</a>             <strong class="jxr_keyword">return</strong> Arrays.copyOf(foreignAddress, foreignAddress.length);
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>         }
-<a class="jxr_linenumber" name="L559" href="#L559">559</a> 
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L561" href="#L561">561</a> <em class="jxr_javadoccomment">         * Gets the foreign/remote port.</em>
-<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">         * @return The foreign/remote port, or 0 if unknown.</em>
-<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getForeignPort() {
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>             <strong class="jxr_keyword">return</strong> foreignPort;
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>         }
-<a class="jxr_linenumber" name="L568" href="#L568">568</a> 
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">         * Gets the connection state (TCP connections only).</em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">         * @return The connection state if known or relevant, null otherwise.</em>
-<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         <strong class="jxr_keyword">public</strong> @Nullable TcpState getState() {
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>             <strong class="jxr_keyword">return</strong> state;
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>         }
-<a class="jxr_linenumber" name="L577" href="#L577">577</a> 
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L579" href="#L579">579</a> <em class="jxr_javadoccomment">         * Gets the size of the transmit queue. Not available on Windows.</em>
-<a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">         * @return The size of the transmit queue, or 0 if unknown.</em>
-<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L583" href="#L583">583</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getTransmitQueue() {
-<a class="jxr_linenumber" name="L584" href="#L584">584</a>             <strong class="jxr_keyword">return</strong> transmitQueue;
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>         }
-<a class="jxr_linenumber" name="L586" href="#L586">586</a> 
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L588" href="#L588">588</a> <em class="jxr_javadoccomment">         * Gets the size of the receive queue. Not available on Windows.</em>
-<a class="jxr_linenumber" name="L589" href="#L589">589</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L590" href="#L590">590</a> <em class="jxr_javadoccomment">         * @return The size of the receive queue, or 0 if unknown.</em>
-<a class="jxr_linenumber" name="L591" href="#L591">591</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getReceiveQueue() {
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>             <strong class="jxr_keyword">return</strong> receiveQueue;
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>         }
-<a class="jxr_linenumber" name="L595" href="#L595">595</a> 
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L597" href="#L597">597</a> <em class="jxr_javadoccomment">         * Gets the id of the process which holds this connection.</em>
-<a class="jxr_linenumber" name="L598" href="#L598">598</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">         * @return The process id of the process which holds this connection if known, -1 otherwise.</em>
-<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L601" href="#L601">601</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getowningProcessId() {
-<a class="jxr_linenumber" name="L602" href="#L602">602</a>             <strong class="jxr_keyword">return</strong> owningProcessId;
-<a class="jxr_linenumber" name="L603" href="#L603">603</a>         }
-<a class="jxr_linenumber" name="L604" href="#L604">604</a> 
-<a class="jxr_linenumber" name="L605" href="#L605">605</a>         @Override
-<a class="jxr_linenumber" name="L606" href="#L606">606</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L607" href="#L607">607</a>             String localIp = <span class="jxr_string">"*"</span>;
-<a class="jxr_linenumber" name="L608" href="#L608">608</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L609" href="#L609">609</a>                 localIp = InetAddress.getByAddress(localAddress).toString();
-<a class="jxr_linenumber" name="L610" href="#L610">610</a>             } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) { <em class="jxr_comment">// NOSONAR java:S108</em>
-<a class="jxr_linenumber" name="L611" href="#L611">611</a>             }
-<a class="jxr_linenumber" name="L612" href="#L612">612</a>             String foreignIp = <span class="jxr_string">"*"</span>;
-<a class="jxr_linenumber" name="L613" href="#L613">613</a>             <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L614" href="#L614">614</a>                 foreignIp = InetAddress.getByAddress(foreignAddress).toString();
-<a class="jxr_linenumber" name="L615" href="#L615">615</a>             } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) { <em class="jxr_comment">// NOSONAR java:S108</em>
-<a class="jxr_linenumber" name="L616" href="#L616">616</a>             }
-<a class="jxr_linenumber" name="L617" href="#L617">617</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"IPConnection [type="</span> + type + <span class="jxr_string">", localAddress="</span> + localIp + <span class="jxr_string">", localPort="</span> + localPort
-<a class="jxr_linenumber" name="L618" href="#L618">618</a>                     + <span class="jxr_string">", foreignAddress="</span> + foreignIp + <span class="jxr_string">", foreignPort="</span> + foreignPort + <span class="jxr_string">", state="</span> + state
-<a class="jxr_linenumber" name="L619" href="#L619">619</a>                     + <span class="jxr_string">", transmitQueue="</span> + transmitQueue + <span class="jxr_string">", receiveQueue="</span> + receiveQueue + <span class="jxr_string">", owningProcessId="</span>
-<a class="jxr_linenumber" name="L620" href="#L620">620</a>                     + owningProcessId + <span class="jxr_string">"]"</span>;
-<a class="jxr_linenumber" name="L621" href="#L621">621</a>         }
-<a class="jxr_linenumber" name="L622" href="#L622">622</a>     }
-<a class="jxr_linenumber" name="L623" href="#L623">623</a> }
+<a class="jxr_linenumber" name="L498" href="#L498">498</a> <em class="jxr_javadoccomment">         * @param state           the TCP state, {@link TcpState#NONE} for a UDP connection, or {@link TcpState#UNKNOWN}</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a> <em class="jxr_javadoccomment">         *                        (or {@code null}) when not known</em>
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> <em class="jxr_javadoccomment">         * @param transmitQueue   the transmit queue size</em>
+<a class="jxr_linenumber" name="L501" href="#L501">501</a> <em class="jxr_javadoccomment">         * @param receiveQueue    the receive queue size</em>
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> <em class="jxr_javadoccomment">         * @param owningProcessId the PID of the owning process</em>
+<a class="jxr_linenumber" name="L503" href="#L503">503</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>         <strong class="jxr_keyword">public</strong> IPConnection(String type, byte[] localAddress, <strong class="jxr_keyword">int</strong> localPort, byte[] foreignAddress, <strong class="jxr_keyword">int</strong> foreignPort,
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                 @Nullable TcpState state, <strong class="jxr_keyword">int</strong> transmitQueue, <strong class="jxr_keyword">int</strong> receiveQueue, <strong class="jxr_keyword">int</strong> owningProcessId) {
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>             <strong class="jxr_keyword">this</strong>.type = type;
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <strong class="jxr_keyword">this</strong>.localAddress = Arrays.copyOf(localAddress, localAddress.length);
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">this</strong>.localPort = localPort;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>             <strong class="jxr_keyword">this</strong>.foreignAddress = Arrays.copyOf(foreignAddress, foreignAddress.length);
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>             <strong class="jxr_keyword">this</strong>.foreignPort = foreignPort;
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>             <strong class="jxr_keyword">this</strong>.state = state == <strong class="jxr_keyword">null</strong> ? TcpState.UNKNOWN : state;
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             <strong class="jxr_keyword">this</strong>.transmitQueue = transmitQueue;
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>             <strong class="jxr_keyword">this</strong>.receiveQueue = receiveQueue;
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>             <strong class="jxr_keyword">this</strong>.owningProcessId = owningProcessId;
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>         }
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">         * Returns the connection protocol type, e.g., tcp4, tcp6, tcp46, udp4, udp6, udp46</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L520" href="#L520">520</a> <em class="jxr_javadoccomment">         * @return The protocol type</em>
+<a class="jxr_linenumber" name="L521" href="#L521">521</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         <strong class="jxr_keyword">public</strong> String getType() {
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>             <strong class="jxr_keyword">return</strong> type;
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>         }
+<a class="jxr_linenumber" name="L525" href="#L525">525</a> 
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">         * Gets the local address. For IPv4 addresses this is a 4-byte array. For IPv6 addresses this is a 16-byte</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">         * array.</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">         * On Unix operating systems, the 16-bit value may be truncated, giving only the high order bytes. IPv6</em>
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">         * addresses ending in zeroes should be considered suspect.</em>
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">         * @return The local address, or an empty array if the listener can accept a connection on any interface.</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>         <strong class="jxr_keyword">public</strong> byte[] getLocalAddress() {
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             <strong class="jxr_keyword">return</strong> Arrays.copyOf(localAddress, localAddress.length);
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>         }
+<a class="jxr_linenumber" name="L538" href="#L538">538</a> 
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L540" href="#L540">540</a> <em class="jxr_javadoccomment">         * Gets the local port.</em>
+<a class="jxr_linenumber" name="L541" href="#L541">541</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L542" href="#L542">542</a> <em class="jxr_javadoccomment">         * @return The local port, or 0 if unknown, or any port.</em>
+<a class="jxr_linenumber" name="L543" href="#L543">543</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getLocalPort() {
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>             <strong class="jxr_keyword">return</strong> localPort;
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>         }
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L549" href="#L549">549</a> <em class="jxr_javadoccomment">         * Gets the foreign/remote address. For IPv4 addresses this is a 4-byte array. For IPv6 addresses this is a</em>
+<a class="jxr_linenumber" name="L550" href="#L550">550</a> <em class="jxr_javadoccomment">         * 16-byte array.</em>
+<a class="jxr_linenumber" name="L551" href="#L551">551</a> <em class="jxr_javadoccomment">         * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L552" href="#L552">552</a> <em class="jxr_javadoccomment">         * On Unix operating systems, this value may be truncated. IPv6 addresses ending in zeroes should be considered</em>
+<a class="jxr_linenumber" name="L553" href="#L553">553</a> <em class="jxr_javadoccomment">         * suspect.</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L555" href="#L555">555</a> <em class="jxr_javadoccomment">         * @return The foreign/remote address, or an empty array if unknown. An empty array will also result if</em>
+<a class="jxr_linenumber" name="L556" href="#L556">556</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">public</strong> byte[] getForeignAddress() {
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>             <strong class="jxr_keyword">return</strong> Arrays.copyOf(foreignAddress, foreignAddress.length);
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>         }
+<a class="jxr_linenumber" name="L560" href="#L560">560</a> 
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L562" href="#L562">562</a> <em class="jxr_javadoccomment">         * Gets the foreign/remote port.</em>
+<a class="jxr_linenumber" name="L563" href="#L563">563</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L564" href="#L564">564</a> <em class="jxr_javadoccomment">         * @return The foreign/remote port, or 0 if unknown.</em>
+<a class="jxr_linenumber" name="L565" href="#L565">565</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getForeignPort() {
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>             <strong class="jxr_keyword">return</strong> foreignPort;
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>         }
+<a class="jxr_linenumber" name="L569" href="#L569">569</a> 
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L571" href="#L571">571</a> <em class="jxr_javadoccomment">         * Gets the connection state (TCP connections only).</em>
+<a class="jxr_linenumber" name="L572" href="#L572">572</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> <em class="jxr_javadoccomment">         * @return The connection state: {@link TcpState#NONE} for a UDP connection, and {@link TcpState#UNKNOWN} when</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a> <em class="jxr_javadoccomment">         *         it is not known.</em>
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>         <strong class="jxr_keyword">public</strong> TcpState getState() {
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>             <strong class="jxr_keyword">return</strong> state;
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         }
+<a class="jxr_linenumber" name="L579" href="#L579">579</a> 
+<a class="jxr_linenumber" name="L580" href="#L580">580</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">         * Gets the size of the transmit queue. Not available on Windows.</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">         * @return The size of the transmit queue, or 0 if unknown.</em>
+<a class="jxr_linenumber" name="L584" href="#L584">584</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L585" href="#L585">585</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getTransmitQueue() {
+<a class="jxr_linenumber" name="L586" href="#L586">586</a>             <strong class="jxr_keyword">return</strong> transmitQueue;
+<a class="jxr_linenumber" name="L587" href="#L587">587</a>         }
+<a class="jxr_linenumber" name="L588" href="#L588">588</a> 
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L590" href="#L590">590</a> <em class="jxr_javadoccomment">         * Gets the size of the receive queue. Not available on Windows.</em>
+<a class="jxr_linenumber" name="L591" href="#L591">591</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L592" href="#L592">592</a> <em class="jxr_javadoccomment">         * @return The size of the receive queue, or 0 if unknown.</em>
+<a class="jxr_linenumber" name="L593" href="#L593">593</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getReceiveQueue() {
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>             <strong class="jxr_keyword">return</strong> receiveQueue;
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>         }
+<a class="jxr_linenumber" name="L597" href="#L597">597</a> 
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L599" href="#L599">599</a> <em class="jxr_javadoccomment">         * Gets the id of the process which holds this connection.</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L601" href="#L601">601</a> <em class="jxr_javadoccomment">         * @return The process id of the process which holds this connection if known, -1 otherwise.</em>
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L603" href="#L603">603</a>         <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">int</strong> getowningProcessId() {
+<a class="jxr_linenumber" name="L604" href="#L604">604</a>             <strong class="jxr_keyword">return</strong> owningProcessId;
+<a class="jxr_linenumber" name="L605" href="#L605">605</a>         }
+<a class="jxr_linenumber" name="L606" href="#L606">606</a> 
+<a class="jxr_linenumber" name="L607" href="#L607">607</a>         @Override
+<a class="jxr_linenumber" name="L608" href="#L608">608</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L609" href="#L609">609</a>             String localIp = <span class="jxr_string">"*"</span>;
+<a class="jxr_linenumber" name="L610" href="#L610">610</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L611" href="#L611">611</a>                 localIp = InetAddress.getByAddress(localAddress).toString();
+<a class="jxr_linenumber" name="L612" href="#L612">612</a>             } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) { <em class="jxr_comment">// NOSONAR java:S108</em>
+<a class="jxr_linenumber" name="L613" href="#L613">613</a>             }
+<a class="jxr_linenumber" name="L614" href="#L614">614</a>             String foreignIp = <span class="jxr_string">"*"</span>;
+<a class="jxr_linenumber" name="L615" href="#L615">615</a>             <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L616" href="#L616">616</a>                 foreignIp = InetAddress.getByAddress(foreignAddress).toString();
+<a class="jxr_linenumber" name="L617" href="#L617">617</a>             } <strong class="jxr_keyword">catch</strong> (UnknownHostException e) { <em class="jxr_comment">// NOSONAR java:S108</em>
+<a class="jxr_linenumber" name="L618" href="#L618">618</a>             }
+<a class="jxr_linenumber" name="L619" href="#L619">619</a>             <strong class="jxr_keyword">return</strong> <span class="jxr_string">"IPConnection [type="</span> + type + <span class="jxr_string">", localAddress="</span> + localIp + <span class="jxr_string">", localPort="</span> + localPort
+<a class="jxr_linenumber" name="L620" href="#L620">620</a>                     + <span class="jxr_string">", foreignAddress="</span> + foreignIp + <span class="jxr_string">", foreignPort="</span> + foreignPort + <span class="jxr_string">", state="</span> + state
+<a class="jxr_linenumber" name="L621" href="#L621">621</a>                     + <span class="jxr_string">", transmitQueue="</span> + transmitQueue + <span class="jxr_string">", receiveQueue="</span> + receiveQueue + <span class="jxr_string">", owningProcessId="</span>
+<a class="jxr_linenumber" name="L622" href="#L622">622</a>                     + owningProcessId + <span class="jxr_string">"]"</span>;
+<a class="jxr_linenumber" name="L623" href="#L623">623</a>         }
+<a class="jxr_linenumber" name="L624" href="#L624">624</a>     }
+<a class="jxr_linenumber" name="L625" href="#L625">625</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

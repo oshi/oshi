@@ -436,7 +436,7 @@
 <a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * @return the utilization percentage, or -1 on failure</em>
 <a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L430" href="#L430">430</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">double</strong> getGpuUtilization(<strong class="jxr_keyword">int</strong> adapterIndex) {
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">return</strong> performanceStatusField(adapterIndex, PERF_GPU_ACTIVITY_OFFSET, <span class="jxr_string">"getGpuUtilization"</span>);
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">double</strong>) performanceStatusField(adapterIndex, PERF_GPU_ACTIVITY_OFFSET, <span class="jxr_string">"getGpuUtilization"</span>);
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>     }
 <a class="jxr_linenumber" name="L433" href="#L433">433</a> 
 <a class="jxr_linenumber" name="L434" href="#L434">434</a>     <em class="jxr_javadoccomment">/**</em>

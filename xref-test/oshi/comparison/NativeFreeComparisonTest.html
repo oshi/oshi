@@ -160,21 +160,21 @@
 <a class="jxr_linenumber" name="L152" href="#L152">152</a> 
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>     <em class="jxr_comment">// ---- Hardware: Memory ----</em>
 <a class="jxr_linenumber" name="L154" href="#L154">154</a> 
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Test
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @RetryingComparison
 <a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">void</strong> globalMemory() {
 <a class="jxr_linenumber" name="L157" href="#L157">157</a>         GlobalMemory jna = jnaHal.getMemory();
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         GlobalMemory nf = nfHal.getMemory();
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>         assertThat(nf.getTotal()).isEqualTo(jna.getTotal());
 <a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertThat(nf.getPageSize()).isEqualTo(jna.getPageSize());
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertWithinRatio(nf.getAvailable(), jna.getAvailable(), 0.25, <span class="jxr_string">"availableMemory"</span>);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertWithinRatio(nf.getAvailable(), jna.getAvailable(), 0.05, <span class="jxr_string">"availableMemory"</span>);
 <a class="jxr_linenumber" name="L162" href="#L162">162</a>     }
 <a class="jxr_linenumber" name="L163" href="#L163">163</a> 
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>     @Test
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>     @RetryingComparison
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>     <strong class="jxr_keyword">void</strong> virtualMemory() {
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         VirtualMemory jna = jnaHal.getMemory().getVirtualMemory();
 <a class="jxr_linenumber" name="L167" href="#L167">167</a>         VirtualMemory nf = nfHal.getMemory().getVirtualMemory();
 <a class="jxr_linenumber" name="L168" href="#L168">168</a>         assertThat(nf.getSwapTotal()).isEqualTo(jna.getSwapTotal());
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         assertWithinRatio(nf.getSwapUsed(), jna.getSwapUsed(), 0.25, <span class="jxr_string">"swapUsed"</span>);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         assertWithinRatio(nf.getSwapUsed(), jna.getSwapUsed(), 0.05, <span class="jxr_string">"swapUsed"</span>);
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>     }
 <a class="jxr_linenumber" name="L171" href="#L171">171</a> 
 <a class="jxr_linenumber" name="L172" href="#L172">172</a>     <em class="jxr_comment">// ---- OS: Current Process ----</em>
@@ -257,7 +257,7 @@
 <a class="jxr_linenumber" name="L249" href="#L249">249</a> 
 <a class="jxr_linenumber" name="L250" href="#L250">250</a>     <em class="jxr_comment">// ---- OS: FileSystem ----</em>
 <a class="jxr_linenumber" name="L251" href="#L251">251</a> 
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>     @Test
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     @RetryingComparison
 <a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">void</strong> fileSystem() {
 <a class="jxr_linenumber" name="L254" href="#L254">254</a>         FileSystem jnaFs = jnaOs.getFileSystem();
 <a class="jxr_linenumber" name="L255" href="#L255">255</a>         FileSystem nfFs = nfOs.getFileSystem();
@@ -274,7 +274,7 @@
 <a class="jxr_linenumber" name="L266" href="#L266">266</a>             assertThat(nf.getType()).isEqualTo(j.getType());
 <a class="jxr_linenumber" name="L267" href="#L267">267</a>             assertThat(nf.getVolume()).isEqualTo(j.getVolume());
 <a class="jxr_linenumber" name="L268" href="#L268">268</a>             assertThat(nf.getTotalSpace()).isEqualTo(j.getTotalSpace());
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>             assertWithinRatio(nf.getUsableSpace(), j.getUsableSpace(), 0.25, <span class="jxr_string">"usableSpace("</span> + j.getMount() + <span class="jxr_string">")"</span>);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             assertWithinRatio(nf.getUsableSpace(), j.getUsableSpace(), 0.05, <span class="jxr_string">"usableSpace("</span> + j.getMount() + <span class="jxr_string">")"</span>);
 <a class="jxr_linenumber" name="L270" href="#L270">270</a>         }
 <a class="jxr_linenumber" name="L271" href="#L271">271</a>     }
 <a class="jxr_linenumber" name="L272" href="#L272">272</a> 

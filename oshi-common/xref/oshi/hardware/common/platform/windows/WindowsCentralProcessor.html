@@ -14,17 +14,17 @@
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> oshi.util.Memoizer.memoize;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.Arrays;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.TimeUnit;
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.atomic.AtomicReference;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.function.IntPredicate;
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.Locale;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.TimeUnit;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.concurrent.atomic.AtomicReference;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.function.IntPredicate;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> java.util.function.Supplier;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> java.util.stream.Collectors;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>  
@@ -577,15 +577,10 @@
 <a class="jxr_linenumber" name="L569" href="#L569">569</a> <em class="jxr_javadoccomment">     * @return The names of the features present, in ascending feature order</em>
 <a class="jxr_linenumber" name="L570" href="#L570">570</a> <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L571" href="#L571">571</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> List&lt;String&gt; queryFeatureFlags(IntPredicate featurePresent) {
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         List&lt;String&gt; featureFlags = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <strong class="jxr_keyword">for</strong> (ProcessorFeature feature : ProcessorFeature.values()) {
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>             <strong class="jxr_keyword">if</strong> (featurePresent.test(feature.value)) {
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>                 featureFlags.add(feature.name());
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>             }
-<a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <strong class="jxr_keyword">return</strong> featureFlags;
-<a class="jxr_linenumber" name="L579" href="#L579">579</a>     }
-<a class="jxr_linenumber" name="L580" href="#L580">580</a> }
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">return</strong> Arrays.stream(ProcessorFeature.values()).filter(feature -&gt; featurePresent.test(feature.value))
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>                 .map(ProcessorFeature::name).collect(Collectors.toList());
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     }
+<a class="jxr_linenumber" name="L575" href="#L575">575</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
