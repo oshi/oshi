@@ -1,14 +1,12 @@
 name: Site
 
+# Publishing a GitHub release builds the site from the release tag, alongside
+# dist-release.yaml. Dispatch on a tag to rebuild a release's site, or on master
+# to publish SNAPSHOT javadocs ahead of a release.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - site
-    paths-ignore:
-      - '**.md'
-      - '**.yml'
-      - '**.yaml'
+  release:
+    types: [published]
 
 permissions:
   contents: write

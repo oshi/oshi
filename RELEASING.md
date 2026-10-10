@@ -122,17 +122,12 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
 * `mvn release:perform`
     * Takes a few minutes
     * This builds the release from the tag in `target/checkout`, creates `central-bundle.zip`, and uploads it to the Central Portal
-    * This also pushes to [gh_pages](https://oshi.github.io/oshi)
     * **If the upload fails** (e.g. broken pipe), the bundle is preserved at `target/checkout/target/central-publishing/central-bundle.zip`. Upload it manually:
       ```sh
       ./scripts/upload-to-central.sh
       ```
       This reads credentials from `settings.xml` and uploads with retry/timeout handling. The deployment is created as `USER_MANAGED` for review before publishing.
 * Log on to [Central Portal](https://central.sonatype.com/publishing) and publish the validated deployment (if the automatic publish did not succeed).
-
-* Release the site; this can be done anytime after `release:prepare`:
-    * Create/reset/rebase your local `site` branch to the just-released tag
-    * Push your local `site` branch upstream
 
 * Add a title and release notes [to the tag](https://github.com/oshi/oshi/tags) on GitHub and publish the release to make it current.
     * Publishing fires the `Attach dist archive to GitHub Release` workflow, which rebuilds
@@ -152,6 +147,12 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
       Central remains authoritative for the individual jars, but starting with 7.6.0 the zip itself
       is no longer published there (see `excludeArtifacts` in the parent pom), so **this release
       asset is its only distribution point** — confirm the upload succeeded before announcing.
+    * Publishing also fires the `Site` workflow, which builds the site from the tag and deploys it
+      to `gh-pages`. To rebuild a release's site, dispatch it on the tag; to publish SNAPSHOT
+      javadocs ahead of a release, dispatch it on master:
+      ```sh
+      gh workflow run site.yaml --ref oshi-parent-x.x.x
+      ```
 
 ### Ongoing Maintenance
 
