@@ -5,6 +5,7 @@
 package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Arrays;
@@ -616,6 +617,8 @@ class NativeComparisonTest {
 
     @Test
     void diskStoreUpdateAttributes() {
+        // DragonFly BSD has no disk enumeration yet: its iostat has no -x, and it has no geom
+        assumeFalse(PlatformEnum.getCurrentPlatform() == PlatformEnum.DRAGONFLYBSD, "no DragonFly BSD disk support");
         List<HWDiskStore> jna = jnaHal.getDiskStores();
         List<HWDiskStore> ffm = ffmHal.getDiskStores();
         assertThat(ffm).isNotEmpty();
@@ -1039,11 +1042,11 @@ class NativeComparisonTest {
 
     /**
      * The platforms with both a JNA and an FFM implementation to compare. A condition rather than {@code @EnabledOnOs},
-     * whose OS enum has no NetBSD constant.
+     * whose OS enum has no NetBSD or DragonFly BSD constant.
      */
     static boolean isComparedPlatform() {
         return switch (PlatformEnum.getCurrentPlatform()) {
-            case LINUX, MACOS, WINDOWS, FREEBSD, OPENBSD, NETBSD, SOLARIS, AIX -> true;
+            case LINUX, MACOS, WINDOWS, FREEBSD, OPENBSD, NETBSD, DRAGONFLYBSD, SOLARIS, AIX -> true;
             default -> false;
         };
     }
@@ -1054,7 +1057,8 @@ class NativeComparisonTest {
 
     static boolean isBsd() {
         PlatformEnum p = PlatformEnum.getCurrentPlatform();
-        return p == PlatformEnum.FREEBSD || p == PlatformEnum.OPENBSD || p == PlatformEnum.NETBSD;
+        return p == PlatformEnum.FREEBSD || p == PlatformEnum.OPENBSD || p == PlatformEnum.NETBSD
+                || p == PlatformEnum.DRAGONFLYBSD;
     }
 
     /**
@@ -1085,10 +1089,10 @@ class NativeComparisonTest {
     }
 
     /**
-     * On FreeBSD/OpenBSD/NetBSD, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where elapsedTime is
-     * the seconds-resolution {@code ps -o etimes/etime} value. JNA and FFM each capture {@code now} at slightly
-     * different timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows expose the
-     * kernel's exact start time, so they keep strict equality.
+     * On FreeBSD/OpenBSD/NetBSD/DragonFly, OSProcess#getStartTime() is derived as {@code now - elapsedTime} where
+     * elapsedTime is the seconds-resolution {@code ps -o etimes/etime} value. JNA and FFM each capture {@code now} at
+     * slightly different timestamps, so the derived startTimes can differ by tens of milliseconds. Linux/Mac/Windows
+     * expose the kernel's exact start time, so they keep strict equality.
      */
     private static void assertStartTimeMatches(long actual, long expected, String description) {
         if (isBsd()) {
