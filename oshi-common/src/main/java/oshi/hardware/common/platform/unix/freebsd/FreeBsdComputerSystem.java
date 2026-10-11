@@ -7,9 +7,8 @@ package oshi.hardware.common.platform.unix.freebsd;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
-
-import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
@@ -20,17 +19,19 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.common.platform.unix.freebsd.KenvUtil;
 import oshi.util.tuples.Quintet;
 
 /**
- * Abstract base for the FreeBSD ComputerSystem. Reads the manufacturer, model and serial from the kenv/dmidecode output
- * the backends supply.
+ * Abstract base for the FreeBSD ComputerSystem, also used by DragonFly BSD. Reads the SMBIOS strings the loader copies
+ * into the kernel environment, then {@code dmidecode} (root only) for any it lacks.
  */
 @Immutable
 public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
-            this::readDmiDecode);
+            this::readSmbios);
+    private final Supplier<Map<String, String>> kenv = memoize(KenvUtil::queryKenv);
 
     @Override
     public String getManufacturer() {
@@ -59,8 +60,13 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new UnixBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),
-                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());
+        // Without a baseboard (type 2) table the loader sets no smbios.planar.* variables; use the system values
+        Map<String, String> env = kenv.get();
+        Quintet<String, String, String, String, String> sys = manufModelSerialUuidVers.get();
+        return new UnixBaseboard(ParseUtil.getStringValueOrDefault(env.get("smbios.planar.maker"), sys.getA()),
+                ParseUtil.getStringValueOrDefault(env.get("smbios.planar.product"), sys.getB()),
+                ParseUtil.getStringValueOrDefault(env.get("smbios.planar.serial"), sys.getC()),
+                ParseUtil.getStringValueOrDefault(env.get("smbios.planar.version"), sys.getE()));
     }
 
     /**
@@ -71,15 +77,24 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
      */
     protected abstract String queryHostUuid();
 
-    private Quintet<String, String, String, String, String> readDmiDecode() {
-        // Only works with root permissions but it's all we've got
-        Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
-                ExecutingCommand.runNative("dmidecode -t system"));
-        String manufacturer = dmi.getA();
-        String model = dmi.getB();
-        String serialNumber = dmi.getC();
-        String uuid = dmi.getD();
-        String version = dmi.getE();
+    private Quintet<String, String, String, String, String> readSmbios() {
+        Map<String, String> env = kenv.get();
+        String manufacturer = env.get("smbios.system.maker");
+        String model = env.get("smbios.system.product");
+        String serialNumber = env.get("smbios.system.serial");
+        String uuid = env.get("smbios.system.uuid");
+        String version = env.get("smbios.system.version");
+        if (Util.isBlank(manufacturer) || Util.isBlank(model) || Util.isBlank(serialNumber) || Util.isBlank(uuid)
+                || Util.isBlank(version)) {
+            // Only works with root permissions
+            Quintet<String, String, String, String, String> dmi = parseDmiDecode(
+                    ExecutingCommand.runNative("dmidecode -t system"));
+            manufacturer = ParseUtil.getStringValueOrDefault(manufacturer, dmi.getA());
+            model = ParseUtil.getStringValueOrDefault(model, dmi.getB());
+            serialNumber = ParseUtil.getStringValueOrDefault(serialNumber, dmi.getC());
+            uuid = ParseUtil.getStringValueOrDefault(uuid, dmi.getD());
+            version = ParseUtil.getStringValueOrDefault(version, dmi.getE());
+        }
         // If we get to end and haven't assigned, use fallback
         if (Util.isBlank(serialNumber)) {
             serialNumber = querySystemSerialNumber();
@@ -94,18 +109,17 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     /**
      * Parses the output of {@code dmidecode -t system} into its manufacturer, model, serial number, UUID, and version
-     * fields. Any field not present in the output is returned as {@code null}; the caller applies fallbacks.
+     * fields. Any field not present in the output is returned empty; the caller applies fallbacks.
      *
      * @param dmidecode the lines emitted by {@code dmidecode -t system}
      * @return a {@link Quintet} of manufacturer, model, serial number, UUID, and version
      */
-    static Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> parseDmiDecode(
-            List<String> dmidecode) {
-        String manufacturer = null;
-        String model = null;
-        String serialNumber = null;
-        String uuid = null;
-        String version = null;
+    static Quintet<String, String, String, String, String> parseDmiDecode(List<String> dmidecode) {
+        String manufacturer = "";
+        String model = "";
+        String serialNumber = "";
+        String uuid = "";
+        String version = "";
 
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";

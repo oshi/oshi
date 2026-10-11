@@ -747,7 +747,12 @@ class ParseUtilTest {
     void testParseMmDdYyyyToYyyyMmDD() {
         assertThat("Unable to parse MM-DD-YYYY date string into YYYY-MM-DD date string",
                 ParseUtil.parseMmDdYyyyToYyyyMmDD("00-11-2222"), is("2222-00-11"));
+        assertThat(ParseUtil.parseMmDdYyyyToYyyyMmDD("04/01/2014"), is("2014-04-01"));
         assertThat("Date string should not be parsed", ParseUtil.parseMmDdYyyyToYyyyMmDD("badstr"), is("badstr"));
+        // Arm's Morello firmware writes its SMBIOS date this way, against the spec's mm/dd/yyyy
+        assertThat(ParseUtil.parseMmDdYyyyToYyyyMmDD("Jul 19 2023"), is("Jul 19 2023"));
+        assertThat(ParseUtil.parseMmDdYyyyToYyyyMmDD("04/01/14"), is("04/01/14"));
+        assertThat(ParseUtil.parseMmDdYyyyToYyyyMmDD("04/01-2014"), is("04/01-2014"));
     }
 
     @Test
@@ -1068,6 +1073,14 @@ class ParseUtilTest {
         assertThat("value should be unchanged", ParseUtil.getStringValueOrEmpty("value"), is("value"));
         assertThat("unknown should be unchanged", ParseUtil.getStringValueOrEmpty(Constants.UNKNOWN),
                 is(Constants.UNKNOWN));
+    }
+
+    @Test
+    void testGetStringValueOrDefault() {
+        assertThat("null should be the fallback", ParseUtil.getStringValueOrDefault(null, "fallback"), is("fallback"));
+        assertThat("empty should be the fallback", ParseUtil.getStringValueOrDefault("", "fallback"), is("fallback"));
+        assertThat("whitespace should be unchanged", ParseUtil.getStringValueOrDefault(" ", "fallback"), is(" "));
+        assertThat("value should be unchanged", ParseUtil.getStringValueOrDefault("value", "fallback"), is("value"));
     }
 
     @Test

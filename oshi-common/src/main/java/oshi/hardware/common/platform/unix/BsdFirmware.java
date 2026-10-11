@@ -20,10 +20,10 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
 /**
- * Common BSD Firmware implementation. The BSDs report the same three firmware attributes, memoized from a single
- * command, and differ only in which command supplies them: most read the boot-time {@code dmesg} banner, while FreeBSD
- * uses {@code dmidecode}. Name and description are not available from any of those sources, so both keep the
- * {@link AbstractFirmware} defaults.
+ * Common BSD Firmware implementation. The BSDs report the same three firmware attributes, memoized together, and differ
+ * only in where they read them: most parse the boot-time {@code dmesg} banner, while FreeBSD and DragonFly BSD use
+ * {@code kenv} and {@code dmidecode}. Name and description are not available from any of those sources, so both keep
+ * the {@link AbstractFirmware} defaults.
  */
 @Immutable
 public abstract class BsdFirmware extends AbstractFirmware {
@@ -58,7 +58,7 @@ public abstract class BsdFirmware extends AbstractFirmware {
      * blank; the caller substitutes {@link Constants#UNKNOWN}.
      * <p>
      * Defaults to the boot-time {@code dmesg} banner, which is what most of the BSDs report firmware through. FreeBSD
-     * overrides this because it reads {@code dmidecode} instead.
+     * overrides this because it reads {@code kenv} and {@code dmidecode} instead.
      *
      * @return a {@link Triplet} of manufacturer, version, and release date
      */

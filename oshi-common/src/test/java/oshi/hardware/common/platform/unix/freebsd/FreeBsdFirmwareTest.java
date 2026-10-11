@@ -7,13 +7,11 @@ package oshi.hardware.common.platform.unix.freebsd;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 import java.util.Collections;
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.tuples.Triplet;
@@ -32,7 +30,7 @@ class FreeBsdFirmwareTest {
                 \tBIOS Revision: 11.2
                 \tFirmware Revision: 11.2
                 """.lines().toList();
-        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = FreeBsdFirmware.parseDmiDecode(dmidecode);
+        Triplet<String, String, String> fw = FreeBsdFirmware.parseDmiDecode(dmidecode);
         assertThat(fw.getA(), is("Parallels Software International Inc."));
         assertThat(fw.getB(), is("11.2.1 (32626)"));
         assertThat(fw.getC(), is("2016-07-15"));
@@ -40,12 +38,11 @@ class FreeBsdFirmwareTest {
 
     @Test
     void testParseDmiDecodeEmpty() {
-        // No output (e.g. dmidecode not available / not root): the parser returns raw absent values (null
-        // manufacturer/version, empty date); the BsdFirmware base applies the Constants.UNKNOWN fallbacks.
-        Triplet<@Nullable String, @Nullable String, @Nullable String> fw = FreeBsdFirmware
-                .parseDmiDecode(Collections.emptyList());
-        assertThat(fw.getA(), is(nullValue()));
-        assertThat(fw.getB(), is(nullValue()));
+        // No output (e.g. dmidecode not available / not root): every field is empty; the BsdFirmware base applies the
+        // Constants.UNKNOWN fallbacks.
+        Triplet<String, String, String> fw = FreeBsdFirmware.parseDmiDecode(Collections.emptyList());
+        assertThat(fw.getA(), is(emptyString()));
+        assertThat(fw.getB(), is(emptyString()));
         assertThat(fw.getC(), is(emptyString()));
     }
 

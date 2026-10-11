@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.unix.freebsd;
 
 import java.util.List;
+import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
@@ -12,30 +13,43 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.unix.BsdFirmware;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.Util;
+import oshi.util.common.platform.unix.freebsd.KenvUtil;
 import oshi.util.tuples.Triplet;
 
 /**
- * Firmware information from dmidecode
+ * Firmware information from the SMBIOS strings in the kernel environment, or from {@code dmidecode} (root only) for any
+ * the loader did not set. Also used by DragonFly BSD.
  */
 @Immutable
 public class FreeBsdFirmware extends BsdFirmware {
 
     @Override
     protected Triplet<@Nullable String, @Nullable String, @Nullable String> readFirmware() {
-        // Only works with root permissions but it's all we've got
-        return parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
+        Map<String, String> env = KenvUtil.queryKenv();
+        String manufacturer = env.get("smbios.bios.vendor");
+        String version = env.get("smbios.bios.version");
+        String releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(env.getOrDefault("smbios.bios.reldate", ""));
+        if (Util.isBlank(manufacturer) || Util.isBlank(version) || Util.isBlank(releaseDate)) {
+            // Only works with root permissions
+            Triplet<String, String, String> dmi = parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
+            manufacturer = ParseUtil.getStringValueOrDefault(manufacturer, dmi.getA());
+            version = ParseUtil.getStringValueOrDefault(version, dmi.getB());
+            releaseDate = ParseUtil.getStringValueOrDefault(releaseDate, dmi.getC());
+        }
+        return new Triplet<>(manufacturer, version, releaseDate);
     }
 
     /**
      * Parses the output of {@code dmidecode -t bios} into its manufacturer, version, and release date fields. Any field
-     * not present in the output is returned as {@code null} (or an empty date); the caller applies fallbacks.
+     * not present in the output is returned empty; the caller applies fallbacks.
      *
      * @param dmidecode the lines emitted by {@code dmidecode -t bios}
      * @return a {@link Triplet} of manufacturer, version, and release date
      */
-    static Triplet<@Nullable String, @Nullable String, @Nullable String> parseDmiDecode(List<String> dmidecode) {
-        String manufacturer = null;
-        String version = null;
+    static Triplet<String, String, String> parseDmiDecode(List<String> dmidecode) {
+        String manufacturer = "";
+        String version = "";
         String releaseDate = "";
 
         // $ sudo dmidecode -t bios
