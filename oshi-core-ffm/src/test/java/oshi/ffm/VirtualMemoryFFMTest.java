@@ -13,14 +13,13 @@ import static org.hamcrest.Matchers.notNullValue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
-import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.JRE;
-import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.VirtualMemory;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS, OS.AIX })
+@EnabledIf("oshi.ffm.FfmTestConditions#isTestedPlatform")
 class VirtualMemoryFFMTest {
 
     @Test

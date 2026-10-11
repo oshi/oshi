@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.JRE;
 import org.junit.jupiter.api.condition.OS;
@@ -28,7 +29,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.mac.MacOperatingSystemFFM;
 
 @EnabledForJreRange(min = JRE.JAVA_25)
-@EnabledOnOs({ OS.LINUX, OS.MAC, OS.WINDOWS, OS.FREEBSD, OS.OPENBSD, OS.SOLARIS, OS.AIX })
+@EnabledIf("oshi.ffm.FfmTestConditions#isTestedPlatform")
 @TestInstance(Lifecycle.PER_CLASS)
 class OperatingSystemFFMTest {
 

@@ -112,7 +112,7 @@
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
     <!-- Test files -->
-    <suppress checks="(JavadocPackage|MissingJavadocType|MissingJavadocMethod|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants)\.java"/>
+    <suppress checks="(JavadocPackage|MissingJavadocType|MissingJavadocMethod|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants|TestConditions)\.java"/>
     <suppress checks="(ConstantName|VisibilityModifier)" files="SystemInfoTest\.java"/>
     <suppress checks="(VisibilityModifier)" files="OperatingSystemTest\.java"/>
 </suppressions>
