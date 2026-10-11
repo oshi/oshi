@@ -39,6 +39,17 @@ class KenvUtilTest {
     }
 
     @Test
+    void testParseKenvBlankValue() {
+        // Values are trimmed, so a whitespace-only string reads as empty and the callers' fallbacks apply
+        Map<String, String> kenv = KenvUtil.parseKenv("""
+                smbios.planar.serial="   "
+                smbios.system.maker=" RDO "
+                """.lines().toList());
+        assertThat(kenv, hasEntry("smbios.planar.serial", ""));
+        assertThat(kenv, hasEntry("smbios.system.maker", "RDO"));
+    }
+
+    @Test
     void testParseKenvEmpty() {
         assertThat(KenvUtil.parseKenv(Collections.emptyList()), is(anEmptyMap()));
     }
