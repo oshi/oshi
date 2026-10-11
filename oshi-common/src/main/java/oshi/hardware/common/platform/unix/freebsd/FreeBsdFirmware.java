@@ -32,25 +32,24 @@ public class FreeBsdFirmware extends BsdFirmware {
         String releaseDate = ParseUtil.parseMmDdYyyyToYyyyMmDD(env.getOrDefault("smbios.bios.reldate", ""));
         if (Util.isBlank(manufacturer) || Util.isBlank(version) || Util.isBlank(releaseDate)) {
             // Only works with root permissions
-            Triplet<@Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
-                    ExecutingCommand.runNative("dmidecode -t bios"));
-            manufacturer = Util.isBlank(manufacturer) ? dmi.getA() : manufacturer;
-            version = Util.isBlank(version) ? dmi.getB() : version;
-            releaseDate = Util.isBlank(releaseDate) ? dmi.getC() : releaseDate;
+            Triplet<String, String, String> dmi = parseDmiDecode(ExecutingCommand.runNative("dmidecode -t bios"));
+            manufacturer = ParseUtil.getStringValueOrDefault(manufacturer, dmi.getA());
+            version = ParseUtil.getStringValueOrDefault(version, dmi.getB());
+            releaseDate = ParseUtil.getStringValueOrDefault(releaseDate, dmi.getC());
         }
         return new Triplet<>(manufacturer, version, releaseDate);
     }
 
     /**
      * Parses the output of {@code dmidecode -t bios} into its manufacturer, version, and release date fields. Any field
-     * not present in the output is returned as {@code null} (or an empty date); the caller applies fallbacks.
+     * not present in the output is returned empty; the caller applies fallbacks.
      *
      * @param dmidecode the lines emitted by {@code dmidecode -t bios}
      * @return a {@link Triplet} of manufacturer, version, and release date
      */
-    static Triplet<@Nullable String, @Nullable String, @Nullable String> parseDmiDecode(List<String> dmidecode) {
-        String manufacturer = null;
-        String version = null;
+    static Triplet<String, String, String> parseDmiDecode(List<String> dmidecode) {
+        String manufacturer = "";
+        String version = "";
         String releaseDate = "";
 
         // $ sudo dmidecode -t bios

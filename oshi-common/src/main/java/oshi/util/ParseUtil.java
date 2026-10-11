@@ -76,8 +76,8 @@ public final class ParseUtil {
      */
     private static final Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
 
-    // MM-DD-YYYY or MM/DD/YYYY
-    private static final Pattern MM_DD_YYYY = Pattern.compile("\\d{2}[-/]\\d{2}[-/]\\d{4}");
+    // MM-DD-YYYY or MM/DD/YYYY, the same separator both times
+    private static final Pattern MM_DD_YYYY = Pattern.compile("\\d{2}([-/])\\d{2}\\1\\d{4}");
 
     /*
      * Pattern for [dd-[hh:[mm:[ss[.sss]]]]]
@@ -1866,6 +1866,21 @@ public final class ParseUtil {
      */
     public static String getStringValueOrEmpty(@Nullable String value) {
         return value == null ? "" : value;
+    }
+
+    /**
+     * Returns the given string value if it is not empty; otherwise, returns a fallback value.
+     * <p>
+     * The general form of {@link #getStringValueOrUnknown}, for a value with a second source. The fallback is evaluated
+     * before the call, so when obtaining it is expensive, such as running a command, test the value with
+     * {@link Util#isBlank} and obtain the fallback inside the branch instead.
+     *
+     * @param value    The input string value.
+     * @param fallback The value to return if the input is null or empty.
+     * @return The input value if it is non-empty; otherwise, the fallback.
+     */
+    public static String getStringValueOrDefault(@Nullable String value, String fallback) {
+        return (value == null || value.isEmpty()) ? fallback : value;
     }
 
     /**

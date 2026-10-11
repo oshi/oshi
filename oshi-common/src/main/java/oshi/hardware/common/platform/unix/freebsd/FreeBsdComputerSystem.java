@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.jspecify.annotations.Nullable;
-
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.Baseboard;
 import oshi.hardware.Firmware;
@@ -65,15 +63,10 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
         // Without a baseboard (type 2) table the loader sets no smbios.planar.* variables; use the system values
         Map<String, String> env = kenv.get();
         Quintet<String, String, String, String, String> sys = manufModelSerialUuidVers.get();
-        return new UnixBaseboard(planarOrSystem(env, "smbios.planar.maker", sys.getA()),
-                planarOrSystem(env, "smbios.planar.product", sys.getB()),
-                planarOrSystem(env, "smbios.planar.serial", sys.getC()),
-                planarOrSystem(env, "smbios.planar.version", sys.getE()));
-    }
-
-    private static String planarOrSystem(Map<String, String> env, String key, String systemValue) {
-        String value = env.get(key);
-        return value == null || value.isEmpty() ? systemValue : value;
+        return new UnixBaseboard(ParseUtil.getStringValueOrDefault(env.get("smbios.planar.maker"), sys.getA()),
+                ParseUtil.getStringValueOrDefault(env.get("smbios.planar.product"), sys.getB()),
+                ParseUtil.getStringValueOrDefault(env.get("smbios.planar.serial"), sys.getC()),
+                ParseUtil.getStringValueOrDefault(env.get("smbios.planar.version"), sys.getE()));
     }
 
     /**
@@ -94,13 +87,13 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
         if (Util.isBlank(manufacturer) || Util.isBlank(model) || Util.isBlank(serialNumber) || Util.isBlank(uuid)
                 || Util.isBlank(version)) {
             // Only works with root permissions
-            Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
+            Quintet<String, String, String, String, String> dmi = parseDmiDecode(
                     ExecutingCommand.runNative("dmidecode -t system"));
-            manufacturer = Util.isBlank(manufacturer) ? dmi.getA() : manufacturer;
-            model = Util.isBlank(model) ? dmi.getB() : model;
-            serialNumber = Util.isBlank(serialNumber) ? dmi.getC() : serialNumber;
-            uuid = Util.isBlank(uuid) ? dmi.getD() : uuid;
-            version = Util.isBlank(version) ? dmi.getE() : version;
+            manufacturer = ParseUtil.getStringValueOrDefault(manufacturer, dmi.getA());
+            model = ParseUtil.getStringValueOrDefault(model, dmi.getB());
+            serialNumber = ParseUtil.getStringValueOrDefault(serialNumber, dmi.getC());
+            uuid = ParseUtil.getStringValueOrDefault(uuid, dmi.getD());
+            version = ParseUtil.getStringValueOrDefault(version, dmi.getE());
         }
         // If we get to end and haven't assigned, use fallback
         if (Util.isBlank(serialNumber)) {
@@ -116,18 +109,17 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     /**
      * Parses the output of {@code dmidecode -t system} into its manufacturer, model, serial number, UUID, and version
-     * fields. Any field not present in the output is returned as {@code null}; the caller applies fallbacks.
+     * fields. Any field not present in the output is returned empty; the caller applies fallbacks.
      *
      * @param dmidecode the lines emitted by {@code dmidecode -t system}
      * @return a {@link Quintet} of manufacturer, model, serial number, UUID, and version
      */
-    static Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> parseDmiDecode(
-            List<String> dmidecode) {
-        String manufacturer = null;
-        String model = null;
-        String serialNumber = null;
-        String uuid = null;
-        String version = null;
+    static Quintet<String, String, String, String, String> parseDmiDecode(List<String> dmidecode) {
+        String manufacturer = "";
+        String model = "";
+        String serialNumber = "";
+        String uuid = "";
+        String version = "";
 
         final String manufacturerMarker = "Manufacturer:";
         final String productNameMarker = "Product Name:";
