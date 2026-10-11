@@ -40,12 +40,12 @@ public abstract class FreeBsdNetworkParams extends AbstractNetworkParams {
 
     @Override
     public String getIpv4DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -4 get default"));
+        return searchGateway(ExecutingCommand.runNative("route -n get default"));
     }
 
     @Override
     public String getIpv6DefaultGateway() {
-        return searchGateway(ExecutingCommand.runNative("route -6 get default"));
+        return searchGateway(ExecutingCommand.runNative("route -n get -inet6 default"));
     }
 
     @Override

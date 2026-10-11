@@ -2,6 +2,7 @@
 
 * [#3785](https://github.com/oshi/oshi/pull/3785): Fixed DragonFly BSD reporting 0 total swap and incorrect TCP and UDP statistics, and the FFM implementation failing every `sysctl` read there - [@dbwiddis](https://github.com/dbwiddis).
 * [#3787](https://github.com/oshi/oshi/pull/3787): `ComputerSystem`, `Firmware` and `Baseboard` on FreeBSD and DragonFly BSD now read the SMBIOS strings from `kenv`, so they are reported without root. They previously required `dmidecode` run as root, which DragonFly BSD does not ship. Also fixed a garbled `Firmware.getReleaseDate()` on all platforms when the firmware does not write the date as MM/DD/YYYY - [@dbwiddis](https://github.com/dbwiddis).
+* [#3788](https://github.com/oshi/oshi/pull/3788): Fixed `NetworkIF` traffic statistics on OpenBSD and DragonFly BSD, which were always 0, and the empty default gateways from `NetworkParams` on DragonFly BSD. FreeBSD no longer looks up host names when reading interface statistics - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

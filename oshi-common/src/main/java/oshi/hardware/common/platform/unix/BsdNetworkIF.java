@@ -5,7 +5,10 @@
 package oshi.hardware.common.platform.unix;
 
 import java.net.NetworkInterface;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.NetworkIF;
@@ -14,7 +17,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * BsdNetworkIF applicable to FreeBSD and OpenBSD.
+ * BsdNetworkIF applicable to FreeBSD, DragonFly BSD and OpenBSD.
  */
 @ThreadSafe
 public final class BsdNetworkIF extends AbstractNetworkIF {
@@ -42,21 +45,55 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
 
     @Override
     public synchronized boolean updateAttributes() {
-        String stats = ExecutingCommand.getAnswerAt("netstat -bI " + getName(), 1);
+        Map<String, Long> stats = parseNetstat(ExecutingCommand.runNative("netstat -bnI " + getName()));
         this.timeStamp = System.currentTimeMillis();
-        String[] split = ParseUtil.whitespaces.split(stats, -1);
-        if (split.length < 12) {
+        if (!stats.containsKey("Ibytes")) {
             // No update
             return false;
         }
-        this.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);
-        this.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);
-        this.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);
-        this.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);
-        this.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);
-        this.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);
-        this.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);
-        this.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);
+        if (!stats.containsKey("Ipkts")) {
+            // OpenBSD's -b prints only the byte counts
+            stats.putAll(parseNetstat(ExecutingCommand.runNative("netstat -nI " + getName())));
+        }
+        this.bytesRecv = stats.getOrDefault("Ibytes", 0L);
+        this.bytesSent = stats.getOrDefault("Obytes", 0L);
+        this.packetsRecv = stats.getOrDefault("Ipkts", 0L);
+        this.packetsSent = stats.getOrDefault("Opkts", 0L);
+        // OpenBSD names the error and collision columns differently
+        this.inErrors = stats.getOrDefault("Ierrs", stats.getOrDefault("Ifail", 0L));
+        this.outErrors = stats.getOrDefault("Oerrs", stats.getOrDefault("Ofail", 0L));
+        this.collisions = stats.getOrDefault("Coll", stats.getOrDefault("Colls", 0L));
+        this.inDrops = stats.getOrDefault("Idrop", 0L);
         return true;
+    }
+
+    /**
+     * Parses the link-level row of {@code netstat -I <interface>} into its counters, keyed by column heading.
+     * <p>
+     * The counters follow the Name, Mtu, Network and Address columns, but which ones appear varies: FreeBSD prints an
+     * Idrop column that DragonFly BSD does not, and OpenBSD prints only the byte counts with {@code -b}. The values are
+     * matched to the headings from the end of the row, because the Address column is empty on some loopback rows.
+     *
+     * @param netstat the lines emitted by {@code netstat -I <interface>}, with or without {@code -b}
+     * @return a map of column headings to counter values, empty if the output has no link-level row
+     */
+    static Map<String, Long> parseNetstat(List<String> netstat) {
+        Map<String, Long> stats = new HashMap<>();
+        if (netstat.size() < 2) {
+            return stats;
+        }
+        String[] header = ParseUtil.whitespaces.split(netstat.get(0).trim(), -1);
+        String[] row = ParseUtil.whitespaces.split(netstat.get(1).trim(), -1);
+        int firstCounter = Arrays.asList(header).indexOf("Address") + 1;
+        int counters = header.length - firstCounter;
+        // The row needs at least the name and every counter
+        if (firstCounter == 0 || row.length <= counters) {
+            return stats;
+        }
+        for (int i = 0; i < counters; i++) {
+            stats.put(header[firstCounter + i],
+                    ParseUtil.parseUnsignedLongOrDefault(row[row.length - counters + i], 0L));
+        }
+        return stats;
     }
 }
