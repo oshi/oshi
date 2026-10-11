@@ -7,6 +7,7 @@ package oshi.hardware.common.platform.unix.freebsd;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
@@ -20,17 +21,19 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.common.platform.unix.freebsd.KenvUtil;
 import oshi.util.tuples.Quintet;
 
 /**
- * Abstract base for the FreeBSD ComputerSystem. Reads the manufacturer, model and serial from the kenv/dmidecode output
- * the backends supply.
+ * Abstract base for the FreeBSD ComputerSystem, also used by DragonFly BSD. Reads the SMBIOS strings the loader copies
+ * into the kernel environment, then {@code dmidecode} (root only) for any it lacks.
  */
 @Immutable
 public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     private final Supplier<Quintet<String, String, String, String, String>> manufModelSerialUuidVers = memoize(
-            this::readDmiDecode);
+            this::readSmbios);
+    private final Supplier<Map<String, String>> kenv = memoize(KenvUtil::queryKenv);
 
     @Override
     public String getManufacturer() {
@@ -59,8 +62,18 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
 
     @Override
     public Baseboard createBaseboard() {
-        return new UnixBaseboard(manufModelSerialUuidVers.get().getA(), manufModelSerialUuidVers.get().getB(),
-                manufModelSerialUuidVers.get().getC(), manufModelSerialUuidVers.get().getE());
+        // Without a baseboard (type 2) table the loader sets no smbios.planar.* variables; use the system values
+        Map<String, String> env = kenv.get();
+        Quintet<String, String, String, String, String> sys = manufModelSerialUuidVers.get();
+        return new UnixBaseboard(planarOrSystem(env, "smbios.planar.maker", sys.getA()),
+                planarOrSystem(env, "smbios.planar.product", sys.getB()),
+                planarOrSystem(env, "smbios.planar.serial", sys.getC()),
+                planarOrSystem(env, "smbios.planar.version", sys.getE()));
+    }
+
+    private static String planarOrSystem(Map<String, String> env, String key, String systemValue) {
+        String value = env.get(key);
+        return value == null || value.isEmpty() ? systemValue : value;
     }
 
     /**
@@ -71,15 +84,24 @@ public abstract class FreeBsdComputerSystem extends AbstractComputerSystem {
      */
     protected abstract String queryHostUuid();
 
-    private Quintet<String, String, String, String, String> readDmiDecode() {
-        // Only works with root permissions but it's all we've got
-        Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
-                ExecutingCommand.runNative("dmidecode -t system"));
-        String manufacturer = dmi.getA();
-        String model = dmi.getB();
-        String serialNumber = dmi.getC();
-        String uuid = dmi.getD();
-        String version = dmi.getE();
+    private Quintet<String, String, String, String, String> readSmbios() {
+        Map<String, String> env = kenv.get();
+        String manufacturer = env.get("smbios.system.maker");
+        String model = env.get("smbios.system.product");
+        String serialNumber = env.get("smbios.system.serial");
+        String uuid = env.get("smbios.system.uuid");
+        String version = env.get("smbios.system.version");
+        if (Util.isBlank(manufacturer) || Util.isBlank(model) || Util.isBlank(serialNumber) || Util.isBlank(uuid)
+                || Util.isBlank(version)) {
+            // Only works with root permissions
+            Quintet<@Nullable String, @Nullable String, @Nullable String, @Nullable String, @Nullable String> dmi = parseDmiDecode(
+                    ExecutingCommand.runNative("dmidecode -t system"));
+            manufacturer = Util.isBlank(manufacturer) ? dmi.getA() : manufacturer;
+            model = Util.isBlank(model) ? dmi.getB() : model;
+            serialNumber = Util.isBlank(serialNumber) ? dmi.getC() : serialNumber;
+            uuid = Util.isBlank(uuid) ? dmi.getD() : uuid;
+            version = Util.isBlank(version) ? dmi.getE() : version;
+        }
         // If we get to end and haven't assigned, use fallback
         if (Util.isBlank(serialNumber)) {
             serialNumber = querySystemSerialNumber();

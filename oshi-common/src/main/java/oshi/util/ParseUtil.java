@@ -76,6 +76,9 @@ public final class ParseUtil {
      */
     private static final Pattern VALID_HEX = Pattern.compile("[0-9a-fA-F]+");
 
+    // MM-DD-YYYY or MM/DD/YYYY
+    private static final Pattern MM_DD_YYYY = Pattern.compile("\\d{2}[-/]\\d{2}[-/]\\d{4}");
+
     /*
      * Pattern for [dd-[hh:[mm:[ss[.sss]]]]]
      */
@@ -989,12 +992,10 @@ public final class ParseUtil {
      * @return The date in ISO YYYY-MM-DD format if parseable, or the original string
      */
     public static String parseMmDdYyyyToYyyyMmDD(String dateString) {
-        try {
-            // Date is MM-DD-YYYY, convert to YYYY-MM-DD
-            return dateString.substring(6, 10) + "-" + dateString.substring(0, 2) + "-" + dateString.substring(3, 5);
-        } catch (StringIndexOutOfBoundsException e) {
+        if (!MM_DD_YYYY.matcher(dateString).matches()) {
             return dateString;
         }
+        return dateString.substring(6, 10) + "-" + dateString.substring(0, 2) + "-" + dateString.substring(3, 5);
     }
 
     /**
