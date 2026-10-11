@@ -26,6 +26,11 @@ final class FreeBsdVirtualMemoryFFM extends FreeBsdVirtualMemory {
     }
 
     @Override
+    protected long querySwapSizePages() {
+        return BsdSysctlUtilFFM.sysctl("vm.swap_size", 0L);
+    }
+
+    @Override
     protected long queryPagesIn() {
         return BsdSysctlUtilFFM.sysctl("vm.stats.vm.v_swappgsin", 0L);
     }

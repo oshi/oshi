@@ -26,6 +26,11 @@ final class FreeBsdVirtualMemoryJNA extends FreeBsdVirtualMemory {
     }
 
     @Override
+    protected long querySwapSizePages() {
+        return BsdSysctlUtil.sysctl("vm.swap_size", 0L);
+    }
+
+    @Override
     protected long queryPagesIn() {
         return BsdSysctlUtil.sysctl("vm.stats.vm.v_swappgsin", 0L);
     }

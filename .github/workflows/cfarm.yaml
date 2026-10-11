@@ -1,4 +1,4 @@
-# CI on cfarm physical machines (AIX, Solaris SPARC)
+# CI on cfarm physical machines (AIX, Solaris SPARC, DragonFly BSD)
 name: Cfarm CI
 
 on:
@@ -11,7 +11,7 @@ on:
       - '**.yml'
       - '**.yaml'
 
-# Default-deny at the workflow level. Both jobs SSH into cfarm hosts and never
+# Default-deny at the workflow level. All jobs SSH into cfarm hosts and never
 # touch GITHUB_TOKEN, so no per-job grants are needed.
 permissions: {}
 
@@ -240,3 +240,67 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
         flags: aix
+
+  # Tests the triggering ref on DragonFly BSD 6.4 with JDK 25, so the FFM backend
+  # runs there. DPorts publishes nothing newer than openjdk21 yet, so this uses a
+  # JDK 25 built on the box from FreeBSD's java/openjdk25 plus DeltaPorts' DragonFly
+  # patch set, bootstrapped from DeltaPorts' native JDK 24. The vmactions job in
+  # unix.yaml keeps covering JNA on JDK 21; drop this one once DPorts ships openjdk25
+  # and that job can move to it.
+  testdragonfly:
+    # See testsolaris_sparc: skip fork push runs (they race the upstream run on
+    # the shared box); forks keep workflow_dispatch for branch tests.
+    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
+    name: Test JDK 25, DragonFly BSD
+    concurrency: dragonfly_cfarm152
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        persist-credentials: false
+    - name: Test in DragonFly BSD
+      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+      env:
+        REPO_URL: https://github.com/${{ github.repository }}
+        BRANCH: ${{ github.ref_name }}
+      with:
+        host: cfarm152.cfarm.net
+        username: oshi
+        key: ${{ secrets.GCC_CI_KEY }}
+        port: 22
+        command_timeout: 25m
+        envs: REPO_URL,BRANCH
+        script: |
+          # Backup reaper: DragonFly's ps has no etime keyword, so instead of an age
+          # test, kill any JVM still running from this checkout. The concurrency
+          # group serializes runs, so one left over here is from a killed run.
+          pkill -9 -U oshi -f 'java.*/home/oshi/oshi/' 2>/dev/null || true
+          cd ~/oshi
+          export JAVA_HOME=~/java/jdk-25.0.4-dragonfly
+          git fetch "$REPO_URL" "$BRANCH"
+          git reset --hard FETCH_HEAD
+          git clean -xffd
+          trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
+          BUILD='./mvnw clean test -Paggregate-coverage -B || { sleep 15; ./mvnw clean test -Paggregate-coverage -B; }'
+          timeout --kill-after=30s 20m sh -c "$BUILD"
+          exit $?
+    - name: Copy back DragonFly coverage
+      if: always()
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+      run: |
+        KEY=$(mktemp)
+        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
+        chmod 600 "$KEY"
+        mkdir -p oshi-benchmark/target/site/jacoco-aggregate
+        scp -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+          oshi@cfarm152.cfarm.net:oshi/oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml \
+          oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No DragonFly coverage report to copy"
+        rm -f "$KEY"
+    - name: Upload Coverage
+      if: always()
+      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+        flags: dragonflybsd-ffm

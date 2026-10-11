@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
@@ -48,6 +49,11 @@ public abstract class DragonFlyBsdOperatingSystem extends BsdOperatingSystem {
                         psMap))
                 // DragonFlyBSD kernel threads report PID -1; filter them out
                 .filter(proc -> proc.getProcessID() > 0).filter(VALID_PROCESS).collect(Collectors.toList());
+    }
+
+    @Override
+    public InternetProtocolStats getInternetProtocolStats() {
+        return new DragonFlyBsdInternetProtocolStats();
     }
 
     @Override

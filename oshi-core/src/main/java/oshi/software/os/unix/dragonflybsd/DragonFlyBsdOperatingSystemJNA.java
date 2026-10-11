@@ -14,12 +14,10 @@ import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.FileSystem;
-import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemJNA;
-import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsJNA;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
@@ -36,11 +34,6 @@ public class DragonFlyBsdOperatingSystemJNA extends DragonFlyBsdOperatingSystem 
     @Override
     public FileSystem getFileSystem() {
         return new FreeBsdFileSystemJNA();
-    }
-
-    @Override
-    public InternetProtocolStats getInternetProtocolStats() {
-        return new FreeBsdInternetProtocolStatsJNA();
     }
 
     @Override

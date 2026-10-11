@@ -316,8 +316,13 @@ public final class FreeBsdLibcFunctions extends PosixLibcFunctions {
     }
 
     // int thr_self(long *id);
-    private static final MethodHandle thr_self = LINKER.downcallHandle(LIBC.findOrThrow("thr_self"),
-            FunctionDescriptor.of(JAVA_INT, ADDRESS));
+    // Holder class: DragonFly BSD shares these bindings but its libc has no thr_self (it uses lwp_gettid), so binding
+    // it eagerly in <clinit> would fail every DragonFly caller. The holder is loaded only on the first thr_self call,
+    // which only FreeBSD makes.
+    private static final class ThrSelf {
+        static final MethodHandle HANDLE = LINKER.downcallHandle(LIBC.findOrThrow("thr_self"),
+                FunctionDescriptor.of(JAVA_INT, ADDRESS));
+    }
 
     /**
      * Calls {@code thr_self(long *id)} — writes the kernel thread ID into the pointed-to long.
@@ -327,7 +332,7 @@ public final class FreeBsdLibcFunctions extends PosixLibcFunctions {
      * @throws Throwable on FFM invocation error
      */
     public static int thr_self(MemorySegment idPtr) throws Throwable {
-        return (int) thr_self.invokeExact(idPtr);
+        return (int) ThrSelf.HANDLE.invokeExact(idPtr);
     }
 
     // int sysctl(int *name, u_int namelen, void *oldp, size_t *oldlenp, void *newp, size_t newlen);

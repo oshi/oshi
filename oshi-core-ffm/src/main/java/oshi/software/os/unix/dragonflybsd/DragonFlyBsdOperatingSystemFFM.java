@@ -23,12 +23,10 @@ import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.FileSystem;
-import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemFFM;
-import oshi.software.os.unix.freebsd.FreeBsdInternetProtocolStatsFFM;
 import oshi.util.LogLevel;
 
 /**
@@ -47,11 +45,6 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
     @Override
     public FileSystem getFileSystem() {
         return new FreeBsdFileSystemFFM();
-    }
-
-    @Override
-    public InternetProtocolStats getInternetProtocolStats() {
-        return new FreeBsdInternetProtocolStatsFFM();
     }
 
     @Override
