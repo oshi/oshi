@@ -24,7 +24,7 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
     private final FreeBsdGlobalMemory global;
 
     private final Supplier<Long> used = memoize(FreeBsdVirtualMemory::querySwapUsed, defaultExpiration());
-    private final Supplier<Long> total = memoize(this::querySwapTotal, defaultExpiration());
+    private final Supplier<Long> total = memoize(this::swapTotal, defaultExpiration());
     private final Supplier<Long> pagesIn = memoize(this::queryPagesIn, defaultExpiration());
     private final Supplier<Long> pagesOut = memoize(this::queryPagesOut, defaultExpiration());
 
@@ -67,12 +67,26 @@ public abstract class FreeBsdVirtualMemory extends AbstractVirtualMemory {
         return pagesOut.get();
     }
 
+    private long swapTotal() {
+        long bytes = querySwapTotal();
+        // DragonFly BSD has no vm.swap_total; it reports vm.swap_size in pages instead.
+        return bytes > 0 ? bytes : querySwapSizePages() * global.getPageSize();
+    }
+
     /**
      * Reads {@code vm.swap_total} via the subclass's sysctl mechanism.
      *
-     * @return the total swap size in bytes
+     * @return the total swap size in bytes, or 0 if unavailable
      */
     protected abstract long querySwapTotal();
+
+    /**
+     * Reads {@code vm.swap_size} via the subclass's sysctl mechanism. DragonFly BSD reports total swap here, in pages,
+     * instead of {@code vm.swap_total}.
+     *
+     * @return the total swap size in pages, or 0 if unavailable
+     */
+    protected abstract long querySwapSizePages();
 
     /**
      * Reads {@code vm.stats.vm.v_swappgsin} via the subclass's sysctl mechanism.

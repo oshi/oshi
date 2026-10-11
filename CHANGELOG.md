@@ -1,5 +1,6 @@
 # 7.7.2 (in progress)
 
+* [#3785](https://github.com/oshi/oshi/pull/3785): Fixed DragonFly BSD reporting 0 total swap and incorrect TCP and UDP statistics, and the FFM implementation failing every `sysctl` read there - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
