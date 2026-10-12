@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.hardware.CentralProcessor.TickType;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdCentralProcessor.DmesgProcessorId;
 import oshi.util.tuples.Pair;
 
@@ -156,5 +157,46 @@ class FreeBsdCentralProcessorTest {
     @Test
     void testParseCachesFromLscpuEmpty() {
         assertThat(FreeBsdCentralProcessor.parseCachesFromLscpu(Collections.emptyList()), is(empty()));
+    }
+
+    @Test
+    void testParseProcessorTicksFreeBsdLayout() {
+        // kern.cp_times: CPUSTATES values per CPU, sized for more CPUs than are present
+        long[] cpTimes = { 1, 2, 3, 4, 5, 11, 12, 13, 14, 15, 0, 0, 0, 0, 0 };
+        long[][] ticks = FreeBsdCentralProcessor.parseProcessorTicks(cpTimes, 2, 5);
+        assertThat(ticks.length, is(2));
+        assertThat(ticks[0][TickType.USER.getIndex()], is(1L));
+        assertThat(ticks[0][TickType.NICE.getIndex()], is(2L));
+        assertThat(ticks[0][TickType.SYSTEM.getIndex()], is(3L));
+        assertThat(ticks[0][TickType.IRQ.getIndex()], is(4L));
+        assertThat(ticks[0][TickType.IDLE.getIndex()], is(5L));
+        assertThat(ticks[1][TickType.USER.getIndex()], is(11L));
+        assertThat(ticks[1][TickType.IDLE.getIndex()], is(15L));
+    }
+
+    @Test
+    void testParseProcessorTicksKinfoCputimeLayout() {
+        // kern.cputime: one 13-value struct kinfo_cputime per CPU; only the first five are CPU states
+        long[] cpTimes = new long[26];
+        for (int i = 0; i < cpTimes.length; i++) {
+            cpTimes[i] = 100L + i;
+        }
+        long[][] ticks = FreeBsdCentralProcessor.parseProcessorTicks(cpTimes, 2, cpTimes.length / 2);
+        assertThat(ticks[0][TickType.USER.getIndex()], is(100L));
+        assertThat(ticks[0][TickType.IDLE.getIndex()], is(104L));
+        assertThat(ticks[1][TickType.USER.getIndex()], is(113L));
+        assertThat(ticks[1][TickType.IDLE.getIndex()], is(117L));
+    }
+
+    @Test
+    void testParseProcessorTicksShortOrMissing() {
+        long[] zeros = new long[TickType.values().length];
+        // Fewer records than CPUs: the missing CPUs stay zero
+        long[][] ticks = FreeBsdCentralProcessor.parseProcessorTicks(new long[] { 1, 2, 3, 4, 5 }, 2, 5);
+        assertThat(ticks[0][TickType.IDLE.getIndex()], is(5L));
+        assertThat(ticks[1], is(zeros));
+        // A record too short to hold the CPU states is ignored rather than read past
+        assertThat(FreeBsdCentralProcessor.parseProcessorTicks(new long[] { 1, 2, 3, 4 }, 1, 4)[0], is(zeros));
+        assertThat(FreeBsdCentralProcessor.parseProcessorTicks(null, 2, 5), is(new long[2][zeros.length]));
     }
 }
