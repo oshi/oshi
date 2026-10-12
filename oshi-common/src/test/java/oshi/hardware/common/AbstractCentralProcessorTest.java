@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -413,5 +414,24 @@ class AbstractCentralProcessorTest {
         assertThat(fms.getA(), is(0));
         assertThat(fms.getB(), is(0));
         assertThat(fms.getC(), is(0));
+    }
+
+    @Test
+    void testCreateProcessorIDAmd() {
+        // AMD Zen: family 23 is a base family of 15 plus an extended family of 8
+        assertThat(AbstractCentralProcessor.createProcessorID("2", "1", "23", new String[0]), is("0000000000800F12"));
+        // AMD Zen 4, family 25 model 97
+        assertThat(AbstractCentralProcessor.createProcessorID("2", "97", "25", new String[0]), is("0000000000A60F12"));
+    }
+
+    @Test
+    void testCreateProcessorIDRoundTrip() {
+        // Intel Coffee Lake, Intel Cascade Lake, AMD Zen, AMD Zen 3, AMD K8, Intel Pentium
+        for (int cpuid : new int[] { 0x000906EA, 0x00050655, 0x00800F12, 0x00A20F10, 0x00020FB1, 0x00000543 }) {
+            Triplet<Integer, Integer, Integer> fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(cpuid);
+            String id = AbstractCentralProcessor.createProcessorID(String.valueOf(fms.getC()),
+                    String.valueOf(fms.getB()), String.valueOf(fms.getA()), new String[0]);
+            assertThat(String.format(Locale.ROOT, "%08X", cpuid), ParseUtil.hexStringToLong(id, 0L), is((long) cpuid));
+        }
     }
 }

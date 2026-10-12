@@ -374,9 +374,13 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
         // 19:16,7:4 – Model
         processorIdBytes |= (modelL & 0xf) << 4;
         processorIdBytes |= (modelL & 0xf0) << 12; // shift high 4 bits
-        // 27:20,11:8 – Family
-        processorIdBytes |= (familyL & 0xf) << 8;
-        processorIdBytes |= (familyL & 0xff0) << 16; // shift high 8 bits
+        // 27:20,11:8 – Family: a family above 15 is a base family of 15 plus the extended family
+        if (familyL > 0xf) {
+            processorIdBytes |= 0xfL << 8;
+            processorIdBytes |= ((familyL - 0xf) & 0xff) << 20;
+        } else {
+            processorIdBytes |= familyL << 8;
+        }
         // 13:12 – Processor Type, assume 0
         if (hwcap != 0) {
             processorIdBytes |= hwcap << 32;
