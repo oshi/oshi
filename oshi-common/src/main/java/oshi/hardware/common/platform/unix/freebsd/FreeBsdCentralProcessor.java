@@ -23,6 +23,7 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
+import oshi.util.tuples.Triplet;
 
 /**
  * Shared FreeBSD CentralProcessor logic. Subclasses provide the sysctl and native-call backends (JNA or FFM).
@@ -30,6 +31,10 @@ import oshi.util.tuples.Quartet;
 public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     // Capture the CSV of hex values as group(1), clients should split on ','
+    // The Origin line of dmesg.boot, and each name=value pair on it, with or without spaces around the =
+    private static final Pattern ORIGIN = Pattern.compile("Origin\\s*=.*");
+    private static final Pattern DMESG_FIELD = Pattern.compile("(\\w+)\\s*=\\s*(\"[^\"]*\"|\\S+)");
+
     private static final Pattern CPUMASK = Pattern
             .compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
 
@@ -213,14 +218,15 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
      * Parses the processor identifier fields from {@code dmesg.boot}. Uses {@code initialName} (from
      * {@code sysctl hw.model}) unless the file supplies a {@code CPU:} line and the initial name is empty.
      * Package-private for testing.
+     * <p>
+     * FreeBSD writes {@code Origin="GenuineIntel"  Id=0x306f2  Family=0x6  Model=0x3f  Stepping=2}. DragonFly BSD puts
+     * spaces around each {@code =} and omits the family and model, which are then decoded from the {@code Id}.
      *
      * @param dmesg       the lines of {@code dmesg.boot}
      * @param initialName the CPU name from {@code sysctl hw.model}
      * @return the parsed identifier fields
      */
     static DmesgProcessorId parseProcessorIdFromDmesg(List<String> dmesg, String initialName) {
-        final Pattern identifierPattern = Pattern
-                .compile("Origin=\"([^\"]*)\".*Id=(\\S+).*Family=(\\S+).*Model=(\\S+).*Stepping=(\\S+).*");
         final Pattern featuresPattern = Pattern.compile("Features=(\\S+)<.*");
 
         String cpuVendor = "";
@@ -234,15 +240,19 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             // Prefer hw.model to this one
             if (line.startsWith("CPU:") && cpuName.isEmpty()) {
                 cpuName = line.replace("CPU:", "").trim();
-            } else if (line.startsWith("Origin=")) {
-                Matcher m = identifierPattern.matcher(line);
-                if (m.matches()) {
-                    cpuVendor = m.group(1);
-                    processorIdBits |= ParseUtil.decodeLongOrDefault(m.group(2), 0L);
-                    cpuFamily = String.valueOf(ParseUtil.decodeIntOrDefault(m.group(3), 0));
-                    cpuModel = String.valueOf(ParseUtil.decodeIntOrDefault(m.group(4), 0));
-                    cpuStepping = String.valueOf(ParseUtil.decodeIntOrDefault(m.group(5), 0));
+            } else if (ORIGIN.matcher(line).matches()) {
+                Map<String, String> fields = new HashMap<>();
+                Matcher m = DMESG_FIELD.matcher(line);
+                while (m.find()) {
+                    fields.put(m.group(1), m.group(2));
                 }
+                cpuVendor = ParseUtil.getStringBetween(fields.getOrDefault("Origin", ""), '"');
+                int id = ParseUtil.decodeIntOrDefault(fields.getOrDefault("Id", ""), 0);
+                processorIdBits |= ParseUtil.unsignedIntToLong(id);
+                Triplet<Integer, Integer, Integer> fms = cpuidToFamilyModelStepping(id);
+                cpuFamily = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get("Family"), fms.getA()));
+                cpuModel = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get("Model"), fms.getB()));
+                cpuStepping = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get("Stepping"), fms.getC()));
             } else if (line.startsWith("Features=")) {
                 Matcher m = featuresPattern.matcher(line);
                 if (m.matches()) {
@@ -300,7 +310,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                     models.putIfAbsent(coreId, n.group(2).trim());
                 }
             }
-            if (s.contains("Origin=")) {
+            if (ORIGIN.matcher(s.trim()).matches()) {
                 readingFlags = true;
             } else if (readingFlags) {
                 if (s.startsWith("  ")) {
@@ -348,7 +358,19 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     private List<LogicalProcessor> parseTopology() {
-        String[] topology = sysctlString("kern.sched.topology_spec", "").split("[\\n\\r]", -1);
+        String spec = sysctlString("kern.sched.topology_spec", "");
+        if (spec.isEmpty()) {
+            // DragonFly BSD has no topology_spec, and publishes each CPU's place under hw.cpu_topology instead
+            int ncpu = sysctlInt("hw.ncpu", 0);
+            int[] physicalIds = new int[ncpu];
+            int[] coreIds = new int[ncpu];
+            for (int i = 0; i < ncpu; i++) {
+                physicalIds[i] = sysctlInt("hw.cpu_topology.cpu" + i + ".physical_id", 0);
+                coreIds[i] = sysctlInt("hw.cpu_topology.cpu" + i + ".core_id", -1);
+            }
+            return buildTopologyFromIds(physicalIds, coreIds);
+        }
+        String[] topology = spec.split("[\\n\\r]", -1);
         /*-
          * Sample output:
          *
@@ -418,6 +440,29 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return matchBitmasks(group1, group2, group3);
+    }
+
+    /**
+     * Builds the logical processors from each CPU's package and core IDs, as DragonFly BSD publishes them in
+     * {@code hw.cpu_topology.cpu<n>.physical_id} and {@code core_id}. Package-private for testing.
+     * <p>
+     * A core ID is only unique within its package, so cores are numbered across the system in order of first
+     * appearance. DragonFly BSD omits {@code core_id} when each chip has one core, in which case every CPU is its own
+     * core.
+     *
+     * @param physicalIds each CPU's package ID
+     * @param coreIds     each CPU's core ID within its package, or -1 where it has none
+     * @return the logical processors, in CPU order
+     */
+    static List<LogicalProcessor> buildTopologyFromIds(int[] physicalIds, int[] coreIds) {
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<String, Integer> coreNumbers = new HashMap<>();
+        for (int i = 0; i < physicalIds.length; i++) {
+            String core = physicalIds[i] + ":" + (coreIds[i] < 0 ? "cpu" + i : coreIds[i]);
+            Integer coreNumber = coreNumbers.computeIfAbsent(core, k -> coreNumbers.size());
+            logProcs.add(new LogicalProcessor(i, coreNumber, physicalIds[i], 0));
+        }
+        return logProcs;
     }
 
     private static List<LogicalProcessor> matchBitmasks(long group1, List<Long> group2, List<Long> group3) {

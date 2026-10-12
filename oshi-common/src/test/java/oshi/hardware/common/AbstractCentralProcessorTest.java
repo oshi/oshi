@@ -32,6 +32,7 @@ import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
+import oshi.util.tuples.Triplet;
 
 class AbstractCentralProcessorTest {
 
@@ -368,5 +369,49 @@ class AbstractCentralProcessorTest {
         long[] ticks = new long[TickType.values().length];
         double load = createProcessor().getSystemCpuLoadBetweenTicks(ticks, ticks);
         assertThat(load, is(0d));
+    }
+
+    @Test
+    void testCpuidToFamilyModelStepping() {
+        // Intel Core i7-8700K: family 6 takes the extended model
+        Triplet<Integer, Integer, Integer> fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(0x000906EA);
+        assertThat(fms.getA(), is(6));
+        assertThat(fms.getB(), is(158));
+        assertThat(fms.getC(), is(10));
+
+        // Intel Xeon (Cascade Lake) on DragonFly BSD's dmesg.boot
+        fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(0x50655);
+        assertThat(fms.getA(), is(6));
+        assertThat(fms.getB(), is(85));
+        assertThat(fms.getC(), is(5));
+    }
+
+    @Test
+    void testCpuidToFamilyModelSteppingAmd() {
+        // AMD Zen: base family 0xF plus extended family 0x8 is family 23, as /proc/cpuinfo reports it
+        Triplet<Integer, Integer, Integer> fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(0x00800F12);
+        assertThat(fms.getA(), is(23));
+        assertThat(fms.getB(), is(1));
+        assertThat(fms.getC(), is(2));
+
+        // AMD Zen 3 (Ryzen 5 5600X): family 25, model 0x21
+        fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(0x00A20F10);
+        assertThat(fms.getA(), is(25));
+        assertThat(fms.getB(), is(33));
+        assertThat(fms.getC(), is(0));
+
+        // AMD K8 family 15 has no extended family, and its extended model applies
+        fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(0x00020FB1);
+        assertThat(fms.getA(), is(15));
+        assertThat(fms.getB(), is(43));
+        assertThat(fms.getC(), is(1));
+    }
+
+    @Test
+    void testCpuidToFamilyModelSteppingZero() {
+        Triplet<Integer, Integer, Integer> fms = AbstractCentralProcessor.cpuidToFamilyModelStepping(0);
+        assertThat(fms.getA(), is(0));
+        assertThat(fms.getB(), is(0));
+        assertThat(fms.getC(), is(0));
     }
 }
