@@ -120,14 +120,38 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
-        long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
-        long[] cpTimes = queryCpTimes("kern.cp_times");
-        if (cpTimes == null) {
+        return parseProcessorTicks(queryCpTimes("kern.cp_times"), getLogicalProcessorCount(), CPUSTATES);
+    }
+
+    /**
+     * Reads per-CPU ticks from DragonFly BSD's {@code kern.cputime}, an array of one {@code struct kinfo_cputime} per
+     * CPU. The struct begins with the five CPU-state values and is followed by fields whose count may vary by release,
+     * so the per-CPU stride is derived from the array length.
+     *
+     * @return per-CPU ticks, zero-filled if the sysctl is unavailable or too short
+     */
+    protected long[][] queryKinfoCputimeTicks() {
+        int cpus = getLogicalProcessorCount();
+        long[] cpTimes = queryCpTimes("kern.cputime");
+        return parseProcessorTicks(cpTimes, cpus, cpTimes == null ? 0 : cpTimes.length / cpus);
+    }
+
+    /**
+     * Maps an array of per-CPU records, each beginning with the five CPU-state values, to per-CPU tick arrays.
+     *
+     * @param cpTimes the uint64 values read from the sysctl, or {@code null} if the read failed
+     * @param cpus    the number of logical processors
+     * @param stride  the number of values in each CPU's record
+     * @return per-CPU ticks; CPUs without a complete record in {@code cpTimes} are zero-filled
+     */
+    static long[][] parseProcessorTicks(long @Nullable [] cpTimes, int cpus, int stride) {
+        long[][] ticks = new long[cpus][TickType.values().length];
+        if (cpTimes == null || stride < CPUSTATES) {
             return ticks;
         }
-        int cpus = Math.min(getLogicalProcessorCount(), cpTimes.length / CPUSTATES);
-        for (int cpu = 0; cpu < cpus; cpu++) {
-            fillTicks(ticks[cpu], cpTimes, cpu * CPUSTATES);
+        int records = Math.min(cpus, cpTimes.length / stride);
+        for (int cpu = 0; cpu < records; cpu++) {
+            fillTicks(ticks[cpu], cpTimes, cpu * stride);
         }
         return ticks;
     }
