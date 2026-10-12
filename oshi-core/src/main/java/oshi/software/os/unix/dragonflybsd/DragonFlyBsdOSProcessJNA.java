@@ -25,11 +25,8 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
 
-    private final DragonFlyBsdOperatingSystemJNA os;
-
     public DragonFlyBsdOSProcessJNA(int pid, Map<BsdPsKeyword, String> psMap, DragonFlyBsdOperatingSystemJNA os) {
-        super(pid);
-        this.os = os;
+        super(pid, os);
         updateAttributes(psMap);
     }
 
@@ -51,11 +48,6 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
             return System.getenv();
         }
         return Collections.emptyMap();
-    }
-
-    @Override
-    protected int queryOwnProcessId() {
-        return this.os.getProcessId();
     }
 
     @Override

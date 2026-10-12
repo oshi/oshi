@@ -33,11 +33,8 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
 
     private static final Logger LOG = LoggerFactory.getLogger(DragonFlyBsdOSProcessFFM.class);
 
-    private final DragonFlyBsdOperatingSystemFFM os;
-
     public DragonFlyBsdOSProcessFFM(int pid, Map<BsdPsKeyword, String> psMap, DragonFlyBsdOperatingSystemFFM os) {
-        super(pid);
-        this.os = os;
+        super(pid, os);
         updateAttributes(psMap);
     }
 
@@ -61,11 +58,6 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
             return System.getenv();
         }
         return Collections.emptyMap();
-    }
-
-    @Override
-    protected int queryOwnProcessId() {
-        return this.os.getProcessId();
     }
 
     @Override

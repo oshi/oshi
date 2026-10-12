@@ -35,6 +35,7 @@ import oshi.software.common.os.unix.bsd.BsdOSProcess;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
+import oshi.software.os.OperatingSystem;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
@@ -57,13 +58,17 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    private final OperatingSystem os;
+
     /**
      * Constructs a new {@code DragonFlyBsdOSProcess}.
      *
      * @param pid the process ID
+     * @param os  the operating system this process runs on
      */
-    protected DragonFlyBsdOSProcess(int pid) {
+    protected DragonFlyBsdOSProcess(int pid, OperatingSystem os) {
         super(pid);
+        this.os = os;
     }
 
     @Override
@@ -87,10 +92,16 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     }
 
     @Override
+    protected int queryOwnProcessId() {
+        return this.os.getProcessId();
+    }
+
+    @Override
     protected int queryBitness() {
-        // DragonFly BSD runs only on x86_64 and has no 32-bit ELF support (kern.elf64 exists, kern.elf32 does not), so
-        // every process is 64-bit. It also has no KERN_PROC_SV_NAME: its KERN_PROC subtype 9 is the executable's path.
-        return 64;
+        // DragonFly BSD has no KERN_PROC_SV_NAME (its KERN_PROC subtype 9 is the executable's path) and no ABI
+        // compatibility layer: an x86_64 kernel runs only 64-bit programs (kern.elf64 exists, kern.elf32 does not), and
+        // the i386 kernel of 3.8 and earlier only 32-bit ones. So every process has the operating system's bitness.
+        return this.os.getBitness();
     }
 
     @Override
