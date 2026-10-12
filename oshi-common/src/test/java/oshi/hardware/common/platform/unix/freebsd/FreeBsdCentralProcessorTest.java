@@ -16,6 +16,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.common.platform.unix.freebsd.FreeBsdCentralProcessor.DmesgProcessorId;
 import oshi.util.tuples.Pair;
@@ -56,6 +57,59 @@ class FreeBsdCentralProcessorTest {
         assertThat(id.vendor(), is(""));
         assertThat(id.name(), is(""));
         assertThat(id.processorIdBits(), is(0L));
+    }
+
+    @Test
+    void testParseProcessorIdFromDmesgDragonFly() {
+        // DragonFly BSD spaces out each = and omits Family and Model, which come from the Id
+        List<String> dmesg = """
+                CPU: Intel Xeon Processor (Cascadelake) (2693.67-MHz K8-class CPU)
+                  Origin = "GenuineIntel"  Id = 0x50655  Stepping = 5
+                  Features=0xf83fbff<FPU,VME,DE,PSE,TSC,MSR,PAE,MCE,CX8,APIC,SEP,MTRR,PGE,MCA,CMOV>
+                  Features2=0xf7fa3223<SSE3,PCLMULQDQ,VMX,SSSE3,FMA,CX16>
+                """.lines().toList();
+        DmesgProcessorId id = FreeBsdCentralProcessor.parseProcessorIdFromDmesg(dmesg, "");
+        assertThat(id.vendor(), is("GenuineIntel"));
+        assertThat(id.name(), is("Intel Xeon Processor (Cascadelake) (2693.67-MHz K8-class CPU)"));
+        assertThat(id.family(), is("6"));
+        assertThat(id.model(), is("85"));
+        assertThat(id.stepping(), is("5"));
+        assertThat(id.processorIdBits(), is(0x0f83fbff00050655L));
+
+        Pair<Map<Integer, String>, List<String>> r = FreeBsdCentralProcessor.parseProcModelsAndFlags(dmesg);
+        assertThat(r.getB(),
+                contains("Features=0xf83fbff<FPU,VME,DE,PSE,TSC,MSR,PAE,MCE,CX8,APIC,SEP,MTRR,PGE,MCA,CMOV>",
+                        "Features2=0xf7fa3223<SSE3,PCLMULQDQ,VMX,SSSE3,FMA,CX16>"));
+    }
+
+    @Test
+    void testBuildTopologyFromIdsOneCorePerChip() {
+        // DragonFly BSD on an 8-vCPU OpenStack guest: eight one-core packages, and no core_id
+        int[] none = { -1, -1, -1, -1, -1, -1, -1, -1 };
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.buildTopologyFromIds(new int[] { 0, 1, 2, 3, 4, 5, 6, 7 },
+                none);
+        assertThat(lps.size(), is(8));
+        assertThat(lps.stream().map(LogicalProcessor::getPhysicalPackageNumber).distinct().count(), is(8L));
+        assertThat(lps.stream().map(LogicalProcessor::getPhysicalProcessorNumber).distinct().count(), is(8L));
+    }
+
+    @Test
+    void testBuildTopologyFromIdsSmt() {
+        // Two packages of two cores with two threads each; core IDs repeat in each package
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.buildTopologyFromIds(new int[] { 0, 0, 0, 0, 1, 1, 1, 1 },
+                new int[] { 0, 0, 1, 1, 0, 0, 1, 1 });
+        assertThat(lps.size(), is(8));
+        assertThat(lps.stream().map(LogicalProcessor::getPhysicalPackageNumber).distinct().count(), is(2L));
+        assertThat(lps.stream().map(LogicalProcessor::getPhysicalProcessorNumber).distinct().count(), is(4L));
+        assertThat(lps.get(1).getPhysicalProcessorNumber(), is(lps.get(0).getPhysicalProcessorNumber()));
+        assertThat(lps.get(4).getPhysicalProcessorNumber(), is(2));
+        assertThat(lps.get(7).getProcessorNumber(), is(7));
+        assertThat(lps.get(7).getPhysicalPackageNumber(), is(1));
+    }
+
+    @Test
+    void testBuildTopologyFromIdsEmpty() {
+        assertThat(FreeBsdCentralProcessor.buildTopologyFromIds(new int[0], new int[0]).isEmpty(), is(true));
     }
 
     @Test

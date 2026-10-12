@@ -87,16 +87,6 @@ public abstract class OpenBsdCentralProcessor extends BsdCentralProcessor {
                 cpuFreq);
     }
 
-    static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
-        // family is bits 27:20 | 11:8
-        int family = ((cpuid >> 16) & 0xff0) | ((cpuid >> 8) & 0xf);
-        // model is bits 19:16 | 7:4
-        int model = ((cpuid >> 12) & 0xf0) | ((cpuid >> 4) & 0xf);
-        // stepping is bits 3:0
-        int stepping = cpuid & 0xf;
-        return new Triplet<>(family, model, stepping);
-    }
-
     @Override
     protected long[] queryCurrentFreq() {
         long[] freq = new long[1];

@@ -28,6 +28,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
+import oshi.util.tuples.Triplet;
 
 /**
  * A CPU.
@@ -317,6 +318,26 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             }
         }
         return Collections.unmodifiableMap(bits);
+    }
+
+    /**
+     * Decodes the family, model and stepping from an x86 processor signature, the value CPUID leaf 1 returns in EAX.
+     * <p>
+     * Follows Intel's and AMD's definitions of the displayed values: the extended family is added to a base family of
+     * 15, and the extended model extends the base model of families 6 and 15. AMD Zen's signature {@code 0x00800F12} is
+     * family 23, model 1, stepping 2.
+     *
+     * @param cpuid the processor signature
+     * @return a {@link Triplet} of family, model and stepping
+     */
+    protected static Triplet<Integer, Integer, Integer> cpuidToFamilyModelStepping(int cpuid) {
+        int baseFamily = (cpuid >> 8) & 0xf;
+        int family = baseFamily == 0xf ? baseFamily + ((cpuid >> 20) & 0xff) : baseFamily;
+        int model = (cpuid >> 4) & 0xf;
+        if (baseFamily == 0x6 || baseFamily == 0xf) {
+            model |= (cpuid >> 12) & 0xf0;
+        }
+        return new Triplet<>(family, model, cpuid & 0xf);
     }
 
     /**
