@@ -5,7 +5,6 @@
 package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Arrays;
@@ -617,8 +616,6 @@ class NativeComparisonTest {
 
     @Test
     void diskStoreUpdateAttributes() {
-        // DragonFly BSD has no disk enumeration yet: its iostat has no -x, and it has no geom
-        assumeFalse(PlatformEnum.getCurrentPlatform() == PlatformEnum.DRAGONFLYBSD, "no DragonFly BSD disk support");
         List<HWDiskStore> jna = jnaHal.getDiskStores();
         List<HWDiskStore> ffm = ffmHal.getDiskStores();
         assertThat(ffm).isNotEmpty();

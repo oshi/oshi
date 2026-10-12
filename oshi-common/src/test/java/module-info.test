@@ -71,6 +71,8 @@
 --add-opens
   com.github.oshi.common/oshi.driver.common.unix.solaris.disk=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.hardware.common.platform.unix.dragonflybsd=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.hardware.common.platform.unix.freebsd=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.util.common.platform.unix.freebsd=org.junit.platform.commons

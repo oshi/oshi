@@ -40,6 +40,7 @@ import org.jspecify.annotations.NullMarked;
     exports oshi.hardware.common.platform.mac;
     exports oshi.hardware.common.platform.unix;
     exports oshi.hardware.common.platform.unix.aix;
+    exports oshi.hardware.common.platform.unix.dragonflybsd;
     exports oshi.hardware.common.platform.unix.freebsd;
     exports oshi.hardware.common.platform.unix.netbsd;
     exports oshi.hardware.common.platform.unix.openbsd;
