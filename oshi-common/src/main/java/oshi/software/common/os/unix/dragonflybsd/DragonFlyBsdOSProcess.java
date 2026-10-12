@@ -87,6 +87,13 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     }
 
     @Override
+    protected int queryBitness() {
+        // DragonFly BSD runs only on x86_64 and has no 32-bit ELF support (kern.elf64 exists, kern.elf32 does not), so
+        // every process is 64-bit. It also has no KERN_PROC_SV_NAME: its KERN_PROC subtype 9 is the executable's path.
+        return 64;
+    }
+
+    @Override
     protected long queryStartTimeMillis() {
         return queryStartTimeFromProc(getProcessID());
     }

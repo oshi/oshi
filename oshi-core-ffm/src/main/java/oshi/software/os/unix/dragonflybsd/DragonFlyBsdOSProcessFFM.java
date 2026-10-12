@@ -4,15 +4,11 @@
  */
 package oshi.software.os.unix.dragonflybsd;
 
-import static java.lang.foreign.ValueLayout.JAVA_BYTE;
-import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
-import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 
 import java.lang.foreign.MemorySegment;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,24 +77,6 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
             }
             return rlim.get(JAVA_LONG, soft ? 0 : Long.BYTES);
         }, LOG, LogLevel.WARN, "getrlimit(RLIMIT_NOFILE) failed", -1L);
-    }
-
-    @Override
-    protected int queryBitness() {
-        return callInArenaIntOrDefault(arena -> {
-            // CTL_KERN.KERN_PROC.KERN_PROC_SV_NAME.<pid>
-            MemorySegment mib = arena.allocateFrom(JAVA_INT, 1, 14, 9, getProcessID());
-            MemorySegment buf = arena.allocate(32);
-            MemorySegment size = arena.allocate(JAVA_LONG);
-            size.set(JAVA_LONG, 0, 32L);
-            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-            int rc = FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L);
-            if (rc != 0) {
-                return 0;
-            }
-            byte[] bytes = buf.asSlice(0, Math.min(size.get(JAVA_LONG, 0), 32L)).toArray(JAVA_BYTE);
-            return elfBitness(new String(bytes, StandardCharsets.UTF_8).trim());
-        }, LOG, LogLevel.WARN, "queryBitness failed", 0);
     }
 
 }

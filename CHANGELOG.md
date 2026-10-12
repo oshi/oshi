@@ -6,6 +6,7 @@
 * [#3789](https://github.com/oshi/oshi/pull/3789): Fixed `CentralProcessor` on DragonFly BSD, which reported one logical processor and no family, model, stepping, vendor or feature flags. Also fixed the processor family on OpenBSD for AMD processors of family 16 and later, which also left their microarchitecture unknown - [@dbwiddis](https://github.com/dbwiddis).
 * [#3791](https://github.com/oshi/oshi/pull/3791): Fixed `getDiskStores` on DragonFly BSD, which returned no disks. Read and write counts, bytes, queue length and transfer time now come from the kernel's device statistics; model, serial, size and partitions need root there and remain unknown - [@dbwiddis](https://github.com/dbwiddis).
 * [#3792](https://github.com/oshi/oshi/pull/3792): Fixed the `ProcessorID` that OSHI builds from the family, model and stepping for AMD processors of family 16 and later, which encoded the family incorrectly. It is built this way on Linux when neither `dmidecode` nor `cpuid` is available, on Solaris, and on Windows when WMI does not return one - [@dbwiddis](https://github.com/dbwiddis).
+* [#3793](https://github.com/oshi/oshi/pull/3793): Fixed `OSProcess.getBitness` on DragonFly BSD, which returned 0 for every process. DragonFly runs only 64-bit programs, so it now returns 64 - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
