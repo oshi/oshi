@@ -13,6 +13,8 @@ import static org.hamcrest.Matchers.is;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -198,5 +200,121 @@ class FreeBsdCentralProcessorTest {
         // A record too short to hold the CPU states is ignored rather than read past
         assertThat(FreeBsdCentralProcessor.parseProcessorTicks(new long[] { 1, 2, 3, 4 }, 1, 4)[0], is(zeros));
         assertThat(FreeBsdCentralProcessor.parseProcessorTicks(null, 2, 5), is(new long[2][zeros.length]));
+    }
+
+    private static long cores(List<LogicalProcessor> lps) {
+        return lps.stream().map(lp -> lp.getPhysicalPackageNumber() + ":" + lp.getPhysicalProcessorNumber()).distinct()
+                .count();
+    }
+
+    private static long packages(List<LogicalProcessor> lps) {
+        return lps.stream().map(LogicalProcessor::getPhysicalPackageNumber).distinct().count();
+    }
+
+    private static String cpuList(int from, int to) {
+        return IntStream.range(from, to).mapToObj(Integer::toString).collect(Collectors.joining(", "));
+    }
+
+    @Test
+    void testParseTopologySpecFlatVm() {
+        // A FreeBSD 16 VM with 32 vCPUs: one group, no thread groups, so every CPU is a core
+        String spec = """
+                <groups>
+                 <group level="1" cache-level="3">
+                  <cpu count="32" mask="ffffffff,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">CPUS</cpu>
+                 </group>
+                </groups>
+                """.replace("CPUS", cpuList(0, 32));
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.parseTopologySpec(spec);
+        assertThat(lps, hasSize(32));
+        assertThat(cores(lps), is(32L));
+        assertThat(packages(lps), is(1L));
+        assertThat(lps.get(31).getProcessorNumber(), is(31));
+    }
+
+    @Test
+    void testParseTopologySpecFlatHardware() {
+        // An Arm Morello board with 4 cores and no SMT
+        String spec = """
+                <groups>
+                 <group level="1" cache-level="3">
+                  <cpu count="4" mask="f,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0">0, 1, 2, 3</cpu>
+                 </group>
+                </groups>
+                """;
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.parseTopologySpec(spec);
+        assertThat(lps, hasSize(4));
+        assertThat(cores(lps), is(4L));
+    }
+
+    @Test
+    void testParseTopologySpecTwoPackagesSmt() {
+        StringBuilder pairs = new StringBuilder();
+        for (int pkg = 0; pkg < 2; pkg++) {
+            pairs.append("  <group level=\"2\" cache-level=\"2\">\n");
+            pairs.append("   <cpu count=\"12\" mask=\"0\">").append(cpuList(pkg * 12, pkg * 12 + 12))
+                    .append("</cpu>\n");
+            pairs.append("   <children>\n");
+            for (int cpu = pkg * 12; cpu < pkg * 12 + 12; cpu += 2) {
+                pairs.append("    <group level=\"3\" cache-level=\"1\">\n");
+                pairs.append("     <cpu count=\"2\" mask=\"0\">").append(cpu).append(", ").append(cpu + 1)
+                        .append("</cpu>\n");
+                pairs.append("     <flags><flag name=\"THREAD\">THREAD group</flag>")
+                        .append("<flag name=\"SMT\">SMT group</flag></flags>\n");
+                pairs.append("    </group>\n");
+            }
+            pairs.append("   </children>\n  </group>\n");
+        }
+        String spec = "<groups>\n <group level=\"1\" cache-level=\"0\">\n  <cpu count=\"24\" mask=\"ffffff\">"
+                + cpuList(0, 24) + "</cpu>\n  <children>\n" + pairs + "  </children>\n </group>\n</groups>\n";
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.parseTopologySpec(spec);
+        assertThat(lps, hasSize(24));
+        assertThat(cores(lps), is(12L));
+        assertThat(packages(lps), is(2L));
+        assertThat(lps.get(1).getPhysicalProcessorNumber(), is(lps.get(0).getPhysicalProcessorNumber()));
+        assertThat(lps.get(12).getPhysicalPackageNumber(), is(1));
+    }
+
+    @Test
+    void testParseTopologySpecOnePackageSmt() {
+        // Thread groups directly under the root are cores, not packages
+        String spec = """
+                <groups>
+                 <group level="1" cache-level="3">
+                  <cpu count="4" mask="f">0, 1, 2, 3</cpu>
+                  <children>
+                   <group level="2" cache-level="2">
+                    <cpu count="2" mask="3">0, 1</cpu>
+                    <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
+                   </group>
+                   <group level="2" cache-level="2">
+                    <cpu count="2" mask="c">2, 3</cpu>
+                    <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
+                   </group>
+                  </children>
+                 </group>
+                </groups>
+                """;
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.parseTopologySpec(spec);
+        assertThat(cores(lps), is(2L));
+        assertThat(packages(lps), is(1L));
+    }
+
+    @Test
+    void testParseTopologySpecOver64Cpus() {
+        String listed = "<groups>\n <group level=\"1\" cache-level=\"3\">\n  <cpu count=\"128\" mask=\"0\">"
+                + cpuList(0, 128) + "</cpu>\n </group>\n</groups>\n";
+        assertThat(FreeBsdCentralProcessor.parseTopologySpec(listed), hasSize(128));
+        // Without a CPU list, the mask words cover 64 CPUs each, lowest first
+        String masked = "<groups>\n <group level=\"1\" cache-level=\"3\">\n"
+                + "  <cpu count=\"66\" mask=\"ffffffffffffffff,3\"></cpu>\n </group>\n</groups>\n";
+        List<LogicalProcessor> lps = FreeBsdCentralProcessor.parseTopologySpec(masked);
+        assertThat(lps, hasSize(66));
+        assertThat(lps.get(65).getProcessorNumber(), is(65));
+    }
+
+    @Test
+    void testParseTopologySpecEmpty() {
+        assertThat(FreeBsdCentralProcessor.parseTopologySpec("").isEmpty(), is(true));
     }
 }
