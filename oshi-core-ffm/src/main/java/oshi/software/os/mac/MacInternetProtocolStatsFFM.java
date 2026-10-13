@@ -227,9 +227,10 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
         MemorySegment m = SysctlUtilFFM.sysctl("net.inet.udp.stats");
         if (m != null && m.byteSize() >= 84) {
             return new BsdUdpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 8), m.get(JAVA_INT, 12),
-                    m.get(JAVA_INT, 36), m.get(JAVA_INT, 48), m.get(JAVA_INT, 64), m.get(JAVA_INT, 80));
+                    m.get(JAVA_INT, 16), m.get(JAVA_INT, 20), m.get(JAVA_INT, 36), m.get(JAVA_INT, 64),
+                    m.get(JAVA_INT, 80));
         }
-        return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0);
+        return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 
     @Override
