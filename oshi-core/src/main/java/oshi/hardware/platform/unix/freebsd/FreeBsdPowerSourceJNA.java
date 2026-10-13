@@ -43,6 +43,6 @@ public final class FreeBsdPowerSourceJNA extends FreeBsdPowerSource {
      * @return A list of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
-        return queryBattery("BAT0", BsdSysctlUtil::sysctl, FreeBsdPowerSourceJNA::new);
+        return queryBatteries(BsdSysctlUtil::sysctl, FreeBsdPowerSourceJNA::new);
     }
 }

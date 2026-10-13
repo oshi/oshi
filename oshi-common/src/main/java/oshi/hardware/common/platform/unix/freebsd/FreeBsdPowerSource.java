@@ -5,7 +5,8 @@
 package oshi.hardware.common.platform.unix.freebsd;
 
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +23,7 @@ import oshi.util.ParseUtil;
 
 /**
  * Shared FreeBSD power-source logic. Subclasses provide the sysctl backend (JNA or FFM) via
- * {@link #queryBattery(String, BiFunction, PowerSourceFactory)}.
+ * {@link #queryBatteries(BiFunction, PowerSourceFactory)}.
  */
 public abstract class FreeBsdPowerSource extends AbstractPowerSource {
 
@@ -104,109 +105,167 @@ public abstract class FreeBsdPowerSource extends AbstractPowerSource {
                 double psTemperature);
     }
 
+    // hw.acpi.battery.state bits, from sys/dev/acpica/acpiio.h
+    private static final int ACPI_BATT_STAT_DISCHARG = 1;
+    private static final int ACPI_BATT_STAT_CHARGING = 2;
+
     /**
-     * Queries battery information and constructs a power source instance using the provided sysctl accessor and
-     * factory.
+     * Queries every ACPI battery and constructs a power source for each one present, using the provided sysctl accessor
+     * and factory.
+     * <p>
+     * The kernel creates the {@code hw.acpi.battery} sysctls only when a battery driver attaches, so their absence
+     * means there is no battery. Each battery is read with {@code acpiconf -i}. The {@code hw.acpi.battery} values are
+     * totals across all batteries, so they fill in for {@code acpiconf} only when there is a single battery.
      *
      * @param <T>       the concrete power source type
-     * @param name      the battery name (e.g. "BAT0")
      * @param sysctlInt reads an integer sysctl given (name, default)
      * @param factory   constructs the platform-specific instance
-     * @return a list containing the power source
+     * @return a list of the batteries present, empty if there are none
      */
-    protected static <T extends FreeBsdPowerSource> List<PowerSource> queryBattery(String name,
+    protected static <T extends FreeBsdPowerSource> List<PowerSource> queryBatteries(
             BiFunction<String, Integer, Integer> sysctlInt, PowerSourceFactory<T> factory) {
-        String psName = name;
-        double psRemainingCapacityPercent = 1d;
-        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
-        double psPowerUsageRate = 0d;
-        int psVoltage = -1;
-        double psAmperage = 0d;
-        boolean psPowerOnLine = false;
-        boolean psCharging = false;
-        boolean psDischarging = false;
-        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
-        int psCurrentCapacity = 0;
-        int psMaxCapacity = 1;
-        int psDesignCapacity = 1;
-        int psCycleCount = -1;
-        @Nullable
-        LocalDate psManufactureDate = null;
-        double psTemperature = 0d;
-
-        // state 0=full, 1=discharging, 2=charging
-        int state = sysctlInt.apply("hw.acpi.battery.state", 0);
-        if (state == 2) {
-            psCharging = true;
-        } else {
-            int time = sysctlInt.apply("hw.acpi.battery.time", -1);
-            // time is in minutes
-            psTimeRemainingEstimated = time < 0 ? -1d : 60d * time;
-            if (state == 1) {
-                psDischarging = true;
+        int units = sysctlInt.apply("hw.acpi.battery.units", 0);
+        if (units <= 0) {
+            return Collections.emptyList();
+        }
+        boolean acline = sysctlInt.apply("hw.acpi.acline", 0) == 1;
+        int state = -1;
+        int time = -1;
+        int life = -1;
+        if (units == 1) {
+            state = sysctlInt.apply("hw.acpi.battery.state", -1);
+            time = sysctlInt.apply("hw.acpi.battery.time", -1);
+            life = sysctlInt.apply("hw.acpi.battery.life", -1);
+        }
+        List<PowerSource> batteries = new ArrayList<>();
+        for (int unit = 0; unit < units; unit++) {
+            T battery = parseBattery("BAT" + unit, ExecutingCommand.runNative("acpiconf -i " + unit), acline, state,
+                    time, life, factory);
+            if (battery != null) {
+                batteries.add(battery);
             }
         }
-        // life is in percent; -1 sentinel from sysctl failure means "unknown" (keep default 1.0), but a real 0 means
-        // the battery is flat and should drive the percent to 0.0 — hence ">= 0" rather than "> 0".
-        int life = sysctlInt.apply("hw.acpi.battery.life", -1);
-        if (life >= 0) {
-            psRemainingCapacityPercent = life / 100d;
-        }
-        List<String> acpiconf = ExecutingCommand.runNative("acpiconf -i 0");
+        return Collections.unmodifiableList(batteries);
+    }
+
+    /**
+     * Builds a power source from the output of {@code acpiconf -i}, falling back to the {@code hw.acpi.battery} totals
+     * for values it does not print.
+     *
+     * @param <T>      the concrete power source type
+     * @param name     the battery name
+     * @param acpiconf the output of {@code acpiconf -i}, empty if it failed
+     * @param acline   whether external power is connected
+     * @param state    the {@code hw.acpi.battery.state} bits, or -1 if unknown
+     * @param time     the {@code hw.acpi.battery.time} minutes remaining, or -1 if unknown
+     * @param life     the {@code hw.acpi.battery.life} percent remaining, or -1 if unknown
+     * @param factory  constructs the platform-specific instance
+     * @return the power source, or {@code null} if {@code acpiconf} reports the battery not present
+     */
+    static <T extends FreeBsdPowerSource> @Nullable T parseBattery(String name, List<String> acpiconf, boolean acline,
+            int state, int time, int life, PowerSourceFactory<T> factory) {
         Map<String, String> psMap = new HashMap<>();
         for (String line : acpiconf) {
             String[] split = line.split(":", 2);
             if (split.length > 1) {
                 String value = split[1].trim();
-                if (!value.isEmpty()) {
-                    psMap.put(split[0], value);
+                if (!value.isEmpty() && !"unknown".equals(value)) {
+                    psMap.put(split[0].trim(), value);
                 }
             }
         }
 
-        String psDeviceName = psMap.getOrDefault("Model number", Constants.UNKNOWN);
-        String psSerialNumber = psMap.getOrDefault("Serial number", Constants.UNKNOWN);
-        String psChemistry = psMap.getOrDefault("Type", Constants.UNKNOWN);
-        String psManufacturer = psMap.getOrDefault("OEM info", Constants.UNKNOWN);
-        String cap = psMap.get("Design capacity");
-        if (cap != null) {
-            psDesignCapacity = ParseUtil.getFirstIntValue(cap);
-            if (cap.toLowerCase(Locale.ROOT).contains("mah")) {
-                psCapacityUnits = CapacityUnits.MAH;
-            } else if (cap.toLowerCase(Locale.ROOT).contains("mwh")) {
-                psCapacityUnits = CapacityUnits.MWH;
+        boolean charging = (state & ACPI_BATT_STAT_CHARGING) != 0 && state > 0;
+        boolean discharging = (state & ACPI_BATT_STAT_DISCHARG) != 0 && state > 0;
+        String batteryState = psMap.get("State");
+        if (batteryState != null) {
+            if ("not present".equals(batteryState)) {
+                return null;
             }
+            discharging = batteryState.contains("discharging");
+            charging = !discharging && batteryState.contains("charging");
         }
-        cap = psMap.get("Last full capacity");
-        if (cap != null) {
-            psMaxCapacity = ParseUtil.getFirstIntValue(cap);
-        } else {
-            psMaxCapacity = psDesignCapacity;
+
+        double remainingCapacityPercent = 1d;
+        String percent = psMap.get("Remaining capacity");
+        if (percent != null) {
+            remainingCapacityPercent = ParseUtil.getFirstIntValue(percent) / 100d;
+        } else if (life >= 0) {
+            remainingCapacityPercent = life / 100d;
         }
-        double psTimeRemainingInstant = psTimeRemainingEstimated;
-        String time = psMap.get("Remaining time");
-        if (time != null) {
-            String[] hhmm = time.split(":", -1);
-            if (hhmm.length == 2 && !hhmm[1].isEmpty()) {
-                psTimeRemainingInstant = 3600d * ParseUtil.parseIntOrDefault(hhmm[0], 0)
+
+        double timeRemainingInstant = -1d;
+        String remaining = psMap.get("Remaining time");
+        if (remaining != null) {
+            String[] hhmm = remaining.split(":", -1);
+            if (hhmm.length == 2) {
+                timeRemainingInstant = 3600d * ParseUtil.parseIntOrDefault(hhmm[0], 0)
                         + 60d * ParseUtil.parseIntOrDefault(hhmm[1], 0);
             }
         }
-        String rate = psMap.get("Present rate");
-        if (rate != null) {
-            psPowerUsageRate = ParseUtil.getFirstIntValue(rate);
-        }
-        String volts = psMap.get("Present voltage");
-        if (volts != null) {
-            psVoltage = ParseUtil.getFirstIntValue(volts);
-            if (psVoltage != 0) {
-                psAmperage = psPowerUsageRate / psVoltage;
-            }
+        double timeRemainingEstimated = time >= 0 ? 60d * time : timeRemainingInstant;
+        if (timeRemainingInstant < 0) {
+            timeRemainingInstant = timeRemainingEstimated;
         }
 
-        return Arrays.asList(factory.create(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature));
+        // "N mW", or "N mA (M mW)" for a battery reporting in mA, or "N mA" when the voltage is unknown
+        double powerUsageRate = 0d;
+        double amperage = 0d;
+        String rate = psMap.get("Present rate");
+        if (rate != null) {
+            if (rate.contains("mA")) {
+                amperage = ParseUtil.getFirstIntValue(rate);
+                int paren = rate.indexOf('(');
+                if (paren >= 0) {
+                    powerUsageRate = ParseUtil.getFirstIntValue(rate.substring(paren));
+                }
+            } else {
+                powerUsageRate = ParseUtil.getFirstIntValue(rate);
+            }
+        }
+        double voltage = -1d;
+        String volts = psMap.get("Present voltage");
+        if (volts != null) {
+            int millivolts = ParseUtil.getFirstIntValue(volts);
+            if (millivolts > 0) {
+                voltage = millivolts / 1000d;
+                if (amperage == 0d) {
+                    // mW divided by V is mA
+                    amperage = powerUsageRate / voltage;
+                }
+            }
+        }
+        // acpiconf prints magnitudes; the API reports discharge as negative
+        if (discharging) {
+            powerUsageRate = -powerUsageRate;
+            amperage = -amperage;
+        }
+
+        CapacityUnits capacityUnits = CapacityUnits.RELATIVE;
+        int designCapacity = 1;
+        int maxCapacity = 1;
+        String design = psMap.get("Design capacity");
+        String lastFull = psMap.get("Last full capacity");
+        if (design != null) {
+            String units = design.toLowerCase(Locale.ROOT);
+            if (units.endsWith("mah")) {
+                capacityUnits = CapacityUnits.MAH;
+            } else if (units.endsWith("mwh")) {
+                capacityUnits = CapacityUnits.MWH;
+            }
+            if (capacityUnits != CapacityUnits.RELATIVE) {
+                designCapacity = ParseUtil.getFirstIntValue(design);
+                maxCapacity = lastFull == null ? designCapacity : ParseUtil.getFirstIntValue(lastFull);
+            }
+        }
+        // acpiconf prints the remaining capacity only as a percentage of the last full capacity
+        int currentCapacity = (int) Math.round(remainingCapacityPercent * maxCapacity);
+        int cycleCount = ParseUtil.parseIntOrDefault(psMap.getOrDefault("Cycle Count", ""), -1);
+
+        return factory.create(name, psMap.getOrDefault("Model number", Constants.UNKNOWN), remainingCapacityPercent,
+                timeRemainingEstimated, timeRemainingInstant, powerUsageRate, voltage, amperage, acline, charging,
+                discharging, capacityUnits, currentCapacity, maxCapacity, designCapacity, cycleCount,
+                psMap.getOrDefault("Type", Constants.UNKNOWN), null, psMap.getOrDefault("OEM info", Constants.UNKNOWN),
+                psMap.getOrDefault("Serial number", Constants.UNKNOWN), 0d);
     }
 }
