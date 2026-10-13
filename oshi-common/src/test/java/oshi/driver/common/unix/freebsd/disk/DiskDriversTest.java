@@ -33,13 +33,13 @@ class DiskDriversTest {
 
         Map<String, String> deviceMap = Mount.queryPartitionToMountMap();
         Set<String> diskNames = diskStringMap.keySet();
-        Set<String> mountedPartitions = deviceMap.keySet();
         for (Entry<String, List<HWPartition>> entry : partMap.entrySet()) {
             assertTrue(diskNames.contains(entry.getKey()), "Disk name should be in disk string map");
             for (HWPartition part : entry.getValue()) {
+                // A partition can be mounted by its own name or by a label, such as /dev/gpt/efiboot0
                 if (!part.getMountPoint().isEmpty()) {
-                    assertTrue(mountedPartitions.contains(part.getIdentification()),
-                            "Partition name should be in mount map");
+                    assertTrue(deviceMap.containsValue(part.getMountPoint()),
+                            "Partition mount point should be in mount map");
                 }
             }
         }
