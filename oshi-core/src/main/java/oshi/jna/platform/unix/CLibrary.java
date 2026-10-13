@@ -86,52 +86,6 @@ public interface CLibrary extends LibCAPI, Library {
         }
     }
 
-    /*
-     * Between macOS and FreeBSD there are multiple versions of some tcp/udp/ip stats structures. Since we only need a
-     * few of the hundreds of fields, we can improve performance by selectively reading the ints from the appropriate
-     * offsets, which are consistent across the structure. These classes include the common fields and offsets.
-     */
-
-    class BsdTcpstat {
-        public int tcps_connattempt; // 0
-        public int tcps_accepts; // 4
-        public int tcps_drops; // 12
-        public int tcps_conndrops; // 16
-        public int tcps_sndpack; // 64
-        public int tcps_sndrexmitpack; // 72
-        public int tcps_rcvpack; // 104
-        public int tcps_rcvbadsum; // 112
-        public int tcps_rcvbadoff; // 116
-        public int tcps_rcvmemdrop; // 120
-        public int tcps_rcvshort; // 124
-    }
-
-    class BsdUdpstat {
-        public int udps_ipackets; // 0
-        public int udps_hdrops; // 4
-        public int udps_badsum; // 8
-        public int udps_badlen; // 12
-        public int udps_opackets; // 36
-        public int udps_noportmcast; // 48
-        public int udps_rcv6_swcsum; // 64
-        public int udps_snd6_swcsum; // 89
-    }
-
-    class BsdIpstat {
-        public int ips_total; // 0
-        public int ips_badsum; // 4
-        public int ips_tooshort; // 8
-        public int ips_toosmall; // 12
-        public int ips_badhlen; // 16
-        public int ips_badlen; // 20
-        public int ips_delivered; // 56
-    }
-
-    class BsdIp6stat {
-        public long ip6s_total; // 0
-        public long ip6s_localout; // 88
-    }
-
     /**
      * Returns the process ID of the calling process. The ID is guaranteed to be unique and is useful for constructing
      * temporary file names.
