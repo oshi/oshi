@@ -403,9 +403,10 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     /**
      * Builds the logical processors from {@code kern.sched.topology_spec}. Package-private for testing.
      * <p>
-     * The spec nests groups of CPUs that share a cache. A group flagged {@code THREAD} holds the hardware threads of
-     * one core, and a CPU in no such group is a core of its own; virtual machines often publish a single flat group, so
-     * every CPU is its own core. The groups at level 2 that are not thread groups are taken as packages.
+     * The spec nests groups of CPUs that share a cache. A group flagged {@code THREAD}, {@code SMT} or {@code HTT}
+     * holds the hardware threads of one core, and a CPU in no such group is a core of its own; virtual machines often
+     * publish a single flat group, so every CPU is its own core. The groups at level 2 that are not thread groups are
+     * taken as packages.
      *
      * <pre>{@code
      * <groups>
@@ -438,7 +439,9 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
                 TopologyGroup group = open.element();
                 if (line.contains("<cpu")) {
                     group.cpus.addAll(parseCpuList(line));
-                } else if (line.contains("<flag name=\"THREAD\"")) {
+                } else if (line.contains("<flag name=\"THREAD\"") || line.contains("<flag name=\"SMT\"")
+                        || line.contains("<flag name=\"HTT\"")) {
+                    // The kernel prints THREAD alongside either of the others, but any of them marks a core
                     group.thread = true;
                 }
             }

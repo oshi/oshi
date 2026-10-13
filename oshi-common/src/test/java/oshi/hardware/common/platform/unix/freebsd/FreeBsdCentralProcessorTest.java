@@ -301,6 +301,24 @@ class FreeBsdCentralProcessorTest {
     }
 
     @Test
+    void testParseTopologySpecSmtFlagAlone() {
+        String spec = """
+                <groups>
+                 <group level="1" cache-level="2">
+                  <cpu count="2" mask="3">0, 1</cpu>
+                  <children>
+                   <group level="2" cache-level="1">
+                    <cpu count="2" mask="3">0, 1</cpu>
+                    <flags><flag name="SMT">SMT group</flag></flags>
+                   </group>
+                  </children>
+                 </group>
+                </groups>
+                """;
+        assertThat(cores(FreeBsdCentralProcessor.parseTopologySpec(spec)), is(1L));
+    }
+
+    @Test
     void testParseTopologySpecOver64Cpus() {
         String listed = "<groups>\n <group level=\"1\" cache-level=\"3\">\n  <cpu count=\"128\" mask=\"0\">"
                 + cpuList(0, 128) + "</cpu>\n </group>\n</groups>\n";
