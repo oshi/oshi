@@ -4,14 +4,18 @@
  */
 package oshi.hardware.common.platform.unix.freebsd;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,8 +39,7 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     private static final Pattern ORIGIN = Pattern.compile("Origin\\s*=.*");
     private static final Pattern DMESG_FIELD = Pattern.compile("(\\w+)\\s*=\\s*(\"[^\"]*\"|\\S+)");
 
-    private static final Pattern CPUMASK = Pattern
-            .compile(".*<cpu\\s.*mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\".*>.*</cpu>.*");
+    private static final Pattern CPUMASK = Pattern.compile("mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\"");
 
     // FreeBSD CPU state indices into the kern.cp_time / kern.cp_times uint64 arrays
     private static final int CP_USER = 0;
@@ -172,12 +175,12 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     public long queryContextSwitches() {
-        return ParseUtil.unsignedIntToLong(sysctlInt("vm.stats.sys.v_swtch", 0));
+        return sysctlLong("vm.stats.sys.v_swtch", 0L);
     }
 
     @Override
     public long queryInterrupts() {
-        return ParseUtil.unsignedIntToLong(sysctlInt("vm.stats.sys.v_intr", 0));
+        return sysctlLong("vm.stats.sys.v_intr", 0L);
     }
 
     @Override
@@ -394,76 +397,126 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             }
             return buildTopologyFromIds(physicalIds, coreIds);
         }
-        String[] topology = spec.split("[\\n\\r]", -1);
-        /*-
-         * Sample output:
-         *
-        <groups>
-        <group level="1" cache-level="0">
-         <cpu count="24" mask="ffffff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23</cpu>
-         <children>
-          <group level="2" cache-level="2">
-           <cpu count="12" mask="fff">0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11</cpu>
-           <children>
-            <group level="3" cache-level="1">
-             <cpu count="2" mask="3">0, 1</cpu>
-             <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
-            </group>
-            ...
-        * On FreeBSD 13.1, the output may contain a csv value for the mask:
-        <groups>
-         <group level="1" cache-level="3">
-          <cpu count="8" mask="ff,0,0,0">0, 1, 2, 3, 4, 5, 6, 7</cpu>
-          <children>
-           <group level="2" cache-level="2">
-            <cpu count="2" mask="3,0,0,0">0, 1</cpu>
-            ...
-        *
-        * Opens with <groups>
-        * <group> level 1 identifies all the processors via bitmask, should only be one
-        * <group> level 2 separates by physical package
-        * <group> level 3 puts hyperthreads together: if THREAD or SMT or HTT all the CPUs are one physical
-        * If there is no level 3, then all logical processors are physical
-        */
-        // Create lists of the group bitmasks
-        long group1 = 1L;
-        List<Long> group2 = new ArrayList<>();
-        List<Long> group3 = new ArrayList<>();
-        int groupLevel = 0;
-        for (String topo : topology) {
-            if (topo.contains("<group level=")) {
-                groupLevel++;
-            } else if (topo.contains("</group>")) {
-                groupLevel--;
-            } else if (topo.contains("<cpu")) {
-                // Find <cpu> tag and extract bits
-                Matcher m = CPUMASK.matcher(topo);
-                if (m.matches()) {
-                    // If csv of hex values like "f,0,0,0", parse the first value
-                    String csvMatch = m.group(1);
-                    String[] csvTokens = csvMatch.split(",", -1);
-                    String firstVal = csvTokens[0];
+        return parseTopologySpec(spec);
+    }
 
-                    // Regex guarantees parsing digits so we won't get a
-                    // NumberFormatException
-                    long parsedVal = ParseUtil.hexStringToLong(firstVal, 0);
-                    switch (groupLevel) {
-                        case 1:
-                            group1 = parsedVal;
-                            break;
-                        case 2:
-                            group2.add(parsedVal);
-                            break;
-                        case 3:
-                            group3.add(parsedVal);
-                            break;
-                        default:
-                            break;
+    /**
+     * Builds the logical processors from {@code kern.sched.topology_spec}. Package-private for testing.
+     * <p>
+     * The spec nests groups of CPUs that share a cache. A group flagged {@code THREAD}, {@code SMT} or {@code HTT}
+     * holds the hardware threads of one core, and a CPU in no such group is a core of its own; virtual machines often
+     * publish a single flat group, so every CPU is its own core. The groups at level 2 that are not thread groups are
+     * taken as packages.
+     *
+     * <pre>{@code
+     * <groups>
+     *  <group level="1" cache-level="0">
+     *   <cpu count="24" mask="ffffff">0, 1, 2, ..., 23</cpu>
+     *   <children>
+     *    <group level="2" cache-level="2">
+     *     <cpu count="12" mask="fff">0, 1, ..., 11</cpu>
+     *     <children>
+     *      <group level="3" cache-level="1">
+     *       <cpu count="2" mask="3">0, 1</cpu>
+     *       <flags><flag name="THREAD">THREAD group</flag><flag name="SMT">SMT group</flag></flags>
+     *      </group>
+     * }</pre>
+     *
+     * @param spec the value of {@code kern.sched.topology_spec}
+     * @return the logical processors, in CPU order
+     */
+    static List<LogicalProcessor> parseTopologySpec(String spec) {
+        List<TopologyGroup> groups = new ArrayList<>();
+        Deque<TopologyGroup> open = new ArrayDeque<>();
+        for (String line : spec.split("[\\n\\r]", -1)) {
+            if (line.contains("<group level=")) {
+                TopologyGroup group = new TopologyGroup(open.size() + 1);
+                groups.add(group);
+                open.push(group);
+            } else if (line.contains("</group>")) {
+                open.poll();
+            } else if (!open.isEmpty()) {
+                TopologyGroup group = open.element();
+                if (line.contains("<cpu")) {
+                    group.cpus.addAll(parseCpuList(line));
+                } else if (line.contains("<flag name=\"THREAD\"") || line.contains("<flag name=\"SMT\"")
+                        || line.contains("<flag name=\"HTT\"")) {
+                    // The kernel prints THREAD alongside either of the others, but any of them marks a core
+                    group.thread = true;
+                }
+            }
+        }
+        if (groups.isEmpty()) {
+            return new ArrayList<>();
+        }
+        // The CPUs of each core, keyed by the core's lowest CPU, and each CPU's package
+        Map<Integer, Integer> coreOf = new HashMap<>();
+        Map<Integer, Integer> packageOf = new HashMap<>();
+        int packageNumber = 0;
+        for (TopologyGroup group : groups) {
+            if (group.thread && !group.cpus.isEmpty()) {
+                int first = Collections.min(group.cpus);
+                for (int cpu : group.cpus) {
+                    coreOf.put(cpu, first);
+                }
+            } else if (group.level == 2) {
+                for (int cpu : group.cpus) {
+                    packageOf.put(cpu, packageNumber);
+                }
+                packageNumber++;
+            }
+        }
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, Integer> coreNumbers = new HashMap<>();
+        for (int cpu : new TreeSet<>(groups.get(0).cpus)) {
+            int core = coreNumbers.computeIfAbsent(coreOf.getOrDefault(cpu, cpu), k -> coreNumbers.size());
+            logProcs.add(new LogicalProcessor(cpu, core, packageOf.getOrDefault(cpu, 0), 0));
+        }
+        return logProcs;
+    }
+
+    /**
+     * Reads the CPU numbers of a {@code <cpu>} line, from the list it prints or, failing that, from its mask. The mask
+     * is a comma-separated list of 64-bit hex words, lowest CPUs first.
+     */
+    private static List<Integer> parseCpuList(String line) {
+        List<Integer> cpus = new ArrayList<>();
+        int open = line.indexOf('>');
+        int close = line.indexOf("</cpu>");
+        if (open >= 0 && close > open) {
+            for (String cpu : line.substring(open + 1, close).split(",", -1)) {
+                int n = ParseUtil.parseIntOrDefault(cpu.trim(), -1);
+                if (n >= 0) {
+                    cpus.add(n);
+                }
+            }
+        }
+        if (cpus.isEmpty()) {
+            Matcher m = CPUMASK.matcher(line);
+            if (m.find()) {
+                String[] words = m.group(1).split(",", -1);
+                for (int w = 0; w < words.length; w++) {
+                    long bits = ParseUtil.hexStringToLong(words[w], 0L);
+                    for (int b = 0; b < Long.SIZE; b++) {
+                        if ((bits & (1L << b)) != 0) {
+                            cpus.add(w * Long.SIZE + b);
+                        }
                     }
                 }
             }
         }
-        return matchBitmasks(group1, group2, group3);
+        return cpus;
+    }
+
+    /** A group of CPUs in {@code kern.sched.topology_spec}. */
+    private static final class TopologyGroup {
+        private final int level;
+        private final List<Integer> cpus = new ArrayList<>();
+        private boolean thread;
+
+        private TopologyGroup(int level) {
+            this.level = level;
+        }
     }
 
     /**
@@ -487,32 +540,6 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(i, coreNumber, physicalIds[i], 0));
         }
         return logProcs;
-    }
-
-    private static List<LogicalProcessor> matchBitmasks(long group1, List<Long> group2, List<Long> group3) {
-        List<LogicalProcessor> logProcs = new ArrayList<>();
-        // Lowest and Highest set bits, indexing from 0
-        int lowBit = Long.numberOfTrailingZeros(group1);
-        int hiBit = 63 - Long.numberOfLeadingZeros(group1);
-        // Create logical processors for this core
-        for (int i = lowBit; i <= hiBit; i++) {
-            if ((group1 & (1L << i)) > 0) {
-                int numaNode = 0;
-                LogicalProcessor logProc = new LogicalProcessor(i, getMatchingBitmask(group3, i),
-                        getMatchingBitmask(group2, i), numaNode);
-                logProcs.add(logProc);
-            }
-        }
-        return logProcs;
-    }
-
-    private static int getMatchingBitmask(List<Long> bitmasks, int lp) {
-        for (int j = 0; j < bitmasks.size(); j++) {
-            if ((bitmasks.get(j).longValue() & (1L << lp)) != 0) {
-                return j;
-            }
-        }
-        return 0;
     }
 
     @Override
