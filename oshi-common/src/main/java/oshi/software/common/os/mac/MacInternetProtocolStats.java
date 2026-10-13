@@ -101,6 +101,13 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
     public TcpStats getTCPv6Stats() {
         BsdIp6stat ip6 = ip6stat.get();
         BsdUdpstat udp = udpstat.get();
+        // There is no IPv6 segment counter, so this estimates from the IPv6 packet totals, less the UDP datagrams
+        // among them. The udps_*6_swcsum fields are the only per-family UDP counters macOS keeps, and they count
+        // datagrams whose checksum was computed in software rather than datagrams: udps_snd6_swcsum matches the
+        // datagrams sent over a real interface but counts none sent over loopback, and udps_rcv6_swcsum does not
+        // increment at all, which leaves the segments received uncorrected. They are too far from a datagram count
+        // to report as one, which is why getUDPv6Stats() is left to the zeros of the superclass, but subtracting
+        // what they do account for still brings this estimate closer than not subtracting it.
         return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
                 Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
                 Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
@@ -117,13 +124,6 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
                 ParseUtil.unsignedIntToLong(stat.udps_ipackets),
                 ParseUtil.unsignedIntToLong(stat.udps_noport) + ParseUtil.unsignedIntToLong(stat.udps_noportbcast),
                 ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
-    }
-
-    @Override
-    public UdpStats getUDPv6Stats() {
-        BsdUdpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
-                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
     }
 
     /*
