@@ -43,6 +43,6 @@ public final class FreeBsdPowerSourceFFM extends FreeBsdPowerSource {
      * @return A list of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
-        return queryBattery("BAT0", BsdSysctlUtilFFM::sysctl, FreeBsdPowerSourceFFM::new);
+        return queryBatteries(BsdSysctlUtilFFM::sysctl, FreeBsdPowerSourceFFM::new);
     }
 }

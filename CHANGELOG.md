@@ -8,6 +8,7 @@
 * [#3792](https://github.com/oshi/oshi/pull/3792): Fixed the `ProcessorID` that OSHI builds from the family, model and stepping for AMD processors of family 16 and later, which encoded the family incorrectly. It is built this way on Linux when neither `dmidecode` nor `cpuid` is available, on Solaris, and on Windows when WMI does not return one - [@dbwiddis](https://github.com/dbwiddis).
 * [#3793](https://github.com/oshi/oshi/pull/3793): Fixed `OSProcess.getBitness` on DragonFly BSD, which returned 0 for every process. DragonFly has no 32-bit compatibility layer, so it now returns the operating system's bitness - [@dbwiddis](https://github.com/dbwiddis).
 * [#3795](https://github.com/oshi/oshi/pull/3795): Fixed the TCP and UDP statistics from `InternetProtocolStats` on FreeBSD, which read the kernel's 64-bit counters as 32-bit values at the wrong offsets. IPv6 UDP statistics are now 0, as FreeBSD does not count them separately - [@dbwiddis](https://github.com/dbwiddis).
+* [#3797](https://github.com/oshi/oshi/pull/3797): Fixed `getPowerSources()` on FreeBSD and DragonFly BSD, which reported a full battery named `BAT0` on machines with none, and only one battery on machines with several. Voltage is now in volts and amperage in milliamperes, power usage and amperage are negative while discharging, and on-line status, current capacity and cycle count are now reported - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
