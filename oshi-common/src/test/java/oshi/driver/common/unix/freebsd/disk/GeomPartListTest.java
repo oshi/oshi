@@ -161,4 +161,66 @@ class GeomPartListTest {
         assertThat(ada0.get(0).getType(), is(Constants.UNKNOWN));
         assertThat(ada0.get(0).getSize(), is(0L));
     }
+
+    // An MBR disk whose slice holds a BSD label. The slice's geom is named after the slice and here is listed first,
+    // as geom does not order its output.
+    private static final String MBR_WITH_BSD_LABEL = """
+            Geom name: ada0s1
+            scheme: BSD
+            Providers:
+            1. Name: ada0s1a
+               Mediasize: 10737418240 (10G)
+               rawtype: 7
+               length: 10737418240
+               offset: 0
+               type: freebsd-ufs
+               index: 1
+            2. Name: ada0s1b
+               Mediasize: 2147483648 (2.0G)
+               rawtype: 1
+               type: freebsd-swap
+               index: 2
+            Consumers:
+            1. Name: ada0s1
+               Mediasize: 12884901888 (12G)
+
+            Geom name: ada0
+            scheme: MBR
+            Providers:
+            1. Name: ada0s1
+               Mediasize: 12884901888 (12G)
+               rawtype: 165
+               type: freebsd
+               index: 1
+            Consumers:
+            1. Name: ada0
+               Mediasize: 12884901888 (12G)
+            """;
+
+    @Test
+    void testBsdLabelPartitionsBelongToTheDisk() {
+        Map<String, List<HWPartition>> map = GeomPartList.parsePartitions(MBR_WITH_BSD_LABEL.lines().toList(),
+                Map.of("ada0s1a", "/"), part -> 0);
+        assertThat(map.keySet(), contains("ada0"));
+        List<HWPartition> ada0 = map.get("ada0");
+        assertNotNull(ada0);
+        assertThat(names(ada0), contains("ada0s1", "ada0s1a", "ada0s1b"));
+        assertThat(ada0.get(1).getMountPoint(), is("/"));
+        assertThat(ada0.get(1).getType(), is("freebsd-ufs"));
+    }
+
+    @Test
+    void testMountedByGptLabelOrId() {
+        // da0p2 mounted as /dev/gpt/rootfs, da1p1 as /dev/gptid/<rawuuid>
+        Map<String, String> mounts = Map.of("gpt/rootfs", "/", "gptid/deb7728b-8f91-11ef-8e4d-00155dc40030", "/home");
+        Map<String, List<HWPartition>> map = GeomPartList.parsePartitions(GEOM_PART_LIST.lines().toList(), mounts,
+                part -> 0);
+        List<HWPartition> da0 = map.get("da0");
+        List<HWPartition> da1 = map.get("da1");
+        assertNotNull(da0);
+        assertNotNull(da1);
+        assertThat(da0.get(1).getMountPoint(), is("/"));
+        assertThat(da0.get(0).getMountPoint(), is(""));
+        assertThat(da1.get(0).getMountPoint(), is("/home"));
+    }
 }
