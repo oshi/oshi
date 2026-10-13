@@ -20,7 +20,7 @@ import oshi.util.ExecutingCommand;
 public final class Mount {
 
     private static final String MOUNT_CMD = "mount";
-    private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+p\\d+) on (\\S+) .*");
+    private static final Pattern MOUNT_PATTERN = Pattern.compile("/dev/(\\S+) on (\\S+) .*");
 
     private Mount() {
     }

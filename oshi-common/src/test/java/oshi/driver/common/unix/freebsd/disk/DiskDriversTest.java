@@ -38,7 +38,8 @@ class DiskDriversTest {
             assertTrue(diskNames.contains(entry.getKey()), "Disk name should be in disk string map");
             for (HWPartition part : entry.getValue()) {
                 if (!part.getMountPoint().isEmpty()) {
-                    assertTrue(mountedPartitions.contains(entry.getKey()), "Partition name should be in mount map");
+                    assertTrue(mountedPartitions.contains(part.getIdentification()),
+                            "Partition name should be in mount map");
                 }
             }
         }

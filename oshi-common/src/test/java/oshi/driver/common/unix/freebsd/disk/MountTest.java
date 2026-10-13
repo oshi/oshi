@@ -34,6 +34,20 @@ class MountTest {
     }
 
     @Test
+    void testParseMountOutputMbrAndLabels() {
+        // An MBR slice holding a BSD label, and a GPT partition mounted by its label
+        List<String> mountOutput = """
+                /dev/ada0s1a on / (ufs, local, soft-updates)
+                /dev/gpt/data on /data (ufs, local)
+                """.lines().toList();
+
+        Map<String, String> result = Mount.parseMountOutput(mountOutput);
+
+        assertThat(result.get("ada0s1a"), is("/"));
+        assertThat(result.get("gpt/data"), is("/data"));
+    }
+
+    @Test
     void testParseMountOutputEmptyInput() {
         Map<String, String> result = Mount.parseMountOutput(Collections.emptyList());
         assertThat(result, is(anEmptyMap()));
