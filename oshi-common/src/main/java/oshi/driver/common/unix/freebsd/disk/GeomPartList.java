@@ -9,7 +9,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.function.ToIntFunction;
+
+import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWPartition;
@@ -35,95 +37,117 @@ public final class GeomPartList {
      * @return A map with disk name as the key and a List of partitions as the value
      */
     public static Map<String, List<HWPartition>> queryPartitions() {
-        Map<String, String> mountMap = Mount.queryPartitionToMountMap();
-        // Map of device name to partitions, to be returned
-        Map<String, List<HWPartition>> partitionMap = new HashMap<>();
-        // The Disk Store associated with a partition, key to the map
-        String diskName = null;
-        // List to hold partitions, will be added as value to the map
-        List<HWPartition> partList = new ArrayList<>();
-        // Parameters needed for constructor.
-        String partName = null; // Non-null identifies a valid partition
-        String identification = Constants.UNKNOWN;
-        String type = Constants.UNKNOWN;
-        String uuid = Constants.UNKNOWN;
-        String label = "";
-        long size = 0;
-        String mountPoint = "";
+        // FreeBSD has no major numbers. The inode of a devfs entry is the device's minor number.
+        return parsePartitions(ExecutingCommand.runNative(GEOM_PART_LIST), Mount.queryPartitionToMountMap(),
+                part -> ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + part), 0));
+    }
 
-        List<String> geom = ExecutingCommand.runNative(GEOM_PART_LIST);
-        for (String line : geom) {
-            line = line.trim();
-            // Marks the DiskStore device for a partition.
-            if (line.startsWith("Geom name:")) {
-                // Save any previous partition list in the map
-                if (diskName != null && !partList.isEmpty()) {
-                    // Store map (old diskName)
-                    partitionMap.put(diskName, partList);
-                    // Reset the list
-                    partList = new ArrayList<>();
+    /**
+     * Parses the output of {@code geom part list}. Each geom lists its partitions under {@code Providers:} and the
+     * device holding them under {@code Consumers:}; only the providers are partitions. A partition can itself hold a
+     * scheme, as an MBR slice holds a BSD label, so its geom is named after the slice; its partitions are listed under
+     * the physical disk.
+     *
+     * @param geom        the lines of output from {@code geom part list}
+     * @param mountMap    a map of {@code /dev} device name to mount point
+     * @param minorLookup returns the minor device number of a partition
+     * @return A map with disk name as the key and a List of partitions, sorted by name, as the value
+     */
+    static Map<String, List<HWPartition>> parsePartitions(List<String> geom, Map<String, String> mountMap,
+            ToIntFunction<String> minorLookup) {
+        // Partitions by the geom listing them, and the geom providing each partition
+        Map<String, List<HWPartition>> byGeom = new HashMap<>();
+        Map<String, String> geomOf = new HashMap<>();
+        PartitionBuilder part = null;
+        String geomName = null;
+        boolean inProviders = false;
+        for (String raw : geom) {
+            String line = raw.trim();
+            if (line.startsWith("Geom name:") || line.equals("Providers:") || line.equals("Consumers:")) {
+                addPartition(byGeom, geomOf, geomName, part, mountMap, minorLookup);
+                part = null;
+                inProviders = line.equals("Providers:");
+                if (line.startsWith("Geom name:")) {
+                    geomName = line.substring(line.lastIndexOf(' ') + 1);
                 }
-                // Now use new diskName
-                diskName = line.substring(line.lastIndexOf(' ') + 1);
-            }
-            // If we don't have a valid store, don't bother parsing anything
-            if (diskName != null) {
-                // Marks the beginning of partition data
+            } else if (inProviders && geomName != null) {
+                String[] split = ParseUtil.whitespaces.split(line, -1);
                 if (line.contains("Name:")) {
-                    // Add the current partition to the list, if any
-                    if (partName != null) {
-                        // FreeBSD Major # is 0.
-                        // Minor # is filesize of /dev entry.
-                        int minor = ParseUtil
-                                .parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-                        partList.add(new HWPartition(identification, partName, type, uuid, label, size, 0, minor,
-                                mountPoint));
-                        partName = null;
-                        identification = Constants.UNKNOWN;
-                        type = Constants.UNKNOWN;
-                        uuid = Constants.UNKNOWN;
-                        label = "";
-                        size = 0;
-                    }
-                    // Verify new entry is a partition
-                    // (will happen in 'providers' section)
-                    String part = line.substring(line.lastIndexOf(' ') + 1);
-                    if (part.startsWith(diskName)) {
-                        partName = part;
-                        identification = part;
-                        mountPoint = mountMap.getOrDefault(part, "");
-                    }
-                }
-                // If we don't have a valid partition, don't parse anything until we do.
-                if (partName != null) {
-                    String[] split = ParseUtil.whitespaces.split(line, -1);
-                    if (split.length >= 2) {
-                        if (line.startsWith("Mediasize:")) {
-                            size = ParseUtil.parseLongOrDefault(split[1], 0L);
-                        } else if (line.startsWith("rawuuid:")) {
-                            uuid = split[1];
-                        } else if (line.startsWith("type:")) {
-                            type = split[1];
-                        } else if (line.startsWith("label:") && !"(null)".equals(split[1])) {
-                            label = split[1];
-                        }
+                    addPartition(byGeom, geomOf, geomName, part, mountMap, minorLookup);
+                    part = new PartitionBuilder(split[split.length - 1]);
+                } else if (part != null && split.length >= 2) {
+                    if (line.startsWith("Mediasize:")) {
+                        part.size = ParseUtil.parseLongOrDefault(split[1], 0L);
+                    } else if (line.startsWith("rawuuid:")) {
+                        part.uuid = split[1];
+                    } else if (line.startsWith("type:")) {
+                        part.type = split[1];
+                    } else if (line.startsWith("label:") && !"(null)".equals(split[1])) {
+                        part.label = split[1];
                     }
                 }
             }
         }
-        if (diskName != null) {
-            // Process last partition
-            if (partName != null) {
-                int minor = ParseUtil.parseIntOrDefault(ExecutingCommand.getFirstAnswer(STAT_FILESIZE + partName), 0);
-                partList.add(new HWPartition(identification, partName, type, uuid, label, size, 0, minor, mountPoint));
-            }
-            // Process last diskstore
-            if (!partList.isEmpty()) {
-                partList = partList.stream().sorted(Comparator.comparing(HWPartition::getName))
-                        .collect(Collectors.toList());
-                partitionMap.put(diskName, partList);
-            }
+        addPartition(byGeom, geomOf, geomName, part, mountMap, minorLookup);
+
+        Map<String, List<HWPartition>> partitionMap = new HashMap<>();
+        for (Map.Entry<String, List<HWPartition>> entry : byGeom.entrySet()) {
+            partitionMap.computeIfAbsent(physicalDisk(entry.getKey(), geomOf), d -> new ArrayList<>())
+                    .addAll(entry.getValue());
+        }
+        for (List<HWPartition> partitions : partitionMap.values()) {
+            partitions.sort(Comparator.comparing(HWPartition::getName));
         }
         return partitionMap;
+    }
+
+    /** Follows a geom named after a partition, such as an MBR slice holding a BSD label, up to the disk. */
+    private static String physicalDisk(String geomName, Map<String, String> geomOf) {
+        String disk = geomName;
+        // Bounded, in case the output is malformed into a cycle
+        for (int depth = 0; depth < 8; depth++) {
+            String parent = geomOf.get(disk);
+            if (parent == null) {
+                break;
+            }
+            disk = parent;
+        }
+        return disk;
+    }
+
+    private static void addPartition(Map<String, List<HWPartition>> byGeom, Map<String, String> geomOf,
+            @Nullable String geomName, @Nullable PartitionBuilder part, Map<String, String> mountMap,
+            ToIntFunction<String> minorLookup) {
+        if (geomName != null && part != null) {
+            geomOf.put(part.name, geomName);
+            byGeom.computeIfAbsent(geomName, g -> new ArrayList<>())
+                    .add(new HWPartition(part.name, part.name, part.type, part.uuid, part.label, part.size, 0,
+                            minorLookup.applyAsInt(part.name), mountPoint(part, mountMap)));
+        }
+    }
+
+    /** The mount point of a partition, mounted by its own name or by its GPT label or GPT ID. */
+    private static String mountPoint(PartitionBuilder part, Map<String, String> mountMap) {
+        String mountPoint = mountMap.get(part.name);
+        if (mountPoint == null && !part.label.isEmpty()) {
+            mountPoint = mountMap.get("gpt/" + part.label);
+        }
+        if (mountPoint == null && !Constants.UNKNOWN.equals(part.uuid)) {
+            mountPoint = mountMap.get("gptid/" + part.uuid);
+        }
+        return mountPoint == null ? "" : mountPoint;
+    }
+
+    /** The fields of a partition collected from its lines of {@code geom} output. */
+    private static final class PartitionBuilder {
+        private final String name;
+        private String type = Constants.UNKNOWN;
+        private String uuid = Constants.UNKNOWN;
+        private String label = "";
+        private long size;
+
+        private PartitionBuilder(String name) {
+            this.name = name;
+        }
     }
 }

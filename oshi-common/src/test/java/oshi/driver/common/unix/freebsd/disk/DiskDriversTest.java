@@ -7,6 +7,7 @@ package oshi.driver.common.unix.freebsd.disk;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.anEmptyMap;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -33,13 +34,19 @@ class DiskDriversTest {
 
         Map<String, String> deviceMap = Mount.queryPartitionToMountMap();
         Set<String> diskNames = diskStringMap.keySet();
-        Set<String> mountedPartitions = deviceMap.keySet();
         for (Entry<String, List<HWPartition>> entry : partMap.entrySet()) {
             assertTrue(diskNames.contains(entry.getKey()), "Disk name should be in disk string map");
             for (HWPartition part : entry.getValue()) {
-                if (!part.getMountPoint().isEmpty()) {
-                    assertTrue(mountedPartitions.contains(entry.getKey()), "Partition name should be in mount map");
+                // A partition can be mounted by its own name, its GPT label (the installer mounts the EFI partition as
+                // /dev/gpt/efiboot0) or its GPT ID
+                String expected = deviceMap.get(part.getIdentification());
+                if (expected == null && !part.getLabel().isEmpty()) {
+                    expected = deviceMap.get("gpt/" + part.getLabel());
                 }
+                if (expected == null) {
+                    expected = deviceMap.getOrDefault("gptid/" + part.getUuid(), "");
+                }
+                assertEquals(expected, part.getMountPoint(), "Mount point of " + part.getIdentification());
             }
         }
     }
