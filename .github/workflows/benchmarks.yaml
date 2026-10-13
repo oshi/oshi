@@ -277,7 +277,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Benchmark on OpenIndiana
-        uses: vmactions/openindiana-vm@f0ed27ca85a6d1f5b11e4242eba1d6effa5aaae2 # v1
+        uses: vmactions/openindiana-vm@74a06af3be38c265a2d99d1af520d66a057ff222 # v1
         with:
           # Manual runs only: a cached base image would sit in the shared 10 GB Actions cache between
           # them, and restoring one is no faster than downloading it. See unix.yaml.
