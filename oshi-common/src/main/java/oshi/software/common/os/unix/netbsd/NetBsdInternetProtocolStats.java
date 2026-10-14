@@ -16,7 +16,7 @@ public class NetBsdInternetProtocolStats extends AbstractInternetProtocolStats {
 
     @Override
     public TcpStats getTCPv4Stats() {
-        return NetStat.queryTcpStats("netstat -s -p tcp");
+        return NetStat.queryBsdTcpStats();
     }
 
     @Override

@@ -48,11 +48,12 @@ public final class NetStat {
         long tcp4 = 0L;
         long tcp6 = 0L;
         for (String s : lines) {
-            if (s.endsWith("ESTABLISHED")) {
-                if (s.startsWith("tcp4")) {
-                    tcp4++;
-                } else if (s.startsWith("tcp6")) {
+            if (s.trim().endsWith("ESTABLISHED")) {
+                // OpenBSD and NetBSD name IPv4 sockets plain tcp, the others tcp4
+                if (s.startsWith("tcp6")) {
                     tcp6++;
+                } else if (s.startsWith("tcp")) {
+                    tcp4++;
                 }
             }
         }
@@ -234,13 +235,25 @@ public final class NetStat {
     }
 
     /**
-     * Gets TCP stats via {@code netstat -s}. Used for Linux and OpenBSD formats
+     * Gets TCP stats via {@code netstat -s}. Used for Linux and BSD formats
      *
      * @param netstatStr The command string
      * @return The statistics
      */
     public static TcpStats queryTcpStats(String netstatStr) {
         return queryTcpStats(ExecutingCommand.runNative(netstatStr));
+    }
+
+    /**
+     * Gets TCP stats via {@code netstat -s}, with the number of connections currently established supplied by the
+     * caller. The BSDs' {@code netstat -s} counts only the connections ever established.
+     *
+     * @param netstatStr  The command string
+     * @param established The number of TCP connections currently established
+     * @return The statistics
+     */
+    public static TcpStats queryTcpStats(String netstatStr, long established) {
+        return withEstablished(queryTcpStats(netstatStr), established);
     }
 
     /**
@@ -264,23 +277,27 @@ public final class NetStat {
             String[] split = s.trim().split(" ", 2);
             if (split.length == 2) {
                 switch (split[1]) {
+                    // Linux counts those currently established; BSD's "(including accepts)" line counts every
+                    // connection ever established, so it is not read
                     case "connections established":
-                    case "connection established (including accepts)":
-                    case "connections established (including accepts)":
                         connectionsEstablished = ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     case "active connection openings":
+                    case "connection request":
+                    case "connection requests":
                         connectionsActive = ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     case "passive connection openings":
+                    case "connection accept":
+                    case "connection accepts":
                         connectionsPassive = ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     case "failed connection attempts":
-                    case "bad connection attempts":
+                    case "embryonic connection dropped":
+                    case "embryonic connections dropped":
                         connectionFailures = ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     case "connection resets received":
-                    case "dropped due to RST":
                         connectionsReset = ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     case "segments sent out":
@@ -309,9 +326,12 @@ public final class NetStat {
                         outResets = ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     default:
-                        // handle special case variable strings
-                        if (split[1].contains("retransmitted") && split[1].contains("data packet")) {
-                            segmentsRetransmitted += ParseUtil.parseLongOrDefault(split[0], 0L);
+                        // BSD lines carrying a second count: "N data packets (B bytes) retransmitted" and
+                        // "N connections closed (including D drops)", whose drops are the connections reset
+                        if (split[1].startsWith("data packet") && split[1].endsWith(") retransmitted")) {
+                            segmentsRetransmitted = ParseUtil.parseLongOrDefault(split[0], 0L);
+                        } else if (split[1].startsWith("connection") && split[1].contains(" closed (including ")) {
+                            connectionsReset = parseIncluded(split[1]);
                         }
                         break;
                 }
@@ -323,8 +343,33 @@ public final class NetStat {
                 connectionsReset, segmentsSent, segmentsReceived, segmentsRetransmitted, inErrors, outResets);
     }
 
+    /** Parses D from text such as {@code connections closed (including D drops)}. */
+    private static long parseIncluded(String text) {
+        String included = text.substring(text.indexOf("(including ") + "(including ".length());
+        int end = included.indexOf(' ');
+        return ParseUtil.parseLongOrDefault(end < 0 ? included : included.substring(0, end), 0L);
+    }
+
     /**
-     * Gets UDP stats via {@code netstat -s}. Used for Linux and OpenBSD formats
+     * Gets IPv4 TCP stats on OpenBSD, NetBSD and DragonFly BSD, from {@code netstat -s -p tcp} and the IPv4 connections
+     * that {@code netstat -n -f inet} lists as established.
+     *
+     * @return The statistics
+     */
+    public static TcpStats queryBsdTcpStats() {
+        return queryTcpStats("netstat -s -p tcp",
+                queryTcpnetstat(ExecutingCommand.runNative("netstat -n -f inet")).getA());
+    }
+
+    private static TcpStats withEstablished(TcpStats stats, long established) {
+        return new TcpStats(established, stats.getConnectionsActive(), stats.getConnectionsPassive(),
+                stats.getConnectionFailures(), stats.getConnectionsReset(), stats.getSegmentsSent(),
+                stats.getSegmentsReceived(), stats.getSegmentsRetransmitted(), stats.getInErrors(),
+                stats.getOutResets());
+    }
+
+    /**
+     * Gets UDP stats via {@code netstat -s}. Used for Linux and BSD formats
      *
      * @param netstatStr The command string
      * @return The statistics
@@ -362,13 +407,15 @@ public final class NetStat {
                     case "dropped due to no socket":
                     case "broadcast/multicast datagram dropped due to no socket":
                     case "broadcast/multicast datagrams dropped due to no socket":
+                    case "broadcast/multicast datagram undelivered":
+                    case "broadcast/multicast datagrams undelivered":
                         datagramsNoPort += ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
+                    // A datagram with no checksum is valid over IPv4, so "with no checksum" is not an error
                     case "packet receive errors":
                     case "with incomplete header":
                     case "with bad data length field":
                     case "with bad checksum":
-                    case "with no checksum":
                         datagramsReceivedErrors += ParseUtil.parseLongOrDefault(split[0], 0L);
                         break;
                     default:
