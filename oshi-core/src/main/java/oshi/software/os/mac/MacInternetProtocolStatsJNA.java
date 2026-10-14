@@ -168,10 +168,10 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
     protected BsdUdpstat queryUdpstat() {
         try (Memory m = SysctlUtil.sysctl("net.inet.udp.stats")) {
             if (m != null && m.size() >= 84) {
-                return new BsdUdpstat(m.getInt(0), m.getInt(4), m.getInt(8), m.getInt(12), m.getInt(36), m.getInt(48),
-                        m.getInt(64), m.getInt(80));
+                return new BsdUdpstat(m.getInt(0), m.getInt(4), m.getInt(8), m.getInt(12), m.getInt(16), m.getInt(20),
+                        m.getInt(36), m.getInt(64), m.getInt(80));
             }
         }
-        return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0);
+        return new BsdUdpstat(0, 0, 0, 0, 0, 0, 0, 0, 0);
     }
 }

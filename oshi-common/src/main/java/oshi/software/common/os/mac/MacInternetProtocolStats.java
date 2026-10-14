@@ -101,6 +101,13 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
     public TcpStats getTCPv6Stats() {
         BsdIp6stat ip6 = ip6stat.get();
         BsdUdpstat udp = udpstat.get();
+        // There is no IPv6 segment counter, so this estimates from the IPv6 packet totals, less the UDP datagrams
+        // among them. The udps_*6_swcsum fields are the only per-family UDP counters macOS keeps, and they count
+        // datagrams whose checksum was computed in software rather than datagrams: udps_snd6_swcsum matches the
+        // datagrams sent over a real interface but counts none sent over loopback, and udps_rcv6_swcsum does not
+        // increment at all, which leaves the segments received uncorrected. They are too far from a datagram count
+        // to report as one, which is why getUDPv6Stats() is left to the zeros of the superclass, but subtracting
+        // what they do account for still brings this estimate closer than not subtracting it.
         return new TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
                 Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
                 Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
@@ -109,16 +116,14 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
     @Override
     public UdpStats getUDPv4Stats() {
         BsdUdpstat stat = udpstat.get();
+        // The kernel counts a datagram with no socket on its port in udps_noport, except for an IPv4 broadcast or
+        // multicast one, which it counts only in udps_noportbcast. Both lines are what netstat prints as "dropped due
+        // to no socket" and "broadcast/multicast datagrams undelivered". udps_noportmcast, a subset of udps_noport
+        // holding the IPv6 multicast ones, is deliberately not added, as that would count them twice.
         return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
-                ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
+                ParseUtil.unsignedIntToLong(stat.udps_ipackets),
+                ParseUtil.unsignedIntToLong(stat.udps_noport) + ParseUtil.unsignedIntToLong(stat.udps_noportbcast),
                 ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
-    }
-
-    @Override
-    public UdpStats getUDPv6Stats() {
-        BsdUdpstat stat = udpstat.get();
-        return new UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
-                ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
     }
 
     /*
@@ -179,8 +184,9 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
         private final int udps_hdrops;
         private final int udps_badsum;
         private final int udps_badlen;
+        private final int udps_noport;
+        private final int udps_noportbcast;
         private final int udps_opackets;
-        private final int udps_noportmcast;
         private final int udps_rcv6_swcsum;
         private final int udps_snd6_swcsum;
 
@@ -191,19 +197,21 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
          * @param hdrops      datagrams dropped for bad header
          * @param badsum      datagrams dropped for bad checksum
          * @param badlen      datagrams dropped for bad length
+         * @param noport      unicast datagrams with no socket on the port
+         * @param noportbcast broadcast and multicast datagrams with no socket on the port
          * @param opackets    datagrams sent
-         * @param noportmcast multicast datagrams with no port
          * @param rcv6Swcsum  IPv6 datagrams received with software checksum
          * @param snd6Swcsum  IPv6 datagrams sent with software checksum
          */
-        public BsdUdpstat(int ipackets, int hdrops, int badsum, int badlen, int opackets, int noportmcast,
+        public BsdUdpstat(int ipackets, int hdrops, int badsum, int badlen, int noport, int noportbcast, int opackets,
                 int rcv6Swcsum, int snd6Swcsum) {
             this.udps_ipackets = ipackets;
             this.udps_hdrops = hdrops;
             this.udps_badsum = badsum;
             this.udps_badlen = badlen;
+            this.udps_noport = noport;
+            this.udps_noportbcast = noportbcast;
             this.udps_opackets = opackets;
-            this.udps_noportmcast = noportmcast;
             this.udps_rcv6_swcsum = rcv6Swcsum;
             this.udps_snd6_swcsum = snd6Swcsum;
         }

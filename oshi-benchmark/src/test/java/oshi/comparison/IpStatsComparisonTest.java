@@ -145,11 +145,8 @@ class IpStatsComparisonTest {
         between(failures, "sent", before, after, UdpStats::getDatagramsSent, count(cmd, "datagram output"));
         between(failures, "receive errors", before, after, UdpStats::getDatagramsReceivedErrors,
                 count(cmd, "with incomplete header", "with bad data length field", "with bad checksum"));
-        // netstat's "undelivered" line is udps_noportbcast + udps_noportmcast. macOS reports only udps_noportmcast
-        if (PlatformEnum.getCurrentPlatform() == PlatformEnum.FREEBSD) {
-            between(failures, "no port", before, after, UdpStats::getDatagramsNoPort,
-                    count(cmd, "dropped due to no socket", "broadcast/multicast datagram undelivered"));
-        }
+        between(failures, "no port", before, after, UdpStats::getDatagramsNoPort,
+                count(cmd, "dropped due to no socket", "broadcast/multicast datagram undelivered"));
         assertThat(failures).as("UDP counters disagreeing with netstat").isEmpty();
     }
 }
