@@ -94,12 +94,7 @@ public abstract class FreeBsdInternetProtocolStats extends AbstractInternetProto
         if (stats != null) {
             return stats;
         }
-        TcpStats parsed = NetStat.queryTcpStats("netstat -s -p tcp");
-        // netstat reports connections ever established; this field is the number currently established
-        return new TcpStats(established, parsed.getConnectionsActive(), parsed.getConnectionsPassive(),
-                parsed.getConnectionFailures(), parsed.getConnectionsReset(), parsed.getSegmentsSent(),
-                parsed.getSegmentsReceived(), parsed.getSegmentsRetransmitted(), parsed.getInErrors(),
-                parsed.getOutResets());
+        return NetStat.queryTcpStats("netstat -s -p tcp", established);
     }
 
     private UdpStats queryUdpv4Stats() {

@@ -55,17 +55,117 @@ class NetStatTest {
     private static final List<String> UDP_STATS_LINUX = List.of("Udp:", "    12345 packets received",
             "    67 packets to unknown port received", "    0 packet receive errors", "    8901 packets sent");
 
-    // Fixture: netstat -s -p tcp output (OpenBSD/FreeBSD style)
-    private static final List<String> TCP_STATS_BSD = List.of("tcp:", "    100 packet sent", "    200 packet received",
-            "    5 bad connection attempts", "    15 connection established (including accepts)",
-            "    7 dropped due to RST", "    42 retransmitted 3 data packet", "    2 discarded for bad checksum",
-            "    3 discarded for bad header offset field", "    10 resets sent");
+    // Fixture: netstat -s -p tcp on OpenBSD 7.9, trimmed. Counters named like others appear nested under the SYN cache.
+    private static final String TCP_STATS_OPENBSD = """
+            tcp:
+                2463584 packets sent
+                    1242535 data packets (1020126345 bytes)
+                    8286 data packets (1401180 bytes) retransmitted
+                    0 fast retransmitted packets
+                2699799 packets received
+                    1219509 packets (372021024 bytes) received in-sequence
+                    0 discarded for bad checksums
+                    0 discarded for bad header offset fields
+                    0 discarded because packet too short
+                    0 discarded for missing IPsec protection
+                34560 connection requests
+                53607 connection accepts
+                88159 connections established (including accepts)
+                89140 connections closed (including 1933 drops)
+                0 connections drained
+                7 embryonic connections dropped
+                9090 retransmit timeouts
+                    443 connections dropped by rexmit timeout
+                199716 dropped due to no socket
+                2394 bad connection attempts
+                55974 SYN cache entries added
+                    53607 completed
+                    881 dropped due to RST
+            """;
 
-    // Fixture: netstat -s -p udp output (OpenBSD/FreeBSD style)
-    private static final List<String> UDP_STATS_BSD = List.of("udp:", "    5000 datagram output",
-            "    3000 datagram received", "    50 dropped due to no socket",
-            "    10 broadcast/multicast datagram dropped due to no socket", "    2 with incomplete header",
-            "    1 with bad data length field", "    3 with bad checksum", "    4 with no checksum");
+    // Fixture: netstat -s -p tcp on DragonFly BSD 6.4, trimmed
+    private static final String TCP_STATS_DRAGONFLY = """
+            tcp:
+                39256319 packets sent
+                    32106476 data packets (34523931139 bytes)
+                    145295 data packets (85266258 bytes) retransmitted
+                    5 data packets (1936 bytes) retransmitted by SACK
+                    21995 Fast Retransmits (21741 early)
+                    12280 Eifel-detected spurious retransmits (12280 non-RTT)
+                26776043 packets received
+                    56527 discarded for bad checksums
+                    208 discarded for bad header offset fields
+                    0 discarded because packet too short
+                77661 connection requests
+                811412 connection accepts
+                22914 bad connection attempts
+                889028 connections established (including accepts)
+                895725 connections closed (including 231815 drops)
+                    128577 connections updated cached RTT on close
+                40 embryonic connections dropped
+                874518 syncache entries added
+                    56210 reset
+                2 connections in ESTABLISHED state
+            """;
+
+    // Fixture: netstat -s -p udp on OpenBSD 7.9
+    private static final String UDP_STATS_OPENBSD = """
+            udp:
+                8243 datagrams received
+                0 with incomplete header
+                0 with bad data length field
+                0 with bad checksum
+                1808 with no checksum
+                0 input packets software-checksummed
+                3785 output packets software-checksummed
+                4483 dropped due to no socket
+                0 broadcast/multicast datagrams dropped due to no socket
+                0 dropped due to missing IPsec protection
+                0 dropped due to full socket buffers
+                3760 delivered
+                3798 datagrams output
+                4483 missed PCB cache
+            """;
+
+    // Fixture: netstat -s -p udp on DragonFly BSD 6.4
+    private static final String UDP_STATS_DRAGONFLY = """
+            udp:
+                154588 datagrams received
+                0 with incomplete header
+                0 with bad data length field
+                4 with bad checksum
+                1004 with no checksum
+                12669 dropped due to no socket
+                101467 broadcast/multicast datagrams dropped due to no socket
+                0 dropped due to full socket buffers
+                0 not for hashed pcb
+                40448 delivered
+                40555 datagrams output
+            """;
+
+    // Fixture: netstat -s -p udp on FreeBSD 16, whose wording differs and goes singular for a count of 1
+    private static final String UDP_STATS_FREEBSD = """
+            udp:
+                537484 datagrams received
+                0 with incomplete header
+                0 with bad data length field
+                0 with bad checksum
+                0 with no checksum
+                6 dropped due to no socket
+                1 broadcast/multicast datagram undelivered
+                0 dropped due to full socket buffers
+                0 not for hashed pcb
+                537478 delivered
+                537615 datagrams output
+                0 times multicast source filter matched
+            """;
+
+    // Fixture: netstat -n -f inet on OpenBSD, which names IPv4 sockets plain tcp
+    private static final List<String> TCP_NETSTAT_OPENBSD = List.of("Active Internet connections",
+            "Proto   Recv-Q Send-Q  Local Address          Foreign Address        TCP-State",
+            "tcp          0      0  46.23.83.68.22         49.65.153.128.24304    FIN_WAIT_2",
+            "tcp          0      0  46.23.83.68.22         178.33.235.90.56784    ESTABLISHED",
+            "tcp          0   3960  46.23.83.68.22         73.83.45.212.61240     ESTABLISHED");
 
     // Fixture: netstat -n with SYN_RCVD state (should map to SYN_RECV)
     private static final List<String> NETSTAT_SYN_RCVD = List.of("Active Internet connections",
@@ -158,38 +258,87 @@ class NetStatTest {
     }
 
     @Test
-    void testQueryTcpStatsBsd() {
-        TcpStats stats = NetStat.queryTcpStats(TCP_STATS_BSD);
-        assertThat(stats.getConnectionsEstablished(), is(15L));
-        assertThat(stats.getConnectionFailures(), is(5L));
-        assertThat(stats.getConnectionsReset(), is(7L));
-        assertThat(stats.getSegmentsSent(), is(100L));
-        assertThat(stats.getSegmentsReceived(), is(200L));
-        // "42 retransmitted 3 data packet" matches the special-case pattern
-        assertThat(stats.getSegmentsRetransmitted(), is(42L));
-        // 2 bad checksum + 3 bad header offset field
-        assertThat(stats.getInErrors(), is(5L));
-        assertThat(stats.getOutResets(), is(10L));
+    void testQueryTcpnetstatOpenBsd() {
+        Pair<Long, Long> result = NetStat.queryTcpnetstat(TCP_NETSTAT_OPENBSD);
+        assertThat(result.getA(), is(2L));
+        assertThat(result.getB(), is(0L));
     }
 
     @Test
-    void testQueryTcpStatsRetransmitSpecialCase() {
-        // Test the "N retransmitted M data packet" pattern in isolation (BSD format)
-        List<String> retransmitLines = List.of("tcp:", "    99 retransmitted 5 data packet");
-        TcpStats stats = NetStat.queryTcpStats(retransmitLines);
-        // The special-case pattern uses += on segmentsRetransmitted
-        assertThat(stats.getSegmentsRetransmitted(), is(99L));
+    void testQueryTcpStatsOpenBsd() {
+        TcpStats stats = NetStat.queryTcpStats(TCP_STATS_OPENBSD.lines().toList());
+        // Only connections ever established are counted; the caller supplies the current number
+        assertThat(stats.getConnectionsEstablished(), is(0L));
+        assertThat(stats.getConnectionsActive(), is(34560L));
+        assertThat(stats.getConnectionsPassive(), is(53607L));
+        // Embryonic connections dropped, not bad connection attempts
+        assertThat(stats.getConnectionFailures(), is(7L));
+        // The drops among connections closed, not SYN cache entries dropped due to RST
+        assertThat(stats.getConnectionsReset(), is(1933L));
+        assertThat(stats.getSegmentsSent(), is(2463584L));
+        assertThat(stats.getSegmentsReceived(), is(2699799L));
+        assertThat(stats.getSegmentsRetransmitted(), is(8286L));
+        assertThat(stats.getInErrors(), is(0L));
+        assertThat(stats.getOutResets(), is(0L));
     }
 
     @Test
-    void testQueryUdpStatsBsd() {
-        UdpStats stats = NetStat.queryUdpStats(UDP_STATS_BSD);
-        assertThat(stats.getDatagramsSent(), is(5000L));
-        assertThat(stats.getDatagramsReceived(), is(3000L));
-        // 50 "dropped due to no socket" + 10 "broadcast/multicast datagram dropped due to no socket"
-        assertThat(stats.getDatagramsNoPort(), is(60L));
-        // 2 "with incomplete header" + 1 "with bad data length field" + 3 "with bad checksum" + 4 "with no checksum"
-        assertThat(stats.getDatagramsReceivedErrors(), is(10L));
+    void testQueryTcpStatsDragonFly() {
+        TcpStats stats = NetStat.queryTcpStats(TCP_STATS_DRAGONFLY.lines().toList());
+        assertThat(stats.getConnectionsEstablished(), is(0L));
+        assertThat(stats.getConnectionsActive(), is(77661L));
+        assertThat(stats.getConnectionsPassive(), is(811412L));
+        assertThat(stats.getConnectionFailures(), is(40L));
+        assertThat(stats.getConnectionsReset(), is(231815L));
+        assertThat(stats.getSegmentsSent(), is(39256319L));
+        assertThat(stats.getSegmentsReceived(), is(26776043L));
+        // Not including those retransmitted by SACK
+        assertThat(stats.getSegmentsRetransmitted(), is(145295L));
+        // 56527 bad checksums + 208 bad header offset fields
+        assertThat(stats.getInErrors(), is(56735L));
+    }
+
+    @Test
+    void testQueryTcpStatsBsdSingular() {
+        List<String> lines = List.of("tcp:", "\t1 data packet (512 bytes) retransmitted", "\t1 connection request",
+                "\t1 connection accept", "\t1 connection closed (including 1 drop)",
+                "\t1 embryonic connection dropped");
+        TcpStats stats = NetStat.queryTcpStats(lines);
+        assertThat(stats.getSegmentsRetransmitted(), is(1L));
+        assertThat(stats.getConnectionsActive(), is(1L));
+        assertThat(stats.getConnectionsPassive(), is(1L));
+        assertThat(stats.getConnectionsReset(), is(1L));
+        assertThat(stats.getConnectionFailures(), is(1L));
+    }
+
+    @Test
+    void testQueryUdpStatsOpenBsd() {
+        UdpStats stats = NetStat.queryUdpStats(UDP_STATS_OPENBSD.lines().toList());
+        assertThat(stats.getDatagramsSent(), is(3798L));
+        assertThat(stats.getDatagramsReceived(), is(8243L));
+        assertThat(stats.getDatagramsNoPort(), is(4483L));
+        // Datagrams with no checksum are not errors
+        assertThat(stats.getDatagramsReceivedErrors(), is(0L));
+    }
+
+    @Test
+    void testQueryUdpStatsDragonFly() {
+        UdpStats stats = NetStat.queryUdpStats(UDP_STATS_DRAGONFLY.lines().toList());
+        assertThat(stats.getDatagramsSent(), is(40555L));
+        assertThat(stats.getDatagramsReceived(), is(154588L));
+        // 12669 unicast + 101467 broadcast/multicast
+        assertThat(stats.getDatagramsNoPort(), is(114136L));
+        assertThat(stats.getDatagramsReceivedErrors(), is(4L));
+    }
+
+    @Test
+    void testQueryUdpStatsFreeBsd() {
+        UdpStats stats = NetStat.queryUdpStats(UDP_STATS_FREEBSD.lines().toList());
+        assertThat(stats.getDatagramsSent(), is(537615L));
+        assertThat(stats.getDatagramsReceived(), is(537484L));
+        // 6 unicast + 1 broadcast/multicast undelivered
+        assertThat(stats.getDatagramsNoPort(), is(7L));
+        assertThat(stats.getDatagramsReceivedErrors(), is(0L));
     }
 
     @Test
@@ -482,7 +631,7 @@ class NetStatTest {
         @EnabledOnOs(OS.OPENBSD)
         @Test
         void testQueryStatsOpenBSD() {
-            TcpStats tcpStats = NetStat.queryTcpStats("netstat -s -p tcp");
+            TcpStats tcpStats = NetStat.queryBsdTcpStats();
             assertThat("tcp connections must be nonnegative", tcpStats.getConnectionsEstablished(),
                     greaterThanOrEqualTo(0L));
             UdpStats udpStats = NetStat.queryUdpStats("netstat -s -p udp");
