@@ -5,7 +5,7 @@
 package oshi.driver.unix.freebsd;
 
 import static oshi.jna.platform.unix.CLibrary.LOGIN_PROCESS;
-import static oshi.jna.platform.unix.CLibrary.USER_PROCESS;
+import static oshi.jna.platform.unix.FreeBsdLibc.USER_PROCESS;
 import static oshi.util.Util.isSessionValid;
 
 import java.nio.charset.StandardCharsets;

@@ -5,8 +5,9 @@
 package oshi.jna.platform.unix;
 
 /**
- * DragonFly BSD C library. Extends {@link FreeBsdLibc} since DragonFly shares the same sysctl, utmpx, and CPU tick
- * interfaces. Only adds the DragonFly-specific {@link #lwp_gettid()} thread ID function.
+ * DragonFly BSD C library. Extends {@link FreeBsdLibc} since DragonFly shares the same sysctl and CPU tick interfaces;
+ * its {@code struct utmpx} differs, so the inherited utmpx functions do not apply. Only adds the DragonFly-specific
+ * {@link #lwp_gettid()} thread ID function.
  */
 public interface DragonFlyBsdLibc extends FreeBsdLibc {
     DragonFlyBsdLibc INSTANCE = BsdLibcLoader.loadLibc(DragonFlyBsdLibc.class);
