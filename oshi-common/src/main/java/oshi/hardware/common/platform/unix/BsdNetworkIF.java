@@ -17,7 +17,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * BsdNetworkIF applicable to FreeBSD, DragonFly BSD and OpenBSD.
+ * BsdNetworkIF applicable to FreeBSD, DragonFly BSD, NetBSD and OpenBSD.
  */
 @ThreadSafe
 public final class BsdNetworkIF extends AbstractNetworkIF {
@@ -52,14 +52,14 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
             return false;
         }
         if (!stats.containsKey("Ipkts")) {
-            // OpenBSD's -b prints only the byte counts
+            // OpenBSD's and NetBSD's -b prints only the byte counts
             stats.putAll(parseNetstat(ExecutingCommand.runNative("netstat -nI " + getName())));
         }
         this.bytesRecv = stats.getOrDefault("Ibytes", 0L);
         this.bytesSent = stats.getOrDefault("Obytes", 0L);
         this.packetsRecv = stats.getOrDefault("Ipkts", 0L);
         this.packetsSent = stats.getOrDefault("Opkts", 0L);
-        // OpenBSD names the error and collision columns differently
+        // OpenBSD names the error columns differently, and OpenBSD and NetBSD the collision column
         this.inErrors = stats.getOrDefault("Ierrs", stats.getOrDefault("Ifail", 0L));
         this.outErrors = stats.getOrDefault("Oerrs", stats.getOrDefault("Ofail", 0L));
         this.collisions = stats.getOrDefault("Coll", stats.getOrDefault("Colls", 0L));
@@ -71,8 +71,9 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
      * Parses the link-level row of {@code netstat -I <interface>} into its counters, keyed by column heading.
      * <p>
      * The counters follow the Name, Mtu, Network and Address columns, but which ones appear varies: FreeBSD prints an
-     * Idrop column that DragonFly BSD does not, and OpenBSD prints only the byte counts with {@code -b}. The values are
-     * matched to the headings from the end of the row, because the Address column is empty on some loopback rows.
+     * Idrop column that DragonFly BSD does not, and OpenBSD and NetBSD print only the byte counts with {@code -b}. The
+     * values are matched to the headings from the end of the row, because the Address column is empty on some loopback
+     * rows.
      *
      * @param netstat the lines emitted by {@code netstat -I <interface>}, with or without {@code -b}
      * @return a map of column headings to counter values, empty if the output has no link-level row
