@@ -9,14 +9,12 @@ import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.freebsd.WhoFFM;
 import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.dragonflybsd.DragonFlyBsdLibcFunctions;
 import oshi.ffm.util.platform.unix.freebsd.BsdSysctlUtilFFM;
@@ -25,7 +23,6 @@ import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemFFM;
 import oshi.util.LogLevel;
 
@@ -50,11 +47,6 @@ public class DragonFlyBsdOperatingSystemFFM extends DragonFlyBsdOperatingSystem 
     @Override
     public NetworkParams getNetworkParams() {
         return new DragonFlyBsdNetworkParamsFFM();
-    }
-
-    @Override
-    protected List<OSSession> queryWhoSessions() {
-        return WhoFFM.queryUtxent();
     }
 
     @Override

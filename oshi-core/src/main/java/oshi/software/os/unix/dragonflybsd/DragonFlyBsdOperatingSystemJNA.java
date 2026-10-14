@@ -4,11 +4,9 @@
  */
 package oshi.software.os.unix.dragonflybsd;
 
-import java.util.List;
 import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.unix.freebsd.Who;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.jna.platform.unix.FreeBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
@@ -16,7 +14,6 @@ import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOperatingSystem;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSSession;
 import oshi.software.os.unix.freebsd.FreeBsdFileSystemJNA;
 import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
@@ -39,11 +36,6 @@ public class DragonFlyBsdOperatingSystemJNA extends DragonFlyBsdOperatingSystem 
     @Override
     public NetworkParams getNetworkParams() {
         return new DragonFlyBsdNetworkParamsJNA();
-    }
-
-    @Override
-    protected List<OSSession> queryWhoSessions() {
-        return Who.queryUtxent();
     }
 
     @Override

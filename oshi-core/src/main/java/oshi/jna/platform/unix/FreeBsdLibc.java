@@ -27,6 +27,12 @@ public interface FreeBsdLibc extends CLibrary {
      */
     int RLIMIT_NOFILE = 8;
 
+    /**
+     * FreeBSD's utmpx entry type for a user process ({@code <utmpx.h>}) is 4, not 7 like Linux; 7 is
+     * {@code DEAD_PROCESS}. This constant shadows the inherited Linux value. {@code LOGIN_PROCESS} is 6 on both.
+     */
+    int USER_PROCESS = 4;
+
     int UTX_USERSIZE = 32;
     int UTX_LINESIZE = 16;
     int UTX_IDSIZE = 8;

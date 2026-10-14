@@ -16,7 +16,6 @@ import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.OSProcess;
-import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
@@ -27,8 +26,11 @@ import oshi.util.tuples.Pair;
  * live in {@link BsdOperatingSystem}; this layer adds the DragonFly {@code ps} process enumeration (which filters out
  * the kernel threads that report a negative PID) and the current-thread factory. The native bits (the
  * {@link OSProcess}/{@code FileSystem}/{@code NetworkParams}/{@code InternetProtocolStats} factories,
- * {@code getpid}/{@code lwp_gettid}, sysctl version and boot-time queries, and {@code who} sessions) are provided by
- * the JNA and FFM subclasses.
+ * {@code getpid}/{@code lwp_gettid}, and sysctl version and boot-time queries) are provided by the JNA and FFM
+ * subclasses.
+ * <p>
+ * Sessions come from the {@code who} command. DragonFly's {@code struct utmpx} has a different layout and different
+ * entry type numbers from FreeBSD's, and its utmpx table also lists the {@code getty} on each idle terminal.
  */
 @ThreadSafe
 public abstract class DragonFlyBsdOperatingSystem extends BsdOperatingSystem {
@@ -71,11 +73,6 @@ public abstract class DragonFlyBsdOperatingSystem extends BsdOperatingSystem {
     }
 
     @Override
-    public List<OSSession> getSessions() {
-        return USE_WHO_COMMAND ? super.getSessions() : queryWhoSessions();
-    }
-
-    @Override
     protected long queryBootTime() {
         long bootSeconds = queryKernBoottimeSeconds();
         return bootSeconds > 0 ? bootSeconds : queryBootTimeFromCommand();
@@ -98,13 +95,6 @@ public abstract class DragonFlyBsdOperatingSystem extends BsdOperatingSystem {
      * @return the sysctl value, or {@code def}
      */
     protected abstract String querySysctl(String name, String def);
-
-    /**
-     * Reads the login sessions natively via {@code getutxent}.
-     *
-     * @return the sessions
-     */
-    protected abstract List<OSSession> queryWhoSessions();
 
     /**
      * Reads the boot time (seconds since the epoch) from the native {@code kern.boottime} sysctl.

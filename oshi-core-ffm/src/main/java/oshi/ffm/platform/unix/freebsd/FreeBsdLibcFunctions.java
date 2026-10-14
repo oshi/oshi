@@ -75,8 +75,8 @@ public final class FreeBsdLibcFunctions extends PosixLibcFunctions {
 
     /** utmpx entry type: session leader of a logged in user. */
     public static final short LOGIN_PROCESS = 6;
-    /** utmpx entry type: normal process. */
-    public static final short USER_PROCESS = 7;
+    /** utmpx entry type: normal process. Linux numbers it 7, which on FreeBSD is {@code DEAD_PROCESS}. */
+    public static final short USER_PROCESS = 4;
 
     static final int UTX_USERSIZE = 32;
     static final int UTX_LINESIZE = 16;
