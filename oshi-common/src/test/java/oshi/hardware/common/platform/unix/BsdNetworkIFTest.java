@@ -94,6 +94,46 @@ class BsdNetworkIFTest {
     }
 
     @Test
+    void testParseNetstatNetBsd() {
+        // Like OpenBSD, NetBSD prints only the byte counts with -b; without it, the packet counts and Colls
+        Map<String, Long> bytes = BsdNetworkIF.parseNetstat("""
+                Name  Mtu   Network       Address               Ibytes     Obytes
+                vioif 1500  <Link>        00:15:5d:c4:00:28 8419940203  684694279
+                vioif 1500  fe80::/64     fe80::215:5dff:fe 8419940203  684694279
+                """.lines().toList());
+        assertThat(bytes, is(aMapWithSize(2)));
+        assertThat(bytes, hasEntry("Ibytes", 8_419_940_203L));
+        assertThat(bytes, hasEntry("Obytes", 684_694_279L));
+
+        Map<String, Long> packets = BsdNetworkIF.parseNetstat("""
+                Name  Mtu   Network       Address              Ipkts Ierrs    Opkts Oerrs Colls
+                vioif 1500  <Link>        00:15:5d:c4:00:28 106586638     1  2503607     0     0
+                vioif 1500  fe80::/64     fe80::215:5dff:fe 106586638     1  2503607     0     0
+                """.lines().toList());
+        assertThat(packets, is(aMapWithSize(5)));
+        assertThat(packets, hasEntry("Ipkts", 106_586_638L));
+        assertThat(packets, hasEntry("Ierrs", 1L));
+        assertThat(packets, hasEntry("Opkts", 2_503_607L));
+        assertThat(packets, hasEntry("Oerrs", 0L));
+        assertThat(packets, hasEntry("Colls", 0L));
+
+        // The loopback and npflog link-level rows have no address
+        Map<String, Long> loopback = BsdNetworkIF.parseNetstat("""
+                Name  Mtu   Network       Address               Ibytes     Obytes
+                lo0   33624 <Link>                           178247481  178247481
+                lo0   33624 127/8         127.0.0.1          178247481  178247481
+                """.lines().toList());
+        assertThat(loopback, hasEntry("Ibytes", 178_247_481L));
+        assertThat(loopback, hasEntry("Obytes", 178_247_481L));
+        Map<String, Long> npflog = BsdNetworkIF.parseNetstat("""
+                Name  Mtu   Network       Address              Ipkts Ierrs    Opkts Oerrs Colls
+                npflo 0     <Link>                                 0     0  1988557     0     0
+                """.lines().toList());
+        assertThat(npflog, hasEntry("Ipkts", 0L));
+        assertThat(npflog, hasEntry("Opkts", 1_988_557L));
+    }
+
+    @Test
     void testParseNetstatNoLinkRow() {
         assertThat(BsdNetworkIF.parseNetstat(Collections.emptyList()), is(anEmptyMap()));
         // netstat: interface does not exist

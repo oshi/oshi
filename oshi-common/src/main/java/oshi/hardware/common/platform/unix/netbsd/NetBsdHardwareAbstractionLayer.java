@@ -21,6 +21,7 @@ import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.BsdGraphicsCard;
+import oshi.hardware.common.platform.unix.BsdNetworkIF;
 import oshi.hardware.common.platform.unix.BsdPowerSource;
 import oshi.hardware.common.platform.unix.BsdSensors;
 import oshi.hardware.common.platform.unix.BsdSoundCard;
@@ -71,7 +72,7 @@ public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionL
 
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
-        return NetBsdNetworkIF.getNetworks(includeLocalInterfaces);
+        return BsdNetworkIF.getNetworks(includeLocalInterfaces);
     }
 
     @Override
