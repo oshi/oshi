@@ -47,22 +47,13 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
         if (cpuVendor.isEmpty()) {
             cpuVendor = ExecutingCommand.getFirstAnswer("sysctl -n machdep.dmi.processor-vendor").trim();
         }
-        String cpuName = BsdSysctlUtil.sysctl("machdep.cpu_brand", "");
-        if (cpuName.isEmpty()) {
-            cpuName = BsdSysctlUtil.sysctl("hw.model", "");
-        }
+        String cpuName = queryCpuName();
         String[] fms = parseFamilyModelStepping(ExecutingCommand.runNative("dmesg"));
         String cpuFamily = fms[0];
         String cpuModel = fms[1];
         String cpuStepping = fms[2];
         String processorID = "";
-        long cpuFreq = BsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
-        if (cpuFreq == 0L) {
-            cpuFreq = ParseUtil.parseHertz(cpuName);
-            if (cpuFreq < 0) {
-                cpuFreq = queryMaxFreq();
-            }
-        }
+        long cpuFreq = queryFreq(cpuName);
         String machine = BsdSysctlUtil.sysctl("hw.machine", "");
         boolean cpu64bit = machine.contains("64") || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
 
@@ -72,14 +63,37 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
 
     @Override
     protected long[] queryCurrentFreq() {
-        long[] freq = new long[1];
-        // machdep.tsc_freq gives frequency in Hz on x86
-        freq[0] = BsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
-        if (freq[0] == 0L) {
-            // Fallback: parse from cpu name (e.g., "Intel ... @ 2.10GHz")
-            freq[0] = queryMaxFreq();
+        return new long[] { queryFreq(queryCpuName()) };
+    }
+
+    private static String queryCpuName() {
+        String cpuName = BsdSysctlUtil.sysctl("machdep.cpu_brand", "");
+        if (cpuName.isEmpty()) {
+            cpuName = BsdSysctlUtil.sysctl("hw.model", "");
         }
-        return freq;
+        return cpuName;
+    }
+
+    private static long queryFreq(String cpuName) {
+        // machdep.tsc_freq gives frequency in Hz on x86
+        long freq = BsdSysctlUtil.sysctl("machdep.tsc_freq", 0L);
+        if (freq > 0L) {
+            return freq;
+        }
+        return parseFreq(cpuName, BsdSysctlUtil.sysctl("machdep.dmi.processor-frequency", ""));
+    }
+
+    /**
+     * Parses the processor frequency from the processor name, e.g. {@code "Intel ... @ 2.10GHz"}, or failing that from
+     * the SMBIOS processor frequency, e.g. {@code "2000 MHz"}, which is the only source on non-x86 machines.
+     *
+     * @param cpuName      the processor name
+     * @param dmiFrequency the value of {@code machdep.dmi.processor-frequency}
+     * @return the frequency in Hz, or -1 if neither string carries one
+     */
+    static long parseFreq(String cpuName, String dmiFrequency) {
+        long freq = ParseUtil.parseHertz(cpuName);
+        return freq > 0L ? freq : ParseUtil.parseHertz(dmiFrequency);
     }
 
     @Override

@@ -71,6 +71,14 @@ class NetBsdCentralProcessorTest {
     }
 
     @Test
+    void testParseFreq() {
+        assertThat(NetBsdCentralProcessor.parseFreq("Intel(R) Celeron(R) N4000 CPU @ 1.10GHz", "2000 MHz"),
+                is(1_100_000_000L));
+        assertThat(NetBsdCentralProcessor.parseFreq("netbsd,generic-acpi", "2000 MHz"), is(2_000_000_000L));
+        assertThat(NetBsdCentralProcessor.parseFreq("netbsd,generic-acpi", ""), is(-1L));
+    }
+
+    @Test
     void testParseCpTime() {
         long[] ticks = NetBsdCentralProcessor
                 .parseCpTime("kern.cp_time: user = 2930, nice = 42, sys = 1334, intr = 1877, idle = 46354");
