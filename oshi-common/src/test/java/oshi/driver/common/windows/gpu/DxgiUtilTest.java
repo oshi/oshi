@@ -117,4 +117,20 @@ class DxgiUtilTest {
         DxgiAdapterInfo adapter = new DxgiAdapterInfo("Test GPU", 0x10de, 0x1234, 4096L, 0, 0);
         assertThat("LUID prefix for zero LUID", DxgiUtil.buildLuidPrefix(adapter), is(""));
     }
+
+    @Test
+    void testNormalizeNameStripsTrademarks() {
+        assertThat(DxgiUtil.normalizeName("Intel(R) Arc(TM) A770 Graphics"), is("intel arc a770 graphics"));
+    }
+
+    @Test
+    void testNormalizeNameCollapsesWhitespace() {
+        assertThat(DxgiUtil.normalizeName("NVIDIA  GeForce   RTX  4090"), is("nvidia geforce rtx 4090"));
+    }
+
+    @Test
+    void testNormalizeNameNullOrBlank() {
+        assertThat(DxgiUtil.normalizeName(null), is(""));
+        assertThat(DxgiUtil.normalizeName("  "), is(""));
+    }
 }

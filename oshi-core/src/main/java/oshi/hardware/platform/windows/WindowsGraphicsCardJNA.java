@@ -35,7 +35,6 @@ import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.platform.windows.WindowsGraphicsCard;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.gpu.DxgiUtilJNA;
 import oshi.util.platform.windows.RegistryUtil;
 import oshi.util.tuples.Pair;
@@ -194,8 +193,7 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
                 // HardwareInformation.MemorySize (32-bit) is intentionally omitted: Windows caps
                 // it at 0x7FFFF000 (~2 GiB) for GPUs with more VRAM, making it unreliable.
 
-                String lhmParent = lhmParentMap.getOrDefault(DxgiUtilJNA.normalizeName(Util.isBlank(name) ? "" : name),
-                        "");
+                String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(name), "");
 
                 GraphicsCard card = new WindowsGraphicsCardJNA(ParseUtil.getStringValueOrUnknown(name),
                         ParseUtil.getStringValueOrUnknown(deviceId), ParseUtil.getStringValueOrUnknown(vendor),
@@ -267,7 +265,7 @@ final class WindowsGraphicsCardJNA extends WindowsGraphicsCard {
                 String identifier = WmiUtil.getString(hw, LhmHardwareProperty.IDENTIFIER, i);
                 String hwName = WmiUtil.getString(hw, LhmHardwareProperty.NAME, i);
                 if (!identifier.isEmpty() && !hwName.isEmpty()) {
-                    String norm = DxgiUtilJNA.normalizeName(hwName);
+                    String norm = DxgiUtil.normalizeName(hwName);
                     if (map.containsKey(norm)) {
                         // Two adapters with the same normalized name: mark ambiguous so neither
                         // is used (empty string is the "skip LHM" sentinel for callers).

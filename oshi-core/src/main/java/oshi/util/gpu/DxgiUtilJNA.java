@@ -54,14 +54,4 @@ public final class DxgiUtilJNA {
     public static long registryValueToVram(@Nullable Object value) {
         return DxgiUtil.registryValueToVram(value);
     }
-
-    /**
-     * Normalizes an adapter name for fuzzy matching.
-     *
-     * @param name the raw adapter name, may be {@code null}
-     * @return normalized name, never {@code null}
-     */
-    public static String normalizeName(@Nullable String name) {
-        return DxgiUtil.normalizeName(name);
-    }
 }
