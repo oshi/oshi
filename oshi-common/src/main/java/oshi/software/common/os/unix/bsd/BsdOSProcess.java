@@ -351,15 +351,30 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     }
 
     /**
-     * Returns the executable path for this row. The default reads the {@code comm} column, or {@code ucomm} where that
-     * is the one queried (DragonFly); NetBSD overrides it, because its {@code ps} truncates that column.
+     * Returns the executable path for this row. The default asks the kernel through {@link #queryExecutablePath()},
+     * falling back to the {@code comm} column, or {@code ucomm} where that is the one queried (DragonFly), which holds
+     * only the command name. NetBSD overrides it, because its {@code ps} truncates that column.
      *
      * @param psMap the parsed {@code ps} columns for this process
-     * @return the path, or an empty string if the column is absent
+     * @return the path, or an empty string if neither is known
      */
     protected String queryPath(Map<BsdPsKeyword, String> psMap) {
+        String path = queryExecutablePath();
+        if (!path.isEmpty()) {
+            return path;
+        }
         return ParseUtil.getStringValueOrEmpty(
                 psMap.get(psMap.containsKey(BsdPsKeyword.UCOMM) ? BsdPsKeyword.UCOMM : BsdPsKeyword.COMM));
+    }
+
+    /**
+     * Returns the full path of this process's executable as the kernel reports it. The default returns an empty string;
+     * FreeBSD and DragonFly BSD read it through the {@code KERN_PROC_PATHNAME} sysctl.
+     *
+     * @return the path, or an empty string if it is unavailable, as it is for kernel processes
+     */
+    protected String queryExecutablePath() {
+        return "";
     }
 
     /**

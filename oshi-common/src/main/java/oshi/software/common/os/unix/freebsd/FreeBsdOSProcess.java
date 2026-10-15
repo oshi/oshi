@@ -60,6 +60,16 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     /**
+     * The {@code KERN_PROC} sysctl subtype that returns a process's executable path.
+     */
+    protected static final int KERN_PROC_PATHNAME = 12;
+
+    /**
+     * The size of the buffer for an executable path, the platform's {@code PATH_MAX}.
+     */
+    protected static final int PATH_MAX = 1024;
+
+    /**
      * Constructs a new {@code FreeBsdOSProcess}.
      *
      * @param pid the process ID

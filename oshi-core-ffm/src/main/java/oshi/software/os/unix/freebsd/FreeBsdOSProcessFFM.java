@@ -137,4 +137,18 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
             return elfBitness(buf.getString(0));
         }, LOG, WARN, "queryBitness failed", 0);
     }
+
+    @Override
+    protected String queryExecutablePath() {
+        return callInArenaOrDefault(arena -> {
+            MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, getProcessID());
+            MemorySegment buf = arena.allocate(PATH_MAX);
+            MemorySegment size = arena.allocateFrom(SIZE_T, PATH_MAX);
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+            if (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L)) {
+                return "";
+            }
+            return buf.getString(0);
+        }, LOG, WARN, "Failed sysctl call for process path (kern.proc.pathname)", "");
+    }
 }

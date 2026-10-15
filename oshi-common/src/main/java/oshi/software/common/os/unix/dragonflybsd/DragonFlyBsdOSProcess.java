@@ -58,6 +58,16 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    /**
+     * The {@code KERN_PROC} sysctl subtype that returns a process's executable path (12 on FreeBSD).
+     */
+    protected static final int KERN_PROC_PATHNAME = 9;
+
+    /**
+     * The size of the buffer for an executable path, the platform's {@code PATH_MAX}.
+     */
+    protected static final int PATH_MAX = 1024;
+
     private final OperatingSystem os;
 
     /**
