@@ -16,6 +16,7 @@
 * [#3803](https://github.com/oshi/oshi/pull/3803): Fixed the TCP statistics from `InternetProtocolStats` on OpenBSD, NetBSD and DragonFly BSD, which reported 0 active and passive openings, counted every connection ever established as currently established, and took failures and resets from unrelated counters. UDP receive errors no longer include datagrams sent without a checksum - [@dbwiddis](https://github.com/dbwiddis).
 * [#3805](https://github.com/oshi/oshi/pull/3805): Fixed `getGraphicsCards()` on current FreeBSD releases, which reported an unknown device ID and the vendor name of the PCI device listed before the card. The vendor and device IDs are now read from either `pciconf` format, and nothing carries over between devices - [@dbwiddis](https://github.com/dbwiddis).
 * [#3807](https://github.com/oshi/oshi/pull/3807): Fixed `NetworkIF` on NetBSD, which reported no traffic for interfaces without a link-level address, such as `lo0`. NetBSD now shares the `netstat` parser used by the other BSDs - [@dbwiddis](https://github.com/dbwiddis).
+* [#3808](https://github.com/oshi/oshi/pull/3808): Fixed `FileSystem.getMaxFileDescriptorsPerProcess()` on the BSDs. FreeBSD and DragonFly BSD returned the system-wide limit, and NetBSD and OpenBSD, which have no per-process `sysctl`, returned 0; they now return the hard open-file resource limit - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

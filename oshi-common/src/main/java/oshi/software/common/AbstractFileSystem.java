@@ -40,4 +40,19 @@ public abstract class AbstractFileSystem implements FileSystem {
     public List<OSFileStore> getFileStores() {
         return getFileStores(false);
     }
+
+    /**
+     * Caps a per-process file descriptor limit at the system-wide limit, which the kernel enforces regardless of a
+     * larger (or unlimited) resource limit.
+     *
+     * @param processLimit the per-process limit, or a non-positive value if unavailable
+     * @param systemLimit  the system-wide limit, or a non-positive value if unavailable
+     * @return the smaller of the two available limits, or 0 if neither is available
+     */
+    protected static long capAtSystemLimit(long processLimit, long systemLimit) {
+        if (processLimit <= 0) {
+            return Math.max(systemLimit, 0L);
+        }
+        return systemLimit > 0 ? Math.min(processLimit, systemLimit) : processLimit;
+    }
 }

@@ -225,29 +225,25 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     @Override
     public long getSoftOpenFileLimit() {
-        if (getProcessID() == this.os.getProcessId()) {
-            // This process's own limit where a backend can call getrlimit, the system-wide maximum otherwise
-            long limit = queryRlimitNofile(true);
-            if (limit >= 0) {
-                return limit;
-            }
-            limit = BsdSysctlUtil.sysctl("kern.maxfilesperproc", 0L);
-            if (limit <= 0) {
-                limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
-            }
-            return limit > 0 ? limit : -1L;
-        }
-        return -1L;
+        return queryOwnOpenFileLimit(true);
     }
 
     @Override
     public long getHardOpenFileLimit() {
+        return queryOwnOpenFileLimit(false);
+    }
+
+    private long queryOwnOpenFileLimit(boolean soft) {
         if (getProcessID() == this.os.getProcessId()) {
-            long limit = queryRlimitNofile(false);
+            // getrlimit where a backend can call it; otherwise the sysctl a child process inherits, then the system max
+            long limit = queryRlimitNofile(soft);
             if (limit >= 0) {
                 return limit;
             }
-            limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+            limit = BsdSysctlUtil.sysctl("proc.curproc.rlimit.descriptors." + (soft ? "soft" : "hard"), 0L);
+            if (limit <= 0) {
+                limit = BsdSysctlUtil.sysctl("kern.maxfiles", 0L);
+            }
             return limit > 0 ? limit : -1L;
         }
         return -1L;

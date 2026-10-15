@@ -163,6 +163,8 @@ public class NetBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getMaxFileDescriptorsPerProcess() {
-        return BsdSysctlUtil.sysctl("kern.maxfilesperproc", 0);
+        // NetBSD has no per-process sysctl; the hard RLIMIT_NOFILE is the ceiling a process may raise its limit to
+        return capAtSystemLimit(BsdSysctlUtil.sysctl("proc.curproc.rlimit.descriptors.hard", 0L),
+                getMaxFileDescriptors());
     }
 }
