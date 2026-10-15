@@ -188,7 +188,7 @@ public abstract class WindowsGraphicsCard extends AbstractGraphicsCard {
                 dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
                 luidPrefix = luidPrefixBuilder.apply(dxgiMatch);
             }
-            String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(Util.isBlank(name) ? "" : name), "");
+            String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(name), "");
 
             // pciBusNumber and pciBusId are not available via WMI; ADL and NVML correlation are skipped for cards
             // enumerated through this path.

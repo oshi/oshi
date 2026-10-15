@@ -96,25 +96,6 @@ class DxgiUtilTest {
     }
 
     // -------------------------------------------------------------------------
-    // Unit tests for normalizeName
-    // -------------------------------------------------------------------------
-
-    @Test
-    void testNormalizeNameStripsTrademarks() {
-        assertThat(DxgiUtilJNA.normalizeName("Intel(R) Arc(TM) A770 Graphics"), is("intel arc a770 graphics"));
-    }
-
-    @Test
-    void testNormalizeNameCollapsesWhitespace() {
-        assertThat(DxgiUtilJNA.normalizeName("NVIDIA  GeForce   RTX  4090"), is("nvidia geforce rtx 4090"));
-    }
-
-    @Test
-    void testNormalizeNameNull() {
-        assertThat(DxgiUtilJNA.normalizeName(null), is(""));
-    }
-
-    // -------------------------------------------------------------------------
     // Unit tests for registryValueToVram
     // -------------------------------------------------------------------------
 

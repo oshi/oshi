@@ -35,7 +35,6 @@ import oshi.hardware.GpuStats;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.common.platform.windows.WindowsGraphicsCard;
 import oshi.util.ParseUtil;
-import oshi.util.Util;
 import oshi.util.tuples.Pair;
 
 /**
@@ -127,8 +126,7 @@ final class WindowsGraphicsCardFFM extends WindowsGraphicsCard {
                         vram = 0L;
                     }
 
-                    String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(Util.isBlank(name) ? "" : name),
-                            "");
+                    String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(name), "");
 
                     GraphicsCard card = new WindowsGraphicsCardFFM(ParseUtil.getStringValueOrUnknown(name),
                             ParseUtil.getStringValueOrUnknown(deviceId), ParseUtil.getStringValueOrUnknown(vendor),
