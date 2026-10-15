@@ -25,6 +25,10 @@ class BsdOSProcessTest {
     // Builds a minimal BSD process whose open-file-limit hooks return sentinel values so the base's routing (current
     // process via getrlimit vs. other process via the fallback) can be observed.
     private static BsdOSProcess stubProcess(int pid, int ownPid) {
+        return stubProcess(pid, ownPid, "");
+    }
+
+    private static BsdOSProcess stubProcess(int pid, int ownPid, String executablePath) {
         return new BsdOSProcess(pid) {
             @Override
             protected List<BsdPsKeyword> psKeywords() {
@@ -64,6 +68,11 @@ class BsdOSProcessTest {
             @Override
             protected long otherProcessOpenFileLimit(int index) {
                 return index == 1 ? -11L : -22L;
+            }
+
+            @Override
+            protected String queryExecutablePath() {
+                return executablePath;
             }
 
             @Override
@@ -185,5 +194,25 @@ class BsdOSProcessTest {
         assertThat(proc.updateAttributes(psMap), is(true));
         assertThat(proc.getUser(), is(""));
         assertThat(proc.getUserID(), is(""));
+    }
+
+    @Test
+    void testPathFromKernelWithNameFromItsLastElement() {
+        BsdOSProcess proc = stubProcess(42, 42, "/usr/local/openjdk25/bin/java");
+        proc.updateAttributes(psRow("0:09.78"));
+        assertThat(proc.getPath(), is("/usr/local/openjdk25/bin/java"));
+        assertThat(proc.getName(), is("java"));
+    }
+
+    /**
+     * Kernel processes have no executable, and FreeBSD reports none for one whose file was deleted; the command name
+     * from ps is then both the path and the name.
+     */
+    @Test
+    void testPathFallsBackToCommandName() {
+        BsdOSProcess proc = stubProcess(42, 42);
+        proc.updateAttributes(psRow("0:09.78"));
+        assertThat(proc.getPath(), is("java"));
+        assertThat(proc.getName(), is("java"));
     }
 }

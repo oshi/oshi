@@ -123,4 +123,16 @@ public class FreeBsdOSProcessJNA extends FreeBsdOSProcess {
         }
         return 0;
     }
+
+    @Override
+    protected String queryExecutablePath() {
+        int[] mib = { 1, 14, KERN_PROC_PATHNAME, getProcessID() }; // CTL_KERN, KERN_PROC
+        try (Memory buf = new Memory(PATH_MAX);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(PATH_MAX)) {
+            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, buf, size, null, size_t.ZERO) == 0) {
+                return buf.getString(0);
+            }
+        }
+        return "";
+    }
 }

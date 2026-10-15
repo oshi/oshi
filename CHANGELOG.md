@@ -17,6 +17,7 @@
 * [#3805](https://github.com/oshi/oshi/pull/3805): Fixed `getGraphicsCards()` on current FreeBSD releases, which reported an unknown device ID and the vendor name of the PCI device listed before the card. The vendor and device IDs are now read from either `pciconf` format, and nothing carries over between devices - [@dbwiddis](https://github.com/dbwiddis).
 * [#3807](https://github.com/oshi/oshi/pull/3807): Fixed `NetworkIF` on NetBSD, which reported no traffic for interfaces without a link-level address, such as `lo0`. NetBSD now shares the `netstat` parser used by the other BSDs - [@dbwiddis](https://github.com/dbwiddis).
 * [#3808](https://github.com/oshi/oshi/pull/3808): Fixed `FileSystem.getMaxFileDescriptorsPerProcess()` on the BSDs. FreeBSD and DragonFly BSD returned the system-wide limit, and NetBSD and OpenBSD, which have no per-process `sysctl`, returned 0; they now return the hard open-file resource limit - [@dbwiddis](https://github.com/dbwiddis).
+* [#3810](https://github.com/oshi/oshi/pull/3810): `OSProcess.getPath()` on FreeBSD and DragonFly BSD now returns the full path of the executable, read from the kernel, instead of only the command name. Processes without one, such as kernel processes, still report the command name - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

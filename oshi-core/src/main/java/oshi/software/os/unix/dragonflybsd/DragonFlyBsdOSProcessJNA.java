@@ -10,9 +10,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import com.sun.jna.Memory;
+import com.sun.jna.platform.unix.LibCAPI.size_t;
 import com.sun.jna.platform.unix.Resource;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
@@ -57,4 +60,15 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
         return soft ? rlimit.rlim_cur : rlimit.rlim_max;
     }
 
+    @Override
+    protected String queryExecutablePath() {
+        int[] mib = { 1, 14, KERN_PROC_PATHNAME, getProcessID() }; // CTL_KERN, KERN_PROC
+        try (Memory buf = new Memory(PATH_MAX);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(PATH_MAX)) {
+            if (DragonFlyBsdLibc.INSTANCE.sysctl(mib, mib.length, buf, size, null, size_t.ZERO) == 0) {
+                return buf.getString(0);
+            }
+        }
+        return "";
+    }
 }
