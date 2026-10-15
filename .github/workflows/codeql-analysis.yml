@@ -50,7 +50,7 @@ jobs:
     # whatever Maven does not compile is not scanned, so on a lower JDK the [25,) modules are
     # invisible to CodeQL rather than merely skipped.
     - name: Setup Java
-      uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6
+      uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6
       with:
         java-version: 25
         distribution: 'temurin'
