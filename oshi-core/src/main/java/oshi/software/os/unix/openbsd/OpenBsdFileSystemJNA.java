@@ -4,7 +4,10 @@
  */
 package oshi.software.os.unix.openbsd;
 
+import com.sun.jna.platform.unix.Resource;
+
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.os.unix.openbsd.OpenBsdFileSystem;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
@@ -18,5 +21,14 @@ public class OpenBsdFileSystemJNA extends OpenBsdFileSystem {
     @Override
     protected long querySysctl(String name) {
         return BsdSysctlUtil.sysctl(name, 0);
+    }
+
+    @Override
+    protected long queryHardOpenFileLimit() {
+        Resource.Rlimit rlimit = new Resource.Rlimit();
+        if (OpenBsdLibc.INSTANCE.getrlimit(OpenBsdLibc.RLIMIT_NOFILE, rlimit) != 0) {
+            return -1L;
+        }
+        return rlimit.rlim_max;
     }
 }

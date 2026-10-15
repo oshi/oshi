@@ -57,7 +57,8 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getMaxFileDescriptorsPerProcess() {
-        return querySysctl("kern.maxfilesperproc");
+        // OpenBSD has no per-process sysctl; the hard RLIMIT_NOFILE is the ceiling a process may raise its limit to
+        return capAtSystemLimit(queryHardOpenFileLimit(), getMaxFileDescriptors());
     }
 
     /**
@@ -88,6 +89,13 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
      * @return the value, or 0 if unavailable
      */
     protected abstract long querySysctl(String name);
+
+    /**
+     * Reads this process's hard {@code RLIMIT_NOFILE} via the subclass's native mechanism (JNA or FFM).
+     *
+     * @return the hard limit, or a negative value if unavailable
+     */
+    protected abstract long queryHardOpenFileLimit();
 
     /**
      * Gets file stores matching the given name (or all if null).

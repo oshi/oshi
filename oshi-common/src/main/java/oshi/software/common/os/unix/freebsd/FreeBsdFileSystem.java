@@ -107,18 +107,17 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return queryOpenFiles();
+        return querySysctl("kern.openfiles");
     }
 
     @Override
     public long getMaxFileDescriptors() {
-        return queryMaxFiles();
+        return querySysctl("kern.maxfiles");
     }
 
     @Override
     public long getMaxFileDescriptorsPerProcess() {
-        // On FreeBSD there is no process-specific system-wide limit, so the general limit is returned.
-        return getMaxFileDescriptors();
+        return querySysctl("kern.maxfilesperproc");
     }
 
     /**
@@ -176,16 +175,10 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Reads {@code kern.openfiles} via the subclass's sysctl mechanism.
+     * Reads a system-wide file-descriptor {@code sysctl} value via the subclass's native mechanism (JNA or FFM).
      *
-     * @return the current count of open file descriptors system-wide
+     * @param name the sysctl name to query
+     * @return the value, or 0 if unavailable
      */
-    protected abstract long queryOpenFiles();
-
-    /**
-     * Reads {@code kern.maxfiles} via the subclass's sysctl mechanism.
-     *
-     * @return the system-wide limit on open file descriptors
-     */
-    protected abstract long queryMaxFiles();
+    protected abstract long querySysctl(String name);
 }

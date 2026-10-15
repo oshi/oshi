@@ -47,4 +47,15 @@ class AbstractFileSystemTest {
         assertThat(calls, hasSize(1));
         assertThat(calls.get(0), is("getFileStores(false)"));
     }
+
+    @Test
+    void testCapAtSystemLimit() {
+        assertThat(AbstractFileSystem.capAtSystemLimit(3404L, 10000L), is(3404L));
+        // An unlimited resource limit is capped by the kernel's system-wide limit
+        assertThat(AbstractFileSystem.capAtSystemLimit(Long.MAX_VALUE, 10000L), is(10000L));
+        assertThat(AbstractFileSystem.capAtSystemLimit(0L, 10000L), is(10000L));
+        assertThat(AbstractFileSystem.capAtSystemLimit(-1L, 10000L), is(10000L));
+        assertThat(AbstractFileSystem.capAtSystemLimit(3404L, 0L), is(3404L));
+        assertThat(AbstractFileSystem.capAtSystemLimit(-1L, 0L), is(0L));
+    }
 }

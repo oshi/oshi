@@ -10,18 +10,13 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 
 /**
  * JNA-backed FreeBSD file system. All file-store enumeration (geom, df, mount parsing) lives on
- * {@link FreeBsdFileSystem}; only the {@code kern.openfiles}/{@code kern.maxfiles} sysctl reads are JNA-specific.
+ * {@link FreeBsdFileSystem}; only the file-descriptor sysctl reads are JNA-specific.
  */
 @ThreadSafe
 public final class FreeBsdFileSystemJNA extends FreeBsdFileSystem {
 
     @Override
-    protected long queryOpenFiles() {
-        return BsdSysctlUtil.sysctl("kern.openfiles", 0);
-    }
-
-    @Override
-    protected long queryMaxFiles() {
-        return BsdSysctlUtil.sysctl("kern.maxfiles", 0);
+    protected long querySysctl(String name) {
+        return BsdSysctlUtil.sysctl(name, 0);
     }
 }
