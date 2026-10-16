@@ -60,14 +60,17 @@ public final class RouteTableDump {
      * it defines neither {@code RTF_WASCLONED} nor {@code RTF_CLONED}, while DragonFly kept both. The flag values are
      * not interchangeable across these platforms either -- OpenBSD's {@code RTF_CLONED} is {@code 0x10000}, where
      * {@code 0x20000} is {@code RTF_CACHED}.
+     * <p>
+     * The last column is the protocol family that names the routing table in the {@code sysctl} request. NetBSD
+     * renumbered {@code AF_ROUTE} to 34, keeping 17 for the obsolete {@code AF_OROUTE}.
      */
     public enum Layout {
-        // header hdrLen flags index priority padding rtaxMax AF_INET6 cloned linkInfo
-        MACOS(92, -1, 8, 4, -1, 4, 8, 30, 0x20000, 0x400), //
-        FREEBSD(152, -1, 8, 4, -1, 8, 8, 28, 0, 0), //
-        DRAGONFLY(152, -1, 8, 4, -1, 8, 11, 28, 0x20000, 0x400), //
-        NETBSD(120, -1, 8, 4, -1, 8, 9, 24, 0, 0), //
-        OPENBSD(96, 4, 16, 6, 10, 8, 15, 24, 0, 0);
+        // header hdrLen flags index priority padding rtaxMax AF_INET6 cloned linkInfo PF_ROUTE
+        MACOS(92, -1, 8, 4, -1, 4, 8, 30, 0x20000, 0x400, 17), //
+        FREEBSD(152, -1, 8, 4, -1, 8, 8, 28, 0, 0, 17), //
+        DRAGONFLY(152, -1, 8, 4, -1, 8, 11, 28, 0x20000, 0x400, 17), //
+        NETBSD(120, -1, 8, 4, -1, 8, 9, 24, 0, 0, 34), //
+        OPENBSD(96, 4, 16, 6, 10, 8, 15, 24, 0, 0, 17);
 
         private final int headerSize;
         private final int hdrLenOffset;
@@ -79,9 +82,10 @@ public final class RouteTableDump {
         private final int afInet6;
         private final int clonedFlag;
         private final int linkInfoFlag;
+        private final int pfRoute;
 
         Layout(int headerSize, int hdrLenOffset, int flagsOffset, int indexOffset, int priorityOffset, int paddingUnit,
-                int rtaxMax, int afInet6, int clonedFlag, int linkInfoFlag) {
+                int rtaxMax, int afInet6, int clonedFlag, int linkInfoFlag, int pfRoute) {
             this.headerSize = headerSize;
             this.hdrLenOffset = hdrLenOffset;
             this.flagsOffset = flagsOffset;
@@ -92,6 +96,16 @@ public final class RouteTableDump {
             this.afInet6 = afInet6;
             this.clonedFlag = clonedFlag;
             this.linkInfoFlag = linkInfoFlag;
+            this.pfRoute = pfRoute;
+        }
+
+        /**
+         * Gets the protocol family to request the routing table dump with, the second entry of the {@code sysctl} MIB.
+         *
+         * @return This platform's {@code PF_ROUTE}
+         */
+        public int getPfRoute() {
+            return pfRoute;
         }
     }
 

@@ -13,6 +13,7 @@ import com.sun.jna.platform.unix.LibCAPI.size_t;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.CLibrary;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * Fetches the kernel's routing table through a {@code NET_RT_DUMP} sysctl. Shared by the BSDs, which take the same
@@ -24,7 +25,6 @@ public final class BsdRouteDumpJNA {
     private static final Logger LOG = LoggerFactory.getLogger(BsdRouteDumpJNA.class);
 
     private static final int CTL_NET = 4;
-    private static final int PF_ROUTE = 17;
     private static final int NET_RT_DUMP = 1;
 
     private BsdRouteDumpJNA() {
@@ -33,11 +33,12 @@ public final class BsdRouteDumpJNA {
     /**
      * Fetches the routing table dump.
      *
-     * @param libc This platform's C library
+     * @param libc   This platform's C library
+     * @param layout This platform's routing message layout, which names its {@code PF_ROUTE}
      * @return The bytes the kernel returned, or an empty array if the query failed
      */
-    public static byte[] queryRouteDump(CLibrary libc) {
-        int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_DUMP, 0 };
+    public static byte[] queryRouteDump(CLibrary libc, RouteTableDump.Layout layout) {
+        int[] mib = { CTL_NET, layout.getPfRoute(), 0, 0, NET_RT_DUMP, 0 };
         try (CloseableSizeTByReference len = new CloseableSizeTByReference()) {
             if (0 != libc.sysctl(mib, 6, null, len, null, new size_t(0))) {
                 LOG.error("Didn't get buffer length for NET_RT_DUMP");

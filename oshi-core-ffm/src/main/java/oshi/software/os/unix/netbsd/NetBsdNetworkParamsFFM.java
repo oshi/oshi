@@ -8,6 +8,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.bsd.BsdRouteDumpFFM;
 import oshi.ffm.util.platform.unix.netbsd.NetBsdSysctlUtilFFM;
 import oshi.software.common.os.unix.netbsd.NetBsdNetworkParams;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * NetBSD network parameters, reading the routing table from the kernel where the base class runs a command.
@@ -20,6 +21,6 @@ public class NetBsdNetworkParamsFFM extends NetBsdNetworkParams {
         if (!NetBsdSysctlUtilFFM.FFM_AVAILABLE) {
             return super.queryRouteDump();
         }
-        return BsdRouteDumpFFM.queryRouteDump(NetBsdSysctlUtilFFM::sysctl);
+        return BsdRouteDumpFFM.queryRouteDump(NetBsdSysctlUtilFFM::sysctl, RouteTableDump.Layout.NETBSD);
     }
 }

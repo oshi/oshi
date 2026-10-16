@@ -19,6 +19,7 @@ import oshi.ffm.platform.unix.PosixLibcFunctions;
 import oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
 import oshi.util.LogLevel;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * FFM-backed OpenBSD network params. The gateway lookup and the {@code getHostName} fallback live on
@@ -43,6 +44,6 @@ public class OpenBsdNetworkParamsFFM extends OpenBsdNetworkParams {
     @Override
     protected byte[] queryRouteDump() {
         return BsdRouteDumpFFM.queryRouteDump((state, name, namelen, oldp, oldlenp) -> OpenBsdLibcFunctions
-                .sysctl(state, name, namelen, oldp, oldlenp, MemorySegment.NULL, 0));
+                .sysctl(state, name, namelen, oldp, oldlenp, MemorySegment.NULL, 0), RouteTableDump.Layout.OPENBSD);
     }
 }

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * Fetches the kernel's routing table through a {@code NET_RT_DUMP} sysctl. Shared by the BSDs, which take the same
@@ -26,7 +27,6 @@ public final class BsdRouteDumpFFM {
     private static final Logger LOG = LoggerFactory.getLogger(BsdRouteDumpFFM.class);
 
     private static final int CTL_NET = 4;
-    private static final int PF_ROUTE = 17;
     private static final int NET_RT_DUMP = 1;
 
     /**
@@ -56,11 +56,12 @@ public final class BsdRouteDumpFFM {
      * Fetches the routing table dump.
      *
      * @param sysctl This platform's {@code sysctl}
+     * @param layout This platform's routing message layout, which names its {@code PF_ROUTE}
      * @return The bytes the kernel returned, or an empty array if the query failed
      */
-    public static byte[] queryRouteDump(Sysctl sysctl) {
+    public static byte[] queryRouteDump(Sysctl sysctl, RouteTableDump.Layout layout) {
         return callInArenaOrDefault(arena -> {
-            int[] mib = { CTL_NET, PF_ROUTE, 0, 0, NET_RT_DUMP, 0 };
+            int[] mib = { CTL_NET, layout.getPfRoute(), 0, 0, NET_RT_DUMP, 0 };
             MemorySegment mibSeg = arena.allocate(ValueLayout.JAVA_INT, mib.length);
             for (int i = 0; i < mib.length; i++) {
                 mibSeg.setAtIndex(ValueLayout.JAVA_INT, i, mib[i]);
