@@ -75,6 +75,6 @@ public class FreeBsdNetworkParamsFFM extends FreeBsdNetworkParams {
     @Override
     protected byte[] queryRouteDump() {
         return BsdRouteDumpFFM.queryRouteDump((state, name, namelen, oldp, oldlenp) -> FreeBsdLibcFunctions
-                .sysctl(state, name, namelen, oldp, oldlenp, MemorySegment.NULL, 0));
+                .sysctl(state, name, namelen, oldp, oldlenp, MemorySegment.NULL, 0), routeLayout());
     }
 }

@@ -65,6 +65,6 @@ public class FreeBsdNetworkParamsJNA extends FreeBsdNetworkParams {
 
     @Override
     protected byte[] queryRouteDump() {
-        return BsdRouteDumpJNA.queryRouteDump(FreeBsdLibc.INSTANCE);
+        return BsdRouteDumpJNA.queryRouteDump(FreeBsdLibc.INSTANCE, routeLayout());
     }
 }

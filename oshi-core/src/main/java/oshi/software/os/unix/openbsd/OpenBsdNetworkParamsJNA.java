@@ -14,6 +14,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.bsd.BsdRouteDumpJNA;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.os.unix.openbsd.OpenBsdNetworkParams;
+import oshi.util.driver.unix.RouteTableDump;
 
 /**
  * JNA-backed OpenBSD network params. The gateway lookup and the {@code getHostName} fallback live on
@@ -35,6 +36,6 @@ public class OpenBsdNetworkParamsJNA extends OpenBsdNetworkParams {
 
     @Override
     protected byte[] queryRouteDump() {
-        return BsdRouteDumpJNA.queryRouteDump(OpenBsdLibc.INSTANCE);
+        return BsdRouteDumpJNA.queryRouteDump(OpenBsdLibc.INSTANCE, RouteTableDump.Layout.OPENBSD);
     }
 }

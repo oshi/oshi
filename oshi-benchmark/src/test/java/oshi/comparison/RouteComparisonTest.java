@@ -23,6 +23,7 @@ import oshi.driver.mac.net.RouteDumpJNA;
 import oshi.driver.unix.bsd.BsdRouteDumpJNA;
 import oshi.hardware.NetworkIF;
 import oshi.jna.platform.unix.FreeBsdLibc;
+import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.os.NetworkParams.IPRoute;
 import oshi.util.ParseUtil;
@@ -53,13 +54,24 @@ class RouteComparisonTest {
         ipv4Command = "netstat -rn -f inet";
         ipv6Command = "netstat -rn -f inet6";
         // The column holding the interface name, which differs by platform
-        ifNameIndex = platform == PlatformEnum.OPENBSD ? 7 : 3;
+        switch (platform) {
+            case OPENBSD:
+                ifNameIndex = 7;
+                break;
+            case NETBSD:
+                ifNameIndex = 6;
+                break;
+            default:
+                ifNameIndex = 3;
+                break;
+        }
     }
 
     /** Only the platforms with a native routing table implementation. */
     static boolean isNotBsd() {
         PlatformEnum p = PlatformEnum.getCurrentPlatform();
-        return p != PlatformEnum.MACOS && p != PlatformEnum.FREEBSD && p != PlatformEnum.OPENBSD;
+        return p != PlatformEnum.MACOS && p != PlatformEnum.FREEBSD && p != PlatformEnum.OPENBSD
+                && p != PlatformEnum.NETBSD;
     }
 
     /**
@@ -100,9 +112,11 @@ class RouteComparisonTest {
             case MACOS:
                 return RouteDumpJNA.queryRouteDump();
             case FREEBSD:
-                return BsdRouteDumpJNA.queryRouteDump(FreeBsdLibc.INSTANCE);
+                return BsdRouteDumpJNA.queryRouteDump(FreeBsdLibc.INSTANCE, layout());
+            case NETBSD:
+                return BsdRouteDumpJNA.queryRouteDump(NetBsdLibc.INSTANCE, layout());
             default:
-                return BsdRouteDumpJNA.queryRouteDump(OpenBsdLibc.INSTANCE);
+                return BsdRouteDumpJNA.queryRouteDump(OpenBsdLibc.INSTANCE, layout());
         }
     }
 
@@ -112,6 +126,8 @@ class RouteComparisonTest {
                 return RouteTableDump.Layout.MACOS;
             case FREEBSD:
                 return RouteTableDump.Layout.FREEBSD;
+            case NETBSD:
+                return RouteTableDump.Layout.NETBSD;
             default:
                 return RouteTableDump.Layout.OPENBSD;
         }

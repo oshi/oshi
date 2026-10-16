@@ -8,6 +8,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.unix.bsd.BsdRouteDumpJNA;
 import oshi.jna.platform.unix.NetBsdLibc;
 import oshi.software.common.os.unix.netbsd.NetBsdNetworkParams;
+import oshi.util.driver.unix.RouteTableDump;
 import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
@@ -23,6 +24,6 @@ public class NetBsdNetworkParamsJNA extends NetBsdNetworkParams {
         if (!NetBsdSysctlUtil.JNA_AVAILABLE) {
             return super.queryRouteDump();
         }
-        return BsdRouteDumpJNA.queryRouteDump(NetBsdLibc.INSTANCE);
+        return BsdRouteDumpJNA.queryRouteDump(NetBsdLibc.INSTANCE, RouteTableDump.Layout.NETBSD);
     }
 }
