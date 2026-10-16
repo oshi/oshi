@@ -43,6 +43,9 @@ public final class NativeLibraryUtil {
 
     private static final Pattern VERSION = Pattern.compile("\\d+(\\.\\d+)?");
 
+    private static final String LD_LIBRARY_PATH = "LD_LIBRARY_PATH";
+    private static final String USR_LIB = "/usr/lib";
+
     private NativeLibraryUtil() {
     }
 
@@ -191,22 +194,22 @@ public final class NativeLibraryUtil {
             case SOLARIS:
                 @Nullable
                 String path64 = getenv.apply("LD_LIBRARY_PATH_64");
-                addEntries(dirs, path64 != null ? path64 : getenv.apply("LD_LIBRARY_PATH"));
+                addEntries(dirs, path64 != null ? path64 : getenv.apply(LD_LIBRARY_PATH));
                 dirs.addAll(Arrays.asList("/lib/64", "/usr/lib/64"));
                 break;
             case AIX:
                 @Nullable
                 String libpath = getenv.apply("LIBPATH");
-                addEntries(dirs, libpath != null ? libpath : getenv.apply("LD_LIBRARY_PATH"));
-                dirs.addAll(Arrays.asList("/usr/lib", "/lib"));
+                addEntries(dirs, libpath != null ? libpath : getenv.apply(LD_LIBRARY_PATH));
+                dirs.addAll(Arrays.asList(USR_LIB, "/lib"));
                 break;
             case OPENBSD:
-                addEntries(dirs, getenv.apply("LD_LIBRARY_PATH"));
-                dirs.addAll(Arrays.asList("/usr/lib", "/usr/X11R6/lib", "/usr/local/lib"));
+                addEntries(dirs, getenv.apply(LD_LIBRARY_PATH));
+                dirs.addAll(Arrays.asList(USR_LIB, "/usr/X11R6/lib", "/usr/local/lib"));
                 break;
             case DRAGONFLYBSD:
-                addEntries(dirs, getenv.apply("LD_LIBRARY_PATH"));
-                dirs.addAll(Arrays.asList("/lib", "/usr/lib", "/usr/local/lib", "/usr/local/lib/compat/pkg"));
+                addEntries(dirs, getenv.apply(LD_LIBRARY_PATH));
+                dirs.addAll(Arrays.asList("/lib", USR_LIB, "/usr/local/lib", "/usr/local/lib/compat/pkg"));
                 break;
             default:
                 break;

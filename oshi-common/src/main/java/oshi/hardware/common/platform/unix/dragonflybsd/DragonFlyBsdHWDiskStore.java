@@ -7,12 +7,12 @@ package oshi.hardware.common.platform.unix.dragonflybsd;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
@@ -72,13 +72,8 @@ public final class DragonFlyBsdHWDiskStore extends AbstractHWDiskStore {
      */
     public static List<HWDiskStore> getDisks(String kernDisks, Supplier<byte[]> devstat) {
         List<String> devices = Arrays.asList(ParseUtil.whitespaces.split(kernDisks.trim(), -1));
-        List<HWDiskStore> diskList = new ArrayList<>();
-        for (DragonFlyBsdHWDiskStore store : parseDevstat(devstat.get(), devstat).values()) {
-            if (devices.contains(store.getName())) {
-                diskList.add(store);
-            }
-        }
-        return diskList;
+        return parseDevstat(devstat.get(), devstat).values().stream().filter(s -> devices.contains(s.getName()))
+                .collect(Collectors.toList());
     }
 
     /**

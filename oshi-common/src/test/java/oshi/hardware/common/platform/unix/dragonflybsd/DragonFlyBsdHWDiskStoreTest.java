@@ -29,8 +29,9 @@ class DragonFlyBsdHWDiskStoreTest {
     private static final int DEVSTAT_SIZE = 200;
 
     // Counters read from kern.devstat.all on a DragonFly BSD 6.4 virtio guest up 207 days
-    private static final byte[] DEVSTAT = devstat(2, record("vbd", 0, 5_705_682_519_552L, 41_767_741_681_664L,
-            87_615_332L, 637_981_330L, 1, 2_026_184L, 62_532L), record("md", 0, 20_992L, 0L, 17L, 0L, 0, 0L, 0L));
+    private static final byte[] DEVSTAT = devstat(2, devstatRecord("vbd", 0, 5_705_682_519_552L, 41_767_741_681_664L,
+            87_615_332L, 637_981_330L, 1, 2_026_184L, 62_532L),
+            devstatRecord("md", 0, 20_992L, 0L, 17L, 0L, 0, 0L, 0L));
 
     @Test
     void testParseDevstat() {
@@ -49,7 +50,7 @@ class DragonFlyBsdHWDiskStoreTest {
     @Test
     void testParseDevstatFullLengthName() {
         // A name filling all 16 bytes has no terminating NUL
-        byte[] buffer = devstat(1, record("abcdefghijklmnop", 12, 0L, 0L, 0L, 0L, 0, 0L, 0L));
+        byte[] buffer = devstat(1, devstatRecord("abcdefghijklmnop", 12, 0L, 0L, 0L, 0L, 0, 0L, 0L));
         Map<String, DragonFlyBsdHWDiskStore> stats = DragonFlyBsdHWDiskStore.parseDevstat(buffer, () -> buffer);
         assertThat(stats.keySet(), contains("abcdefghijklmnop12"));
     }
@@ -83,7 +84,7 @@ class DragonFlyBsdHWDiskStoreTest {
     void testUpdateAttributesDiskGone() {
         AtomicReference<byte[]> sysctl = new AtomicReference<>(DEVSTAT);
         HWDiskStore md = DragonFlyBsdHWDiskStore.getDisks("md0", sysctl::get).get(0);
-        sysctl.set(devstat(3, record("vbd", 0, 0L, 0L, 0L, 0L, 0, 0L, 0L)));
+        sysctl.set(devstat(3, devstatRecord("vbd", 0, 0L, 0L, 0L, 0L, 0, 0L, 0L)));
         assertThat(md.updateAttributes(), is(false));
     }
 
@@ -96,7 +97,7 @@ class DragonFlyBsdHWDiskStoreTest {
         return bb.array();
     }
 
-    private static byte[] record(String name, int unit, long bytesRead, long bytesWritten, long numReads,
+    private static byte[] devstatRecord(String name, int unit, long bytesRead, long bytesWritten, long numReads,
             long numWrites, int busyCount, long busySec, long busyUsec) {
         ByteBuffer bb = ByteBuffer.allocate(DEVSTAT_SIZE).order(ByteOrder.nativeOrder());
         bb.put(12, name.getBytes(StandardCharsets.US_ASCII));

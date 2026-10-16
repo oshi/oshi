@@ -37,9 +37,9 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     // Capture the CSV of hex values as group(1), clients should split on ','
     // The Origin line of dmesg.boot, and each name=value pair on it, with or without spaces around the =
     private static final Pattern ORIGIN = Pattern.compile("Origin\\s*=.*");
-    private static final Pattern DMESG_FIELD = Pattern.compile("(\\w+)\\s*=\\s*(\"[^\"]*\"|\\S+)");
+    private static final Pattern DMESG_FIELD = Pattern.compile("(\\w++)\\s*+=\\s*+(\"[^\"]*+\"|\\S++)");
 
-    private static final Pattern CPUMASK = Pattern.compile("mask=\"(\\p{XDigit}+(,\\p{XDigit}+)*)\"");
+    private static final Pattern CPUMASK = Pattern.compile("mask=\"([\\p{XDigit},]+)\"");
 
     // FreeBSD CPU state indices into the kern.cp_time / kern.cp_times uint64 arrays
     private static final int CP_USER = 0;
