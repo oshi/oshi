@@ -40,8 +40,6 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public List<OSFileStore> getFileStores(boolean localOnly) {
-        // TODO map mount point to UUID?
-        // is /etc/fstab useful for this?
         Map<String, String> uuidMap = parseGeomPartList(ExecutingCommand.runNative("geom part list"));
 
         List<OSFileStore> fsList = new ArrayList<>();
@@ -95,8 +93,7 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
             } else {
                 description = "Mount Point";
             }
-            // Match UUID
-            String uuid = uuidMap.getOrDefault(name, "");
+            String uuid = uuidForVolume(volume, uuidMap);
 
             fsList.add(new FreeBsdOSFileStore(this, name, volume, name, path, options, uuid, isLocal, "", description,
                     type, freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(path, 0L),
@@ -121,26 +118,44 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Parses {@code geom part list} output into a map of device-name to rawuuid.
+     * Looks up the partition UUID of a mounted volume by the device it names below {@code /dev}. Package-private for
+     * testing.
+     *
+     * @param volume  the volume, as {@code mount -p} prints it
+     * @param uuidMap the map from {@link #parseGeomPartList(List)}
+     * @return the UUID, or an empty string for a volume that is not a partition device
+     */
+    static String uuidForVolume(String volume, Map<String, String> uuidMap) {
+        return volume.startsWith("/dev/") ? uuidMap.getOrDefault(volume.substring(5), "") : "";
+    }
+
+    /**
+     * Parses {@code geom part list} output into a map from each name a partition has below {@code /dev} to its rawuuid.
+     * <p>
+     * A partition can be mounted by its device ({@code da1p1}), by its GPT label ({@code gpt/rootfs}) or by its GPT ID
+     * ({@code gptid/} followed by the rawuuid), so each is mapped. An empty label adds no entry.
      *
      * @param geomOutput the lines from {@code geom part list}
-     * @return a map of device-name to rawuuid
+     * @return a map of device names, below {@code /dev}, to rawuuid
      */
     static Map<String, String> parseGeomPartList(List<String> geomOutput) {
         Map<String, String> uuidMap = new HashMap<>();
         String device = "";
+        String uuid = "";
         for (String line : geomOutput) {
+            line = line.trim();
             if (line.contains("Name: ")) {
                 device = line.substring(line.lastIndexOf(' ') + 1);
-            }
-            // If we aren't working with a current partition, continue
-            if (device.isEmpty()) {
-                continue;
-            }
-            line = line.trim();
-            if (line.startsWith("rawuuid:")) {
-                uuidMap.put(device, line.substring(line.lastIndexOf(' ') + 1));
-                device = "";
+                uuid = "";
+            } else if (!device.isEmpty() && line.startsWith("rawuuid:")) {
+                uuid = line.substring(line.lastIndexOf(' ') + 1);
+                uuidMap.put(device, uuid);
+                uuidMap.put("gptid/" + uuid, uuid);
+            } else if (!uuid.isEmpty() && line.startsWith("label:")) {
+                String label = line.substring("label:".length()).trim();
+                if (!label.isEmpty() && !"(null)".equals(label)) {
+                    uuidMap.put("gpt/" + label, uuid);
+                }
             }
         }
         return uuidMap;
