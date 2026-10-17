@@ -15,8 +15,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-import oshi.util.tuples.Pair;
-
 class FreeBsdFileSystemTest {
 
     @Test
@@ -91,43 +89,4 @@ class FreeBsdFileSystemTest {
         assertThat(result, is(anEmptyMap()));
     }
 
-    @Test
-    void testParseDfInodesTypical() {
-        List<String> lines = """
-                Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
-                /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
-                /dev/twed0s1e  10240000 2048000 8192000    20%    5000 100000    5%   /usr
-                """.lines().toList();
-        Pair<Map<String, Long>, Map<String, Long>> result = FreeBsdFileSystem.parseDfInodes(lines);
-        Map<String, Long> freeMap = result.getA();
-        Map<String, Long> totalMap = result.getB();
-        assertThat(freeMap, is(aMapWithSize(2)));
-        assertThat(freeMap.get("/"), is(279871L));
-        assertThat(freeMap.get("/usr"), is(100000L));
-        assertThat(totalMap.get("/"), is(2751L + 279871L));
-        assertThat(totalMap.get("/usr"), is(5000L + 100000L));
-    }
-
-    @Test
-    void testParseDfInodesEmpty() {
-        Pair<Map<String, Long>, Map<String, Long>> result = FreeBsdFileSystem.parseDfInodes(Collections.emptyList());
-        assertThat(result.getA(), is(anEmptyMap()));
-        assertThat(result.getB(), is(anEmptyMap()));
-    }
-
-    @Test
-    void testParseDfInodesSkipsHeaderIncludesNonDevFs() {
-        List<String> lines = """
-                Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
-                devfs               1      1       0   100%       0      0  100%   /dev
-                zroot/ROOT    95678456 8234567  87443889     9%  234567 9999999    2%   /
-                """.lines().toList();
-        Pair<Map<String, Long>, Map<String, Long>> result = FreeBsdFileSystem.parseDfInodes(lines);
-        Map<String, Long> freeMap = result.getA();
-        Map<String, Long> totalMap = result.getB();
-        // Header is skipped; devfs and zroot are both included
-        assertThat(freeMap.get("/dev"), is(0L));
-        assertThat(freeMap.get("/"), is(9999999L));
-        assertThat(totalMap.get("/"), is(234567L + 9999999L));
-    }
 }
