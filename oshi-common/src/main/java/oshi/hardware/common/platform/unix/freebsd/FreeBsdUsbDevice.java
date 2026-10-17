@@ -4,14 +4,18 @@
  */
 package oshi.hardware.common.platform.unix.freebsd;
 
-import static java.util.Collections.emptyList;
-
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 
@@ -20,12 +24,19 @@ import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractUsbDevice;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.tuples.Pair;
 
 /**
  * FreeBsd Usb Device
  */
 @Immutable
 public class FreeBsdUsbDevice extends AbstractUsbDevice {
+
+    // A devinfo -v line: its indent, driver instance, optional description, and then its plug-and-play and location
+    // fields, after "pnpinfo" and "at" respectively
+    private static final Pattern DEVINFO_LINE = Pattern.compile("( *)(\\S+)(?: <(.*?)>)?(.*)");
+    // A plug-and-play or location field, its value quoted where it may hold spaces: sernum="1234BBBK5678" ugen=ugen0.2
+    private static final Pattern PNP_FIELD = Pattern.compile("(\\w+)=(\"[^\"]*\"|\\S+)");
 
     /**
      * Constructs a new {@code FreeBsdUsbDevice}.
@@ -49,86 +60,114 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * @return a list of USB controllers, each with its connected-device tree.
      */
     public static List<UsbDevice> getUsbDevices() {
-        return parseUsbDevices(ExecutingCommand.runNative("lshal"));
+        return parseUsbDevices(ExecutingCommand.runNative("devinfo -v"));
     }
 
     /**
-     * Parses {@code lshal} output into the USB controller device tree.
+     * Parses {@code devinfo -v} output into the USB controller device tree. Package-private for testing.
+     * <p>
+     * {@code devinfo} prints the device tree by indentation, each line a driver instance with its description in angle
+     * brackets and its plug-and-play fields after {@code pnpinfo}. A controller is the parent of a {@code usbus} node,
+     * whose children, the root hub and what hangs from it, become the controller's own. A USB device is listed once per
+     * interface driver attached to it, each with the same {@code ugen} name among its location fields, so that name
+     * identifies the device. A driver attached beneath a USB device without a {@code ugen} name of its own, such as a
+     * HID bus, is not a USB device and is left out. Only devices with a driver attached appear.
      *
-     * @param devices the lines emitted by {@code lshal}
+     * @param devinfo the lines emitted by {@code devinfo -v}
      * @return a list of USB controllers, each with its connected-device tree.
      */
-    static List<UsbDevice> parseUsbDevices(List<String> devices) {
-        // Maps to store information using node # as the key
+    static List<UsbDevice> parseUsbDevices(List<String> devinfo) {
         Map<String, String> nameMap = new HashMap<>();
-        Map<String, String> vendorMap = new HashMap<>();
         Map<String, String> vendorIdMap = new HashMap<>();
         Map<String, String> productIdMap = new HashMap<>();
         Map<String, String> serialMap = new HashMap<>();
         Map<String, String> parentMap = new HashMap<>();
         Map<String, List<String>> hubMap = new HashMap<>();
-
-        // Enumerate all devices and build information maps. This will build the
-        // entire device tree; we will identify the controllers as the parents
-        // of the usbus entries and eventually only populate the returned
-        // results with those
-        if (devices.isEmpty()) {
-            return emptyList();
-        }
-        // For each item enumerated, store information in the maps
-        String key = "";
         List<String> usBuses = new ArrayList<>();
-        for (String line : devices) {
-            // udi = ... identifies start of a new tree
-            if (line.startsWith("udi =")) {
-                // Remove indent for key
-                key = ParseUtil.getSingleQuoteStringValue(line);
-            } else if (!key.isEmpty()) {
-                // We are currently processing for node identified by key. Save
-                // approrpriate variables to maps.
-                line = line.trim();
-                if (!line.isEmpty()) {
-                    if (line.startsWith("freebsd.driver =")
-                            && "usbus".equals(ParseUtil.getSingleQuoteStringValue(line))) {
-                        usBuses.add(key);
-                    } else if (line.contains(".parent =")) {
-                        String parent = ParseUtil.getSingleQuoteStringValue(line);
-                        // If this is interface of parent, skip
-                        if (key.replace(parent, "").startsWith("_if")) {
-                            continue;
-                        }
-                        // Store parent for later usbus-skipping
-                        parentMap.put(key, parent);
-                        // Add this key to the parent's hubmap list
-                        hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
-                    } else if (line.contains(".product =")) {
-                        nameMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-                    } else if (line.contains(".vendor =")) {
-                        vendorMap.put(key, ParseUtil.getSingleQuoteStringValue(line));
-                    } else if (line.contains(".serial =")) {
-                        String serial = ParseUtil.getSingleQuoteStringValue(line);
-                        serialMap.put(key,
-                                serial.startsWith("0x") ? ParseUtil.hexStringToString(serial.replace("0x", ""))
-                                        : serial);
-                    } else if (line.contains(".vendor_id =")) {
-                        vendorIdMap.put(key, String.format(Locale.ROOT, "%04x", ParseUtil.getFirstIntValue(line)));
-                    } else if (line.contains(".product_id =")) {
-                        productIdMap.put(key, String.format(Locale.ROOT, "%04x", ParseUtil.getFirstIntValue(line)));
-                    }
-                }
+        // The open ancestors of the current line, innermost first, as indent and key
+        Deque<Pair<Integer, String>> ancestors = new ArrayDeque<>();
+        // The root hubs and USB devices seen, and the drivers beneath them that are neither, such as a HID bus
+        Set<String> usbNodes = new HashSet<>();
+        Set<String> notUsb = new HashSet<>();
+        for (String line : devinfo) {
+            Matcher m = DEVINFO_LINE.matcher(line);
+            if (!m.matches()) {
+                continue;
+            }
+            int indent = m.group(1).length();
+            while (!ancestors.isEmpty() && ancestors.peek().getA() >= indent) {
+                ancestors.pop();
+            }
+            String parent = ancestors.isEmpty() ? null : ancestors.peek().getB();
+            // The ugen name is among the location fields, the IDs among the plug-and-play ones
+            Map<String, String> pnp = parseFields(m.group(4));
+            String ugen = pnp.get("ugen");
+            String key = ugen == null ? m.group(2) : ugen;
+            if (ugen == null && nameMap.containsKey(key)) {
+                // A name devinfo repeats, such as "unknown" for each device without a driver
+                key = key + "#" + nameMap.size();
+            }
+            ancestors.push(new Pair<>(indent, key));
+            if (parent != null && ugen == null && (usbNodes.contains(parent) || notUsb.contains(parent))) {
+                // A child driver of a USB device that is not itself one, such as the HID bus beneath a tablet
+                notUsb.add(key);
+                continue;
+            }
+            if (ugen != null || (parent != null && parent.startsWith("usbus"))) {
+                usbNodes.add(key);
+            }
+            if (nameMap.containsKey(key)) {
+                // Another interface driver of a device already listed
+                continue;
+            }
+            if (key.startsWith("usbus")) {
+                usBuses.add(key);
+            }
+            String description = ParseUtil.getStringValueOrEmpty(m.group(3));
+            int usbClass = description.indexOf(", class ");
+            nameMap.put(key, usbClass < 0 ? description : description.substring(0, usbClass));
+            putHexId(vendorIdMap, key, pnp.get("vendor"));
+            putHexId(productIdMap, key, pnp.containsKey("product") ? pnp.get("product") : pnp.get("device"));
+            String serial = pnp.get("sernum");
+            if (serial != null && !serial.isEmpty()) {
+                serialMap.put(key, serial);
+            }
+            if (parent != null) {
+                parentMap.put(key, parent);
+                hubMap.computeIfAbsent(parent, x -> new ArrayList<>()).add(key);
             }
         }
 
-        // Build tree and return
+        // Skip the usbuses: make their parents the controllers and replace parents' children with the buses' children
         List<UsbDevice> controllerDevices = new ArrayList<>();
         for (String usbus : usBuses) {
-            // Skip the usbuses: make their parents the controllers and replace
-            // parents' children with the buses' children
             String parent = parentMap.get(usbus);
+            if (parent == null) {
+                continue;
+            }
             hubMap.put(parent, new ArrayList<>(hubMap.getOrDefault(usbus, Collections.emptyList())));
-            controllerDevices.add(buildDeviceTree(parent, "0000", "0000", nameMap, vendorMap, vendorIdMap, productIdMap,
-                    serialMap, hubMap, FreeBsdUsbDevice::new));
+            controllerDevices.add(buildDeviceTree(parent, "0000", "0000", nameMap, Collections.emptyMap(), vendorIdMap,
+                    productIdMap, serialMap, hubMap, FreeBsdUsbDevice::new));
         }
         return Collections.unmodifiableList(controllerDevices);
+    }
+
+    private static Map<String, String> parseFields(String fields) {
+        Map<String, String> pnp = new HashMap<>();
+        Matcher m = PNP_FIELD.matcher(fields);
+        while (m.find()) {
+            String value = m.group(2);
+            if (value.length() >= 2 && value.charAt(0) == '"' && value.charAt(value.length() - 1) == '"') {
+                value = value.substring(1, value.length() - 1);
+            }
+            pnp.put(m.group(1), value);
+        }
+        return pnp;
+    }
+
+    private static void putHexId(Map<String, String> map, String key, @Nullable String hex) {
+        if (hex != null && hex.startsWith("0x")) {
+            map.put(key, String.format(Locale.ROOT, "%04x", ParseUtil.hexStringToInt(hex.substring(2), 0)));
+        }
     }
 }
