@@ -23,6 +23,7 @@
 * [#3816](https://github.com/oshi/oshi/pull/3816): Fixed `ComputerSystem`, `Firmware` and `Baseboard` on NetBSD, which reported every value as unknown because they read sysctls only OpenBSD has. They now read the SMBIOS strings in `machdep.dmi`; the serial numbers and UUID there need root. Virtual machines are now identified from these values rather than from the network card - [@dbwiddis](https://github.com/dbwiddis).
 * [#3817](https://github.com/oshi/oshi/pull/3817): Fixed `OSProcess.getThreadDetails()` and `OperatingSystem.getCurrentThread()` on NetBSD, which saw only the first thread of each process. NetBSD's `ps` lists every thread only when given `-s` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3818](https://github.com/oshi/oshi/pull/3818): Fixed `CentralProcessor` on NetBSD, which reported one physical core and no caches because it could not parse NetBSD's timestamped `dmesg`. ARM processors now report their name, vendor, part number and revision from the Main ID Register, and x86 their family, model and stepping. ARM microarchitectures, which no platform found, are now looked up - [@dbwiddis](https://github.com/dbwiddis).
+* [#3819](https://github.com/oshi/oshi/pull/3819): Fixed `HWDiskStore` on NetBSD, which listed each wedge (`dk` device) as a separate disk. Wedges are now the partitions of the disk they sit on, with their size, type, GUID or label, and mount point - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

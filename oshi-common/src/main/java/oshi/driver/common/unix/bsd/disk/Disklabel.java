@@ -133,7 +133,14 @@ public final class Disklabel {
         return new Quartet<>(Constants.UNKNOWN, Constants.UNKNOWN, 0L, partitions);
     }
 
-    private static Pair<Integer, Integer> getMajorMinor(String diskName, String name) {
+    /**
+     * Gets the major and minor device numbers of a disk or partition by running {@code stat} on its device node.
+     *
+     * @param diskName the disk name
+     * @param name     the partition suffix appended to the disk name, or an empty string for the disk itself
+     * @return a pair of major and minor device numbers, each 0 if they could not be read
+     */
+    public static Pair<Integer, Integer> getMajorMinor(String diskName, String name) {
         int major = 0;
         int minor = 0;
         String majorMinor = ExecutingCommand.getFirstAnswer("stat -f %Hr,%Lr /dev/" + diskName + name);
