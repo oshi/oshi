@@ -137,6 +137,15 @@ class CentralProcessorTest {
     }
 
     @Test
+    void testArmMicroarchitectureFromPartNumber() {
+        // The fields as /proc/cpuinfo gives them on a Neoverse N1: implementer, architecture, part, variant+revision
+        ProcessorIdentifier id = new ProcessorIdentifier("0x41", "", "8", "0xd0c", "r3p1", "413FD0C100000000", true);
+        assertThat(id.getVendor(), is("ARM"));
+        assertThat(id.getIdentifier(), is("ARM Family 8 Model 0xd0c Stepping r3p1"));
+        assertThat(id.getMicroarchitecture(), is("Neoverse-N1"));
+    }
+
+    @Test
     void testMicroarchitectureUnknownWhenTableMissesAndNothingDerived() {
         ProcessorIdentifier id = new ProcessorIdentifier("Apple Inc.", "Apple M99", "0x00000000", "0", "0",
                 "0100000c00000000", true, -1L, null);

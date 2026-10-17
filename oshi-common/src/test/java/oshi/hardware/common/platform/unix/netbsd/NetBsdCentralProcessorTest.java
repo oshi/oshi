@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.tuples.Pair;
 
@@ -40,19 +41,13 @@ class NetBsdCentralProcessorTest {
 
     @Test
     void testParseFamilyModelStepping() {
-        List<String> dmesg = List.of(//
-                "cpu0: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01", //
-                "cpu1: Intel(R) Celeron(R) N4000 CPU @ 1.10GHz, 2491.67 MHz, 06-7a-01");
-        String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
-        assertThat(fms, is(arrayContaining("06", "7a", "01")));
-    }
-
-    @Test
-    void testParseFamilyModelSteppingAmd() {
-        List<String> dmesg = List.of(//
-                "cpu0: AMD EPYC 7313P 16-Core Processor, 2994.74 MHz, 19-01-01");
-        String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
-        assertThat(fms, is(arrayContaining("19", "01", "01")));
+        // NetBSD 10.1 amd64 on the GitHub Actions VM; cpuctl identify reads it as family 0x19 model 0x1 stepping 0x1
+        List<String> dmesg = """
+                cpu0 at mainbus0 apid 0
+                cpu0: AMD EPYC 7763 64-Core Processor                , id 0xa00f11
+                cpu0: node 0, package 0, core 0, smt 0
+                """.lines().toList();
+        assertThat(NetBsdCentralProcessor.parseFamilyModelStepping(dmesg), is(arrayContaining("25", "1", "1")));
     }
 
     @Test
@@ -62,12 +57,36 @@ class NetBsdCentralProcessorTest {
     }
 
     @Test
-    void testParseFamilyModelSteppingNoMatch() {
-        List<String> dmesg = List.of(//
-                "cpu0 at mainbus0 mpidr 0: ARM Cortex-A53 r0p4", //
-                "cpu0: 32KB 64b/line 2-way L1 VIPT I-cache");
+    void testParseFamilyModelSteppingArm() {
+        // The ARM model line carries the affinity register, not a signature
+        List<String> dmesg = List.of("cpu0 at acpi0: Arm Neoverse N1 r3p1 (v8.2-A+), id 0x0");
         String[] fms = NetBsdCentralProcessor.parseFamilyModelStepping(dmesg);
         assertThat(fms, is(arrayContaining("", "", "")));
+    }
+
+    @Test
+    void testParseMidr() {
+        // sysctl -nx machdep.cpu0.cpu_id on NetBSD 10.1 aarch64 (cfarm428): MIDR, then REVIDR 0x1c7
+        String cpuId = "c1d03f4100000000c701000000000000...(120 more bytes)";
+        assertThat(NetBsdCentralProcessor.parseMidr(cpuId, false), is(0x413fd0c1L));
+        assertThat(NetBsdCentralProcessor.parseMidr("00000000413fd0c1", true), is(0x413fd0c1L));
+        assertThat(NetBsdCentralProcessor.parseMidr("", false), is(-1L));
+        assertThat(NetBsdCentralProcessor.parseMidr("sysctl: second level name 'cpu0' is invalid", false), is(-1L));
+    }
+
+    @Test
+    void testCreateArmIdentifier() {
+        ProcessorIdentifier id = NetBsdCentralProcessor.createArmIdentifier(0x413fd0c1L,
+                "Arm Neoverse N1 r3p1 (v8.2-A+)", 2_000_000_000L);
+        assertThat(id.getVendor(), is("ARM"));
+        assertThat(id.getName(), is("Arm Neoverse N1 r3p1 (v8.2-A+)"));
+        assertThat(id.getFamily(), is("8"));
+        assertThat(id.getModel(), is("0xd0c"));
+        assertThat(id.getStepping(), is("r3p1"));
+        assertThat(id.getProcessorID(), is("413FD0C100000000"));
+        assertThat(id.getMicroarchitecture(), is("Neoverse-N1"));
+        assertThat(id.isCpu64bit(), is(true));
+        assertThat(id.getVendorFreq(), is(2_000_000_000L));
     }
 
     @Test
