@@ -20,6 +20,7 @@
 * [#3810](https://github.com/oshi/oshi/pull/3810): `OSProcess.getPath()` on FreeBSD and DragonFly BSD now returns the full path of the executable, read from the kernel, instead of only the command name. Processes without one, such as kernel processes, still report the command name - [@dbwiddis](https://github.com/dbwiddis).
 * [#3812](https://github.com/oshi/oshi/pull/3812): Fixed a `StackOverflowError` from `CentralProcessor` on NetBSD on machines without `machdep.tsc_freq`, such as ARM, when reading the processor frequency or identifier. The frequency now comes from the processor name or, failing that, the SMBIOS processor frequency - [@dbwiddis](https://github.com/dbwiddis).
 * [#3814](https://github.com/oshi/oshi/pull/3814): `NetworkParams.getRoutes()` on NetBSD now reads the routing table from the kernel, as #3742 intended. The request named the wrong protocol family, so every call logged an error and fell back to running `netstat` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3816](https://github.com/oshi/oshi/pull/3816): Fixed `ComputerSystem`, `Firmware` and `Baseboard` on NetBSD, which reported every value as unknown because they read sysctls only OpenBSD has. They now read the SMBIOS strings in `machdep.dmi`; the serial numbers and UUID there need root. Virtual machines are now identified from these values rather than from the network card - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

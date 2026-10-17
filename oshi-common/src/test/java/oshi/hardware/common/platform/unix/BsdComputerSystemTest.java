@@ -20,8 +20,8 @@ import oshi.hardware.common.platform.unix.openbsd.OpenBsdComputerSystem;
 
 /**
  * Tests the structure NetBSD and OpenBSD share. The attribute values come from the {@code sysctl} command, so they
- * cannot be asserted off a BSD; what is portable is that both platforms inherit the shared implementation, that only
- * the firmware type differs, and that the memoized attributes are computed once.
+ * cannot be asserted off a BSD; what is portable is that both platforms inherit the shared implementation, that each
+ * keeps its own firmware type, and that the memoized attributes are computed once.
  */
 class BsdComputerSystemTest {
 
@@ -54,8 +54,7 @@ class BsdComputerSystemTest {
     }
 
     /**
-     * The only thing the two platforms vary. Guards against the subclasses being reduced to nothing, which would leave
-     * both reporting the same firmware.
+     * Guards against the subclasses being reduced to nothing, which would leave both reporting the same firmware.
      */
     @Test
     void testFirmwareTypeIsThePlatformDifference() {

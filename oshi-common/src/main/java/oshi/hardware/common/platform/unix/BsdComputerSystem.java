@@ -15,8 +15,8 @@ import oshi.util.Constants;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 
 /**
- * Common BSD ComputerSystem implementation for the platforms that identify the machine through the {@code hw.*} string
- * sysctls, namely NetBSD and OpenBSD.
+ * Common BSD ComputerSystem implementation for NetBSD and OpenBSD. By default it identifies the machine through
+ * OpenBSD's {@code hw.*} string sysctls; NetBSD overrides the queries to read its {@code machdep.dmi} strings instead.
  * <p>
  * These are read with the command-line {@code sysctl} rather than natively, because OpenBSD has no {@code sysctlbyname}
  * and so cannot look a string sysctl up by name from a binding. That is also why these platforms need no per-binding
@@ -28,13 +28,13 @@ import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 @Immutable
 public abstract class BsdComputerSystem extends AbstractComputerSystem {
 
-    private final Supplier<String> manufacturer = memoize(BsdComputerSystem::queryManufacturer);
+    private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
 
-    private final Supplier<String> model = memoize(BsdComputerSystem::queryModel);
+    private final Supplier<String> model = memoize(this::queryModel);
 
-    private final Supplier<String> serialNumber = memoize(BsdComputerSystem::querySerialNumber);
+    private final Supplier<String> serialNumber = memoize(this::querySerialNumber);
 
-    private final Supplier<String> uuid = memoize(BsdComputerSystem::queryUUID);
+    private final Supplier<String> uuid = memoize(this::queryUUID);
 
     /**
      * Default constructor.
@@ -68,19 +68,39 @@ public abstract class BsdComputerSystem extends AbstractComputerSystem {
                 BsdSysctlUtil.sysctl("hw.product", Constants.UNKNOWN));
     }
 
-    private static String queryManufacturer() {
+    /**
+     * Queries the system manufacturer.
+     *
+     * @return the manufacturer, or {@link Constants#UNKNOWN}
+     */
+    protected String queryManufacturer() {
         return BsdSysctlUtil.sysctl("hw.vendor", Constants.UNKNOWN);
     }
 
-    private static String queryModel() {
+    /**
+     * Queries the system model.
+     *
+     * @return the model, or {@link Constants#UNKNOWN}
+     */
+    protected String queryModel() {
         return BsdSysctlUtil.sysctl("hw.version", Constants.UNKNOWN);
     }
 
-    private static String querySerialNumber() {
+    /**
+     * Queries the system serial number.
+     *
+     * @return the serial number, or {@link Constants#UNKNOWN}
+     */
+    protected String querySerialNumber() {
         return BsdSysctlUtil.sysctl("hw.serialno", Constants.UNKNOWN);
     }
 
-    private static String queryUUID() {
+    /**
+     * Queries the system UUID.
+     *
+     * @return the UUID, or {@link Constants#UNKNOWN}
+     */
+    protected String queryUUID() {
         return BsdSysctlUtil.sysctl("hw.uuid", Constants.UNKNOWN);
     }
 }

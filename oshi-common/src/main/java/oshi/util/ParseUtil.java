@@ -78,6 +78,7 @@ public final class ParseUtil {
 
     // MM-DD-YYYY or MM/DD/YYYY, the same separator both times
     private static final Pattern MM_DD_YYYY = Pattern.compile("\\d{2}([-/])\\d{2}\\1\\d{4}");
+    private static final Pattern YYYYMMDD = Pattern.compile("\\d{8}");
 
     /*
      * Pattern for [dd-[hh:[mm:[ss[.sss]]]]]
@@ -996,6 +997,19 @@ public final class ParseUtil {
             return dateString;
         }
         return dateString.substring(6, 10) + "-" + dateString.substring(0, 2) + "-" + dateString.substring(3, 5);
+    }
+
+    /**
+     * Parse a date in YYYYMMDD to YYYY-MM-DD
+     *
+     * @param dateString The date in YYYYMMDD format
+     * @return The date in ISO YYYY-MM-DD format if parseable, or the original string
+     */
+    public static String parseYyyyMmDdToIso(String dateString) {
+        if (!YYYYMMDD.matcher(dateString).matches()) {
+            return dateString;
+        }
+        return dateString.substring(0, 4) + "-" + dateString.substring(4, 6) + "-" + dateString.substring(6, 8);
     }
 
     /**
