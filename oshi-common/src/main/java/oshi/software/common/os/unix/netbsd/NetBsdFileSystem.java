@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
 
@@ -33,6 +35,9 @@ public class NetBsdFileSystem extends AbstractFileSystem {
     public static final String OSHI_NETBSD_FS_PATH_INCLUDES = "oshi.os.netbsd.filesystem.path.includes";
     public static final String OSHI_NETBSD_FS_VOLUME_EXCLUDES = "oshi.os.netbsd.filesystem.volume.excludes";
     public static final String OSHI_NETBSD_FS_VOLUME_INCLUDES = "oshi.os.netbsd.filesystem.volume.includes";
+
+    // pstat -T prints both counts with %3d, so either may be padded: "1100/10000 files", " 42/100 files"
+    private static final Pattern PSTAT_FILES = Pattern.compile("\\s*(\\d+)/\\s*\\d+ files");
 
     private static final List<PathMatcher> FS_PATH_EXCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_NETBSD_FS_PATH_EXCLUDES);
@@ -153,7 +158,25 @@ public class NetBsdFileSystem extends AbstractFileSystem {
 
     @Override
     public long getOpenFileDescriptors() {
-        return BsdSysctlUtil.sysctl("kern.nfiles", 0);
+        // NetBSD has no sysctl for the count. pstat reads the kernel's nfiles counter, and is setgid kmem to do it
+        return parsePstatTotalFiles(ExecutingCommand.runNative("/usr/sbin/pstat -T"));
+    }
+
+    /**
+     * Parses the open file count from {@code pstat -T} output, whose first line reads {@code 1100/10000 files}.
+     * Package-private for testing.
+     *
+     * @param lines the output of {@code pstat -T}
+     * @return the number of open files, or 0 if no count was found
+     */
+    static long parsePstatTotalFiles(List<String> lines) {
+        for (String line : lines) {
+            Matcher m = PSTAT_FILES.matcher(line);
+            if (m.matches()) {
+                return ParseUtil.parseLongOrDefault(m.group(1), 0L);
+            }
+        }
+        return 0L;
     }
 
     @Override
