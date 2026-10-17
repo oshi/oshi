@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -142,5 +143,34 @@ class BsdNetworkIFTest {
                         Collections.singletonList("Name    Mtu   Network     Address               Ibytes     Obytes")),
                 is(anEmptyMap()));
         assertThat(BsdNetworkIF.parseNetstat(Collections.singletonList("garbage")), is(anEmptyMap()));
+    }
+
+    private static long speed(String media) {
+        return BsdNetworkIF.parseMediaSpeed(List.of("vtnet0: flags=1008843<UP,BROADCAST,RUNNING> metric 0 mtu 9000",
+                "\t" + media, "\tstatus: active"));
+    }
+
+    @Test
+    void testParseMediaSpeed() {
+        // FreeBSD 16.0-CURRENT, a virtio NIC and a Realtek one
+        assertThat(speed("media: Ethernet autoselect (10Gbase-T <full-duplex>)"), is(10_000_000_000L));
+        assertThat(speed("media: Ethernet autoselect (1000baseT <full-duplex>)"), is(1_000_000_000L));
+        // OpenBSD 7.9, with flow control after the duplex
+        assertThat(speed("media: Ethernet autoselect (1000baseT full-duplex,rxpause,txpause)"), is(1_000_000_000L));
+        // Other Ethernet spellings, and a wireless rate
+        assertThat(speed("media: Ethernet autoselect (2500Base-T <full-duplex>)"), is(2_500_000_000L));
+        assertThat(speed("media: Ethernet autoselect (100baseTX <full-duplex>)"), is(100_000_000L));
+        assertThat(speed("media: IEEE802.11 autoselect (OFDM/54Mbps mode 11g)"), is(54_000_000L));
+        // Fixed media, with no parentheses
+        assertThat(speed("media: Ethernet 10Gbase-SR <full-duplex>"), is(10_000_000_000L));
+        // The active type, in parentheses, rather than the configured one before it
+        assertThat(speed("media: Ethernet 1000baseT <full-duplex> (100baseTX <full-duplex>)"), is(100_000_000L));
+        // No link: OpenBSD prints (none), FreeBSD leaves the parentheses off
+        assertThat(speed("media: Ethernet autoselect (none)"), is(0L));
+        assertThat(speed("media: Ethernet autoselect"), is(0L));
+        // No media line at all, as for NetBSD's virtio interface
+        assertThat(BsdNetworkIF.parseMediaSpeed(List.of("vioif0: flags=0x8843<UP,BROADCAST,RUNNING> mtu 1500")),
+                is(0L));
+        assertThat(BsdNetworkIF.parseMediaSpeed(Collections.emptyList()), is(0L));
     }
 }
