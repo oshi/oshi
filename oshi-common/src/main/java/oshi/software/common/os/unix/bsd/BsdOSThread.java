@@ -74,7 +74,7 @@ public abstract class BsdOSThread extends AbstractOSThread {
         if (threadMap.containsKey(BsdPsThreadKeyword.TDNAME)) {
             this.name = threadMap.get(BsdPsThreadKeyword.TDNAME);
         } else if (threadMap.containsKey(BsdPsThreadKeyword.ARGS)) {
-            this.name = threadMap.get(BsdPsThreadKeyword.ARGS);
+            this.name = nameFromArgs(ParseUtil.getStringValueOrEmpty(threadMap.get(BsdPsThreadKeyword.ARGS)));
         }
         // Kernel/user time: FreeBSD reports systime separately (time is user+sys); the others fold kernel time into a
         // single cputime/time column. Clamp both against a decrease; see BsdOSProcess.monotonic(long, long).
@@ -113,6 +113,17 @@ public abstract class BsdOSThread extends AbstractOSThread {
         this.minorFaults = ParseUtil.parseLongOrDefault(threadMap.get(BsdPsThreadKeyword.MINFLT), 0L);
         this.priority = ParseUtil.parseIntOrDefault(threadMap.get(BsdPsThreadKeyword.PRI), 0);
         return true;
+    }
+
+    /**
+     * Derives this thread's name from the {@code ps} args column, on the platforms whose thread rows have no name of
+     * their own. The default uses the column as it is.
+     *
+     * @param args the args column
+     * @return the thread name
+     */
+    protected String nameFromArgs(String args) {
+        return args;
     }
 
     private static @Nullable String threadIdValue(Map<BsdPsThreadKeyword, String> threadMap) {

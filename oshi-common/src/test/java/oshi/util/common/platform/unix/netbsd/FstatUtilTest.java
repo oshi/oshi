@@ -38,13 +38,26 @@ class FstatUtilTest {
                 oshi     sh          4759    1* pipe 0xffff0000f9e16100 -> 0xffff0001e9d42400 w
                 oshi     sh          4759   10  /home     16203791 -rw-r--r--      12 r
                 """.lines().toList();
-        assertThat(FstatUtil.parseOpenFiles(fstat), is(3L));
+        assertThat(FstatUtil.parseOpenFiles(fstat, 4759), is(3L));
+    }
+
+    @Test
+    void testParseOpenFilesCommandWithSpace() {
+        // fstat prints the command name unescaped, so a space in it shifts the FD column one place to the right
+        List<String> fstat = """
+                USER     CMD          PID   FD  MOUNT         INUM MODE         SZ|DV R/W
+                oshi     my tool     4760   wd  /home     16203776 drwxr-xr-x     512 r
+                oshi     my tool     4760 text  /         1059845 -r-xr-xr-x  171784 r
+                oshi     my tool     4760    0* pipe 0xffff0004326db900 <- 0xffff00042c48eb00 r
+                oshi     my tool     4760    3  /home     16203791 -rw-r--r--      12 r
+                """.lines().toList();
+        assertThat(FstatUtil.parseOpenFiles(fstat, 4760), is(2L));
     }
 
     @Test
     void testParseOpenFilesHeaderOnlyOrEmpty() {
-        assertThat(FstatUtil.parseOpenFiles(List.of("USER CMD PID FD ...")), is(0L));
-        assertThat(FstatUtil.parseOpenFiles(Collections.<String>emptyList()), is(0L));
+        assertThat(FstatUtil.parseOpenFiles(List.of("USER CMD PID FD ..."), 1), is(0L));
+        assertThat(FstatUtil.parseOpenFiles(Collections.<String>emptyList(), 1), is(0L));
     }
 
     @Test

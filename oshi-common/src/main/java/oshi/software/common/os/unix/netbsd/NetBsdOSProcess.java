@@ -123,10 +123,22 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     @Override
     protected String queryName(Map<BsdPsKeyword, String> psMap, String path) {
-        String argv = parseArgv0(psMap.get(BsdPsKeyword.ARGS));
-        // The placeholder wraps the kernel's own name for the process, which is the name whether or not the arguments
-        // could be read; unwrap it rather than reporting ps's punctuation as the name
-        return isPlaceholder(argv) ? argv.substring(1, argv.length() - 1) : path.substring(path.lastIndexOf('/') + 1);
+        return parseName(psMap.get(BsdPsKeyword.ARGS));
+    }
+
+    /**
+     * Extracts the process name from a {@code ps} args column: the last path component of {@code argv[0]}.
+     * <p>
+     * The placeholder {@code ps} substitutes when the kernel refuses the arguments wraps the kernel's own name for the
+     * process, which is the name whether or not the arguments could be read, so it is unwrapped rather than reporting
+     * {@code ps}'s punctuation as the name. Either way two readings of one process give the same name.
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return the process name
+     */
+    static String parseName(@Nullable String args) {
+        String argv = parseArgv0(args);
+        return isPlaceholder(argv) ? argv.substring(1, argv.length() - 1) : argv.substring(argv.lastIndexOf('/') + 1);
     }
 
     /**

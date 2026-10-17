@@ -13,9 +13,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.EnumMap;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 
 class NetBsdOSProcessTest {
 
@@ -77,5 +80,26 @@ class NetBsdOSProcessTest {
         assertFalse(NetBsdOSProcess.isPlaceholder("java"));
         assertFalse(NetBsdOSProcess.isPlaceholder("()"));
         assertFalse(NetBsdOSProcess.isPlaceholder(""));
+    }
+
+    @Test
+    void testParseName() {
+        assertThat(NetBsdOSProcess.parseName("/opt/bootstrap/bin/java -Xmx64m -cp /tmp/a.jar Main"), is("java"));
+        assertThat(NetBsdOSProcess.parseName("(java)"), is("java"));
+        assertThat(NetBsdOSProcess.parseName("java /tmp/S.java"), is("java"));
+        assertThat(NetBsdOSProcess.parseName(null), is(""));
+    }
+
+    @Test
+    void testThreadNameIgnoresArgsPlaceholder() {
+        // Two readings of one thread, seconds apart on NetBSD 10.1 CI: once the kernel released the arguments, once
+        // the JVM was inside posix_spawn and ps printed its placeholder instead
+        Map<BsdPsThreadKeyword, String> released = new EnumMap<>(BsdPsThreadKeyword.class);
+        released.put(BsdPsThreadKeyword.LID, "1");
+        released.put(BsdPsThreadKeyword.ARGS, "/opt/bootstrap/bin/java -enableassertions -classpath /tmp/a.jar Main");
+        Map<BsdPsThreadKeyword, String> refused = new EnumMap<>(released);
+        refused.put(BsdPsThreadKeyword.ARGS, "(java)");
+        assertThat(new NetBsdOSThread(42, released).getName(), is("java"));
+        assertThat(new NetBsdOSThread(42, refused).getName(), is("java"));
     }
 }

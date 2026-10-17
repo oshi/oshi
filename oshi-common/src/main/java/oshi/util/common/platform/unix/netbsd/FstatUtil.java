@@ -38,7 +38,7 @@ public final class FstatUtil {
      */
     public static long getOpenFiles(int pid) {
         // NetBSD fstat output: USER CMD PID FD MOUNT INUM MODE SZ|DV R/W
-        return parseOpenFiles(ExecutingCommand.runNative("fstat -p " + pid));
+        return parseOpenFiles(ExecutingCommand.runNative("fstat -p " + pid), pid);
     }
 
     /**
@@ -48,16 +48,27 @@ public final class FstatUtil {
      * process's text, working directory, root directory and trace file ({@code text}, {@code wd}, {@code root} and
      * {@code tr}), none of which is a descriptor. A descriptor shared with another process is marked with a trailing
      * {@code *}.
+     * <p>
+     * The FD column is found as the one after the process ID, not by position: {@code fstat} prints the command name as
+     * it is, so a name containing a space shifts every column after it.
      *
      * @param fstatLines lines returned by {@code fstat -p <pid>}
+     * @param pid        the process ID the lines were requested for
      * @return the number of open file descriptors
      */
-    public static long parseOpenFiles(List<String> fstatLines) {
+    public static long parseOpenFiles(List<String> fstatLines, int pid) {
+        String pidString = Integer.toString(pid);
         long fds = 0L;
         for (String line : fstatLines) {
             String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
-            if (split.length > 3 && !split[3].isEmpty() && Character.isDigit(split[3].charAt(0))) {
-                fds++;
+            // The user and at least one word of the command come first
+            for (int i = 2; i < split.length - 1; i++) {
+                if (split[i].equals(pidString)) {
+                    if (!split[i + 1].isEmpty() && Character.isDigit(split[i + 1].charAt(0))) {
+                        fds++;
+                    }
+                    break;
+                }
             }
         }
         return fds;
