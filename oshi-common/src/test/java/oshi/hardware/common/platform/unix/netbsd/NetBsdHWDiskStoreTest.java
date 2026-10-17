@@ -85,10 +85,16 @@ class NetBsdHWDiskStoreTest {
     }
 
     /**
-     * The live buffer from NetBSD 10.1 on cfarm428, followed by its boot copy, which repeats it without timestamps. The
-     * last two wedges are invented: one on a 4096-byte-sector disk, and one named by a GPT label rather than its GUID.
+     * The boot copy of the kernel messages from NetBSD 10.1 on cfarm428, followed by its live buffer, which repeats it
+     * with timestamps. The wedges on sd0 and sd1 are invented: one on a 4096-byte-sector disk, one named by a GPT label
+     * rather than its GUID, and one deleted since boot.
      */
     private static final List<String> DMESG = """
+            ld4: 65536 MB, 16383 cyl, 16 head, 63 sec, 512 bytes/sect x 134217728 sectors
+            dk0 at ld4: "7c94c5a0-89a4-42c2-8088-0f88dd11e8fa", 409600 blocks at 64, type: ntfs
+            dk1 at ld4: "bce3cb3f-b5ff-4aac-8049-5f748b710db0", 133807967 blocks at 409728, type: ffs
+            dk5 at ld4: "c4040fb3-6246-4f8a-9718-9d613c827f82", 2048 blocks at 133807967, type: ffs
+            boot device: dk1
             [     1.000004] ld4: 65536 MB, 16383 cyl, 16 head, 63 sec, 512 bytes/sect x 134217728 sectors
             [     1.000004] ld6: 4096 MB, 8322 cyl, 16 head, 63 sec, 512 bytes/sect x 8388608 sectors
             [     1.000004] sd0: 1863 GB, 243201 cyl, 255 head, 63 sec, 4096 bytes/sect x 488378646 sectors
@@ -97,11 +103,11 @@ class NetBsdHWDiskStoreTest {
             [     1.373709] dk1 at ld4: "bce3cb3f-b5ff-4aac-8049-5f748b710db0", 133807967 blocks at 409728, type: ffs
             [     1.390720] dk3 at ld6: "ece9f3bb-9a88-4229-845c-4b23a4a00bc6", 8388528 blocks at 40, type: swap
             [     1.390720] dk4 at sd0: "data, old", 1000 blocks at 6, type: ffs
-            ld4: 65536 MB, 16383 cyl, 16 head, 63 sec, 512 bytes/sect x 134217728 sectors
-            dk0 at ld4: "7c94c5a0-89a4-42c2-8088-0f88dd11e8fa", 409600 blocks at 64, type: ntfs
-            dk1 at ld4: "bce3cb3f-b5ff-4aac-8049-5f748b710db0", 133807967 blocks at 409728, type: ffs
-            boot device: dk1
+            [    88.120004] dk6 at sd1: "backup", 2000 blocks at 34, type: ffs
             """.lines().toList();
+
+    /** The devices in {@code hw.disknames}: dk5 has been deleted, and sd1 detached without its wedge going away. */
+    private static final List<String> DEVICES = List.of("ld4", "ld6", "sd0", "dk0", "dk1", "dk3", "dk4", "dk6");
 
     /** {@code df} on the same machine. */
     private static final List<String> DF = """
@@ -123,11 +129,12 @@ class NetBsdHWDiskStoreTest {
 
     @Test
     void testParseWedges() {
-        Map<String, List<HWPartition>> wedges = NetBsdHWDiskStore.parseWedges(DMESG, NetBsdHWDiskStore.parseMounts(DF),
-                (disk, part) -> new Pair<>(168, ParseUtil.getFirstIntValue(disk)));
+        Map<String, List<HWPartition>> wedges = NetBsdHWDiskStore.parseWedges(DMESG, DEVICES,
+                NetBsdHWDiskStore.parseMounts(DF), (disk, part) -> new Pair<>(168, ParseUtil.getFirstIntValue(disk)));
         assertThat(wedges.keySet(), contains("ld4", "ld6", "sd0"));
 
-        // Each wedge once, though the boot copy repeats two of them
+        // Each wedge once, though the live buffer repeats two of them, and not dk5, deleted since boot. Nor dk6, whose
+        // parent is gone and which is left for getDisks to list as a disk
         List<HWPartition> ld4 = wedges.get("ld4");
         assertNotNull(ld4);
         assertThat(ld4.size(), is(2));
@@ -160,16 +167,33 @@ class NetBsdHWDiskStoreTest {
     }
 
     @Test
+    void testParseWedgesLastAnnouncementWins() {
+        // dk2 was deleted and its number reused on another disk after boot
+        List<String> dmesg = List.of("ld5: 1024 GB, 16383 cyl, 16 head, 63 sec, 512 bytes/sect x 2147483648 sectors",
+                "dk2 at ld5: \"c4040fb3-6246-4f8a-9718-9d613c827f82\", 2147481567 blocks at 2048, type: ffs",
+                "[   300.000000] sd2: 7680 MB, 980 cyl, 255 head, 63 sec, 4096 bytes/sect x 1966080 sectors",
+                "[   300.100000] dk2 at sd2: \"usb\", 1966000 blocks at 40, type: msdos");
+        Map<String, List<HWPartition>> wedges = NetBsdHWDiskStore.parseWedges(dmesg, List.of("ld5", "sd2", "dk2"),
+                Map.of(), (disk, part) -> new Pair<>(0, 0));
+        assertThat(wedges.keySet(), contains("sd2"));
+        List<HWPartition> sd2 = wedges.get("sd2");
+        assertNotNull(sd2);
+        assertThat(sd2.get(0).getLabel(), is("usb"));
+        assertThat(sd2.get(0).getType(), is("msdos"));
+        assertThat(sd2.get(0).getSize(), is(1966000L * 4096));
+    }
+
+    @Test
     void testParseWedgesWithoutParentGeometry() {
         // A parent whose geometry line is gone from both buffers is assumed to have 512-byte sectors
         Map<String, List<HWPartition>> wedges = NetBsdHWDiskStore.parseWedges(
                 List.of("dk2 at ld5: \"c4040fb3-6246-4f8a-9718-9d613c827f82\", 2048 blocks at 2048, type: ffs"),
-                Map.of(), (disk, part) -> new Pair<>(0, 0));
+                List.of("ld5", "dk2"), Map.of(), (disk, part) -> new Pair<>(0, 0));
         List<HWPartition> ld5 = wedges.get("ld5");
         assertNotNull(ld5);
         assertThat(ld5.get(0).getSize(), is(2048L * 512));
         assertThat(NetBsdHWDiskStore
-                .parseWedges(List.of("boot device: dk1"), Map.of(), (disk, part) -> new Pair<>(0, 0)).isEmpty(),
-                is(true));
+                .parseWedges(List.of("boot device: dk1"), List.of("dk1"), Map.of(), (disk, part) -> new Pair<>(0, 0))
+                .isEmpty(), is(true));
     }
 }

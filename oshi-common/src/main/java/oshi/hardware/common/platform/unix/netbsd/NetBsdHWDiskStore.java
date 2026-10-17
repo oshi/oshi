@@ -8,6 +8,8 @@ import static oshi.util.Memoizer.defaultExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -16,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,8 +61,12 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
      */
     public static List<HWDiskStore> getDisks() {
         List<HWDiskStore> diskList = new ArrayList<>();
+        // Get list of disks from sysctl
+        // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
+        String[] devices = ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("hw.disknames", "").trim(), -1);
         List<String> dmesg = queryDmesg();
-        Map<String, List<HWPartition>> wedges = parseWedges(dmesg, queryMounts(), Disklabel::getMajorMinor);
+        Map<String, List<HWPartition>> wedges = parseWedges(dmesg, Arrays.asList(devices), queryMounts(),
+                Disklabel::getMajorMinor);
         Set<String> wedgeNames = new HashSet<>();
         for (List<HWPartition> parts : wedges.values()) {
             for (HWPartition part : parts) {
@@ -68,12 +75,9 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
         }
         Supplier<List<String>> iostatSupplier = memoize(NetBsdHWDiskStore::queryIostat, defaultExpiration());
 
-        // Get list of disks from sysctl
-        // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
-        String[] devices = ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("hw.disknames", "").trim(), -1);
         NetBsdHWDiskStore store;
         for (String diskName : devices) {
-            // A wedge is a partition of the disk it sits on, and is listed there instead
+            // A wedge is a partition of the disk it sits on, and is listed there instead, if that disk is present
             if (wedgeNames.contains(diskName)) {
                 continue;
             }
@@ -128,38 +132,47 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
      * <p>
      * A wedge's size is counted in sectors of its parent disk, so the parent's sector size comes from its geometry
      * line, defaulting to 512 bytes. The quoted wedge name is the partition label if one was set, and otherwise its
-     * GUID. A wedge appearing more than once, as it does when the live buffer and the boot copy are both read, is
-     * listed once, from its first appearance.
+     * GUID.
+     * <p>
+     * The messages are read oldest first, so where a device is announced more than once, as it is in both the boot copy
+     * and the live buffer, or when a wedge number is reused after boot, the last announcement wins. Only wedges that
+     * are still present, on a disk that is still present, are returned: the boot copy remembers wedges deleted since,
+     * and a wedge whose parent is missing has no disk to be listed under.
      *
-     * @param dmesg            the kernel messages
+     * @param dmesg            the kernel messages, oldest first
+     * @param devices          the disk devices currently present, wedges included
      * @param mounts           mount points keyed by device name, such as {@code dk1}
      * @param majorMinorLookup resolves a device name and suffix to its major and minor numbers
      * @return the wedges of each disk, keyed by the disk's name
      */
-    static Map<String, List<HWPartition>> parseWedges(List<String> dmesg, Map<String, String> mounts,
-            BiFunction<String, String, Pair<Integer, Integer>> majorMinorLookup) {
+    static Map<String, List<HWPartition>> parseWedges(List<String> dmesg, Collection<String> devices,
+            Map<String, String> mounts, BiFunction<String, String, Pair<Integer, Integer>> majorMinorLookup) {
         Map<String, Long> sectorSizes = new HashMap<>();
+        Map<String, MatchResult> announcements = new LinkedHashMap<>();
         for (String line : dmesg) {
             Matcher m = DMESG_GEOMETRY.matcher(line);
             if (m.find()) {
-                sectorSizes.putIfAbsent(m.group(1), ParseUtil.parseLongOrDefault(m.group(2), 512L));
+                sectorSizes.put(m.group(1), ParseUtil.parseLongOrDefault(m.group(2), 512L));
+            }
+            m = DMESG_WEDGE.matcher(line);
+            if (m.find()) {
+                announcements.put(m.group(1), m.toMatchResult());
             }
         }
         Map<String, List<HWPartition>> wedges = new LinkedHashMap<>();
-        Set<String> seen = new HashSet<>();
-        for (String line : dmesg) {
-            Matcher m = DMESG_WEDGE.matcher(line);
-            if (m.find() && seen.add(m.group(1))) {
-                String name = m.group(1);
-                String parent = m.group(2);
-                String wedgeName = m.group(3);
-                String uuid = ParseUtil.parseUuidOrDefault(wedgeName, "");
-                long size = ParseUtil.parseLongOrDefault(m.group(4), 0L) * sectorSizes.getOrDefault(parent, 512L);
-                Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(name, "");
-                wedges.computeIfAbsent(parent, p -> new ArrayList<>())
-                        .add(new HWPartition(name, name, m.group(5), uuid, uuid.isEmpty() ? wedgeName : "", size,
-                                majorMinor.getA(), majorMinor.getB(), mounts.getOrDefault(name, "")));
+        for (MatchResult m : announcements.values()) {
+            String name = m.group(1);
+            String parent = m.group(2);
+            if (!devices.contains(name) || !devices.contains(parent)) {
+                continue;
             }
+            String wedgeName = m.group(3);
+            String uuid = ParseUtil.parseUuidOrDefault(wedgeName, "");
+            long size = ParseUtil.parseLongOrDefault(m.group(4), 0L) * sectorSizes.getOrDefault(parent, 512L);
+            Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(name, "");
+            wedges.computeIfAbsent(parent, p -> new ArrayList<>())
+                    .add(new HWPartition(name, name, m.group(5), uuid, uuid.isEmpty() ? wedgeName : "", size,
+                            majorMinor.getA(), majorMinor.getB(), mounts.getOrDefault(name, "")));
         }
         return wedges;
     }
@@ -185,12 +198,13 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
-     * Reads the kernel messages, followed by the copy saved at boot. The live buffer holds wedges added since boot, and
-     * the boot copy still holds the disks once the live buffer has wrapped past them.
+     * Reads the copy of the kernel messages saved at boot, followed by the live buffer, so the result runs oldest
+     * first. The boot copy still holds the disks once the live buffer has wrapped past them, and the live buffer holds
+     * wedges added since boot.
      */
     private static List<String> queryDmesg() {
-        List<String> dmesg = new ArrayList<>(ExecutingCommand.runNative("dmesg"));
-        dmesg.addAll(FileUtil.readFile("/var/run/dmesg.boot", false));
+        List<String> dmesg = new ArrayList<>(FileUtil.readFile("/var/run/dmesg.boot", false));
+        dmesg.addAll(ExecutingCommand.runNative("dmesg"));
         return dmesg;
     }
 
