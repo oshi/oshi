@@ -146,9 +146,9 @@ public class MacInternetProtocolStatsJNA extends MacInternetProtocolStats {
     @Override
     protected BsdIpstat queryIpstat() {
         try (Memory m = SysctlUtil.sysctl("net.inet.ip.stats")) {
-            if (m != null && m.size() >= 60) {
+            if (m != null && m.size() >= 64) {
                 return new BsdIpstat(m.getInt(0), m.getInt(4), m.getInt(8), m.getInt(12), m.getInt(16), m.getInt(20),
-                        m.getInt(56));
+                        m.getInt(60));
             }
         }
         return new BsdIpstat(0, 0, 0, 0, 0, 0, 0);

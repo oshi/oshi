@@ -236,9 +236,9 @@ public class MacInternetProtocolStatsFFM extends MacInternetProtocolStats {
     @Override
     protected BsdIpstat queryIpstat() {
         MemorySegment m = SysctlUtilFFM.sysctl("net.inet.ip.stats");
-        if (m != null && m.byteSize() >= 60) {
+        if (m != null && m.byteSize() >= 64) {
             return new BsdIpstat(m.get(JAVA_INT, 0), m.get(JAVA_INT, 4), m.get(JAVA_INT, 8), m.get(JAVA_INT, 12),
-                    m.get(JAVA_INT, 16), m.get(JAVA_INT, 20), m.get(JAVA_INT, 56));
+                    m.get(JAVA_INT, 16), m.get(JAVA_INT, 20), m.get(JAVA_INT, 60));
         }
         return new BsdIpstat(0, 0, 0, 0, 0, 0, 0);
     }

@@ -89,7 +89,7 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
         return new TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
                 ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
                 ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_delivered - udp.udps_opackets)),
+                Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_localout - udp.udps_opackets)),
                 Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_total - udp.udps_ipackets)),
                 ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
                 Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall
@@ -225,27 +225,27 @@ public abstract class MacInternetProtocolStats extends AbstractInternetProtocolS
         private final int ips_toosmall;
         private final int ips_badhlen;
         private final int ips_badlen;
-        private final int ips_delivered;
+        private final int ips_localout;
 
         /**
          * Creates an {@code ipstat} carrier.
          *
-         * @param total     total packets received
-         * @param badsum    packets with bad checksum
-         * @param tooshort  packets too short
-         * @param toosmall  packets with not enough data
-         * @param badhlen   packets with bad header length
-         * @param badlen    packets with bad length
-         * @param delivered datagrams delivered to upper level
+         * @param total    total packets received
+         * @param badsum   packets with bad checksum
+         * @param tooshort packets too short
+         * @param toosmall packets with not enough data
+         * @param badhlen  packets with bad header length
+         * @param badlen   packets with bad length
+         * @param localout IP packets sent from this host
          */
-        public BsdIpstat(int total, int badsum, int tooshort, int toosmall, int badhlen, int badlen, int delivered) {
+        public BsdIpstat(int total, int badsum, int tooshort, int toosmall, int badhlen, int badlen, int localout) {
             this.ips_total = total;
             this.ips_badsum = badsum;
             this.ips_tooshort = tooshort;
             this.ips_toosmall = toosmall;
             this.ips_badhlen = badhlen;
             this.ips_badlen = badlen;
-            this.ips_delivered = delivered;
+            this.ips_localout = localout;
         }
     }
 
