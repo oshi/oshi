@@ -36,7 +36,27 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
 
     private final Supplier<Pair<Long, Long>> vmStats = memoize(this::queryVmStats, defaultExpiration());
 
+    /** OpenBSD's topology line, {@code "cpu0: smt 0, core 0, package 0"}. */
     private static final Pattern DMESG_CPU = Pattern.compile("cpu(\\d+): smt (\\d+), core (\\d+), package (\\d+)");
+    /**
+     * NetBSD's topology line, which x86 prefixes with a NUMA node: {@code "cpu0: node 0, package 0, core 0, smt 0"}.
+     */
+    private static final Pattern DMESG_CPU_NETBSD = Pattern
+            .compile("cpu(\\d+): (?:node \\d+, )?package (\\d+), core (\\d+), smt \\d+");
+    /** The model line, {@code "cpu0: AMD EPYC 7763 64-Core Processor"} or {@code "cpu0 at acpi0: Arm Neoverse N1"}. */
+    private static final Pattern DMESG_MODEL = Pattern.compile("cpu(\\d+).*: ((?:ARM|Arm|AMD|Intel|Apple).+)");
+    /**
+     * The identifier NetBSD appends to the model line: the CPUID signature on x86 and the affinity register on ARM,
+     * which differs on every processor.
+     */
+    private static final Pattern DMESG_MODEL_ID = Pattern.compile("\\s*+, id 0x\\p{XDigit}++$");
+    /** OpenBSD's cache lines, {@code "cpu0: 32KB 64b/line 8-way D-cache, 32KB 64b/line 8-way I-cache"}. */
+    private static final Pattern DMESG_CACHE = Pattern.compile("cpu(\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
+    /** NetBSD's ARM cache lines, {@code "cpu0: L1 64KB/64B 4-way (256 set) VIPT Instruction cache"}. */
+    private static final Pattern DMESG_CACHE_ARM = Pattern
+            .compile("cpu\\d+: L(\\d+) (\\d+)KB/(\\d+)B (\\d+)-way.* (Instruction|Data|Unified) cache");
+    /** NetBSD prefixes each line with the seconds since boot, {@code "[     1.000004] "}. */
+    private static final Pattern DMESG_TIMESTAMP = Pattern.compile("^\\[\\s*+\\d++\\.\\d++\\]\\s?+");
 
     /**
      * Reads an integer sysctl value by name.
@@ -57,7 +77,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
-        List<String> dmesg = ExecutingCommand.runNative("dmesg");
+        List<String> dmesg = queryDmesg();
         Pair<Map<Integer, Integer>, Map<Integer, Integer>> topology = parseTopology(dmesg);
         Map<Integer, Integer> coreMap = topology.getA();
         Map<Integer, Integer> packageMap = topology.getB();
@@ -81,6 +101,39 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * Reads the kernel message buffer, without the timestamps NetBSD prefixes to each line.
+     *
+     * @return the lines emitted by {@code dmesg}
+     */
+    protected static List<String> queryDmesg() {
+        return stripDmesgTimestamps(ExecutingCommand.runNative("dmesg"));
+    }
+
+    /**
+     * Removes the {@code "[     1.000004] "} timestamp NetBSD prefixes to each {@code dmesg} line.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}
+     * @return the lines without a leading timestamp
+     */
+    static List<String> stripDmesgTimestamps(List<String> dmesg) {
+        List<String> stripped = new ArrayList<>(dmesg.size());
+        for (String line : dmesg) {
+            stripped.add(DMESG_TIMESTAMP.matcher(line).replaceFirst(""));
+        }
+        return stripped;
+    }
+
+    /**
+     * Parses the model name of the first processor from {@code dmesg}.
+     *
+     * @param dmesg the lines emitted by {@code dmesg}, without timestamps
+     * @return the model name, or an empty string if no line carries one
+     */
+    protected static String parseDmesgCpuName(List<String> dmesg) {
+        return parseDmesgModelsAndCaches(dmesg).getCpuMap().getOrDefault(0, "");
+    }
+
+    /**
      * Parses topology lines from {@code dmesg} to extract per-CPU core and package mappings.
      *
      * @param dmesg the lines emitted by {@code dmesg}
@@ -91,10 +144,15 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
         Map<Integer, Integer> packageMap = new HashMap<>();
         for (String line : dmesg) {
             Matcher m = DMESG_CPU.matcher(line);
+            Matcher n = DMESG_CPU_NETBSD.matcher(line);
             if (m.matches()) {
                 int cpu = ParseUtil.parseIntOrDefault(m.group(1), 0);
                 coreMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(3), 0));
                 packageMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(4), 0));
+            } else if (n.matches()) {
+                int cpu = ParseUtil.parseIntOrDefault(n.group(1), 0);
+                coreMap.put(cpu, ParseUtil.parseIntOrDefault(n.group(3), 0));
+                packageMap.put(cpu, ParseUtil.parseIntOrDefault(n.group(2), 0));
             }
         }
         return new Pair<>(coreMap, packageMap);
@@ -108,17 +166,24 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
      */
     static DmesgStrings parseDmesgModelsAndCaches(List<String> dmesg) {
         Map<Integer, String> cpuMap = new HashMap<>();
-        Pattern p = Pattern.compile("cpu(\\d+).*: ((ARM|AMD|Intel|Apple).+)");
         Set<ProcessorCache> caches = new HashSet<>();
-        Pattern q = Pattern.compile("cpu(\\d+).*: (.+(I-|D-|L\\d+\\s)cache)");
         Set<String> featureFlags = new LinkedHashSet<>();
         for (String s : dmesg) {
-            Matcher m = p.matcher(s);
+            Matcher m = DMESG_MODEL.matcher(s);
+            Matcher arm = DMESG_CACHE_ARM.matcher(s);
             if (m.matches()) {
                 int coreId = ParseUtil.parseIntOrDefault(m.group(1), 0);
-                cpuMap.put(coreId, m.group(2).trim());
+                cpuMap.put(coreId, DMESG_MODEL_ID.matcher(m.group(2)).replaceFirst("").trim());
+            } else if (arm.matches()) {
+                caches.add(new ProcessorCache(ParseUtil.parseIntOrDefault(arm.group(1), 0),
+                        ParseUtil.parseIntOrDefault(arm.group(4), 0), ParseUtil.parseIntOrDefault(arm.group(3), 0),
+                        ParseUtil.parseLongOrDefault(arm.group(2), 0L) << 10, armCacheType(arm.group(5))));
+                continue;
+            } else if (DMESG_CPU_NETBSD.matcher(s).matches()) {
+                // Four comma-separated fields on x86, which would otherwise pass for a feature list
+                continue;
             } else {
-                Matcher n = q.matcher(s);
+                Matcher n = DMESG_CACHE.matcher(s);
                 if (n.matches()) {
                     for (String cacheStr : n.group(2).split(",", -1)) {
                         ProcessorCache cache = parseCacheStr(cacheStr);
@@ -136,6 +201,17 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return new DmesgStrings(cpuMap, caches, featureFlags);
+    }
+
+    private static ProcessorCache.Type armCacheType(String type) {
+        switch (type) {
+            case "Instruction":
+                return ProcessorCache.Type.INSTRUCTION;
+            case "Data":
+                return ProcessorCache.Type.DATA;
+            default:
+                return ProcessorCache.Type.UNIFIED;
+        }
     }
 
     /**

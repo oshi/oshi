@@ -6,6 +6,8 @@ package oshi.hardware.common.platform.unix.netbsd;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
@@ -16,6 +18,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 /**
  * NetBSD Central Processor implementation. Shares the {@code dmesg}-based topology and cache parsing with the other
@@ -24,10 +27,10 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class NetBsdCentralProcessor extends BsdCentralProcessor {
-    /** A hyphen-separated family-model-stepping triple, e.g. {@code "06-7a-01"}. */
-    private static final Pattern CPU_SIGNATURE = Pattern.compile("[\\da-fA-F]+-[\\da-fA-F]+-[\\da-fA-F]+");
-    /** A {@code dmesg} line carrying that triple somewhere in it. */
-    private static final Pattern CPU_SIGNATURE_LINE = Pattern.compile(".*\\d+-[\\da-fA-F]+-[\\da-fA-F]+.*");
+    /** The first 64-bit member of a hex dump. */
+    private static final Pattern CPU_ID_FIRST_LONG = Pattern.compile("\\p{XDigit}{16}");
+    /** The x86 model line, which ends with the CPUID signature: {@code "cpu0: AMD EPYC 7763 ..., id 0xa00f11"}. */
+    private static final Pattern CPU_SIGNATURE = Pattern.compile("cpu0: .*, id 0x(\\p{XDigit}++)");
 
     private static final int CPUSTATES = 5;
     private static final int CP_USER = 0;
@@ -43,22 +46,63 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
 
     @Override
     protected ProcessorIdentifier queryProcessorId() {
-        String cpuVendor = BsdSysctlUtil.sysctl("machdep.cpu_vendor", "");
-        if (cpuVendor.isEmpty()) {
-            cpuVendor = ExecutingCommand.getFirstAnswer("sysctl -n machdep.dmi.processor-vendor").trim();
-        }
+        // The architecture of the processor, where hw.machine is the port: evbarm rather than aarch64
+        String machineArch = BsdSysctlUtil.sysctl("hw.machine_arch", "");
+        boolean cpu64bit = machineArch.contains("64");
+        List<String> dmesg = queryDmesg();
         String cpuName = queryCpuName();
-        String[] fms = parseFamilyModelStepping(ExecutingCommand.runNative("dmesg"));
-        String cpuFamily = fms[0];
-        String cpuModel = fms[1];
-        String cpuStepping = fms[2];
-        String processorID = "";
         long cpuFreq = queryFreq(cpuName);
-        String machine = BsdSysctlUtil.sysctl("hw.machine", "");
-        boolean cpu64bit = machine.contains("64") || ExecutingCommand.getFirstAnswer("uname -m").trim().contains("64");
+        // Off x86 the brand is absent and hw.model names the board, so take the processor's own line
+        String dmesgName = parseDmesgCpuName(dmesg);
+        if (BsdSysctlUtil.sysctl("machdep.cpu_brand", "").isEmpty() && !dmesgName.isEmpty()) {
+            cpuName = dmesgName;
+        }
+        if (machineArch.startsWith("aarch64")) {
+            long midr = parseMidr(ExecutingCommand.getFirstAnswer("sysctl -nx machdep.cpu0.cpu_id"),
+                    machineArch.endsWith("eb"));
+            if (midr >= 0) {
+                return createArmIdentifier(midr, cpuName, cpuFreq);
+            }
+        }
+        String cpuVendor = ExecutingCommand.getFirstAnswer("sysctl -n machdep.dmi.processor-vendor").trim();
+        String[] fms = parseFamilyModelStepping(dmesg);
+        return new ProcessorIdentifier(cpuVendor, cpuName, fms[0], fms[1], fms[2], "", cpu64bit, cpuFreq);
+    }
 
-        return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-                cpuFreq);
+    /**
+     * Reads the Main ID Register from the hex dump of {@code machdep.cpu0.cpu_id}, a {@code struct
+     * aarch64_sysctl_cpu_id} whose first member is the register as a 64-bit integer.
+     *
+     * @param cpuId     the output of {@code sysctl -nx machdep.cpu0.cpu_id}
+     * @param bigEndian whether the kernel is big-endian ({@code aarch64eb})
+     * @return the register, or -1 if the output does not carry one
+     */
+    static long parseMidr(String cpuId, boolean bigEndian) {
+        Matcher m = CPU_ID_FIRST_LONG.matcher(cpuId.trim());
+        if (!m.lookingAt()) {
+            return -1L;
+        }
+        // The dump is in memory order, so a little-endian kernel's register reads byte-reversed
+        long first = ParseUtil.hexStringToLong(m.group(), 0L);
+        return (bigEndian ? first : Long.reverseBytes(first)) & 0xffff_ffffL;
+    }
+
+    /**
+     * Creates the identifier of an ARM processor from its Main ID Register, in the form Linux reports it: the
+     * implementer as the vendor, the part number as the model, and the variant and revision as the stepping.
+     *
+     * @param midr    the Main ID Register
+     * @param cpuName the processor name
+     * @param cpuFreq the processor frequency in Hz, or -1 if unknown
+     * @return the processor identifier
+     */
+    static ProcessorIdentifier createArmIdentifier(long midr, String cpuName, long cpuFreq) {
+        String vendor = String.format(Locale.ROOT, "0x%02x", (midr >> 24) & 0xff);
+        String model = String.format(Locale.ROOT, "0x%03x", (midr >> 4) & 0xfff);
+        String stepping = "r" + ((midr >> 20) & 0xf) + "p" + (midr & 0xf);
+        String processorID = String.format(Locale.ROOT, "%08X00000000", midr);
+        // Every AArch64 processor reports architecture 0xF, "defined by the ID registers"; Linux shows 8
+        return new ProcessorIdentifier(vendor, cpuName, "8", model, stepping, processorID, true, cpuFreq);
     }
 
     @Override
@@ -121,22 +165,19 @@ public class NetBsdCentralProcessor extends BsdCentralProcessor {
     }
 
     /**
-     * Parses family, model, and stepping from {@code dmesg} output. Looks for lines starting with {@code "cpu0:"} that
-     * contain a hyphen-separated triple like {@code "06-7a-01"}.
+     * Parses family, model, and stepping from the CPUID signature at the end of the x86 model line in {@code dmesg},
+     * {@code "cpu0: AMD EPYC 7763 64-Core Processor, id 0xa00f11"}.
      *
-     * @param dmesg the lines emitted by {@code dmesg}
-     * @return a 3-element array of [family, model, stepping], each empty string if not found
+     * @param dmesg the lines emitted by {@code dmesg}, without timestamps
+     * @return a 3-element array of [family, model, stepping] in decimal, each empty string if not found
      */
     static String[] parseFamilyModelStepping(List<String> dmesg) {
         for (String line : dmesg) {
-            if (line.startsWith("cpu0:") && CPU_SIGNATURE_LINE.matcher(line).matches()) {
-                String[] parts = line.split(",", -1);
-                for (String part : parts) {
-                    String trimmed = part.trim();
-                    if (CPU_SIGNATURE.matcher(trimmed).matches()) {
-                        return trimmed.split("-");
-                    }
-                }
+            Matcher m = CPU_SIGNATURE.matcher(line);
+            if (m.matches()) {
+                Triplet<Integer, Integer, Integer> fms = cpuidToFamilyModelStepping(
+                        ParseUtil.hexStringToInt(m.group(1), 0));
+                return new String[] { fms.getA().toString(), fms.getB().toString(), fms.getC().toString() };
             }
         }
         return new String[] { "", "", "" };

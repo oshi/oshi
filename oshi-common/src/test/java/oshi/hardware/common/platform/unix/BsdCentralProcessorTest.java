@@ -45,6 +45,27 @@ class BsdCentralProcessorTest {
     }
 
     @Test
+    void testParseTopologyNetBsd() {
+        // NetBSD's order, captured from NetBSD 10.1: aarch64 (cfarm428), then amd64 with a NUMA node in front
+        List<String> dmesg = """
+                cpu0: package 0, core 0, smt 0
+                cpu15: package 0, core 15, smt 0
+                cpu2: node 0, package 1, core 2, smt 0
+                """.lines().toList();
+        Pair<Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor.parseTopology(dmesg);
+        assertThat(result.getA(), is(Map.of(0, 0, 15, 15, 2, 2)));
+        assertThat(result.getB(), is(Map.of(0, 0, 15, 0, 2, 1)));
+    }
+
+    @Test
+    void testStripDmesgTimestamps() {
+        List<String> dmesg = List.of("[     1.000004] cpu0: node 0, package 0, core 0, smt 0", "[ 123.456789] cpu1",
+                "cpu2: smt 0, core 0, package 0");
+        assertThat(BsdCentralProcessor.stripDmesgTimestamps(dmesg),
+                is(List.of("cpu0: node 0, package 0, core 0, smt 0", "cpu1", "cpu2: smt 0, core 0, package 0")));
+    }
+
+    @Test
     void testParseTopologyEmpty() {
         Pair<Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor
                 .parseTopology(Collections.emptyList());
@@ -84,6 +105,47 @@ class BsdCentralProcessorTest {
         assertThat(result.getCpuMap().get(4), is("ARM Cortex-A72 r0p2"));
         // Should have L1 I-cache, L1 D-cache, L2 from each CPU type (unique by cache params)
         assertThat(result.getCaches().size(), is(6));
+    }
+
+    @Test
+    void testParseDmesgModelsAndCachesNetBsdArm() {
+        // NetBSD 10.1 on a KVM Neoverse N1 (cfarm428). QEMU reports one-set caches, so the sizes round down to 0KB
+        List<String> dmesg = """
+                cpu0 at acpi0: Arm Neoverse N1 r3p1 (v8.2-A+), id 0x0
+                cpu0: L1 0KB/64B 1-way (1 set) PIPT Instruction cache
+                cpu0: L2 0KB/64B 1-way (1 set) PIPT Unified cache
+                cpu0: package 0, core 0, smt 0
+                cpu1 at acpi0: Arm Neoverse N1 r3p1 (v8.2-A+), id 0x1
+                cpu1: L1 64KB/64B 4-way (256 set) VIPT Data cache
+                cpu1: L2 1024KB/64B 8-way (2048 set) PIPT Unified cache
+                """.lines().toList();
+        DmesgStrings result = BsdCentralProcessor.parseDmesgModelsAndCaches(dmesg);
+        // The affinity register differs on every processor, so it must not reach the name, or each core is a type
+        assertThat(result.getCpuMap(),
+                is(Map.of(0, "Arm Neoverse N1 r3p1 (v8.2-A+)", 1, "Arm Neoverse N1 r3p1 (v8.2-A+)")));
+        assertThat(result.getCaches().size(), is(4));
+        assertThat(result.getCaches().contains(new ProcessorCache(1, 4, 64, 65_536L, ProcessorCache.Type.DATA)),
+                is(true));
+        assertThat(result.getCaches().contains(new ProcessorCache(2, 8, 64, 1_048_576L, ProcessorCache.Type.UNIFIED)),
+                is(true));
+        assertThat(result.getCaches().contains(new ProcessorCache(1, 1, 64, 0L, ProcessorCache.Type.INSTRUCTION)),
+                is(true));
+        assertThat(result.getFeatureFlags(), is(empty()));
+    }
+
+    @Test
+    void testParseDmesgModelsAndCachesNetBsdX86() {
+        // NetBSD 10.1 amd64 on the GitHub Actions VM
+        List<String> dmesg = """
+                cpu0 at mainbus0 apid 0
+                cpu0: AMD EPYC 7763 64-Core Processor                , id 0xa00f11
+                cpu0: node 0, package 0, core 0, smt 0
+                """.lines().toList();
+        DmesgStrings result = BsdCentralProcessor.parseDmesgModelsAndCaches(dmesg);
+        assertThat(result.getCpuMap(), is(Map.of(0, "AMD EPYC 7763 64-Core Processor")));
+        assertThat(BsdCentralProcessor.parseDmesgCpuName(dmesg), is("AMD EPYC 7763 64-Core Processor"));
+        // Four comma-separated topology fields are not a feature list
+        assertThat(result.getFeatureFlags(), is(empty()));
     }
 
     @Test
