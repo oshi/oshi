@@ -281,8 +281,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        // NetBSD ps shows per-LWP rows when lid is in the format specifier
-        String psCommand = "ps -awwxo " + NetBsdOSThread.PS_THREAD_COLUMNS;
+        String psCommand = NetBsdOSThread.PS_THREAD_COMMAND;
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }

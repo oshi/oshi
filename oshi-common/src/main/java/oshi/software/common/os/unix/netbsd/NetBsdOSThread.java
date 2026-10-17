@@ -43,6 +43,12 @@ public class NetBsdOSThread extends BsdOSThread {
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
     /**
+     * The {@code ps} command listing every LWP. Without {@code -s}, NetBSD prints one row per process, which carries
+     * only its first LWP.
+     */
+    public static final String PS_THREAD_COMMAND = "ps -s -awwxo " + PS_THREAD_COLUMNS;
+
+    /**
      * Constructs a new {@code NetBsdOSThread}.
      *
      * @param processId the owning process ID
@@ -72,7 +78,6 @@ public class NetBsdOSThread extends BsdOSThread {
 
     @Override
     protected String psThreadCommand() {
-        // NetBSD ps shows per-LWP rows when lid is in the format specifier; no -H needed
-        return "ps -awwxo " + PS_THREAD_COLUMNS;
+        return PS_THREAD_COMMAND;
     }
 }
