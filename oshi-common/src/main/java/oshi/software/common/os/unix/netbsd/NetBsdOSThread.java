@@ -72,6 +72,14 @@ public class NetBsdOSThread extends BsdOSThread {
     }
 
     @Override
+    protected String nameFromArgs(String args) {
+        // A thread is named for its process. The args column is not used as it is, because ps prints the full command
+        // line when the kernel releases the arguments and a parenthesized placeholder when it does not, which it
+        // refuses while the process is inside posix_spawn, so two readings of one thread would disagree
+        return NetBsdOSProcess.parseName(args);
+    }
+
+    @Override
     protected List<BsdPsThreadKeyword> psThreadKeywords() {
         return PS_THREAD_KEYWORDS;
     }

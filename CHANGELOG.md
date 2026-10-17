@@ -25,6 +25,7 @@
 * [#3818](https://github.com/oshi/oshi/pull/3818): Fixed `CentralProcessor` on NetBSD, which reported one physical core and no caches because it could not parse NetBSD's timestamped `dmesg`. ARM processors now report their name, vendor, part number and revision from the Main ID Register, and x86 their family, model and stepping. ARM microarchitectures, which no platform found, are now looked up - [@dbwiddis](https://github.com/dbwiddis).
 * [#3819](https://github.com/oshi/oshi/pull/3819): Fixed `HWDiskStore` on NetBSD, which listed each wedge (`dk` device) as a separate disk. Wedges are now the partitions of the disk they sit on, with their size, type, GUID or label, and mount point - [@dbwiddis](https://github.com/dbwiddis).
 * [#3820](https://github.com/oshi/oshi/pull/3820): Fixed `FileSystem.getOpenFileDescriptors()` on NetBSD, which always returned 0 because NetBSD has no `kern.nfiles` sysctl. The count now comes from `pstat -T`, which reads the kernel's open file counter - [@dbwiddis](https://github.com/dbwiddis).
+* [#3821](https://github.com/oshi/oshi/pull/3821): Fixed small NetBSD and BSD readings. On NetBSD, `getOpenFiles()` counts only descriptors, `getCurrentWorkingDirectory()` no longer returns a mount point, and a thread's name is its process name. `getServices()` on the BSDs skips rcorder placeholders such as `DAEMON` - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

@@ -12,6 +12,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -134,7 +135,7 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
         if (dir.exists() && dir.isDirectory() && (listFiles = dir.listFiles()) != null) {
             for (File f : listFiles) {
                 String name = f.getName();
-                if (!running.contains(name)) {
+                if (isRcService(name, f.canExecute()) && !running.contains(name)) {
                     OSService s = new OSService(name, 0, STOPPED);
                     services.add(s);
                 }
@@ -143,6 +144,22 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
             LOG.error("Directory: /etc/rc.d does not exist");
         }
         return services;
+    }
+
+    /**
+     * Whether a file in {@code /etc/rc.d} is a service. Package-private for testing.
+     * <p>
+     * Two kinds of file there are not. The rcorder placeholders ({@code DAEMON}, {@code NETWORKING}, {@code SERVERS}
+     * and the like) are scripts that only name a point in the boot order for real services to depend on, and are
+     * spelled in capitals by convention on every BSD. OpenBSD also keeps {@code rc.subr}, a library the scripts source,
+     * which is not executable.
+     *
+     * @param name       the file name
+     * @param executable whether the file is executable
+     * @return true if the file is a service script
+     */
+    static boolean isRcService(String name, boolean executable) {
+        return executable && !name.equals(name.toUpperCase(Locale.ROOT));
     }
 
     /**
