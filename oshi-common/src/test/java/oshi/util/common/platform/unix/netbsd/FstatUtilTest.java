@@ -20,40 +20,24 @@ import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import oshi.util.ParseUtil;
 
 /**
- * Tests for {@link FstatUtil}. Pure parsing methods are covered with sample {@code fstat} output; the integration test
- * is gated to NetBSD.
+ * Tests for {@link FstatUtil}. The open file count is covered with sample {@code fstat} output; the integration test is
+ * gated to NetBSD.
  */
 class FstatUtilTest {
 
     @Test
-    void testParseCwdFromFstatFindsWdRow() {
-        // Sample NetBSD `fstat -p <pid>` output. The wd row's 5th column (index 4) is the working directory path.
-        List<String> fstat = List.of("USER     CMD          PID   FD MOUNT      INUM MODE         SZ|DV R/W",
-                "root     bash        1234   wd /home/dan      12 drwxr-xr-x   512 r",
-                "root     bash        1234    0 /dev          678 crw-rw-rw-  /dev/tty r",
-                "root     bash        1234    1 /dev          678 crw-rw-rw-  /dev/tty w");
-
-        assertThat(FstatUtil.parseCwdFromFstat(fstat), is("/home/dan"));
-    }
-
-    @Test
-    void testParseCwdFromFstatNoWdRow() {
-        List<String> fstat = List.of("USER  CMD  PID  FD  MOUNT  INUM  MODE  SZ|DV  R/W",
-                "root  bash 1234  0  /dev   678   crw   tty    r");
-        assertThat(FstatUtil.parseCwdFromFstat(fstat), is(emptyString()));
-    }
-
-    @Test
-    void testParseCwdFromFstatEmptyInput() {
-        assertThat(FstatUtil.parseCwdFromFstat(Collections.<String>emptyList()), is(emptyString()));
-    }
-
-    @Test
-    void testParseOpenFilesSubtractsHeader() {
-        List<String> fstat = List.of("USER  CMD  PID  FD  MOUNT  INUM  MODE  SZ|DV  R/W",
-                "root  bash 1234  0  /dev   678   crw   tty    r", "root  bash 1234  1  /dev   678   crw   tty    w",
-                "root  bash 1234  2  /dev   678   crw   tty    w");
-        // 4 lines - 1 header = 3 open files
+    void testParseOpenFilesCountsDescriptorsOnly() {
+        // fstat -p of a shell on NetBSD 10.1, with the text, root and trace rows fstat prints when they apply
+        List<String> fstat = """
+                USER     CMD          PID   FD  MOUNT         INUM MODE         SZ|DV R/W
+                oshi     sh          4759 text  /         1059845 -r-xr-xr-x  171784 r
+                oshi     sh          4759   wd  /home     16203776 drwxr-xr-x     512 r
+                oshi     sh          4759 root  /               2 drwxr-xr-x     512 r
+                oshi     sh          4759   tr  /home     16203790 -rw-r--r--    1024 w
+                oshi     sh          4759    0* pipe 0xffff0004326db900 <- 0xffff00042c48eb00 r
+                oshi     sh          4759    1* pipe 0xffff0000f9e16100 -> 0xffff0001e9d42400 w
+                oshi     sh          4759   10  /home     16203791 -rw-r--r--      12 r
+                """.lines().toList();
         assertThat(FstatUtil.parseOpenFiles(fstat), is(3L));
     }
 

@@ -25,29 +25,9 @@ public final class FstatUtil {
      * @return the current working directory for that process.
      */
     public static String getCwd(int pid) {
-        // NetBSD: try /proc if mounted
+        // NetBSD: try /proc if mounted. fstat is no fallback: its wd row names the mount point and inode, not a path
         List<String> ls = ExecutingCommand.runNative("readlink /proc/" + pid + "/cwd");
-        if (!ls.isEmpty() && !ls.get(0).isEmpty()) {
-            return ls.get(0);
-        }
-        // Fallback: parse from fstat output (field after 'wd')
-        return parseCwdFromFstat(ExecutingCommand.runNative("fstat -p " + pid));
-    }
-
-    /**
-     * Parses {@code fstat -p <pid>} output to find the {@code wd} row and return the path column.
-     *
-     * @param fstatLines lines returned by {@code fstat -p <pid>}
-     * @return the working directory string, or empty if no {@code wd} row is found
-     */
-    public static String parseCwdFromFstat(List<String> fstatLines) {
-        for (String line : fstatLines) {
-            String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
-            if (split.length > 4 && "wd".equals(split[3])) {
-                return split[4];
-            }
-        }
-        return "";
+        return ls.isEmpty() ? "" : ls.get(0);
     }
 
     /**
@@ -62,16 +42,24 @@ public final class FstatUtil {
     }
 
     /**
-     * Counts open file descriptor rows in {@code fstat -p <pid>} output (ignoring the header).
+     * Counts the open file descriptor rows in {@code fstat -p <pid>} output.
+     * <p>
+     * Only rows whose FD column is a number count. That skips the header and the rows {@code fstat} prints for a
+     * process's text, working directory, root directory and trace file ({@code text}, {@code wd}, {@code root} and
+     * {@code tr}), none of which is a descriptor. A descriptor shared with another process is marked with a trailing
+     * {@code *}.
      *
      * @param fstatLines lines returned by {@code fstat -p <pid>}
-     * @return the number of open files (rows minus 1 for the header), or 0 if header alone or empty
+     * @return the number of open file descriptors
      */
     public static long parseOpenFiles(List<String> fstatLines) {
-        if (fstatLines.size() > 1) {
-            // subtract 1 for header row
-            return fstatLines.size() - 1L;
+        long fds = 0L;
+        for (String line : fstatLines) {
+            String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
+            if (split.length > 3 && !split[3].isEmpty() && Character.isDigit(split[3].charAt(0))) {
+                fds++;
+            }
         }
-        return 0L;
+        return fds;
     }
 }
