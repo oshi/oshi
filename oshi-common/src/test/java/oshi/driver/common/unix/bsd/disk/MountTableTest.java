@@ -69,7 +69,12 @@ class MountTableTest {
         assertThat(freebsd, hasSize(2));
         assertEntry(freebsd.get(0), "/dev/da0p2", "", "/", "ufs", "rw,noatime");
         assertEntry(freebsd.get(1), "devfs", "", "/dev", "devfs", "rw");
-        // A field of 24 characters or more is followed by a single space, so this falls back to whitespace
+        // FreeBSD 15.1 in CI, as root: a mount point of 24 characters or more is followed by a single space
+        List<MountTable.Entry> longPath = MountTable
+                .parseFstab(List.of("/dev/md0\t\t/mnt/My External Backup Drive ufs\trw\t\t2 2"));
+        assertThat(longPath, hasSize(1));
+        assertEntry(longPath.get(0), "/dev/md0", "", "/mnt/My External Backup Drive", "ufs", "rw");
+        // No tabs at all falls back to whitespace
         List<MountTable.Entry> spaced = MountTable.parseFstab(List.of("/dev/md0 /mnt/a ufs rw 2 2"));
         assertEntry(spaced.get(0), "/dev/md0", "", "/mnt/a", "ufs", "rw");
     }

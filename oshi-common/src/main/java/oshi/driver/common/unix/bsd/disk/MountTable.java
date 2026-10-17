@@ -136,8 +136,10 @@ public final class MountTable {
      * Parses {@code mount -p} on DragonFly, or on a FreeBSD whose {@code mount} has no libxo.
      * <p>
      * DragonFly prints {@code device<TAB>mount point<TAB>type options<TAB>dump pass}, one tab between each, so a mount
-     * point keeps its spaces. FreeBSD pads every field with tabs instead, which leaves the type and options apart. Any
-     * other line is split on whitespace, which cannot keep a space in a mount point.
+     * point keeps its spaces. FreeBSD pads every field with tabs instead, which leaves the type and options apart,
+     * except that a field of 24 characters or more is followed by a single space: a long mount point then shares its
+     * field with the type, which is split off at the last space. Any other line is split on whitespace, which cannot
+     * keep a space in a mount point.
      *
      * @param lines the lines of {@code mount -p}
      * @return the mounted file systems
@@ -146,10 +148,16 @@ public final class MountTable {
         List<Entry> entries = new ArrayList<>();
         for (String line : lines) {
             String[] tabs = TABS.split(line.trim(), -1);
-            int space = tabs.length == 4 ? tabs[2].indexOf(' ') : -1;
-            if (space > 0) {
-                entries.add(new Entry(tabs[0], "", tabs[1], tabs[2].substring(0, space),
-                        tabs[2].substring(space + 1).trim()));
+            int typeSpace = tabs.length == 4 ? tabs[2].indexOf(' ') : -1;
+            int pathSpace = tabs.length == 4 ? tabs[1].lastIndexOf(' ') : -1;
+            if (typeSpace > 0) {
+                // DragonFly: the type and options share a field
+                entries.add(new Entry(tabs[0], "", tabs[1], tabs[2].substring(0, typeSpace),
+                        tabs[2].substring(typeSpace + 1).trim()));
+            } else if (pathSpace > 0) {
+                // FreeBSD, a mount point of 24 characters or more: it shares a field with the type, which has no space
+                entries.add(new Entry(tabs[0], "", tabs[1].substring(0, pathSpace), tabs[1].substring(pathSpace + 1),
+                        tabs[2].trim()));
             } else if (tabs.length >= 5) {
                 entries.add(new Entry(tabs[0], "", tabs[1], tabs[2], tabs[3].trim()));
             } else {
