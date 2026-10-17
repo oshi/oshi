@@ -11,11 +11,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import oshi.driver.common.unix.bsd.disk.MountTable;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -45,25 +45,22 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
         List<OSFileStore> fsList = new ArrayList<>();
 
         // Get inode usage data
-        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative("df -i"));
+        Pair<Map<String, Long>, Map<String, Long>> inodes = MountTable
+                .parseDfInodes(ExecutingCommand.runNative("df -i"));
         Map<String, Long> inodeFreeMap = inodes.getA();
         Map<String, Long> inodeTotalMap = inodes.getB();
 
-        // Get mount table
-        for (String fs : ExecutingCommand.runNative("mount -p")) {
-            String[] split = ParseUtil.whitespaces.split(fs, -1);
-            if (split.length < 5) {
-                continue;
-            }
-            // 1st field is volume name
-            // 2nd field is mount point
-            // 3rd field is fs type
-            // 4th field is options
-            // other fields ignored
-            String volume = split[0];
-            String path = split[1];
-            String type = split[2];
-            String options = split[3];
+        // Get mount table. DragonFly, which shares this class, and older FreeBSD have no libxo in mount
+        List<MountTable.Entry> mounts = MountTable
+                .parseFreeBsdLibxo(ExecutingCommand.runNative("mount -p --libxo json"));
+        if (mounts.isEmpty()) {
+            mounts = MountTable.parseFstab(ExecutingCommand.runNative("mount -p"));
+        }
+        for (MountTable.Entry mount : mounts) {
+            String volume = mount.getVolume();
+            String path = mount.getPath();
+            String type = mount.getType();
+            String options = mount.getOptions();
 
             // Skip non-local drives if requested, and exclude pseudo file systems
             boolean isLocal = !NETWORK_FS_TYPES.contains(type);
@@ -159,34 +156,6 @@ public abstract class FreeBsdFileSystem extends AbstractFileSystem {
             }
         }
         return uuidMap;
-    }
-
-    /**
-     * Parses {@code df -i} output into inode free and total maps keyed by mount point.
-     *
-     * @param dfOutput the lines from {@code df -i}
-     * @return a {@link Pair} of (inodeFreeMap, inodeTotalMap) both keyed by mount point
-     */
-    static Pair<Map<String, Long>, Map<String, Long>> parseDfInodes(List<String> dfOutput) {
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeTotalMap = new HashMap<>();
-        for (String line : dfOutput) {
-            /*- Sample Output:
-            Filesystem    1K-blocks   Used   Avail Capacity iused  ifree %iused  Mounted on
-            /dev/twed0s1a   2026030 584112 1279836    31%    2751 279871    1%   /
-            */
-            if (!line.startsWith("Filesystem")) {
-                String[] split = ParseUtil.whitespaces.split(line, -1);
-                if (split.length > 8) {
-                    long ifree = ParseUtil.parseLongOrDefault(split[6], 0L);
-                    long iused = ParseUtil.parseLongOrDefault(split[5], 0L);
-                    // Key by mount point (last column) to match later lookup
-                    inodeFreeMap.put(split[8], ifree);
-                    inodeTotalMap.put(split[8], iused + ifree);
-                }
-            }
-        }
-        return new Pair<>(inodeFreeMap, inodeTotalMap);
     }
 
     /**

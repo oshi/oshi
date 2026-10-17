@@ -7,17 +7,16 @@ package oshi.software.common.os.unix.openbsd;
 import java.io.File;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
+import oshi.driver.common.unix.bsd.disk.MountTable;
 import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
-import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
 /**
@@ -62,27 +61,6 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
     }
 
     /**
-     * Parses {@code df -i} output into inode free and used maps keyed by volume.
-     *
-     * @param dfOutput the lines from {@code df -i}
-     * @return a {@link Pair} of (inodeFreeMap, inodeUsedMap) both keyed by volume
-     */
-    static Pair<Map<String, Long>, Map<String, Long>> parseDfInodes(List<String> dfOutput) {
-        Map<String, Long> inodeFreeMap = new HashMap<>();
-        Map<String, Long> inodeUsedMap = new HashMap<>();
-        for (String line : dfOutput) {
-            if (!line.startsWith("Filesystem")) {
-                String[] split = ParseUtil.whitespaces.split(line, -1);
-                if (split.length > 6) {
-                    inodeUsedMap.put(split[0], ParseUtil.parseLongOrDefault(split[5], 0L));
-                    inodeFreeMap.put(split[0], ParseUtil.parseLongOrDefault(split[6], 0L));
-                }
-            }
-        }
-        return new Pair<>(inodeFreeMap, inodeUsedMap);
-    }
-
-    /**
      * Reads a system-wide file-descriptor {@code sysctl} value via the subclass's native mechanism (JNA or FFM).
      *
      * @param name the sysctl name to query
@@ -109,59 +87,58 @@ public abstract class OpenBsdFileSystem extends AbstractFileSystem {
 
         // Get inode usage data
         String command = "df -i" + (localOnly ? " -l" : "");
-        Pair<Map<String, Long>, Map<String, Long>> inodes = parseDfInodes(ExecutingCommand.runNative(command));
+        Pair<Map<String, Long>, Map<String, Long>> inodes = MountTable
+                .parseDfInodes(ExecutingCommand.runNative(command));
         Map<String, Long> inodeFreeMap = inodes.getA();
-        Map<String, Long> inodeUsedMap = inodes.getB();
+        Map<String, Long> inodeTotalMap = inodes.getB();
 
         // Get mount table
-        for (String fs : ExecutingCommand.runNative("mount -v")) { // NOSONAR java:S135
-            String[] split = ParseUtil.whitespaces.split(fs, 7);
-            if (split.length == 7) {
-                String volume = split[0];
-                String uuid = split[1];
-                String path = split[3];
-                String type = split[5];
-                String options = split[6];
+        List<MountTable.Entry> mounts = MountTable.parseOpenBsdVerbose(ExecutingCommand.runNative("mount -v"));
+        for (MountTable.Entry mount : mounts) { // NOSONAR java:S135
+            String volume = mount.getVolume();
+            String uuid = mount.getUuid();
+            String path = mount.getPath();
+            String type = mount.getType();
+            String options = mount.getOptions();
 
-                // Skip non-local drives if requested, and exclude pseudo file systems
-                boolean isLocal = !NETWORK_FS_TYPES.contains(type);
-                if ((localOnly && !isLocal) || (!path.equals("/")
-                        && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path, volume,
-                                FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES)))) {
-                    continue;
-                }
-
-                String name = path.substring(path.lastIndexOf('/') + 1);
-                // Special case for /, pull last element of volume instead
-                if (name.isEmpty()) {
-                    name = volume.substring(volume.lastIndexOf('/') + 1);
-                }
-
-                if (nameToMatch != null && !nameToMatch.equals(name)) {
-                    continue;
-                }
-                File f = new File(path);
-                long totalSpace = f.getTotalSpace();
-                long usableSpace = f.getUsableSpace();
-                long freeSpace = f.getFreeSpace();
-
-                String description;
-                if (volume.startsWith("/dev") || path.equals("/")) {
-                    description = "Local Disk";
-                } else if (volume.equals("tmpfs")) {
-                    description = "Ram Disk (dynamic)";
-                } else if (volume.equals("mfs")) {
-                    description = "Ram Disk (fixed)";
-                } else if (NETWORK_FS_TYPES.contains(type)) {
-                    description = "Network Disk";
-                } else {
-                    description = "Mount Point";
-                }
-
-                fsList.add(new OpenBsdOSFileStore(this, name, volume, name, path, options, uuid, isLocal, "",
-                        description, type, freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(volume, 0L),
-                        inodeUsedMap.getOrDefault(volume, 0L) + inodeFreeMap.getOrDefault(volume, 0L)));
+            // Skip non-local drives if requested, and exclude pseudo file systems
+            boolean isLocal = !NETWORK_FS_TYPES.contains(type);
+            if ((localOnly && !isLocal)
+                    || (!path.equals("/") && (PSEUDO_FS_TYPES.contains(type) || FileSystemUtil.isFileStoreExcluded(path,
+                            volume, FS_PATH_INCLUDES, FS_PATH_EXCLUDES, FS_VOLUME_INCLUDES, FS_VOLUME_EXCLUDES)))) {
+                continue;
             }
+
+            String name = path.substring(path.lastIndexOf('/') + 1);
+            // Special case for /, pull last element of volume instead
+            if (name.isEmpty()) {
+                name = volume.substring(volume.lastIndexOf('/') + 1);
+            }
+
+            if (nameToMatch != null && !nameToMatch.equals(name)) {
+                continue;
+            }
+            File f = new File(path);
+            long totalSpace = f.getTotalSpace();
+            long usableSpace = f.getUsableSpace();
+            long freeSpace = f.getFreeSpace();
+
+            String description;
+            if (volume.startsWith("/dev") || path.equals("/")) {
+                description = "Local Disk";
+            } else if (volume.equals("tmpfs")) {
+                description = "Ram Disk (dynamic)";
+            } else if (volume.equals("mfs")) {
+                description = "Ram Disk (fixed)";
+            } else if (NETWORK_FS_TYPES.contains(type)) {
+                description = "Network Disk";
+            } else {
+                description = "Mount Point";
+            }
+
+            fsList.add(new OpenBsdOSFileStore(this, name, volume, name, path, options, uuid, isLocal, "", description,
+                    type, freeSpace, usableSpace, totalSpace, inodeFreeMap.getOrDefault(path, 0L),
+                    inodeTotalMap.getOrDefault(path, 0L)));
         }
         return fsList;
     }
