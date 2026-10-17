@@ -82,28 +82,39 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
      * {@code media: Ethernet autoselect (1000baseT full-duplex,rxpause,txpause)} on OpenBSD; otherwise the line names
      * the fixed media type itself. An Ethernet type gives its rate before {@code base}, in megabits unless marked
      * {@code G}, and a wireless one in {@code Mbps}. An interface with no link shows {@code (none)} or no parentheses,
-     * and one without media, such as a virtio interface on NetBSD, no line at all.
+     * and one without media, such as a virtio interface on NetBSD, no line at all. A fixed media type names its rate
+     * whether or not anything is connected, so a {@code status:} of {@code no carrier}, or {@code no network} for a
+     * wireless interface, reports 0 as well.
      *
      * @param ifconfig the lines emitted by {@code ifconfig <interface>}
      * @return the link speed in bits per second, or 0 if none is shown
      */
     static long parseMediaSpeed(List<String> ifconfig) {
+        long speed = 0L;
         for (String line : ifconfig) {
-            String media = line.trim();
-            if (!media.startsWith("media:")) {
-                continue;
+            String trimmed = line.trim();
+            if (trimmed.startsWith("status: no ")) {
+                // "no carrier" or "no network": fixed media still names a rate with nothing plugged in
+                return 0L;
             }
-            int open = media.indexOf('(');
-            int close = media.lastIndexOf(')');
-            if (open >= 0 && close > open) {
-                media = media.substring(open + 1, close);
+            if (speed == 0L && trimmed.startsWith("media:")) {
+                speed = parseMediaRate(trimmed);
             }
-            Matcher m = MEDIA_SPEED.matcher(media);
-            if (m.find()) {
-                double rate = ParseUtil.parseDoubleOrDefault(m.group(1), 0d);
-                return (long) (rate * ("G".equalsIgnoreCase(m.group(2)) ? 1_000_000_000L : 1_000_000L));
-            }
-            return 0L;
+        }
+        return speed;
+    }
+
+    private static long parseMediaRate(String mediaLine) {
+        String media = mediaLine;
+        int open = media.indexOf('(');
+        int close = media.lastIndexOf(')');
+        if (open >= 0 && close > open) {
+            media = media.substring(open + 1, close);
+        }
+        Matcher m = MEDIA_SPEED.matcher(media);
+        if (m.find()) {
+            double rate = ParseUtil.parseDoubleOrDefault(m.group(1), 0d);
+            return (long) (rate * ("G".equalsIgnoreCase(m.group(2)) ? 1_000_000_000L : 1_000_000L));
         }
         return 0L;
     }

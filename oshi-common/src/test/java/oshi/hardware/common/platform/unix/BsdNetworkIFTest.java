@@ -168,6 +168,16 @@ class BsdNetworkIFTest {
         // No link: OpenBSD prints (none), FreeBSD leaves the parentheses off
         assertThat(speed("media: Ethernet autoselect (none)"), is(0L));
         assertThat(speed("media: Ethernet autoselect"), is(0L));
+        // Fixed media names its rate with nothing connected; the status says there is no link
+        assertThat(BsdNetworkIF.parseMediaSpeed(List.of("em0: flags=8802<BROADCAST,SIMPLEX,MULTICAST> mtu 1500",
+                "\tmedia: Ethernet 1000baseT <full-duplex>", "\tstatus: no carrier")), is(0L));
+        assertThat(BsdNetworkIF.parseMediaSpeed(List.of("wlan0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500",
+                "\tmedia: IEEE802.11 autoselect (OFDM/54Mbps mode 11g)", "\tstatus: no network")), is(0L));
+        // A wireless interface that is up is "associated", not "active"
+        assertThat(
+                BsdNetworkIF.parseMediaSpeed(List.of("wlan0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500",
+                        "\tmedia: IEEE802.11 autoselect (OFDM/54Mbps mode 11g)", "\tstatus: associated")),
+                is(54_000_000L));
         // No media line at all, as for NetBSD's virtio interface
         assertThat(BsdNetworkIF.parseMediaSpeed(List.of("vioif0: flags=0x8843<UP,BROADCAST,RUNNING> mtu 1500")),
                 is(0L));
