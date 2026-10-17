@@ -148,7 +148,9 @@ public final class MountTable {
         List<Entry> entries = new ArrayList<>();
         for (String line : lines) {
             String[] tabs = TABS.split(line.trim(), -1);
-            int typeSpace = tabs.length == 4 ? tabs[2].indexOf(' ') : -1;
+            // FreeBSD follows options of eight characters or more with a space, which is not a separator inside the
+            // field
+            int typeSpace = tabs.length == 4 ? tabs[2].trim().indexOf(' ') : -1;
             int pathSpace = tabs.length == 4 ? tabs[1].lastIndexOf(' ') : -1;
             if (typeSpace > 0) {
                 // DragonFly: the type and options share a field

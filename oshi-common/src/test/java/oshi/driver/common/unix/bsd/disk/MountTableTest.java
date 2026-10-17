@@ -74,6 +74,10 @@ class MountTableTest {
                 .parseFstab(List.of("/dev/md0\t\t/mnt/My External Backup Drive ufs\trw\t\t2 2"));
         assertThat(longPath, hasSize(1));
         assertEntry(longPath.get(0), "/dev/md0", "", "/mnt/My External Backup Drive", "ufs", "rw");
+        // The same, with options long enough that FreeBSD follows them with a space before the dump field
+        List<MountTable.Entry> longOpts = MountTable
+                .parseFstab(List.of("/dev/md0\t\t/mnt/My External Backup Drive ufs\trw,noatime \t2 2"));
+        assertEntry(longOpts.get(0), "/dev/md0", "", "/mnt/My External Backup Drive", "ufs", "rw,noatime");
         // No tabs at all falls back to whitespace
         List<MountTable.Entry> spaced = MountTable.parseFstab(List.of("/dev/md0 /mnt/a ufs rw 2 2"));
         assertEntry(spaced.get(0), "/dev/md0", "", "/mnt/a", "ufs", "rw");
