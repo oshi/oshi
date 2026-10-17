@@ -756,6 +756,14 @@ class ParseUtilTest {
     }
 
     @Test
+    void testParseYyyyMmDdToIso() {
+        assertThat(ParseUtil.parseYyyyMmDdToIso("20240315"), is("2024-03-15"));
+        assertThat(ParseUtil.parseYyyyMmDdToIso("2024-03-15"), is("2024-03-15"));
+        assertThat(ParseUtil.parseYyyyMmDdToIso("2024031"), is("2024031"));
+        assertThat(ParseUtil.parseYyyyMmDdToIso(""), is(""));
+    }
+
+    @Test
     void testParseIntToIP() {
         // IP addresses are big endian
         int ip = 1 | 2 << 8 | 3 << 16 | 4 << 24;
