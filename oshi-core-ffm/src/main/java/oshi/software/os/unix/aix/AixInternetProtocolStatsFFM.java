@@ -28,8 +28,8 @@ public final class AixInternetProtocolStatsFFM extends AixInternetProtocolStats 
     protected @Nullable TcpStats queryTcpStats() {
         for (PerfstatProtocolFFM.Protocol stat : ipstats.get()) {
             if ("tcp".equals(stat.name)) {
-                return new TcpStats(stat.tcpEstablished, stat.tcpInitiated, stat.tcpAccepted, stat.tcpDropped,
-                        stat.tcpDropped, stat.tcpOpackets, stat.tcpIpackets, 0L, stat.tcpIerrors, 0L);
+                return tcpStats(stat.tcpEstablished, stat.tcpInitiated, stat.tcpAccepted, stat.tcpDropped,
+                        stat.tcpOpackets, stat.tcpIpackets, stat.tcpIerrors);
             }
         }
         return null;
@@ -39,7 +39,7 @@ public final class AixInternetProtocolStatsFFM extends AixInternetProtocolStats 
     protected @Nullable UdpStats queryUdpStats() {
         for (PerfstatProtocolFFM.Protocol stat : ipstats.get()) {
             if ("udp".equals(stat.name)) {
-                return new UdpStats(stat.udpOpackets, stat.udpIpackets, stat.udpNoSocket, stat.udpIerrors);
+                return udpStats(stat.udpOpackets, stat.udpIpackets, stat.udpNoSocket);
             }
         }
         return null;
