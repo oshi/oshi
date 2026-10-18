@@ -50,6 +50,7 @@
   * [Why does OSHI's System and Processor CPU usage differ from the Windows Task Manager?](#why-does-oshis-system-and-processor-cpu-usage-differ-from-the-windows-task-manager)
   * [Why does OSHI's Process CPU usage differ from the Windows Task Manager?](#why-does-oshis-process-cpu-usage-differ-from-the-windows-task-manager)
   * [Why is a BSD process's CPU time sometimes flat when I expect it to have increased?](#why-is-a-bsd-processs-cpu-time-sometimes-flat-when-i-expect-it-to-have-increased)
+  * [Why does a DragonFly file store report no free inodes?](#why-does-a-dragonfly-file-store-report-no-free-inodes)
   * [Why is `getCurrentFreq()` the same number every time on Apple Silicon?](#why-is-getcurrentfreq-the-same-number-every-time-on-apple-silicon)
 
 ---
@@ -677,6 +678,18 @@ and no such warning, so OSHI applies the equivalent guard in userland for the wh
 
 Note also that DragonFly's `ps` offers neither a `systime` nor a `cputime` keyword, so `OSProcess.getKernelTime()` is
 always 0 there and `getUserTime()` carries the entire total.
+
+### Why does a DragonFly file store report no free inodes?
+
+Because the file system has no inode limit, and that is how its kernel says so. DragonFly's own file systems, HAMMER
+and HAMMER2, allocate inodes on demand from the same free space as file data, so there is no fixed number to run out of.
+Their `statfs` reports the inodes currently in use as the total (`f_files`) and leaves the free count (`f_ffree`) at 0:
+HAMMER never sets it, and HAMMER2 assigns `tmp.f_ffree = 0` in `hammer2_vfs_statvfs()`. `df -i` prints the same
+numbers.
+
+OSHI passes them through unchanged, so `OSFileStore.getTotalInodes()` returns the number of inodes in use and
+`getFreeInodes()` returns 0. On these file systems, read that as "no limit", not "full": the space that matters is
+`getFreeSpace()`. A file store's `getType()` is `hammer` or `hammer2`.
 
 ### Why is `getCurrentFreq()` the same number every time on Apple Silicon?
 
