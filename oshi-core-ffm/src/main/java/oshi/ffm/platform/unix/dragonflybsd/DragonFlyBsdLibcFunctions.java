@@ -4,9 +4,12 @@
  */
 package oshi.ffm.platform.unix.dragonflybsd;
 
+import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.invoke.MethodHandle;
 
@@ -15,8 +18,8 @@ import oshi.ffm.ForeignFunctions;
 /**
  * FFM bindings for DragonFly BSD-specific libc functions. DragonFly shares most of its libc surface with FreeBSD, so
  * shared functions ({@code sysctlbyname}, {@code sysctl}, {@code getpid}, {@code getrlimit}, etc.) are called via
- * {@link oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions}. This class adds only the DragonFly-specific
- * {@code lwp_gettid()} (FreeBSD uses {@code thr_self} instead).
+ * {@link oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions}. This class adds the DragonFly-specific
+ * {@code lwp_gettid()} (FreeBSD uses {@code thr_self} instead) and {@code sched_getaffinity()}.
  */
 public final class DragonFlyBsdLibcFunctions extends ForeignFunctions {
 
@@ -37,5 +40,27 @@ public final class DragonFlyBsdLibcFunctions extends ForeignFunctions {
      */
     public static int lwp_gettid() throws Throwable {
         return (int) lwp_gettid.invokeExact();
+    }
+
+    /**
+     * The size of DragonFly's {@code cpu_set_t}, a {@code cpumask_t} of four 64-bit words on x86_64.
+     */
+    public static final long CPU_SET_SIZE = 32L;
+
+    // int sched_getaffinity(pid_t pid, size_t cpusetsize, cpu_set_t *mask);
+    private static final MethodHandle sched_getaffinity = LINKER.downcallHandle(LIBC.findOrThrow("sched_getaffinity"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG, ADDRESS));
+
+    /**
+     * Calls {@code sched_getaffinity()} — gets the CPU affinity mask of a process, that of its first LWP.
+     *
+     * @param pid        the process ID, or 0 for the calling process
+     * @param cpusetsize the size of {@code mask}, at most {@link #CPU_SET_SIZE} of which is written
+     * @param mask       the segment that receives the mask, CPU 0 in the lowest bit of the first word
+     * @return 0 on success, -1 on error
+     * @throws Throwable on FFM invocation error
+     */
+    public static int sched_getaffinity(int pid, long cpusetsize, MemorySegment mask) throws Throwable {
+        return (int) sched_getaffinity.invokeExact(pid, cpusetsize, mask);
     }
 }

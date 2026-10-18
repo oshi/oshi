@@ -8,6 +8,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.callInArenaIntOrDefault;
+import static oshi.ffm.ForeignFunctions.callInArenaLongOrDefault;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
 
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.ffm.platform.unix.PosixLibcFunctions;
+import oshi.ffm.platform.unix.dragonflybsd.DragonFlyBsdLibcFunctions;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
@@ -76,6 +78,18 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
             }
             return rlim.get(JAVA_LONG, soft ? 0 : Long.BYTES);
         }, LOG, LogLevel.WARN, "getrlimit(RLIMIT_NOFILE) failed", -1L);
+    }
+
+    @Override
+    protected long queryAffinityMask() {
+        return callInArenaLongOrDefault(arena -> {
+            MemorySegment mask = arena.allocate(DragonFlyBsdLibcFunctions.CPU_SET_SIZE);
+            if (DragonFlyBsdLibcFunctions.sched_getaffinity(getProcessID(), DragonFlyBsdLibcFunctions.CPU_SET_SIZE,
+                    mask) != 0) {
+                return 0L;
+            }
+            return mask.get(JAVA_LONG, 0);
+        }, LOG, LogLevel.WARN, "sched_getaffinity failed", 0L);
     }
 
     @Override

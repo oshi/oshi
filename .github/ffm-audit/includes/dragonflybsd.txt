@@ -9,6 +9,7 @@ stdlib.h
 string.h
 stdio.h
 time.h
+sys/sched.h
 fcntl.h
 netdb.h
 pwd.h
