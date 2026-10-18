@@ -96,8 +96,8 @@ public class NetBsdOSProcessFFM extends NetBsdOSProcess {
         }
         return callInArenaOrDefault(arena -> {
             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC_ARGS, getProcessID(), subtype);
-            MemorySegment buf = arena.allocate(PATH_MAX);
-            MemorySegment size = arena.allocateFrom(SIZE_T, PATH_MAX);
+            MemorySegment buf = arena.allocate(PROC_ARGS_PATH_SIZE);
+            MemorySegment size = arena.allocateFrom(SIZE_T, PROC_ARGS_PATH_SIZE);
             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
             if (NetBsdSysctlUtilFFM.sysctl(callState, mib, 4, buf, size) != 0) {
                 return "";

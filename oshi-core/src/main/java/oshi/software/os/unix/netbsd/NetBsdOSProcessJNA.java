@@ -91,8 +91,8 @@ public class NetBsdOSProcessJNA extends NetBsdOSProcess {
             return super.queryProcArgsPath(subtype);
         }
         int[] mib = { NetBsdLibc.CTL_KERN, KERN_PROC_ARGS, getProcessID(), subtype };
-        try (Memory buf = new Memory(PATH_MAX);
-                CloseableSizeTByReference size = new CloseableSizeTByReference(PATH_MAX)) {
+        try (Memory buf = new Memory(PROC_ARGS_PATH_SIZE);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(PROC_ARGS_PATH_SIZE)) {
             if (NetBsdLibc.INSTANCE.sysctl(mib, mib.length, buf, size, null, size_t.ZERO) == 0) {
                 return buf.getString(0);
             }

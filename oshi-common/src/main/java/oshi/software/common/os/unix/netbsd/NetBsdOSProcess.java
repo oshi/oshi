@@ -80,9 +80,10 @@ public class NetBsdOSProcess extends BsdOSProcess {
     protected static final int KERN_PROC_CWD = 6;
 
     /**
-     * The size of the buffer for a path, the platform's {@code PATH_MAX}.
+     * The size of the buffer for a {@code kern.proc_args} path: twice the platform's {@code PATH_MAX} of 1024, the
+     * longest working directory the kernel returns. An executable path is never longer than {@code PATH_MAX}.
      */
-    protected static final int PATH_MAX = 1024;
+    protected static final int PROC_ARGS_PATH_SIZE = 2048;
 
     protected final NetBsdOperatingSystem os;
 
