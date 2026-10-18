@@ -150,4 +150,18 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
                 .filter(hasColumnsPri).map(threadMap -> new DragonFlyBsdOSThread(getProcessID(), threadMap))
                 .filter(VALID_THREAD).collect(Collectors.toList());
     }
+
+    @Override
+    public long getAffinityMask() {
+        // DragonFly has no cpuset command, which the other BSDs read affinity from
+        return queryAffinityMask();
+    }
+
+    /**
+     * Reads this process's CPU affinity mask through {@code sched_getaffinity}, which reports the mask of its first LWP
+     * limited to the active CPUs. The kernel allows it for any process.
+     *
+     * @return the mask of CPUs 0 to 63, or 0 if the process has exited
+     */
+    protected abstract long queryAffinityMask();
 }

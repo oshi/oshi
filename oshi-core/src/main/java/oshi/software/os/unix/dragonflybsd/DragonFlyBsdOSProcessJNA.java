@@ -61,6 +61,18 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     }
 
     @Override
+    protected long queryAffinityMask() {
+        try (Memory mask = new Memory(DragonFlyBsdLibc.CPU_SET_SIZE)) {
+            mask.clear();
+            if (DragonFlyBsdLibc.INSTANCE.sched_getaffinity(getProcessID(), new size_t(DragonFlyBsdLibc.CPU_SET_SIZE),
+                    mask) == 0) {
+                return mask.getLong(0);
+            }
+        }
+        return 0L;
+    }
+
+    @Override
     protected String queryExecutablePath() {
         int[] mib = { 1, 14, KERN_PROC_PATHNAME, getProcessID() }; // CTL_KERN, KERN_PROC
         try (Memory buf = new Memory(PATH_MAX);
