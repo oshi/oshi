@@ -35,6 +35,7 @@
 * [#3829](https://github.com/oshi/oshi/pull/3829): Fixed `OSProcess.getAffinityMask()` on DragonFly BSD, which was always 0 because DragonFly has no `cpuset` command. It now reads the mask with `sched_getaffinity`, which works for any process - [@dbwiddis](https://github.com/dbwiddis).
 * [#3831](https://github.com/oshi/oshi/pull/3831): Fixed `getTCPv4Stats().getConnectionFailures()` and `getUDPv4Stats().getDatagramsReceivedErrors()` on AIX, which reported the connection resets and mostly no-socket drops instead. `perfstat` has no count of failed connection attempts and cannot separate receive errors from no-socket drops, so both are now 0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#3832](https://github.com/oshi/oshi/pull/3832): `OSProcess.getPath()` and `getCurrentWorkingDirectory()` on NetBSD now read the executable path and working directory from the kernel, for any process. The path was `argv[0]`, which a process may rewrite, and the working directory needed `/proc` to be mounted - [@dbwiddis](https://github.com/dbwiddis).
+* [#3833](https://github.com/oshi/oshi/pull/3833): Fixed `HWDiskStore.getPartitions()` on OpenBSD and NetBSD when `disklabel` needs root. The `df` fallback now matches the disk's name exactly, so `sd1` no longer lists `sd10`'s partitions, reads sizes in fixed 1K units whatever `BLOCKSIZE` is set to, and keeps mount points with spaces whole - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)

@@ -7,6 +7,8 @@ package oshi.driver.common.unix.bsd.disk;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWPartition;
@@ -48,7 +50,7 @@ public final class Disklabel {
         // header metadata (label / DUID / size) disklabel already produced — replacing only the empty partition
         // list rather than the entire Quartet.
         Quartet<String, String, Long, List<HWPartition>> fallback = parseDfFallback(diskName,
-                ExecutingCommand.runNative("df"), Disklabel::getMajorMinor);
+                ExecutingCommand.runNative("df -k"), Disklabel::getMajorMinor);
         return new Quartet<>(result.getA(), result.getB(), result.getC(), fallback.getD());
     }
 
@@ -104,11 +106,16 @@ public final class Disklabel {
     }
 
     /**
-     * Parses {@code df} output as a fallback when {@code disklabel} returns no partitions (typically because the caller
-     * lacks root privileges).
+     * Parses {@code df -k} output as a fallback when {@code disklabel} returns no partitions (typically because the
+     * caller lacks root privileges).
+     * <p>
+     * A row belongs to the disk when its device is the disk's name followed by a single partition letter, so that
+     * {@code sd1} does not also claim {@code sd10}'s partitions. {@code -k} fixes the block size at 1024 bytes, which
+     * plain {@code df} takes from the {@code BLOCKSIZE} environment variable. The mount point is the rest of the row,
+     * which may hold spaces.
      *
      * @param diskName         the disk whose partitions are being enumerated
-     * @param dfLines          raw output from {@code df}
+     * @param dfLines          raw output from {@code df -k}
      * @param majorMinorLookup function that resolves a (disk, partition-letter) pair to a (major, minor) device number
      *                         pair
      * @return A quartet of UNKNOWN label/DUID, 0 size, and partitions discovered from {@code df}. Callers that already
@@ -116,18 +123,18 @@ public final class Disklabel {
      */
     public static Quartet<String, String, Long, List<HWPartition>> parseDfFallback(String diskName,
             List<String> dfLines, BiFunction<String, String, Pair<Integer, Integer>> majorMinorLookup) {
+        Pattern device = Pattern.compile("/dev/" + Pattern.quote(diskName) + "([a-p])");
         List<HWPartition> partitions = new ArrayList<>();
         for (String line : dfLines) {
-            if (line.startsWith("/dev/" + diskName)) {
-                String[] split = ParseUtil.whitespaces.split(line, -1);
-                if (split.length > 5) {
-                    String name = split[0].substring(5 + diskName.length());
-                    Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
-                    // 0, not one 512-byte block, where the column will not parse: the size is unknown
-                    long partSize = ParseUtil.parseLongOrDefault(split[1], 0L) * 512L;
-                    partitions.add(new HWPartition(split[0], split[0].substring(5), Constants.UNKNOWN,
-                            Constants.UNKNOWN, partSize, majorMinor.getA(), majorMinor.getB(), split[5]));
-                }
+            // Device, 1K-blocks, used, available, capacity, mount point
+            String[] split = ParseUtil.whitespaces.split(line.trim(), 6);
+            Matcher m = device.matcher(split[0]);
+            if (split.length == 6 && m.matches()) {
+                Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, m.group(1));
+                // 0 where the column will not parse: the size is unknown
+                long partSize = ParseUtil.parseLongOrDefault(split[1], 0L) * 1024L;
+                partitions.add(new HWPartition(split[0], split[0].substring(5), Constants.UNKNOWN, Constants.UNKNOWN,
+                        partSize, majorMinor.getA(), majorMinor.getB(), split[5]));
             }
         }
         return new Quartet<>(Constants.UNKNOWN, Constants.UNKNOWN, 0L, partitions);

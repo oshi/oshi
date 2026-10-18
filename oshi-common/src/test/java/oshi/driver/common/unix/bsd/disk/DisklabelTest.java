@@ -157,7 +157,7 @@ class DisklabelTest {
 
     @Test
     void testParseDfFallbackBuildsUnknownLabeledQuartet() {
-        // `df` columns: device 1k-blocks used avail capacity mounted
+        // `df -k` columns: device 1k-blocks used avail capacity mounted
         List<String> dfOut = """
                 Filesystem  1K-blocks    Used   Avail Capacity  Mounted on
                 /dev/sd0a     1024000  500000  524000     49%  /
@@ -176,13 +176,12 @@ class DisklabelTest {
         // df fallback names use the suffix after "/dev/" (e.g. "sd0a"), not just the partition letter.
         assertThat(rootPart.getName(), is("sd0a"));
         assertThat(rootPart.getMountPoint(), is("/"));
-        // 1024000 1K blocks x 512 (df fallback assumes 512-byte units)
-        assertThat(rootPart.getSize(), is(1024000L * 512L));
+        assertThat(rootPart.getSize(), is(1024000L * 1024L));
     }
 
     @Test
     void testParseDfFallbackUnparsableBlocksIsUnknownSize() {
-        // A row whose block count will not parse leaves that partition's size unknown, not one 512-byte block
+        // A row whose block count will not parse leaves that partition's size unknown, not one block
         List<String> dfOut = """
                 Filesystem  1K-blocks    Used   Avail Capacity  Mounted on
                 /dev/sd0a           -  500000  524000     49%  /
@@ -201,6 +200,30 @@ class DisklabelTest {
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDfFallback("sd0", dfOut,
                 ZERO_MAJOR_MINOR);
         assertThat(result.getD(), is(empty()));
+    }
+
+    @Test
+    void testParseDfFallbackIgnoresDisksSharingThePrefix() {
+        // sd1 must not claim sd10's partitions, nor a wedge or other device that merely starts with its name
+        List<String> dfOut = """
+                Filesystem  1K-blocks      Used     Avail Capacity  Mounted on
+                /dev/sd1a     1009422    151880    807072    16%    /
+                /dev/sd10a    1009422    151880    807072    16%    /data
+                /dev/sd1      1009422    151880    807072    16%    /raw
+                """.lines().toList();
+        Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDfFallback("sd1", dfOut,
+                ZERO_MAJOR_MINOR);
+        assertThat(result.getD(), hasSize(1));
+        assertThat(result.getD().get(0).getMountPoint(), is("/"));
+    }
+
+    @Test
+    void testParseDfFallbackMountPointWithSpaces() {
+        List<String> dfOut = List.of("/dev/sd0e     1009422    151880    807072    16%    /mnt/My Backups");
+        Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDfFallback("sd0", dfOut,
+                ZERO_MAJOR_MINOR);
+        assertThat(result.getD(), hasSize(1));
+        assertThat(result.getD().get(0).getMountPoint(), is("/mnt/My Backups"));
     }
 
     @Test
