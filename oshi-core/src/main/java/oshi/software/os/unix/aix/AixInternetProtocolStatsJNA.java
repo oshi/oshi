@@ -31,9 +31,8 @@ public final class AixInternetProtocolStatsJNA extends AixInternetProtocolStats 
     protected @Nullable TcpStats queryTcpStats() {
         for (perfstat_protocol_t stat : ipstats.get()) {
             if ("tcp".equals(Native.toString(stat.name))) {
-                return new TcpStats(stat.u.tcp.established, stat.u.tcp.initiated, stat.u.tcp.accepted,
-                        stat.u.tcp.dropped, stat.u.tcp.dropped, stat.u.tcp.opackets, stat.u.tcp.ipackets, 0L,
-                        stat.u.tcp.ierrors, 0L);
+                return tcpStats(stat.u.tcp.established, stat.u.tcp.initiated, stat.u.tcp.accepted, stat.u.tcp.dropped,
+                        stat.u.tcp.opackets, stat.u.tcp.ipackets, stat.u.tcp.ierrors);
             }
         }
         return null;
@@ -43,7 +42,7 @@ public final class AixInternetProtocolStatsJNA extends AixInternetProtocolStats 
     protected @Nullable UdpStats queryUdpStats() {
         for (perfstat_protocol_t stat : ipstats.get()) {
             if ("udp".equals(Native.toString(stat.name))) {
-                return new UdpStats(stat.u.udp.opackets, stat.u.udp.ipackets, stat.u.udp.no_socket, stat.u.udp.ierrors);
+                return udpStats(stat.u.udp.opackets, stat.u.udp.ipackets, stat.u.udp.no_socket);
             }
         }
         return null;

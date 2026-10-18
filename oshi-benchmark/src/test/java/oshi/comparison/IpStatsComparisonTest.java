@@ -25,8 +25,9 @@ import oshi.util.ParseUtil;
 import oshi.util.PlatformEnum;
 
 /**
- * Compares the TCP and UDP counters read natively from the {@code net.inet.tcp.stats} and {@code net.inet.udp.stats}
- * sysctls against the same counters printed by {@code netstat -s}.
+ * Compares the TCP and UDP counters read natively, from the {@code net.inet.tcp.stats} and {@code net.inet.udp.stats}
+ * sysctls on macOS and FreeBSD and from {@code perfstat_protocol} on AIX, against the same counters printed by
+ * {@code netstat -s}.
  * <p>
  * The native path reads selected counters at fixed offsets in a kernel structure that has no version field, and those
  * offsets have moved between releases: FreeBSD 14.0 inserted a counter mid-structure. A wrong offset still yields a
@@ -46,7 +47,11 @@ class IpStatsComparisonTest {
     /** Only the platforms reading these counters from a native structure. */
     static boolean isNotNativeSysctl() {
         PlatformEnum p = PlatformEnum.getCurrentPlatform();
-        return p != PlatformEnum.MACOS && p != PlatformEnum.FREEBSD;
+        return p != PlatformEnum.MACOS && p != PlatformEnum.FREEBSD && p != PlatformEnum.AIX;
+    }
+
+    private static boolean isAix() {
+        return PlatformEnum.getCurrentPlatform() == PlatformEnum.AIX;
     }
 
     /**
@@ -114,11 +119,21 @@ class IpStatsComparisonTest {
                 count(cmd, "connection request"));
         between(failures, "passive opens", before, after, TcpStats::getConnectionsPassive,
                 count(cmd, "connection accept"));
-        between(failures, "failures", before, after, TcpStats::getConnectionFailures,
-                count(cmd, "embryonic connection dropped"));
         between(failures, "resets", before, after, TcpStats::getConnectionsReset, count(cmd, "drop"));
-        between(failures, "retransmitted", before, after, TcpStats::getSegmentsRetransmitted,
-                count(cmd, "data packet retransmitted"));
+        if (isAix()) {
+            // perfstat_protocol carries no count of embryonic drops or retransmissions, which OSHI reports as 0, and
+            // its packets sent leave out the retransmitted ones, as the MIB's tcpOutSegs does
+            between(failures, "sent", before, after, TcpStats::getSegmentsSent,
+                    count(cmd, "packet sent") - count(cmd, "data packet retransmitted"));
+            between(failures, "received", before, after, TcpStats::getSegmentsReceived, count(cmd, "packet received"));
+            assertThat(after.getConnectionFailures()).as("failures, which perfstat does not count").isZero();
+            assertThat(after.getSegmentsRetransmitted()).as("retransmitted, which perfstat does not count").isZero();
+        } else {
+            between(failures, "failures", before, after, TcpStats::getConnectionFailures,
+                    count(cmd, "embryonic connection dropped"));
+            between(failures, "retransmitted", before, after, TcpStats::getSegmentsRetransmitted,
+                    count(cmd, "data packet retransmitted"));
+        }
         // Without root, macOS estimates these three from IP-level counters instead of reading them
         if (PlatformEnum.getCurrentPlatform() == PlatformEnum.FREEBSD) {
             between(failures, "sent", before, after, TcpStats::getSegmentsSent, count(cmd, "data packet"));
@@ -137,12 +152,23 @@ class IpStatsComparisonTest {
         Map<String, Long> cmd = netstat("udp");
         UdpStats after = freshStats().getUDPv4Stats();
         assertThat(cmd).as("netstat -s -p udp counters").containsKeys("datagram received", "datagram output",
-                "with incomplete header", "with bad data length field", "with bad checksum", "dropped due to no socket",
-                "broadcast/multicast datagram undelivered");
+                "dropped due to no socket");
 
         List<String> failures = new ArrayList<>();
         between(failures, "received", before, after, UdpStats::getDatagramsReceived, count(cmd, "datagram received"));
         between(failures, "sent", before, after, UdpStats::getDatagramsSent, count(cmd, "datagram output"));
+        if (isAix()) {
+            // AIX reads no_socket alone, without its broadcast and multicast drops. perfstat's input errors count those
+            // drops too, with no way to take them back out, so the receive errors are reported as 0
+            between(failures, "no port", before, after, UdpStats::getDatagramsNoPort,
+                    count(cmd, "dropped due to no socket"));
+            assertThat(after.getDatagramsReceivedErrors()).as("receive errors, which perfstat cannot separate")
+                    .isZero();
+            assertThat(failures).as("UDP counters disagreeing with netstat").isEmpty();
+            return;
+        }
+        assertThat(cmd).as("netstat -s -p udp counters").containsKeys("with incomplete header",
+                "with bad data length field", "with bad checksum", "broadcast/multicast datagram undelivered");
         between(failures, "receive errors", before, after, UdpStats::getDatagramsReceivedErrors,
                 count(cmd, "with incomplete header", "with bad data length field", "with bad checksum"));
         between(failures, "no port", before, after, UdpStats::getDatagramsNoPort,

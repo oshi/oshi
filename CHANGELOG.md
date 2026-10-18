@@ -33,6 +33,7 @@
 * [#3826](https://github.com/oshi/oshi/pull/3826): Fixed `getUsbDevices()` on FreeBSD, which was empty because it read `lshal`, gone with HAL. The device tree now comes from `devinfo -v`, which needs no privileges, with each device listed once and its vendor and product IDs and serial number - [@dbwiddis](https://github.com/dbwiddis).
 * [#3827](https://github.com/oshi/oshi/pull/3827): Fixed `OSProcess.getSoftOpenFileLimit()` and `getHardOpenFileLimit()` on FreeBSD for processes other than the current one, which returned -1 because they read a Linux `/proc` file. They now use the `kern.proc.rlimit` sysctl, as `procstat -l` does - [@dbwiddis](https://github.com/dbwiddis).
 * [#3829](https://github.com/oshi/oshi/pull/3829): Fixed `OSProcess.getAffinityMask()` on DragonFly BSD, which was always 0 because DragonFly has no `cpuset` command. It now reads the mask with `sched_getaffinity`, which works for any process - [@dbwiddis](https://github.com/dbwiddis).
+* [#3831](https://github.com/oshi/oshi/pull/3831): Fixed `getTCPv4Stats().getConnectionFailures()` and `getUDPv4Stats().getDatagramsReceivedErrors()` on AIX, which reported the connection resets and mostly no-socket drops instead. `perfstat` has no count of failed connection attempts and cannot separate receive errors from no-socket drops, so both are now 0 - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
