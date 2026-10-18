@@ -106,6 +106,24 @@ class FreeBsdUsbDeviceTest {
     }
 
     @Test
+    void testParseUsbDevicesWithoutDescriptions() {
+        // devinfo -v on DragonFly 6.4.2 in CI, trimmed: no descriptions, so nothing to name the devices by but their
+        // driver instances
+        List<String> dragonfly = """
+                        uhci0 pnpinfo vendor=0x8086 device=0x7020 subvendor=0x1af4 subdevice=0x1100 class=0x0c0300 at slot=1 function=2 handle=\\_SB_.PCI0.S0A_
+                          usbus0
+                            uhub0
+                        unknown pnpinfo vendor=0x8086 device=0x7113 subvendor=0x1af4 subdevice=0x1100 class=0x068000 at slot=1 function=3 handle=\\_SB_.PCI0.S0B_
+                """
+                .lines().toList();
+        List<UsbDevice> controllers = FreeBsdUsbDevice.parseUsbDevices(dragonfly);
+        assertThat(controllers, hasSize(1));
+        assertThat(controllers.get(0).getName(), is("uhci0"));
+        assertThat(controllers.get(0).getVendorId(), is("8086"));
+        assertThat(controllers.get(0).getConnectedDevices().get(0).getName(), is("uhub0"));
+    }
+
+    @Test
     void testParseUsbDevicesEmpty() {
         assertThat(FreeBsdUsbDevice.parseUsbDevices(Collections.emptyList()), is(empty()));
         // No USB controller at all

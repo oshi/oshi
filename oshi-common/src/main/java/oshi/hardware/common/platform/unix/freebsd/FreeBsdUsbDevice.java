@@ -71,7 +71,8 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
      * whose children, the root hub and what hangs from it, become the controller's own. A USB device is listed once per
      * interface driver attached to it, each with the same {@code ugen} name among its location fields, so that name
      * identifies the device. A driver attached beneath a USB device without a {@code ugen} name of its own, such as a
-     * HID bus, is not a USB device and is left out. Only devices with a driver attached appear.
+     * HID bus, is not a USB device and is left out. Only devices with a driver attached appear. DragonFly, which shares
+     * this class, prints no descriptions, so there a device is named by its driver instance.
      *
      * @param devinfo the lines emitted by {@code devinfo -v}
      * @return a list of USB controllers, each with its connected-device tree.
@@ -125,7 +126,9 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             }
             String description = ParseUtil.getStringValueOrEmpty(m.group(3));
             int usbClass = description.indexOf(", class ");
-            nameMap.put(key, usbClass < 0 ? description : description.substring(0, usbClass));
+            // DragonFly's devinfo prints no descriptions, so the driver instance (uhci0, uhub0) names the device
+            nameMap.put(key, description.isEmpty() ? m.group(2)
+                    : usbClass < 0 ? description : description.substring(0, usbClass));
             putHexId(vendorIdMap, key, pnp.get("vendor"));
             putHexId(productIdMap, key, pnp.containsKey("product") ? pnp.get("product") : pnp.get("device"));
             String serial = pnp.get("sernum");
