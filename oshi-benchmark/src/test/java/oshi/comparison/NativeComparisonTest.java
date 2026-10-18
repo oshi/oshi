@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
@@ -487,15 +489,16 @@ class NativeComparisonTest {
         int ppid = self.getParentProcessID();
         OSProcess parent = jnaOs.getProcess(ppid);
         assumeTrue(parent != null, "parent process not visible");
-        String[] row = ExecutingCommand.runNative("procstat -l " + ppid).stream()
-                .map(line -> ParseUtil.whitespaces.split(line.trim(), -1))
-                .filter(split -> split.length >= 5 && "openfiles".equals(split[2])).findFirst().orElse(new String[0]);
-        assumeTrue(row.length >= 5 && !"infinity".equals(row[3]) && !"infinity".equals(row[4]),
-                "procstat shows no finite open file limit");
+        // The JSON form carries each limit as a raw number; the display columns are scaled to fit, and follow a command
+        // name that is not escaped
+        Matcher m = Pattern.compile(
+                "\"openfiles\"\\s*:\\s*\\{\\s*\"soft_limit\"\\s*:\\s*(\\d+)\\s*,\\s*\"hard_limit\"\\s*:\\s*(\\d+)")
+                .matcher(String.join("", ExecutingCommand.runNative("procstat --libxo json -l " + ppid)));
+        assumeTrue(m.find(), "procstat shows no finite open file limit");
         assertThat(parent.getSoftOpenFileLimit()).as("parent.softOpenFileLimit")
-                .isEqualTo(ParseUtil.parseLongOrDefault(row[3], -2L));
+                .isEqualTo(ParseUtil.parseLongOrDefault(m.group(1), -2L));
         assertThat(parent.getHardOpenFileLimit()).as("parent.hardOpenFileLimit")
-                .isEqualTo(ParseUtil.parseLongOrDefault(row[4], -2L));
+                .isEqualTo(ParseUtil.parseLongOrDefault(m.group(2), -2L));
     }
 
     @RetryingComparison
