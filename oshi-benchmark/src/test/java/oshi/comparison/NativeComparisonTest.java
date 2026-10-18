@@ -5,6 +5,8 @@
 package oshi.comparison;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static oshi.comparison.ComparisonAssertions.assertWithinRatio;
 
 import java.util.Arrays;
@@ -50,7 +52,9 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.software.os.OperatingSystem;
+import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
+import oshi.util.ParseUtil;
 import oshi.util.PlatformEnum;
 import oshi.util.Util;
 import oshi.util.platform.mac.SmcUtil;
@@ -457,6 +461,41 @@ class NativeComparisonTest {
         assertThat(ffm.getCommandLine()).isEqualTo(jna.getCommandLine());
         assertThat(ffm.getSoftOpenFileLimit()).as("process.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
         assertThat(ffm.getHardOpenFileLimit()).as("process.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
+    }
+
+    @Test
+    void parentProcessOpenFileLimits() {
+        // The parent is another process, so this reads the limits the way OSHI reads any process but its own
+        OSProcess self = jnaOs.getProcess(jnaOs.getProcessId());
+        assertNotNull(self);
+        int ppid = self.getParentProcessID();
+        OSProcess jna = jnaOs.getProcess(ppid);
+        OSProcess ffm = ffmOs.getProcess(ppid);
+        assumeTrue(jna != null && ffm != null, "parent process not visible");
+        assertThat(ffm.getSoftOpenFileLimit()).as("parent.softOpenFileLimit").isEqualTo(jna.getSoftOpenFileLimit());
+        assertThat(ffm.getHardOpenFileLimit()).as("parent.hardOpenFileLimit").isEqualTo(jna.getHardOpenFileLimit());
+    }
+
+    @Test
+    @EnabledOnOs(OS.FREEBSD)
+    void parentProcessOpenFileLimitsMatchProcstat() {
+        // The parent is another process, so OSHI reads its limits through kern.proc.rlimit; procstat -l reads the same
+        // sysctl. The parent's limits need not equal this process's: FreeBSD clamps both to kern.maxfilesperproc
+        // whenever a process calls setrlimit, as the JVM does at startup to raise its soft limit
+        OSProcess self = jnaOs.getProcess(jnaOs.getProcessId());
+        assertNotNull(self);
+        int ppid = self.getParentProcessID();
+        OSProcess parent = jnaOs.getProcess(ppid);
+        assumeTrue(parent != null, "parent process not visible");
+        String[] row = ExecutingCommand.runNative("procstat -l " + ppid).stream()
+                .map(line -> ParseUtil.whitespaces.split(line.trim(), -1))
+                .filter(split -> split.length >= 5 && "openfiles".equals(split[2])).findFirst().orElse(new String[0]);
+        assumeTrue(row.length >= 5 && !"infinity".equals(row[3]) && !"infinity".equals(row[4]),
+                "procstat shows no finite open file limit");
+        assertThat(parent.getSoftOpenFileLimit()).as("parent.softOpenFileLimit")
+                .isEqualTo(ParseUtil.parseLongOrDefault(row[3], -2L));
+        assertThat(parent.getHardOpenFileLimit()).as("parent.hardOpenFileLimit")
+                .isEqualTo(ParseUtil.parseLongOrDefault(row[4], -2L));
     }
 
     @RetryingComparison

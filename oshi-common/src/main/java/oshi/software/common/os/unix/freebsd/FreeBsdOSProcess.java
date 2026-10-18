@@ -70,6 +70,22 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
     protected static final int PATH_MAX = 1024;
 
     /**
+     * The {@code KERN_PROC} sysctl subtype that returns one resource limit of a process, given its ID and the resource.
+     */
+    protected static final int KERN_PROC_RLIMIT = 37;
+
+    /**
+     * The resource number of the open file limit, {@code RLIMIT_NOFILE}.
+     */
+    protected static final int RLIMIT_NOFILE_RESOURCE = 8;
+
+    /**
+     * The size of the {@code struct rlimit} that {@link #KERN_PROC_RLIMIT} returns: the soft and the hard limit, each a
+     * 64-bit {@code rlim_t}.
+     */
+    protected static final int RLIMIT_SIZE = 16;
+
+    /**
      * Constructs a new {@code FreeBsdOSProcess}.
      *
      * @param pid the process ID
@@ -77,6 +93,23 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
     protected FreeBsdOSProcess(int pid) {
         super(pid);
     }
+
+    @Override
+    protected long otherProcessOpenFileLimit(int index) {
+        // FreeBSD's procfs, which is not mounted by default, has no limits file; the kernel reports any visible
+        // process's limit through the same sysctl procstat -l reads
+        return queryOtherRlimitNofile(index == 1);
+    }
+
+    /**
+     * Reads another process's open file limit through the {@code kern.proc.rlimit} sysctl, with the MIB
+     * {@code {CTL_KERN, KERN_PROC, KERN_PROC_RLIMIT, pid, RLIMIT_NOFILE}}. The kernel allows it for any process the
+     * caller can see.
+     *
+     * @param soft {@code true} for the soft limit, {@code false} for the hard limit
+     * @return the limit, or {@code -1} if the process has exited or cannot be seen
+     */
+    protected abstract long queryOtherRlimitNofile(boolean soft);
 
     @Override
     protected List<BsdPsKeyword> psKeywords() {

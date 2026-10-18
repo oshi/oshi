@@ -107,6 +107,18 @@ public class FreeBsdOSProcessJNA extends FreeBsdOSProcess {
     }
 
     @Override
+    protected long queryOtherRlimitNofile(boolean soft) {
+        int[] mib = { 1, 14, KERN_PROC_RLIMIT, getProcessID(), RLIMIT_NOFILE_RESOURCE }; // CTL_KERN, KERN_PROC
+        try (Memory rlim = new Memory(RLIMIT_SIZE);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(RLIMIT_SIZE)) {
+            if (FreeBsdLibc.INSTANCE.sysctl(mib, mib.length, rlim, size, null, size_t.ZERO) == 0) {
+                return rlim.getLong(soft ? 0 : 8);
+            }
+        }
+        return -1L;
+    }
+
+    @Override
     protected int queryBitness() {
         // Get process abi vector
         int[] mib = new int[4];

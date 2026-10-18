@@ -31,6 +31,7 @@
 * [#3824](https://github.com/oshi/oshi/pull/3824): `NetworkIF.getSpeed()` on FreeBSD, OpenBSD and NetBSD now reports the link speed from the `ifconfig` media line, where it was always 0. An interface with no link or no media type still reports 0 - [@dbwiddis](https://github.com/dbwiddis).
 * [#3825](https://github.com/oshi/oshi/pull/3825): Fixed `FileSystem.getFileStores()` on the BSDs for mount points containing spaces, and for inode counts on NetBSD and OpenBSD, which were keyed by volume so one of two `tmpfs` mounts reported the other's. OpenBSD's `OSFileStore.getUUID()` no longer includes parentheses - [@dbwiddis](https://github.com/dbwiddis).
 * [#3826](https://github.com/oshi/oshi/pull/3826): Fixed `getUsbDevices()` on FreeBSD, which was empty because it read `lshal`, gone with HAL. The device tree now comes from `devinfo -v`, which needs no privileges, with each device listed once and its vendor and product IDs and serial number - [@dbwiddis](https://github.com/dbwiddis).
+* [#3827](https://github.com/oshi/oshi/pull/3827): Fixed `OSProcess.getSoftOpenFileLimit()` and `getHardOpenFileLimit()` on FreeBSD for processes other than the current one, which returned -1 because they read a Linux `/proc` file. They now use the `kern.proc.rlimit` sysctl, as `procstat -l` does - [@dbwiddis](https://github.com/dbwiddis).
 * Your contribution here!
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
