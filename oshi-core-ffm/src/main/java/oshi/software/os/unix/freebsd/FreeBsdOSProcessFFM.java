@@ -125,6 +125,21 @@ public class FreeBsdOSProcessFFM extends FreeBsdOSProcess {
     }
 
     @Override
+    protected long queryOtherRlimitNofile(boolean soft) {
+        return callInArenaLongOrDefault(arena -> {
+            MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_RLIMIT, getProcessID(),
+                    RLIMIT_NOFILE_RESOURCE);
+            MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
+            MemorySegment size = arena.allocateFrom(SIZE_T, RLIMIT_LAYOUT.byteSize());
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+            if (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 5, rlim, size, MemorySegment.NULL, 0L)) {
+                return -1L;
+            }
+            return soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
+        }, LOG, WARN, "Failed sysctl call for process open file limit (kern.proc.rlimit)", -1L);
+    }
+
+    @Override
     protected int queryBitness() {
         return callInArenaOrDefault(arena -> {
             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_SV_NAME, getProcessID());
