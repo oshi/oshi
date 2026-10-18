@@ -356,6 +356,11 @@ the analyzer already reads. That is why they work where `Util.isBlank` does not:
 need a `@Contract` annotation, a normalizer needs nothing. Use them for the value case and keep
 `Util.isBlank` for the branch case.
 
+Where an empty value has a second source rather than a sentinel, use
+`ParseUtil.getStringValueOrDefault(value, fallback)`, the general form of `getStringValueOrUnknown`.
+Java evaluates the fallback before the call, so when obtaining it is expensive — running a command,
+reading a file — branch on `Util.isBlank` and obtain it inside the branch instead.
+
 In test sources, assert rather than suppress: NullAway runs with
 `HandleTestAssertionLibraries=true`, so JUnit's `assertNotNull` narrows a nullable for the rest of
 the method. Hamcrest's `assertThat(x, is(notNullValue()))` does **not** — it reads as an ordinary
