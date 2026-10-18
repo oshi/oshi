@@ -24,8 +24,8 @@ import oshi.util.platform.unix.netbsd.NetBsdSysctlUtil;
 
 /**
  * An OSProcess for NetBSD that uses JNA native calls for the process open-file limits ({@code getrlimit}) and for
- * reading the environment of other processes ({@code kern.proc_args}) when the JNA native library is available, and
- * falls back to the command-line {@link NetBsdOSProcess} implementation otherwise.
+ * reading the environment, executable path and working directory of any process ({@code kern.proc_args}) when the JNA
+ * native library is available, and falls back to the command-line {@link NetBsdOSProcess} implementation otherwise.
  */
 @ThreadSafe
 public class NetBsdOSProcessJNA extends NetBsdOSProcess {
@@ -83,5 +83,20 @@ public class NetBsdOSProcessJNA extends NetBsdOSProcess {
             }
         }
         return super.queryEnvironmentBytes();
+    }
+
+    @Override
+    protected String queryProcArgsPath(int subtype) {
+        if (!NetBsdSysctlUtil.JNA_AVAILABLE) {
+            return super.queryProcArgsPath(subtype);
+        }
+        int[] mib = { NetBsdLibc.CTL_KERN, KERN_PROC_ARGS, getProcessID(), subtype };
+        try (Memory buf = new Memory(PATH_MAX);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(PATH_MAX)) {
+            if (NetBsdLibc.INSTANCE.sysctl(mib, mib.length, buf, size, null, size_t.ZERO) == 0) {
+                return buf.getString(0);
+            }
+        }
+        return super.queryProcArgsPath(subtype);
     }
 }

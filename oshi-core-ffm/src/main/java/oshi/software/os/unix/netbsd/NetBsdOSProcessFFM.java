@@ -32,8 +32,8 @@ import oshi.software.common.os.unix.netbsd.NetBsdOperatingSystem;
 
 /**
  * An OSProcess for NetBSD that uses FFM native calls for the process open-file limits ({@code getrlimit}) and for
- * reading the environment of other processes ({@code kern.proc_args}) when FFM native access is available, and falls
- * back to the command-line {@link NetBsdOSProcess} implementation otherwise.
+ * reading the environment, executable path and working directory of any process ({@code kern.proc_args}) when FFM
+ * native access is available, and falls back to the command-line {@link NetBsdOSProcess} implementation otherwise.
  */
 @ThreadSafe
 public class NetBsdOSProcessFFM extends NetBsdOSProcess {
@@ -87,5 +87,22 @@ public class NetBsdOSProcessFFM extends NetBsdOSProcess {
             }
             return buf.asSlice(0, Math.min(ARGMAX, size.get(SIZE_T, 0))).toArray(JAVA_BYTE);
         }, new byte[0], LOG, WARN, "Failed to get environment variables for pid {}", getProcessID());
+    }
+
+    @Override
+    protected String queryProcArgsPath(int subtype) {
+        if (!NetBsdSysctlUtilFFM.FFM_AVAILABLE) {
+            return super.queryProcArgsPath(subtype);
+        }
+        return callInArenaOrDefault(arena -> {
+            MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC_ARGS, getProcessID(), subtype);
+            MemorySegment buf = arena.allocate(PATH_MAX);
+            MemorySegment size = arena.allocateFrom(SIZE_T, PATH_MAX);
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+            if (NetBsdSysctlUtilFFM.sysctl(callState, mib, 4, buf, size) != 0) {
+                return "";
+            }
+            return buf.getString(0);
+        }, "", LOG, WARN, "Failed kern.proc_args sysctl {} for pid {}", subtype, getProcessID());
     }
 }

@@ -69,6 +69,21 @@ public class NetBsdOSProcess extends BsdOSProcess {
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
 
+    /**
+     * The {@code KERN_PROC_ARGS} sysctl subtype that returns a process's executable path.
+     */
+    protected static final int KERN_PROC_PATHNAME = 5;
+
+    /**
+     * The {@code KERN_PROC_ARGS} sysctl subtype that returns a process's current working directory.
+     */
+    protected static final int KERN_PROC_CWD = 6;
+
+    /**
+     * The size of the buffer for a path, the platform's {@code PATH_MAX}.
+     */
+    protected static final int PATH_MAX = 1024;
+
     protected final NetBsdOperatingSystem os;
 
     /**
@@ -96,12 +111,33 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     @Override
     protected String queryPath(Map<BsdPsKeyword, String> psMap) {
-        // NetBSD's ps prints argv[0] in the comm column, the same value the args column begins with, but clips it to
-        // the width of its "COMMAND" header - seven characters - because only the last column is left unbounded. So the
-        // path is taken from the args column, which is queried last and is therefore printed in full.
+        String path = queryExecutablePath();
+        if (!path.isEmpty()) {
+            return path;
+        }
+        // Without the kernel's answer, the path is argv[0]. NetBSD's ps prints argv[0] in the comm column, the same
+        // value the args column begins with, but clips it to the width of its "COMMAND" header - seven characters -
+        // because only the last column is left unbounded. So argv[0] is taken from the args column, which is queried
+        // last and is therefore printed in full.
         String argv = parseArgv0(psMap.get(BsdPsKeyword.ARGS));
         // The placeholder says the arguments were unavailable, so no path is known
         return isPlaceholder(argv) ? "" : argv;
+    }
+
+    @Override
+    protected String queryExecutablePath() {
+        return queryProcArgsPath(KERN_PROC_PATHNAME);
+    }
+
+    /**
+     * Queries a path for this process from the kernel, the {@code kern.proc_args} sysctl with the given subtype.
+     *
+     * @param subtype {@link #KERN_PROC_PATHNAME} for the executable or {@link #KERN_PROC_CWD} for the working directory
+     * @return the path, or an empty string if this build cannot make the call or the kernel has none, as it has no
+     *         executable for the kernel itself
+     */
+    protected String queryProcArgsPath(int subtype) {
+        return "";
     }
 
     @Override
@@ -123,6 +159,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     @Override
     protected String queryName(Map<BsdPsKeyword, String> psMap, String path) {
+        // From argv[0] rather than the path, so that it matches the name each of the process's threads is given
         return parseName(psMap.get(BsdPsKeyword.ARGS));
     }
 
@@ -227,7 +264,8 @@ public class NetBsdOSProcess extends BsdOSProcess {
 
     @Override
     public String getCurrentWorkingDirectory() {
-        return FstatUtil.getCwd(getProcessID());
+        String cwd = queryProcArgsPath(KERN_PROC_CWD);
+        return cwd.isEmpty() ? FstatUtil.getCwd(getProcessID()) : cwd;
     }
 
     @Override

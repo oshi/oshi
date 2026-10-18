@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 
 class NetBsdOSProcessTest {
@@ -101,5 +102,35 @@ class NetBsdOSProcessTest {
         refused.put(BsdPsThreadKeyword.ARGS, "(java)");
         assertThat(new NetBsdOSThread(42, released).getName(), is("java"));
         assertThat(new NetBsdOSThread(42, refused).getName(), is("java"));
+    }
+
+    // A process whose kernel answers come from a map keyed by kern.proc_args subtype, absent meaning no answer
+    private static NetBsdOSProcess stubProcess(String args, Map<Integer, String> kernelPaths) {
+        Map<BsdPsKeyword, String> psMap = new EnumMap<>(BsdPsKeyword.class);
+        psMap.put(BsdPsKeyword.PID, "42");
+        psMap.put(BsdPsKeyword.ARGS, args);
+        return new NetBsdOSProcess(42, psMap, new NetBsdOperatingSystem()) {
+            @Override
+            protected String queryProcArgsPath(int subtype) {
+                return kernelPaths.getOrDefault(subtype, "");
+            }
+        };
+    }
+
+    @Test
+    void testPathAndCwdFromKernel() {
+        // sshd rewrites its arguments, so argv[0] is no path; the name still comes from argv[0], as its threads' does
+        NetBsdOSProcess proc = stubProcess("sshd: oshi@pts/0", Map.of(NetBsdOSProcess.KERN_PROC_PATHNAME,
+                "/usr/sbin/sshd", NetBsdOSProcess.KERN_PROC_CWD, "/var/chroot/sshd"));
+        assertThat(proc.getPath(), is("/usr/sbin/sshd"));
+        assertThat(proc.getName(), is("sshd:"));
+        assertThat(proc.getCurrentWorkingDirectory(), is("/var/chroot/sshd"));
+    }
+
+    @Test
+    void testPathFallsBackToArgv0() {
+        // With no answer from the kernel, as for the kernel itself, the path is argv[0], unless that is the placeholder
+        assertThat(stubProcess("/usr/sbin/cron", Map.of()).getPath(), is("/usr/sbin/cron"));
+        assertThat(stubProcess("(java)", Map.of()).getPath(), is(""));
     }
 }
