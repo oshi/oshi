@@ -47,6 +47,17 @@ class MountTableTest {
     }
 
     @Test
+    void testParseFreeBsdLibxoEscapes() {
+        // Each JSON escape a path may carry: a backslash, a tab, a slash and a unicode escape, and one ending the value
+        String path = "/mnt/a\\\\b\\tc\\/d\\u00e9\\u0041";
+        List<String> json = List.of("{\"mount\": {\"fstab\": [{\"device\":\"/dev/da1p1\",\"mntpoint\":\"" + path
+                + "\",\"fstype\":\"ufs\",\"opts\":\"rw\",\"dump\":2,\"pass\":2}]}}");
+        List<MountTable.Entry> entries = MountTable.parseFreeBsdLibxo(json);
+        assertThat(entries, hasSize(1));
+        assertEntry(entries.get(0), "/dev/da1p1", "", "/mnt/a\\b\tc/déA", "ufs", "rw");
+    }
+
+    @Test
     void testParseFreeBsdLibxoUnsupported() {
         // DragonFly's mount has no libxo, and prints usage instead
         assertThat(MountTable.parseFreeBsdLibxo(List.of("mount: illegal option -- -",

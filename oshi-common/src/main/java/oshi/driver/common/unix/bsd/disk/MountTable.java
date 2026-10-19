@@ -26,7 +26,7 @@ import oshi.util.tuples.Pair;
 public final class MountTable {
 
     // A JSON string, its escapes left in place
-    private static final String JSON_STRING = "\"((?:[^\"\\\\]|\\\\.)*)\"";
+    private static final String JSON_STRING = "\"([^\"\\\\]*+(?:\\\\.[^\"\\\\]*+)*+)\"";
     // One fstab entry of FreeBSD's mount -p --libxo json, whose fields putfsent emits in this order
     private static final Pattern LIBXO_ENTRY = Pattern
             .compile("\\{\\s*\"device\"\\s*:\\s*" + JSON_STRING + "\\s*,\\s*\"mntpoint\"\\s*:\\s*" + JSON_STRING
@@ -238,13 +238,17 @@ public final class MountTable {
             return s;
         }
         StringBuilder sb = new StringBuilder(s.length());
-        for (int i = 0; i < s.length(); i++) {
+        int i = 0;
+        while (i < s.length()) {
             char c = s.charAt(i);
             if (c != '\\' || i + 1 == s.length()) {
                 sb.append(c);
+                i++;
                 continue;
             }
-            char e = s.charAt(++i);
+            // The escape and the character after it, plus four hex digits for \\u
+            char e = s.charAt(i + 1);
+            i += 2;
             switch (e) {
                 case 'n':
                     sb.append('\n');
@@ -262,8 +266,8 @@ public final class MountTable {
                     sb.append('\f');
                     break;
                 case 'u':
-                    if (i + 4 < s.length()) {
-                        sb.append((char) ParseUtil.hexStringToInt(s.substring(i + 1, i + 5), '?'));
+                    if (i + 4 <= s.length()) {
+                        sb.append((char) ParseUtil.hexStringToInt(s.substring(i, i + 4), '?'));
                         i += 4;
                     } else {
                         sb.append(e);

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -116,11 +117,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
      * @return the lines without a leading timestamp
      */
     static List<String> stripDmesgTimestamps(List<String> dmesg) {
-        List<String> stripped = new ArrayList<>(dmesg.size());
-        for (String line : dmesg) {
-            stripped.add(DMESG_TIMESTAMP.matcher(line).replaceFirst(""));
-        }
-        return stripped;
+        return dmesg.stream().map(line -> DMESG_TIMESTAMP.matcher(line).replaceFirst("")).collect(Collectors.toList());
     }
 
     /**

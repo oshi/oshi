@@ -36,7 +36,7 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     // fields, after "pnpinfo" and "at" respectively
     private static final Pattern DEVINFO_LINE = Pattern.compile("( *)(\\S+)(?: <(.*?)>)?(.*)");
     // A plug-and-play or location field, its value quoted where it may hold spaces: sernum="1234BBBK5678" ugen=ugen0.2
-    private static final Pattern PNP_FIELD = Pattern.compile("(\\w+)=(\"[^\"]*\"|\\S+)");
+    private static final Pattern PNP_FIELD = Pattern.compile("(?<!\\w)(\\w++)=(\"[^\"]*+\"|\\S++)");
 
     /**
      * Constructs a new {@code FreeBsdUsbDevice}.
@@ -126,11 +126,14 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
             }
             String description = ParseUtil.getStringValueOrEmpty(m.group(3));
             int usbClass = description.indexOf(", class ");
-            // DragonFly's devinfo prints no descriptions, so the driver instance (uhci0, uhub0) names the device
-            nameMap.put(key, description.isEmpty() ? m.group(2)
-                    : usbClass < 0 ? description : description.substring(0, usbClass));
+            if (description.isEmpty()) {
+                // DragonFly's devinfo prints no descriptions, so the driver instance (uhci0, uhub0) names the device
+                nameMap.put(key, m.group(2));
+            } else {
+                nameMap.put(key, usbClass < 0 ? description : description.substring(0, usbClass));
+            }
             putHexId(vendorIdMap, key, pnp.get("vendor"));
-            putHexId(productIdMap, key, pnp.containsKey("product") ? pnp.get("product") : pnp.get("device"));
+            putHexId(productIdMap, key, pnp.get(pnp.containsKey("product") ? "product" : "device"));
             String serial = pnp.get("sernum");
             if (serial != null && !serial.isEmpty()) {
                 serialMap.put(key, serial);
