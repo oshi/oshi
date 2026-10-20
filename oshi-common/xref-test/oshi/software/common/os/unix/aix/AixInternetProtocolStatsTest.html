@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>AixInternetProtocolStatsTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../testapidocs/oshi/software/common/os/unix/aix/AixInternetProtocolStatsTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.software.common.os.unix.aix;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.TcpStats;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.InternetProtocolStats.UdpStats;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">class</strong> <a name="AixInternetProtocolStatsTest" href="../../../../../../oshi/software/common/os/unix/aix/AixInternetProtocolStatsTest.html#AixInternetProtocolStatsTest">AixInternetProtocolStatsTest</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      @Test
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">void</strong> testTcpStats() {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          <em class="jxr_comment">// perfstat_protocol's tcp counters on AIX 7.3 (cfarm119), read beside netstat -s: 174587 dropped is netstat's</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>          <em class="jxr_comment">// "connections closed (including 174587 drops)", while its 74322 embryonic drops have no perfstat counter</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          TcpStats tcp = AixInternetProtocolStats.tcpStats(2_030_200L, 276_308L, 1_972_702L, 174_587L, 30_915_756L,
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>                  57_617_958L, 303_957L);
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          assertThat(tcp.getConnectionsEstablished(), is(2_030_200L));
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          assertThat(tcp.getConnectionsActive(), is(276_308L));
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          assertThat(tcp.getConnectionsPassive(), is(1_972_702L));
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(tcp.getConnectionsReset(), is(174_587L));
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          <em class="jxr_comment">// Not the drops again: perfstat cannot report failures or retransmissions</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          assertThat(tcp.getConnectionFailures(), is(0L));
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(tcp.getSegmentsRetransmitted(), is(0L));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(tcp.getSegmentsSent(), is(30_915_756L));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(tcp.getSegmentsReceived(), is(57_617_958L));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          assertThat(tcp.getInErrors(), is(303_957L));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      @Test
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">void</strong> testUdpStats() {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <em class="jxr_comment">// The same machine's udp counters. perfstat's ierrors of 12442997 was netstat's 868999 dropped due to no</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// socket, 11573609 broadcast or multicast dropped due to no socket and 374 bad checksums, near enough</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          UdpStats udp = AixInternetProtocolStats.udpStats(7_035_856L, 18_748_068L, 868_999L);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          assertThat(udp.getDatagramsSent(), is(7_035_856L));
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          assertThat(udp.getDatagramsReceived(), is(18_748_068L));
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          assertThat(udp.getDatagramsNoPort(), is(868_999L));
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(udp.getDatagramsReceivedErrors(), is(0L));
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

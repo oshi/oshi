@@ -18,21 +18,16 @@
 <a class="jxr_linenumber" name="L10" href="#L10">10</a>  
 <a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment">/**</em>
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * JNA-backed FreeBSD file system. All file-store enumeration (geom, df, mount parsing) lives on</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * {@link FreeBsdFileSystem}; only the {@code kern.openfiles}/{@code kern.maxfiles} sysctl reads are JNA-specific.</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * {@link FreeBsdFileSystem}; only the file-descriptor sysctl reads are JNA-specific.</em>
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L15" href="#L15">15</a>  @ThreadSafe
 <a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="FreeBsdFileSystemJNA" href="../../../../../oshi/software/os/unix/freebsd/FreeBsdFileSystemJNA.html#FreeBsdFileSystemJNA">FreeBsdFileSystemJNA</a> <strong class="jxr_keyword">extends</strong> <a name="FreeBsdFileSystem" href="../../../../../oshi/software/common/os/unix/freebsd/FreeBsdFileSystem.html#FreeBsdFileSystem">FreeBsdFileSystem</a> {
 <a class="jxr_linenumber" name="L17" href="#L17">17</a>  
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>      @Override
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryOpenFiles() {
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.openfiles"</span>, 0);
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> querySysctl(String name) {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(name, 0);
 <a class="jxr_linenumber" name="L21" href="#L21">21</a>      }
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      @Override
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryMaxFiles() {
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>          <strong class="jxr_keyword">return</strong> BsdSysctlUtil.sysctl(<span class="jxr_string">"kern.maxfiles"</span>, 0);
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>      }
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  }
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

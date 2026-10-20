@@ -42,23 +42,37 @@
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>  
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>      @Test
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">void</strong> testParseMountOutputEmptyInput() {
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>          Map&lt;String, String&gt; result = Mount.parseMountOutput(Collections.emptyList());
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>          assertThat(result, is(anEmptyMap()));
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      @Test
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">void</strong> testParseMountOutputNonMatchingLinesIgnored() {
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          List&lt;String&gt; mountOutput = <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  devfs on /dev (devfs)
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  procfs on /proc (procfs, local)
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  tmpfs on /tmp (tmpfs, local)
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">void</strong> testParseMountOutputMbrAndLabels() {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <em class="jxr_comment">// An MBR slice holding a BSD label, and a GPT partition mounted by its label</em>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          List&lt;String&gt; mountOutput = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>                  /dev/ada0s1a on / (ufs, local, soft-updates)
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  /dev/gpt/data on /data (ufs, local)
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          Map&lt;String, String&gt; result = Mount.parseMountOutput(mountOutput);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(result.get(<span class="jxr_string">"ada0s1a"</span>), is(<span class="jxr_string">"/"</span>));
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertThat(result.get(<span class="jxr_string">"gpt/data"</span>), is(<span class="jxr_string">"/data"</span>));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          Map&lt;String, String&gt; result = Mount.parseMountOutput(mountOutput);
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(result, is(anEmptyMap()));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      }
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testParseMountOutputEmptyInput() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          Map&lt;String, String&gt; result = Mount.parseMountOutput(Collections.emptyList());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(result, is(anEmptyMap()));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      @Test
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">void</strong> testParseMountOutputNonMatchingLinesIgnored() {
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          List&lt;String&gt; mountOutput = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  devfs on /dev (devfs)
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  procfs on /proc (procfs, local)
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  tmpfs on /tmp (tmpfs, local)
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          Map&lt;String, String&gt; result = Mount.parseMountOutput(mountOutput);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(result, is(anEmptyMap()));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getA(), ParseUtil.unsignedIntToLong(tcp.tcps_connattempt),
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>                  ParseUtil.unsignedIntToLong(tcp.tcps_accepts), ParseUtil.unsignedIntToLong(tcp.tcps_conndrops),
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>                  ParseUtil.unsignedIntToLong(tcp.tcps_drops),
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_delivered - udp.udps_opackets)),
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_localout - udp.udps_opackets)),
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>                  Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_total - udp.udps_ipackets)),
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>                  ParseUtil.unsignedIntToLong(tcp.tcps_sndrexmitpack),
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>                  Math.max(0L, ParseUtil.unsignedIntToLong(ip.ips_badsum + ip.ips_tooshort + ip.ips_toosmall
@@ -109,163 +109,171 @@
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">public</strong> TcpStats getTCPv6Stats() {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         BsdIp6stat ip6 = ip6stat.get();
 <a class="jxr_linenumber" name="L103" href="#L103">103</a>         BsdUdpstat udp = udpstat.get();
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>                 Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>                 Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
-<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Override
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">public</strong> UdpStats getUDPv4Stats() {
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         BsdUdpstat stat = udpstat.get();
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 ParseUtil.unsignedIntToLong(stat.udps_ipackets), ParseUtil.unsignedIntToLong(stat.udps_noportmcast),
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     }
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> 
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>     @Override
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     <strong class="jxr_keyword">public</strong> UdpStats getUDPv6Stats() {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         BsdUdpstat stat = udpstat.get();
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(ParseUtil.unsignedIntToLong(stat.udps_snd6_swcsum),
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 ParseUtil.unsignedIntToLong(stat.udps_rcv6_swcsum), 0L, 0L);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     <em class="jxr_comment">/*</em>
-<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_comment">     * There are multiple versions of some tcp/udp/ip stats structures in macOS. Since we only need a few of the</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_comment">     * hundreds of fields, we can improve performance by selectively reading the ints from the appropriate offsets,</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_comment">     * which are consistent across the structure. The carriers below hold those selected fields; the subclasses read</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_comment">     * them from the sysctl buffer (JNA Memory or FFM MemorySegment).</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_comment">     */</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code tcpstat} structure. */</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdTcpstat {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_connattempt;
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_accepts;
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_drops;
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_conndrops;
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_sndpack;
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitpack;
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpack;
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadsum;
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadoff;
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvmemdrop;
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvshort;
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">         * Creates a {@code tcpstat} carrier.</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">         * @param connattempt   connection attempts</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">         * @param accepts       accepted connections</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">         * @param drops         dropped connections</em>
-<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">         * @param conndrops     connections dropped during establishment</em>
-<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">         * @param sndpack       packets sent</em>
-<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">         * @param sndrexmitpack packets retransmitted</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">         * @param rcvpack       packets received</em>
-<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">         * @param rcvbadsum     packets received with bad checksum</em>
-<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">         * @param rcvbadoff     packets received with bad offset</em>
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">         * @param rcvmemdrop    packets dropped for lack of memory</em>
-<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">         * @param rcvshort      packets received too short</em>
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         <strong class="jxr_keyword">public</strong> BsdTcpstat(<strong class="jxr_keyword">int</strong> connattempt, <strong class="jxr_keyword">int</strong> accepts, <strong class="jxr_keyword">int</strong> drops, <strong class="jxr_keyword">int</strong> conndrops, <strong class="jxr_keyword">int</strong> sndpack, <strong class="jxr_keyword">int</strong> sndrexmitpack,
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>                 <strong class="jxr_keyword">int</strong> rcvpack, <strong class="jxr_keyword">int</strong> rcvbadsum, <strong class="jxr_keyword">int</strong> rcvbadoff, <strong class="jxr_keyword">int</strong> rcvmemdrop, <strong class="jxr_keyword">int</strong> rcvshort) {
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>             <strong class="jxr_keyword">this</strong>.tcps_connattempt = connattempt;
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">this</strong>.tcps_accepts = accepts;
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>             <strong class="jxr_keyword">this</strong>.tcps_drops = drops;
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">this</strong>.tcps_conndrops = conndrops;
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>             <strong class="jxr_keyword">this</strong>.tcps_sndpack = sndpack;
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">this</strong>.tcps_sndrexmitpack = sndrexmitpack;
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvpack = rcvpack;
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvbadsum = rcvbadsum;
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvbadoff = rcvbadoff;
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvmemdrop = rcvmemdrop;
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvshort = rcvshort;
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         }
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code udpstat} structure. */</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdUdpstat {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_ipackets;
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_hdrops;
-<a class="jxr_linenumber" name="L180" href="#L180">180</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_badsum;
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_badlen;
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_opackets;
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_noportmcast;
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum;
-<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_snd6_swcsum;
-<a class="jxr_linenumber" name="L186" href="#L186">186</a> 
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L188" href="#L188">188</a> <em class="jxr_javadoccomment">         * Creates a {@code udpstat} carrier.</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a> <em class="jxr_javadoccomment">         * @param ipackets    datagrams received</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a> <em class="jxr_javadoccomment">         * @param hdrops      datagrams dropped for bad header</em>
-<a class="jxr_linenumber" name="L192" href="#L192">192</a> <em class="jxr_javadoccomment">         * @param badsum      datagrams dropped for bad checksum</em>
-<a class="jxr_linenumber" name="L193" href="#L193">193</a> <em class="jxr_javadoccomment">         * @param badlen      datagrams dropped for bad length</em>
-<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">         * @param opackets    datagrams sent</em>
-<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">         * @param noportmcast multicast datagrams with no port</em>
-<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">         * @param rcv6Swcsum  IPv6 datagrams received with software checksum</em>
-<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">         * @param snd6Swcsum  IPv6 datagrams sent with software checksum</em>
-<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">public</strong> BsdUdpstat(<strong class="jxr_keyword">int</strong> ipackets, <strong class="jxr_keyword">int</strong> hdrops, <strong class="jxr_keyword">int</strong> badsum, <strong class="jxr_keyword">int</strong> badlen, <strong class="jxr_keyword">int</strong> opackets, <strong class="jxr_keyword">int</strong> noportmcast,
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 <strong class="jxr_keyword">int</strong> rcv6Swcsum, <strong class="jxr_keyword">int</strong> snd6Swcsum) {
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>             <strong class="jxr_keyword">this</strong>.udps_ipackets = ipackets;
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>             <strong class="jxr_keyword">this</strong>.udps_hdrops = hdrops;
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">this</strong>.udps_badsum = badsum;
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>             <strong class="jxr_keyword">this</strong>.udps_badlen = badlen;
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>             <strong class="jxr_keyword">this</strong>.udps_opackets = opackets;
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>             <strong class="jxr_keyword">this</strong>.udps_noportmcast = noportmcast;
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>             <strong class="jxr_keyword">this</strong>.udps_rcv6_swcsum = rcv6Swcsum;
-<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">this</strong>.udps_snd6_swcsum = snd6Swcsum;
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         }
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>     }
-<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code ipstat} structure. */</em>
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdIpstat {
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_total;
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_badsum;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_tooshort;
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_toosmall;
-<a class="jxr_linenumber" name="L218" href="#L218">218</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_badhlen;
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_badlen;
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_delivered;
-<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L223" href="#L223">223</a> <em class="jxr_javadoccomment">         * Creates an {@code ipstat} carrier.</em>
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L225" href="#L225">225</a> <em class="jxr_javadoccomment">         * @param total     total packets received</em>
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> <em class="jxr_javadoccomment">         * @param badsum    packets with bad checksum</em>
-<a class="jxr_linenumber" name="L227" href="#L227">227</a> <em class="jxr_javadoccomment">         * @param tooshort  packets too short</em>
-<a class="jxr_linenumber" name="L228" href="#L228">228</a> <em class="jxr_javadoccomment">         * @param toosmall  packets with not enough data</em>
-<a class="jxr_linenumber" name="L229" href="#L229">229</a> <em class="jxr_javadoccomment">         * @param badhlen   packets with bad header length</em>
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> <em class="jxr_javadoccomment">         * @param badlen    packets with bad length</em>
-<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">         * @param delivered datagrams delivered to upper level</em>
-<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         <strong class="jxr_keyword">public</strong> BsdIpstat(<strong class="jxr_keyword">int</strong> total, <strong class="jxr_keyword">int</strong> badsum, <strong class="jxr_keyword">int</strong> tooshort, <strong class="jxr_keyword">int</strong> toosmall, <strong class="jxr_keyword">int</strong> badhlen, <strong class="jxr_keyword">int</strong> badlen, <strong class="jxr_keyword">int</strong> delivered) {
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>             <strong class="jxr_keyword">this</strong>.ips_total = total;
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">this</strong>.ips_badsum = badsum;
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>             <strong class="jxr_keyword">this</strong>.ips_tooshort = tooshort;
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>             <strong class="jxr_keyword">this</strong>.ips_toosmall = toosmall;
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>             <strong class="jxr_keyword">this</strong>.ips_badhlen = badhlen;
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>             <strong class="jxr_keyword">this</strong>.ips_badlen = badlen;
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             <strong class="jxr_keyword">this</strong>.ips_delivered = delivered;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     }
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code ip6stat} structure. */</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdIp6stat {
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> ip6s_total;
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> ip6s_localout;
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> 
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">         * Creates an {@code ip6stat} carrier.</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">         *</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">         * @param total    total IPv6 packets received</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">         * @param localout IPv6 packets sent from this host</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">         */</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">public</strong> BsdIp6stat(<strong class="jxr_keyword">long</strong> total, <strong class="jxr_keyword">long</strong> localout) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>             <strong class="jxr_keyword">this</strong>.ip6s_total = total;
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>             <strong class="jxr_keyword">this</strong>.ip6s_localout = localout;
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>         }
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>     }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a> }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <em class="jxr_comment">// There is no IPv6 segment counter, so this estimates from the IPv6 packet totals, less the UDP datagrams</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <em class="jxr_comment">// among them. The udps_*6_swcsum fields are the only per-family UDP counters macOS keeps, and they count</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         <em class="jxr_comment">// datagrams whose checksum was computed in software rather than datagrams: udps_snd6_swcsum matches the</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <em class="jxr_comment">// datagrams sent over a real interface but counts none sent over loopback, and udps_rcv6_swcsum does not</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         <em class="jxr_comment">// increment at all, which leaves the segments received uncorrected. They are too far from a datagram count</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">// to report as one, which is why getUDPv6Stats() is left to the zeros of the superclass, but subtracting</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// what they do account for still brings this estimate closer than not subtracting it.</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(establishedv4v6.get().getB(), 0L, 0L, 0L, 0L,
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>                 Math.max(0L, ip6.ip6s_localout - ParseUtil.unsignedIntToLong(udp.udps_snd6_swcsum)),
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                 Math.max(0L, ip6.ip6s_total - ParseUtil.unsignedIntToLong(udp.udps_rcv6_swcsum)), 0L, 0L, 0L);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Override
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> UdpStats getUDPv4Stats() {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         BsdUdpstat stat = udpstat.get();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <em class="jxr_comment">// The kernel counts a datagram with no socket on its port in udps_noport, except for an IPv4 broadcast or</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <em class="jxr_comment">// multicast one, which it counts only in udps_noportbcast. Both lines are what netstat prints as "dropped due</em>
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <em class="jxr_comment">// to no socket" and "broadcast/multicast datagrams undelivered". udps_noportmcast, a subset of udps_noport</em>
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <em class="jxr_comment">// holding the IPv6 multicast ones, is deliberately not added, as that would count them twice.</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(ParseUtil.unsignedIntToLong(stat.udps_opackets),
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 ParseUtil.unsignedIntToLong(stat.udps_ipackets),
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>                 ParseUtil.unsignedIntToLong(stat.udps_noport) + ParseUtil.unsignedIntToLong(stat.udps_noportbcast),
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>                 ParseUtil.unsignedIntToLong(stat.udps_hdrops + stat.udps_badsum + stat.udps_badlen));
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_comment">     * There are multiple versions of some tcp/udp/ip stats structures in macOS. Since we only need a few of the</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_comment">     * hundreds of fields, we can improve performance by selectively reading the ints from the appropriate offsets,</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_comment">     * which are consistent across the structure. The carriers below hold those selected fields; the subclasses read</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_comment">     * them from the sysctl buffer (JNA Memory or FFM MemorySegment).</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_comment">     */</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> 
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code tcpstat} structure. */</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdTcpstat {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_connattempt;
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_accepts;
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_drops;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_conndrops;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_sndpack;
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_sndrexmitpack;
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvpack;
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadsum;
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvbadoff;
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvmemdrop;
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> tcps_rcvshort;
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">         * Creates a {@code tcpstat} carrier.</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">         * @param connattempt   connection attempts</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">         * @param accepts       accepted connections</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">         * @param drops         dropped connections</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a> <em class="jxr_javadoccomment">         * @param conndrops     connections dropped during establishment</em>
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> <em class="jxr_javadoccomment">         * @param sndpack       packets sent</em>
+<a class="jxr_linenumber" name="L158" href="#L158">158</a> <em class="jxr_javadoccomment">         * @param sndrexmitpack packets retransmitted</em>
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> <em class="jxr_javadoccomment">         * @param rcvpack       packets received</em>
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> <em class="jxr_javadoccomment">         * @param rcvbadsum     packets received with bad checksum</em>
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> <em class="jxr_javadoccomment">         * @param rcvbadoff     packets received with bad offset</em>
+<a class="jxr_linenumber" name="L162" href="#L162">162</a> <em class="jxr_javadoccomment">         * @param rcvmemdrop    packets dropped for lack of memory</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a> <em class="jxr_javadoccomment">         * @param rcvshort      packets received too short</em>
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <strong class="jxr_keyword">public</strong> BsdTcpstat(<strong class="jxr_keyword">int</strong> connattempt, <strong class="jxr_keyword">int</strong> accepts, <strong class="jxr_keyword">int</strong> drops, <strong class="jxr_keyword">int</strong> conndrops, <strong class="jxr_keyword">int</strong> sndpack, <strong class="jxr_keyword">int</strong> sndrexmitpack,
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>                 <strong class="jxr_keyword">int</strong> rcvpack, <strong class="jxr_keyword">int</strong> rcvbadsum, <strong class="jxr_keyword">int</strong> rcvbadoff, <strong class="jxr_keyword">int</strong> rcvmemdrop, <strong class="jxr_keyword">int</strong> rcvshort) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>             <strong class="jxr_keyword">this</strong>.tcps_connattempt = connattempt;
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">this</strong>.tcps_accepts = accepts;
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>             <strong class="jxr_keyword">this</strong>.tcps_drops = drops;
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <strong class="jxr_keyword">this</strong>.tcps_conndrops = conndrops;
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>             <strong class="jxr_keyword">this</strong>.tcps_sndpack = sndpack;
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>             <strong class="jxr_keyword">this</strong>.tcps_sndrexmitpack = sndrexmitpack;
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvpack = rcvpack;
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvbadsum = rcvbadsum;
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvbadoff = rcvbadoff;
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvmemdrop = rcvmemdrop;
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             <strong class="jxr_keyword">this</strong>.tcps_rcvshort = rcvshort;
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         }
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
+<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code udpstat} structure. */</em>
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdUdpstat {
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_ipackets;
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_hdrops;
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_badsum;
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_badlen;
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_noport;
+<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_noportbcast;
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_opackets;
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_rcv6_swcsum;
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> udps_snd6_swcsum;
+<a class="jxr_linenumber" name="L192" href="#L192">192</a> 
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a> <em class="jxr_javadoccomment">         * Creates a {@code udpstat} carrier.</em>
+<a class="jxr_linenumber" name="L195" href="#L195">195</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L196" href="#L196">196</a> <em class="jxr_javadoccomment">         * @param ipackets    datagrams received</em>
+<a class="jxr_linenumber" name="L197" href="#L197">197</a> <em class="jxr_javadoccomment">         * @param hdrops      datagrams dropped for bad header</em>
+<a class="jxr_linenumber" name="L198" href="#L198">198</a> <em class="jxr_javadoccomment">         * @param badsum      datagrams dropped for bad checksum</em>
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> <em class="jxr_javadoccomment">         * @param badlen      datagrams dropped for bad length</em>
+<a class="jxr_linenumber" name="L200" href="#L200">200</a> <em class="jxr_javadoccomment">         * @param noport      unicast datagrams with no socket on the port</em>
+<a class="jxr_linenumber" name="L201" href="#L201">201</a> <em class="jxr_javadoccomment">         * @param noportbcast broadcast and multicast datagrams with no socket on the port</em>
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> <em class="jxr_javadoccomment">         * @param opackets    datagrams sent</em>
+<a class="jxr_linenumber" name="L203" href="#L203">203</a> <em class="jxr_javadoccomment">         * @param rcv6Swcsum  IPv6 datagrams received with software checksum</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a> <em class="jxr_javadoccomment">         * @param snd6Swcsum  IPv6 datagrams sent with software checksum</em>
+<a class="jxr_linenumber" name="L205" href="#L205">205</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">public</strong> BsdUdpstat(<strong class="jxr_keyword">int</strong> ipackets, <strong class="jxr_keyword">int</strong> hdrops, <strong class="jxr_keyword">int</strong> badsum, <strong class="jxr_keyword">int</strong> badlen, <strong class="jxr_keyword">int</strong> noport, <strong class="jxr_keyword">int</strong> noportbcast, <strong class="jxr_keyword">int</strong> opackets,
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>                 <strong class="jxr_keyword">int</strong> rcv6Swcsum, <strong class="jxr_keyword">int</strong> snd6Swcsum) {
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>             <strong class="jxr_keyword">this</strong>.udps_ipackets = ipackets;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>             <strong class="jxr_keyword">this</strong>.udps_hdrops = hdrops;
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>             <strong class="jxr_keyword">this</strong>.udps_badsum = badsum;
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>             <strong class="jxr_keyword">this</strong>.udps_badlen = badlen;
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">this</strong>.udps_noport = noport;
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <strong class="jxr_keyword">this</strong>.udps_noportbcast = noportbcast;
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">this</strong>.udps_opackets = opackets;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">this</strong>.udps_rcv6_swcsum = rcv6Swcsum;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">this</strong>.udps_snd6_swcsum = snd6Swcsum;
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         }
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>     }
+<a class="jxr_linenumber" name="L219" href="#L219">219</a> 
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code ipstat} structure. */</em>
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdIpstat {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_total;
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_badsum;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_tooshort;
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_toosmall;
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_badhlen;
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_badlen;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> ips_localout;
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L231" href="#L231">231</a> <em class="jxr_javadoccomment">         * Creates an {@code ipstat} carrier.</em>
+<a class="jxr_linenumber" name="L232" href="#L232">232</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> <em class="jxr_javadoccomment">         * @param total    total packets received</em>
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> <em class="jxr_javadoccomment">         * @param badsum   packets with bad checksum</em>
+<a class="jxr_linenumber" name="L235" href="#L235">235</a> <em class="jxr_javadoccomment">         * @param tooshort packets too short</em>
+<a class="jxr_linenumber" name="L236" href="#L236">236</a> <em class="jxr_javadoccomment">         * @param toosmall packets with not enough data</em>
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> <em class="jxr_javadoccomment">         * @param badhlen  packets with bad header length</em>
+<a class="jxr_linenumber" name="L238" href="#L238">238</a> <em class="jxr_javadoccomment">         * @param badlen   packets with bad length</em>
+<a class="jxr_linenumber" name="L239" href="#L239">239</a> <em class="jxr_javadoccomment">         * @param localout IP packets sent from this host</em>
+<a class="jxr_linenumber" name="L240" href="#L240">240</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         <strong class="jxr_keyword">public</strong> BsdIpstat(<strong class="jxr_keyword">int</strong> total, <strong class="jxr_keyword">int</strong> badsum, <strong class="jxr_keyword">int</strong> tooshort, <strong class="jxr_keyword">int</strong> toosmall, <strong class="jxr_keyword">int</strong> badhlen, <strong class="jxr_keyword">int</strong> badlen, <strong class="jxr_keyword">int</strong> localout) {
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>             <strong class="jxr_keyword">this</strong>.ips_total = total;
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             <strong class="jxr_keyword">this</strong>.ips_badsum = badsum;
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>             <strong class="jxr_keyword">this</strong>.ips_tooshort = tooshort;
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>             <strong class="jxr_keyword">this</strong>.ips_toosmall = toosmall;
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>             <strong class="jxr_keyword">this</strong>.ips_badhlen = badhlen;
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>             <strong class="jxr_keyword">this</strong>.ips_badlen = badlen;
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>             <strong class="jxr_keyword">this</strong>.ips_localout = localout;
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>         }
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>     }
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> 
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>     <em class="jxr_javadoccomment">/** Selected fields of the macOS {@code ip6stat} structure. */</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> BsdIp6stat {
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> ip6s_total;
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> ip6s_localout;
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">         * Creates an {@code ip6stat} carrier.</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> <em class="jxr_javadoccomment">         *</em>
+<a class="jxr_linenumber" name="L260" href="#L260">260</a> <em class="jxr_javadoccomment">         * @param total    total IPv6 packets received</em>
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> <em class="jxr_javadoccomment">         * @param localout IPv6 packets sent from this host</em>
+<a class="jxr_linenumber" name="L262" href="#L262">262</a> <em class="jxr_javadoccomment">         */</em>
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         <strong class="jxr_keyword">public</strong> BsdIp6stat(<strong class="jxr_keyword">long</strong> total, <strong class="jxr_keyword">long</strong> localout) {
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>             <strong class="jxr_keyword">this</strong>.ip6s_total = total;
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>             <strong class="jxr_keyword">this</strong>.ip6s_localout = localout;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         }
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>     }
+<a class="jxr_linenumber" name="L268" href="#L268">268</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

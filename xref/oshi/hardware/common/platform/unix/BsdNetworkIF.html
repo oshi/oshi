@@ -13,61 +13,151 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common.platform.unix;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.net.NetworkInterface;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractNetworkIF;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * BsdNetworkIF applicable to FreeBSD and OpenBSD.</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="BsdNetworkIF" href="../../../../../oshi/hardware/common/platform/unix/BsdNetworkIF.html#BsdNetworkIF">BsdNetworkIF</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworkIF" href="../../../../../oshi/hardware/common/AbstractNetworkIF.html#AbstractNetworkIF">AbstractNetworkIF</a> {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * Constructs a new {@code BsdNetworkIF}.</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <em class="jxr_javadoccomment">     * @param netint the underlying network interface</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * @throws InstantiationException if the instance could not be constructed</em>
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">public</strong> <a name="BsdNetworkIF" href="../../../../../oshi/hardware/common/platform/unix/BsdNetworkIF.html#BsdNetworkIF">BsdNetworkIF</a>(NetworkInterface netint) <strong class="jxr_keyword">throws</strong> InstantiationException {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">super</strong>(netint);
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          updateAttributes();
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * Gets all network interfaces on this machine</em>
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @param includeLocalInterfaces include local interfaces in the result</em>
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     * @return A list of {@link NetworkIF} objects representing the interfaces</em>
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;NetworkIF&gt; getNetworks(<strong class="jxr_keyword">boolean</strong> includeLocalInterfaces) {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">return</strong> getNetworks(includeLocalInterfaces, BsdNetworkIF::<strong class="jxr_keyword">new</strong>);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>      }
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>      @Override
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          String stats = ExecutingCommand.getAnswerAt(<span class="jxr_string">"netstat -bI "</span> + getName(), 1);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">this</strong>.timeStamp = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          String[] split = ParseUtil.whitespaces.split(stats, -1);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          <strong class="jxr_keyword">if</strong> (split.length &lt; 12) {
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>              <em class="jxr_comment">// No update</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>              <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          }
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">this</strong>.bytesSent = ParseUtil.parseUnsignedLongOrDefault(split[10], 0L);
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">this</strong>.bytesRecv = ParseUtil.parseUnsignedLongOrDefault(split[7], 0L);
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <strong class="jxr_keyword">this</strong>.packetsSent = ParseUtil.parseUnsignedLongOrDefault(split[8], 0L);
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">this</strong>.packetsRecv = ParseUtil.parseUnsignedLongOrDefault(split[4], 0L);
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">this</strong>.outErrors = ParseUtil.parseUnsignedLongOrDefault(split[9], 0L);
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>          <strong class="jxr_keyword">this</strong>.inErrors = ParseUtil.parseUnsignedLongOrDefault(split[5], 0L);
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">this</strong>.collisions = ParseUtil.parseUnsignedLongOrDefault(split[11], 0L);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <strong class="jxr_keyword">this</strong>.inDrops = ParseUtil.parseUnsignedLongOrDefault(split[6], 0L);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      }
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  }
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.Arrays;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.HashMap;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Matcher;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.regex.Pattern;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.NetworkIF;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.AbstractNetworkIF;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.ExecutingCommand;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * BsdNetworkIF applicable to FreeBSD, DragonFly BSD, NetBSD and OpenBSD.</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="BsdNetworkIF" href="../../../../../oshi/hardware/common/platform/unix/BsdNetworkIF.html#BsdNetworkIF">BsdNetworkIF</a> <strong class="jxr_keyword">extends</strong> <a name="AbstractNetworkIF" href="../../../../../oshi/hardware/common/AbstractNetworkIF.html#AbstractNetworkIF">AbstractNetworkIF</a> {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <em class="jxr_comment">// The rate of an Ethernet media type (1000baseT, 10Gbase-T, 2500Base-T) or a wireless one (OFDM/54Mbps)</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern MEDIA_SPEED = Pattern.compile(<span class="jxr_string">"(&#92;&#92;d++(?:&#92;&#92;.&#92;&#92;d++)?+)([GM]?+)(?:base|bps)"</span>,
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>              Pattern.CASE_INSENSITIVE);
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>  
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     * Constructs a new {@code BsdNetworkIF}.</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param netint the underlying network interface</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @throws InstantiationException if the instance could not be constructed</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">public</strong> <a name="BsdNetworkIF" href="../../../../../oshi/hardware/common/platform/unix/BsdNetworkIF.html#BsdNetworkIF">BsdNetworkIF</a>(NetworkInterface netint) <strong class="jxr_keyword">throws</strong> InstantiationException {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          <strong class="jxr_keyword">super</strong>(netint);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          updateAttributes();
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      }
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * Gets all network interfaces on this machine</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  <em class="jxr_javadoccomment">     * @param includeLocalInterfaces include local interfaces in the result</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * @return A list of {@link NetworkIF} objects representing the interfaces</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;NetworkIF&gt; getNetworks(<strong class="jxr_keyword">boolean</strong> includeLocalInterfaces) {
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          <strong class="jxr_keyword">return</strong> getNetworks(includeLocalInterfaces, BsdNetworkIF::<strong class="jxr_keyword">new</strong>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Override
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          Map&lt;String, Long&gt; stats = parseNetstat(ExecutingCommand.runNative(<span class="jxr_string">"netstat -bnI "</span> + getName()));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">this</strong>.timeStamp = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">if</strong> (!stats.containsKey(<span class="jxr_string">"Ibytes"</span>)) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <em class="jxr_comment">// No update</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          }
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">if</strong> (!stats.containsKey(<span class="jxr_string">"Ipkts"</span>)) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              <em class="jxr_comment">// OpenBSD's and NetBSD's -b prints only the byte counts</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              stats.putAll(parseNetstat(ExecutingCommand.runNative(<span class="jxr_string">"netstat -nI "</span> + getName())));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.bytesRecv = stats.getOrDefault(<span class="jxr_string">"Ibytes"</span>, 0L);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.bytesSent = stats.getOrDefault(<span class="jxr_string">"Obytes"</span>, 0L);
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.packetsRecv = stats.getOrDefault(<span class="jxr_string">"Ipkts"</span>, 0L);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">this</strong>.packetsSent = stats.getOrDefault(<span class="jxr_string">"Opkts"</span>, 0L);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <em class="jxr_comment">// OpenBSD names the error columns differently, and OpenBSD and NetBSD the collision column</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>.inErrors = stats.getOrDefault(<span class="jxr_string">"Ierrs"</span>, stats.getOrDefault(<span class="jxr_string">"Ifail"</span>, 0L));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>.outErrors = stats.getOrDefault(<span class="jxr_string">"Oerrs"</span>, stats.getOrDefault(<span class="jxr_string">"Ofail"</span>, 0L));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">this</strong>.collisions = stats.getOrDefault(<span class="jxr_string">"Coll"</span>, stats.getOrDefault(<span class="jxr_string">"Colls"</span>, 0L));
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.inDrops = stats.getOrDefault(<span class="jxr_string">"Idrop"</span>, 0L);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">this</strong>.speed = parseMediaSpeed(ExecutingCommand.runNative(<span class="jxr_string">"/sbin/ifconfig "</span> + getName()));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * Parses the link speed from the {@code media:} line of {@code ifconfig &lt;interface&gt;}. Package-private for testing.</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * The active media type is in parentheses when the interface autoselects, as in</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * {@code media: Ethernet autoselect (10Gbase-T &lt;full-duplex&gt;)} on FreeBSD or</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     * {@code media: Ethernet autoselect (1000baseT full-duplex,rxpause,txpause)} on OpenBSD; otherwise the line names</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * the fixed media type itself. An Ethernet type gives its rate before {@code base}, in megabits unless marked</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * {@code G}, and a wireless one in {@code Mbps}. An interface with no link shows {@code (none)} or no parentheses,</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     * and one without media, such as a virtio interface on NetBSD, no line at all. A fixed media type names its rate</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * whether or not anything is connected, so a {@code status:} of {@code no carrier}, or {@code no network} for a</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     * wireless interface, reports 0 as well.</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     * @param ifconfig the lines emitted by {@code ifconfig &lt;interface&gt;}</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * @return the link speed in bits per second, or 0 if none is shown</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseMediaSpeed(List&lt;String&gt; ifconfig) {
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">long</strong> speed = 0L;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">for</strong> (String line : ifconfig) {
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>              String trimmed = line.trim();
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>              <strong class="jxr_keyword">if</strong> (trimmed.startsWith(<span class="jxr_string">"status: no "</span>)) {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <em class="jxr_comment">// "no carrier" or "no network": fixed media still names a rate with nothing plugged in</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                  <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>              }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">if</strong> (speed == 0L &amp;&amp; trimmed.startsWith(<span class="jxr_string">"media:"</span>)) {
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 speed = parseMediaRate(trimmed);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>             }
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         <strong class="jxr_keyword">return</strong> speed;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> 
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseMediaRate(String mediaLine) {
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         String media = mediaLine;
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <strong class="jxr_keyword">int</strong> open = media.indexOf('(');
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">int</strong> close = media.lastIndexOf(')');
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">if</strong> (open &gt;= 0 &amp;&amp; close &gt; open) {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             media = media.substring(open + 1, close);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         }
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         Matcher m = MEDIA_SPEED.matcher(media);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">if</strong> (m.find()) {
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">double</strong> rate = ParseUtil.parseDoubleOrDefault(m.group(1), 0d);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             <strong class="jxr_keyword">return</strong> (<strong class="jxr_keyword">long</strong>) (rate * (<span class="jxr_string">"G"</span>.equalsIgnoreCase(m.group(2)) ? 1_000_000_000L : 1_000_000L));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         }
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">return</strong> 0L;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     * Parses the link-level row of {@code netstat -I &lt;interface&gt;} into its counters, keyed by column heading.</em>
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> <em class="jxr_javadoccomment">     * The counters follow the Name, Mtu, Network and Address columns, but which ones appear varies: FreeBSD prints an</em>
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * Idrop column that DragonFly BSD does not, and OpenBSD and NetBSD print only the byte counts with {@code -b}. The</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     * values are matched to the headings from the end of the row, because the Address column is empty on some loopback</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * rows.</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @param netstat the lines emitted by {@code netstat -I &lt;interface&gt;}, with or without {@code -b}</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * @return a map of column headings to counter values, empty if the output has no link-level row</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>     <strong class="jxr_keyword">static</strong> Map&lt;String, Long&gt; parseNetstat(List&lt;String&gt; netstat) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         Map&lt;String, Long&gt; stats = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">if</strong> (netstat.size() &lt; 2) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>             <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>         }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         String[] header = ParseUtil.whitespaces.split(netstat.get(0).trim(), -1);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         String[] row = ParseUtil.whitespaces.split(netstat.get(1).trim(), -1);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">int</strong> firstCounter = Arrays.asList(header).indexOf(<span class="jxr_string">"Address"</span>) + 1;
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">int</strong> counters = header.length - firstCounter;
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <em class="jxr_comment">// The row needs at least the name and every counter</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         <strong class="jxr_keyword">if</strong> (firstCounter == 0 || row.length &lt;= counters) {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>             <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         }
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; counters; i++) {
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             stats.put(header[firstCounter + i],
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                     ParseUtil.parseUnsignedLongOrDefault(row[row.length - counters + i], 0L));
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

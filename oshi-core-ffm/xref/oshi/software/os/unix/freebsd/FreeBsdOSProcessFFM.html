@@ -133,19 +133,48 @@
 <a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
 <a class="jxr_linenumber" name="L126" href="#L126">126</a> 
 <a class="jxr_linenumber" name="L127" href="#L127">127</a>     @Override
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> queryBitness() {
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">return</strong> callInArenaOrDefault(arena -&gt; {
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_SV_NAME, getProcessID());
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>             MemorySegment buf = arena.allocate(32L);
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>             MemorySegment size = arena.allocateFrom(SIZE_T, 32L);
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>             <strong class="jxr_keyword">if</strong> (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L)) {
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>             }
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>             <strong class="jxr_keyword">return</strong> elfBitness(buf.getString(0));
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         }, LOG, WARN, <span class="jxr_string">"queryBitness failed"</span>, 0);
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     }
-<a class="jxr_linenumber" name="L140" href="#L140">140</a> }
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> queryOtherRlimitNofile(<strong class="jxr_keyword">boolean</strong> soft) {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">return</strong> callInArenaLongOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_RLIMIT, getProcessID(),
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                     RLIMIT_NOFILE_RESOURCE);
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             MemorySegment rlim = arena.allocate(RLIMIT_LAYOUT);
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             MemorySegment size = arena.allocateFrom(SIZE_T, RLIMIT_LAYOUT.byteSize());
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             <strong class="jxr_keyword">if</strong> (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 5, rlim, size, MemorySegment.NULL, 0L)) {
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 <strong class="jxr_keyword">return</strong> -1L;
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>             }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>             <strong class="jxr_keyword">return</strong> soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         }, LOG, WARN, <span class="jxr_string">"Failed sysctl call for process open file limit (kern.proc.rlimit)"</span>, -1L);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>     @Override
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">int</strong> queryBitness() {
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         <strong class="jxr_keyword">return</strong> callInArenaOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_SV_NAME, getProcessID());
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>             MemorySegment buf = arena.allocate(32L);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>             MemorySegment size = arena.allocateFrom(SIZE_T, 32L);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>             <strong class="jxr_keyword">if</strong> (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L)) {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>             }
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>             <strong class="jxr_keyword">return</strong> elfBitness(buf.getString(0));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         }, LOG, WARN, <span class="jxr_string">"queryBitness failed"</span>, 0);
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> 
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     @Override
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>     <strong class="jxr_keyword">protected</strong> String queryExecutablePath() {
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">return</strong> callInArenaOrDefault(arena -&gt; {
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, getProcessID());
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             MemorySegment buf = arena.allocate(PATH_MAX);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>             MemorySegment size = arena.allocateFrom(SIZE_T, PATH_MAX);
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>             MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>             <strong class="jxr_keyword">if</strong> (0 != FreeBsdLibcFunctions.sysctl(callState, mib, 4, buf, size, MemorySegment.NULL, 0L)) {
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>                 <strong class="jxr_keyword">return</strong> <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>             }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>             <strong class="jxr_keyword">return</strong> buf.getString(0);
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         }, LOG, WARN, <span class="jxr_string">"Failed sysctl call for process path (kern.proc.pathname)"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>     }
+<a class="jxr_linenumber" name="L169" href="#L169">169</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

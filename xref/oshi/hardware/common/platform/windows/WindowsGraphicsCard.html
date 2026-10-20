@@ -196,7 +196,7 @@
 <a class="jxr_linenumber" name="L188" href="#L188">188</a>                 dxgiIndex = dxgiAdapters.indexOf(dxgiMatch);
 <a class="jxr_linenumber" name="L189" href="#L189">189</a>                 luidPrefix = luidPrefixBuilder.apply(dxgiMatch);
 <a class="jxr_linenumber" name="L190" href="#L190">190</a>             }
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>             String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(Util.isBlank(name) ? <span class="jxr_string">""</span> : name), <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>             String lhmParent = lhmParentMap.getOrDefault(DxgiUtil.normalizeName(name), <span class="jxr_string">""</span>);
 <a class="jxr_linenumber" name="L192" href="#L192">192</a> 
 <a class="jxr_linenumber" name="L193" href="#L193">193</a>             <em class="jxr_comment">// pciBusNumber and pciBusId are not available via WMI; ADL and NVML correlation are skipped for cards</em>
 <a class="jxr_linenumber" name="L194" href="#L194">194</a>             <em class="jxr_comment">// enumerated through this path.</em>

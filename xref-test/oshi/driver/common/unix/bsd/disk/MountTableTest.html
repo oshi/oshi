@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>MountTableTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../testapidocs/oshi/driver/common/unix/bsd/disk/MountTableTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.driver.common.unix.bsd.disk;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.aMapWithSize;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.anEmptyMap;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.hasSize;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Pair;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">class</strong> <a name="MountTableTest" href="../../../../../../oshi/driver/common/unix/bsd/disk/MountTableTest.html#MountTableTest">MountTableTest</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertEntry(MountTable.Entry e, String volume, String uuid, String path, String type,
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>              String options) {
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(e.getVolume(), is(volume));
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(e.getUuid(), is(uuid));
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          assertThat(e.getPath(), is(path));
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(e.getType(), is(type));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(e.getOptions(), is(options));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      @Test
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">void</strong> testParseFreeBsdLibxo() {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          <em class="jxr_comment">// mount -p --libxo json on FreeBSD 16.0-CURRENT (cfarm430), trimmed, with an invented mount point holding</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          <em class="jxr_comment">// spaces long enough that mount -p would separate it from the type with a single space, and an escaped quote</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          List&lt;String&gt; json = List.of(<span class="jxr_string">"{\&quot;mount\&quot;: {\&quot;fstab\&quot;: [{\&quot;device\&quot;:\&quot;/dev/da0p2\&quot;,\&quot;mntpoint\&quot;:\&quot;/\&quot;,"</span>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>                  + <span class="jxr_string">"\&quot;fstype\&quot;:\&quot;ufs\&quot;,\&quot;opts\&quot;:\&quot;rw,noatime\&quot;,\&quot;dump\&quot;:1,\&quot;pass\&quot;:1}, "</span>
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>                  + <span class="jxr_string">"{\&quot;device\&quot;:\&quot;tmpfs\&quot;,\&quot;mntpoint\&quot;:\&quot;/tmp\&quot;,\&quot;fstype\&quot;:\&quot;tmpfs\&quot;,\&quot;opts\&quot;:\&quot;rw\&quot;,\&quot;dump\&quot;:0,"</span>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>                  + <span class="jxr_string">"\&quot;pass\&quot;:0}, {\&quot;device\&quot;:\&quot;/dev/da1p1\&quot;,\&quot;mntpoint\&quot;:\&quot;/mnt/My External &#92;&#92;\&quot;Backup&#92;&#92;\&quot; Drive\&quot;,"</span>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                  + <span class="jxr_string">"\&quot;fstype\&quot;:\&quot;ufs\&quot;,\&quot;opts\&quot;:\&quot;rw\&quot;,\&quot;dump\&quot;:2,\&quot;pass\&quot;:2}]}}"</span>);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          List&lt;MountTable.Entry&gt; entries = MountTable.parseFreeBsdLibxo(json);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(entries, hasSize(3));
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertEntry(entries.get(0), <span class="jxr_string">"/dev/da0p2"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw,noatime"</span>);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertEntry(entries.get(1), <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/tmp"</span>, <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertEntry(entries.get(2), <span class="jxr_string">"/dev/da1p1"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/My External \&quot;Backup\&quot; Drive"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      @Test
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">void</strong> testParseFreeBsdLibxoEscapes() {
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <em class="jxr_comment">// Each JSON escape a path may carry: a backslash, a tab, a slash and a unicode escape, and one ending the value</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          String path = <span class="jxr_string">"/mnt/a&#92;&#92;&#92;&#92;b&#92;&#92;tc&#92;&#92;/d&#92;&#92;u00e9&#92;&#92;u0041"</span>;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          List&lt;String&gt; json = List.of(<span class="jxr_string">"{\&quot;mount\&quot;: {\&quot;fstab\&quot;: [{\&quot;device\&quot;:\&quot;/dev/da1p1\&quot;,\&quot;mntpoint\&quot;:\&quot;"</span> + path
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>                  + <span class="jxr_string">"\&quot;,\&quot;fstype\&quot;:\&quot;ufs\&quot;,\&quot;opts\&quot;:\&quot;rw\&quot;,\&quot;dump\&quot;:2,\&quot;pass\&quot;:2}]}}"</span>);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          List&lt;MountTable.Entry&gt; entries = MountTable.parseFreeBsdLibxo(json);
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(entries, hasSize(1));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertEntry(entries.get(0), <span class="jxr_string">"/dev/da1p1"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/a&#92;&#92;b\tc/déA"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Test
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">void</strong> testParseFreeBsdLibxoUnsupported() {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// DragonFly's mount has no libxo, and prints usage instead</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(MountTable.parseFreeBsdLibxo(List.of(<span class="jxr_string">"mount: illegal option -- -"</span>,
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <span class="jxr_string">"usage: mount [-adfpruvw] [-F fstab] [-o options] [-t ufs | external_type]"</span>)), is(empty()));
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(MountTable.parseFreeBsdLibxo(Collections.emptyList()), is(empty()));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      @Test
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>      <strong class="jxr_keyword">void</strong> testParseFstab() {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <em class="jxr_comment">// mount -p on DragonFly 6.4.2 in CI, as root, with a mount point holding spaces: one tab between fields, and</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// a space between the type and the options</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          List&lt;MountTable.Entry&gt; dragonfly = MountTable.parseFstab(List.of(<span class="jxr_string">"serno/QM00001.s1d\t/\thammer2 rw\t1 1"</span>,
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  <span class="jxr_string">"tmpfs\t/mnt/plain\ttmpfs rw\t0 0"</span>, <span class="jxr_string">"tmpfs\t/mnt/My External Backup Drive\ttmpfs rw\t0 0"</span>));
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertThat(dragonfly, hasSize(3));
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertEntry(dragonfly.get(0), <span class="jxr_string">"serno/QM00001.s1d"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/"</span>, <span class="jxr_string">"hammer2"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertEntry(dragonfly.get(2), <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/My External Backup Drive"</span>, <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <em class="jxr_comment">// FreeBSD pads with tabs, the type and options apart</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          List&lt;MountTable.Entry&gt; freebsd = MountTable.parseFstab(
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                  List.of(<span class="jxr_string">"/dev/da0p2\t\t/\t\t\tufs\trw,noatime \t1 1"</span>, <span class="jxr_string">"devfs\t\t\t/dev\t\t\tdevfs\trw\t\t0 0"</span>));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(freebsd, hasSize(2));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertEntry(freebsd.get(0), <span class="jxr_string">"/dev/da0p2"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw,noatime"</span>);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertEntry(freebsd.get(1), <span class="jxr_string">"devfs"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/dev"</span>, <span class="jxr_string">"devfs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <em class="jxr_comment">// FreeBSD 15.1 in CI, as root: a mount point of 24 characters or more is followed by a single space</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          List&lt;MountTable.Entry&gt; longPath = MountTable
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  .parseFstab(List.of(<span class="jxr_string">"/dev/md0\t\t/mnt/My External Backup Drive ufs\trw\t\t2 2"</span>));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertThat(longPath, hasSize(1));
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          assertEntry(longPath.get(0), <span class="jxr_string">"/dev/md0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/My External Backup Drive"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// The same, with options long enough that FreeBSD follows them with a space before the dump field</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          List&lt;MountTable.Entry&gt; longOpts = MountTable
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  .parseFstab(List.of(<span class="jxr_string">"/dev/md0\t\t/mnt/My External Backup Drive ufs\trw,noatime \t2 2"</span>));
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertEntry(longOpts.get(0), <span class="jxr_string">"/dev/md0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/My External Backup Drive"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw,noatime"</span>);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <em class="jxr_comment">// No tabs at all falls back to whitespace</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          List&lt;MountTable.Entry&gt; spaced = MountTable.parseFstab(List.of(<span class="jxr_string">"/dev/md0 /mnt/a ufs rw 2 2"</span>));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertEntry(spaced.get(0), <span class="jxr_string">"/dev/md0"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/a"</span>, <span class="jxr_string">"ufs"</span>, <span class="jxr_string">"rw"</span>);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>      @Test
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">void</strong> testParseNetBsd() {
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <em class="jxr_comment">// mount on NetBSD 10.1 (cfarm428), with an invented mount point holding spaces</em>
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         List&lt;String&gt; lines = List.of(<span class="jxr_string">"/dev/dk1 on / type ffs (noatime, local)"</span>, <span class="jxr_string">"tmpfs on /tmp type tmpfs (local)"</span>,
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 <span class="jxr_string">"tmpfs on /var/shm type tmpfs (local)"</span>, <span class="jxr_string">"/dev/dk2 on /home/my files type ffs (noatime, local)"</span>);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         List&lt;MountTable.Entry&gt; entries = MountTable.parseNetBsd(lines);
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(entries, hasSize(4));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertEntry(entries.get(0), <span class="jxr_string">"/dev/dk1"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/"</span>, <span class="jxr_string">"ffs"</span>, <span class="jxr_string">"(noatime, local)"</span>);
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertEntry(entries.get(2), <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/var/shm"</span>, <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">"(local)"</span>);
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertEntry(entries.get(3), <span class="jxr_string">"/dev/dk2"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/home/my files"</span>, <span class="jxr_string">"ffs"</span>, <span class="jxr_string">"(noatime, local)"</span>);
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     }
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> 
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     @Test
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     <strong class="jxr_keyword">void</strong> testParseOpenBsdVerbose() {
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// mount -v on OpenBSD 7.9 (cfarm220), then two file systems with no disk and so no DUID, which a split on</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// whitespace read with "on" as the identifier and "type" as the path</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         List&lt;String&gt; lines = List.of(
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                 <span class="jxr_string">"/dev/sd0a (ed2d8ecd4d5492ee.a) on / type ffs (rw, local, ctime=Wed Oct  7 22:17:15 2026)"</span>,
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 <span class="jxr_string">"/dev/sd0k (ed2d8ecd4d5492ee.k) on /home/my files type ffs (rw, local, nodev, nosuid)"</span>,
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <span class="jxr_string">"tmpfs on /tmp type tmpfs (rw, local, nodev, nosuid)"</span>,
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 <span class="jxr_string">"server:/export on /mnt/nfs type nfs (rw, v3, udp, timeo=100, retrans=101)"</span>);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         List&lt;MountTable.Entry&gt; entries = MountTable.parseOpenBsdVerbose(lines);
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertThat(entries, hasSize(4));
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertEntry(entries.get(0), <span class="jxr_string">"/dev/sd0a"</span>, <span class="jxr_string">"ed2d8ecd4d5492ee.a"</span>, <span class="jxr_string">"/"</span>, <span class="jxr_string">"ffs"</span>,
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 <span class="jxr_string">"(rw, local, ctime=Wed Oct  7 22:17:15 2026)"</span>);
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertEntry(entries.get(1), <span class="jxr_string">"/dev/sd0k"</span>, <span class="jxr_string">"ed2d8ecd4d5492ee.k"</span>, <span class="jxr_string">"/home/my files"</span>, <span class="jxr_string">"ffs"</span>,
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 <span class="jxr_string">"(rw, local, nodev, nosuid)"</span>);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         assertEntry(entries.get(2), <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/tmp"</span>, <span class="jxr_string">"tmpfs"</span>, <span class="jxr_string">"(rw, local, nodev, nosuid)"</span>);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertEntry(entries.get(3), <span class="jxr_string">"server:/export"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"/mnt/nfs"</span>, <span class="jxr_string">"nfs"</span>, <span class="jxr_string">"(rw, v3, udp, timeo=100, retrans=101)"</span>);
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     }
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> 
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     @Test
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <strong class="jxr_keyword">void</strong> testParseDfInodes() {
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         <em class="jxr_comment">// df -i from FreeBSD 16.0-CURRENT, NetBSD 10.1 and OpenBSD 7.9, header lines included. FreeBSD prints - for</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <em class="jxr_comment">// the percentage of a file system without inodes. NetBSD mounts tmpfs twice, which a key by volume collapsed</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         List&lt;String&gt; lines = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 Filesystem  1K-blocks      Used     Avail Capacity iused     ifree %iused  Mounted on
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 /dev/da0p2   80987124  57459148  17049008    77%  958125   9538641    9%   /
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                 devfs               1         0         1     0%       0         0     -   /dev
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 Filesystem     512-blocks         Used        Avail %Cap      iUsed     iAvail %iCap Mounted on
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 tmpfs             8375792        37504      8338288   0%        481    4187421    0% /tmp
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>                 tmpfs             8375792            0      8375792   0%          1    4187901    0% /<strong class="jxr_keyword">var</strong>/shm
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 Filesystem  512-blocks      Used     Avail Capacity  iused    ifree %iused  Mounted on
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 /dev/sd0k    619226672 377471440 210793904    65%  4246584 15494086   22%   /home
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>                 /dev/sd0h     40614428  14885588 -23698120   100%   154725  2489113    6%   /usr/local stuff
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         Pair&lt;Map&lt;String, Long&gt;, Map&lt;String, Long&gt;&gt; inodes = MountTable.parseDfInodes(lines);
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         Map&lt;String, Long&gt; free = inodes.getA();
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         Map&lt;String, Long&gt; total = inodes.getB();
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(free, is(aMapWithSize(6)));
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         assertThat(free.get(<span class="jxr_string">"/"</span>), is(9538641L));
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>         assertThat(total.get(<span class="jxr_string">"/"</span>), is(958125L + 9538641L));
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(total.get(<span class="jxr_string">"/dev"</span>), is(0L));
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         assertThat(free.get(<span class="jxr_string">"/tmp"</span>), is(4187421L));
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(free.get(<span class="jxr_string">"/var/shm"</span>), is(4187901L));
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertThat(total.get(<span class="jxr_string">"/home"</span>), is(4246584L + 15494086L));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <em class="jxr_comment">// Negative avail, a full file system, and a mount point holding a space</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         assertThat(free.get(<span class="jxr_string">"/usr/local stuff"</span>), is(2489113L));
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         assertThat(MountTable.parseDfInodes(Collections.emptyList()).getA(), is(anEmptyMap()));
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
+<a class="jxr_linenumber" name="L157" href="#L157">157</a> }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

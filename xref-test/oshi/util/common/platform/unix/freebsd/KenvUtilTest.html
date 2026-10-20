@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>KenvUtilTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../../../../testapidocs/oshi/util/common/platform/unix/freebsd/KenvUtilTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.common.platform.unix.freebsd;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.anEmptyMap;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.containsString;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.hasEntry;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.not;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="KenvUtilTest" href="../../../../../../oshi/util/common/platform/unix/freebsd/KenvUtilTest.html#KenvUtilTest">KenvUtilTest</a> {
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Test
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">void</strong> testParseKenv() {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <em class="jxr_comment">// kenv on a DragonFly BSD 6.4 OpenStack guest, which sets no serial, UUID or baseboard strings</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          Map&lt;String, String&gt; kenv = KenvUtil.parseKenv(<span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>                  hint.smbios.0.mem=<span class="jxr_string">"0xeb320"</span>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>                  smbios.bios.reldate=<span class="jxr_string">"04/01/2014"</span>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  smbios.bios.vendor=<span class="jxr_string">"SeaBIOS"</span>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>                  smbios.bios.version=<span class="jxr_string">"1.16.3-4.el9.alma.1"</span>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>                  smbios.chassis.version=<span class="jxr_string">"RHEL 7.6.0 PC (i440FX + PIIX, 1996)"</span>
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>                  smbios.system.maker=<span class="jxr_string">"RDO"</span>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>                  smbios.system.product=<span class="jxr_string">"OpenStack Compute"</span>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>                  smbios.system.version=<span class="jxr_string">"25.3.0-1.el9s"</span>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList());
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>          assertThat(kenv, hasEntry(<span class="jxr_string">"smbios.bios.vendor"</span>, <span class="jxr_string">"SeaBIOS"</span>));
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(kenv, hasEntry(<span class="jxr_string">"smbios.bios.reldate"</span>, <span class="jxr_string">"04/01/2014"</span>));
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(kenv, hasEntry(<span class="jxr_string">"smbios.system.product"</span>, <span class="jxr_string">"OpenStack Compute"</span>));
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          assertThat(kenv, hasEntry(<span class="jxr_string">"smbios.chassis.version"</span>, <span class="jxr_string">"RHEL 7.6.0 PC (i440FX + PIIX, 1996)"</span>));
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertThat(kenv.containsKey(<span class="jxr_string">"smbios.system.serial"</span>), is(false));
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Test
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">void</strong> testParseKenvBlankValue() {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          <em class="jxr_comment">// Values are trimmed, so a whitespace-only string reads as empty and the callers' fallbacks apply</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          Map&lt;String, String&gt; kenv = KenvUtil.parseKenv(<span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>                  smbios.planar.serial=<span class="jxr_string">"   "</span>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  smbios.system.maker=<span class="jxr_string">" RDO "</span>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList());
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertThat(kenv, hasEntry(<span class="jxr_string">"smbios.planar.serial"</span>, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertThat(kenv, hasEntry(<span class="jxr_string">"smbios.system.maker"</span>, <span class="jxr_string">"RDO"</span>));
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">void</strong> testParseKenvEmpty() {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(KenvUtil.parseKenv(Collections.emptyList()), is(anEmptyMap()));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      @Test
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">void</strong> testQueryKenv() {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// Empty where there is no kenv command; on FreeBSD and DragonFly BSD every value arrives unquoted</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          <strong class="jxr_keyword">for</strong> (String value : KenvUtil.queryKenv().values()) {
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              assertThat(value, not(containsString(<span class="jxr_string">"\&quot;"</span>)));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          }
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>      }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

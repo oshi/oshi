@@ -19,6 +19,7 @@ oshi.hardware.common.platform.linux
 oshi.hardware.common.platform.mac
 oshi.hardware.common.platform.unix
 oshi.hardware.common.platform.unix.aix
+oshi.hardware.common.platform.unix.dragonflybsd
 oshi.hardware.common.platform.unix.freebsd
 oshi.hardware.common.platform.unix.netbsd
 oshi.hardware.common.platform.unix.openbsd

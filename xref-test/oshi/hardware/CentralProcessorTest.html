@@ -145,24 +145,33 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
 <a class="jxr_linenumber" name="L138" href="#L138">138</a> 
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>     @Test
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">void</strong> testMicroarchitectureUnknownWhenTableMissesAndNothingDerived() {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M99"</span>, <span class="jxr_string">"0x00000000"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>                 <span class="jxr_string">"0100000c00000000"</span>, <strong class="jxr_keyword">true</strong>, -1L, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(id.getMicroarchitecture(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     }
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> 
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     @Test
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>     <strong class="jxr_keyword">void</strong> testTickTypeIndex() {
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         assertThat(TickType.USER.getIndex(), is(0));
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(TickType.NICE.getIndex(), is(1));
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         assertThat(TickType.SYSTEM.getIndex(), is(2));
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(TickType.IDLE.getIndex(), is(3));
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertThat(TickType.IOWAIT.getIndex(), is(4));
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         assertThat(TickType.IRQ.getIndex(), is(5));
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         assertThat(TickType.SOFTIRQ.getIndex(), is(6));
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         assertThat(TickType.STEAL.getIndex(), is(7));
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     }
-<a class="jxr_linenumber" name="L157" href="#L157">157</a> }
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">void</strong> testArmMicroarchitectureFromPartNumber() {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <em class="jxr_comment">// The fields as /proc/cpuinfo gives them on a Neoverse N1: implementer, architecture, part, variant+revision</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"8"</span>, <span class="jxr_string">"0xd0c"</span>, <span class="jxr_string">"r3p1"</span>, <span class="jxr_string">"413FD0C100000000"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(id.getVendor(), is(<span class="jxr_string">"ARM"</span>));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         assertThat(id.getIdentifier(), is(<span class="jxr_string">"ARM Family 8 Model 0xd0c Stepping r3p1"</span>));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         assertThat(id.getMicroarchitecture(), is(<span class="jxr_string">"Neoverse-N1"</span>));
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     @Test
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">void</strong> testMicroarchitectureUnknownWhenTableMissesAndNothingDerived() {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M99"</span>, <span class="jxr_string">"0x00000000"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 <span class="jxr_string">"0100000c00000000"</span>, <strong class="jxr_keyword">true</strong>, -1L, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertThat(id.getMicroarchitecture(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Test
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">void</strong> testTickTypeIndex() {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(TickType.USER.getIndex(), is(0));
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         assertThat(TickType.NICE.getIndex(), is(1));
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         assertThat(TickType.SYSTEM.getIndex(), is(2));
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertThat(TickType.IDLE.getIndex(), is(3));
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertThat(TickType.IOWAIT.getIndex(), is(4));
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertThat(TickType.IRQ.getIndex(), is(5));
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         assertThat(TickType.SOFTIRQ.getIndex(), is(6));
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         assertThat(TickType.STEAL.getIndex(), is(7));
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
+<a class="jxr_linenumber" name="L166" href="#L166">166</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

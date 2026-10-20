@@ -12,20 +12,39 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.jna.platform.unix;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <em class="jxr_javadoccomment"> * DragonFly BSD C library. Extends {@link FreeBsdLibc} since DragonFly shares the same sysctl, utmpx, and CPU tick</em>
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <em class="jxr_javadoccomment"> * interfaces. Only adds the DragonFly-specific {@link #lwp_gettid()} thread ID function.</em>
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="DragonFlyBsdLibc" href="../../../../oshi/jna/platform/unix/DragonFlyBsdLibc.html#DragonFlyBsdLibc">DragonFlyBsdLibc</a> <strong class="jxr_keyword">extends</strong> <a name="FreeBsdLibc" href="../../../../oshi/jna/platform/unix/FreeBsdLibc.html#FreeBsdLibc">FreeBsdLibc</a> {
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>      <a name="DragonFlyBsdLibc" href="../../../../oshi/jna/platform/unix/DragonFlyBsdLibc.html#DragonFlyBsdLibc">DragonFlyBsdLibc</a> INSTANCE = BsdLibcLoader.loadLibc(DragonFlyBsdLibc.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <em class="jxr_javadoccomment">     * Returns the light weight process thread identifier for the calling thread.</em>
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">     * @return The LWP thread ID. Returns -1 on error.</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      <strong class="jxr_keyword">int</strong> lwp_gettid();
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  }
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.Pointer;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> com.sun.jna.platform.unix.LibCAPI.size_t;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * DragonFly BSD C library. Extends {@link FreeBsdLibc} since DragonFly shares the same sysctl and CPU tick interfaces;</em>
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * its {@code struct utmpx} differs, so the inherited utmpx functions do not apply. Adds the DragonFly-specific</em>
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> * {@link #lwp_gettid()} thread ID function and {@link #sched_getaffinity(int, size_t, Pointer)}.</em>
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">interface</strong> <a name="DragonFlyBsdLibc" href="../../../../oshi/jna/platform/unix/DragonFlyBsdLibc.html#DragonFlyBsdLibc">DragonFlyBsdLibc</a> <strong class="jxr_keyword">extends</strong> <a name="FreeBsdLibc" href="../../../../oshi/jna/platform/unix/FreeBsdLibc.html#FreeBsdLibc">FreeBsdLibc</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>      <a name="DragonFlyBsdLibc" href="../../../../oshi/jna/platform/unix/DragonFlyBsdLibc.html#DragonFlyBsdLibc">DragonFlyBsdLibc</a> INSTANCE = BsdLibcLoader.loadLibc(DragonFlyBsdLibc.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment">     * Returns the light weight process thread identifier for the calling thread.</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment">     * @return The LWP thread ID. Returns -1 on error.</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">int</strong> lwp_gettid();
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * The size of DragonFly's {@code cpu_set_t}, a {@code cpumask_t} of four 64-bit words on x86_64.</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">int</strong> CPU_SET_SIZE = 32;
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>  <em class="jxr_javadoccomment">     * Gets the CPU affinity mask of a process, that of its first LWP.</em>
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>  <em class="jxr_javadoccomment">     * @param pid        the process ID, or 0 for the calling process</em>
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>  <em class="jxr_javadoccomment">     * @param cpusetsize the size of the buffer, at most {@link #CPU_SET_SIZE} of which is written</em>
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  <em class="jxr_javadoccomment">     * @param mask       the buffer that receives the mask, CPU 0 in the lowest bit of the first word</em>
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>  <em class="jxr_javadoccomment">     * @return 0 on success, -1 on error</em>
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <strong class="jxr_keyword">int</strong> sched_getaffinity(<strong class="jxr_keyword">int</strong> pid, size_t cpusetsize, Pointer mask);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

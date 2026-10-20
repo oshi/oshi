@@ -919,7 +919,7 @@
 <a class="jxr_linenumber" name="L911" href="#L911">911</a>             <strong class="jxr_keyword">if</strong> (cpuVendor.contentEquals(<span class="jxr_string">"GenuineIntel"</span>)) {
 <a class="jxr_linenumber" name="L912" href="#L912">912</a>                 sb.append(cpu64bit ? <span class="jxr_string">"Intel64"</span> : <span class="jxr_string">"x86"</span>);
 <a class="jxr_linenumber" name="L913" href="#L913">913</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L914" href="#L914">914</a>                 sb.append(cpuVendor);
+<a class="jxr_linenumber" name="L914" href="#L914">914</a>                 sb.append(<strong class="jxr_keyword">this</strong>.cpuVendor);
 <a class="jxr_linenumber" name="L915" href="#L915">915</a>             }
 <a class="jxr_linenumber" name="L916" href="#L916">916</a>             sb.append(<span class="jxr_string">" Family "</span>).append(cpuFamily);
 <a class="jxr_linenumber" name="L917" href="#L917">917</a>             sb.append(<span class="jxr_string">" Model "</span>).append(cpuModel);
@@ -1067,45 +1067,50 @@
 <a class="jxr_linenumber" name="L1059" href="#L1059">1059</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ucVendor.contains(<span class="jxr_string">"APPLE"</span>)) {
 <a class="jxr_linenumber" name="L1060" href="#L1060">1060</a>                 sb.append(<span class="jxr_string">"apple."</span>);
 <a class="jxr_linenumber" name="L1061" href="#L1061">1061</a>             }
-<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch) &amp;&amp; !sb.toString().equals(<span class="jxr_string">"arm."</span>)) {
-<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>                 <em class="jxr_comment">// Append family</em>
-<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>                 sb.append(<strong class="jxr_keyword">this</strong>.cpuFamily);
-<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>                 arch = archProps.getProperty(sb.toString());
-<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>             }
-<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a> 
-<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
-<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a>                 <em class="jxr_comment">// Append model</em>
-<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuModel);
-<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>                 arch = archProps.getProperty(sb.toString());
-<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>             }
-<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a> 
-<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
-<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>                 <em class="jxr_comment">// Append stepping</em>
-<a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuStepping);
-<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>                 arch = archProps.getProperty(sb.toString());
-<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a>             }
-<a class="jxr_linenumber" name="L1079" href="#L1079">1079</a> 
-<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
-<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>                 <em class="jxr_comment">// Only after every table lookup has missed: a value the platform derived at runtime, which covers</em>
-<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>                 <em class="jxr_comment">// processors released since the table was last updated. A table entry always wins, because it may</em>
-<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>                 <em class="jxr_comment">// carry a curated name that a derivation cannot reproduce.</em>
-<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a>                 arch = <strong class="jxr_keyword">this</strong>.derivedMicroarchitecture;
-<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>             }
-<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a> 
-<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>             <strong class="jxr_keyword">return</strong> ParseUtil.getStringValueOrUnknown(arch);
-<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>         }
-<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a> 
-<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer(String cpuVendor) {
-<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
-<a class="jxr_linenumber" name="L1092" href="#L1092">1092</a>             <strong class="jxr_keyword">return</strong> archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + cpuVendor, cpuVendor);
+<a class="jxr_linenumber" name="L1062" href="#L1062">1062</a>             <em class="jxr_comment">// ARM keys are the part number alone, arm.0xd0c, with no family before it</em>
+<a class="jxr_linenumber" name="L1063" href="#L1063">1063</a>             <strong class="jxr_keyword">boolean</strong> isArm = sb.toString().equals(<span class="jxr_string">"arm."</span>);
+<a class="jxr_linenumber" name="L1064" href="#L1064">1064</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch) &amp;&amp; !isArm) {
+<a class="jxr_linenumber" name="L1065" href="#L1065">1065</a>                 <em class="jxr_comment">// Append family</em>
+<a class="jxr_linenumber" name="L1066" href="#L1066">1066</a>                 sb.append(<strong class="jxr_keyword">this</strong>.cpuFamily);
+<a class="jxr_linenumber" name="L1067" href="#L1067">1067</a>                 arch = archProps.getProperty(sb.toString());
+<a class="jxr_linenumber" name="L1068" href="#L1068">1068</a>             }
+<a class="jxr_linenumber" name="L1069" href="#L1069">1069</a> 
+<a class="jxr_linenumber" name="L1070" href="#L1070">1070</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
+<a class="jxr_linenumber" name="L1071" href="#L1071">1071</a>                 <em class="jxr_comment">// Append model</em>
+<a class="jxr_linenumber" name="L1072" href="#L1072">1072</a>                 <strong class="jxr_keyword">if</strong> (!isArm) {
+<a class="jxr_linenumber" name="L1073" href="#L1073">1073</a>                     sb.append('.');
+<a class="jxr_linenumber" name="L1074" href="#L1074">1074</a>                 }
+<a class="jxr_linenumber" name="L1075" href="#L1075">1075</a>                 sb.append(<strong class="jxr_keyword">this</strong>.cpuModel);
+<a class="jxr_linenumber" name="L1076" href="#L1076">1076</a>                 arch = archProps.getProperty(sb.toString());
+<a class="jxr_linenumber" name="L1077" href="#L1077">1077</a>             }
+<a class="jxr_linenumber" name="L1078" href="#L1078">1078</a> 
+<a class="jxr_linenumber" name="L1079" href="#L1079">1079</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
+<a class="jxr_linenumber" name="L1080" href="#L1080">1080</a>                 <em class="jxr_comment">// Append stepping</em>
+<a class="jxr_linenumber" name="L1081" href="#L1081">1081</a>                 sb.append('.').append(<strong class="jxr_keyword">this</strong>.cpuStepping);
+<a class="jxr_linenumber" name="L1082" href="#L1082">1082</a>                 arch = archProps.getProperty(sb.toString());
+<a class="jxr_linenumber" name="L1083" href="#L1083">1083</a>             }
+<a class="jxr_linenumber" name="L1084" href="#L1084">1084</a> 
+<a class="jxr_linenumber" name="L1085" href="#L1085">1085</a>             <strong class="jxr_keyword">if</strong> (Util.isBlank(arch)) {
+<a class="jxr_linenumber" name="L1086" href="#L1086">1086</a>                 <em class="jxr_comment">// Only after every table lookup has missed: a value the platform derived at runtime, which covers</em>
+<a class="jxr_linenumber" name="L1087" href="#L1087">1087</a>                 <em class="jxr_comment">// processors released since the table was last updated. A table entry always wins, because it may</em>
+<a class="jxr_linenumber" name="L1088" href="#L1088">1088</a>                 <em class="jxr_comment">// carry a curated name that a derivation cannot reproduce.</em>
+<a class="jxr_linenumber" name="L1089" href="#L1089">1089</a>                 arch = <strong class="jxr_keyword">this</strong>.derivedMicroarchitecture;
+<a class="jxr_linenumber" name="L1090" href="#L1090">1090</a>             }
+<a class="jxr_linenumber" name="L1091" href="#L1091">1091</a> 
+<a class="jxr_linenumber" name="L1092" href="#L1092">1092</a>             <strong class="jxr_keyword">return</strong> ParseUtil.getStringValueOrUnknown(arch);
 <a class="jxr_linenumber" name="L1093" href="#L1093">1093</a>         }
 <a class="jxr_linenumber" name="L1094" href="#L1094">1094</a> 
-<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>         @Override
-<a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>         <strong class="jxr_keyword">public</strong> String toString() {
-<a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>             <strong class="jxr_keyword">return</strong> getIdentifier();
+<a class="jxr_linenumber" name="L1095" href="#L1095">1095</a>         <strong class="jxr_keyword">private</strong> String queryVendorFromImplementer(String cpuVendor) {
+<a class="jxr_linenumber" name="L1096" href="#L1096">1096</a>             Properties archProps = FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES);
+<a class="jxr_linenumber" name="L1097" href="#L1097">1097</a>             <strong class="jxr_keyword">return</strong> archProps.getProperty(<span class="jxr_string">"hw_impl."</span> + cpuVendor, cpuVendor);
 <a class="jxr_linenumber" name="L1098" href="#L1098">1098</a>         }
-<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a>     }
-<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a> }
+<a class="jxr_linenumber" name="L1099" href="#L1099">1099</a> 
+<a class="jxr_linenumber" name="L1100" href="#L1100">1100</a>         @Override
+<a class="jxr_linenumber" name="L1101" href="#L1101">1101</a>         <strong class="jxr_keyword">public</strong> String toString() {
+<a class="jxr_linenumber" name="L1102" href="#L1102">1102</a>             <strong class="jxr_keyword">return</strong> getIdentifier();
+<a class="jxr_linenumber" name="L1103" href="#L1103">1103</a>         }
+<a class="jxr_linenumber" name="L1104" href="#L1104">1104</a>     }
+<a class="jxr_linenumber" name="L1105" href="#L1105">1105</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

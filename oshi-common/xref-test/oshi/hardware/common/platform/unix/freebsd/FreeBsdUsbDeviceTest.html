@@ -26,91 +26,118 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="FreeBsdUsbDeviceTest" href="../../../../../../oshi/hardware/common/platform/unix/freebsd/FreeBsdUsbDeviceTest.html#FreeBsdUsbDeviceTest">FreeBsdUsbDeviceTest</a> {
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_comment">// A minimal but real-shaped lshal tree: a host controller, its usbus, and one device beneath the usbus.</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_comment">// getUsbDevices() promotes the usbus's children onto the controller and drops the usbus node itself.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; LSHAL = <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>              udi = '/org/freedesktop/Hal/devices/pci_1022_43d5'
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>                info.product = 'xHCI Host Controller'  (string)
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>              udi = '/org/freedesktop/Hal/devices/usb_device_0_0_usbus0'
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>                freebsd.driver = 'usbus'  (string)
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>                info.parent = '/org/freedesktop/Hal/devices/pci_1022_43d5'  (string)
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>              udi = '/org/freedesktop/Hal/devices/usb_device_781_5567'
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>                info.parent = '/org/freedesktop/Hal/devices/usb_device_0_0_usbus0'  (string)
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>                usb_device.product = 'Ultra USB 3.0'  (string)
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>                usb_device.vendor = 'SanDisk'  (string)
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>                usb_device.vendor_id = 1921  (0x781)  (<strong class="jxr_keyword">int</strong>)
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>                usb_device.product_id = 21863  (0x5567)  (<strong class="jxr_keyword">int</strong>)
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>                usb_device.serial = '4C530001120510117433'  (string)
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>              <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      @Test
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">void</strong> testParseUsbDevices() {
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>          List&lt;UsbDevice&gt; controllers = FreeBsdUsbDevice.parseUsbDevices(LSHAL);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          assertThat(controllers, hasSize(1));
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>          UsbDevice controller = controllers.get(0);
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertThat(controller.getName(), is(<span class="jxr_string">"xHCI Host Controller"</span>));
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertThat(controller.getUniqueDeviceId(), is(<span class="jxr_string">"/org/freedesktop/Hal/devices/pci_1022_43d5"</span>));
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// The usbus node is skipped; its child is promoted directly onto the controller.</em>
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          assertThat(controller.getConnectedDevices(), hasSize(1));
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          UsbDevice device = controller.getConnectedDevices().get(0);
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertThat(device.getName(), is(<span class="jxr_string">"Ultra USB 3.0"</span>));
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          assertThat(device.getVendor(), is(<span class="jxr_string">"SanDisk"</span>));
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(device.getVendorId(), is(<span class="jxr_string">"0781"</span>));
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(device.getProductId(), is(<span class="jxr_string">"5567"</span>));
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(device.getSerialNumber(), is(<span class="jxr_string">"4C530001120510117433"</span>));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>      @Test
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">void</strong> testParseUsbDevicesHexSerial() {
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// A 0x-prefixed serial is decoded from its hex byte string.</em>
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          List&lt;String&gt; lshal = <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  udi = '/org/freedesktop/Hal/devices/pci_0'
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                    info.product = 'Root Hub'  (string)
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                  udi = '/org/freedesktop/Hal/devices/usbus0'
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                    freebsd.driver = 'usbus'  (string)
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                    info.parent = '/org/freedesktop/Hal/devices/pci_0'  (string)
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  udi = '/org/freedesktop/Hal/devices/dev0'
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                    info.parent = '/org/freedesktop/Hal/devices/usbus0'  (string)
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                    usb_device.serial = '0x41424344'  (string)
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>          List&lt;UsbDevice&gt; controllers = FreeBsdUsbDevice.parseUsbDevices(lshal);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertThat(controllers, hasSize(1));
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertThat(controllers.get(0).getConnectedDevices(), hasSize(1));
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// 0x41424344 -&gt; "ABCD"</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertThat(controllers.get(0).getConnectedDevices().get(0).getSerialNumber(), is(<span class="jxr_string">"ABCD"</span>));
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      @Test
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>      <strong class="jxr_keyword">void</strong> testParseUsbDevicesSkipsInterfaceNodes() {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <em class="jxr_comment">// An interface node's udi is "&lt;device-udi&gt;_ifN"; its .parent points at the device, so key.replace(parent)</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_comment">// begins with "_if" and the node must be skipped rather than treated as a child device.</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          List&lt;String&gt; lshal = <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                  udi = '/dev/pci0'
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                    info.product = 'Root Hub'  (string)
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  udi = '/dev/usbus0'
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>                    freebsd.driver = 'usbus'  (string)
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                    info.parent = '/dev/pci0'  (string)
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  udi = '/dev/dev0'
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>                    info.parent = '/dev/usbus0'  (string)
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>                    usb_device.product = 'Widget'  (string)
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  udi = '/dev/dev0_<strong class="jxr_keyword">if</strong>0'
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>                    info.parent = '/dev/dev0'  (string)
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>                    usb.<strong class="jxr_keyword">interface</strong>.number = 0  (<strong class="jxr_keyword">int</strong>)
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          List&lt;UsbDevice&gt; controllers = FreeBsdUsbDevice.parseUsbDevices(lshal);
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(controllers, hasSize(1));
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <em class="jxr_comment">// Only the real device hangs off the controller; the _if interface node is not a child.</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertThat(controllers.get(0).getConnectedDevices(), hasSize(1));
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          assertThat(controllers.get(0).getConnectedDevices().get(0).getName(), is(<span class="jxr_string">"Widget"</span>));
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     @Test
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">void</strong> testParseUsbDevicesEmpty() {
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(FreeBsdUsbDevice.parseUsbDevices(Collections.emptyList()), is(empty()));
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment">     * devinfo -v on a FreeBSD 15.0 Arm Morello board (cfarm240), trimmed: a BeagleBone Black on the XHCI controller's</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment">     * root hub, listed once for each of its three interface drivers, followed by two PCI functions without a driver.</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; MORELLO = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>                              pcib8 &lt;PCI-PCI bridge&gt; pnpinfo vendor=0x10b5 device=0x8749 subvendor=0x10b5 subdevice=0x8749 class=0x060400 at slot=20 function=0 dbsf=pci0:2:20:0
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>                                pci7 &lt;PCI bus&gt;
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>                                  xhci0 &lt;XHCI (<strong class="jxr_keyword">generic</strong>) USB 3.0 controller&gt; pnpinfo vendor=0x104c device=0x8241 subvendor=0x0000 subdevice=0x0000 class=0x0c0330 at slot=0 function=0 dbsf=pci0:8:0:0
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>                                    usbus0
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>                                      uhub0 &lt;(0x104c) XHCI root HUB, <strong class="jxr_keyword">class</strong> 9/0, rev 3.00/1.00, addr 1&gt;
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>                                        urndis0 &lt;BeagleBoard.org TIAM335xBeagleBoneBlack, <strong class="jxr_keyword">class</strong> 0/0, rev 2.00/4.04, addr 1&gt; pnpinfo vendor=0x1d6b product=0x0104 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum=<span class="jxr_string">"1234BBBK5678"</span> release=0x0404 mode=host intclass=0x02 intsubclass=0x02 intprotocol=0xff at bus=0 hubaddr=1 port=4 devaddr=2 <strong class="jxr_keyword">interface</strong>=0 ugen=ugen0.2
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>                                        cdce0 &lt;BeagleBoard.org TIAM335xBeagleBoneBlack, <strong class="jxr_keyword">class</strong> 0/0, rev 2.00/4.04, addr 1&gt; pnpinfo vendor=0x1d6b product=0x0104 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum=<span class="jxr_string">"1234BBBK5678"</span> release=0x0404 mode=host intclass=0x02 intsubclass=0x0d intprotocol=0x00 at bus=0 hubaddr=1 port=4 devaddr=2 <strong class="jxr_keyword">interface</strong>=2 ugen=ugen0.2
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>                                        umodem0 &lt;BeagleBoard.org TIAM335xBeagleBoneBlack, <strong class="jxr_keyword">class</strong> 0/0, rev 2.00/4.04, addr 1&gt; pnpinfo vendor=0x1d6b product=0x0104 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum=<span class="jxr_string">"1234BBBK5678"</span> release=0x0404 mode=host intclass=0x02 intsubclass=0x02 intprotocol=0x01 ttyname=U0 ttyports=1 at bus=0 hubaddr=1 port=4 devaddr=2 <strong class="jxr_keyword">interface</strong>=4 ugen=ugen0.2
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>                          unknown pnpinfo vendor=0x10b5 device=0x87d0 subvendor=0x10b5 subdevice=0x87d0 class=0x088000 at slot=0 function=1 dbsf=pci0:1:0:1
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>                          unknown pnpinfo vendor=0x10b5 device=0x87d0 subvendor=0x10b5 subdevice=0x87d0 class=0x088000 at slot=0 function=2 dbsf=pci0:1:0:2
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              .lines().toList();
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_javadoccomment">/** devinfo -v on a FreeBSD 16.0-CURRENT VM (cfarm430), trimmed: two UHCI controllers with only root hubs. */</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; VM = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>                      uhci0 &lt;Intel 82801I (ICH9) USB controller&gt; pnpinfo vendor=0x8086 device=0x2937 subvendor=0x1af4 subdevice=0x1100 class=0x0c0300 at slot=26 function=0 dbsf=pci0:0:26:0 handle=&#92;&#92;_SB_.PCI0.SD0_
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                        usbus0
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>                          uhub0 &lt;Intel UHCI root HUB, <strong class="jxr_keyword">class</strong> 9/0, rev 1.00/1.00, addr 1&gt;
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>                      uhci1 &lt;Intel 82801I (ICH9) USB controller&gt; pnpinfo vendor=0x8086 device=0x2938 subvendor=0x1af4 subdevice=0x1100 class=0x0c0300 at slot=26 function=1 dbsf=pci0:0:26:1 handle=&#92;&#92;_SB_.PCI0.SD1_
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>                        usbus1
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>                          uhub6 &lt;Intel UHCI root HUB, <strong class="jxr_keyword">class</strong> 9/0, rev 1.00/1.00, addr 1&gt;
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>              <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>              .lines().toList();
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testParseUsbDevices() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          List&lt;UsbDevice&gt; controllers = FreeBsdUsbDevice.parseUsbDevices(MORELLO);
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(controllers, hasSize(1));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          UsbDevice xhci = controllers.get(0);
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(xhci.getName(), is(<span class="jxr_string">"XHCI (generic) USB 3.0 controller"</span>));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(xhci.getVendorId(), is(<span class="jxr_string">"104c"</span>));
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(xhci.getProductId(), is(<span class="jxr_string">"8241"</span>));
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <em class="jxr_comment">// The usbus is skipped: the root hub hangs from the controller</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          assertThat(xhci.getConnectedDevices(), hasSize(1));
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          UsbDevice hub = xhci.getConnectedDevices().get(0);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(hub.getName(), is(<span class="jxr_string">"(0x104c) XHCI root HUB"</span>));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// One device, though three interface drivers list it</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(hub.getConnectedDevices(), hasSize(1));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          UsbDevice beagle = hub.getConnectedDevices().get(0);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(beagle.getName(), is(<span class="jxr_string">"BeagleBoard.org TIAM335xBeagleBoneBlack"</span>));
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat(beagle.getVendorId(), is(<span class="jxr_string">"1d6b"</span>));
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(beagle.getProductId(), is(<span class="jxr_string">"0104"</span>));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(beagle.getSerialNumber(), is(<span class="jxr_string">"1234BBBK5678"</span>));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(beagle.getUniqueDeviceId(), is(<span class="jxr_string">"ugen0.2"</span>));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          assertThat(beagle.getConnectedDevices(), is(empty()));
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      @Test
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>      <strong class="jxr_keyword">void</strong> testParseUsbDevicesRootHubsOnly() {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          List&lt;UsbDevice&gt; controllers = FreeBsdUsbDevice.parseUsbDevices(VM);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          assertThat(controllers, hasSize(2));
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          assertThat(controllers.get(0).getName(), is(<span class="jxr_string">"Intel 82801I (ICH9) USB controller"</span>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          assertThat(controllers.get(1).getProductId(), is(<span class="jxr_string">"2938"</span>));
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          UsbDevice hub = controllers.get(1).getConnectedDevices().get(0);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(hub.getName(), is(<span class="jxr_string">"Intel UHCI root HUB"</span>));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <em class="jxr_comment">// A root hub has no pnpinfo of its own, so carries its controller's IDs</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(hub.getVendorId(), is(<span class="jxr_string">"8086"</span>));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(hub.getConnectedDevices(), is(empty()));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      @Test
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">void</strong> testParseUsbDevicesSkipsChildDrivers() {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <em class="jxr_comment">// devinfo -v on cfarm430: QEMU's tablet, whose HID driver carries a HID bus and a mouse driver beneath it. The</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <em class="jxr_comment">// mouse driver has a vendor and product of its own, but no ugen name</em>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          List&lt;String&gt; tablet = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                          ehci1 &lt;Intel 82801I (ICH9) USB 2.0 controller&gt; pnpinfo vendor=0x8086 device=0x293a subvendor=0x1af4 subdevice=0x1100 class=0x0c0320 at slot=29 function=7 dbsf=pci0:0:29:7 handle=&#92;&#92;_SB_.PCI0.SEF_
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                            usbus7
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>                              uhub3 &lt;Intel EHCI root HUB, <strong class="jxr_keyword">class</strong> 9/0, rev 2.00/1.00, addr 1&gt;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>                                usbhid0 &lt;QEMU QEMU USB Tablet, <strong class="jxr_keyword">class</strong> 0/0, rev 2.00/0.00, addr 2&gt; pnpinfo vendor=0x0627 product=0x0001 devclass=0x00 devsubclass=0x00 devproto=0x00 sernum=<span class="jxr_string">"28754-0000:00:1d.7-1"</span> release=0x0000 mode=host intclass=0x03 intsubclass=0x00 intprotocol=0x00 at bus=7 hubaddr=1 port=1 devaddr=2 <strong class="jxr_keyword">interface</strong>=0 ugen=ugen7.2
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>                                  hidbus0 &lt;HID bus&gt;
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                                    hms0 &lt;QEMU QEMU USB Tablet&gt; pnpinfo page=0x0001 usage=0x0002 bus=0x03 vendor=0x0627 product=0x0001 version=0x0000 at index=0
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>                  .lines().toList();
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          UsbDevice hub = FreeBsdUsbDevice.parseUsbDevices(tablet).get(0).getConnectedDevices().get(0);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertThat(hub.getConnectedDevices(), hasSize(1));
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         UsbDevice usbTablet = hub.getConnectedDevices().get(0);
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertThat(usbTablet.getName(), is(<span class="jxr_string">"QEMU QEMU USB Tablet"</span>));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(usbTablet.getVendorId(), is(<span class="jxr_string">"0627"</span>));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(usbTablet.getSerialNumber(), is(<span class="jxr_string">"28754-0000:00:1d.7-1"</span>));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(usbTablet.getConnectedDevices(), is(empty()));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     @Test
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">void</strong> testParseUsbDevicesWithoutDescriptions() {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// devinfo -v on DragonFly 6.4.2 in CI, trimmed: no descriptions, so nothing to name the devices by but their</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <em class="jxr_comment">// driver instances</em>
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         List&lt;String&gt; dragonfly = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                         uhci0 pnpinfo vendor=0x8086 device=0x7020 subvendor=0x1af4 subdevice=0x1100 class=0x0c0300 at slot=1 function=2 handle=&#92;&#92;_SB_.PCI0.S0A_
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>                           usbus0
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>                             uhub0
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                         unknown pnpinfo vendor=0x8086 device=0x7113 subvendor=0x1af4 subdevice=0x1100 class=0x068000 at slot=1 function=3 handle=&#92;&#92;_SB_.PCI0.S0B_
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>                 .lines().toList();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         List&lt;UsbDevice&gt; controllers = FreeBsdUsbDevice.parseUsbDevices(dragonfly);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(controllers, hasSize(1));
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertThat(controllers.get(0).getName(), is(<span class="jxr_string">"uhci0"</span>));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertThat(controllers.get(0).getVendorId(), is(<span class="jxr_string">"8086"</span>));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertThat(controllers.get(0).getConnectedDevices().get(0).getName(), is(<span class="jxr_string">"uhub0"</span>));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     @Test
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">void</strong> testParseUsbDevicesEmpty() {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         assertThat(FreeBsdUsbDevice.parseUsbDevices(Collections.emptyList()), is(empty()));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <em class="jxr_comment">// No USB controller at all</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         assertThat(FreeBsdUsbDevice.parseUsbDevices(List.of(<span class="jxr_string">"nexus0"</span>, <span class="jxr_string">"  acpi0 &lt;BOCHS BXPC&gt;"</span>)), is(empty()));
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

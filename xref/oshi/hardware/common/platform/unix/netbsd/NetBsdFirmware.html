@@ -12,16 +12,29 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common.platform.unix.netbsd;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.unix.BsdFirmware;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <em class="jxr_javadoccomment"> * NetBSD Firmware implementation. NetBSD reports firmware through the {@code dmesg} banner the base reads by default,</em>
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <em class="jxr_javadoccomment"> * so there is nothing platform-specific to add.</em>
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  @Immutable
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="NetBsdFirmware" href="../../../../../../oshi/hardware/common/platform/unix/netbsd/NetBsdFirmware.html#NetBsdFirmware">NetBsdFirmware</a> <strong class="jxr_keyword">extends</strong> <a name="BsdFirmware" href="../../../../../../oshi/hardware/common/platform/unix/BsdFirmware.html#BsdFirmware">BsdFirmware</a> {
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  }
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> org.jspecify.annotations.Nullable;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.Immutable;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.common.platform.unix.BsdFirmware;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.tuples.Triplet;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment"> * NetBSD Firmware implementation, from the SMBIOS strings the kernel publishes under {@code machdep.dmi}. These are</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * absent on machines without SMBIOS BIOS information, which includes many ARM systems.</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  @Immutable
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="NetBsdFirmware" href="../../../../../../oshi/hardware/common/platform/unix/netbsd/NetBsdFirmware.html#NetBsdFirmware">NetBsdFirmware</a> <strong class="jxr_keyword">extends</strong> <a name="BsdFirmware" href="../../../../../../oshi/hardware/common/platform/unix/BsdFirmware.html#BsdFirmware">BsdFirmware</a> {
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      @Override
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">protected</strong> Triplet&lt;@Nullable String, @Nullable String, @Nullable String&gt; readFirmware() {
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          Map&lt;String, String&gt; dmi = NetBsdComputerSystem.queryDmi();
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Triplet&lt;&gt;(dmi.get(<span class="jxr_string">"bios-vendor"</span>), dmi.get(<span class="jxr_string">"bios-version"</span>),
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  ParseUtil.parseYyyyMmDdToIso(dmi.getOrDefault(<span class="jxr_string">"bios-date"</span>, <span class="jxr_string">""</span>)));
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      }
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

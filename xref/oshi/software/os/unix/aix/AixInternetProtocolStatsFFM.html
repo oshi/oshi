@@ -36,8 +36,8 @@
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">protected</strong> @Nullable TcpStats queryTcpStats() {
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>          <strong class="jxr_keyword">for</strong> (PerfstatProtocolFFM.Protocol stat : ipstats.get()) {
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>              <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"tcp"</span>.equals(stat.name)) {
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(stat.tcpEstablished, stat.tcpInitiated, stat.tcpAccepted, stat.tcpDropped,
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>                          stat.tcpDropped, stat.tcpOpackets, stat.tcpIpackets, 0L, stat.tcpIerrors, 0L);
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>                  <strong class="jxr_keyword">return</strong> tcpStats(stat.tcpEstablished, stat.tcpInitiated, stat.tcpAccepted, stat.tcpDropped,
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>                          stat.tcpOpackets, stat.tcpIpackets, stat.tcpIerrors);
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>              }
 <a class="jxr_linenumber" name="L34" href="#L34">34</a>          }
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
@@ -47,7 +47,7 @@
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">protected</strong> @Nullable UdpStats queryUdpStats() {
 <a class="jxr_linenumber" name="L40" href="#L40">40</a>          <strong class="jxr_keyword">for</strong> (PerfstatProtocolFFM.Protocol stat : ipstats.get()) {
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>              <strong class="jxr_keyword">if</strong> (<span class="jxr_string">"udp"</span>.equals(stat.name)) {
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(stat.udpOpackets, stat.udpIpackets, stat.udpNoSocket, stat.udpIerrors);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>                  <strong class="jxr_keyword">return</strong> udpStats(stat.udpOpackets, stat.udpIpackets, stat.udpNoSocket);
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>              }
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>          }
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;

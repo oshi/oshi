@@ -49,7 +49,45 @@
 <a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @return populated {@link UdpStats}, or {@code null} if the {@code udp} entry was not found</em>
 <a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     */</em>
 <a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> @Nullable UdpStats queryUdpStats();
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>  }
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  <em class="jxr_javadoccomment">     * Maps the TCP counters of {@code perfstat_protocol_t} onto {@link TcpStats}.</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  <em class="jxr_javadoccomment">     * {@code perfstat} has no count of connections that failed before being established, nor of retransmitted segments,</em>
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * so both are 0. Its {@code dropped}, the established connections dropped, is the reset count, which</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * {@code netstat -s} prints as the drops among connections closed. Its packets sent exclude retransmissions.</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * @param established connections established</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * @param initiated   connections initiated, the active opens</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * @param accepted    connections accepted, the passive opens</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param dropped     established connections dropped</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param opackets    packets sent</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @param ipackets    packets received</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @param ierrors     input errors</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @return the TCP statistics</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> TcpStats tcpStats(<strong class="jxr_keyword">long</strong> established, <strong class="jxr_keyword">long</strong> initiated, <strong class="jxr_keyword">long</strong> accepted, <strong class="jxr_keyword">long</strong> dropped, <strong class="jxr_keyword">long</strong> opackets,
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>              <strong class="jxr_keyword">long</strong> ipackets, <strong class="jxr_keyword">long</strong> ierrors) {
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> TcpStats(established, initiated, accepted, 0L, dropped, opackets, ipackets, 0L, ierrors, 0L);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     * Maps the UDP counters of {@code perfstat_protocol_t} onto {@link UdpStats}.</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     * {@code perfstat}'s {@code ierrors} counts every datagram dropped on input, including those with no socket on</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     * their port, and it keeps no count of the broadcast and multicast ones among them that would let the rest be</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * separated out. So the receive errors, which exclude datagrams with no application at their port, are 0. Its</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     * {@code no_socket} counts only unicast datagrams with no socket.</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * @param opackets packets sent</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     * @param ipackets packets received</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     * @param noSocket unicast datagrams with no socket on their port</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     * @return the UDP statistics</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> UdpStats udpStats(<strong class="jxr_keyword">long</strong> opackets, <strong class="jxr_keyword">long</strong> ipackets, <strong class="jxr_keyword">long</strong> noSocket) {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> UdpStats(opackets, ipackets, noSocket, 0L);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

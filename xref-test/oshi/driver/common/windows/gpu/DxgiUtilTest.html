@@ -125,7 +125,23 @@
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>         DxgiAdapterInfo adapter = <strong class="jxr_keyword">new</strong> DxgiAdapterInfo(<span class="jxr_string">"Test GPU"</span>, 0x10de, 0x1234, 4096L, 0, 0);
 <a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertThat(<span class="jxr_string">"LUID prefix for zero LUID"</span>, DxgiUtil.buildLuidPrefix(adapter), is(<span class="jxr_string">""</span>));
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>     }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a> }
+<a class="jxr_linenumber" name="L120" href="#L120">120</a> 
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     @Test
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>     <strong class="jxr_keyword">void</strong> testNormalizeNameStripsTrademarks() {
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertThat(DxgiUtil.normalizeName(<span class="jxr_string">"Intel(R) Arc(TM) A770 Graphics"</span>), is(<span class="jxr_string">"intel arc a770 graphics"</span>));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     @Test
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">void</strong> testNormalizeNameCollapsesWhitespace() {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         assertThat(DxgiUtil.normalizeName(<span class="jxr_string">"NVIDIA  GeForce   RTX  4090"</span>), is(<span class="jxr_string">"nvidia geforce rtx 4090"</span>));
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>     @Test
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">void</strong> testNormalizeNameNullOrBlank() {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(DxgiUtil.normalizeName(<strong class="jxr_keyword">null</strong>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(DxgiUtil.normalizeName(<span class="jxr_string">"  "</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
