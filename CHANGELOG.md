@@ -1,7 +1,31 @@
-# 7.7.2 (in progress)
+# 7.7.3 (in progress)
+
+* Your contribution here!
+
+# 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20)
+
+##### New Features
+
+* [#3745](https://github.com/oshi/oshi/pull/3745): The FFM implementation now reads NetBSD natively, through `sysctl`, `getloadavg`, `_lwp_self` and `getrlimit`, where it previously ran commands and parsed their output - [@dbwiddis](https://github.com/dbwiddis).
+* [#3709](https://github.com/oshi/oshi/pull/3709),
+  [#3757](https://github.com/oshi/oshi/pull/3757): `Display.getCurrentMode()` returns the mode a display is driven in: its logical and pixel resolution, refresh rate, rotation, and position on the desktop. `Display.isBuiltIn()` reports whether it is a built-in panel, and `Display.isPrimary()` whether it is the primary display. All three are available on Windows, macOS, and on Linux and the other UNIX platforms through X11 - [@ayonization](https://github.com/ayonization), [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
+* [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` now reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).
+* [#3727](https://github.com/oshi/oshi/pull/3727): The `oshi.os.windows.ohm.disabled` and `oshi.os.windows.lhm.disabled` configuration properties now skip the Open Hardware Monitor and Libre Hardware Monitor WMI namespaces, which OSHI otherwise queries on each sensor read until one returns data. The latter also covers GPU metrics - [@dbwiddis](https://github.com/dbwiddis).
+* [#3730](https://github.com/oshi/oshi/pull/3730): Fixed `Sensors.getCpuVoltage()` on Windows when using the voltage published by Open Hardware Monitor or LibreHardwareMonitor - [@dbwiddis](https://github.com/dbwiddis).
+* [#3742](https://github.com/oshi/oshi/pull/3742): `NetworkParams.getRoutes()` on NetBSD now reads the routing table from the kernel where the JNA native library is available - [@dbwiddis](https://github.com/dbwiddis).
+* [#3743](https://github.com/oshi/oshi/pull/3743): Fixed three `HWDiskStore` faults on NetBSD: read and write byte totals that could decrease between readings, a doubled `getTransferTime()`, and a 1-byte disk or 512-byte partition size where the size is unknown, which also affected OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
+* [#3744](https://github.com/oshi/oshi/pull/3744): Fixed `OSProcess` naming on NetBSD: `getPath()` and `getName()` were truncated to seven characters, and where the kernel withholds a process's arguments, `getCommandLine()` returned `ps`'s `(command)` placeholder and `getName()` kept its parentheses - [@dbwiddis](https://github.com/dbwiddis).
+* [#3754](https://github.com/oshi/oshi/pull/3754): `OperatingSystem.getProcessId()` and `getThreadId()` return 0 when the ID is unknown on every platform. On NetBSD without JNA, `getThreadId()` returned a Java thread ID, and on failure some implementations returned -1, which led `getCurrentProcess()` to return an arbitrary process on the BSDs, Solaris and AIX. `getProcess()` with a negative PID now returns null on Solaris and AIX - [@dbwiddis](https://github.com/dbwiddis).
+* [#3763](https://github.com/oshi/oshi/pull/3763): Standardizes connection reporting from `InternetProtocolStats.getConnections()` on the UNIX platforms. It now includes listening and unconnected sockets, as on Linux, and returns connections on Solaris, where it returned none. A `tcp6` or `udp6` connection to an IPv4 peer now has a 16-byte IPv4-mapped address rather than a 4-byte one - [@dbwiddis](https://github.com/dbwiddis).
+* [#3771](https://github.com/oshi/oshi/pull/3771): Fixed `Firmware.getManufacturer()` on Linux, which never read the BIOS vendor from sysfs - [@dbwiddis](https://github.com/dbwiddis).
+* [#3774](https://github.com/oshi/oshi/pull/3774): `LogicalVolumeGroup.getPhysicalVolumes()` on Linux now runs `pvs` through the `oshi.os.linux.privileged.prefix` when `pvs` is in `oshi.os.linux.privileged.allowlist`, so physical volumes that hold no logical volume can be listed without running the application as root - [@dbwiddis](https://github.com/dbwiddis).
+* [#3777](https://github.com/oshi/oshi/pull/3777): Fixed the heap corruption behind intermittent JVM crashes on Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
+* [#3781](https://github.com/oshi/oshi/pull/3781): `Sensors.getCpuTemperature()` now returns a 0.0 sentinel on all platforms when the temperature is unavailable. FreeBSD previously returned `NaN` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3776](https://github.com/oshi/oshi/pull/3776),
+  [#3782](https://github.com/oshi/oshi/pull/3782): Fixed intermittent JVM crashes on Solaris (illumos), OpenBSD and DragonFly BSD when `libcups` is not installed - [@dbwiddis](https://github.com/dbwiddis).
 * [#3785](https://github.com/oshi/oshi/pull/3785): Fixed DragonFly BSD reporting 0 total swap, and the FFM implementation failing every `sysctl` read there - [@dbwiddis](https://github.com/dbwiddis).
 * [#3785](https://github.com/oshi/oshi/pull/3785),
   [#3795](https://github.com/oshi/oshi/pull/3795),
@@ -39,31 +63,6 @@
   [#3820](https://github.com/oshi/oshi/pull/3820),
   [#3823](https://github.com/oshi/oshi/pull/3823),
   [#3825](https://github.com/oshi/oshi/pull/3825): Fixed `FileSystem` and `OSFileStore` on the BSDs. `getMaxFileDescriptorsPerProcess()` returns the per-process limit, NetBSD's `getOpenFileDescriptors()` is no longer 0, FreeBSD's `getUUID()` is found for every volume, and mount points with spaces and NetBSD and OpenBSD inode counts are read correctly - [@dbwiddis](https://github.com/dbwiddis).
-
-# 7.7.0 (2026-09-29), 7.7.1 (2026-10-10)
-
-##### New Features
-
-* [#3745](https://github.com/oshi/oshi/pull/3745): The FFM implementation now reads NetBSD natively, through `sysctl`, `getloadavg`, `_lwp_self` and `getrlimit`, where it previously ran commands and parsed their output - [@dbwiddis](https://github.com/dbwiddis).
-* [#3709](https://github.com/oshi/oshi/pull/3709),
-  [#3757](https://github.com/oshi/oshi/pull/3757): `Display.getCurrentMode()` returns the mode a display is driven in: its logical and pixel resolution, refresh rate, rotation, and position on the desktop. `Display.isBuiltIn()` reports whether it is a built-in panel, and `Display.isPrimary()` whether it is the primary display. All three are available on Windows, macOS, and on Linux and the other UNIX platforms through X11 - [@ayonization](https://github.com/ayonization), [@dbwiddis](https://github.com/dbwiddis).
-
-##### Bug Fixes and Improvements
-
-* [#3723](https://github.com/oshi/oshi/pull/3723): Windows `Sensors` now reads CPU temperature, fan speed and voltage from the `ROOT\LibreHardwareMonitor` WMI namespace when the LibreHardwareMonitor application is running, in addition to the `ROOT\OpenHardwareMonitor` namespace it already read. Users running the maintained LibreHardwareMonitor previously got its GPU metrics but no CPU sensor data - [@dbwiddis](https://github.com/dbwiddis).
-* [#3727](https://github.com/oshi/oshi/pull/3727): The `oshi.os.windows.ohm.disabled` and `oshi.os.windows.lhm.disabled` configuration properties now skip the Open Hardware Monitor and Libre Hardware Monitor WMI namespaces, which OSHI otherwise queries on each sensor read until one returns data. The latter also covers GPU metrics - [@dbwiddis](https://github.com/dbwiddis).
-* [#3730](https://github.com/oshi/oshi/pull/3730): Fixed `Sensors.getCpuVoltage()` on Windows when using the voltage published by Open Hardware Monitor or LibreHardwareMonitor - [@dbwiddis](https://github.com/dbwiddis).
-* [#3742](https://github.com/oshi/oshi/pull/3742): `NetworkParams.getRoutes()` on NetBSD now reads the routing table from the kernel where the JNA native library is available - [@dbwiddis](https://github.com/dbwiddis).
-* [#3743](https://github.com/oshi/oshi/pull/3743): Fixed three `HWDiskStore` faults on NetBSD: read and write byte totals that could decrease between readings, a doubled `getTransferTime()`, and a 1-byte disk or 512-byte partition size where the size is unknown, which also affected OpenBSD - [@dbwiddis](https://github.com/dbwiddis).
-* [#3744](https://github.com/oshi/oshi/pull/3744): Fixed `OSProcess` naming on NetBSD: `getPath()` and `getName()` were truncated to seven characters, and where the kernel withholds a process's arguments, `getCommandLine()` returned `ps`'s `(command)` placeholder and `getName()` kept its parentheses - [@dbwiddis](https://github.com/dbwiddis).
-* [#3754](https://github.com/oshi/oshi/pull/3754): `OperatingSystem.getProcessId()` and `getThreadId()` return 0 when the ID is unknown on every platform. On NetBSD without JNA, `getThreadId()` returned a Java thread ID, and on failure some implementations returned -1, which led `getCurrentProcess()` to return an arbitrary process on the BSDs, Solaris and AIX. `getProcess()` with a negative PID now returns null on Solaris and AIX - [@dbwiddis](https://github.com/dbwiddis).
-* [#3763](https://github.com/oshi/oshi/pull/3763): Standardizes connection reporting from `InternetProtocolStats.getConnections()` on the UNIX platforms. It now includes listening and unconnected sockets, as on Linux, and returns connections on Solaris, where it returned none. A `tcp6` or `udp6` connection to an IPv4 peer now has a 16-byte IPv4-mapped address rather than a 4-byte one - [@dbwiddis](https://github.com/dbwiddis).
-* [#3771](https://github.com/oshi/oshi/pull/3771): Fixed `Firmware.getManufacturer()` on Linux, which never read the BIOS vendor from sysfs - [@dbwiddis](https://github.com/dbwiddis).
-* [#3774](https://github.com/oshi/oshi/pull/3774): `LogicalVolumeGroup.getPhysicalVolumes()` on Linux now runs `pvs` through the `oshi.os.linux.privileged.prefix` when `pvs` is in `oshi.os.linux.privileged.allowlist`, so physical volumes that hold no logical volume can be listed without running the application as root - [@dbwiddis](https://github.com/dbwiddis).
-* [#3777](https://github.com/oshi/oshi/pull/3777): Fixed the heap corruption behind intermittent JVM crashes on Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
-* [#3781](https://github.com/oshi/oshi/pull/3781): `Sensors.getCpuTemperature()` now returns a 0.0 sentinel on all platforms when the temperature is unavailable. FreeBSD previously returned `NaN` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3776](https://github.com/oshi/oshi/pull/3776),
-  [#3782](https://github.com/oshi/oshi/pull/3782): Fixed intermittent JVM crashes on Solaris (illumos), OpenBSD and DragonFly BSD when `libcups` is not installed - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 

@@ -85,9 +85,9 @@ grep '^\[WARNING\]' /tmp/lint.log | sed -E 's/.*\[([a-z-]+)\].*/\1/' | sort | un
 
   | Category | Count | Why it is expected |
   |---|---|---|
-  | `restricted` | 299 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
-  | `this-escape` | 151 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
-  | `exports` | 87 | Public `oshi.ffm` methods returning types from non-exported packages, which [AGENTS.md](AGENTS.md) already declares off-limits to dependents |
+  | `restricted` | 300 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
+  | `this-escape` | 157 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
+  | `exports` | 80 | Public `oshi.ffm` methods returning types from non-exported packages, which [AGENTS.md](AGENTS.md) already declares off-limits to dependents |
   | `missing-explicit-ctor` | 2 | The two `SystemInfoTest` report classes. JUnit constructs them reflectively, so a private constructor would break the build, and neither is published |
 
   `exports` grew from 21 in 7.5.0 without any new API leakage. Two changes account for all of it:
@@ -101,7 +101,9 @@ grep '^\[WARNING\]' /tmp/lint.log | sed -E 's/.*\[([a-z-]+)\].*/\1/' | sort | un
   cap through several earlier passes. The 7.6.0 sweep surfaced an `unchecked` pair on a generic
   varargs method that wanted `@SafeVarargs`. The 7.7.0 sweep found nothing new: `restricted` grew
   with the NetBSD FFM port and the macOS CoreGraphics display calls, and `exports` by one more
-  `@Nullable` in a public `oshi.ffm` signature.
+  `@Nullable` in a public `oshi.ffm` signature. The 7.7.2 sweep found nothing new either:
+  `this-escape` grew with memoized suppliers in new BSD classes, `restricted` by one DragonFly
+  downcall, and `exports` fell when a `SystemInfoTest` class changed its JUnit annotations.
 
 ### Release
 
