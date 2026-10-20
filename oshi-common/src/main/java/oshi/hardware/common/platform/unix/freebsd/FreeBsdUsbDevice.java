@@ -96,10 +96,12 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
                 continue;
             }
             int indent = m.group(1).length();
-            while (!ancestors.isEmpty() && ancestors.peek().getA() >= indent) {
+            Pair<Integer, String> ancestor = ancestors.peek();
+            while (ancestor != null && ancestor.getA() >= indent) {
                 ancestors.pop();
+                ancestor = ancestors.peek();
             }
-            String parent = ancestors.isEmpty() ? null : ancestors.peek().getB();
+            String parent = ancestor == null ? null : ancestor.getB();
             // The ugen name is among the location fields, the IDs among the plug-and-play ones
             Map<String, String> pnp = parseFields(m.group(4));
             String ugen = pnp.get("ugen");
