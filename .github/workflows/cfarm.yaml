@@ -22,16 +22,20 @@ permissions: {}
 #   * reaps stale JVMs left by a previously killed run (their open handles can
 #     block git clean / mvn clean on the shared, possibly NFS-backed workspace),
 #   * git clean -xffd to drop any leftover build output, and
-#   * bounds the build wall-clock below the ssh command_timeout with `timeout`
+#   * bounds the build wall-clock below the 25-minute ssh limit with `timeout`
 #     so a hung/cancelled run tears down its own process tree instead of
 #     orphaning a JVM for the next run to trip over.
+# Those steps live in the per-host scripts in .github/cfarm/, which
+# .github/cfarm/remote.sh runs over ssh.
 
-# Host availability: cfarm machines go down for days at a time. Each job first
-# checks that its host answers on port 22, retrying to ride out a transient
-# failure. A host that never answers is reported as a warning and the job passes
-# without testing, so an outage does not read as a failing build; its Codecov
-# flag carries its last value forward. A host that answers but refuses ssh fails
-# the job, since that needs attention rather than patience.
+# Host availability: cfarm machines go down for days at a time, and some drop
+# ssh connections before authentication at random. remote.sh retries every
+# connection that is refused, so the second only costs time. Each job first
+# checks that its host takes ssh. A host that never answers on port 22 is
+# reported as a warning and the job passes without testing, so an outage does
+# not read as a failing build; its Codecov flag carries its last value forward.
+# A host that answers but keeps refusing ssh fails the job, since that needs
+# attention rather than patience.
 
 jobs:
   # Tests the triggering ref on Solaris 11.4 SPARC: master on push, or the
@@ -59,80 +63,24 @@ jobs:
       id: reach
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
-        HOST: cfarm216.cfarm.net
       run: |
-        KEY=$(mktemp)
-        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
-        chmod 600 "$KEY"
-        up=false
-        port_open=false
-        for attempt in 1 2 3; do
-          if timeout 20 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
-            port_open=true
-            if ssh -q -i "$KEY" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=no \
-                -o UserKnownHostsFile=/dev/null "oshi@$HOST" true; then
-              up=true
-              break
-            fi
-          fi
-          [ "$attempt" = 3 ] || sleep 30
-        done
-        rm -f "$KEY"
-        echo "up=$up" >> "$GITHUB_OUTPUT"
-        if [ "$up" = true ]; then
-          exit 0
-        elif [ "$port_open" = true ]; then
-          echo "::error title=$HOST refused ssh::$HOST accepts connections but ssh failed 3 times; check the key and account."
+        rc=0
+        .github/cfarm/remote.sh check cfarm216.cfarm.net || rc=$?
+        echo "up=$([ $rc = 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        if [ $rc = 1 ]; then
+          echo "::error title=cfarm216.cfarm.net refused ssh::cfarm216.cfarm.net accepts connections but ssh kept failing; check the key and account."
           exit 1
+        elif [ $rc = 2 ]; then
+          echo "::warning title=cfarm216.cfarm.net unreachable::cfarm216.cfarm.net did not answer on port 22, so its tests were skipped."
+          echo "cfarm216.cfarm.net did not answer on port 22, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
         fi
-        echo "::warning title=$HOST unreachable::$HOST did not answer on port 22 in 3 attempts, so its tests were skipped."
-        echo "$HOST did not answer on port 22 in 3 attempts, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
     - name: Test in Solaris SPARC
       if: steps.reach.outputs.up == 'true'
-      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
         REPO_URL: https://github.com/${{ github.repository }}
         BRANCH: ${{ github.ref_name }}
-      with:
-        host: cfarm216.cfarm.net
-        username: oshi
-        key: ${{ secrets.GCC_CI_KEY }}
-        port: 22
-        command_timeout: 25m
-        envs: REPO_URL,BRANCH
-        script: |
-          set -e
-          source .profile
-          # Backup reaper: kill stale JVMs from a previously killed run (older
-          # than the build budget) so they can't hold the workspace hostage.
-          for pid in $(ps -u oshi -o pid=,etime=,comm= 2>/dev/null | awk '$3 ~ /java/ {
-                et=$2; n=split(et,a,/[-:]/);
-                m=(et ~ /-/)?999:(n==3?a[1]*60+a[2]:a[1]);
-                if (m>=20) print $1 }'); do
-            kill -9 "$pid" 2>/dev/null || true
-          done
-          cd ~/oshi
-          # Fetch + reset to the triggering ref regardless of local state.
-          # FETCH_HEAD avoids touching the cfarm clone's named branches.
-          git fetch "$REPO_URL" "$BRANCH"
-          git reset --hard FETCH_HEAD
-          # Force-remove leftover build output (incl. NFS .nfs* sillyrenames).
-          git clean -xffd
-          # Reap the build's process group on exit (orphaned test JVMs) while
-          # shielding this shell so the build's real exit code is preserved.
-          trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
-          set +e
-          # One wall-clock budget for both attempts, kept under command_timeout
-          # so the box self-terminates first and leaves no orphan.
-          # jna-aggregate: JDK 17 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo;
-          # the oshi-benchmark aggregator needs JDK 25, unavailable on this SPARC box.
-          BUILD='./mvnw clean test -Pjna-aggregate -B || { sleep 15; ./mvnw clean test -Pjna-aggregate -B; }'
-          if command -v timeout >/dev/null 2>&1; then
-            timeout --kill-after=30s 20m sh -c "$BUILD"
-          else
-            sh -c "$BUILD"
-          fi
-          exit $?
+      run: .github/cfarm/remote.sh run cfarm216.cfarm.net .github/cfarm/solaris-sparc.sh
     # Pull the JDK 17 aggregate JaCoCo report (oshi-common + oshi-core, no FFM) off
     # the shared box and upload it to Codecov under the `solaris-sparc` flag. Runs on
     # test failure too, since JaCoCo still emits a report then.
@@ -140,15 +88,7 @@ jobs:
       if: always() && steps.reach.outputs.up == 'true'
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
-      run: |
-        KEY=$(mktemp)
-        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
-        chmod 600 "$KEY"
-        mkdir -p oshi-demo/target/site/jacoco-aggregate
-        scp -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-          oshi@cfarm216.cfarm.net:oshi/oshi-demo/target/site/jacoco-aggregate/jacoco.xml \
-          oshi-demo/target/site/jacoco-aggregate/jacoco.xml || echo "No Solaris SPARC coverage report to copy"
-        rm -f "$KEY"
+      run: .github/cfarm/remote.sh fetch cfarm216.cfarm.net oshi/oshi-demo/target/site/jacoco-aggregate/jacoco.xml oshi-demo/target/site/jacoco-aggregate/jacoco.xml || echo "No Solaris SPARC coverage report to copy"
     - name: Upload Coverage
       if: always() && steps.reach.outputs.up == 'true'
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -179,119 +119,24 @@ jobs:
       id: reach
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
-        HOST: cfarm119.cfarm.net
       run: |
-        KEY=$(mktemp)
-        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
-        chmod 600 "$KEY"
-        up=false
-        port_open=false
-        for attempt in 1 2 3; do
-          if timeout 20 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
-            port_open=true
-            if ssh -q -i "$KEY" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=no \
-                -o UserKnownHostsFile=/dev/null "oshi@$HOST" true; then
-              up=true
-              break
-            fi
-          fi
-          [ "$attempt" = 3 ] || sleep 30
-        done
-        rm -f "$KEY"
-        echo "up=$up" >> "$GITHUB_OUTPUT"
-        if [ "$up" = true ]; then
-          exit 0
-        elif [ "$port_open" = true ]; then
-          echo "::error title=$HOST refused ssh::$HOST accepts connections but ssh failed 3 times; check the key and account."
+        rc=0
+        .github/cfarm/remote.sh check cfarm119.cfarm.net || rc=$?
+        echo "up=$([ $rc = 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        if [ $rc = 1 ]; then
+          echo "::error title=cfarm119.cfarm.net refused ssh::cfarm119.cfarm.net accepts connections but ssh kept failing; check the key and account."
           exit 1
+        elif [ $rc = 2 ]; then
+          echo "::warning title=cfarm119.cfarm.net unreachable::cfarm119.cfarm.net did not answer on port 22, so its tests were skipped."
+          echo "cfarm119.cfarm.net did not answer on port 22, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
         fi
-        echo "::warning title=$HOST unreachable::$HOST did not answer on port 22 in 3 attempts, so its tests were skipped."
-        echo "$HOST did not answer on port 22 in 3 attempts, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
     - name: Test in AIX
       if: steps.reach.outputs.up == 'true'
-      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
         REPO_URL: https://github.com/${{ github.repository }}
         BRANCH: ${{ github.ref_name }}
-      with:
-        host: cfarm119.cfarm.net
-        username: oshi
-        key: ${{ secrets.GCC_CI_KEY }}
-        port: 22
-        command_timeout: 25m
-        envs: REPO_URL,BRANCH
-        script: |
-          # Backup reaper: kill stale JVMs from a previously killed run (older
-          # than the build budget) so their open handles don't block git clean /
-          # mvn clean on the shared (possibly NFS) workspace.
-          for pid in $(ps -u oshi -o pid=,etime=,comm= 2>/dev/null | awk '$3 ~ /java/ {
-                et=$2; n=split(et,a,/[-:]/);
-                m=(et ~ /-/)?999:(n==3?a[1]*60+a[2]:a[1]);
-                if (m>=21) print $1 }'); do
-            kill -9 "$pid" 2>/dev/null || true
-          done
-          rm -fR ~/javashared*
-          cd ~/git/oshi
-          export JAVA_HOME=~/java/jdk-25.0.3+9
-          export PATH=$PATH:/opt/freeware/bin
-          export MAVEN_OPTS="-Xshareclasses:none"
-          # Fetch + reset to the triggering ref regardless of local state.
-          # FETCH_HEAD avoids touching the cfarm clone's named branches.
-          git fetch "$REPO_URL" "$BRANCH"
-          git reset --hard FETCH_HEAD
-          # Force-remove leftover build output (incl. NFS .nfs* sillyrenames).
-          git clean -xffd
-          # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
-          MAVEN_VERSION=3.9.15
-          MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
-          if [ ! -d "$MAVEN_DIR" ]; then
-            mkdir -p /home/oshi/software
-            wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz -nv -O /tmp/maven.tar.gz
-            gunzip -f /tmp/maven.tar.gz
-            cd /home/oshi/software && tar xf /tmp/maven.tar && rm /tmp/maven.tar
-            cd ~/git/oshi
-          fi
-          export PATH=$MAVEN_DIR/bin:$PATH
-          # Pre-extract libjnidispatch.a to a stable path so the test JVM can
-          # System.load() it directly. JNA's default behavior is to unpack the
-          # library from the jar with a fresh per-PID filename on every JVM
-          # start, which is what flakes on OpenJ9. Use 'jar' (always shipped
-          # with the JDK) to avoid depending on AIX-side 'unzip' or 'sort -V'.
-          JNA_CACHE=/home/oshi/.cache/jna
-          JNA_LIB=$JNA_CACHE/libjnidispatch.a
-          mkdir -p "$JNA_CACHE"
-          JNA_VERSION=$(mvn -q -N help:evaluate -Dexpression=jna.version -DforceStdout 2>/dev/null)
-          JNA_JAR=$HOME/.m2/repository/net/java/dev/jna/jna/$JNA_VERSION/jna-$JNA_VERSION.jar
-          if [ ! -f "$JNA_JAR" ]; then
-            mvn -q -N dependency:get -Dartifact=net.java.dev.jna:jna:$JNA_VERSION -Dmaven.gitcommitid.skip=true
-          fi
-          if [ ! -f "$JNA_LIB" ] || [ "$JNA_JAR" -nt "$JNA_LIB" ]; then
-            # Extract into a per-run scratch dir on the SAME filesystem as the
-            # cache so the final install is an atomic rename -- concurrency-safe
-            # even if two runs populate at once (no shared /tmp scratch to race).
-            SCRATCH=$(mktemp -d "$JNA_CACHE/.extract.XXXXXX")
-            (cd "$SCRATCH" && jar xf "$JNA_JAR" com/sun/jna/aix-ppc64/libjnidispatch.a)
-            mv "$SCRATCH/com/sun/jna/aix-ppc64/libjnidispatch.a" "$JNA_LIB"
-            # Expose under both names in case the JVM's mapLibraryName picks .so
-            ln -sf libjnidispatch.a "$JNA_CACHE/libjnidispatch.so"
-            rm -rf "$SCRATCH"
-          fi
-          # jna.boot.library.path tells JNA to System.load() the pre-extracted
-          # file first; we deliberately do NOT set jna.nounpack so JNA can still
-          # fall back to JAR extraction if the boot-path load ever fails.
-          export _JAVA_OPTIONS="-Djna.boot.library.path=$JNA_CACHE"
-          # Reap the build's process group on exit (orphaned test JVMs) while
-          # shielding this shell so the build's real exit code is preserved.
-          trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
-          # One wall-clock budget for both attempts, kept under command_timeout
-          # so the box self-terminates first and leaves no orphan.
-          BUILD='mvn clean test -Paggregate-coverage -B || { sleep 15; mvn clean test -Paggregate-coverage -B; }'
-          if command -v timeout >/dev/null 2>&1; then
-            timeout --kill-after=30s 20m sh -c "$BUILD"
-          else
-            sh -c "$BUILD"
-          fi
-          exit $?
+      run: .github/cfarm/remote.sh run cfarm119.cfarm.net .github/cfarm/aix.sh
     # Pull the aggregate JaCoCo report off the shared box (produced under JDK 25
     # so the FFM backend is included) and upload it to Codecov under the `aix`
     # flag. Runs on test failure too, since JaCoCo still emits a report then.
@@ -299,15 +144,7 @@ jobs:
       if: always() && steps.reach.outputs.up == 'true'
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
-      run: |
-        KEY=$(mktemp)
-        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
-        chmod 600 "$KEY"
-        mkdir -p oshi-benchmark/target/site/jacoco-aggregate
-        scp -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-          oshi@cfarm119.cfarm.net:git/oshi/oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml \
-          oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No AIX coverage report to copy"
-        rm -f "$KEY"
+      run: .github/cfarm/remote.sh fetch cfarm119.cfarm.net git/oshi/oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No AIX coverage report to copy"
     - name: Upload Coverage
       if: always() && steps.reach.outputs.up == 'true'
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -338,74 +175,29 @@ jobs:
       id: reach
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
-        HOST: cfarm152.cfarm.net
       run: |
-        KEY=$(mktemp)
-        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
-        chmod 600 "$KEY"
-        up=false
-        port_open=false
-        for attempt in 1 2 3; do
-          if timeout 20 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
-            port_open=true
-            if ssh -q -i "$KEY" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=no \
-                -o UserKnownHostsFile=/dev/null "oshi@$HOST" true; then
-              up=true
-              break
-            fi
-          fi
-          [ "$attempt" = 3 ] || sleep 30
-        done
-        rm -f "$KEY"
-        echo "up=$up" >> "$GITHUB_OUTPUT"
-        if [ "$up" = true ]; then
-          exit 0
-        elif [ "$port_open" = true ]; then
-          echo "::error title=$HOST refused ssh::$HOST accepts connections but ssh failed 3 times; check the key and account."
+        rc=0
+        .github/cfarm/remote.sh check cfarm152.cfarm.net || rc=$?
+        echo "up=$([ $rc = 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        if [ $rc = 1 ]; then
+          echo "::error title=cfarm152.cfarm.net refused ssh::cfarm152.cfarm.net accepts connections but ssh kept failing; check the key and account."
           exit 1
+        elif [ $rc = 2 ]; then
+          echo "::warning title=cfarm152.cfarm.net unreachable::cfarm152.cfarm.net did not answer on port 22, so its tests were skipped."
+          echo "cfarm152.cfarm.net did not answer on port 22, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
         fi
-        echo "::warning title=$HOST unreachable::$HOST did not answer on port 22 in 3 attempts, so its tests were skipped."
-        echo "$HOST did not answer on port 22 in 3 attempts, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
     - name: Test in DragonFly BSD
       if: steps.reach.outputs.up == 'true'
-      uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
         REPO_URL: https://github.com/${{ github.repository }}
         BRANCH: ${{ github.ref_name }}
-      with:
-        host: cfarm152.cfarm.net
-        username: oshi
-        key: ${{ secrets.GCC_CI_KEY }}
-        port: 22
-        command_timeout: 25m
-        envs: REPO_URL,BRANCH
-        script: |
-          # Backup reaper: DragonFly's ps has no etime keyword, so instead of an age
-          # test, kill any JVM still running from this checkout. The concurrency
-          # group serializes runs, so one left over here is from a killed run.
-          pkill -9 -U oshi -f 'java.*/home/oshi/oshi/' 2>/dev/null || true
-          cd ~/oshi
-          export JAVA_HOME=~/java/jdk-25.0.4-dragonfly
-          git fetch "$REPO_URL" "$BRANCH"
-          git reset --hard FETCH_HEAD
-          git clean -xffd
-          trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
-          BUILD='./mvnw clean test -Paggregate-coverage -B || { sleep 15; ./mvnw clean test -Paggregate-coverage -B; }'
-          timeout --kill-after=30s 20m sh -c "$BUILD"
-          exit $?
+      run: .github/cfarm/remote.sh run cfarm152.cfarm.net .github/cfarm/dragonfly.sh
     - name: Copy back DragonFly coverage
       if: always() && steps.reach.outputs.up == 'true'
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
-      run: |
-        KEY=$(mktemp)
-        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
-        chmod 600 "$KEY"
-        mkdir -p oshi-benchmark/target/site/jacoco-aggregate
-        scp -i "$KEY" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-          oshi@cfarm152.cfarm.net:oshi/oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml \
-          oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No DragonFly coverage report to copy"
-        rm -f "$KEY"
+      run: .github/cfarm/remote.sh fetch cfarm152.cfarm.net oshi/oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No DragonFly BSD coverage report to copy"
     - name: Upload Coverage
       if: always() && steps.reach.outputs.up == 'true'
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
