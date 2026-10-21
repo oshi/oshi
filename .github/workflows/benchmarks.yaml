@@ -129,7 +129,7 @@ jobs:
         with:
           persist-credentials: false
       - name: Benchmark on OpenBSD
-        uses: vmactions/openbsd-vm@5f7b2c933b8846a138361d6843c52af4bef5d945 # v1
+        uses: vmactions/openbsd-vm@f1ca8bc8ecc5b6ef7218e5b914836e067e1546d3 # v1
         with:
           # Manual runs only: a cached base image would sit in the shared 10 GB Actions cache between
           # them, and restoring one is no faster than downloading it. See unix.yaml.
