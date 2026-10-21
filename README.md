@@ -171,7 +171,7 @@ See the [oshi-benchmark README](oshi-benchmark/) for running specific benchmarks
 
 Support
 -------
-Please see [SUPPORT.md](SUPPORT.md).
+Please see [SUPPORT.md](.github/SUPPORT.md).
 
 OSHI for Enterprise
 -------------------
@@ -181,7 +181,7 @@ The maintainers of OSHI and thousands of other packages are working with Tidelif
 
 Security Contact Information
 ----------------------------
-Please see [SECURITY.md](SECURITY.md).
+Please see [SECURITY.md](.github/SECURITY.md).
 
 Continuous Integration Test Status
 ----------------------------------
@@ -218,7 +218,7 @@ but we would love for *you* to help by:
 
 Contributing to OSHI
 --------------------
-* [How to Contribute](CONTRIBUTING.md)
+* [How to Contribute](.github/CONTRIBUTING.md)
 * [How to Release](RELEASING.md)
 
 Acknowledgments

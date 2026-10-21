@@ -28,9 +28,10 @@ manually deployed using `mvn clean deploy`
         * HTML-escape `&`, `<`, and `>` inside markdown link targets — but **not** inside fenced code
           blocks (`git clone ... && cd oshi` must stay unescaped)
         * Rewrite repo-relative links to full `https://github.com/oshi/oshi/blob/master/...` URLs:
-          `FAQ.md`, `PERFORMANCE.md`, `UPGRADING.md`, `CONTRIBUTING.md`, `RELEASING.md`,
-          `SECURITY.md`, `SUPPORT.md`, `oshi-demo/`, `oshi-metrics/`, `oshi-benchmark/`, and
-          `oshi-core/src/test/java/oshi/SystemInfoTest.java` (keep any `#anchor` suffix)
+          `FAQ.md`, `PERFORMANCE.md`, `UPGRADING.md`, `RELEASING.md`, `.github/CONTRIBUTING.md`,
+          `.github/SECURITY.md`, `.github/SUPPORT.md`, `oshi-demo/`, `oshi-metrics/`,
+          `oshi-benchmark/`, and `oshi-core/src/test/java/oshi/SystemInfoTest.java` (keep any
+          `#anchor` suffix)
         * Rewrite links to docs that are themselves site pages to their sibling `.html`:
           `src/site/markdown/SampleOutput.md` → `SampleOutput.html`, and
           `src/site/resources/Projects.md` → `Projects.html`

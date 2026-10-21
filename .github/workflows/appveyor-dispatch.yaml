@@ -1,7 +1,7 @@
 # Force an AppVeyor build for a pull request by adding the `full-coverage` label.
 #
 # AppVeyor is the only Windows Server 2019 runner and it is path-filtered (see the skip_commits
-# block in appveyor.yml), so a change it skips has no Windows Server coverage at all. Commits
+# block in .github/appveyor.yml), so a change it skips has no Windows Server coverage at all. Commits
 # filtering does not apply to builds started through the API, so this is the escape hatch for a
 # change whose Windows relevance the filter cannot see.
 #

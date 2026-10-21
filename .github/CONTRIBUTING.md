@@ -66,7 +66,7 @@ Ensure that `mvn test` completes without errors. Use `mvn clean` if necessary.
 
 ## 📝 Update Changelog
 
-The Changelog lets users know what's changed. Edit [CHANGELOG](CHANGELOG.md) to include your contribution under *Next Release*. Follow the format of other entries, including your name and a link to your GitHub account:
+The Changelog lets users know what's changed. Edit [CHANGELOG](../CHANGELOG.md) to include your contribution under *Next Release*. Follow the format of other entries, including your name and a link to your GitHub account:
 
 ```markdown
 * [#123](https://github.com/oshi/oshi/pull/123): Reticulated splines - [@contributor](https://github.com/contributor).
@@ -126,7 +126,7 @@ git push origin my-feature-branch
 
 ## 🔄 Update CHANGELOG Again
 
-If you didn't guess the PR number right, update [CHANGELOG](CHANGELOG.md) with the correct pull request number.
+If you didn't guess the PR number right, update [CHANGELOG](../CHANGELOG.md) with the correct pull request number.
 
 You can either amend your previous commit and force push the changes or create a new commit. The maintainers can squash them later.
 

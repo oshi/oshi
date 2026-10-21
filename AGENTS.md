@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Instructions for AI coding agents working in the OSHI repository. Humans should start with
-[README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTING.md); this file covers what an agent
+[README.md](README.md) and [CONTRIBUTING.md](.github/CONTRIBUTING.md); this file covers what an agent
 is likely to get wrong.
 
 ## What OSHI is
@@ -451,14 +451,14 @@ and occasionally a single logical processor. Tests must pass there *and* on real
 ## Further reading
 
 - [README.md](README.md) — features, usage, module overview
-- [CONTRIBUTING.md](CONTRIBUTING.md) — fork/branch/PR workflow for humans
+- [CONTRIBUTING.md](.github/CONTRIBUTING.md) — fork/branch/PR workflow for humans
 - [FAQ.md](FAQ.md) — platform quirks and common user problems; useful background on *why* a
   value looks odd on a given OS
 - [PERFORMANCE.md](PERFORMANCE.md) — which calls are expensive and why; read before adding a
   native call to a hot path
 - [UPGRADING.md](UPGRADING.md) — the breaking-change history and API compatibility policy
 - [RELEASING.md](RELEASING.md) — the release process (maintainers only)
-- [SECURITY.md](SECURITY.md) — vulnerability reporting
+- [SECURITY.md](.github/SECURITY.md) — vulnerability reporting
 
 For worked examples of *using* the API — what a caller actually writes to reach a given piece of data —
 read `oshi-demo` rather than asking for a walkthrough. It is kept current and covers the common shapes

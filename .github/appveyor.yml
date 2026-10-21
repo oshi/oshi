@@ -29,7 +29,14 @@ skip_commits:
     - '**/linux/**'
     - '**/unix/**'
     - '**/nativefree/**'
-    - '.github/**'
+    # Everything under .github except this file, which has no negation to exclude it by
+    - '.github/workflows/**'
+    - '.github/ffm-audit/**'
+    - '.github/java-upgrade/**'
+    - '.github/codecov.yml'
+    - '.github/FUNDING.yml'
+    - '.github/renovate.json'
+    - '.github/stale.yml'
     - '.circleci/**'
     - 'src/site/**'
 

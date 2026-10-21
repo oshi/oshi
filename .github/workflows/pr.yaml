@@ -60,7 +60,6 @@ jobs:
               - '!**/*.md'
               - '!.github/**'
               - '!.circleci/**'
-              - '!appveyor.yml'
               - '!src/site/**'
               - '!**/mac/**'
               - '!**/windows/**'

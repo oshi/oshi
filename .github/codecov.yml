@@ -23,3 +23,13 @@ coverage:
 flag_management:
   default_rules:
     carryforward: true
+  # Flags no workflow uploads any more. Without carryforward they drop off the next
+  # commit's report instead of carrying their last value forever; once they show no
+  # data on master, delete them in Codecov's flag settings and remove them here.
+  individual_flags:
+    - name: windows-latest
+      carryforward: false
+    - name: ubuntu-latest
+      carryforward: false
+    - name: macos-latest
+      carryforward: false
