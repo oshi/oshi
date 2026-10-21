@@ -1,0 +1,47 @@
+name: Publish javadoc.io docs
+
+# javadoc.io no longer builds a version's docs on first request; each version has to be synced
+# from Maven Central and uploaded. On release this waits for Central to serve the new version,
+# which can lag the release by tens of minutes, then uploads it for every documented artifact.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g. 7.7.2); defaults to the latest release'
+        required: false
+
+permissions: {}
+
+jobs:
+  javadoc-io:
+    if: github.repository_owner == 'oshi'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          sparse-checkout: scripts
+          persist-credentials: false
+      - name: Resolve version
+        id: version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+          INPUT: ${{ inputs.version }}
+        run: |
+          if [ -n "$INPUT" ]; then
+            VERSION="$INPUT"
+          else
+            [ -n "$TAG" ] || TAG=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName --jq .tagName)
+            VERSION="${TAG#oshi-parent-}"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Upload to javadoc.io
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/update-javadoc-io.sh --wait "$VERSION"

@@ -175,10 +175,12 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
       it. A `FAILED` one lists its validation errors: drop it, fix the bundle at
       `target/checkout/target/central-publishing/central-bundle.zip`, and upload it again with
       `./scripts/upload-to-central.sh`.
-* Confirm that both release workflows succeeded. Each takes about 6 minutes:
+* Confirm that the three release workflows succeeded. The dist and site workflows take about 6
+  minutes; the javadoc.io workflow first waits for the release to reach Maven Central:
     ```sh
     gh run list --workflow dist-release.yaml --limit 1
     gh run list --workflow site.yaml --limit 1
+    gh run list --workflow javadoc-io.yaml --limit 1
     ```
     * The release should have `oshi-dist-x.x.x.zip` attached:
       `gh release view oshi-parent-x.x.x --json assets --jq '.assets[].name'`
@@ -186,10 +188,10 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
       required, because `oshi.ooo` redirects to `www.oshi.ooo`, and without it the check reads the
       redirect page and never finds the version.
     * If either workflow failed, re-run it as described in the previous section.
-* Once Central has the release, update [javadoc.io](https://javadoc.io/doc/com.github.oshi). For
-  each of `oshi-common`, `oshi-core`, `oshi-core-ffm`, and `oshi-metrics`, open its versions page
-  from the `com.github.oshi` summary, refresh the latest versions, select the new version, and
-  upload it. The docs appear about 10 minutes later.
+* The javadoc.io workflow uploads the release to [javadoc.io](https://javadoc.io/doc/com.github.oshi)
+  for `oshi-common`, `oshi-core`, `oshi-core-ffm`, and `oshi-metrics`; the docs appear about 10
+  minutes after it finishes. javadoc.io no longer builds a version on first request, so if the
+  workflow failed, re-run it from the Actions tab or run `./scripts/update-javadoc-io.sh x.x.x`.
 
 ### Ongoing Maintenance
 
