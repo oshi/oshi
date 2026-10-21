@@ -26,6 +26,13 @@ permissions: {}
 #     so a hung/cancelled run tears down its own process tree instead of
 #     orphaning a JVM for the next run to trip over.
 
+# Host availability: cfarm machines go down for days at a time. Each job first
+# checks that its host answers on port 22, retrying to ride out a transient
+# failure. A host that never answers is reported as a warning and the job passes
+# without testing, so an outage does not read as a failing build; its Codecov
+# flag carries its last value forward. A host that answers but refuses ssh fails
+# the job, since that needs attention rather than patience.
+
 jobs:
   # Tests the triggering ref on Solaris 11.4 SPARC: master on push, or the
   # dispatched branch (possibly from a fork) on workflow_dispatch. Retries
@@ -47,7 +54,41 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
         persist-credentials: false
+    # See "Host availability" at the top of this file.
+    - name: Check cfarm216.cfarm.net is reachable
+      id: reach
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+        HOST: cfarm216.cfarm.net
+      run: |
+        KEY=$(mktemp)
+        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
+        chmod 600 "$KEY"
+        up=false
+        port_open=false
+        for attempt in 1 2 3; do
+          if timeout 20 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
+            port_open=true
+            if ssh -q -i "$KEY" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=no \
+                -o UserKnownHostsFile=/dev/null "oshi@$HOST" true; then
+              up=true
+              break
+            fi
+          fi
+          [ "$attempt" = 3 ] || sleep 30
+        done
+        rm -f "$KEY"
+        echo "up=$up" >> "$GITHUB_OUTPUT"
+        if [ "$up" = true ]; then
+          exit 0
+        elif [ "$port_open" = true ]; then
+          echo "::error title=$HOST refused ssh::$HOST accepts connections but ssh failed 3 times; check the key and account."
+          exit 1
+        fi
+        echo "::warning title=$HOST unreachable::$HOST did not answer on port 22 in 3 attempts, so its tests were skipped."
+        echo "$HOST did not answer on port 22 in 3 attempts, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
     - name: Test in Solaris SPARC
+      if: steps.reach.outputs.up == 'true'
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
         REPO_URL: https://github.com/${{ github.repository }}
@@ -96,7 +137,7 @@ jobs:
     # the shared box and upload it to Codecov under the `solaris-sparc` flag. Runs on
     # test failure too, since JaCoCo still emits a report then.
     - name: Copy back Solaris SPARC coverage
-      if: always()
+      if: always() && steps.reach.outputs.up == 'true'
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
       run: |
@@ -109,7 +150,7 @@ jobs:
           oshi-demo/target/site/jacoco-aggregate/jacoco.xml || echo "No Solaris SPARC coverage report to copy"
         rm -f "$KEY"
     - name: Upload Coverage
-      if: always()
+      if: always() && steps.reach.outputs.up == 'true'
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -133,7 +174,41 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
         persist-credentials: false
+    # See "Host availability" at the top of this file.
+    - name: Check cfarm119.cfarm.net is reachable
+      id: reach
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+        HOST: cfarm119.cfarm.net
+      run: |
+        KEY=$(mktemp)
+        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
+        chmod 600 "$KEY"
+        up=false
+        port_open=false
+        for attempt in 1 2 3; do
+          if timeout 20 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
+            port_open=true
+            if ssh -q -i "$KEY" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=no \
+                -o UserKnownHostsFile=/dev/null "oshi@$HOST" true; then
+              up=true
+              break
+            fi
+          fi
+          [ "$attempt" = 3 ] || sleep 30
+        done
+        rm -f "$KEY"
+        echo "up=$up" >> "$GITHUB_OUTPUT"
+        if [ "$up" = true ]; then
+          exit 0
+        elif [ "$port_open" = true ]; then
+          echo "::error title=$HOST refused ssh::$HOST accepts connections but ssh failed 3 times; check the key and account."
+          exit 1
+        fi
+        echo "::warning title=$HOST unreachable::$HOST did not answer on port 22 in 3 attempts, so its tests were skipped."
+        echo "$HOST did not answer on port 22 in 3 attempts, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
     - name: Test in AIX
+      if: steps.reach.outputs.up == 'true'
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
         REPO_URL: https://github.com/${{ github.repository }}
@@ -221,7 +296,7 @@ jobs:
     # so the FFM backend is included) and upload it to Codecov under the `aix`
     # flag. Runs on test failure too, since JaCoCo still emits a report then.
     - name: Copy back AIX coverage
-      if: always()
+      if: always() && steps.reach.outputs.up == 'true'
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
       run: |
@@ -234,7 +309,7 @@ jobs:
           oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No AIX coverage report to copy"
         rm -f "$KEY"
     - name: Upload Coverage
-      if: always()
+      if: always() && steps.reach.outputs.up == 'true'
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -258,7 +333,41 @@ jobs:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
         persist-credentials: false
+    # See "Host availability" at the top of this file.
+    - name: Check cfarm152.cfarm.net is reachable
+      id: reach
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+        HOST: cfarm152.cfarm.net
+      run: |
+        KEY=$(mktemp)
+        printf '%s\n' "$GCC_CI_KEY" > "$KEY"
+        chmod 600 "$KEY"
+        up=false
+        port_open=false
+        for attempt in 1 2 3; do
+          if timeout 20 bash -c "</dev/tcp/$HOST/22" 2>/dev/null; then
+            port_open=true
+            if ssh -q -i "$KEY" -o BatchMode=yes -o ConnectTimeout=20 -o StrictHostKeyChecking=no \
+                -o UserKnownHostsFile=/dev/null "oshi@$HOST" true; then
+              up=true
+              break
+            fi
+          fi
+          [ "$attempt" = 3 ] || sleep 30
+        done
+        rm -f "$KEY"
+        echo "up=$up" >> "$GITHUB_OUTPUT"
+        if [ "$up" = true ]; then
+          exit 0
+        elif [ "$port_open" = true ]; then
+          echo "::error title=$HOST refused ssh::$HOST accepts connections but ssh failed 3 times; check the key and account."
+          exit 1
+        fi
+        echo "::warning title=$HOST unreachable::$HOST did not answer on port 22 in 3 attempts, so its tests were skipped."
+        echo "$HOST did not answer on port 22 in 3 attempts, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
     - name: Test in DragonFly BSD
+      if: steps.reach.outputs.up == 'true'
       uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
       env:
         REPO_URL: https://github.com/${{ github.repository }}
@@ -285,7 +394,7 @@ jobs:
           timeout --kill-after=30s 20m sh -c "$BUILD"
           exit $?
     - name: Copy back DragonFly coverage
-      if: always()
+      if: always() && steps.reach.outputs.up == 'true'
       env:
         GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
       run: |
@@ -298,7 +407,7 @@ jobs:
           oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml || echo "No DragonFly coverage report to copy"
         rm -f "$KEY"
     - name: Upload Coverage
-      if: always()
+      if: always() && steps.reach.outputs.up == 'true'
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
