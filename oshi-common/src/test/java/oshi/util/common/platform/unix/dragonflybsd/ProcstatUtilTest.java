@@ -79,7 +79,9 @@ class ProcstatUtilTest {
     }
 
     @Test
-    @EnabledIfSystemProperty(named = "os.name", matches = "(?i)dragonfly")
+    // DragonFly BSD reports os.name as "DragonFlyBSD", and the annotation requires the whole value to match, so a
+    // bare "(?i)dragonfly" silently skipped this test on the only platform that can run it
+    @EnabledIfSystemProperty(named = "os.name", matches = "(?i)dragonfly.*")
     void testProcstatLive() {
         // RuntimeMXBean#getName() returns "<pid>@<host>" — use it to avoid pulling oshi-core's SystemInfo into a
         // oshi-common test. Mirrors the pattern used in the FreeBSD ProcstatUtilTest and NetBSD FstatUtilTest.
