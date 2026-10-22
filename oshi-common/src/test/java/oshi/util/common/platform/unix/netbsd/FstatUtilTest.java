@@ -5,10 +5,10 @@
 package oshi.util.common.platform.unix.netbsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
@@ -68,6 +68,13 @@ class FstatUtilTest {
         int pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split("@", 2)[0], -1);
         assertThat("Number of open files must be nonnegative", FstatUtil.getOpenFiles(pid),
                 is(greaterThanOrEqualTo(0L)));
-        assertThat("Cwd should not be empty", FstatUtil.getCwd(pid), is(not(emptyString())));
+        // NetBSD builds the /proc/<pid>/cwd link through getcwd_common(), which resolves the vnode through the name
+        // cache and fails when it holds no entry for the directory, so the link reads back empty. Tolerate that, but
+        // when a path is returned it must be absolute.
+        String cwd = FstatUtil.getCwd(pid);
+        assertThat("getCwd must never return null", cwd, is(notNullValue()));
+        if (!cwd.isEmpty()) {
+            assertThat("A resolved cwd should be an absolute path", cwd, startsWith("/"));
+        }
     }
 }
