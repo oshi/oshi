@@ -1430,6 +1430,10 @@ public final class ParseUtil {
         }
         byte[] bytes = new byte[16];
         String head = doubleColon < 0 ? addr : addr.substring(0, doubleColon);
+        if (doubleColon >= 0 && head.indexOf('.') >= 0) {
+            // A dotted quad represents the final 32 bits, so it cannot precede compressed zero groups.
+            return EMPTY_BYTE_ARRAY;
+        }
         int headBytes = parseIpv6Groups(head, bytes, 0);
         if (headBytes < 0) {
             return EMPTY_BYTE_ARRAY;
