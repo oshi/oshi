@@ -25,8 +25,10 @@ import oshi.util.ParseUtil;
 public final class BsdNetworkIF extends AbstractNetworkIF {
 
     // The rate of an Ethernet media type (1000baseT, 10Gbase-T, 2500Base-T) or a wireless one (OFDM/54Mbps)
-    private static final Pattern MEDIA_SPEED = Pattern.compile("(\\d++(?:\\.\\d++)?+)([GM]?+)(?:base|bps)",
-            Pattern.CASE_INSENSITIVE);
+    // The lookbehind stops find() from retrying inside a number, so the scan stays linear
+    private static final String MEDIA_RATE = "(?i)(?<!\\d)(\\d++(?:\\.\\d++)?+)";
+    private static final String MEDIA_UNIT = "([GM]?+)(?:base|bps)";
+    private static final Pattern MEDIA_SPEED = Pattern.compile(MEDIA_RATE + MEDIA_UNIT); // NOSONAR java:S8786 - linear
 
     /**
      * Constructs a new {@code BsdNetworkIF}.

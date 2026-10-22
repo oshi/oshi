@@ -23,9 +23,9 @@ git clean -xffd
 # mvnw hash_string() overflows AIX ksh arithmetic; use mvn directly
 MAVEN_VERSION=3.9.15
 MAVEN_DIR=/home/oshi/software/apache-maven-$MAVEN_VERSION
-if [ ! -d "$MAVEN_DIR" ]; then
+if [[ ! -d "$MAVEN_DIR" ]]; then
   mkdir -p /home/oshi/software
-  wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz -nv -O /tmp/maven.tar.gz
+  wget https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.tar.gz -nv --max-redirect=0 -O /tmp/maven.tar.gz
   gunzip -f /tmp/maven.tar.gz
   cd /home/oshi/software && tar xf /tmp/maven.tar && rm /tmp/maven.tar
   cd ~/git/oshi
@@ -41,10 +41,10 @@ JNA_LIB=$JNA_CACHE/libjnidispatch.a
 mkdir -p "$JNA_CACHE"
 JNA_VERSION=$(mvn -q -N help:evaluate -Dexpression=jna.version -DforceStdout 2>/dev/null)
 JNA_JAR=$HOME/.m2/repository/net/java/dev/jna/jna/$JNA_VERSION/jna-$JNA_VERSION.jar
-if [ ! -f "$JNA_JAR" ]; then
+if [[ ! -f "$JNA_JAR" ]]; then
   mvn -q -N dependency:get -Dartifact=net.java.dev.jna:jna:$JNA_VERSION -Dmaven.gitcommitid.skip=true
 fi
-if [ ! -f "$JNA_LIB" ] || [ "$JNA_JAR" -nt "$JNA_LIB" ]; then
+if [[ ! -f "$JNA_LIB" || "$JNA_JAR" -nt "$JNA_LIB" ]]; then
   # Extract into a per-run scratch dir on the SAME filesystem as the
   # cache so the final install is an atomic rename -- concurrency-safe
   # even if two runs populate at once (no shared /tmp scratch to race).

@@ -31,7 +31,9 @@ host=$2
 # ssh exits 255 for its own failures. One that comes within a minute is a refused or
 # dropped connection, before the remote command could have done any real work.
 refused() {
-    [ "$1" -eq 255 ] && [ $((SECONDS - $2)) -lt 60 ]
+    local rc=$1 start=$2
+    [[ $rc -eq 255 && $((SECONDS - start)) -lt 60 ]]
+    return
 }
 
 case "$cmd" in
@@ -42,9 +44,9 @@ case "$cmd" in
                 port_open=true
                 ssh "${SSH_OPTS[@]}" "oshi@$host" true && exit 0
             fi
-            [ "$attempt" = $ATTEMPTS ] || sleep $RETRY_DELAY
+            [[ $attempt -eq $ATTEMPTS ]] || sleep $RETRY_DELAY
         done
-        [ "$port_open" = true ] && exit 1
+        [[ $port_open == true ]] && exit 1
         exit 2
         ;;
     run)
@@ -62,7 +64,7 @@ $(cat "$3")"
             rc=$?
             refused $rc $start || exit $rc
             echo "ssh to $host was refused (attempt $attempt of $ATTEMPTS)" >&2
-            [ "$attempt" = $ATTEMPTS ] || sleep $RETRY_DELAY
+            [[ $attempt -eq $ATTEMPTS ]] || sleep $RETRY_DELAY
         done
         exit $rc
         ;;
@@ -72,11 +74,11 @@ $(cat "$3")"
             start=$SECONDS
             scp "${SSH_OPTS[@]}" "oshi@$host:$3" "$4"
             rc=$?
-            [ $rc -eq 0 ] && exit 0
+            [[ $rc -eq 0 ]] && exit 0
             # scp exits 1 both when refused and when the file is missing, so a
             # missing report costs the retries before it is given up on
-            [ $((SECONDS - start)) -lt 60 ] || exit $rc
-            [ "$attempt" = $ATTEMPTS ] || sleep $RETRY_DELAY
+            [[ $((SECONDS - start)) -lt 60 ]] || exit $rc
+            [[ $attempt -eq $ATTEMPTS ]] || sleep $RETRY_DELAY
         done
         exit $rc
         ;;

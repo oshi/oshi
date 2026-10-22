@@ -36,7 +36,10 @@ public class FreeBsdUsbDevice extends AbstractUsbDevice {
     // fields, after "pnpinfo" and "at" respectively
     private static final Pattern DEVINFO_LINE = Pattern.compile("( *)(\\S+)(?: <(.*?)>)?(.*)");
     // A plug-and-play or location field, its value quoted where it may hold spaces: sernum="1234BBBK5678" ugen=ugen0.2
-    private static final Pattern PNP_FIELD = Pattern.compile("(?<!\\w)(\\w++)=(\"[^\"]*+\"|\\S++)");
+    // The lookbehind stops find() from retrying inside a name, so the scan stays linear
+    private static final String PNP_NAME = "(?<!\\w)(\\w++)=";
+    private static final String PNP_VALUE = "(\"[^\"]*+\"|\\S++)";
+    private static final Pattern PNP_FIELD = Pattern.compile(PNP_NAME + PNP_VALUE); // NOSONAR java:S8786 - linear
 
     /**
      * Constructs a new {@code FreeBsdUsbDevice}.

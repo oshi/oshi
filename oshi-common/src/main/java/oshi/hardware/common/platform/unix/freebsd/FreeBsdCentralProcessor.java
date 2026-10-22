@@ -37,7 +37,10 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
     // Capture the CSV of hex values as group(1), clients should split on ','
     // The Origin line of dmesg.boot, and each name=value pair on it, with or without spaces around the =
     private static final Pattern ORIGIN = Pattern.compile("Origin\\s*=.*");
-    private static final Pattern DMESG_FIELD = Pattern.compile("(?<!\\w)(\\w++)\\s*+=\\s*+(\"[^\"]*+\"|\\S++)");
+    // The lookbehind stops find() from retrying inside a name, so the scan stays linear
+    private static final String DMESG_NAME = "(?<!\\w)(\\w++)\\s*+=\\s*+";
+    private static final String DMESG_VALUE = "(\"[^\"]*+\"|\\S++)";
+    private static final Pattern DMESG_FIELD = Pattern.compile(DMESG_NAME + DMESG_VALUE); // NOSONAR java:S8786 - linear
 
     private static final Pattern CPUMASK = Pattern.compile("mask=\"([\\p{XDigit},]+)\"");
 
