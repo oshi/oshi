@@ -9,7 +9,8 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.startsWith;
 
 import java.lang.management.ManagementFactory;
 import java.util.Collections;
@@ -85,6 +86,13 @@ class ProcstatUtilTest {
         int pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split("@", 2)[0], -1);
         assertThat("RuntimeMXBean#getName() should yield a positive PID, got " + pid, pid, is(greaterThan(0)));
         assertThat("Open files must be nonnegative", ProcstatUtil.getOpenFiles(pid), is(greaterThanOrEqualTo(0L)));
-        assertThat("Cwd should be nonempty", ProcstatUtil.getCwd(pid), is(not(emptyString())));
+        // Both sources are best effort: /proc is not mounted on every system, and the fstat fallback prints no "wd"
+        // row for a directory it cannot resolve. Tolerate an empty result, but when a path is returned it must be
+        // absolute.
+        String cwd = ProcstatUtil.getCwd(pid);
+        assertThat("getCwd must never return null", cwd, is(notNullValue()));
+        if (!cwd.isEmpty()) {
+            assertThat("A resolved cwd should be an absolute path", cwd, startsWith("/"));
+        }
     }
 }
