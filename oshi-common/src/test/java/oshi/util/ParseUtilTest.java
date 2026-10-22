@@ -1239,6 +1239,21 @@ class ParseUtilTest {
     }
 
     /**
+     * A dotted quad must represent the final 32 bits, even when zero groups are compressed.
+     */
+    @Test
+    void testParseIpv6DottedQuadPosition() {
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1.2.3.4::"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("ffff:1.2.3.4::"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1.2.3.4::1"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("1.2.3.4::5.6.7.8"), is(new byte[0]));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("0:0:0:0:0:ffff:1.2.3.4"),
+                is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -1, -1, 1, 2, 3, 4 }));
+        assertThat(ParseUtil.parseIpv6AddressToBytes("::1.2.3.4"),
+                is(new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4 }));
+    }
+
+    /**
      * Test parseIpv6AddressToBytes
      */
     @Test
