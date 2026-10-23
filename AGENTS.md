@@ -441,12 +441,84 @@ and occasionally a single logical processor. Tests must pass there *and* on real
 
 - Branch from `master`; PRs target `master`.
 - Add a `CHANGELOG.md` entry under *Next Release* **only for user-visible changes**. Pure
-  refactors, dedup, test-only changes, and CI config get no entry.
+  refactors, dedup, test-only changes, and CI config get no entry. See
+  [The CHANGELOG](#the-changelog) for the form it takes.
 - Do not add dependencies without discussion, and do not bump dependency versions by hand —
   Renovate handles that.
 - Commit messages describe what changed and why. Do not add sign-off or `Co-Authored-By` trailers
   unless asked.
 - Do not commit generated output, `target/`, or IDE files.
+
+### The CHANGELOG
+
+An entry is one bullet, on **one line however long it runs** — the longest in the file is over a
+thousand characters. Spotless formats `.md` only by trimming trailing whitespace and normalizing
+indentation to two spaces, so nothing wraps it for you and nothing stops you wrapping it by hand.
+Do not: a hard-wrapped entry reads as a diff against every neighbour.
+
+```markdown
+* [#3837](https://github.com/oshi/oshi/pull/3837): Reject IPv6 address text with a dotted IPv4 component before compressed zero groups - [@PHJ2000](https://github.com/PHJ2000).
+```
+
+PR number first as a link, a colon, what changed in the user's terms, then ` - ` and the author's
+GitHub handle as a link, then a period. Guess your PR number as the next number after the newest
+issue or PR, and correct it afterward if you guessed wrong. Write what a caller observes, not what
+you did to the code: name the API and say what it returns now and what it returned before.
+
+New entries go at the **bottom** of the in-progress list, which keeps it in ascending PR order. The
+first entry of a release cycle **replaces** the `* Your contribution here!` placeholder rather than
+inserting above it; `RELEASING.md` re-creates the placeholder in the next empty section, so it is a
+marker for an empty list, not a permanent last line.
+
+Do not add a `#####` category header. Categorizing is part of the release pass described below —
+7.7.2 ran its whole cycle as a flat, headerless list of 35 bullets.
+
+#### Combining related PRs
+
+One PR, one entry is the default, and **when in doubt write a separate entry**: the maintainer
+regroups at release time, and an entry that should have been folded in costs nothing, where a
+premature fold loses detail. Several PRs share one entry by listing their numbers, ascending, each
+continuation line indented two spaces, with the text and credit on the last:
+
+```markdown
+* [#3791](https://github.com/oshi/oshi/pull/3791),
+  [#3798](https://github.com/oshi/oshi/pull/3798),
+  [#3833](https://github.com/oshi/oshi/pull/3833): Fixed `getDiskStores()` on the BSDs: … - [@dbwiddis](https://github.com/dbwiddis).
+```
+
+Combine in-line, as you go, when your PR is plainly another step of an arc already in the list:
+
+- **The same defect on another operating system**, fixed by successive PRs. Most of 7.7.2 was this:
+  the TCP/UDP counters were misread on seven platforms, and the seven PRs that fixed them read far
+  better as one entry naming the API than as seven naming each platform.
+- **A migration sweep**, where the individual commits are mechanically alike and only the whole is
+  interesting to a caller. The FFM migration through the late 6.x releases was grouped this way.
+- **A contributor's single-OS feature that a maintainer then extends to the other platforms.**
+  Both PRs and **both names** go on the entry, submitter first:
+  `… - [@ayonization](https://github.com/ayonization), [@dbwiddis](https://github.com/dbwiddis).`
+  `Display.getCurrentMode()` (#3709 with #3757) and `Display.getDevicePort()` (#3660 with #3678)
+  are the worked examples.
+
+When you fold your PR into an existing entry, rewrite that entry's text to describe the combined
+result across every platform it now covers, and add your handle if it is not already there. Keep
+the credits in the order they were earned.
+
+A long run of consecutive PRs collapses to a range instead of a list:
+`[#3614](https://github.com/oshi/oshi/pull/3614) - [#3636](https://github.com/oshi/oshi/pull/3636): …`.
+
+#### What the maintainer does at release
+
+Release prep regroups the cycle's entries **by the API they fix rather than by PR**, adds the
+category headers (`New Features`, `Bug Fixes and Improvements`, `Behavior Changes`,
+`Breaking Changes`), and removes the placeholder. `49424cbf35` is the worked example: 35 entries
+became nine. The commit message states the principle — "the PR descriptions carry the detail" — so
+a grouped entry says what a caller now gets, and anyone wanting the per-platform specifics follows
+the PR links.
+
+Two consequences worth knowing. A single PR may appear in **two** groups when it fixed two
+unrelated things: #3785 is both its own swap and `sysctl` entry and a member of the TCP/UDP group.
+And a patch release's entries are folded into the heading of the release they ship under, so the
+7.7.x section is titled for all three of 7.7.0, 7.7.1 and 7.7.2.
 
 ## Further reading
 
