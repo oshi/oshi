@@ -462,16 +462,51 @@ Do not: a hard-wrapped entry reads as a diff against every neighbour.
 
 PR number first as a link, a colon, what changed in the user's terms, then ` - ` and the author's
 GitHub handle as a link, then a period. Guess your PR number as the next number after the newest
-issue or PR, and correct it afterward if you guessed wrong. Write what a caller observes, not what
-you did to the code: name the API and say what it returns now and what it returned before.
+issue or PR, and correct it afterward if you guessed wrong.
+
+**The PR description is the source of truth; the entry is a scanning aid.** It exists so a reader can
+tell whether a change affects them and decide whether to follow the link, so name the API and the
+platform and stop: "Fixed `getDiskStores()` on OpenBSD" is close to sufficient. Write what a caller
+observes rather than what you did to the code, and resist explaining the whole bug and its fix — a
+per-platform specification of what a method returns belongs in the javadoc, and a config property's
+cost in `oshi.properties`. Entries do run longer than the minimum, and that is fine; what does not
+belong is a second copy of the PR description. Before trimming detail out of an *existing* entry,
+check that it really does exist in javadoc or `oshi.properties` — cutting the macOS and Windows port
+descriptions from #3678 exposed that `Display.getDevicePort()`'s javadoc still documented only Linux.
 
 New entries go at the **bottom** of the in-progress list, which keeps it in ascending PR order. The
 first entry of a release cycle **replaces** the `* Your contribution here!` placeholder rather than
 inserting above it; `RELEASING.md` re-creates the placeholder in the next empty section, so it is a
 marker for an empty list, not a permanent last line.
 
-Do not add a `#####` category header. Categorizing is part of the release pass described below —
-7.7.2 ran its whole cycle as a flat, headerless list of 35 bullets.
+Put your entry under the right `#####` category header, creating it if the in-progress section has
+none yet. The categories, in the order they appear under the `#` release heading:
+
+| Category | Holds |
+|---|---|
+| `New Features` | New behavior: new API surface, and significant new functionality without it |
+| `Behavior Changes` | A value or contract a caller may depend on now reads differently |
+| `Bug Fixes and Improvements` | Everything else |
+
+**`New Features` is about significance, not strictly about API.** New API surface — the kind that
+causes a minor version bump — always belongs here. So does substantially expanded functionality that
+adds no API, and that is a judgment call on how much a user gains: taking a feature that worked only
+on Linux and making it work on macOS and Windows is a new feature, while extending one that already
+covers the major platforms to a few more UNIX variants probably is not. A new *capability* on an
+existing method is usually an improvement rather than a feature — #3675's opt-in live Apple Silicon
+frequency stayed under Improvements, while #3660 and #3678's new `Display.getDevicePort()` and
+`getOutputName()` methods were Features.
+
+One PR occasionally earns **two** entries, and that is acceptable though it should be rare. #3652
+added the `reserved` filesystem state (a Feature) *and* redefined `used` (a Behavior Change), in two
+categories; #3785 fixed DragonFly BSD's swap total and its TCP and UDP counters, which ended up in
+two unrelated groups of the same category. Prefer splitting the work into separate PRs; when a single
+PR did cover both, listing it twice beats burying one half inside the other's bullet.
+
+A note about **release machinery rather than a PR** — "the `oshi-dist` zip is no longer published to
+Maven Central" — goes above the first category header as a plain paragraph, with no bullet, no PR
+link and no author credit, since the credit line is for PRs. These are rare, and are worth writing
+only for a change to the released artifacts that a user needs to know about.
 
 #### Combining related PRs
 
@@ -508,15 +543,17 @@ A long run of consecutive PRs collapses to a range instead of a list:
 
 #### What the maintainer does at release
 
-Release prep regroups the cycle's entries **by the API they fix rather than by PR**, adds the
-category headers (`New Features`, `Bug Fixes and Improvements`, `Behavior Changes`,
-`Breaking Changes`), and removes the placeholder. `49424cbf35` is the worked example: 35 entries
-became nine. The commit message states the principle — "the PR descriptions carry the detail" — so
-a grouped entry says what a caller now gets, and anyone wanting the per-platform specifics follows
-the PR links.
+Release prep regroups the cycle's entries **by the API they fix rather than by PR**, settles the
+categories, adds `Breaking Changes` if the release has any, and removes the placeholder.
+`49424cbf35` is the worked example: 35 entries became nine. The commit message states the principle
+— "the PR descriptions carry the detail" — so a grouped entry says what a caller now gets, and
+anyone wanting the per-platform specifics follows the PR links. A maintainer running a long sweep of
+their own PRs may leave the list flat and uncategorized until this pass; that is their shortcut, not
+the convention for an entry you add.
 
-Two consequences worth knowing. A single PR may appear in **two** groups when it fixed two
-unrelated things: #3785 is both its own swap and `sysctl` entry and a member of the TCP/UDP group.
+So an entry you write is provisional. It may be folded into a neighbour, reworded, or moved to
+another category at release, which is the reason to keep it short and leave the detail in the PR.
+
 And a patch release's entries are folded into the heading of the release they ship under, so the
 7.7.x section is titled for all three of 7.7.0, 7.7.1 and 7.7.2.
 
