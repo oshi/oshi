@@ -19,7 +19,7 @@ class AbstractDisplayTest {
 
     @Test
     void testEdidDefensiveCopy() {
-        byte[] edid = new byte[] { 0x00, 0x01, 0x02 };
+        byte[] edid = { 0x00, 0x01, 0x02 };
         AbstractDisplay display = new AbstractDisplay(edid) {
         };
         edid[0] = (byte) 0xFF;

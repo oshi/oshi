@@ -39,7 +39,7 @@ public class OshiHTTPServer implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(OshiHTTPServer.class);
 
     // Client Connection via Socket Class
-    private Socket connect;
+    private final Socket connect;
 
     /**
      * Creates an HTTP server handler for the given socket.

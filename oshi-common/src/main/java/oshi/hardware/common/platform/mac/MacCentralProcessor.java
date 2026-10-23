@@ -485,7 +485,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             return null;
         }
         List<Map.Entry<String, Pair<Integer, Integer>>> entries = new ArrayList<>(codenames.entrySet());
-        Collections.sort(entries, (a, b) -> {
+        entries.sort((a, b) -> {
             int byEfficiency = b.getValue().getA().compareTo(a.getValue().getA());
             return byEfficiency == 0 ? a.getValue().getB().compareTo(b.getValue().getB()) : byEfficiency;
         });
@@ -568,7 +568,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             }
             return false;
         });
-        Collections.sort(tables, (a, b) -> Long.compare(a[a.length - 1], b[b.length - 1]));
+        tables.sort((a, b) -> Long.compare(a[a.length - 1], b[b.length - 1]));
         List<long[]> distinct = new ArrayList<>(tables.size());
         for (long[] table : tables) {
             long[] previous = distinct.isEmpty() ? null : distinct.get(distinct.size() - 1);
@@ -968,8 +968,7 @@ public abstract class MacCentralProcessor extends AbstractCentralProcessor {
             groups.computeIfAbsent(efficiency, k -> new ArrayList<>()).add(processor);
         }
         for (List<PhysicalProcessor> group : groups.values()) {
-            Collections.sort(group,
-                    (a, b) -> Integer.compare(a.getPhysicalProcessorNumber(), b.getPhysicalProcessorNumber()));
+            group.sort((a, b) -> Integer.compare(a.getPhysicalProcessorNumber(), b.getPhysicalProcessorNumber()));
         }
         return groups;
     }

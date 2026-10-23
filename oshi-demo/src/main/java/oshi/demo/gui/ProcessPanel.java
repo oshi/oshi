@@ -44,16 +44,16 @@ public class ProcessPanel extends OshiJPanel { // NOSONAR java:S110
             "% Memory", "Process Name" };
     private static final double[] COLUMN_WIDTH_PERCENT = { 0.07, 0.07, 0.07, 0.07, 0.09, 0.09, 0.09, 0.09, 0.07, 0.29 };
 
-    private transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
+    private final transient Map<Integer, OSProcess> priorSnapshotMap = new HashMap<>();
 
-    private transient ButtonGroup cpuOption = new ButtonGroup();
-    private transient JRadioButton perProc = new JRadioButton("of one Processor");
-    private transient JRadioButton perSystem = new JRadioButton("of System");
+    private final transient ButtonGroup cpuOption = new ButtonGroup();
+    private final transient JRadioButton perProc = new JRadioButton("of one Processor");
+    private final transient JRadioButton perSystem = new JRadioButton("of System");
 
-    private transient ButtonGroup sortOption = new ButtonGroup();
-    private transient JRadioButton cpuButton = new JRadioButton("CPU %");
-    private transient JRadioButton cumulativeCpuButton = new JRadioButton("Cumulative CPU");
-    private transient JRadioButton memButton = new JRadioButton("Memory %");
+    private final transient ButtonGroup sortOption = new ButtonGroup();
+    private final transient JRadioButton cpuButton = new JRadioButton("CPU %");
+    private final transient JRadioButton cumulativeCpuButton = new JRadioButton("Cumulative CPU");
+    private final transient JRadioButton memButton = new JRadioButton("Memory %");
 
     /**
      * Creates this panel.

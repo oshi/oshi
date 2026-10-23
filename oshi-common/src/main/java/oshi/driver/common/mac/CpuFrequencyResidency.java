@@ -198,7 +198,7 @@ public final class CpuFrequencyResidency {
      */
     public static List<String> orderChannels(Collection<String> channelNames) {
         List<String> ordered = new ArrayList<>(channelNames);
-        Collections.sort(ordered, (a, b) -> {
+        ordered.sort((a, b) -> {
             int bySortKey = Long.compare(sortKey(a), sortKey(b));
             return bySortKey == 0 ? a.compareTo(b) : bySortKey;
         });

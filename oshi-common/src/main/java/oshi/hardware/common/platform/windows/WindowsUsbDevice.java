@@ -4,8 +4,6 @@
  */
 package oshi.hardware.common.platform.windows;
 
-import static java.util.Collections.sort;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -97,7 +95,7 @@ public final class WindowsUsbDevice extends AbstractUsbDevice {
                 childDevices.add(deviceAndChildren);
             }
         }
-        sort(childDevices);
+        childDevices.sort(null);
         if (nameMap.containsKey(device)) {
             String name = nameMap.get(device);
             if (name.isEmpty()) {

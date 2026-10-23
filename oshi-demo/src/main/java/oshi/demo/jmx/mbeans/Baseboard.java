@@ -29,9 +29,9 @@ import oshi.demo.jmx.demo.PropertiesAvailable;
  */
 public class Baseboard implements DynamicMBean, PropertiesAvailable {
 
-    private oshi.hardware.Baseboard hwBaseboard;
+    private final oshi.hardware.Baseboard hwBaseboard;
     private MBeanInfo dMBeanInfo = null;
-    private List<String> propertiesAvailable = new ArrayList<>();
+    private final List<String> propertiesAvailable = new ArrayList<>();
     private static final String PROPERTIES = "Properties";
 
     private void setUpMBean() throws IntrospectionException, javax.management.IntrospectionException {

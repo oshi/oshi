@@ -41,7 +41,7 @@ public class OshiGui {
     private JFrame mainFrame;
     private JButton jMenu;
 
-    private SystemInfo si = new SystemInfo();
+    private final SystemInfo si = new SystemInfo();
 
     /**
      * Entry point.

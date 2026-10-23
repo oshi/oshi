@@ -78,14 +78,14 @@ class RegistryValueUtilTest {
     @Test
     void testRegistryValueToStringByteArray() {
         // Windows-1252 with null terminator
-        byte[] cp1252 = new byte[] { 't', 'e', 's', 't', 0x00 };
+        byte[] cp1252 = { 't', 'e', 's', 't', 0x00 };
         assertThat(RegistryValueUtil.registryValueToString(cp1252), is("test"));
     }
 
     @Test
     void testRegistryValueToStringByteArrayUtf16() {
         // UTF-16LE with double-null terminator
-        byte[] utf16 = new byte[] { 't', 0, 'e', 0, 's', 0, 't', 0, 0, 0 };
+        byte[] utf16 = { 't', 0, 'e', 0, 's', 0, 't', 0, 0, 0 };
         assertThat(RegistryValueUtil.registryValueToString(utf16), is("test"));
     }
 }

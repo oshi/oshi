@@ -485,7 +485,7 @@ public interface InternetProtocolStats {
         private final TcpState state;
         private final int transmitQueue;
         private final int receiveQueue;
-        private int owningProcessId;
+        private final int owningProcessId;
 
         /**
          * Constructs a new IPConnection instance.

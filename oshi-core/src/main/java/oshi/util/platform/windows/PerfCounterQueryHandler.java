@@ -32,7 +32,7 @@ public final class PerfCounterQueryHandler implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(PerfCounterQueryHandler.class);
 
     // Map of counter handles
-    private Map<PerfCounter, CloseableHANDLEByReference> counterHandleMap = new HashMap<>();
+    private final Map<PerfCounter, CloseableHANDLEByReference> counterHandleMap = new HashMap<>();
     // The query handle
     private @Nullable CloseableHANDLEByReference queryHandle = null;
 

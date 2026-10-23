@@ -49,13 +49,13 @@ import oshi.util.PlatformEnum;
  * JMX agent server implementation.
  */
 public class JMXOshiAgentServer implements JMXOshiAgent {
-    private String host;
-    private Integer port;
-    private Map<String, ?> properties;
+    private final String host;
+    private final Integer port;
+    private final Map<String, ?> properties;
 
     private MBeanServer server;
     private JMXConnectorServer cntorServer;
-    private ContextRegistrationPlatform contextRegistrationPlatform;
+    private final ContextRegistrationPlatform contextRegistrationPlatform;
     private static JMXOshiAgentServer jmxOshiAgentServer;
 
     private JMXOshiAgentServer(Integer port, String host, Map<String, ?> properties,

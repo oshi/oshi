@@ -13,13 +13,13 @@ import oshi.software.os.OSFileStore;
 @ThreadSafe
 public abstract class AbstractOSFileStore implements OSFileStore {
 
-    private String name;
-    private String volume;
-    private String label;
-    private String mount;
-    private String options;
-    private String uuid;
-    private boolean local;
+    private final String name;
+    private final String volume;
+    private final String label;
+    private final String mount;
+    private final String options;
+    private final String uuid;
+    private final boolean local;
 
     // Mutable state refreshed by updateFrom()/updateSpace*(); protected (volatile retained) to match the
     // AbstractOSProcess model. See the VisibilityModifier suppression for this file. The bulk update helpers are

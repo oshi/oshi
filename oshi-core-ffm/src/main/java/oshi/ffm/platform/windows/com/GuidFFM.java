@@ -79,8 +79,8 @@ public final class GuidFFM {
      */
     public static MemorySegment create(Arena arena, int data1, int data2, int data3, int d4_0, int d4_1, int d4_2,
             int d4_3, int d4_4, int d4_5, int d4_6, int d4_7) {
-        byte[] data4 = new byte[] { (byte) d4_0, (byte) d4_1, (byte) d4_2, (byte) d4_3, (byte) d4_4, (byte) d4_5,
-                (byte) d4_6, (byte) d4_7 };
+        byte[] data4 = { (byte) d4_0, (byte) d4_1, (byte) d4_2, (byte) d4_3, (byte) d4_4, (byte) d4_5, (byte) d4_6,
+                (byte) d4_7 };
         return create(arena, data1, (short) data2, (short) data3, data4);
     }
 

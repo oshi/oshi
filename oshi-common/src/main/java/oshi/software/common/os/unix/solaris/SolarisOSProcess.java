@@ -100,7 +100,7 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
     @Override
     public long getAffinityMask() {
         long mask = parsePbindOutput(ExecutingCommand.getFirstAnswer("pbind -q " + getProcessID()));
-        return mask != 0L ? mask : parsePsrinfo(ExecutingCommand.runNative("psrinfo"));
+        return mask == 0L ? parsePsrinfo(ExecutingCommand.runNative("psrinfo")) : mask;
     }
 
     /**

@@ -179,7 +179,7 @@ class FileUtilTest {
         buff.putInt(45);
         buff.putShort((short) 67);
         buff.put((byte) 89);
-        byte[] arr = new byte[] { 1, 2, 3 };
+        byte[] arr = { 1, 2, 3 };
         buff.put(arr);
 
         // Snapshot the backing array since buff is reassigned below
@@ -201,7 +201,7 @@ class FileUtilTest {
         assertThat("Int from buffer at limit should be 0", FileUtil.readIntFromBuffer(buff), is(0));
         assertThat("Short from buffer at limit should be 0", FileUtil.readShortFromBuffer(buff), is((short) 0));
         assertThat("Byte from buffer at limit should be 0", FileUtil.readByteFromBuffer(buff), is((byte) 0));
-        byte[] arr0 = new byte[] { 0, 0, 0 };
+        byte[] arr0 = { 0, 0, 0 };
         array = new byte[3];
         FileUtil.readByteArrayFromBuffer(buff, array);
         assertArrayEquals(arr0, array, "Byte array from buffer at limit should be all 0s");
