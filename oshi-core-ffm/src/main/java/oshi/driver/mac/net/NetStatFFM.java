@@ -12,7 +12,6 @@ import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
-import java.lang.foreign.ValueLayout.OfLong;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,7 +61,7 @@ public final class NetStatFFM {
     // long ifi_collisions(8), long ifi_ibytes(8), long ifi_obytes(8)
     // long ifi_imcasts(8), long ifi_omcasts(8), long ifi_iqdrops(8)
     // Unaligned long layout: messages in the sysctl buffer are packed at arbitrary offsets
-    private static final OfLong JAVA_LONG_UNALIGNED = ValueLayout.JAVA_LONG_UNALIGNED;
+    private static final ValueLayout.OfLong JAVA_LONG_UNALIGNED = ValueLayout.JAVA_LONG_UNALIGNED;
 
     private static final long OFF_IFI_TYPE = OFF_IFDATA64;
     private static final long OFF_IFI_BAUDRATE = OFF_IFDATA64 + 16;

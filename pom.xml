@@ -134,7 +134,7 @@
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
         <!-- Host platform for NullAway, the Error Prone check that enforces the JSpecify nullability
         annotations. Wired up behind the error-prone profile; see pom.xml profile "error-prone". -->
-        <error-prone.version>2.50.0</error-prone.version>
+        <error-prone.version>2.51.0</error-prone.version>
         <!-- Error Prone plugin adding SLF4J-specific checks (placeholder/argument agreement, constant format
         strings, logger field shape). Registers itself through META-INF/services, so it only needs to be on the
         annotationProcessorPath; its checks are then configured with -Xep like any other. Compiled against an

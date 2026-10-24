@@ -10,6 +10,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
+import java.lang.foreign.Arena;
+import java.lang.foreign.MemorySegment;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -88,15 +91,15 @@ class OpenBsdSysctlUtilFFMTest {
 
     @Test
     void testGetrlimit() throws Throwable {
-        java.lang.foreign.Arena arena = java.lang.foreign.Arena.ofConfined();
-        java.lang.foreign.MemorySegment rlim = arena.allocate(OpenBsdLibcFunctions.RLIMIT_LAYOUT);
-        int ret = OpenBsdLibcFunctions.getrlimit(OpenBsdLibcFunctions.RLIMIT_NOFILE, rlim);
-        assertThat("getrlimit should succeed", ret, is(0));
-        long cur = OpenBsdLibcFunctions.rlimitCur(rlim);
-        long max = OpenBsdLibcFunctions.rlimitMax(rlim);
-        assertThat("soft limit should be positive", cur, greaterThan(0L));
-        assertThat("hard limit should be >= soft limit", max >= cur, is(true));
-        arena.close();
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment rlim = arena.allocate(OpenBsdLibcFunctions.RLIMIT_LAYOUT);
+            int ret = OpenBsdLibcFunctions.getrlimit(OpenBsdLibcFunctions.RLIMIT_NOFILE, rlim);
+            assertThat("getrlimit should succeed", ret, is(0));
+            long cur = OpenBsdLibcFunctions.rlimitCur(rlim);
+            long max = OpenBsdLibcFunctions.rlimitMax(rlim);
+            assertThat("soft limit should be positive", cur, greaterThan(0L));
+            assertThat("hard limit should be >= soft limit", max >= cur, is(true));
+        }
     }
 
     @Test
