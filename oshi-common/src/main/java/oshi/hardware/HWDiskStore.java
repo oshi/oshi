@@ -52,9 +52,19 @@ public interface HWDiskStore {
     String getName();
 
     /**
-     * The type of the disk, such as SSD, HDD, Removable, Virtual, or Unknown.
+     * The type of the disk's media.
+     * <p>
+     * Determined on Linux from the device's {@code removable} and {@code queue/rotational} sysfs attributes, on macOS
+     * from the IOKit registry's {@code Removable} property and {@code Medium Type}, and on Windows from the storage
+     * driver's removable-media flag, bus type and seek penalty, falling back to {@code MSFT_PhysicalDisk}'s
+     * {@code MediaType} and {@code SpindleSpeed}. Other platforms always report {@code Unknown}.
+     * <p>
+     * {@code Virtual} is reported only for a Linux device-mapper device and for a Windows file-backed virtual or
+     * Storage Spaces disk. A hypervisor's disk that the guest sees as an ordinary device is reported by its media
+     * technology, not as {@code Virtual}.
      *
-     * @return the disk type string
+     * @return one of {@code SSD}, {@code HDD}, {@code Removable}, {@code Virtual}, or {@code Unknown} where the type
+     *         could not be determined, which includes a disk whose driver does not report it
      */
     default String getDiskType() {
         return "Unknown";

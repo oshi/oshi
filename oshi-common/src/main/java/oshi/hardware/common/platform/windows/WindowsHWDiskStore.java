@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,6 +21,10 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskMediaTypeProperty;
+import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.tuples.Pair;
@@ -42,6 +47,53 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     protected static final int GUID_BUFSIZE = 100;
     /** Buffer size for volume labels. */
     protected static final int LABEL_BUFSIZE = 33;
+
+    /** Disk type reported when the media technology could not be determined. */
+    protected static final String DISK_TYPE_UNKNOWN = "Unknown";
+    private static final String DISK_TYPE_SSD = "SSD";
+    private static final String DISK_TYPE_HDD = "HDD";
+    private static final String DISK_TYPE_REMOVABLE = "Removable";
+    private static final String DISK_TYPE_VIRTUAL = "Virtual";
+
+    /** IOCTL code to query storage device properties. */
+    protected static final int IOCTL_STORAGE_QUERY_PROPERTY = 0x002D1400;
+    /** {@code STORAGE_PROPERTY_ID} selecting {@code STORAGE_DEVICE_DESCRIPTOR}. */
+    protected static final int STORAGE_DEVICE_PROPERTY = 0;
+    /** {@code STORAGE_PROPERTY_ID} selecting {@code DEVICE_SEEK_PENALTY_DESCRIPTOR}. Requires Windows 7. */
+    protected static final int STORAGE_DEVICE_SEEK_PENALTY_PROPERTY = 7;
+    /** {@code STORAGE_QUERY_TYPE} for a standard property query. */
+    protected static final int PROPERTY_STANDARD_QUERY = 0;
+
+    /** Size of {@code STORAGE_PROPERTY_QUERY}: PropertyId(4) + QueryType(4) + AdditionalParameters(1), padded. */
+    protected static final int STORAGE_PROPERTY_QUERY_SIZE = 12;
+    /** Buffer size for {@code STORAGE_DEVICE_DESCRIPTOR}, whose trailing RawDeviceProperties is variable length. */
+    protected static final int STORAGE_DEVICE_DESCRIPTOR_BUFSIZE = 1024;
+    /** Byte offset of {@code STORAGE_DEVICE_DESCRIPTOR}'s RemovableMedia (BOOLEAN) member. */
+    protected static final int SDD_REMOVABLE_MEDIA_OFFSET = 10;
+    /** Byte offset of {@code STORAGE_DEVICE_DESCRIPTOR}'s BusType ({@code STORAGE_BUS_TYPE}) member. */
+    protected static final int SDD_BUS_TYPE_OFFSET = 28;
+    /** Size of {@code DEVICE_SEEK_PENALTY_DESCRIPTOR}: Version(4) + Size(4) + IncursSeekPenalty(1), padded. */
+    protected static final int SEEK_PENALTY_DESCRIPTOR_SIZE = 12;
+    /** Byte offset of {@code DEVICE_SEEK_PENALTY_DESCRIPTOR}'s IncursSeekPenalty (BOOLEAN) member. */
+    protected static final int SPD_INCURS_SEEK_PENALTY_OFFSET = 8;
+
+    // STORAGE_BUS_TYPE values identifying a disk that is not a directly attached physical device
+    private static final int BUS_TYPE_FILE_BACKED_VIRTUAL = 15;
+    private static final int BUS_TYPE_SPACES = 16;
+
+    /**
+     * Timeout for the {@code MSFT_PhysicalDisk} fallback query, used when no finite timeout is configured.
+     * <p>
+     * {@code oshi.util.wmi.timeout} defaults to infinite, and this query runs in a path callers poll. The Storage WMI
+     * provider is markedly less reliable than the storage driver, so it is bounded here: timing out yields the
+     * {@code Unknown} the caller would have had anyway, where hanging would block {@code getDiskStores()} forever.
+     */
+    protected static final int MSFT_PHYSICAL_DISK_TIMEOUT_MS = 5_000;
+
+    // MSFT_PhysicalDisk MediaType values
+    private static final int MSFT_MEDIA_TYPE_HDD = 3;
+    private static final int MSFT_MEDIA_TYPE_SSD = 4;
+    private static final int MSFT_MEDIA_TYPE_SCM = 5;
 
     /**
      * Constructor.
@@ -348,23 +400,220 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
-     * Parses the WMI MediaType string into a disk type.
+     * Parses the {@code Win32_DiskDrive} MediaType string into a disk type.
+     * <p>
+     * This property is mapped from {@code DISK_GEOMETRY.MediaType} and describes only removability and form factor; its
+     * entire value domain is "Fixed hard disk media", "Removable media other than floppy", "External hard disk media"
+     * and "Format is unknown". It therefore cannot distinguish an SSD from an HDD, and a fixed or external disk is
+     * reported as {@code Unknown} rather than guessed at. Use {@link #classifyDiskType(StorageProperties, String)} to
+     * reach the media technology.
      *
-     * @param mediaType the WMI MediaType value from Win32_DiskDrive
-     * @return the disk type string
+     * @param mediaType the WMI MediaType value from {@code Win32_DiskDrive}
+     * @return {@code Removable} for removable media, otherwise {@code Unknown}
      */
-    protected static String parseWindowsMediaType(String mediaType) {
-        if (mediaType == null || mediaType.isEmpty()) {
-            return "Unknown";
+    protected static String parseWindowsMediaType(@Nullable String mediaType) {
+        if (mediaType != null && mediaType.toLowerCase(Locale.ROOT).contains("removable")) {
+            return DISK_TYPE_REMOVABLE;
         }
-        String lower = mediaType.toLowerCase(java.util.Locale.ROOT);
-        if (lower.contains("removable")) {
-            return "Removable";
-        } else if (lower.contains("fixed") || lower.contains("external")) {
-            // WMI Win32_DiskDrive MediaType doesn't distinguish SSD from HDD;
-            // "Fixed hard disk media" could be either. Return HDD as default for fixed.
-            return "HDD";
+        return DISK_TYPE_UNKNOWN;
+    }
+
+    /**
+     * Classifies a disk from the storage driver's response, falling back to the WMI media type string when the driver
+     * did not answer.
+     *
+     * @param props     the storage properties read from the device, or {@code null} if the device could not be opened
+     *                  or did not answer
+     * @param mediaType the WMI MediaType value from {@code Win32_DiskDrive}
+     * @return {@code SSD}, {@code HDD}, {@code Removable}, {@code Virtual}, or {@code Unknown}
+     */
+    protected static String classifyDiskType(@Nullable StorageProperties props, @Nullable String mediaType) {
+        if (props == null) {
+            // The device did not answer at all, so the WMI string is the only source left. It identifies
+            // removable media and nothing else.
+            return parseWindowsMediaType(mediaType);
         }
-        return "Unknown";
+        // Checked before the media technology to match the Linux implementation, where a removable
+        // device's rotational attribute is likewise not consulted.
+        if (props.isRemovableMedia()) {
+            return DISK_TYPE_REMOVABLE;
+        }
+        if (props.getBusType() == BUS_TYPE_FILE_BACKED_VIRTUAL || props.getBusType() == BUS_TYPE_SPACES) {
+            return DISK_TYPE_VIRTUAL;
+        }
+        Boolean seekPenalty = props.getIncursSeekPenalty();
+        if (seekPenalty != null) {
+            // A device with no seek penalty is solid state. A RAM disk also answers no here, which
+            // matches what Linux reports for one from queue/rotational.
+            return seekPenalty.booleanValue() ? DISK_TYPE_HDD : DISK_TYPE_SSD;
+        }
+        // The descriptor was read but the driver does not implement the seek penalty property. The WMI
+        // string is not consulted here: the descriptor already answered the only question it can.
+        return DISK_TYPE_UNKNOWN;
+    }
+
+    /**
+     * Converts an {@code MSFT_PhysicalDisk} MediaType, and the SpindleSpeed that accompanies it, into a disk type.
+     *
+     * @param mediaType    the MediaType value: 3 is HDD, 4 is SSD, 5 is storage class memory, 0 is unspecified
+     * @param spindleSpeed the SpindleSpeed in RPM, as an unsigned value. {@code UINT32_MAX} means rotating at an
+     *                     unknown speed.
+     * @return {@code SSD}, {@code HDD}, or {@code Unknown}
+     */
+    protected static String diskTypeFromMsftMediaType(int mediaType, long spindleSpeed) {
+        switch (mediaType) {
+            case MSFT_MEDIA_TYPE_HDD:
+                return DISK_TYPE_HDD;
+            case MSFT_MEDIA_TYPE_SSD:
+            case MSFT_MEDIA_TYPE_SCM:
+                return DISK_TYPE_SSD;
+            default:
+                // For an unspecified MediaType a nonzero SpindleSpeed still identifies rotating media. A zero
+                // is not read as solid state, because that is also what an absent property reads as.
+                return spindleSpeed > 0L ? DISK_TYPE_HDD : DISK_TYPE_UNKNOWN;
+        }
+    }
+
+    /**
+     * Maps each {@code MSFT_PhysicalDisk} DeviceId to a disk type. The DeviceId of a directly attached disk is its
+     * physical drive number, matching {@code Win32_DiskDrive}'s Index.
+     *
+     * @param pd the physical disk query result
+     * @return a map of DeviceId to disk type, omitting disks whose type could not be determined
+     */
+    protected static Map<String, String> buildMsftDiskTypeMap(WmiResult<PhysicalDiskMediaTypeProperty> pd) {
+        Map<String, String> diskTypeMap = new HashMap<>();
+        for (int i = 0; i < pd.getResultCount(); i++) {
+            String deviceId = WmiUtil.getString(pd, PhysicalDiskMediaTypeProperty.DEVICEID, i);
+            String diskType = diskTypeFromMsftMediaType(
+                    WmiUtil.getUint16(pd, PhysicalDiskMediaTypeProperty.MEDIATYPE, i),
+                    WmiUtil.getUint32asLong(pd, PhysicalDiskMediaTypeProperty.SPINDLESPEED, i));
+            if (!deviceId.isEmpty() && !DISK_TYPE_UNKNOWN.equals(diskType)) {
+                diskTypeMap.put(deviceId, diskType);
+            }
+        }
+        return diskTypeMap;
+    }
+
+    /**
+     * Classifies every disk in a {@code Win32_DiskDrive} query result from the storage driver.
+     *
+     * @param vals     the disk drive query result
+     * @param resolver reads a physical drive's storage properties, which requires the binding's native calls
+     * @return a disk type for each result, in query order
+     */
+    protected static String[] classifyDiskTypes(WmiResult<DiskDriveProperty> vals, StoragePropertiesResolver resolver) {
+        int count = vals.getResultCount();
+        String[] diskTypes = new String[count];
+        for (int i = 0; i < count; i++) {
+            diskTypes[i] = classifyDiskType(resolver.resolve(WmiUtil.getString(vals, DiskDriveProperty.NAME, i)),
+                    WmiUtil.getString(vals, DiskDriveProperty.MEDIATYPE, i));
+        }
+        return diskTypes;
+    }
+
+    /**
+     * Tests whether any disk type is still undetermined, and so whether the Storage namespace fallback is worth its
+     * cost. On hardware whose driver answers the seek penalty query this is {@code false} and the fallback is skipped.
+     *
+     * @param diskTypes the disk types from {@link #classifyDiskTypes(WmiResult, StoragePropertiesResolver)}
+     * @return {@code true} if at least one disk type is {@code Unknown}
+     */
+    protected static boolean anyDiskTypeUnknown(String[] diskTypes) {
+        for (String diskType : diskTypes) {
+            if (DISK_TYPE_UNKNOWN.equals(diskType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Fills in the disk types the storage driver could not determine from {@code MSFT_PhysicalDisk}. Types the driver
+     * did determine are left alone, so a removable or virtual disk is not relabeled by its media technology.
+     *
+     * @param diskTypes the disk types to update in place
+     * @param vals      the disk drive query result the types were derived from
+     * @param pd        the physical disk media type query result
+     */
+    protected static void fillUnknownDiskTypes(String[] diskTypes, WmiResult<DiskDriveProperty> vals,
+            WmiResult<PhysicalDiskMediaTypeProperty> pd) {
+        Map<String, String> diskTypeMap = buildMsftDiskTypeMap(pd);
+        if (diskTypeMap.isEmpty()) {
+            return;
+        }
+        for (int i = 0; i < diskTypes.length; i++) {
+            if (DISK_TYPE_UNKNOWN.equals(diskTypes[i])) {
+                // MSFT_PhysicalDisk's DeviceId is the physical drive number, as Win32_DiskDrive's Index is
+                String deviceId = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
+                diskTypes[i] = diskTypeMap.getOrDefault(deviceId, DISK_TYPE_UNKNOWN);
+            }
+        }
+    }
+
+    /**
+     * Reads a physical drive's storage properties. Implemented by each binding, which supplies the native calls.
+     */
+    @FunctionalInterface
+    protected interface StoragePropertiesResolver {
+        /**
+         * Reads the storage properties of the named device.
+         *
+         * @param name the device path, normally {@code \\.\PHYSICALDRIVE<n>}
+         * @return the storage properties, or {@code null} if the device could not be opened or did not answer
+         */
+        @Nullable
+        StorageProperties resolve(String name);
+    }
+
+    /**
+     * The subset of {@code IOCTL_STORAGE_QUERY_PROPERTY} results used to classify a disk.
+     */
+    protected static final class StorageProperties {
+        private final int busType;
+        private final boolean removableMedia;
+        private final @Nullable Boolean incursSeekPenalty;
+
+        /**
+         * Creates a StorageProperties instance.
+         *
+         * @param busType           the {@code STORAGE_BUS_TYPE} of the device
+         * @param removableMedia    whether the device holds removable media
+         * @param incursSeekPenalty whether the device incurs a seek penalty, or {@code null} if the storage driver does
+         *                          not implement the seek penalty property
+         */
+        public StorageProperties(int busType, boolean removableMedia, @Nullable Boolean incursSeekPenalty) {
+            this.busType = busType;
+            this.removableMedia = removableMedia;
+            this.incursSeekPenalty = incursSeekPenalty;
+        }
+
+        /**
+         * Gets the bus type.
+         *
+         * @return the {@code STORAGE_BUS_TYPE} of the device
+         */
+        public int getBusType() {
+            return busType;
+        }
+
+        /**
+         * Gets whether the media is removable.
+         *
+         * @return {@code true} if the device holds removable media
+         */
+        public boolean isRemovableMedia() {
+            return removableMedia;
+        }
+
+        /**
+         * Gets whether the device incurs a seek penalty.
+         *
+         * @return {@code TRUE} for rotating media, {@code FALSE} for solid state, or {@code null} if the storage driver
+         *         does not implement the seek penalty property
+         */
+        public @Nullable Boolean getIncursSeekPenalty() {
+            return incursSeekPenalty;
+        }
     }
 }

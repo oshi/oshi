@@ -1,6 +1,9 @@
 # 7.7.3 (in progress)
 
+##### Bug Fixes and Improvements
+
 * [#3837](https://github.com/oshi/oshi/pull/3837): Reject IPv6 address text with a dotted IPv4 component before compressed zero groups - [@PHJ2000](https://github.com/PHJ2000).
+* [#3843](https://github.com/oshi/oshi/pull/3843): `HWDiskStore.getDiskType()` on Windows now reports `SSD`, `HDD`, `Removable` or `Virtual`, read from the storage driver and falling back to `MSFT_PhysicalDisk` - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20)
 
