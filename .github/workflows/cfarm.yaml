@@ -159,10 +159,33 @@ jobs:
   # patch set, bootstrapped from DeltaPorts' native JDK 24. The vmactions job in
   # unix.yaml keeps covering JNA on JDK 21; drop this one once DPorts ships openjdk25
   # and that job can move to it.
+  #
+  # DISABLED 2026-10-27: this job appears to be taking cfarm152 down. Twice now it
+  # has died at the same point -- right after `junit-platform:launch` starts the
+  # oshi-core (JNA) test run, with no test output at all -- and the box then stopped
+  # answering on port 22 entirely for days:
+  #
+  #   runs/38669321682  2026-10-15  launched 02:10:11, gone by 02:12:45  (~2.5 min in)
+  #   runs/40451765142  2026-10-27  launched 04:53:26, gone by 04:57:25  (~4 min in)
+  #
+  # Connections time out rather than being refused, so the host itself is wedged or
+  # panicking, not just the JVM crashing. It is intermittent -- runs/40431759378
+  # completed two full oshi-core test runs hours before the second death -- and
+  # cfarm152 is a shared community resource, so this stays off until the cause is
+  # understood. Re-enable by restoring the `if:` below.
+  #
+  # Known unknowns: no guest-side diagnostics survive (a dead box copies nothing
+  # back), the hand-built JDK 25 is unverified, and both deaths happened before
+  # oshi-core-ffm ran, so nothing yet implicates FFM specifically.
+  #
+  # The vmactions DragonFly job in unix.yaml still covers JNA on DPorts' openjdk21
+  # and is unaffected; FFM coverage on DragonFly is what this disables. Codecov's
+  # dragonflybsd-ffm flag carries its last value forward, as for an unreachable host.
   testdragonfly:
     # See testsolaris_sparc: skip fork push runs (they race the upstream run on
     # the shared box); forks keep workflow_dispatch for branch tests.
-    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
+    # if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
+    if: false
     name: Test JDK 25, DragonFly BSD
     concurrency: dragonfly_cfarm152
     runs-on: ubuntu-latest
