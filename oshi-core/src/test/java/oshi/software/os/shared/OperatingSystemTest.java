@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -51,6 +53,7 @@ import oshi.software.os.OperatingSystem;
 import oshi.software.os.OperatingSystem.OSVersionInfo;
 import oshi.software.os.OperatingSystem.ProcessFiltering;
 import oshi.software.os.OperatingSystem.ProcessSorting;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 
 /**
@@ -59,6 +62,9 @@ import oshi.util.Util;
 @EnabledForJreRange(max = JRE.JAVA_25)
 @TestInstance(Lifecycle.PER_CLASS)
 class OperatingSystemTest {
+
+    /** Matches the "v6.4.2" of a DragonFly BSD {@code kern.version} build number such as "v6.4.2-RELEASE #11". */
+    private static final Pattern DRAGONFLY_BUILD_VERSION = Pattern.compile("v(\\d+)\\.(\\d+)\\.(\\d+)");
 
     protected OperatingSystem createOperatingSystem() {
         return new SystemInfo().getOperatingSystem();
@@ -87,9 +93,7 @@ class OperatingSystemTest {
         OSVersionInfo versionInfo = os.getVersionInfo();
         assertThat("OS version info shouldn't be null", versionInfo, is(notNullValue()));
 
-        // The DragonFly BSD CI VM has a known clock bug that reports a future boot time, which breaks both the uptime
-        // and boot-time assertions below: https://bugs.dragonflybsd.org/issues/3299
-        if (!(Platform.isDragonFlyBSD() && "true".equals(System.getenv("CI")))) {
+        if (!hasDragonFlyBootTimeBug(versionInfo)) {
             assertThat("OS uptime in seconds should be greater than 0", os.getSystemUptime(), is(greaterThan(0L)));
             assertThat("OS boot time in seconds since Unix epoch should be greater than 0", os.getSystemBootTime(),
                     is(greaterThan(0L)));
@@ -108,6 +112,32 @@ class OperatingSystemTest {
 
         assertThat("OS should have at least 1 currently running process", os.getProcesses(null, null, 0),
                 is(not(empty())));
+    }
+
+    /**
+     * DragonFly BSD through 6.4.2 reports a bogus boot time -- sometimes before the epoch, sometimes years in the
+     * future -- which makes the uptime and boot-time assertions fail:
+     * <a href="https://bugs.dragonflybsd.org/issues/3299">bug 3299</a>. It is intermittent, so a run that passes on an
+     * affected kernel proves nothing. The fix landed upstream after the 6.4.2 release, which is what both DragonFly CI
+     * hosts run, so skip those three assertions below 6.4.3 and let them come back on their own once the hosts upgrade.
+     * <p>
+     * {@code kern.osrelease} reads "6.4-RELEASE" for the whole branch, so the patch level has to come from the
+     * {@code kern.version} build number, "v6.4.2-RELEASE #11". A build number that doesn't carry one is treated as
+     * affected: unrecognized output on DragonFly is far more likely to be a kernel we can't place than a real defect
+     * this test would otherwise catch.
+     */
+    private static boolean hasDragonFlyBootTimeBug(OSVersionInfo versionInfo) {
+        if (!Platform.isDragonFlyBSD()) {
+            return false;
+        }
+        Matcher m = DRAGONFLY_BUILD_VERSION.matcher(versionInfo.getBuildNumber());
+        if (!m.find()) {
+            return true;
+        }
+        int major = ParseUtil.parseIntOrDefault(m.group(1), 0);
+        int minor = ParseUtil.parseIntOrDefault(m.group(2), 0);
+        int patch = ParseUtil.parseIntOrDefault(m.group(3), 0);
+        return major < 6 || (major == 6 && (minor < 4 || (minor == 4 && patch < 3)));
     }
 
     @Test

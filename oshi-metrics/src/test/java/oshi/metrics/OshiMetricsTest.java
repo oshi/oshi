@@ -14,12 +14,15 @@ import static oshi.util.PlatformEnum.FREEBSD;
 import static oshi.util.PlatformEnum.NETBSD;
 
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 import oshi.spi.SystemInfoProvider;
+import oshi.util.ParseUtil;
 import oshi.util.PlatformEnum;
 
 import io.micrometer.core.instrument.FunctionCounter;
@@ -29,12 +32,16 @@ import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 
 class OshiMetricsTest {
 
+    /** Matches the "v6.4.2" of a DragonFly BSD {@code kern.version} build number such as "v6.4.2-RELEASE #11". */
+    private static final Pattern DRAGONFLY_BUILD_VERSION = Pattern.compile("v(\\d+)\\.(\\d+)\\.(\\d+)");
+
     private static MeterRegistry registry;
+    private static SystemInfoProvider si;
 
     @BeforeAll
     static void setUp() {
         registry = new SimpleMeterRegistry();
-        SystemInfoProvider si = new SystemInfo();
+        si = new SystemInfo();
         OshiMetrics.bindTo(registry, si);
     }
 
@@ -42,11 +49,31 @@ class OshiMetricsTest {
     void systemUptimeRegistered() {
         Gauge uptime = registry.find("system.uptime").gauge();
         assertNotNull(uptime, "system.uptime should be registered");
-        // The DragonFly BSD CI VM has a known clock bug that reports a bogus (often future) boot time, which makes the
-        // derived uptime non-positive: https://bugs.dragonflybsd.org/issues/3299
-        if (!(PlatformEnum.getCurrentPlatform() == DRAGONFLYBSD && "true".equals(System.getenv("CI")))) {
+        if (!hasDragonFlyBootTimeBug()) {
             assertTrue(uptime.value() > 0, "System uptime should be positive");
         }
+    }
+
+    /**
+     * DragonFly BSD through 6.4.2 reports a bogus boot time -- sometimes before the epoch, sometimes years in the
+     * future -- which makes the derived uptime non-positive: <a href="https://bugs.dragonflybsd.org/issues/3299">bug
+     * 3299</a>. See the longer note on the same check in {@code OperatingSystemTest} in {@code oshi-core} for why this
+     * is gated on the version rather than on CI, and why an unrecognized build number counts as affected.
+     */
+    private static boolean hasDragonFlyBootTimeBug() {
+        if (PlatformEnum.getCurrentPlatform() != DRAGONFLYBSD) {
+            return false;
+        }
+        // kern.osrelease reads "6.4-RELEASE" for the whole branch, so the patch level comes from the kern.version
+        // build number, "v6.4.2-RELEASE #11".
+        Matcher m = DRAGONFLY_BUILD_VERSION.matcher(si.getOperatingSystem().getVersionInfo().getBuildNumber());
+        if (!m.find()) {
+            return true;
+        }
+        int major = ParseUtil.parseIntOrDefault(m.group(1), 0);
+        int minor = ParseUtil.parseIntOrDefault(m.group(2), 0);
+        int patch = ParseUtil.parseIntOrDefault(m.group(3), 0);
+        return major < 6 || (major == 6 && (minor < 4 || (minor == 4 && patch < 3)));
     }
 
     @Test

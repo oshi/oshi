@@ -7,7 +7,7 @@
 #   remote.sh check HOST           exit 0 if HOST takes ssh; 2 if it never answers
 #                                  on port 22; 1 if it answers but ssh keeps failing
 #   remote.sh run HOST SCRIPT      run SCRIPT through HOST's login shell, with
-#                                  REPO_URL and BRANCH exported, under a 25-minute limit
+#                                  CI, REPO_URL and BRANCH exported, under a 25-minute limit
 #   remote.sh fetch HOST REMOTE LOCAL
 #                                  copy REMOTE (relative to the home directory) to LOCAL
 #
@@ -56,7 +56,14 @@ case "$cmd" in
             echo "Refusing to run with REPO_URL='$REPO_URL' BRANCH='$BRANCH'" >&2
             exit 1
         fi
-        remote="export REPO_URL='$REPO_URL' BRANCH='$BRANCH'
+        # ssh starts a fresh login shell, so nothing the runner sets in the job
+        # environment reaches the build -- including the CI=true that GitHub sets
+        # and that every other job, vmactions included, builds under. Export it
+        # so a test or plugin that reads it behaves the same here as there. Note
+        # GITHUB_ACTIONS is deliberately not exported: these are physical cfarm
+        # boxes, so a test that excuses a GitHub runner's hardware (SensorsTest)
+        # should still run.
+        remote="export CI=true REPO_URL='$REPO_URL' BRANCH='$BRANCH'
 $(cat "$3")"
         for attempt in $(seq $ATTEMPTS); do
             start=$SECONDS
