@@ -9,13 +9,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sun.jna.Memory;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.Kernel32;
+import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinNT;
+import com.sun.jna.platform.win32.WinNT.HANDLE;
 
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.wmi.MSFTStorage;
 import oshi.driver.common.windows.wmi.Win32DiskDrive;
 import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
 import oshi.driver.common.windows.wmi.Win32DiskDriveToDiskPartition;
@@ -30,6 +36,7 @@ import oshi.driver.windows.perfmon.PhysicalDiskJNA;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.windows.WindowsHWDiskStore;
+import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.tuples.Pair;
@@ -61,18 +68,35 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
         boolean comInit = false;
         try {
             comInit = h.initCOM();
-            List<HWDiskStore> result = new ArrayList<>();
             DiskStats stats = populateDiskStats(null, PhysicalDiskJNA.queryDiskCounters());
             PartitionMaps maps = queryPartitionMaps(h);
 
             WmiResult<DiskDriveProperty> vals = Win32DiskDrive.queryDiskDrive(h);
-            for (int i = 0; i < vals.getResultCount(); i++) {
+            int count = vals.getResultCount();
+
+            // Ask the storage driver directly first: it needs no privilege, no COM, and is available on
+            // every supported Windows version. Only if it leaves a disk unclassified is the Storage
+            // namespace queried, which is slower and requires Windows 8.
+            String[] diskTypes = classifyDiskTypes(vals, WindowsHWDiskStoreJNA::queryStorageProperties);
+            if (anyDiskTypeUnknown(diskTypes)) {
+                int savedTimeout = h.getWmiTimeout();
+                if (savedTimeout < 0) {
+                    h.setWmiTimeout(MSFT_PHYSICAL_DISK_TIMEOUT_MS);
+                }
+                try {
+                    fillUnknownDiskTypes(diskTypes, vals, MSFTStorage.queryPhysicalDiskMediaTypes(h));
+                } finally {
+                    h.setWmiTimeout(savedTimeout);
+                }
+            }
+
+            List<HWDiskStore> result = new ArrayList<>(count);
+            for (int i = 0; i < count; i++) {
                 WindowsHWDiskStoreJNA ds = new WindowsHWDiskStoreJNA(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
                         (WmiUtil.getString(vals, DiskDriveProperty.MODEL, i) + " "
                                 + WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
-                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i),
-                        parseWindowsMediaType(WmiUtil.getString(vals, DiskDriveProperty.MEDIATYPE, i)));
+                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i), diskTypes[i]);
 
                 String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
                 ds.setDiskStats(stats, index);
@@ -87,6 +111,57 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
             if (comInit) {
                 h.unInitCOM();
             }
+        }
+    }
+
+    /**
+     * Reads a physical drive's storage properties with {@code IOCTL_STORAGE_QUERY_PROPERTY}.
+     *
+     * @param name the device path from {@code Win32_DiskDrive}'s Name
+     * @return the storage properties, or {@code null} if the device could not be opened or did not answer
+     */
+    private static @Nullable StorageProperties queryStorageProperties(String name) {
+        if (!name.startsWith(PHYSICALDRIVE_PREFIX)) {
+            return null;
+        }
+        // Zero desired access is enough for IOCTL_STORAGE_QUERY_PROPERTY and needs no privilege
+        HANDLE handle = Kernel32.INSTANCE.CreateFile(name, 0,
+                WinNT.FILE_SHARE_READ | WinNT.FILE_SHARE_WRITE | WinNT.FILE_SHARE_DELETE, null, WinNT.OPEN_EXISTING, 0,
+                null);
+        if (handle == null || WinBase.INVALID_HANDLE_VALUE.equals(handle)) {
+            LOG.debug("Couldn't open {} to query storage properties.", name);
+            return null;
+        }
+        try (Memory query = new Memory(STORAGE_PROPERTY_QUERY_SIZE);
+                Memory deviceDescriptor = new Memory(STORAGE_DEVICE_DESCRIPTOR_BUFSIZE);
+                Memory seekPenaltyDescriptor = new Memory(SEEK_PENALTY_DESCRIPTOR_SIZE);
+                CloseableIntByReference bytesReturned = new CloseableIntByReference()) {
+            query.clear();
+            query.setInt(0, STORAGE_DEVICE_PROPERTY);
+            query.setInt(Integer.BYTES, PROPERTY_STANDARD_QUERY);
+            deviceDescriptor.clear();
+            if (!Kernel32.INSTANCE.DeviceIoControl(handle, IOCTL_STORAGE_QUERY_PROPERTY, query,
+                    STORAGE_PROPERTY_QUERY_SIZE, deviceDescriptor, STORAGE_DEVICE_DESCRIPTOR_BUFSIZE, bytesReturned,
+                    null)) {
+                LOG.debug("Couldn't read the device descriptor for {}.", name);
+                return null;
+            }
+            boolean removableMedia = deviceDescriptor.getByte(SDD_REMOVABLE_MEDIA_OFFSET) != 0;
+            int busType = deviceDescriptor.getInt(SDD_BUS_TYPE_OFFSET);
+
+            // Not every storage driver implements the seek penalty property. A failure here is left as an
+            // unknown rather than a guess, so the Storage namespace fallback can answer instead.
+            Boolean incursSeekPenalty = null;
+            query.setInt(0, STORAGE_DEVICE_SEEK_PENALTY_PROPERTY);
+            seekPenaltyDescriptor.clear();
+            if (Kernel32.INSTANCE.DeviceIoControl(handle, IOCTL_STORAGE_QUERY_PROPERTY, query,
+                    STORAGE_PROPERTY_QUERY_SIZE, seekPenaltyDescriptor, SEEK_PENALTY_DESCRIPTOR_SIZE, bytesReturned,
+                    null)) {
+                incursSeekPenalty = seekPenaltyDescriptor.getByte(SPD_INCURS_SEEK_PENALTY_OFFSET) != 0;
+            }
+            return new StorageProperties(busType, removableMedia, incursSeekPenalty);
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(handle);
         }
     }
 

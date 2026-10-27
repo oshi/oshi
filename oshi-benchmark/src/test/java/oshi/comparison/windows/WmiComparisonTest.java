@@ -22,6 +22,7 @@ import oshi.driver.common.windows.wmi.LhmSensor.LhmHardwareProperty;
 import oshi.driver.common.windows.wmi.LhmSensor.LhmSensorProperty;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage;
+import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskMediaTypeProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolToPhysicalDiskProperty;
@@ -501,6 +502,26 @@ class WmiComparisonTest {
             WmiResult<PhysicalDiskProperty> jnaPd = MSFTStorage.queryPhysicalDisks(jnaHandler);
             WmiResult<PhysicalDiskProperty> ffmPd = MSFTStorage.queryPhysicalDisks(ffmHandler);
             assertThat(ffmPd.getResultCount()).as("MSFT PhysicalDisk count").isEqualTo(jnaPd.getResultCount());
+
+            // MSFTStorage: PhysicalDisk media types. Compares values, not just the row count: MediaType is
+            // a uint16 and SpindleSpeed a uint32, and WmiUtil's accessors throw on a CIM type mismatch, so
+            // a binding disagreeing on either would break the disk type fallback rather than return wrong data.
+            WmiResult<PhysicalDiskMediaTypeProperty> jnaMt = MSFTStorage.queryPhysicalDiskMediaTypes(jnaHandler);
+            WmiResult<PhysicalDiskMediaTypeProperty> ffmMt = MSFTStorage.queryPhysicalDiskMediaTypes(ffmHandler);
+            assertThat(ffmMt.getResultCount()).as("PhysicalDisk media type count").isEqualTo(jnaMt.getResultCount());
+            Map<String, List<Integer>> jnaMtRows = buildJnaStringMap(jnaMt, PhysicalDiskMediaTypeProperty.DEVICEID);
+            Map<String, List<Integer>> ffmMtRows = buildFfmStringMap(ffmMt, PhysicalDiskMediaTypeProperty.DEVICEID);
+            assertThat(ffmMtRows.keySet()).as("PhysicalDisk DeviceIds").isEqualTo(jnaMtRows.keySet());
+            for (Map.Entry<String, List<Integer>> entry : jnaMtRows.entrySet()) {
+                int jnaRow = entry.getValue().get(0);
+                int ffmRow = ffmMtRows.get(entry.getKey()).get(0);
+                assertThat(WmiUtil.getUint16(ffmMt, PhysicalDiskMediaTypeProperty.MEDIATYPE, ffmRow))
+                        .as("MediaType(%s)", entry.getKey())
+                        .isEqualTo(WmiUtil.getUint16(jnaMt, PhysicalDiskMediaTypeProperty.MEDIATYPE, jnaRow));
+                assertThat(WmiUtil.getUint32asLong(ffmMt, PhysicalDiskMediaTypeProperty.SPINDLESPEED, ffmRow))
+                        .as("SpindleSpeed(%s)", entry.getKey())
+                        .isEqualTo(WmiUtil.getUint32asLong(jnaMt, PhysicalDiskMediaTypeProperty.SPINDLESPEED, jnaRow));
+            }
 
             // MSFTStorage: VirtualDisks
             WmiResult<VirtualDiskProperty> jnaVd = MSFTStorage.queryVirtualDisks(jnaHandler);

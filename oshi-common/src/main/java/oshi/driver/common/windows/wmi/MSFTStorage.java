@@ -71,6 +71,19 @@ public class MSFTStorage {
     }
 
     /**
+     * Properties for a physical disk's media type. Unlike {@code Win32_DiskDrive}'s MediaType, which reports only
+     * removability, this MediaType reports the media technology and so distinguishes an SSD from an HDD.
+     */
+    public enum PhysicalDiskMediaTypeProperty {
+        /** Device ID of the physical disk. For a directly attached disk this is its physical drive number. */
+        DEVICEID,
+        /** Media type: 3 is HDD, 4 is SSD, 5 is storage class memory, 0 is unspecified. */
+        MEDIATYPE,
+        /** Spindle speed in RPM. Zero for non-rotational media, {@code UINT32_MAX} if rotating at unknown speed. */
+        SPINDLESPEED;
+    }
+
+    /**
      * Properties for a virtual disk. The Object ID uniquely defines the disk.
      */
     public enum VirtualDiskProperty {
@@ -119,6 +132,18 @@ public class MSFTStorage {
     public static WmiResult<PhysicalDiskProperty> queryPhysicalDisks(WmiQueryExecutor h) {
         WmiQuery<PhysicalDiskProperty> query = new WmiQuery<>(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
                 PhysicalDiskProperty.class);
+        return h.queryWMI(query, false);
+    }
+
+    /**
+     * Queries physical disk media types. Requires Windows 8 or Server 2012.
+     *
+     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.
+     * @return Physical disk media type information.
+     */
+    public static WmiResult<PhysicalDiskMediaTypeProperty> queryPhysicalDiskMediaTypes(WmiQueryExecutor h) {
+        WmiQuery<PhysicalDiskMediaTypeProperty> query = new WmiQuery<>(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
+                PhysicalDiskMediaTypeProperty.class);
         return h.queryWMI(query, false);
     }
 
