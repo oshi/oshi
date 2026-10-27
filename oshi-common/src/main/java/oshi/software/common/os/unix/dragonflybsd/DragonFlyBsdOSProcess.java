@@ -106,6 +106,27 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
         return this.os.getProcessId();
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * On DragonFly BSD only the current process is asked; every other process falls back to the {@code ps} column. The
+     * kernel's {@code KERN_PROC_PATHNAME} handler dereferences the target's file-descriptor table without checking it,
+     * and an exiting process frees that table before it drops its executable's name, so querying another process at the
+     * wrong moment panics the kernel.
+     */
+    @Override
+    protected final String queryExecutablePath() {
+        return getProcessID() == queryOwnProcessId() ? queryOwnExecutablePath() : "";
+    }
+
+    /**
+     * Returns the full path of the current process's executable through the {@code KERN_PROC_PATHNAME} sysctl. Only
+     * called when this process is the current one; see {@link #queryExecutablePath()}.
+     *
+     * @return the path, or an empty string if it is unavailable
+     */
+    protected abstract String queryOwnExecutablePath();
+
     @Override
     protected int queryBitness() {
         // DragonFly BSD has no KERN_PROC_SV_NAME (its KERN_PROC subtype 9 is the executable's path) and no ABI

@@ -93,7 +93,7 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
     }
 
     @Override
-    protected String queryExecutablePath() {
+    protected String queryOwnExecutablePath() {
         return callInArenaOrDefault(arena -> {
             MemorySegment mib = arena.allocateFrom(JAVA_INT, CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, getProcessID());
             MemorySegment buf = arena.allocate(PATH_MAX);

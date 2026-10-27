@@ -369,7 +369,8 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
 
     /**
      * Returns the full path of this process's executable as the kernel reports it. The default returns an empty string;
-     * FreeBSD and DragonFly BSD read it through the {@code KERN_PROC_PATHNAME} sysctl.
+     * FreeBSD reads it through the {@code KERN_PROC_PATHNAME} sysctl, and DragonFly BSD does so for the current process
+     * only.
      *
      * @return the path, or an empty string if it is unavailable, as it is for kernel processes
      */

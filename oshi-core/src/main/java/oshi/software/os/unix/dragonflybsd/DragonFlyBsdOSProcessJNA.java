@@ -73,7 +73,7 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     }
 
     @Override
-    protected String queryExecutablePath() {
+    protected String queryOwnExecutablePath() {
         int[] mib = { 1, 14, KERN_PROC_PATHNAME, getProcessID() }; // CTL_KERN, KERN_PROC
         try (Memory buf = new Memory(PATH_MAX);
                 CloseableSizeTByReference size = new CloseableSizeTByReference(PATH_MAX)) {
