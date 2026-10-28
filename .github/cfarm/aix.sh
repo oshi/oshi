@@ -70,4 +70,7 @@ if command -v timeout >/dev/null 2>&1; then
 else
   sh -c "$BUILD"
 fi
-exit $?
+rc=$?
+# The next run's git clean wipes any crash report, so print it now
+[ "$rc" -eq 0 ] || sh .github/dump-crash-reports.sh
+exit $rc

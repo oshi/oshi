@@ -244,7 +244,7 @@ jobs:
           run: |
             export JAVA_HOME=/usr/local/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            ./mvnw test -Paggregate-coverage -B
+            ./mvnw test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -293,7 +293,7 @@ jobs:
             export JAVA_HOME=$(ls -d /usr/local/jdk-* | tail -1)
             export PATH=$JAVA_HOME/bin:$PATH
             java -version
-            ./mvnw test -Paggregate-coverage -B
+            ./mvnw test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -363,7 +363,7 @@ jobs:
             # Point JNA at the pkgsrc libjnidispatch, so both implementations run natively
             export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
-            ./mvnw test -Paggregate-coverage -B
+            ./mvnw test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -426,7 +426,7 @@ jobs:
             fi
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
-            ./mvnw test -Paggregate-coverage -B
+            ./mvnw test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -506,12 +506,8 @@ jobs:
               MVN_RC=$?
             fi
             if [ "$MVN_RC" -ne 0 ]; then
-              # Read any crash dump inside the guest: a nonzero exit here stops `copyback`, so the
-              # guest filesystem is discarded before a later step could upload the file.
-              echo "===== swap -s ====="; swap -s || true
-              find . -name 'hs_err_pid*.log' -type f | while read -r f; do
-                echo "===== $f ====="; cat "$f"
-              done
+              # Print any crash report now; the script says why it cannot be retrieved later.
+              sh .github/dump-crash-reports.sh
             fi
             exit $MVN_RC
       - name: Upload Coverage

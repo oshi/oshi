@@ -45,7 +45,7 @@ jobs:
           run: |
             export JAVA_HOME=/usr/local/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            ./mvnw clean test -Paggregate-coverage -B
+            ./mvnw clean test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -85,7 +85,7 @@ jobs:
             export JAVA_HOME=$(ls -d /usr/local/jdk-* | tail -1)
             export PATH=$JAVA_HOME/bin:$PATH
             java -version
-            ./mvnw clean test -Paggregate-coverage -B
+            ./mvnw clean test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -196,18 +196,8 @@ jobs:
               MVN_RC=$?
             fi
             if [ "$MVN_RC" -ne 0 ]; then
-              # Dump any crash report from inside the guest, because nothing outside it can. When
-              # this script exits nonzero the step fails with "ssh exited with code 1" and the job
-              # goes straight to killing qemu, so `copyback` never runs and the guest filesystem is
-              # discarded before any later step -- including an `if: failure()` upload -- could see
-              # the file. Verified: such a step reported "No files were found".
-              #
-              # Whole file, not head or tail: the failure reason is at the top, but the rlimits and
-              # the physical and swap totals are in the S Y S T E M section at the very bottom.
-              echo "===== swap -s ====="; swap -s || true
-              find . -name 'hs_err_pid*.log' -type f | while read -r f; do
-                echo "===== $f ====="; cat "$f"
-              done
+              # Print any crash report now; the script says why it cannot be retrieved later.
+              sh .github/dump-crash-reports.sh
             fi
             exit $MVN_RC
       # No crash-dump upload step here, because one cannot work: a dump only exists when the build
@@ -274,7 +264,7 @@ jobs:
             java -version
             mount -t procfs procfs /proc 2>/dev/null || true
             # aggregate-coverage: oshi-common + oshi-core + oshi-core-ffm, and the oshi.comparison tests
-            ./mvnw clean test -Paggregate-coverage -B
+            ./mvnw clean test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -312,7 +302,7 @@ jobs:
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
             # jna-aggregate: JDK 21 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo.
-            ./mvnw clean test -Pjna-aggregate -B
+            ./mvnw clean test -Pjna-aggregate -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
@@ -375,7 +365,7 @@ jobs:
             export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             mount -t procfs procfs /proc 2>/dev/null || true
             # aggregate-coverage: oshi-common + oshi-core + oshi-core-ffm, and the oshi.comparison tests
-            ./mvnw clean test -Paggregate-coverage -B
+            ./mvnw clean test -Paggregate-coverage -B || { rc=$?; sh .github/dump-crash-reports.sh; exit $rc; }
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
