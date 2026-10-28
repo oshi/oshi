@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.jspecify.annotations.Nullable;
-
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.ExecutingCommand;
@@ -350,19 +348,6 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     protected String queryCommandLineBackup(Map<BsdPsKeyword, String> psMap) {
         return ParseUtil.getStringValueOrEmpty(
                 psMap.get(psMap.containsKey(BsdPsKeyword.COMMAND) ? BsdPsKeyword.COMMAND : BsdPsKeyword.ARGS));
-    }
-
-    /**
-     * Extracts {@code argv[0]} from a {@code ps} args column ({@code command} on DragonFly).
-     *
-     * @param args the args column, the process's arguments separated by spaces
-     * @return {@code argv[0]}, which is a path when the process was started by one, or whatever the process has
-     *         rewritten it to, such as NetBSD's parenthesized command where the kernel would not release the arguments
-     */
-    protected static String parseArgv0(@Nullable String args) {
-        String argv = ParseUtil.getStringValueOrEmpty(args).trim();
-        int space = argv.indexOf(' ');
-        return space < 0 ? argv : argv.substring(0, space);
     }
 
     /**

@@ -180,6 +180,19 @@ public class NetBsdOSProcess extends BsdOSProcess {
     }
 
     /**
+     * Extracts {@code argv[0]} from a {@code ps} args column.
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return {@code argv[0]}, which is a path when the process was started by one, or the command in parentheses where
+     *         the kernel would not release the arguments
+     */
+    static String parseArgv0(@Nullable String args) {
+        String argv = ParseUtil.getStringValueOrEmpty(args).trim();
+        int space = argv.indexOf(' ');
+        return space < 0 ? argv : argv.substring(0, space);
+    }
+
+    /**
      * Whether a {@code ps} args column holds the parenthesized command that {@code ps} substitutes when the kernel
      * refuses a process's arguments, which it does while that process is inside {@code posix_spawn}.
      *

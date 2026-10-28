@@ -135,10 +135,10 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     /**
      * {@inheritDoc}
      * <p>
-     * Every process but the current one falls back to {@code argv[0]} from the {@code command} column, which holds the
+     * Every process but the current one falls back to {@code argv[0]} from {@code /proc/<pid>/cmdline}, which holds the
      * path when the process was started by one and is not cut to {@code MAXCOMLEN} as {@code ucomm} is. A process can
-     * rewrite {@code argv[0]}, so it is used only when it names the same program as {@code ucomm}; otherwise the result
-     * is {@code ucomm}.
+     * rewrite {@code argv[0]}, so it is used only when it names the same program as {@code ucomm}; otherwise, or
+     * without procfs, the result is {@code ucomm}.
      */
     @Override
     protected String queryPath(Map<BsdPsKeyword, String> psMap) {
@@ -147,13 +147,26 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
             return path;
         }
         String ucomm = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
-        String argv0 = parseArgv0(psMap.get(COMMAND));
-        String argv0Name = argv0.substring(argv0.lastIndexOf('/') + 1);
-        boolean sameProgram = argv0Name.equals(ucomm) || (ucomm.length() == MAXCOMLEN && argv0Name.startsWith(ucomm));
-        if (!ucomm.isEmpty() && sameProgram) {
-            return argv0;
+        // The NUL-separated arguments keep a path with spaces whole, which ps's space-separated column does not
+        List<String> args = queryArguments();
+        String argv0 = args.isEmpty() ? "" : args.get(0);
+        return !ucomm.isEmpty() && namesProgram(argv0.substring(argv0.lastIndexOf('/') + 1), ucomm) ? argv0 : ucomm;
+    }
+
+    /**
+     * Whether the last element of {@code argv[0]} names the program whose kernel command name is {@code ucomm}.
+     *
+     * @param argv0Name the last element of {@code argv[0]}
+     * @param ucomm     the kernel's command name, cut to {@code MAXCOMLEN}
+     * @return {@code true} if it is the same name, or extends a truncated {@code ucomm} with more of a file name
+     */
+    static boolean namesProgram(String argv0Name, String ucomm) {
+        if (argv0Name.equals(ucomm)) {
+            return true;
         }
-        return ucomm;
+        // A setproctitle() title, "name: status", also extends ucomm, but a file name rarely holds a colon or a space
+        return ucomm.length() == MAXCOMLEN && argv0Name.startsWith(ucomm)
+                && argv0Name.substring(MAXCOMLEN).chars().noneMatch(c -> c == ':' || Character.isWhitespace(c));
     }
 
     @Override

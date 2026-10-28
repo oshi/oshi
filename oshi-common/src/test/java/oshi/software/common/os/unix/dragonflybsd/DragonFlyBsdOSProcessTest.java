@@ -37,6 +37,10 @@ class DragonFlyBsdOSProcessTest {
             });
 
     private static DragonFlyBsdOSProcess stubProcess(int pid, AtomicInteger kernelQueries) {
+        return stubProcess(pid, kernelQueries, Collections.emptyList());
+    }
+
+    private static DragonFlyBsdOSProcess stubProcess(int pid, AtomicInteger kernelQueries, List<String> args) {
         return new DragonFlyBsdOSProcess(pid, OS) {
             @Override
             protected String queryOwnExecutablePath() {
@@ -51,7 +55,7 @@ class DragonFlyBsdOSProcessTest {
 
             @Override
             protected List<String> queryArguments() {
-                return Collections.emptyList();
+                return args;
             }
 
             @Override
@@ -75,12 +79,11 @@ class DragonFlyBsdOSProcessTest {
         assertThat(kernelQueries.get(), is(0));
     }
 
-    private static String otherProcessPath(String ucomm, String command) {
+    private static String otherProcessPath(String ucomm, String... args) {
         Map<BsdPsKeyword, String> psMap = new EnumMap<>(BsdPsKeyword.class);
         psMap.put(BsdPsKeyword.UCOMM, ucomm);
-        psMap.put(BsdPsKeyword.COMMAND, command);
         AtomicInteger kernelQueries = new AtomicInteger();
-        String path = stubProcess(OWN_PID + 1, kernelQueries).queryPath(psMap);
+        String path = stubProcess(OWN_PID + 1, kernelQueries, List.of(args)).queryPath(psMap);
         assertThat(kernelQueries.get(), is(0));
         return path;
     }
@@ -89,27 +92,35 @@ class DragonFlyBsdOSProcessTest {
     void testCurrentProcessPathPrefersKernel() {
         Map<BsdPsKeyword, String> psMap = new EnumMap<>(BsdPsKeyword.class);
         psMap.put(BsdPsKeyword.UCOMM, "java");
-        psMap.put(BsdPsKeyword.COMMAND, "java -jar oshi.jar");
-        assertThat(stubProcess(OWN_PID, new AtomicInteger()).queryPath(psMap), is("/usr/local/bin/java"));
+        assertThat(stubProcess(OWN_PID, new AtomicInteger(), List.of("java", "-jar", "oshi.jar")).queryPath(psMap),
+                is("/usr/local/bin/java"));
     }
 
     @Test
     void testOtherProcessPathFromArgv0() {
-        assertThat(otherProcessPath("sshd", "/usr/sbin/sshd -D"), is("/usr/sbin/sshd"));
+        assertThat(otherProcessPath("sshd", "/usr/sbin/sshd", "-D"), is("/usr/sbin/sshd"));
         // Started through PATH, so argv[0] is a bare name
-        assertThat(otherProcessPath("gmake", "gmake -j8 all"), is("gmake"));
+        assertThat(otherProcessPath("gmake", "gmake", "-j8", "all"), is("gmake"));
         // ucomm is cut to MAXCOMLEN; argv[0] keeps the whole name
-        assertThat(otherProcessPath("postgres_exporte", "/usr/local/bin/postgres_exporter --log.level=info"),
+        assertThat(otherProcessPath("postgres_exporte", "/usr/local/bin/postgres_exporter", "--log.level=info"),
                 is("/usr/local/bin/postgres_exporter"));
+        // The arguments are NUL-separated, so a space in the path does not split it
+        assertThat(otherProcessPath("java", "/opt/java tools/java", "-version"), is("/opt/java tools/java"));
     }
 
     @Test
     void testOtherProcessPathIgnoresRewrittenArgv0() {
-        // A process title, a login shell and a different program sharing a prefix all fall back to ucomm
+        // Process titles, a login shell and a different program sharing a prefix all fall back to ucomm
         assertThat(otherProcessPath("sshd", "sshd: oshi@notty (sshd)"), is("sshd"));
+        assertThat(otherProcessPath("postgres_exporte", "postgres_exporter: running"), is("postgres_exporte"));
+        assertThat(otherProcessPath("postgres_exporte", "postgres_exporter:"), is("postgres_exporte"));
         assertThat(otherProcessPath("sh", "-sh"), is("sh"));
-        assertThat(otherProcessPath("java", "javac Main.java"), is("java"));
-        assertThat(otherProcessPath("dhclient", ""), is("dhclient"));
+        assertThat(otherProcessPath("java", "javac", "Main.java"), is("java"));
         assertThat(otherProcessPath("", "/usr/sbin/cron"), is(""));
+    }
+
+    @Test
+    void testOtherProcessPathWithoutProcfs() {
+        assertThat(otherProcessPath("dhclient"), is("dhclient"));
     }
 }
