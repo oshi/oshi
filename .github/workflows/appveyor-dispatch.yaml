@@ -9,7 +9,9 @@
 # long jobs regardless of what changed" across both CI systems.
 #
 # This needs an APPVEYOR_TOKEN repository secret, from https://ci.appveyor.com/api-keys. Without it
-# the job fails with a message saying so rather than appearing to succeed.
+# the job fails with a message saying so rather than appearing to succeed. The request names the
+# account in its path, which the user-level (v2) key requires: sent to the bare /api/builds, that key
+# gets "Project not found or access denied".
 #
 # pull_request_target, not pull_request, because secrets are not available to pull_request runs from
 # a fork, which is where every contributor pull request comes from. It is safe here for the reason
@@ -37,7 +39,7 @@ jobs:
             echo "::error::APPVEYOR_TOKEN secret is not set. Add it from https://ci.appveyor.com/api-keys."
             exit 1
           fi
-          curl -sS --fail-with-body -X POST https://ci.appveyor.com/api/builds \
+          curl -sS --fail-with-body -X POST https://ci.appveyor.com/api/account/dbwiddis/builds \
             -H "Authorization: Bearer $APPVEYOR_TOKEN" \
             -H "Content-Type: application/json" \
             -d "{\"accountName\":\"dbwiddis\",\"projectSlug\":\"oshi\",\"pullRequestId\":$PR_NUMBER}"
