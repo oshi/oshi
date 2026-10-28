@@ -68,6 +68,11 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      */
     protected static final int PATH_MAX = 1024;
 
+    /**
+     * The longest command name the kernel keeps, {@code MAXCOMLEN}; {@code ucomm} is cut to this length.
+     */
+    private static final int MAXCOMLEN = 16;
+
     private final OperatingSystem os;
 
     /**
@@ -104,6 +109,64 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     @Override
     protected int queryOwnProcessId() {
         return this.os.getProcessId();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * On DragonFly BSD only the current process is asked; every other process falls back to the {@code ps} column. The
+     * kernel's {@code KERN_PROC_PATHNAME} handler dereferences the target's file-descriptor table without checking it,
+     * and an exiting process frees that table before it drops its executable's name, so querying another process at the
+     * wrong moment panics the kernel.
+     */
+    @Override
+    protected final String queryExecutablePath() {
+        return getProcessID() == queryOwnProcessId() ? queryOwnExecutablePath() : "";
+    }
+
+    /**
+     * Returns the full path of the current process's executable through the {@code KERN_PROC_PATHNAME} sysctl. Only
+     * called when this process is the current one; see {@link #queryExecutablePath()}.
+     *
+     * @return the path, or an empty string if it is unavailable
+     */
+    protected abstract String queryOwnExecutablePath();
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Every process but the current one falls back to {@code argv[0]} from {@code /proc/<pid>/cmdline}, which holds the
+     * path when the process was started by one and is not cut to {@code MAXCOMLEN} as {@code ucomm} is. A process can
+     * rewrite {@code argv[0]}, so it is used only when it names the same program as {@code ucomm}; otherwise, or
+     * without procfs, the result is {@code ucomm}.
+     */
+    @Override
+    protected String queryPath(Map<BsdPsKeyword, String> psMap) {
+        String path = queryExecutablePath();
+        if (!path.isEmpty()) {
+            return path;
+        }
+        String ucomm = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
+        // The NUL-separated arguments keep a path with spaces whole, which ps's space-separated column does not
+        List<String> args = queryArguments();
+        String argv0 = args.isEmpty() ? "" : args.get(0);
+        return !ucomm.isEmpty() && namesProgram(argv0.substring(argv0.lastIndexOf('/') + 1), ucomm) ? argv0 : ucomm;
+    }
+
+    /**
+     * Whether the last element of {@code argv[0]} names the program whose kernel command name is {@code ucomm}.
+     *
+     * @param argv0Name the last element of {@code argv[0]}
+     * @param ucomm     the kernel's command name, cut to {@code MAXCOMLEN}
+     * @return {@code true} if it is the same name, or extends a truncated {@code ucomm} with more of a file name
+     */
+    static boolean namesProgram(String argv0Name, String ucomm) {
+        if (argv0Name.equals(ucomm)) {
+            return true;
+        }
+        // A setproctitle() title, "name: status", also extends ucomm, but a file name rarely holds a colon or a space
+        return ucomm.length() == MAXCOMLEN && argv0Name.startsWith(ucomm)
+                && argv0Name.substring(MAXCOMLEN).chars().noneMatch(c -> c == ':' || Character.isWhitespace(c));
     }
 
     @Override

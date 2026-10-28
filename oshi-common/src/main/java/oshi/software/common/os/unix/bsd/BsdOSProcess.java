@@ -353,7 +353,7 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     /**
      * Returns the executable path for this row. The default asks the kernel through {@link #queryExecutablePath()},
      * falling back to the {@code comm} column, or {@code ucomm} where that is the one queried (DragonFly), which holds
-     * only the command name. NetBSD overrides it, because its {@code ps} truncates that column.
+     * only the command name. NetBSD and DragonFly override it to prefer {@code argv[0]}.
      *
      * @param psMap the parsed {@code ps} columns for this process
      * @return the path, or an empty string if neither is known
@@ -369,7 +369,8 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
 
     /**
      * Returns the full path of this process's executable as the kernel reports it. The default returns an empty string;
-     * FreeBSD and DragonFly BSD read it through the {@code KERN_PROC_PATHNAME} sysctl.
+     * FreeBSD reads it through the {@code KERN_PROC_PATHNAME} sysctl, and DragonFly BSD does so for the current process
+     * only.
      *
      * @return the path, or an empty string if it is unavailable, as it is for kernel processes
      */

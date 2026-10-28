@@ -58,6 +58,10 @@ public interface OSProcess {
 
     /**
      * Gets the full filesystem path of the executing process.
+     * <p>
+     * On DragonFly BSD, only the current process's path comes from the kernel. For other processes this is
+     * {@code argv[0]}, which may be a bare command name, where it names the same program as the kernel's command name,
+     * and that command name otherwise.
      *
      * @return the full path of the executing process.
      */
