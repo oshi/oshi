@@ -17,7 +17,7 @@ permissions: {}
 
 jobs:
   # Detect whether this PR touches Unix-platform code or the build infrastructure.
-  # The nested-VM Unix coverage jobs (freebsd/netbsd/openbsd/openindiana) are gated on this
+  # The nested-VM Unix coverage jobs (freebsd/netbsd/openbsd/dragonflybsd/openindiana) are gated on this
   # so an unrelated PR doesn't spin up slow VMs. Generic shared source is covered by
   # the always-on ubuntu/mac/windows jobs, Codecov carryforward, and the authoritative
   # master run. A `full-coverage` label overrides the gate to force the VM jobs on; the same label
@@ -371,6 +371,69 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: netbsd
+
+  # DragonFly BSD 6.4 VM, JDK 25. Same pattern as NetBSD above: DPorts has no binary openjdk25 package
+  # yet -- see the prepare: script. JNA uses the libjnidispatch bundled in the JNA jar.
+  testdragonflybsd:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 30
+    name: Test JDK 25, DragonFly BSD
+    needs: changes
+    permissions:
+      contents: read
+    # See testnetbsd for this condition.
+    if: >-
+      !cancelled() && needs.changes.result != 'skipped' &&
+      (needs.changes.outputs.unix != 'false' ||
+      contains(github.event.pull_request.labels.*.name, 'full-coverage'))
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+      - name: Test on DragonFly BSD with aggregate coverage
+        id: test-dragonflybsd
+        uses: vmactions/dragonflybsd-vm@4ab776fa9f914fbea72f13715b451e77e7ef5c41 # v1
+        with:
+          disable-cache: true
+          release: "6.4.2"
+          usesh: true
+          copyback: true
+          prepare: |
+            pkg install -y curl
+            # DPorts has no openjdk25 package yet; prefer it the moment it appears, and until then use a
+            # JDK 25 built from FreeBSD's java/openjdk25 port with DeltaPorts' DragonFly patches, published
+            # with its build recipe as a pre-release on the maintainer's fork and pinned to its SHA-256. A
+            # missing or altered file fails the job rather than quietly dropping FFM coverage. Delete the
+            # pre-release along with this fallback once DPorts ships openjdk25.
+            if pkg install -y openjdk25; then
+              echo "using DPorts openjdk25"
+            else
+              JDK=jdk-25.0.4+7-dragonfly-6.4-x86_64.tar.xz
+              SHA=f4d764abb99660a2a1a08a7276da0a9f653a71583ceb9b896f3c3842b7373f72
+              URL=https://github.com/dbwiddis/oshi/releases/download/dragonfly-jdk25-bootstrap/jdk-25.0.4%2B7-dragonfly-6.4-x86_64.tar.xz
+              curl -sSfLo /tmp/$JDK "$URL" || { echo "FATAL: could not fetch $URL"; exit 1; }
+              [ "$(sha256 -q /tmp/$JDK)" = "$SHA" ] || { echo "FATAL: checksum mismatch for $JDK"; exit 1; }
+              mkdir -p /opt && tar -xJf /tmp/$JDK -C /opt
+              # Its RPATH includes /usr/local/lib/gcc13, where it finds libstdc++ and libgcc_s
+              pkg install -y gcc13
+              echo "using the fork's JDK 25"
+            fi
+          run: |
+            if [ -d /usr/local/openjdk25 ]; then
+              export JAVA_HOME=/usr/local/openjdk25
+            else
+              export JAVA_HOME=/opt/jdk-25.0.4-dragonfly
+            fi
+            export PATH=$JAVA_HOME/bin:$PATH
+            mount -t procfs procfs /proc 2>/dev/null || true
+            ./mvnw test -Paggregate-coverage -B
+      - name: Upload Coverage
+        if: always()
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
+          flags: dragonflybsd
 
   # OpenIndiana (illumos/Solaris) VM, JDK 25. Same pattern as FreeBSD/OpenBSD above, plus the
   # libumem preload that keeps illumos malloc off the break -- see the run: script below.
