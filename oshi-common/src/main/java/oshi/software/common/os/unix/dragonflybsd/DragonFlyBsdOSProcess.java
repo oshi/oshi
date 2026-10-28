@@ -68,6 +68,11 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      */
     protected static final int PATH_MAX = 1024;
 
+    /**
+     * The longest command name the kernel keeps, {@code MAXCOMLEN}; {@code ucomm} is cut to this length.
+     */
+    private static final int MAXCOMLEN = 16;
+
     private final OperatingSystem os;
 
     /**
@@ -126,6 +131,30 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      * @return the path, or an empty string if it is unavailable
      */
     protected abstract String queryOwnExecutablePath();
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Every process but the current one falls back to {@code argv[0]} from the {@code command} column, which holds the
+     * path when the process was started by one and is not cut to {@code MAXCOMLEN} as {@code ucomm} is. A process can
+     * rewrite {@code argv[0]}, so it is used only when it names the same program as {@code ucomm}; otherwise the result
+     * is {@code ucomm}.
+     */
+    @Override
+    protected String queryPath(Map<BsdPsKeyword, String> psMap) {
+        String path = queryExecutablePath();
+        if (!path.isEmpty()) {
+            return path;
+        }
+        String ucomm = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
+        String argv0 = parseArgv0(psMap.get(COMMAND));
+        String argv0Name = argv0.substring(argv0.lastIndexOf('/') + 1);
+        boolean sameProgram = argv0Name.equals(ucomm) || (ucomm.length() == MAXCOMLEN && argv0Name.startsWith(ucomm));
+        if (!ucomm.isEmpty() && sameProgram) {
+            return argv0;
+        }
+        return ucomm;
+    }
 
     @Override
     protected int queryBitness() {

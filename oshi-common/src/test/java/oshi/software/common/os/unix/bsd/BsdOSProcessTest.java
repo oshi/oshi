@@ -215,4 +215,17 @@ class BsdOSProcessTest {
         assertThat(proc.getPath(), is("java"));
         assertThat(proc.getName(), is("java"));
     }
+
+    @Test
+    void testParseArgv0() {
+        // NetBSD's comm column would have clipped this to "/opt/bo", the width of ps's COMMAND header
+        assertThat(BsdOSProcess.parseArgv0("/opt/bootstrap/bin/java -Xmx64m -cp /tmp/a.jar Main"),
+                is("/opt/bootstrap/bin/java"));
+        assertThat(BsdOSProcess.parseArgv0("/usr/sbin/sshd"), is("/usr/sbin/sshd"));
+        // Started through PATH, so argv[0] is a bare name rather than a path
+        assertThat(BsdOSProcess.parseArgv0("java /tmp/S.java"), is("java"));
+        assertThat(BsdOSProcess.parseArgv0("  /bin/sh -c true  "), is("/bin/sh"));
+        assertThat(BsdOSProcess.parseArgv0(null), is(""));
+        assertThat(BsdOSProcess.parseArgv0(""), is(""));
+    }
 }

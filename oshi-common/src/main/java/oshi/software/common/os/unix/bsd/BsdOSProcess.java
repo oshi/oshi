@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.ExecutingCommand;
@@ -351,9 +353,22 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     }
 
     /**
+     * Extracts {@code argv[0]} from a {@code ps} args column ({@code command} on DragonFly).
+     *
+     * @param args the args column, the process's arguments separated by spaces
+     * @return {@code argv[0]}, which is a path when the process was started by one, or whatever the process has
+     *         rewritten it to, such as NetBSD's parenthesized command where the kernel would not release the arguments
+     */
+    protected static String parseArgv0(@Nullable String args) {
+        String argv = ParseUtil.getStringValueOrEmpty(args).trim();
+        int space = argv.indexOf(' ');
+        return space < 0 ? argv : argv.substring(0, space);
+    }
+
+    /**
      * Returns the executable path for this row. The default asks the kernel through {@link #queryExecutablePath()},
      * falling back to the {@code comm} column, or {@code ucomm} where that is the one queried (DragonFly), which holds
-     * only the command name. NetBSD overrides it, because its {@code ps} truncates that column.
+     * only the command name. NetBSD and DragonFly override it to prefer {@code argv[0]}.
      *
      * @param psMap the parsed {@code ps} columns for this process
      * @return the path, or an empty string if neither is known
