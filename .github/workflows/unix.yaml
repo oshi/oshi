@@ -222,10 +222,12 @@ jobs:
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: solaris
 
-  # Runs on DragonFly BSD 6.4 x86 VM
+  # Runs on DragonFly BSD 6.4 x86 VM, exercising both native paths: JNA and FFM, which needs JDK 25.
+  # This runs on a throwaway VM rather than the shared cfarm DragonFly box: OSHI 7.7.2 could panic a
+  # DragonFly kernel (#3848), and a kernel bug found by a test should take down nothing but the test.
   testdragonflybsd:
     if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
-    name: Test JDK 21, DragonFly BSD
+    name: Test JDK 25, DragonFly BSD (JNA and FFM)
     runs-on: ubuntu-26.04
     timeout-minutes: 30
     steps:
@@ -244,19 +246,41 @@ jobs:
           copyback: true
           prepare: |
             pkg install -y curl
-            pkg install -y openjdk21
+            # DPorts has no openjdk25 package yet; prefer it the moment it appears, and until then use a
+            # JDK 25 built from FreeBSD's java/openjdk25 port with DeltaPorts' DragonFly patches, published
+            # with its build recipe as a pre-release on the maintainer's fork and pinned to its SHA-256. A
+            # missing or altered file fails the job rather than quietly dropping FFM coverage. Delete the
+            # pre-release along with this fallback once DPorts ships openjdk25.
+            if pkg install -y openjdk25; then
+              echo "using DPorts openjdk25"
+            else
+              JDK=jdk-25.0.4+7-dragonfly-6.4-x86_64.tar.xz
+              SHA=f4d764abb99660a2a1a08a7276da0a9f653a71583ceb9b896f3c3842b7373f72
+              URL=https://github.com/dbwiddis/oshi/releases/download/dragonfly-jdk25-bootstrap/jdk-25.0.4%2B7-dragonfly-6.4-x86_64.tar.xz
+              curl -sSfLo /tmp/$JDK "$URL" || { echo "FATAL: could not fetch $URL"; exit 1; }
+              [ "$(sha256 -q /tmp/$JDK)" = "$SHA" ] || { echo "FATAL: checksum mismatch for $JDK"; exit 1; }
+              mkdir -p /opt && tar -xJf /tmp/$JDK -C /opt
+              # Its RPATH includes /usr/local/lib/gcc13, where it finds libstdc++ and libgcc_s
+              pkg install -y gcc13
+              echo "using the fork's JDK 25"
+            fi
           run: |
-            export JAVA_HOME=/usr/local/openjdk21
+            if [ -d /usr/local/openjdk25 ]; then
+              export JAVA_HOME=/usr/local/openjdk25
+            else
+              export JAVA_HOME=/opt/jdk-25.0.4-dragonfly
+            fi
             export PATH=$JAVA_HOME/bin:$PATH
+            java -version
             mount -t procfs procfs /proc 2>/dev/null || true
-            # jna-aggregate: JDK 21 aggregate report (oshi-common + oshi-core, no FFM) via oshi-demo.
-            ./mvnw clean test -Pjna-aggregate -B
+            # aggregate-coverage: oshi-common + oshi-core + oshi-core-ffm, and the oshi.comparison tests
+            ./mvnw clean test -Paggregate-coverage -B
       - name: Upload Coverage
         if: always()
         uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: oshi-demo/target/site/jacoco-aggregate/jacoco.xml
+          files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: dragonflybsd
 
   # Runs on NetBSD 10.1 x86 VM WITHOUT the JNA native library (java-jna not installed), exercising the
