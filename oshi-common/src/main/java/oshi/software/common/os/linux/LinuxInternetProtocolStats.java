@@ -4,6 +4,7 @@
  */
 package oshi.software.common.os.linux;
 
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -99,37 +100,45 @@ public class LinuxInternetProtocolStats extends AbstractInternetProtocolStats {
     }
 
     private static List<IPConnection> queryConnections(String protocol, int ipver, Map<Long, Integer> pidMap) {
+        return parseConnections(protocol + ipver,
+                FileUtil.readFile(ProcPath.NET + "/" + protocol + (ipver == 6 ? "6" : "")), pidMap,
+                ByteOrder.nativeOrder());
+    }
+
+    /**
+     * Parses the lines of one of {@code /proc/net/tcp}, {@code tcp6}, {@code udp} or {@code udp6}.
+     *
+     * @param type   the connection type to report, such as {@code tcp4}
+     * @param lines  the lines of the file
+     * @param pidMap a map of socket inode to owning process ID
+     * @param order  the byte order of the host that wrote the lines
+     * @return the parsed connections
+     */
+    static List<IPConnection> parseConnections(String type, List<String> lines, Map<Long, Integer> pidMap,
+            ByteOrder order) {
         List<IPConnection> conns = new ArrayList<>();
-        for (String s : FileUtil.readFile(ProcPath.NET + "/" + protocol + (ipver == 6 ? "6" : ""))) {
+        for (String s : lines) {
             if (s.indexOf(':') >= 0) {
                 String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
                 if (split.length > 9) {
-                    Pair<byte[], Integer> lAddr = parseIpAddr(split[1]);
-                    Pair<byte[], Integer> fAddr = parseIpAddr(split[2]);
+                    Pair<byte[], Integer> lAddr = parseIpAddr(split[1], order);
+                    Pair<byte[], Integer> fAddr = parseIpAddr(split[2], order);
                     TcpState state = TcpState.fromLinuxState(ParseUtil.hexStringToInt(split[3], 0));
                     Pair<Integer, Integer> txQrxQ = parseHexColonHex(split[4]);
                     long inode = ParseUtil.parseLongOrDefault(split[9], 0);
-                    conns.add(new IPConnection(protocol + ipver, lAddr.getA(), lAddr.getB(), fAddr.getA(), fAddr.getB(),
-                            state, txQrxQ.getA(), txQrxQ.getB(), pidMap.getOrDefault(inode, -1)));
+                    conns.add(new IPConnection(type, lAddr.getA(), lAddr.getB(), fAddr.getA(), fAddr.getB(), state,
+                            txQrxQ.getA(), txQrxQ.getB(), pidMap.getOrDefault(inode, -1)));
                 }
             }
         }
         return conns;
     }
 
-    private static Pair<byte[], Integer> parseIpAddr(String s) {
+    private static Pair<byte[], Integer> parseIpAddr(String s, ByteOrder order) {
         int colon = s.indexOf(':');
         if (colon > 0 && colon < s.length()) {
-            byte[] first = ParseUtil.hexStringToByteArray(s.substring(0, colon));
-            // Bytes are in __be32 endianness. we must invert each set of 4 bytes
-            for (int i = 0; i + 3 < first.length; i += 4) {
-                byte tmp = first[i];
-                first[i] = first[i + 3];
-                first[i + 3] = tmp;
-                tmp = first[i + 1];
-                first[i + 1] = first[i + 2];
-                first[i + 2] = tmp;
-            }
+            // Each 32-bit word of the __be32 address is printed with %08X, so in the host's byte order
+            byte[] first = ParseUtil.hexWordsToByteArray(s.substring(0, colon), order);
             int second = ParseUtil.hexStringToInt(s.substring(colon + 1), 0);
             return new Pair<>(first, second);
         }

@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -182,6 +183,24 @@ class ParseUtilTest {
         temp = new byte[0];
         assertThat(Arrays.equals(temp, ParseUtil.hexStringToByteArray("expected error abcde")), is(true));
         assertThat(Arrays.equals(temp, ParseUtil.hexStringToByteArray("abcde")), is(true));
+    }
+
+    /**
+     * Test hex words to byte array, in each byte order.
+     */
+    @Test
+    void testHexWordsToByteArray() {
+        // 127.0.0.1 as Linux prints it in /proc/net/tcp on each kind of host
+        byte[] loopback = { 127, 0, 0, 1 };
+        assertThat(ParseUtil.hexWordsToByteArray("0100007F", ByteOrder.LITTLE_ENDIAN), is(loopback));
+        assertThat(ParseUtil.hexWordsToByteArray("7F000001", ByteOrder.BIG_ENDIAN), is(loopback));
+        // Each 32-bit word is reversed on its own, not the whole address
+        byte[] ipv6 = ParseUtil.parseIpv6AddressToBytes("2001:db8:1122:3344::1");
+        assertThat(ParseUtil.hexWordsToByteArray("B80D0120443322110000000001000000", ByteOrder.LITTLE_ENDIAN),
+                is(ipv6));
+        assertThat(ParseUtil.hexWordsToByteArray("20010DB8112233440000000000000001", ByteOrder.BIG_ENDIAN), is(ipv6));
+        assertThat(ParseUtil.hexWordsToByteArray("12af", ByteOrder.BIG_ENDIAN), is(new byte[0]));
+        assertThat(ParseUtil.hexWordsToByteArray("not hex!", ByteOrder.LITTLE_ENDIAN), is(new byte[0]));
     }
 
     /**

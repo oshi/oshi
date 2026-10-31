@@ -15,14 +15,13 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.util.FileUtil;
+import oshi.util.Util;
 
 @EnabledOnOs(OS.LINUX)
 class AuxvTest {
 
-    private static final boolean IS_64_BIT = "amd64".equals(System.getProperty("os.arch"))
-            || "aarch64".equals(System.getProperty("os.arch"));
-
-    private static final Auxv.NativeLongReader READER = IS_64_BIT ? FileUtil::readLongFromBuffer
+    // A native long is the JVM's word size, which the os.arch name alone does not reliably tell (s390x is 64-bit)
+    private static final Auxv.NativeLongReader READER = Util.is64Bit() ? FileUtil::readLongFromBuffer
             : FileUtil::readIntFromBuffer;
 
     @Test

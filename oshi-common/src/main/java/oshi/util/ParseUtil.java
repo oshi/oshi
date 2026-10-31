@@ -341,6 +341,34 @@ public final class ParseUtil {
     }
 
     /**
+     * Parse a string of hexadecimal 32-bit words, each printed as an integer, into the bytes the words hold in memory.
+     * Linux prints an address in {@code /proc/net} this way: the kernel stores it in network order and formats each
+     * word with {@code %08X}, so the digits appear in the host's byte order.
+     *
+     * @param digits the hexadecimal digits, a multiple of eight long
+     * @param order  the byte order in which each word was printed, usually {@link ByteOrder#nativeOrder()}
+     * @return the bytes in memory order, or an empty array if the string is not valid hex or not whole words
+     */
+    public static byte[] hexWordsToByteArray(String digits, ByteOrder order) {
+        if (digits.length() % 8 != 0) {
+            LOG.warn("Invalid hexadecimal words: {}", digits);
+            return new byte[0];
+        }
+        byte[] data = hexStringToByteArray(digits);
+        if (order == ByteOrder.LITTLE_ENDIAN) {
+            for (int i = 0; i + 3 < data.length; i += 4) {
+                byte tmp = data[i];
+                data[i] = data[i + 3];
+                data[i + 3] = tmp;
+                tmp = data[i + 1];
+                data[i + 1] = data[i + 2];
+                data[i + 2] = tmp;
+            }
+        }
+        return data;
+    }
+
+    /**
      * Parse a human readable ASCII string into a byte array, truncating or padding with zeros (if necessary) so the
      * array has the specified length.
      *
