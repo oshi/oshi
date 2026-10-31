@@ -59,7 +59,8 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                     * SECTORSIZE;
             String diskType = detectDiskType(sysPath);
 
-            LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + name, model, serial, size, diskType);
+            LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + toDevName(name), model, serial, size,
+                    diskType);
 
             // Read stats
             String statStr = FileUtil.getStringFromFile(sysPath + STAT).trim();
@@ -83,7 +84,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                         major = ParseUtil.parseIntOrDefault(majMin[0], 0);
                         minor = ParseUtil.parseIntOrDefault(majMin[1], 0);
                     }
-                    String partDevnode = DevPath.DEV + partName;
+                    String partDevnode = DevPath.DEV + toDevName(partName);
                     String mountPoint = mountsMap.getOrDefault(partDevnode, "");
                     store.getMutablePartitionList().add(
                             new HWPartition(partDevnode, partName, "", "", "", partSize, major, minor, mountPoint));
@@ -118,8 +119,8 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
 
     @Override
     public synchronized boolean updateAttributes() {
-        String devName = getName().replace(DevPath.DEV, "");
-        String statStr = FileUtil.getStringFromFile(SysPath.BLOCK + devName + "/" + STAT).trim();
+        String sysfsName = toSysfsName(getName().substring(DevPath.DEV.length()));
+        String statStr = FileUtil.getStringFromFile(SysPath.BLOCK + sysfsName + "/" + STAT).trim();
         if (statStr.isEmpty()) {
             return false;
         }

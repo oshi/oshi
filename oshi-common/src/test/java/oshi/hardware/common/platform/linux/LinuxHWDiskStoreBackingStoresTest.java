@@ -94,6 +94,18 @@ class LinuxHWDiskStoreBackingStoresTest {
     }
 
     @Test
+    void testNameOutsideTheDeviceRootIsNotReported() {
+        assertThat(LinuxHWDiskStore.readBackingStores(root, "sda"), is(Optional.empty()));
+    }
+
+    @Test
+    void testSysfsNameConversion() {
+        assertThat(LinuxHWDiskStore.toDevName("cciss!c0d0p1"), is("cciss/c0d0p1"));
+        assertThat(LinuxHWDiskStore.toSysfsName("cciss/c0d0p1"), is("cciss!c0d0p1"));
+        assertThat(LinuxHWDiskStore.toDevName("sda1"), is("sda1"));
+    }
+
+    @Test
     void testReturnedListIsUnmodifiable() {
         List<String> stores = read("/dev/md0");
         assertThrows(UnsupportedOperationException.class, () -> stores.add("x"));

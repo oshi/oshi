@@ -63,6 +63,9 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     /** Udev serial number property. */
     protected static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
 
+    /** Root of the device nodes udev reports, regardless of any configured {@link DevPath#DEV}. */
+    private static final String UDEV_DEV = "/dev/";
+
     /** Device-mapper UUID property. */
     protected static final String DM_UUID = "DM_UUID";
     /** Device-mapper name property. */
@@ -145,14 +148,20 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * device-mapper, md RAID, or other stacked block device. A slave that has its own {@code /sys/block} entry is a
      * whole disk; any other is a partition. Package-private for testing.
      *
+     * Entries use the same device-node root as the disk's own name, so they match the names its backend gives its disks
+     * and partitions: udev reports nodes under {@code /dev/} even when {@link DevPath#DEV} is configured elsewhere,
+     * while the native-free backend builds them from {@link DevPath#DEV}.
+     *
      * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
      * @param name     the disk name, a device node path such as {@code /dev/dm-0}
      * @return the backing stores, sorted, or empty if the disk's sysfs entry could not be read
      */
     static Optional<List<String>> readBackingStores(String sysBlock, String name) {
-        String kernelName = name.startsWith(DevPath.DEV) ? name.substring(DevPath.DEV.length()) : name;
-        // sysfs spells a slash in a device name as '!', as in cciss!c0d0 for /dev/cciss/c0d0
-        File[] slaves = new File(sysBlock + kernelName.replace('/', '!') + "/slaves").listFiles();
+        String devRoot = name.startsWith(DevPath.DEV) ? DevPath.DEV : UDEV_DEV;
+        if (!name.startsWith(devRoot)) {
+            return Optional.empty();
+        }
+        File[] slaves = new File(sysBlock + toSysfsName(name.substring(devRoot.length())) + "/slaves").listFiles();
         if (slaves == null) {
             return Optional.empty();
         }
@@ -160,10 +169,32 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         for (File slave : slaves) {
             String slaveName = slave.getName();
             StoreKind kind = new File(sysBlock + slaveName).exists() ? StoreKind.DISK : StoreKind.PARTITION;
-            stores.add(kind.entry(DevPath.DEV + slaveName.replace('!', '/')));
+            stores.add(kind.entry(devRoot + toDevName(slaveName)));
         }
         Collections.sort(stores);
         return Optional.of(Collections.unmodifiableList(stores));
+    }
+
+    /**
+     * Converts a sysfs block device name to its path below the device root. sysfs spells a slash in a device name as
+     * {@code !}, as in {@code cciss!c0d0} for {@code /dev/cciss/c0d0}.
+     *
+     * @param sysfsName the name of the device's sysfs entry
+     * @return the device's path relative to the device root
+     */
+    protected static String toDevName(String sysfsName) {
+        return sysfsName.replace('!', '/');
+    }
+
+    /**
+     * Converts a device's path below the device root to the name of its sysfs entry; the inverse of
+     * {@link #toDevName(String)}.
+     *
+     * @param devName the device's path relative to the device root
+     * @return the name of the device's sysfs entry
+     */
+    protected static String toSysfsName(String devName) {
+        return devName.replace('/', '!');
     }
 
     /**
