@@ -9,15 +9,20 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
+import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import oshi.software.os.InternetProtocolStats.IPConnection;
+import oshi.software.os.InternetProtocolStats.TcpState;
 import oshi.software.os.InternetProtocolStats.TcpStats;
 import oshi.software.os.InternetProtocolStats.UdpStats;
+import oshi.util.ParseUtil;
 import oshi.util.ProcUtil;
 
 /**
@@ -57,6 +62,36 @@ class LinuxInternetProtocolStatsTest {
             UdpLite6InErrors                93
             UdpLite6OutDatagrams            94
             """;
+
+    // Verbatim /proc/net/tcp and tcp6 from a little-endian (aarch64) container, with 2001:db8:1122:3344::1 added to lo
+    // so the byte order is unambiguous. The matching `ss -tna` reported:
+    // CLOSE-WAIT 127.0.0.1:46143 127.0.0.1:4949
+    // LISTEN [2001:db8:1122:3344::1]:22 [::]:*
+    private static final List<String> TCP_LITTLE_ENDIAN = """
+              sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+               0: 0100007F:B43F 0100007F:1355 08 00000000:00000000 00:00000000 00000000     0        0 11040717 2 0000000000000000 20 4 0 10 -1
+            """
+            .lines().toList();
+    private static final List<String> TCP6_LITTLE_ENDIAN = """
+              sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+               0: B80D0120443322110000000001000000:0016 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000     0        0 11046942 1 0000000000000000 100 0 0 10 0
+            """
+            .lines().toList();
+
+    // Verbatim /proc/net/tcp and tcp6 from a big-endian s390x host, whose kernel prints each address in network order.
+    // The matching `ss -tna` reported:
+    // ESTAB 148.100.75.242:22 73.83.45.212:51011
+    // LISTEN [2620:91:0:657:f816:3eff:fe5f:2052]:50123 [::]:*
+    private static final List<String> TCP_BIG_ENDIAN = """
+              sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+               5: 94644BF2:0016 49532DD4:C743 01 00000048:00000000 01:0000001C 00000000     0        0 28625262 4 00000000164d8b11 28 4 15 10 -1
+            """
+            .lines().toList();
+    private static final List<String> TCP6_BIG_ENDIAN = """
+              sl  local_address                         remote_address                        st tx_queue rx_queue tr tm->when retrnsmt   uid  timeout inode
+               2: 2620009100000657F8163EFFFE5F2052:C3CB 00000000000000000000000000000000:0000 0A 00000000:00000000 00:00000000 00000000 61873        0 28684156 1 00000000da99671d 100 0 0 10 0
+            """
+            .lines().toList();
 
     private static String write(Path dir, String name, String contents) throws IOException {
         return Files.writeString(dir.resolve(name), contents).toString();
@@ -118,5 +153,46 @@ class LinuxInternetProtocolStatsTest {
             assertThat("datagrams with no port", udp.getDatagramsNoPort(), is(0L));
             assertThat("datagrams received with errors", udp.getDatagramsReceivedErrors(), is(0L));
         }
+    }
+
+    @Test
+    void testConnectionsLittleEndian() {
+        List<IPConnection> tcp = LinuxInternetProtocolStats.parseConnections("tcp4", TCP_LITTLE_ENDIAN,
+                Map.of(11040717L, 42), ByteOrder.LITTLE_ENDIAN);
+        assertThat("The header line should be skipped", tcp.size(), is(1));
+        IPConnection conn = tcp.get(0);
+        assertThat(conn.getType(), is("tcp4"));
+        assertThat(conn.getLocalAddress(), is(ParseUtil.parseIpv4AddressToBytes("127.0.0.1")));
+        assertThat(conn.getLocalPort(), is(46143));
+        assertThat(conn.getForeignAddress(), is(ParseUtil.parseIpv4AddressToBytes("127.0.0.1")));
+        assertThat(conn.getForeignPort(), is(4949));
+        assertThat(conn.getState(), is(TcpState.CLOSE_WAIT));
+        assertThat(conn.getowningProcessId(), is(42));
+
+        IPConnection conn6 = LinuxInternetProtocolStats
+                .parseConnections("tcp6", TCP6_LITTLE_ENDIAN, Map.of(), ByteOrder.LITTLE_ENDIAN).get(0);
+        assertThat(conn6.getLocalAddress(), is(ParseUtil.parseIpv6AddressToBytes("2001:db8:1122:3344::1")));
+        assertThat(conn6.getLocalPort(), is(22));
+        assertThat(conn6.getForeignAddress(), is(new byte[16]));
+        assertThat(conn6.getState(), is(TcpState.LISTEN));
+        assertThat(conn6.getowningProcessId(), is(-1));
+    }
+
+    @Test
+    void testConnectionsBigEndian() {
+        IPConnection conn = LinuxInternetProtocolStats
+                .parseConnections("tcp4", TCP_BIG_ENDIAN, Map.of(), ByteOrder.BIG_ENDIAN).get(0);
+        assertThat(conn.getLocalAddress(), is(ParseUtil.parseIpv4AddressToBytes("148.100.75.242")));
+        assertThat(conn.getLocalPort(), is(22));
+        assertThat(conn.getForeignAddress(), is(ParseUtil.parseIpv4AddressToBytes("73.83.45.212")));
+        assertThat(conn.getForeignPort(), is(51011));
+        assertThat(conn.getState(), is(TcpState.ESTABLISHED));
+        assertThat("transmit queue", conn.getTransmitQueue(), is(0x48));
+
+        IPConnection conn6 = LinuxInternetProtocolStats
+                .parseConnections("tcp6", TCP6_BIG_ENDIAN, Map.of(), ByteOrder.BIG_ENDIAN).get(0);
+        assertThat(conn6.getLocalAddress(), is(ParseUtil.parseIpv6AddressToBytes("2620:91:0:657:f816:3eff:fe5f:2052")));
+        assertThat(conn6.getLocalPort(), is(50123));
+        assertThat(conn6.getState(), is(TcpState.LISTEN));
     }
 }

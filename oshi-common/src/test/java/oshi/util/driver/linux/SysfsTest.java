@@ -8,10 +8,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
+
+import java.io.File;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+
+import oshi.util.linux.SysPath;
 
 @EnabledOnOs(OS.LINUX)
 class SysfsTest {
@@ -37,6 +42,8 @@ class SysfsTest {
     void testAtLeastOneSysfsQueryReturnsValue() {
         // On any Linux system with DMI support (including CI), at least one of these
         // sysfs queries should return a non-null value. This catches blanket regressions.
+        // Machines without DMI, such as s390x and many ARM boards, have no such directory.
+        assumeTrue(new File(SysPath.DMI_ID).isDirectory(), "no DMI on this machine");
         String vendor = Sysfs.querySystemVendor();
         String model = Sysfs.queryProductModel();
         String desc = Sysfs.queryBiosDescription();

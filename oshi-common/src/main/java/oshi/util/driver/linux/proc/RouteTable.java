@@ -4,6 +4,7 @@
  */
 package oshi.util.driver.linux.proc;
 
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -18,8 +19,8 @@ import oshi.util.linux.ProcPath;
  * Utility to read the routing table from {@code /proc/net/route} and {@code /proc/net/ipv6_route}.
  * <p>
  * The two files share no format. The IPv4 one has a header line, eleven columns, the interface first, and addresses as
- * eight little-endian hex digits with a separate mask column. The IPv6 one has no header, ten columns, the interface
- * last, addresses as thirty-two hex digits in network order, and the prefix length beside the destination.
+ * eight hex digits in the host's byte order with a separate mask column. The IPv6 one has no header, ten columns, the
+ * interface last, addresses as thirty-two hex digits in network order, and the prefix length beside the destination.
  */
 @ThreadSafe
 public final class RouteTable {
@@ -42,21 +43,22 @@ public final class RouteTable {
      * @return the parsed IPv4 routes
      */
     public static List<IPRoute> queryIpv4Routes(Map<String, Integer> ifIndexByName) {
-        return parseIpv4Routes(FileUtil.readFile(ProcPath.ROUTE), ifIndexByName);
+        return parseIpv4Routes(FileUtil.readFile(ProcPath.ROUTE), ifIndexByName, ByteOrder.nativeOrder());
     }
 
     /**
      * Parses {@code /proc/net/route} content.
      * <p>
      * Columns are {@code Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT}. Addresses are the
-     * kernel's {@code %08X} of a {@code __be32}, which on a little-endian host is exactly what
-     * {@link ParseUtil#parseIntToIP(int)} inverts.
+     * kernel's {@code %08X} of a {@code __be32}, so their digits are in the host's byte order: reversed on a
+     * little-endian host, and in network order on a big-endian one.
      *
      * @param lines         the lines of {@code /proc/net/route}
      * @param ifIndexByName a map of interface name to index; an empty map reports every index as -1
+     * @param order         the byte order of the host that wrote the lines
      * @return the parsed IPv4 routes
      */
-    static List<IPRoute> parseIpv4Routes(List<String> lines, Map<String, Integer> ifIndexByName) {
+    static List<IPRoute> parseIpv4Routes(List<String> lines, Map<String, Integer> ifIndexByName, ByteOrder order) {
         List<IPRoute> routes = new ArrayList<>();
         for (String line : lines) {
             String[] fields = ParseUtil.whitespaces.split(line.trim(), -1);
@@ -69,13 +71,11 @@ public final class RouteTable {
             if (!isHexWord(fields[1], 8)) {
                 continue;
             }
-            byte[] destination = ParseUtil.parseIntToIP((int) ParseUtil.hexStringToLong(fields[1], 0L));
+            byte[] destination = ParseUtil.hexWordsToByteArray(fields[1], order);
             int flags = ParseUtil.hexStringToInt(fields[3], 0);
             boolean isGateway = (flags & RTF_GATEWAY) != 0;
-            int prefixLength = ParseUtil
-                    .netmaskToPrefixLength(ParseUtil.parseIntToIP((int) ParseUtil.hexStringToLong(fields[7], 0L)));
-            byte[] gateway = isGateway ? ParseUtil.parseIntToIP((int) ParseUtil.hexStringToLong(fields[2], 0L))
-                    : new byte[0];
+            int prefixLength = ParseUtil.netmaskToPrefixLength(ParseUtil.hexWordsToByteArray(fields[7], order));
+            byte[] gateway = isGateway ? ParseUtil.hexWordsToByteArray(fields[2], order) : new byte[0];
             String interfaceName = fields[0];
             routes.add(new IPRoute(destination, prefixLength, gateway, interfaceName,
                     indexOfInterface(interfaceName, ifIndexByName), ParseUtil.parseLongOrDefault(fields[6], -1L),
@@ -115,7 +115,7 @@ public final class RouteTable {
                 continue;
             }
             // The kernel prints these addresses one byte at a time, so they are already in network order and need
-            // none of the per-word reversal that /proc/net/tcp6 requires.
+            // none of the per-word reversal that /proc/net/tcp6 requires on a little-endian host.
             byte[] destination = ParseUtil.hexStringToByteArray(fields[0]);
             long flags = ParseUtil.hexStringToLong(fields[8], 0L);
             boolean isGateway = (flags & RTF_GATEWAY) != 0;

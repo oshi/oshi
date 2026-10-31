@@ -31,14 +31,16 @@ public final class Util {
 
     private static final boolean IS_64BIT;
     static {
-        String model = System.getProperty("sun.cpu.bits");
+        // HotSpot and OpenJ9 both set sun.arch.data.model; only older IBM JVMs set sun.cpu.bits instead
+        String model = System.getProperty("sun.arch.data.model", System.getProperty("sun.cpu.bits"));
         if (model != null) {
             IS_64BIT = "64".equals(model);
         } else {
             String arch = System.getProperty("os.arch", "");
             IS_64BIT = "x86-64".equals(arch) || "x86_64".equals(arch) || "amd64".equals(arch) || "ia64".equals(arch)
                     || "aarch64".equals(arch) || "ppc64".equals(arch) || "ppc64le".equals(arch) || "mips64".equals(arch)
-                    || "mips64el".equals(arch) || "loongarch64".equals(arch);
+                    || "mips64el".equals(arch) || "loongarch64".equals(arch) || "s390x".equals(arch)
+                    || "riscv64".equals(arch);
         }
     }
 

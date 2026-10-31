@@ -5,6 +5,7 @@
 * [#3837](https://github.com/oshi/oshi/pull/3837): Reject IPv6 address text with a dotted IPv4 component before compressed zero groups - [@PHJ2000](https://github.com/PHJ2000).
 * [#3843](https://github.com/oshi/oshi/pull/3843): `HWDiskStore.getDiskType()` on Windows now reports `SSD`, `HDD`, `Removable` or `Virtual`, read from the storage driver and falling back to `MSFT_PhysicalDisk` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3848](https://github.com/oshi/oshi/pull/3848): Fixed listing processes on DragonFly BSD, which could panic the kernel since 7.7.2. `OSProcess.getPath()` there now reads the full path from the kernel for the current process only, and `argv[0]` or the command name for others - [@dbwiddis](https://github.com/dbwiddis).
+* [#3852](https://github.com/oshi/oshi/pull/3852): Fixed IPv4 and IPv6 addresses reported byte-reversed on big-endian Linux, such as s390x, in `NetworkParams.getRoutes()` and `InternetProtocolStats.getConnections()` - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20)
 

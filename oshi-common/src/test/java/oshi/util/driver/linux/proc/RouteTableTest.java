@@ -8,6 +8,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 
+import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +27,25 @@ class RouteTableTest {
 
     private static final Map<String, Integer> NO_INDICES = Collections.emptyMap();
 
-    // Verbatim /proc/net/route. The matching `ip route show` reported:
+    // Verbatim /proc/net/route from a little-endian (aarch64) host. The matching `ip route show` reported:
     // default via 172.17.0.1 dev eth0
     // 172.17.0.0/16 dev eth0 scope link src 172.17.0.2
     private static final List<String> PROC_NET_ROUTE = """
             Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT                  \s
             eth0\t00000000\t010011AC\t0003\t0\t0\t0\t00000000\t0\t0\t0                                          \s
             eth0\t000011AC\t00000000\t0001\t0\t0\t0\t0000FFFF\t0\t0\t0                                          \s
+            """.lines().toList();
+
+    // Verbatim /proc/net/route from a big-endian s390x host, whose kernel prints each address in network order. The
+    // matching `ip route show` reported:
+    // default via 148.100.74.1 dev enc1
+    // 148.100.74.0/23 dev enc1 proto kernel scope link src 148.100.75.242
+    // 169.254.169.254 via 148.100.74.5 dev enc1
+    private static final List<String> PROC_NET_ROUTE_BIG_ENDIAN = """
+            Iface\tDestination\tGateway \tFlags\tRefCnt\tUse\tMetric\tMask\t\tMTU\tWindow\tIRTT
+            enc1\t00000000\t94644A01\t0003\t0\t0\t0\t00000000\t0\t0\t0
+            enc1\t94644A00\t00000000\t0001\t0\t0\t0\tFFFFFE00\t0\t0\t0
+            enc1\tA9FEA9FE\t94644A05\t0007\t0\t0\t0\tFFFFFFFF\t0\t0\t0
             """.lines().toList();
 
     // Verbatim /proc/net/ipv6_route, with a 2001:db8:1122:3344::1/64 address added to lo so the byte order is
@@ -57,7 +70,7 @@ class RouteTableTest {
 
     @Test
     void testParseIpv4Routes() {
-        List<IPRoute> routes = RouteTable.parseIpv4Routes(PROC_NET_ROUTE, NO_INDICES);
+        List<IPRoute> routes = RouteTable.parseIpv4Routes(PROC_NET_ROUTE, NO_INDICES, ByteOrder.LITTLE_ENDIAN);
         assertThat("The header line should be skipped", routes, hasSize(2));
 
         IPRoute def = routes.get(0);
@@ -77,6 +90,30 @@ class RouteTableTest {
         assertThat(subnet.isGateway(), is(false));
         assertThat(subnet.getGateway(), is(new byte[0]));
         assertThat(subnet.isHost(), is(false));
+    }
+
+    @Test
+    void testParseIpv4RoutesBigEndian() {
+        List<IPRoute> routes = RouteTable.parseIpv4Routes(PROC_NET_ROUTE_BIG_ENDIAN, NO_INDICES, ByteOrder.BIG_ENDIAN);
+        assertThat("The header line should be skipped", routes, hasSize(3));
+
+        IPRoute def = routes.get(0);
+        assertThat(def.getDestination(), is(new byte[] { 0, 0, 0, 0 }));
+        assertThat(def.getPrefixLength(), is(0));
+        // 94644A01 in network order is 148.100.74.1, matching "default via 148.100.74.1"
+        assertThat(def.getGateway(), is(ParseUtil.parseIpv4AddressToBytes("148.100.74.1")));
+
+        IPRoute subnet = routes.get(1);
+        // Mask FFFFFE00 is 255.255.254.0, matching "148.100.74.0/23"
+        assertThat(subnet.getDestination(), is(ParseUtil.parseIpv4AddressToBytes("148.100.74.0")));
+        assertThat(subnet.getPrefixLength(), is(23));
+        assertThat(subnet.isGateway(), is(false));
+
+        IPRoute host = routes.get(2);
+        assertThat(host.getDestination(), is(ParseUtil.parseIpv4AddressToBytes("169.254.169.254")));
+        assertThat(host.getPrefixLength(), is(32));
+        assertThat(host.getGateway(), is(ParseUtil.parseIpv4AddressToBytes("148.100.74.5")));
+        assertThat(host.isHost(), is(true));
     }
 
     @Test
@@ -135,15 +172,17 @@ class RouteTableTest {
     void testInterfaceIndexLookup() {
         Map<String, Integer> indices = new HashMap<>();
         indices.put("eth0", 2);
-        List<IPRoute> routes = RouteTable.parseIpv4Routes(PROC_NET_ROUTE, indices);
+        List<IPRoute> routes = RouteTable.parseIpv4Routes(PROC_NET_ROUTE, indices, ByteOrder.LITTLE_ENDIAN);
         assertThat(routes.get(0).getInterfaceIndex(), is(2));
     }
 
     @Test
     void testEmptyAndMalformedInput() {
-        assertThat(RouteTable.parseIpv4Routes(Collections.emptyList(), NO_INDICES), hasSize(0));
+        assertThat(RouteTable.parseIpv4Routes(Collections.emptyList(), NO_INDICES, ByteOrder.nativeOrder()),
+                hasSize(0));
         assertThat(RouteTable.parseIpv6Routes(Collections.emptyList(), NO_INDICES), hasSize(0));
-        assertThat(RouteTable.parseIpv4Routes(List.of("truncated\tline"), NO_INDICES), hasSize(0));
+        assertThat(RouteTable.parseIpv4Routes(List.of("truncated\tline"), NO_INDICES, ByteOrder.nativeOrder()),
+                hasSize(0));
         assertThat(RouteTable.parseIpv6Routes(List.of("not hex at all"), NO_INDICES), hasSize(0));
         // A line with the right number of columns but a destination that is not thirty-two hex digits. This is how the
         // IPv6 file rejects anything unexpected, since unlike the IPv4 one it has no header to skip. The token is
