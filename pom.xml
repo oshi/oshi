@@ -4,7 +4,7 @@
 
     <groupId>com.github.oshi</groupId>
     <artifactId>oshi-parent</artifactId>
-    <version>7.7.3-SNAPSHOT</version>
+    <version>7.7.3</version>
     <packaging>pom</packaging>
 
     <name>Operating System and Hardware Information</name>
@@ -44,7 +44,7 @@
     <scm>
         <connection>scm:git:ssh://git@github.com/oshi/oshi.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/oshi/oshi.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>oshi-parent-7.7.3</tag>
         <url>https://github.com/oshi/oshi.git</url>
     </scm>
     <issueManagement>
@@ -73,7 +73,7 @@
         <maven.build.timestamp.format>yyyy-MM-dd HH:mm:ss</maven.build.timestamp.format>
         <!-- Maven 3.10 defaults this to 1980-02-01 in the super-POM, which the site renders as "Last Published".
         The release plugin rewrites it to the release time on release:prepare. -->
-        <project.build.outputTimestamp>2026-10-20T13:34:04Z</project.build.outputTimestamp>
+        <project.build.outputTimestamp>2026-10-31T07:33:39Z</project.build.outputTimestamp>
         <maven.compiler.release>8</maven.compiler.release>
         <!-- Test sources compile at a higher level than main sources: they are never published, so the Java 8
         guarantee oshi-core makes to consumers does not apply to them. 17 is exactly pinned, from both directions,
