@@ -834,6 +834,19 @@ class ParseUtilTest {
     }
 
     @Test
+    void testFormatIpAddress() {
+        assertThat(ParseUtil.formatIpAddress(new byte[] { (byte) 148, 100, 74, 1 }), is("148.100.74.1"));
+        assertThat(ParseUtil.formatIpAddress(new byte[4]), is("0.0.0.0"));
+        assertThat(ParseUtil.formatIpAddress(ParseUtil.parseIpv6AddressToBytes("fe80::4a2e:72ff:fe54:5e9f")),
+                is("fe80::4a2e:72ff:fe54:5e9f"));
+        assertThat(ParseUtil.formatIpAddress(ParseUtil.parseIpv6AddressToBytes("2001:db8::1")), is("2001:db8::1"));
+        // The longest run of zero groups is the one compressed
+        assertThat(ParseUtil.formatIpAddress(ParseUtil.parseIpv6AddressToBytes("2001:0:0:1:0:0:0:1")),
+                is("2001:0:0:1::1"));
+        assertThat(ParseUtil.formatIpAddress(new byte[3]), is(Constants.UNKNOWN));
+    }
+
+    @Test
     void testParseIPv6BytesToIntArray() {
         // WTS_CLIENT_ADDRESS Address member: 2 bytes of padding, then 16 bytes of big-endian IPv6, then trailing bytes
         byte[] address = new byte[20];
