@@ -4,8 +4,8 @@
  */
 package oshi.hardware;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import oshi.annotation.PublicApi;
 import oshi.annotation.concurrent.ThreadSafe;
@@ -148,8 +148,12 @@ public interface HWDiskStore {
      * <p>
      * A layered disk is listed alongside the stores it is built on, so its capacity and I/O statistics duplicate
      * theirs. This is the case for a device-mapper (LVM, LUKS, multipath) or md RAID device on Linux, an APFS container
-     * or a disk image on macOS, and a Storage Spaces or file-backed virtual disk on Windows. A disk whose list is empty
-     * is not built on anything OSHI can see, so summing the I/O of only those disks counts each transfer once.
+     * or a disk image on macOS, and a Storage Spaces or file-backed virtual disk on Windows.
+     * <p>
+     * An empty {@link Optional} means the backing stores are not reported, either because the platform does not report
+     * them or because they could not be read, and says nothing about whether the disk is layered. A present but empty
+     * list means the disk is not built on anything OSHI can see. Summing the I/O of only the disks whose result is
+     * present and empty therefore counts each transfer once, provided every disk's result is present.
      * <p>
      * Each entry is a {@link StoreKind} prefix followed by a name that matches a getter on the corresponding class:
      * <table>
@@ -162,7 +166,7 @@ public interface HWDiskStore {
      * <tr>
      * <td>{@link StoreKind#DISK}</td>
      * <td>{@link HWDiskStore#getName()}</td>
-     * <td>{@code disk:/dev/sda}, {@code disk:\.\PHYSICALDRIVE1}</td>
+     * <td>{@code disk:/dev/sda}, {@code disk:\\.\PHYSICALDRIVE1}</td>
      * </tr>
      * <tr>
      * <td>{@link StoreKind#PARTITION}</td>
@@ -178,10 +182,11 @@ public interface HWDiskStore {
      * An entry may name a store that is not in the current list, such as a network file store when only local file
      * stores were requested.
      *
-     * @return the stores this disk is built on, sorted, or an empty list for a disk that is not layered
+     * @return An {@link Optional} containing the stores this disk is built on, sorted, which is an empty list for a
+     *         disk that is not layered; or empty if the backing stores are not reported.
      */
-    default List<String> getBackingStores() {
-        return Collections.emptyList();
+    default Optional<List<String>> getBackingStores() {
+        return Optional.empty();
     }
 
     /**
