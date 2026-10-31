@@ -4,6 +4,7 @@
  */
 package oshi.hardware;
 
+import java.util.Collections;
 import java.util.List;
 
 import oshi.annotation.PublicApi;
@@ -61,7 +62,8 @@ public interface HWDiskStore {
      * <p>
      * {@code Virtual} is reported only for a Linux device-mapper device and for a Windows file-backed virtual or
      * Storage Spaces disk. A hypervisor's disk that the guest sees as an ordinary device is reported by its media
-     * technology, not as {@code Virtual}.
+     * technology, not as {@code Virtual}. Whether a disk duplicates the capacity and I/O of another entry in the list
+     * is reported by {@link #getBackingStores()}, not by this type.
      *
      * @return one of {@code SSD}, {@code HDD}, {@code Removable}, {@code Virtual}, or {@code Unknown} where the type
      *         could not be determined, which includes a disk whose driver does not report it
@@ -142,6 +144,47 @@ public interface HWDiskStore {
     List<HWPartition> getPartitions();
 
     /**
+     * The stores this disk is built on, when it is a layer over other storage rather than a device in its own right.
+     * <p>
+     * A layered disk is listed alongside the stores it is built on, so its capacity and I/O statistics duplicate
+     * theirs. This is the case for a device-mapper (LVM, LUKS, multipath) or md RAID device on Linux, an APFS container
+     * or a disk image on macOS, and a Storage Spaces or file-backed virtual disk on Windows. A disk whose list is empty
+     * is not built on anything OSHI can see, so summing the I/O of only those disks counts each transfer once.
+     * <p>
+     * Each entry is a {@link StoreKind} prefix followed by a name that matches a getter on the corresponding class:
+     * <table>
+     * <caption>Backing store entries</caption>
+     * <tr>
+     * <th>Kind</th>
+     * <th>Name matches</th>
+     * <th>Examples</th>
+     * </tr>
+     * <tr>
+     * <td>{@link StoreKind#DISK}</td>
+     * <td>{@link HWDiskStore#getName()}</td>
+     * <td>{@code disk:/dev/sda}, {@code disk:\.\PHYSICALDRIVE1}</td>
+     * </tr>
+     * <tr>
+     * <td>{@link StoreKind#PARTITION}</td>
+     * <td>{@link HWPartition#getIdentification()}</td>
+     * <td>{@code partition:/dev/sda2}, {@code partition:disk0s2}</td>
+     * </tr>
+     * <tr>
+     * <td>{@link StoreKind#FILE}</td>
+     * <td>{@link OSFileStore#getMount()} of the file store holding the backing file</td>
+     * <td>{@code file:/System/Volumes/Data}, {@code file:C:\}</td>
+     * </tr>
+     * </table>
+     * An entry may name a store that is not in the current list, such as a network file store when only local file
+     * stores were requested.
+     *
+     * @return the stores this disk is built on, sorted, or an empty list for a disk that is not layered
+     */
+    default List<String> getBackingStores() {
+        return Collections.emptyList();
+    }
+
+    /**
      * The time this disk's statistics were updated.
      *
      * @return the timeStamp, in milliseconds since the epoch.
@@ -157,4 +200,68 @@ public interface HWDiskStore {
      * @return True if the update was (probably) successful, false if the disk was not found
      */
     boolean updateAttributes();
+
+    /**
+     * The kind of store named by an entry in {@link #getBackingStores()}, each identified by a prefix on the entry.
+     */
+    @PublicApi
+    enum StoreKind {
+        /**
+         * A disk store, named by {@link HWDiskStore#getName()}.
+         */
+        DISK("disk:"),
+        /**
+         * A partition, named by {@link HWPartition#getIdentification()}.
+         */
+        PARTITION("partition:"),
+        /**
+         * A file store, named by {@link OSFileStore#getMount()}.
+         */
+        FILE("file:");
+
+        private final String prefix;
+
+        StoreKind(String prefix) {
+            this.prefix = prefix;
+        }
+
+        /**
+         * Gets the prefix that identifies this kind of entry, including its trailing colon.
+         *
+         * @return the prefix, such as {@code disk:}
+         */
+        public String getPrefix() {
+            return prefix;
+        }
+
+        /**
+         * Creates an entry of this kind.
+         *
+         * @param name the name of the store, as returned by the getter this kind matches
+         * @return the entry, such as {@code disk:/dev/sda}
+         */
+        public String entry(String name) {
+            return prefix + name;
+        }
+
+        /**
+         * Tests whether an entry is of this kind.
+         *
+         * @param entry an entry from {@link #getBackingStores()}
+         * @return true if the entry starts with this kind's prefix
+         */
+        public boolean matches(String entry) {
+            return entry.startsWith(prefix);
+        }
+
+        /**
+         * Gets the name of the store an entry of this kind refers to.
+         *
+         * @param entry an entry from {@link #getBackingStores()}
+         * @return the name following the prefix, or an empty string if the entry is not of this kind
+         */
+        public String nameOf(String entry) {
+            return matches(entry) ? entry.substring(prefix.length()) : "";
+        }
+    }
 }
