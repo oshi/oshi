@@ -118,7 +118,8 @@ public final class VirtualizationDetector {
      * only in the manufacturer: a QEMU guest reports model {@code Standard PC (i440FX + PIIX, 1996)}.
      * <p>
      * An Amazon EC2 bare-metal instance reports the same manufacturer as an EC2 virtual machine, so it is identified by
-     * its {@code .metal} instance type and matches nothing.
+     * its {@code .metal} instance type and does not match the {@code Amazon EC2} signature. Any other signature still
+     * applies to it.
      *
      * @param manufacturer The computer system manufacturer.
      * @param model        The computer system model.
@@ -126,11 +127,12 @@ public final class VirtualizationDetector {
      * @return The platform name, or an empty {@link Optional} if no signature is present.
      */
     static Optional<String> matchSystem(String manufacturer, String model, List<Pair<String, String>> table) {
-        if (manufacturer.startsWith(EC2_MANUFACTURER) && model.contains(EC2_BARE_METAL)) {
-            return Optional.empty();
-        }
+        boolean ec2BareMetal = manufacturer.startsWith(EC2_MANUFACTURER) && model.contains(EC2_BARE_METAL);
         String haystack = manufacturer + ' ' + model;
         for (Pair<String, String> signature : table) {
+            if (ec2BareMetal && EC2_MANUFACTURER.equals(signature.getA())) {
+                continue;
+            }
             if (haystack.contains(signature.getA())) {
                 return Optional.of(signature.getB());
             }

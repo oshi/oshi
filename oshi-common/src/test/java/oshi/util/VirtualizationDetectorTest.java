@@ -117,6 +117,18 @@ class VirtualizationDetectorTest {
     }
 
     @Test
+    void testMatchSystemEc2BareMetalSkipsOnlyTheEc2Signature() {
+        Properties props = new Properties();
+        props.setProperty("model.Amazon EC2", "Amazon EC2");
+        props.setProperty("model.m5.metal", "My Platform");
+        List<Pair<String, String>> table = VirtualizationDetector.buildModelTable(props);
+        assertThat(VirtualizationDetector.matchSystem("Amazon EC2", "m5.metal", table), is(Optional.of("My Platform")));
+        assertThat(VirtualizationDetector.matchSystem("Amazon EC2", "m8id.metal-48xl", table), is(Optional.empty()));
+        assertThat(VirtualizationDetector.matchSystem("Amazon EC2", "m8id.xlarge", table),
+                is(Optional.of("Amazon EC2")));
+    }
+
+    @Test
     void testMatchSystemPrefersTheLongerSignature() {
         Properties props = new Properties();
         props.setProperty("model.Xen", "Xen");
