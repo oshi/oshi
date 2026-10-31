@@ -1381,13 +1381,22 @@ public final class ParseUtil {
             }
         }
         // Parse all 16 bytes
-        byte[] ipv6 = ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])
-                .putInt(utAddrV6[3]).array();
+        return formatIpAddress(ByteBuffer.allocate(16).putInt(utAddrV6[0]).putInt(utAddrV6[1]).putInt(utAddrV6[2])
+                .putInt(utAddrV6[3]).array());
+    }
+
+    /**
+     * Formats an IPv4 or IPv6 address as text: dotted-quad for IPv4, and for IPv6 colon-separated groups with the
+     * longest run of zero groups compressed to {@code ::}, as routing tools print it.
+     *
+     * @param address the address in network order, 4 or 16 bytes
+     * @return the address text, or {@link Constants#UNKNOWN} if the array is neither length
+     */
+    public static String formatIpAddress(byte[] address) {
         try {
-            return InetAddress.getByAddress(ipv6).getHostAddress()
+            return InetAddress.getByAddress(address).getHostAddress()
                     .replaceAll("((?:(?:^|:)0+\\b){2,8}):?(?!\\S*\\b\\1:0+\\b)(\\S*)", "::$2");
         } catch (UnknownHostException e) {
-            // Shouldn't happen with length 4 or 16
             return Constants.UNKNOWN;
         }
     }
