@@ -60,10 +60,10 @@ public interface HWDiskStore {
      * driver's removable-media flag, bus type and seek penalty, falling back to {@code MSFT_PhysicalDisk}'s
      * {@code MediaType} and {@code SpindleSpeed}. Other platforms always report {@code Unknown}.
      * <p>
-     * {@code Virtual} is reported only for a Linux device-mapper device and for a Windows file-backed virtual or
-     * Storage Spaces disk. A hypervisor's disk that the guest sees as an ordinary device is reported by its media
-     * technology, not as {@code Virtual}. Whether a disk duplicates the capacity and I/O of another entry in the list
-     * is reported by {@link #getBackingStores()}, not by this type.
+     * {@code Virtual} is reported only for a Linux device-mapper device, a macOS APFS container or disk image, and a
+     * Windows file-backed virtual or Storage Spaces disk. A hypervisor's disk that the guest sees as an ordinary device
+     * is reported by its media technology, not as {@code Virtual}. Whether a disk duplicates the capacity and I/O of
+     * another entry in the list is reported by {@link #getBackingStores()}, not by this type.
      *
      * @return one of {@code SSD}, {@code HDD}, {@code Removable}, {@code Virtual}, or {@code Unknown} where the type
      *         could not be determined, which includes a disk whose driver does not report it
@@ -155,9 +155,10 @@ public interface HWDiskStore {
      * list means the disk is not built on anything OSHI can see. Summing the I/O of only the disks whose result is
      * present and empty therefore counts each transfer once, provided every disk's result is present.
      * <p>
-     * Backing stores are reported on Linux, from each block device's sysfs {@code slaves} directory. The native-free
-     * Linux implementation does not list device-mapper or md devices, so their backing stores are available only from
-     * the JNA and FFM implementations. Other platforms return an empty {@link Optional}.
+     * Backing stores are reported on Linux, from each block device's sysfs {@code slaves} directory, and on macOS, from
+     * the IOKit registry. The native-free Linux implementation does not list device-mapper or md devices, so their
+     * backing stores are available only from the JNA and FFM implementations. Other platforms return an empty
+     * {@link Optional}.
      * <p>
      * Each entry is a {@link StoreKind} prefix followed by a name that matches a getter on the corresponding class:
      * <table>
