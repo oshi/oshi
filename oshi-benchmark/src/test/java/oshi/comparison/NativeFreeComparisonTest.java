@@ -306,6 +306,6 @@ class NativeFreeComparisonTest {
             return true;
         }
         return jna.getVirtualSize() == 0 || nf.getVirtualSize() == 0 || jna.getPath().isEmpty()
-                || nf.getPath().isEmpty();
+                || nf.getPath().isEmpty() || jna.getCommandLine().isEmpty() || nf.getCommandLine().isEmpty();
     }
 }
