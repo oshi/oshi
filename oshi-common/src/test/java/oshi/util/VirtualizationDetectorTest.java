@@ -104,7 +104,12 @@ class VirtualizationDetectorTest {
                 is(Optional.of("Microsoft Hyper-V")));
         assertThat(VirtualizationDetector.matchSystem("Parallels Software International Inc.",
                 "Parallels Virtual" + " Platform", table), is(Optional.of("Parallels")));
-        // Physical hardware matches nothing
+        // AWS Nitro guest, as reported by some GitHub-hosted Ubuntu runners
+        assertThat(VirtualizationDetector.matchSystem("Amazon EC2", "m8id.xlarge", table),
+                is(Optional.of("Amazon EC2")));
+        // Physical hardware matches nothing, including an EC2 bare-metal instance
+        assertThat(VirtualizationDetector.matchSystem("Amazon EC2", "m5.metal", table), is(Optional.empty()));
+        assertThat(VirtualizationDetector.matchSystem("Amazon EC2", "m8id.metal-48xl", table), is(Optional.empty()));
         assertThat(VirtualizationDetector.matchSystem("Dell Inc.", "PowerEdge R740", table), is(Optional.empty()));
         assertThat(VirtualizationDetector.matchSystem("Apple Inc.", "MacBookPro18,3", table), is(Optional.empty()));
         assertThat(VirtualizationDetector.matchSystem("Apple Inc.", "Macmini6,2", table), is(Optional.empty()));

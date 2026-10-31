@@ -36,6 +36,9 @@ public final class VirtualizationDetector {
 
     private static final String CPUID_PREFIX = "cpuid.";
     private static final String MODEL_PREFIX = "model.";
+    private static final String EC2_MANUFACTURER = "Amazon EC2";
+    // EC2 bare-metal instance types end in .metal or .metal-<size>, as in m5.metal and m8id.metal-48xl
+    private static final String EC2_BARE_METAL = ".metal";
 
     /**
      * Whether the running platform reports {@link NetworkIF#isConnectorPresent()}. Only Linux and Windows override the
@@ -113,6 +116,9 @@ public final class VirtualizationDetector {
      * <p>
      * The two fields are joined by a space and searched as one string, because several platforms identify themselves
      * only in the manufacturer: a QEMU guest reports model {@code Standard PC (i440FX + PIIX, 1996)}.
+     * <p>
+     * An Amazon EC2 bare-metal instance reports the same manufacturer as an EC2 virtual machine, so it is identified by
+     * its {@code .metal} instance type and matches nothing.
      *
      * @param manufacturer The computer system manufacturer.
      * @param model        The computer system model.
@@ -120,6 +126,9 @@ public final class VirtualizationDetector {
      * @return The platform name, or an empty {@link Optional} if no signature is present.
      */
     static Optional<String> matchSystem(String manufacturer, String model, List<Pair<String, String>> table) {
+        if (manufacturer.startsWith(EC2_MANUFACTURER) && model.contains(EC2_BARE_METAL)) {
+            return Optional.empty();
+        }
         String haystack = manufacturer + ' ' + model;
         for (Pair<String, String> signature : table) {
             if (haystack.contains(signature.getA())) {
