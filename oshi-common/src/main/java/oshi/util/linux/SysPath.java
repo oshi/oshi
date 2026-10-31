@@ -23,6 +23,8 @@ public final class SysPath {
      */
     public static final String SYS = querySysConfig() + "/";
 
+    /** Path to block devices, one entry per whole disk. */
+    public static final String BLOCK = SYS + "block/";
     /** Path to CPU devices. */
     public static final String CPU = SYS + "devices/system/cpu/";
     /** Path to DMI identification. */

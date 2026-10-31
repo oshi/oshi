@@ -25,8 +25,6 @@ import oshi.util.linux.SysPath;
 @ThreadSafe
 public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
 
-    private static final String SYS_BLOCK = SysPath.SYS + "block/";
-
     LinuxHWDiskStoreNF(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
     }
@@ -40,13 +38,13 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
         List<HWDiskStore> result = new ArrayList<>();
         Map<String, String> mountsMap = readMountsMap();
 
-        File[] blockDevices = new File(SYS_BLOCK).listFiles();
+        File[] blockDevices = new File(SysPath.BLOCK).listFiles();
         if (blockDevices == null) {
             return result;
         }
         for (File blockDev : blockDevices) {
             String name = blockDev.getName();
-            String sysPath = SYS_BLOCK + name + "/";
+            String sysPath = SysPath.BLOCK + name + "/";
 
             // Filter to real disks (skip loop, ram, etc.)
             String devType = FileUtil.getStringFromFile(sysPath + "device/type").trim();
@@ -61,7 +59,8 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                     * SECTORSIZE;
             String diskType = detectDiskType(sysPath);
 
-            LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + name, model, serial, size, diskType);
+            LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + toDevName(name), model, serial, size,
+                    diskType);
 
             // Read stats
             String statStr = FileUtil.getStringFromFile(sysPath + STAT).trim();
@@ -85,9 +84,10 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                         major = ParseUtil.parseIntOrDefault(majMin[0], 0);
                         minor = ParseUtil.parseIntOrDefault(majMin[1], 0);
                     }
-                    String mountPoint = mountsMap.getOrDefault(DevPath.DEV + partName, "");
-                    store.getMutablePartitionList()
-                            .add(new HWPartition(partName, partName, "", "", "", partSize, major, minor, mountPoint));
+                    String partDevnode = DevPath.DEV + toDevName(partName);
+                    String mountPoint = mountsMap.getOrDefault(partDevnode, "");
+                    store.getMutablePartitionList().add(
+                            new HWPartition(partDevnode, partName, "", "", "", partSize, major, minor, mountPoint));
                 }
             }
 
@@ -119,8 +119,19 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
 
     @Override
     public synchronized boolean updateAttributes() {
-        String devName = getName().replace(DevPath.DEV, "");
-        String statStr = FileUtil.getStringFromFile(SYS_BLOCK + devName + "/" + STAT).trim();
+        return updateAttributes(SysPath.BLOCK);
+    }
+
+    /**
+     * Updates this disk's statistics from its {@code stat} file under the given sysfs block directory. Package-private
+     * for testing.
+     *
+     * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @return true if the statistics were read, false if the disk's {@code stat} file is missing or empty
+     */
+    synchronized boolean updateAttributes(String sysBlock) {
+        String sysfsName = toSysfsName(getName().substring(DevPath.DEV.length()));
+        String statStr = FileUtil.getStringFromFile(sysBlock + sysfsName + "/" + STAT).trim();
         if (statStr.isEmpty()) {
             return false;
         }

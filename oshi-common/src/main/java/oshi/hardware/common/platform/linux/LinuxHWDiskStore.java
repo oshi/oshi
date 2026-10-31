@@ -11,19 +11,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.FileUtil;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.linux.DevPath;
 import oshi.util.linux.ProcPath;
+import oshi.util.linux.SysPath;
 
 /**
  * Linux hard disk implementation.
@@ -57,6 +62,9 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     protected static final String ID_MODEL = "ID_MODEL";
     /** Udev serial number property. */
     protected static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
+
+    /** Root of the device nodes udev reports, regardless of any configured {@link DevPath#DEV}. */
+    private static final String UDEV_DEV = "/dev/";
 
     /** Device-mapper UUID property. */
     protected static final String DM_UUID = "DM_UUID";
@@ -100,6 +108,9 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         UDEV_STAT_LENGTH = statLength;
     }
 
+    private final Supplier<Optional<List<String>>> backingStores = Memoizer
+            .memoize(() -> readBackingStores(SysPath.BLOCK, getName()));
+
     /**
      * Creates a LinuxHWDiskStore with unknown disk type.
      *
@@ -125,6 +136,65 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     protected LinuxHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
         setPartitionList(new ArrayList<>());
+    }
+
+    @Override
+    public Optional<List<String>> getBackingStores() {
+        return backingStores.get();
+    }
+
+    /**
+     * Reads the stores a disk is built on from its sysfs {@code slaves} directory, which the kernel populates for a
+     * device-mapper, md RAID, or other stacked block device. A slave that has its own {@code /sys/block} entry is a
+     * whole disk; any other is a partition. Package-private for testing.
+     *
+     * Entries use the same device-node root as the disk's own name, so they match the names its backend gives its disks
+     * and partitions: udev reports nodes under {@code /dev/} even when {@link DevPath#DEV} is configured elsewhere,
+     * while the native-free backend builds them from {@link DevPath#DEV}.
+     *
+     * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @param name     the disk name, a device node path such as {@code /dev/dm-0}
+     * @return the backing stores, sorted, or empty if the disk's sysfs entry could not be read
+     */
+    static Optional<List<String>> readBackingStores(String sysBlock, String name) {
+        String devRoot = name.startsWith(DevPath.DEV) ? DevPath.DEV : UDEV_DEV;
+        if (!name.startsWith(devRoot)) {
+            return Optional.empty();
+        }
+        File[] slaves = new File(sysBlock + toSysfsName(name.substring(devRoot.length())) + "/slaves").listFiles();
+        if (slaves == null) {
+            return Optional.empty();
+        }
+        List<String> stores = new ArrayList<>();
+        for (File slave : slaves) {
+            String slaveName = slave.getName();
+            StoreKind kind = new File(sysBlock + slaveName).exists() ? StoreKind.DISK : StoreKind.PARTITION;
+            stores.add(kind.entry(devRoot + toDevName(slaveName)));
+        }
+        Collections.sort(stores);
+        return Optional.of(Collections.unmodifiableList(stores));
+    }
+
+    /**
+     * Converts a sysfs block device name to its path below the device root. sysfs spells a slash in a device name as
+     * {@code !}, as in {@code cciss!c0d0} for {@code /dev/cciss/c0d0}.
+     *
+     * @param sysfsName the name of the device's sysfs entry
+     * @return the device's path relative to the device root
+     */
+    protected static String toDevName(String sysfsName) {
+        return sysfsName.replace('!', '/');
+    }
+
+    /**
+     * Converts a device's path below the device root to the name of its sysfs entry; the inverse of
+     * {@link #toDevName(String)}.
+     *
+     * @param devName the device's path relative to the device root
+     * @return the name of the device's sysfs entry
+     */
+    protected static String toSysfsName(String devName) {
+        return devName.replace('/', '!');
     }
 
     /**

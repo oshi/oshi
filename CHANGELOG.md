@@ -2,7 +2,12 @@
 
 ##### New Features
 
-* [#3855](https://github.com/oshi/oshi/pull/3855): `HWDiskStore.getBackingStores()` lists the disks, partitions or file stores a layered disk is built on, so a caller can tell which entries in `getDiskStores()` duplicate the capacity and I/O of others - [@dbwiddis](https://github.com/dbwiddis).
+* [#3855](https://github.com/oshi/oshi/pull/3855),
+  [#3856](https://github.com/oshi/oshi/pull/3856): `HWDiskStore.getBackingStores()` lists the disks, partitions or file stores a layered disk is built on, so a caller can tell which entries in `getDiskStores()` duplicate the capacity and I/O of others. Reported on Linux - [@dbwiddis](https://github.com/dbwiddis).
+
+##### Behavior Changes
+
+* [#3856](https://github.com/oshi/oshi/pull/3856): On native-free Linux, `HWPartition.getIdentification()` returns the device path, such as `/dev/sda1`, matching the JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
