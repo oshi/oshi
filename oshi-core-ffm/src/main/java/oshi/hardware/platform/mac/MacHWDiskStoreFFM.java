@@ -379,11 +379,11 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
 
     /**
      * Finds what a disk is built on by walking up the IOService plane from its IOMedia object to the first ancestor
-     * that is either another media object or a disk image device.
+     * that is either another media object or a disk image device. Reaching the platform expert without finding one
+     * means the disk is not layered.
      *
      * @param bsdName the disk's BSD name
-     * @return the backing stores, an empty list for a disk with neither ancestor, or empty if the registry could not be
-     *         read
+     * @return the backing stores, an empty list for a disk that is not layered, or empty if they could not be read
      */
     private static Optional<List<String>> queryBackingStores(String bsdName) {
         MemorySegment matchingDict = IOKitUtilFFM.getBSDNameMatchingDict(bsdName);
@@ -409,14 +409,23 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                         return mediaBackingStore(current.getStringProperty(BSD_NAME),
                                 current.getBooleanProperty(WHOLE));
                     }
-                    String imageUrl = current.getStringProperty(DISK_IMAGE_URL);
-                    if (imageUrl != null) {
-                        return imageBackingStore(imageUrl, MacHWDiskStoreFFM::queryMountPoint);
+                    if (current.conformsTo(DISK_IMAGE_DEVICE)) {
+                        String imageUrl = current.getStringProperty(DISK_IMAGE_URL);
+                        return imageUrl == null ? Optional.empty()
+                                : imageBackingStore(imageUrl, MacHWDiskStoreFFM::queryMountPoint);
                     }
+                    if (current.conformsTo(LEGACY_DISK_IMAGE_DEVICE)) {
+                        return Optional.empty();
+                    }
+                    if (current.conformsTo(PLATFORM_EXPERT)) {
+                        return Optional.of(Collections.emptyList());
+                    }
+                    // A failed lookup returns null like a missing parent, and both end the walk below
                     entry = current.getParentEntry("IOService");
                 }
             }
-            return Optional.of(Collections.emptyList());
+            // The walk ended below the platform expert, so a parent could not be read
+            return Optional.empty();
         }
     }
 

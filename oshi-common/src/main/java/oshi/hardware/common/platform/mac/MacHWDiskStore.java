@@ -30,6 +30,18 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
     protected static final String WHOLE = "Whole";
     /** IORegistry property on a disk image device naming the image it was attached from. */
     protected static final String DISK_IMAGE_URL = "DiskImageURL";
+    /** IORegistry class of the device a disk image is attached as. */
+    protected static final String DISK_IMAGE_DEVICE = "AppleDiskImageDevice";
+    /**
+     * IORegistry class of the device a disk image was attached as before macOS 11, which does not publish
+     * {@link #DISK_IMAGE_URL}.
+     */
+    protected static final String LEGACY_DISK_IMAGE_DEVICE = "IOHDIXHDDrive";
+    /**
+     * IORegistry class at the top of the IOService plane, below its root. Every device descends from it, so reaching it
+     * means a walk up the plane found no backing ancestor.
+     */
+    protected static final String PLATFORM_EXPERT = "IOPlatformExpertDevice";
 
     private static final String VIRTUAL = "Virtual";
 
