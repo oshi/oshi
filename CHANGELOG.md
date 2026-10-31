@@ -9,6 +9,10 @@
 
 * [#3856](https://github.com/oshi/oshi/pull/3856): On native-free Linux, `HWPartition.getIdentification()` returns the device path, such as `/dev/sda1`, matching the JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
 
+##### Bug Fixes and Improvements
+
+* [#3857](https://github.com/oshi/oshi/pull/3857): `HardwareAbstractionLayer.getVirtualization()` now identifies an Amazon EC2 Nitro virtual machine, and not an EC2 bare-metal instance - [@dbwiddis](https://github.com/dbwiddis).
+
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
 ##### New Features
