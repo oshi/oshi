@@ -10,6 +10,7 @@ import static org.hamcrest.Matchers.is;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -54,6 +55,7 @@ class AbstractHWDiskStoreTest {
         assertThat(disk.getSerial(), is("SN123"));
         assertThat(disk.getSize(), is(500_000_000_000L));
         assertThat(disk.getDiskType(), is("Unknown"));
+        assertThat(disk.getBackingStores(), is(Optional.empty()));
 
         disk.applyStats(100L, 2048L, 50L, 1024L, 3L, 500L, 99999L);
         assertThat(disk.getReads(), is(100L));

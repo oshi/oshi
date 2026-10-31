@@ -1,6 +1,8 @@
-# 7.7.4 (in progress)
+# 7.8.0 (in progress)
 
-* Your contribution here!
+##### New Features
+
+* [#3855](https://github.com/oshi/oshi/pull/3855): `HWDiskStore.getBackingStores()` lists the disks, partitions or file stores a layered disk is built on, so a caller can tell which entries in `getDiskStores()` duplicate the capacity and I/O of others - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
