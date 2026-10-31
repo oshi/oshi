@@ -1114,9 +1114,9 @@ class NativeComparisonTest {
         if (jna == null || ffm == null) {
             return true;
         }
-        // A live process has an address space and a path; either missing means ps could not read the row
+        // A live process has an address space, a path and arguments; any missing means the read was refused
         return jna.getVirtualSize() == 0 || ffm.getVirtualSize() == 0 || jna.getPath().isEmpty()
-                || ffm.getPath().isEmpty();
+                || ffm.getPath().isEmpty() || jna.getCommandLine().isEmpty() || ffm.getCommandLine().isEmpty();
     }
 
     static boolean isNetBsd() {
