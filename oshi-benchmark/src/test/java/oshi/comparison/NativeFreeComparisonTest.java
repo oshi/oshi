@@ -22,6 +22,7 @@ import org.junit.jupiter.api.condition.OS;
 import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWPartition;
 import oshi.hardware.HardwareAbstractionLayer;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.VirtualMemory;
@@ -224,6 +225,10 @@ class NativeFreeComparisonTest {
             assertThat(n.getSize()).isEqualTo(j.getSize());
             assertThat(n.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
             assertThat(n.getPartitions()).as("partitions(%s)", j.getName()).hasSameSizeAs(j.getPartitions());
+            assertThat(n.getPartitions().stream().map(HWPartition::getIdentification).sorted())
+                    .as("partition identifications(%s)", j.getName()).containsExactlyElementsOf(j.getPartitions()
+                            .stream().map(HWPartition::getIdentification).sorted().collect(Collectors.toList()));
+            assertThat(n.getBackingStores()).as("backing stores(%s)", j.getName()).isEqualTo(j.getBackingStores());
         }
     }
 

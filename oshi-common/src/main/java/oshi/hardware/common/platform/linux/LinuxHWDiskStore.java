@@ -11,19 +11,24 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.FileUtil;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.linux.DevPath;
 import oshi.util.linux.ProcPath;
+import oshi.util.linux.SysPath;
 
 /**
  * Linux hard disk implementation.
@@ -100,6 +105,9 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         UDEV_STAT_LENGTH = statLength;
     }
 
+    private final Supplier<Optional<List<String>>> backingStores = Memoizer
+            .memoize(() -> readBackingStores(SysPath.BLOCK, getName()));
+
     /**
      * Creates a LinuxHWDiskStore with unknown disk type.
      *
@@ -125,6 +133,37 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     protected LinuxHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
         setPartitionList(new ArrayList<>());
+    }
+
+    @Override
+    public Optional<List<String>> getBackingStores() {
+        return backingStores.get();
+    }
+
+    /**
+     * Reads the stores a disk is built on from its sysfs {@code slaves} directory, which the kernel populates for a
+     * device-mapper, md RAID, or other stacked block device. A slave that has its own {@code /sys/block} entry is a
+     * whole disk; any other is a partition. Package-private for testing.
+     *
+     * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @param name     the disk name, a device node path such as {@code /dev/dm-0}
+     * @return the backing stores, sorted, or empty if the disk's sysfs entry could not be read
+     */
+    static Optional<List<String>> readBackingStores(String sysBlock, String name) {
+        String kernelName = name.startsWith(DevPath.DEV) ? name.substring(DevPath.DEV.length()) : name;
+        // sysfs spells a slash in a device name as '!', as in cciss!c0d0 for /dev/cciss/c0d0
+        File[] slaves = new File(sysBlock + kernelName.replace('/', '!') + "/slaves").listFiles();
+        if (slaves == null) {
+            return Optional.empty();
+        }
+        List<String> stores = new ArrayList<>();
+        for (File slave : slaves) {
+            String slaveName = slave.getName();
+            StoreKind kind = new File(sysBlock + slaveName).exists() ? StoreKind.DISK : StoreKind.PARTITION;
+            stores.add(kind.entry(DevPath.DEV + slaveName.replace('!', '/')));
+        }
+        Collections.sort(stores);
+        return Optional.of(Collections.unmodifiableList(stores));
     }
 
     /**

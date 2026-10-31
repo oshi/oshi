@@ -155,6 +155,9 @@ public interface HWDiskStore {
      * list means the disk is not built on anything OSHI can see. Summing the I/O of only the disks whose result is
      * present and empty therefore counts each transfer once, provided every disk's result is present.
      * <p>
+     * Backing stores are reported on Linux, from each block device's sysfs {@code slaves} directory. Other platforms
+     * return an empty {@link Optional}.
+     * <p>
      * Each entry is a {@link StoreKind} prefix followed by a name that matches a getter on the corresponding class:
      * <table>
      * <caption>Backing store entries</caption>
