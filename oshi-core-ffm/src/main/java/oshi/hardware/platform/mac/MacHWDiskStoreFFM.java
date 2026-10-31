@@ -4,8 +4,12 @@
  */
 package oshi.hardware.platform.mac;
 
+import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.ffm.platform.mac.MacSystem.F_MNTONNAME;
+import static oshi.ffm.platform.mac.MacSystem.STATFS;
 import static oshi.util.ExceptionUtil.getOrDefault;
 import static oshi.util.ExceptionUtil.runOrLog;
+import static oshi.util.LogLevel.DEBUG;
 import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.MemorySegment;
@@ -15,6 +19,7 @@ import java.util.Comparator;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -33,6 +38,7 @@ import oshi.ffm.platform.mac.DiskArbitration.DADiskRef;
 import oshi.ffm.platform.mac.DiskArbitration.DASessionRef;
 import oshi.ffm.platform.mac.IOKit.IOIterator;
 import oshi.ffm.platform.mac.IOKit.IORegistryEntry;
+import oshi.ffm.platform.mac.MacSystemFunctions;
 import oshi.ffm.util.platform.mac.CFUtilFFM;
 import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.HWDiskStore;
@@ -49,8 +55,9 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
     private static final Logger LOG = LoggerFactory.getLogger(MacHWDiskStoreFFM.class);
 
     private MacHWDiskStoreFFM(String name, String model, String serial, long size, String diskType,
-            DASessionRef session, Map<String, String> mountPointMap, Map<CFKey, CFStringRef> cfKeyMap) {
-        super(name, model, serial, size, diskType);
+            Optional<List<String>> backingStores, DASessionRef session, Map<String, String> mountPointMap,
+            Map<CFKey, CFStringRef> cfKeyMap) {
+        super(name, model, serial, size, diskType, backingStores);
         updateDiskStats(session, mountPointMap, cfKeyMap);
     }
 
@@ -342,7 +349,8 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                             continue;
                         }
                         diskList.add(new MacHWDiskStoreFFM(bsdName, model.trim(), serial.trim(), size,
-                                detectDiskType(bsdName), session, mountPointMap, cfKeyMap));
+                                detectDiskType(bsdName), queryBackingStores(bsdName), session, mountPointMap,
+                                cfKeyMap));
                     }
                 }
                 return diskList;
@@ -367,6 +375,68 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
             keyMap.put(cfKey, CFStringRef.createCFString(cfKey.getKey()));
         }
         return keyMap;
+    }
+
+    /**
+     * Finds what a disk is built on by walking up the IOService plane from its IOMedia object to the first ancestor
+     * that is either another media object or a disk image device. Reaching the platform expert without finding one
+     * means the disk is not layered.
+     *
+     * @param bsdName the disk's BSD name
+     * @return the backing stores, an empty list for a disk that is not layered, or empty if they could not be read
+     */
+    private static Optional<List<String>> queryBackingStores(String bsdName) {
+        MemorySegment matchingDict = IOKitUtilFFM.getBSDNameMatchingDict(bsdName);
+        if (matchingDict == null || matchingDict.equals(MemorySegment.NULL)) {
+            return Optional.empty();
+        }
+        IOIterator iter = IOKitUtilFFM.getMatchingServices(matchingDict);
+        if (iter == null) {
+            return Optional.empty();
+        }
+        try (iter) {
+            IORegistryEntry media = iter.next();
+            if (media == null) {
+                return Optional.empty();
+            }
+            IORegistryEntry entry;
+            try (media) {
+                entry = media.getParentEntry("IOService");
+            }
+            while (entry != null) {
+                try (IORegistryEntry current = entry) {
+                    if (current.conformsTo("IOMedia")) {
+                        return mediaBackingStore(current.getStringProperty(BSD_NAME),
+                                current.getBooleanProperty(WHOLE));
+                    }
+                    if (current.conformsTo(DISK_IMAGE_DEVICE)) {
+                        String imageUrl = current.getStringProperty(DISK_IMAGE_URL);
+                        return imageUrl == null ? Optional.empty()
+                                : imageBackingStore(imageUrl, MacHWDiskStoreFFM::queryMountPoint);
+                    }
+                    if (current.conformsTo(LEGACY_DISK_IMAGE_DEVICE)) {
+                        return Optional.empty();
+                    }
+                    if (current.conformsTo(PLATFORM_EXPERT)) {
+                        return Optional.of(Collections.emptyList());
+                    }
+                    // A failed lookup returns null like a missing parent, and both end the walk below
+                    entry = current.getParentEntry("IOService");
+                }
+            }
+            // The walk ended below the platform expert, so a parent could not be read
+            return Optional.empty();
+        }
+    }
+
+    private static String queryMountPoint(String path) {
+        return callInArenaOrDefault(arena -> {
+            MemorySegment buf = arena.allocate(STATFS);
+            if (MacSystemFunctions.statfs64(arena.allocateFrom(path), buf) == 0) {
+                return buf.getString(STATFS.byteOffset(F_MNTONNAME));
+            }
+            return "";
+        }, LOG, DEBUG, "statfs64 failed for " + path, "");
     }
 
     private static String detectDiskType(String bsdName) {
