@@ -1,4 +1,4 @@
-# 7.7.4 (in progress)
+# 7.8.0 (in progress)
 
 * Your contribution here!
 
