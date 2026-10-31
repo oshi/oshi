@@ -12,78 +12,78 @@
 <a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.driver.linux.proc;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
-<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.NetworkParams.IPRoute;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.linux.ProcPath;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment"> * Utility to read the routing table from {@code /proc/net/route} and {@code /proc/net/ipv6_route}.</em>
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * The two files share no format. The IPv4 one has a header line, eleven columns, the interface first, and addresses as</em>
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * eight little-endian hex digits with a separate mask column. The IPv6 one has no header, ten columns, the interface</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * last, addresses as thirty-two hex digits in network order, and the prefix length beside the destination.</em>
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> */</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>  @ThreadSafe
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="RouteTable" href="../../../../../oshi/util/driver/linux/proc/RouteTable.html#RouteTable">RouteTable</a> {
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      <em class="jxr_javadoccomment">/** Route is a gateway route, {@code RTF_GATEWAY}. */</em>
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RTF_GATEWAY = 0x0002;
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <em class="jxr_javadoccomment">/** Route is to a single host, {@code RTF_HOST}. */</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RTF_HOST = 0x0004;
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IPV4_FIELD_COUNT = 11;
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IPV6_FIELD_COUNT = 10;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <a name="RouteTable" href="../../../../../oshi/util/driver/linux/proc/RouteTable.html#RouteTable">RouteTable</a>() {
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>      }
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>  
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>  <em class="jxr_javadoccomment">     * Queries and parses {@code /proc/net/route}.</em>
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     * @param ifIndexByName a map of interface name to index; an empty map reports every index as -1</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @return the parsed IPv4 routes</em>
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;IPRoute&gt; queryIpv4Routes(Map&lt;String, Integer&gt; ifIndexByName) {
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">return</strong> parseIpv4Routes(FileUtil.readFile(ProcPath.ROUTE), ifIndexByName);
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment">     * Parses {@code /proc/net/route} content.</em>
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * Columns are {@code Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT}. Addresses are the</em>
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * kernel's {@code %08X} of a {@code __be32}, which on a little-endian host is exactly what</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * {@link ParseUtil#parseIntToIP(int)} inverts.</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param lines         the lines of {@code /proc/net/route}</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param ifIndexByName a map of interface name to index; an empty map reports every index as -1</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @return the parsed IPv4 routes</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">static</strong> List&lt;IPRoute&gt; parseIpv4Routes(List&lt;String&gt; lines, Map&lt;String, Integer&gt; ifIndexByName) {
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>          List&lt;IPRoute&gt; routes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>              String[] fields = ParseUtil.whitespaces.split(line.trim(), -1);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>              <strong class="jxr_keyword">if</strong> (fields.length &lt; IPV4_FIELD_COUNT) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>              }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              <em class="jxr_comment">// The header line's Destination column is the word "Destination", which is not eight hex digits. Testing</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <em class="jxr_comment">// the shape rather than a parse result keeps a genuine 0xFFFFFFFF destination from being mistaken for a</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <em class="jxr_comment">// parse failure.</em>
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <strong class="jxr_keyword">if</strong> (!isHexWord(fields[1], 8)) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              byte[] destination = ParseUtil.parseIntToIP((<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(fields[1], 0L));
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              <strong class="jxr_keyword">int</strong> flags = ParseUtil.hexStringToInt(fields[3], 0);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <strong class="jxr_keyword">boolean</strong> isGateway = (flags &amp; RTF_GATEWAY) != 0;
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">int</strong> prefixLength = <a name="ParseUtil" href="../../../../../oshi/util/ParseUtil.html#ParseUtil">ParseUtil</a>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                      .netmaskToPrefixLength(ParseUtil.parseIntToIP((<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(fields[7], 0L)));
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              byte[] gateway = isGateway ? ParseUtil.parseIntToIP((<strong class="jxr_keyword">int</strong>) ParseUtil.hexStringToLong(fields[2], 0L))
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                      : <strong class="jxr_keyword">new</strong> byte[0];
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> java.nio.ByteOrder;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> oshi.annotation.concurrent.ThreadSafe;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> oshi.software.os.NetworkParams.IPRoute;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> oshi.util.ParseUtil;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> oshi.util.linux.ProcPath;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <em class="jxr_javadoccomment"> * Utility to read the routing table from {@code /proc/net/route} and {@code /proc/net/ipv6_route}.</em>
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <em class="jxr_javadoccomment"> * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <em class="jxr_javadoccomment"> * The two files share no format. The IPv4 one has a header line, eleven columns, the interface first, and addresses as</em>
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <em class="jxr_javadoccomment"> * eight hex digits in the host's byte order with a separate mask column. The IPv6 one has no header, ten columns, the</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <em class="jxr_javadoccomment"> * interface last, addresses as thirty-two hex digits in network order, and the prefix length beside the destination.</em>
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  <em class="jxr_javadoccomment"> */</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  @ThreadSafe
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="RouteTable" href="../../../../../oshi/util/driver/linux/proc/RouteTable.html#RouteTable">RouteTable</a> {
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>      <em class="jxr_javadoccomment">/** Route is a gateway route, {@code RTF_GATEWAY}. */</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RTF_GATEWAY = 0x0002;
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>      <em class="jxr_javadoccomment">/** Route is to a single host, {@code RTF_HOST}. */</em>
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> RTF_HOST = 0x0004;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>  
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IPV4_FIELD_COUNT = 11;
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> IPV6_FIELD_COUNT = 10;
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <a name="RouteTable" href="../../../../../oshi/util/driver/linux/proc/RouteTable.html#RouteTable">RouteTable</a>() {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  <em class="jxr_javadoccomment">     * Queries and parses {@code /proc/net/route}.</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>  <em class="jxr_javadoccomment">     * @param ifIndexByName a map of interface name to index; an empty map reports every index as -1</em>
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  <em class="jxr_javadoccomment">     * @return the parsed IPv4 routes</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> List&lt;IPRoute&gt; queryIpv4Routes(Map&lt;String, Integer&gt; ifIndexByName) {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <strong class="jxr_keyword">return</strong> parseIpv4Routes(FileUtil.readFile(ProcPath.ROUTE), ifIndexByName, ByteOrder.nativeOrder());
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      }
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>  
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment">     * Parses {@code /proc/net/route} content.</em>
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>  <em class="jxr_javadoccomment">     * Columns are {@code Iface Destination Gateway Flags RefCnt Use Metric Mask MTU Window IRTT}. Addresses are the</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * kernel's {@code %08X} of a {@code __be32}, so their digits are in the host's byte order: reversed on a</em>
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     * little-endian host, and in network order on a big-endian one.</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param lines         the lines of {@code /proc/net/route}</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @param ifIndexByName a map of interface name to index; an empty map reports every index as -1</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @param order         the byte order of the host that wrote the lines</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @return the parsed IPv4 routes</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">static</strong> List&lt;IPRoute&gt; parseIpv4Routes(List&lt;String&gt; lines, Map&lt;String, Integer&gt; ifIndexByName, ByteOrder order) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          List&lt;IPRoute&gt; routes = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">for</strong> (String line : lines) {
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>              String[] fields = ParseUtil.whitespaces.split(line.trim(), -1);
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>              <strong class="jxr_keyword">if</strong> (fields.length &lt; IPV4_FIELD_COUNT) {
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              }
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              <em class="jxr_comment">// The header line's Destination column is the word "Destination", which is not eight hex digits. Testing</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>              <em class="jxr_comment">// the shape rather than a parse result keeps a genuine 0xFFFFFFFF destination from being mistaken for a</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <em class="jxr_comment">// parse failure.</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">if</strong> (!isHexWord(fields[1], 8)) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>              byte[] destination = ParseUtil.hexWordsToByteArray(fields[1], order);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">int</strong> flags = ParseUtil.hexStringToInt(fields[3], 0);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">boolean</strong> isGateway = (flags &amp; RTF_GATEWAY) != 0;
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">int</strong> prefixLength = ParseUtil.netmaskToPrefixLength(ParseUtil.hexWordsToByteArray(fields[7], order));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              byte[] gateway = isGateway ? ParseUtil.hexWordsToByteArray(fields[2], order) : <strong class="jxr_keyword">new</strong> byte[0];
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              String interfaceName = fields[0];
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              routes.add(<strong class="jxr_keyword">new</strong> IPRoute(destination, prefixLength, gateway, interfaceName,
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>                      indexOfInterface(interfaceName, ifIndexByName), ParseUtil.parseLongOrDefault(fields[6], -1L),
@@ -123,7 +123,7 @@
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>                 <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L116" href="#L116">116</a>             }
 <a class="jxr_linenumber" name="L117" href="#L117">117</a>             <em class="jxr_comment">// The kernel prints these addresses one byte at a time, so they are already in network order and need</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <em class="jxr_comment">// none of the per-word reversal that /proc/net/tcp6 requires.</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <em class="jxr_comment">// none of the per-word reversal that /proc/net/tcp6 requires on a little-endian host.</em>
 <a class="jxr_linenumber" name="L119" href="#L119">119</a>             byte[] destination = ParseUtil.hexStringToByteArray(fields[0]);
 <a class="jxr_linenumber" name="L120" href="#L120">120</a>             <strong class="jxr_keyword">long</strong> flags = ParseUtil.hexStringToLong(fields[8], 0L);
 <a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">boolean</strong> isGateway = (flags &amp; RTF_GATEWAY) != 0;

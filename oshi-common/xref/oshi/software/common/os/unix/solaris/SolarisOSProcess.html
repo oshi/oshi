@@ -108,7 +108,7 @@
 <a class="jxr_linenumber" name="L100" href="#L100">100</a>     @Override
 <a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAffinityMask() {
 <a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">long</strong> mask = parsePbindOutput(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"pbind -q "</span> + getProcessID()));
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">return</strong> mask != 0L ? mask : parsePsrinfo(ExecutingCommand.runNative(<span class="jxr_string">"psrinfo"</span>));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">return</strong> mask == 0L ? parsePsrinfo(ExecutingCommand.runNative(<span class="jxr_string">"psrinfo"</span>)) : mask;
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>     }
 <a class="jxr_linenumber" name="L105" href="#L105">105</a> 
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>     <em class="jxr_javadoccomment">/**</em>

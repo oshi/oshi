@@ -37,9 +37,9 @@
 <a class="jxr_linenumber" name="L29" href="#L29">29</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L30" href="#L30">30</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="Baseboard" href="../../../../oshi/demo/jmx/mbeans/Baseboard.html#Baseboard">Baseboard</a> <strong class="jxr_keyword">implements</strong> DynamicMBean, <a name="PropertiesAvailable" href="../../../../oshi/demo/jmx/demo/PropertiesAvailable.html#PropertiesAvailable">PropertiesAvailable</a> {
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>  
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> oshi.hardware.Baseboard hwBaseboard;
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> oshi.hardware.Baseboard hwBaseboard;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>      <strong class="jxr_keyword">private</strong> MBeanInfo dMBeanInfo = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> List&lt;String&gt; propertiesAvailable = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;String&gt; propertiesAvailable = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
 <a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PROPERTIES = <span class="jxr_string">"Properties"</span>;
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>  
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">void</strong> setUpMBean() <strong class="jxr_keyword">throws</strong> IntrospectionException, javax.management.IntrospectionException {

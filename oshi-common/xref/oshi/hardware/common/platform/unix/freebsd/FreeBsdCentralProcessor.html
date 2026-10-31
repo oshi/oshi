@@ -45,566 +45,569 @@
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>      <em class="jxr_comment">// Capture the CSV of hex values as group(1), clients should split on ','</em>
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>      <em class="jxr_comment">// The Origin line of dmesg.boot, and each name=value pair on it, with or without spaces around the =</em>
 <a class="jxr_linenumber" name="L39" href="#L39">39</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern ORIGIN = Pattern.compile(<span class="jxr_string">"Origin&#92;&#92;s*=.*"</span>);
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern DMESG_FIELD = Pattern.compile(<span class="jxr_string">"(?&lt;!&#92;&#92;w)(&#92;&#92;w++)&#92;&#92;s*+=&#92;&#92;s*+(\&quot;[^\&quot;]*+\&quot;|&#92;&#92;S++)"</span>);
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>  
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern CPUMASK = Pattern.compile(<span class="jxr_string">"mask=\&quot;([&#92;&#92;p{XDigit},]+)\&quot;"</span>);
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>      <em class="jxr_comment">// FreeBSD CPU state indices into the kern.cp_time / kern.cp_times uint64 arrays</em>
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_USER = 0;
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_NICE = 1;
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_SYS = 2;
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_INTR = 3;
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_IDLE = 4;
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CPUSTATES = 5;
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>  <em class="jxr_javadoccomment">     * Reads a string sysctl value.</em>
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * @param def  the default value</em>
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     * @return the sysctl string value or the default</em>
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> String sysctlString(String name, String def);
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>  
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>  <em class="jxr_javadoccomment">     * Reads a long sysctl value.</em>
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * @param def  the default value</em>
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     * @return the sysctl long value or the default</em>
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> sysctlLong(String name, <strong class="jxr_keyword">long</strong> def);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>  <em class="jxr_javadoccomment">     * Reads an int sysctl value.</em>
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * @param def  the default value</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     * @return the sysctl int value or the default</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> sysctlInt(String name, <strong class="jxr_keyword">int</strong> def);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  <em class="jxr_javadoccomment">     * Reads a sysctl whose value is an array of {@code uint64} values, e.g. {@code kern.cp_time} (per-system) or</em>
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>  <em class="jxr_javadoccomment">     * {@code kern.cp_times} (per-CPU).</em>
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * @return the values as a {@code long[]}, or {@code null} if the query failed</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> @Nullable [] queryCpTimes(String name);
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>  
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>  <em class="jxr_javadoccomment">     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     * @param loadavg the array to populate</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * @param nelem   the number of elements requested</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     * @return the number of samples retrieved</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * Maps the five FreeBSD CPU-state values starting at {@code offset} in {@code cpTimeArray} to the corresponding</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * {@link TickType} slots of {@code ticks}.</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * @param ticks       the destination tick array</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * @param cpTimeArray the source uint64 values</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     * @param offset      the starting index of this CPU's states within {@code cpTimeArray}</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fillTicks(<strong class="jxr_keyword">long</strong>[] ticks, <strong class="jxr_keyword">long</strong>[] cpTimeArray, <strong class="jxr_keyword">int</strong> offset) {
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         ticks[TickType.USER.getIndex()] = cpTimeArray[offset + CP_USER];
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         ticks[TickType.NICE.getIndex()] = cpTimeArray[offset + CP_NICE];
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         ticks[TickType.SYSTEM.getIndex()] = cpTimeArray[offset + CP_SYS];
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         ticks[TickType.IRQ.getIndex()] = cpTimeArray[offset + CP_INTR];
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         ticks[TickType.IDLE.getIndex()] = cpTimeArray[offset + CP_IDLE];
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @Override
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         <strong class="jxr_keyword">long</strong>[] cpTime = queryCpTimes(<span class="jxr_string">"kern.cp_time"</span>);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">if</strong> (cpTime == <strong class="jxr_keyword">null</strong> || cpTime.length &lt; CPUSTATES) {
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         }
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         fillTicks(ticks, cpTime, 0);
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>     }
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> 
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     @Override
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         <strong class="jxr_keyword">return</strong> parseProcessorTicks(queryCpTimes(<span class="jxr_string">"kern.cp_times"</span>), getLogicalProcessorCount(), CPUSTATES);
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>     }
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> 
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * Reads per-CPU ticks from DragonFly BSD's {@code kern.cputime}, an array of one {@code struct kinfo_cputime} per</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     * CPU. The struct begins with the five CPU-state values and is followed by fields whose count may vary by release,</em>
-<a class="jxr_linenumber" name="L132" href="#L132">132</a> <em class="jxr_javadoccomment">     * so the per-CPU stride is derived from the array length.</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * @return per-CPU ticks, zero-filled if the sysctl is unavailable or too short</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[][] queryKinfoCputimeTicks() {
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <strong class="jxr_keyword">int</strong> cpus = getLogicalProcessorCount();
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         <strong class="jxr_keyword">long</strong>[] cpTimes = queryCpTimes(<span class="jxr_string">"kern.cputime"</span>);
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">return</strong> parseProcessorTicks(cpTimes, cpus, cpTimes == <strong class="jxr_keyword">null</strong> ? 0 : cpTimes.length / cpus);
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     }
-<a class="jxr_linenumber" name="L141" href="#L141">141</a> 
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     * Maps an array of per-CPU records, each beginning with the five CPU-state values, to per-CPU tick arrays.</em>
-<a class="jxr_linenumber" name="L144" href="#L144">144</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L145" href="#L145">145</a> <em class="jxr_javadoccomment">     * @param cpTimes the uint64 values read from the sysctl, or {@code null} if the read failed</em>
-<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     * @param cpus    the number of logical processors</em>
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     * @param stride  the number of values in each CPU's record</em>
-<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * @return per-CPU ticks; CPUs without a complete record in {@code cpTimes} are zero-filled</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[][] parseProcessorTicks(<strong class="jxr_keyword">long</strong> @Nullable [] cpTimes, <strong class="jxr_keyword">int</strong> cpus, <strong class="jxr_keyword">int</strong> stride) {
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[cpus][TickType.values().length];
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         <strong class="jxr_keyword">if</strong> (cpTimes == <strong class="jxr_keyword">null</strong> || stride &lt; CPUSTATES) {
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>             <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         }
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">int</strong> records = Math.min(cpus, cpTimes.length / stride);
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; records; cpu++) {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>             fillTicks(ticks[cpu], cpTimes, cpu * stride);
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         }
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">return</strong> ticks;
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
-<a class="jxr_linenumber" name="L161" href="#L161">161</a> 
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>     @Override
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
-<a class="jxr_linenumber" name="L166" href="#L166">166</a>         }
-<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         <strong class="jxr_keyword">int</strong> retval = getloadavgNative(average, nelem);
-<a class="jxr_linenumber" name="L169" href="#L169">169</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
-<a class="jxr_linenumber" name="L170" href="#L170">170</a>             <em class="jxr_comment">// All-or-nothing: a partial result is more likely a misread than a real load average</em>
-<a class="jxr_linenumber" name="L171" href="#L171">171</a>             Arrays.fill(average, -1d);
-<a class="jxr_linenumber" name="L172" href="#L172">172</a>         }
-<a class="jxr_linenumber" name="L173" href="#L173">173</a>         <strong class="jxr_keyword">return</strong> average;
-<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
-<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
-<a class="jxr_linenumber" name="L176" href="#L176">176</a>     @Override
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
-<a class="jxr_linenumber" name="L178" href="#L178">178</a>         <strong class="jxr_keyword">return</strong> sysctlLong(<span class="jxr_string">"vm.stats.sys.v_swtch"</span>, 0L);
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>     }
-<a class="jxr_linenumber" name="L180" href="#L180">180</a> 
-<a class="jxr_linenumber" name="L181" href="#L181">181</a>     @Override
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         <strong class="jxr_keyword">return</strong> sysctlLong(<span class="jxr_string">"vm.stats.sys.v_intr"</span>, 0L);
-<a class="jxr_linenumber" name="L184" href="#L184">184</a>     }
-<a class="jxr_linenumber" name="L185" href="#L185">185</a> 
-<a class="jxr_linenumber" name="L186" href="#L186">186</a>     @Override
-<a class="jxr_linenumber" name="L187" href="#L187">187</a>     <strong class="jxr_keyword">protected</strong> ProcessorIdentifier queryProcessorId() {
-<a class="jxr_linenumber" name="L188" href="#L188">188</a>         <em class="jxr_comment">// Parsing dmesg.boot is apparently the only reliable source for processor identification in FreeBSD. Read</em>
-<a class="jxr_linenumber" name="L189" href="#L189">189</a>         <em class="jxr_comment">// quietly (reportError=false): its absence is tolerated (we fall back to sysctl), and warning on every</em>
-<a class="jxr_linenumber" name="L190" href="#L190">190</a>         <em class="jxr_comment">// CentralProcessor construction would spam callers that recreate one.</em>
-<a class="jxr_linenumber" name="L191" href="#L191">191</a>         DmesgProcessorId id = parseProcessorIdFromDmesg(FileUtil.readFile(<span class="jxr_string">"/var/run/dmesg.boot"</span>, false),
-<a class="jxr_linenumber" name="L192" href="#L192">192</a>                 sysctlString(<span class="jxr_string">"hw.model"</span>, <span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <strong class="jxr_keyword">long</strong> cpuFreq = sysctlLong(<span class="jxr_string">"hw.clockrate"</span>, 0L) * 1_000_000L;
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         <strong class="jxr_keyword">boolean</strong> cpu64bit = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"uname -m"</span>).trim().contains(<span class="jxr_string">"64"</span>);
-<a class="jxr_linenumber" name="L195" href="#L195">195</a>         String processorID = getProcessorIDfromDmiDecode(id.processorIdBits());
-<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ProcessorIdentifier(id.vendor(), id.name(), id.family(), id.model(), id.stepping(), processorID,
-<a class="jxr_linenumber" name="L197" href="#L197">197</a>                 cpu64bit, cpuFreq);
-<a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>     <em class="jxr_javadoccomment">/** Immutable holder for the identifier fields parsed from {@code dmesg.boot}. Package-private for testing. */</em>
-<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> DmesgProcessorId {
-<a class="jxr_linenumber" name="L202" href="#L202">202</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String vendor;
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String family;
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String model;
-<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String stepping;
-<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> processorIdBits;
-<a class="jxr_linenumber" name="L208" href="#L208">208</a> 
-<a class="jxr_linenumber" name="L209" href="#L209">209</a>         DmesgProcessorId(String vendor, String name, String family, String model, String stepping,
-<a class="jxr_linenumber" name="L210" href="#L210">210</a>                 <strong class="jxr_keyword">long</strong> processorIdBits) {
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>             <strong class="jxr_keyword">this</strong>.vendor = vendor;
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>             <strong class="jxr_keyword">this</strong>.name = name;
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>             <strong class="jxr_keyword">this</strong>.family = family;
-<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">this</strong>.model = model;
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">this</strong>.stepping = stepping;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">this</strong>.processorIdBits = processorIdBits;
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         }
-<a class="jxr_linenumber" name="L218" href="#L218">218</a> 
-<a class="jxr_linenumber" name="L219" href="#L219">219</a>         String vendor() {
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>             <strong class="jxr_keyword">return</strong> vendor;
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>         }
-<a class="jxr_linenumber" name="L222" href="#L222">222</a> 
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         String name() {
-<a class="jxr_linenumber" name="L224" href="#L224">224</a>             <strong class="jxr_keyword">return</strong> name;
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         }
-<a class="jxr_linenumber" name="L226" href="#L226">226</a> 
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         String family() {
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>             <strong class="jxr_keyword">return</strong> family;
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         }
-<a class="jxr_linenumber" name="L230" href="#L230">230</a> 
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         String model() {
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>             <strong class="jxr_keyword">return</strong> model;
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         }
-<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         String stepping() {
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>             <strong class="jxr_keyword">return</strong> stepping;
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         }
-<a class="jxr_linenumber" name="L238" href="#L238">238</a> 
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         <strong class="jxr_keyword">long</strong> processorIdBits() {
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>             <strong class="jxr_keyword">return</strong> processorIdBits;
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>         }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a>     }
-<a class="jxr_linenumber" name="L243" href="#L243">243</a> 
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a> <em class="jxr_javadoccomment">     * Parses the processor identifier fields from {@code dmesg.boot}. Uses {@code initialName} (from</em>
-<a class="jxr_linenumber" name="L246" href="#L246">246</a> <em class="jxr_javadoccomment">     * {@code sysctl hw.model}) unless the file supplies a {@code CPU:} line and the initial name is empty.</em>
-<a class="jxr_linenumber" name="L247" href="#L247">247</a> <em class="jxr_javadoccomment">     * Package-private for testing.</em>
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     * FreeBSD writes {@code Origin="GenuineIntel"  Id=0x306f2  Family=0x6  Model=0x3f  Stepping=2}. DragonFly BSD puts</em>
-<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     * spaces around each {@code =} and omits the family and model, which are then decoded from the {@code Id}.</em>
-<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     * @param dmesg       the lines of {@code dmesg.boot}</em>
-<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     * @param initialName the CPU name from {@code sysctl hw.model}</em>
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     * @return the parsed identifier fields</em>
-<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">static</strong> DmesgProcessorId parseProcessorIdFromDmesg(List&lt;String&gt; dmesg, String initialName) {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">final</strong> Pattern featuresPattern = Pattern.compile(<span class="jxr_string">"Features=(&#92;&#92;S+)&lt;.*"</span>);
-<a class="jxr_linenumber" name="L258" href="#L258">258</a> 
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         String cpuVendor = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         String cpuName = initialName;
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         String cpuFamily = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>         String cpuModel = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         String cpuStepping = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>         <strong class="jxr_keyword">long</strong> processorIdBits = 0L;
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>         <strong class="jxr_keyword">for</strong> (String line : dmesg) {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>             line = line.trim();
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>             <em class="jxr_comment">// Prefer hw.model to this one</em>
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"CPU:"</span>) &amp;&amp; cpuName.isEmpty()) {
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 cpuName = line.replace(<span class="jxr_string">"CPU:"</span>, <span class="jxr_string">""</span>).trim();
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ORIGIN.matcher(line).matches()) {
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 Map&lt;String, String&gt; fields = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 Matcher m = DMESG_FIELD.matcher(line);
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 <strong class="jxr_keyword">while</strong> (m.find()) {
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>                     fields.put(m.group(1), m.group(2));
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 }
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 cpuVendor = ParseUtil.getStringBetween(fields.getOrDefault(<span class="jxr_string">"Origin"</span>, <span class="jxr_string">""</span>), '&quot;');
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 <strong class="jxr_keyword">int</strong> id = ParseUtil.decodeIntOrDefault(fields.getOrDefault(<span class="jxr_string">"Id"</span>, <span class="jxr_string">""</span>), 0);
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 processorIdBits |= ParseUtil.unsignedIntToLong(id);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 Triplet&lt;Integer, Integer, Integer&gt; fms = cpuidToFamilyModelStepping(id);
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 cpuFamily = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get(<span class="jxr_string">"Family"</span>), fms.getA()));
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>                 cpuModel = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get(<span class="jxr_string">"Model"</span>), fms.getB()));
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 cpuStepping = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get(<span class="jxr_string">"Stepping"</span>), fms.getC()));
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"Features="</span>)) {
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 Matcher m = featuresPattern.matcher(line);
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 <strong class="jxr_keyword">if</strong> (m.matches()) {
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>                     processorIdBits |= ParseUtil.decodeLongOrDefault(m.group(1), 0L) &lt;&lt; 32;
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 }
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 <em class="jxr_comment">// No further interest in this file</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>                 <strong class="jxr_keyword">break</strong>;
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>             }
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>         }
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> DmesgProcessorId(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorIdBits);
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     }
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>     @Override
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>     <strong class="jxr_keyword">protected</strong> Quartet&lt;List&lt;LogicalProcessor&gt;, @Nullable List&lt;PhysicalProcessor&gt;, @Nullable List&lt;ProcessorCache&gt;, List&lt;String&gt;&gt; initProcessorCounts() {
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         List&lt;LogicalProcessor&gt; logProcs = parseTopology();
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <em class="jxr_comment">// Force at least one processor</em>
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">if</strong> (logProcs.isEmpty()) {
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>             logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(0, 0, 0));
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         }
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         Pair&lt;Map&lt;Integer, String&gt;, List&lt;String&gt;&gt; modelsAndFlags = parseProcModelsAndFlags(
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>                 FileUtil.readFile(<span class="jxr_string">"/var/run/dmesg.boot"</span>, false));
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>         Map&lt;Integer, String&gt; dmesg = modelsAndFlags.getA();
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         List&lt;String&gt; featureFlags = modelsAndFlags.getB();
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         List&lt;PhysicalProcessor&gt; physProcs = dmesg.isEmpty() ? <strong class="jxr_keyword">null</strong> : createProcListFromDmesg(logProcs, dmesg);
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         List&lt;ProcessorCache&gt; caches = getCacheInfoFromLscpu();
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(logProcs, physProcs, caches, featureFlags);
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>     }
-<a class="jxr_linenumber" name="L310" href="#L310">310</a> 
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     * Parses the per-core processor model strings and feature flags from {@code dmesg.boot}. Package-private for</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     * testing.</em>
-<a class="jxr_linenumber" name="L314" href="#L314">314</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * @param dmesg the lines of {@code dmesg.boot}</em>
-<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * @return a pair of (core id to model-string map, feature-flag lines)</em>
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>     <strong class="jxr_keyword">static</strong> Pair&lt;Map&lt;Integer, String&gt;, List&lt;String&gt;&gt; parseProcModelsAndFlags(List&lt;String&gt; dmesg) {
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         Map&lt;Integer, String&gt; models = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>         <em class="jxr_comment">// cpu0: &lt;Open Firmware CPU&gt; on cpulist0</em>
-<a class="jxr_linenumber" name="L321" href="#L321">321</a>         Pattern normal = Pattern.compile(<span class="jxr_string">"cpu(&#92;&#92;d+): (.+) on .*"</span>);
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <em class="jxr_comment">// CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a>         Pattern hybrid = Pattern.compile(<span class="jxr_string">"CPU&#92;&#92;s*(&#92;&#92;d+): (.+) affinity:.*"</span>);
-<a class="jxr_linenumber" name="L324" href="#L324">324</a>         List&lt;String&gt; featureFlags = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <strong class="jxr_keyword">boolean</strong> readingFlags = false;
-<a class="jxr_linenumber" name="L326" href="#L326">326</a>         <strong class="jxr_keyword">for</strong> (String s : dmesg) {
-<a class="jxr_linenumber" name="L327" href="#L327">327</a>             Matcher h = hybrid.matcher(s);
-<a class="jxr_linenumber" name="L328" href="#L328">328</a>             <strong class="jxr_keyword">if</strong> (h.matches()) {
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 <strong class="jxr_keyword">int</strong> coreId = ParseUtil.parseIntOrDefault(h.group(1), 0);
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>                 <em class="jxr_comment">// This always takes priority, overwrite if needed</em>
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>                 models.put(coreId, h.group(2).trim());
-<a class="jxr_linenumber" name="L332" href="#L332">332</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 Matcher n = normal.matcher(s);
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 <strong class="jxr_keyword">if</strong> (n.matches()) {
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>                     <strong class="jxr_keyword">int</strong> coreId = ParseUtil.parseIntOrDefault(n.group(1), 0);
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>                     <em class="jxr_comment">// Don't overwrite if h matched earlier</em>
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>                     models.putIfAbsent(coreId, n.group(2).trim());
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 }
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>             }
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>             <strong class="jxr_keyword">if</strong> (ORIGIN.matcher(s.trim()).matches()) {
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 readingFlags = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (readingFlags) {
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"  "</span>)) {
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>                     featureFlags.add(s.trim());
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>                 } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>                     readingFlags = false;
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 }
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>             }
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         }
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(models, featureFlags);
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
-<a class="jxr_linenumber" name="L352" href="#L352">352</a> 
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>     <strong class="jxr_keyword">private</strong> List&lt;ProcessorCache&gt; getCacheInfoFromLscpu() {
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         <strong class="jxr_keyword">return</strong> parseCachesFromLscpu(ExecutingCommand.runNative(<span class="jxr_string">"lscpu"</span>));
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>     }
-<a class="jxr_linenumber" name="L356" href="#L356">356</a> 
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L358" href="#L358">358</a> <em class="jxr_javadoccomment">     * Parses the CPU cache descriptions from {@code lscpu} output. Package-private for testing.</em>
-<a class="jxr_linenumber" name="L359" href="#L359">359</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L360" href="#L360">360</a> <em class="jxr_javadoccomment">     * @param lscpu the lines of {@code lscpu} output</em>
-<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * @return the ordered list of processor caches</em>
-<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>     <strong class="jxr_keyword">static</strong> List&lt;ProcessorCache&gt; parseCachesFromLscpu(List&lt;String&gt; lscpu) {
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         Set&lt;ProcessorCache&gt; caches = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
-<a class="jxr_linenumber" name="L365" href="#L365">365</a>         <strong class="jxr_keyword">for</strong> (String checkLine : lscpu) {
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L1d cache:"</span>)) {
-<a class="jxr_linenumber" name="L367" href="#L367">367</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(1, 0, 0,
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>                         ProcessorCache.Type.DATA));
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L1i cache:"</span>)) {
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(1, 0, 0,
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
-<a class="jxr_linenumber" name="L373" href="#L373">373</a>                         ProcessorCache.Type.INSTRUCTION));
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L2 cache:"</span>)) {
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(2, 0, 0,
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>                         ProcessorCache.Type.UNIFIED));
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L3 cache:"</span>)) {
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(3, 0, 0,
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>                         ProcessorCache.Type.UNIFIED));
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>             }
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>         }
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         <strong class="jxr_keyword">return</strong> orderedProcCaches(caches);
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>     }
-<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>     <strong class="jxr_keyword">private</strong> List&lt;LogicalProcessor&gt; parseTopology() {
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         String spec = sysctlString(<span class="jxr_string">"kern.sched.topology_spec"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <strong class="jxr_keyword">if</strong> (spec.isEmpty()) {
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>             <em class="jxr_comment">// DragonFly BSD has no topology_spec, and publishes each CPU's place under hw.cpu_topology instead</em>
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>             <strong class="jxr_keyword">int</strong> ncpu = sysctlInt(<span class="jxr_string">"hw.ncpu"</span>, 0);
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>             <strong class="jxr_keyword">int</strong>[] physicalIds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[ncpu];
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">int</strong>[] coreIds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[ncpu];
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ncpu; i++) {
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>                 physicalIds[i] = sysctlInt(<span class="jxr_string">"hw.cpu_topology.cpu"</span> + i + <span class="jxr_string">".physical_id"</span>, 0);
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>                 coreIds[i] = sysctlInt(<span class="jxr_string">"hw.cpu_topology.cpu"</span> + i + <span class="jxr_string">".core_id"</span>, -1);
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>             }
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>             <strong class="jxr_keyword">return</strong> buildTopologyFromIds(physicalIds, coreIds);
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>         }
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>         <strong class="jxr_keyword">return</strong> parseTopologySpec(spec);
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>     }
-<a class="jxr_linenumber" name="L402" href="#L402">402</a> 
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L404" href="#L404">404</a> <em class="jxr_javadoccomment">     * Builds the logical processors from {@code kern.sched.topology_spec}. Package-private for testing.</em>
-<a class="jxr_linenumber" name="L405" href="#L405">405</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L406" href="#L406">406</a> <em class="jxr_javadoccomment">     * The spec nests groups of CPUs that share a cache. A group flagged {@code THREAD}, {@code SMT} or {@code HTT}</em>
-<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">     * holds the hardware threads of one core, and a CPU in no such group is a core of its own; virtual machines often</em>
-<a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">     * publish a single flat group, so every CPU is its own core. The groups at level 2 that are not thread groups are</em>
-<a class="jxr_linenumber" name="L409" href="#L409">409</a> <em class="jxr_javadoccomment">     * taken as packages.</em>
-<a class="jxr_linenumber" name="L410" href="#L410">410</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;{@code</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">     * &lt;groups&gt;</em>
-<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">     *  &lt;group level="1" cache-level="0"&gt;</em>
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">     *   &lt;cpu count="24" mask="ffffff"&gt;0, 1, 2, ..., 23&lt;/cpu&gt;</em>
-<a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_javadoccomment">     *   &lt;children&gt;</em>
-<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">     *    &lt;group level="2" cache-level="2"&gt;</em>
-<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">     *     &lt;cpu count="12" mask="fff"&gt;0, 1, ..., 11&lt;/cpu&gt;</em>
-<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">     *     &lt;children&gt;</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">     *      &lt;group level="3" cache-level="1"&gt;</em>
-<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     *       &lt;cpu count="2" mask="3"&gt;0, 1&lt;/cpu&gt;</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">     *       &lt;flags&gt;&lt;flag name="THREAD"&gt;THREAD group&lt;/flag&gt;&lt;flag name="SMT"&gt;SMT group&lt;/flag&gt;&lt;/flags&gt;</em>
-<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">     *      &lt;/group&gt;</em>
-<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">     * }&lt;/pre&gt;</em>
-<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     * @param spec the value of {@code kern.sched.topology_spec}</em>
-<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     * @return the logical processors, in CPU order</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>     <strong class="jxr_keyword">static</strong> List&lt;LogicalProcessor&gt; parseTopologySpec(String spec) {
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>         List&lt;TopologyGroup&gt; groups = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>         Deque&lt;TopologyGroup&gt; open = <strong class="jxr_keyword">new</strong> ArrayDeque&lt;&gt;();
-<a class="jxr_linenumber" name="L431" href="#L431">431</a>         <strong class="jxr_keyword">for</strong> (String line : spec.split(<span class="jxr_string">"[&#92;&#92;n&#92;&#92;r]"</span>, -1)) {
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;group level="</span>)) {
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>                 TopologyGroup group = <strong class="jxr_keyword">new</strong> TopologyGroup(open.size() + 1);
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>                 groups.add(group);
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>                 open.push(group);
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;/group&gt;"</span>)) {
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>                 open.poll();
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!open.isEmpty()) {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>                 TopologyGroup group = open.element();
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;cpu"</span>)) {
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>                     group.cpus.addAll(parseCpuList(line));
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;flag name=\&quot;THREAD\&quot;"</span>) || line.contains(<span class="jxr_string">"&lt;flag name=\&quot;SMT\&quot;"</span>)
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>                         || line.contains(<span class="jxr_string">"&lt;flag name=\&quot;HTT\&quot;"</span>)) {
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>                     <em class="jxr_comment">// The kernel prints THREAD alongside either of the others, but any of them marks a core</em>
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>                     group.thread = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>                 }
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             }
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>         }
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         <strong class="jxr_keyword">if</strong> (groups.isEmpty()) {
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <em class="jxr_comment">// The lookbehind stops find() from retrying inside a name, so the scan stays linear</em>
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DMESG_NAME = <span class="jxr_string">"(?&lt;!&#92;&#92;w)(&#92;&#92;w++)&#92;&#92;s*+=&#92;&#92;s*+"</span>;
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String DMESG_VALUE = <span class="jxr_string">"(\&quot;[^\&quot;]*+\&quot;|&#92;&#92;S++)"</span>;
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern DMESG_FIELD = Pattern.compile(DMESG_NAME + DMESG_VALUE); <em class="jxr_comment">// NOSONAR java:S8786 - linear</em>
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>  
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern CPUMASK = Pattern.compile(<span class="jxr_string">"mask=\&quot;([&#92;&#92;p{XDigit},]+)\&quot;"</span>);
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>  
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <em class="jxr_comment">// FreeBSD CPU state indices into the kern.cp_time / kern.cp_times uint64 arrays</em>
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_USER = 0;
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_NICE = 1;
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_SYS = 2;
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_INTR = 3;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CP_IDLE = 4;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> CPUSTATES = 5;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>  <em class="jxr_javadoccomment">     * Reads a string sysctl value.</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  <em class="jxr_javadoccomment">     * @param def  the default value</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>  <em class="jxr_javadoccomment">     * @return the sysctl string value or the default</em>
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> String sysctlString(String name, String def);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>  
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  <em class="jxr_javadoccomment">     * Reads a long sysctl value.</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>  <em class="jxr_javadoccomment">     * @param def  the default value</em>
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  <em class="jxr_javadoccomment">     * @return the sysctl long value or the default</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> sysctlLong(String name, <strong class="jxr_keyword">long</strong> def);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * Reads an int sysctl value.</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  <em class="jxr_javadoccomment">     * @param def  the default value</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>  <em class="jxr_javadoccomment">     * @return the sysctl int value or the default</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> sysctlInt(String name, <strong class="jxr_keyword">int</strong> def);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>  
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>  <em class="jxr_javadoccomment">     * Reads a sysctl whose value is an array of {@code uint64} values, e.g. {@code kern.cp_time} (per-system) or</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * {@code kern.cp_times} (per-CPU).</em>
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  <em class="jxr_javadoccomment">     * @param name the sysctl name</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     * @return the values as a {@code long[]}, or {@code null} if the query failed</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> @Nullable [] queryCpTimes(String name);
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>  
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * Native {@code getloadavg(3)} call, filling {@code loadavg} with up to {@code nelem} samples.</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * @param loadavg the array to populate</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * @param nelem   the number of elements requested</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * @return the number of samples retrieved</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">int</strong> getloadavgNative(<strong class="jxr_keyword">double</strong>[] loadavg, <strong class="jxr_keyword">int</strong> nelem);
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> <em class="jxr_javadoccomment">     * Maps the five FreeBSD CPU-state values starting at {@code offset} in {@code cpTimeArray} to the corresponding</em>
+<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * {@link TickType} slots of {@code ticks}.</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * @param ticks       the destination tick array</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     * @param cpTimeArray the source uint64 values</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     * @param offset      the starting index of this CPU's states within {@code cpTimeArray}</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> fillTicks(<strong class="jxr_keyword">long</strong>[] ticks, <strong class="jxr_keyword">long</strong>[] cpTimeArray, <strong class="jxr_keyword">int</strong> offset) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         ticks[TickType.USER.getIndex()] = cpTimeArray[offset + CP_USER];
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         ticks[TickType.NICE.getIndex()] = cpTimeArray[offset + CP_NICE];
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         ticks[TickType.SYSTEM.getIndex()] = cpTimeArray[offset + CP_SYS];
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         ticks[TickType.IRQ.getIndex()] = cpTimeArray[offset + CP_INTR];
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         ticks[TickType.IDLE.getIndex()] = cpTimeArray[offset + CP_IDLE];
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     }
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> 
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>     @Override
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] querySystemCpuLoadTicks() {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">long</strong>[] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[TickType.values().length];
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         <strong class="jxr_keyword">long</strong>[] cpTime = queryCpTimes(<span class="jxr_string">"kern.cp_time"</span>);
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         <strong class="jxr_keyword">if</strong> (cpTime == <strong class="jxr_keyword">null</strong> || cpTime.length &lt; CPUSTATES) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         }
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         fillTicks(ticks, cpTime, 0);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     }
+<a class="jxr_linenumber" name="L126" href="#L126">126</a> 
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     @Override
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[][] queryProcessorCpuLoadTicks() {
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         <strong class="jxr_keyword">return</strong> parseProcessorTicks(queryCpTimes(<span class="jxr_string">"kern.cp_times"</span>), getLogicalProcessorCount(), CPUSTATES);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * Reads per-CPU ticks from DragonFly BSD's {@code kern.cputime}, an array of one {@code struct kinfo_cputime} per</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * CPU. The struct begins with the five CPU-state values and is followed by fields whose count may vary by release,</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     * so the per-CPU stride is derived from the array length.</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> <em class="jxr_javadoccomment">     * @return per-CPU ticks, zero-filled if the sysctl is unavailable or too short</em>
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong>[][] queryKinfoCputimeTicks() {
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         <strong class="jxr_keyword">int</strong> cpus = getLogicalProcessorCount();
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <strong class="jxr_keyword">long</strong>[] cpTimes = queryCpTimes(<span class="jxr_string">"kern.cputime"</span>);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         <strong class="jxr_keyword">return</strong> parseProcessorTicks(cpTimes, cpus, cpTimes == <strong class="jxr_keyword">null</strong> ? 0 : cpTimes.length / cpus);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     }
+<a class="jxr_linenumber" name="L144" href="#L144">144</a> 
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L146" href="#L146">146</a> <em class="jxr_javadoccomment">     * Maps an array of per-CPU records, each beginning with the five CPU-state values, to per-CPU tick arrays.</em>
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> <em class="jxr_javadoccomment">     * @param cpTimes the uint64 values read from the sysctl, or {@code null} if the read failed</em>
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> <em class="jxr_javadoccomment">     * @param cpus    the number of logical processors</em>
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> <em class="jxr_javadoccomment">     * @param stride  the number of values in each CPU's record</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * @return per-CPU ticks; CPUs without a complete record in {@code cpTimes} are zero-filled</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[][] parseProcessorTicks(<strong class="jxr_keyword">long</strong> @Nullable [] cpTimes, <strong class="jxr_keyword">int</strong> cpus, <strong class="jxr_keyword">int</strong> stride) {
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <strong class="jxr_keyword">long</strong>[][] ticks = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[cpus][TickType.values().length];
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         <strong class="jxr_keyword">if</strong> (cpTimes == <strong class="jxr_keyword">null</strong> || stride &lt; CPUSTATES) {
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>             <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         }
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         <strong class="jxr_keyword">int</strong> records = Math.min(cpus, cpTimes.length / stride);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu = 0; cpu &lt; records; cpu++) {
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>             fillTicks(ticks[cpu], cpTimes, cpu * stride);
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>         }
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <strong class="jxr_keyword">return</strong> ticks;
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>     }
+<a class="jxr_linenumber" name="L164" href="#L164">164</a> 
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>     @Override
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">double</strong>[] getSystemLoadAverage(<strong class="jxr_keyword">int</strong> nelem) {
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>         <strong class="jxr_keyword">if</strong> (nelem &lt; 1 || nelem &gt; 3) {
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>             <strong class="jxr_keyword">throw</strong> <strong class="jxr_keyword">new</strong> IllegalArgumentException(<span class="jxr_string">"Must include from one to three elements."</span>);
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>         }
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <strong class="jxr_keyword">double</strong>[] average = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[nelem];
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         <strong class="jxr_keyword">int</strong> retval = getloadavgNative(average, nelem);
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>         <strong class="jxr_keyword">if</strong> (retval &lt; nelem) {
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>             <em class="jxr_comment">// All-or-nothing: a partial result is more likely a misread than a real load average</em>
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>             Arrays.fill(average, -1d);
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>         }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>         <strong class="jxr_keyword">return</strong> average;
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     }
+<a class="jxr_linenumber" name="L178" href="#L178">178</a> 
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>     @Override
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryContextSwitches() {
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         <strong class="jxr_keyword">return</strong> sysctlLong(<span class="jxr_string">"vm.stats.sys.v_swtch"</span>, 0L);
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>     }
+<a class="jxr_linenumber" name="L183" href="#L183">183</a> 
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>     @Override
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryInterrupts() {
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>         <strong class="jxr_keyword">return</strong> sysctlLong(<span class="jxr_string">"vm.stats.sys.v_intr"</span>, 0L);
+<a class="jxr_linenumber" name="L187" href="#L187">187</a>     }
+<a class="jxr_linenumber" name="L188" href="#L188">188</a> 
+<a class="jxr_linenumber" name="L189" href="#L189">189</a>     @Override
+<a class="jxr_linenumber" name="L190" href="#L190">190</a>     <strong class="jxr_keyword">protected</strong> ProcessorIdentifier queryProcessorId() {
+<a class="jxr_linenumber" name="L191" href="#L191">191</a>         <em class="jxr_comment">// Parsing dmesg.boot is apparently the only reliable source for processor identification in FreeBSD. Read</em>
+<a class="jxr_linenumber" name="L192" href="#L192">192</a>         <em class="jxr_comment">// quietly (reportError=false): its absence is tolerated (we fall back to sysctl), and warning on every</em>
+<a class="jxr_linenumber" name="L193" href="#L193">193</a>         <em class="jxr_comment">// CentralProcessor construction would spam callers that recreate one.</em>
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         DmesgProcessorId id = parseProcessorIdFromDmesg(FileUtil.readFile(<span class="jxr_string">"/var/run/dmesg.boot"</span>, false),
+<a class="jxr_linenumber" name="L195" href="#L195">195</a>                 sysctlString(<span class="jxr_string">"hw.model"</span>, <span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L196" href="#L196">196</a>         <strong class="jxr_keyword">long</strong> cpuFreq = sysctlLong(<span class="jxr_string">"hw.clockrate"</span>, 0L) * 1_000_000L;
+<a class="jxr_linenumber" name="L197" href="#L197">197</a>         <strong class="jxr_keyword">boolean</strong> cpu64bit = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"uname -m"</span>).trim().contains(<span class="jxr_string">"64"</span>);
+<a class="jxr_linenumber" name="L198" href="#L198">198</a>         String processorID = getProcessorIDfromDmiDecode(id.processorIdBits());
+<a class="jxr_linenumber" name="L199" href="#L199">199</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ProcessorIdentifier(id.vendor(), id.name(), id.family(), id.model(), id.stepping(), processorID,
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>                 cpu64bit, cpuFreq);
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     }
+<a class="jxr_linenumber" name="L202" href="#L202">202</a> 
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>     <em class="jxr_javadoccomment">/** Immutable holder for the identifier fields parsed from {@code dmesg.boot}. Package-private for testing. */</em>
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> DmesgProcessorId {
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String vendor;
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String name;
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String family;
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String model;
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String stepping;
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong> processorIdBits;
+<a class="jxr_linenumber" name="L211" href="#L211">211</a> 
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         DmesgProcessorId(String vendor, String name, String family, String model, String stepping,
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>                 <strong class="jxr_keyword">long</strong> processorIdBits) {
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>             <strong class="jxr_keyword">this</strong>.vendor = vendor;
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>             <strong class="jxr_keyword">this</strong>.name = name;
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             <strong class="jxr_keyword">this</strong>.family = family;
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">this</strong>.model = model;
+<a class="jxr_linenumber" name="L218" href="#L218">218</a>             <strong class="jxr_keyword">this</strong>.stepping = stepping;
+<a class="jxr_linenumber" name="L219" href="#L219">219</a>             <strong class="jxr_keyword">this</strong>.processorIdBits = processorIdBits;
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>         }
+<a class="jxr_linenumber" name="L221" href="#L221">221</a> 
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         String vendor() {
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>             <strong class="jxr_keyword">return</strong> vendor;
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         }
+<a class="jxr_linenumber" name="L225" href="#L225">225</a> 
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         String name() {
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>             <strong class="jxr_keyword">return</strong> name;
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         }
+<a class="jxr_linenumber" name="L229" href="#L229">229</a> 
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         String family() {
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>             <strong class="jxr_keyword">return</strong> family;
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         }
+<a class="jxr_linenumber" name="L233" href="#L233">233</a> 
+<a class="jxr_linenumber" name="L234" href="#L234">234</a>         String model() {
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>             <strong class="jxr_keyword">return</strong> model;
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>         }
+<a class="jxr_linenumber" name="L237" href="#L237">237</a> 
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         String stepping() {
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>             <strong class="jxr_keyword">return</strong> stepping;
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>         }
+<a class="jxr_linenumber" name="L241" href="#L241">241</a> 
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         <strong class="jxr_keyword">long</strong> processorIdBits() {
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>             <strong class="jxr_keyword">return</strong> processorIdBits;
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         }
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     }
+<a class="jxr_linenumber" name="L246" href="#L246">246</a> 
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a> <em class="jxr_javadoccomment">     * Parses the processor identifier fields from {@code dmesg.boot}. Uses {@code initialName} (from</em>
+<a class="jxr_linenumber" name="L249" href="#L249">249</a> <em class="jxr_javadoccomment">     * {@code sysctl hw.model}) unless the file supplies a {@code CPU:} line and the initial name is empty.</em>
+<a class="jxr_linenumber" name="L250" href="#L250">250</a> <em class="jxr_javadoccomment">     * Package-private for testing.</em>
+<a class="jxr_linenumber" name="L251" href="#L251">251</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L252" href="#L252">252</a> <em class="jxr_javadoccomment">     * FreeBSD writes {@code Origin="GenuineIntel"  Id=0x306f2  Family=0x6  Model=0x3f  Stepping=2}. DragonFly BSD puts</em>
+<a class="jxr_linenumber" name="L253" href="#L253">253</a> <em class="jxr_javadoccomment">     * spaces around each {@code =} and omits the family and model, which are then decoded from the {@code Id}.</em>
+<a class="jxr_linenumber" name="L254" href="#L254">254</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L255" href="#L255">255</a> <em class="jxr_javadoccomment">     * @param dmesg       the lines of {@code dmesg.boot}</em>
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> <em class="jxr_javadoccomment">     * @param initialName the CPU name from {@code sysctl hw.model}</em>
+<a class="jxr_linenumber" name="L257" href="#L257">257</a> <em class="jxr_javadoccomment">     * @return the parsed identifier fields</em>
+<a class="jxr_linenumber" name="L258" href="#L258">258</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>     <strong class="jxr_keyword">static</strong> DmesgProcessorId parseProcessorIdFromDmesg(List&lt;String&gt; dmesg, String initialName) {
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         <strong class="jxr_keyword">final</strong> Pattern featuresPattern = Pattern.compile(<span class="jxr_string">"Features=(&#92;&#92;S+)&lt;.*"</span>);
+<a class="jxr_linenumber" name="L261" href="#L261">261</a> 
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         String cpuVendor = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         String cpuName = initialName;
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         String cpuFamily = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         String cpuModel = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         String cpuStepping = <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         <strong class="jxr_keyword">long</strong> processorIdBits = 0L;
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         <strong class="jxr_keyword">for</strong> (String line : dmesg) {
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>             line = line.trim();
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>             <em class="jxr_comment">// Prefer hw.model to this one</em>
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>             <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"CPU:"</span>) &amp;&amp; cpuName.isEmpty()) {
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 cpuName = line.replace(<span class="jxr_string">"CPU:"</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (ORIGIN.matcher(line).matches()) {
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 Map&lt;String, String&gt; fields = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 Matcher m = DMESG_FIELD.matcher(line);
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 <strong class="jxr_keyword">while</strong> (m.find()) {
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                     fields.put(m.group(1), m.group(2));
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 }
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 cpuVendor = ParseUtil.getStringBetween(fields.getOrDefault(<span class="jxr_string">"Origin"</span>, <span class="jxr_string">""</span>), '&quot;');
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 <strong class="jxr_keyword">int</strong> id = ParseUtil.decodeIntOrDefault(fields.getOrDefault(<span class="jxr_string">"Id"</span>, <span class="jxr_string">""</span>), 0);
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                 processorIdBits |= ParseUtil.unsignedIntToLong(id);
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 Triplet&lt;Integer, Integer, Integer&gt; fms = cpuidToFamilyModelStepping(id);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 cpuFamily = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get(<span class="jxr_string">"Family"</span>), fms.getA()));
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 cpuModel = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get(<span class="jxr_string">"Model"</span>), fms.getB()));
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 cpuStepping = String.valueOf(ParseUtil.decodeIntOrDefault(fields.get(<span class="jxr_string">"Stepping"</span>), fms.getC()));
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.startsWith(<span class="jxr_string">"Features="</span>)) {
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 Matcher m = featuresPattern.matcher(line);
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 <strong class="jxr_keyword">if</strong> (m.matches()) {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                     processorIdBits |= ParseUtil.decodeLongOrDefault(m.group(1), 0L) &lt;&lt; 32;
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                 }
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                 <em class="jxr_comment">// No further interest in this file</em>
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 <strong class="jxr_keyword">break</strong>;
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>             }
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         }
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> DmesgProcessorId(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorIdBits);
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>     }
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> 
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>     @Override
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>     <strong class="jxr_keyword">protected</strong> Quartet&lt;List&lt;LogicalProcessor&gt;, @Nullable List&lt;PhysicalProcessor&gt;, @Nullable List&lt;ProcessorCache&gt;, List&lt;String&gt;&gt; initProcessorCounts() {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         List&lt;LogicalProcessor&gt; logProcs = parseTopology();
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <em class="jxr_comment">// Force at least one processor</em>
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">if</strong> (logProcs.isEmpty()) {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(0, 0, 0));
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         Pair&lt;Map&lt;Integer, String&gt;, List&lt;String&gt;&gt; modelsAndFlags = parseProcModelsAndFlags(
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>                 FileUtil.readFile(<span class="jxr_string">"/var/run/dmesg.boot"</span>, false));
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         Map&lt;Integer, String&gt; dmesg = modelsAndFlags.getA();
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>         List&lt;String&gt; featureFlags = modelsAndFlags.getB();
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         List&lt;PhysicalProcessor&gt; physProcs = dmesg.isEmpty() ? <strong class="jxr_keyword">null</strong> : createProcListFromDmesg(logProcs, dmesg);
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         List&lt;ProcessorCache&gt; caches = getCacheInfoFromLscpu();
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Quartet&lt;&gt;(logProcs, physProcs, caches, featureFlags);
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>     }
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> 
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> <em class="jxr_javadoccomment">     * Parses the per-core processor model strings and feature flags from {@code dmesg.boot}. Package-private for</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> <em class="jxr_javadoccomment">     * testing.</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a> <em class="jxr_javadoccomment">     * @param dmesg the lines of {@code dmesg.boot}</em>
+<a class="jxr_linenumber" name="L319" href="#L319">319</a> <em class="jxr_javadoccomment">     * @return a pair of (core id to model-string map, feature-flag lines)</em>
+<a class="jxr_linenumber" name="L320" href="#L320">320</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>     <strong class="jxr_keyword">static</strong> Pair&lt;Map&lt;Integer, String&gt;, List&lt;String&gt;&gt; parseProcModelsAndFlags(List&lt;String&gt; dmesg) {
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         Map&lt;Integer, String&gt; models = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <em class="jxr_comment">// cpu0: &lt;Open Firmware CPU&gt; on cpulist0</em>
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         Pattern normal = Pattern.compile(<span class="jxr_string">"cpu(&#92;&#92;d+): (.+) on .*"</span>);
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>         <em class="jxr_comment">// CPU 0: ARM Cortex-A53 r0p4 affinity: 0 0</em>
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         Pattern hybrid = Pattern.compile(<span class="jxr_string">"CPU&#92;&#92;s*(&#92;&#92;d+): (.+) affinity:.*"</span>);
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         List&lt;String&gt; featureFlags = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <strong class="jxr_keyword">boolean</strong> readingFlags = false;
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <strong class="jxr_keyword">for</strong> (String s : dmesg) {
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>             Matcher h = hybrid.matcher(s);
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             <strong class="jxr_keyword">if</strong> (h.matches()) {
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 <strong class="jxr_keyword">int</strong> coreId = ParseUtil.parseIntOrDefault(h.group(1), 0);
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 <em class="jxr_comment">// This always takes priority, overwrite if needed</em>
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 models.put(coreId, h.group(2).trim());
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 Matcher n = normal.matcher(s);
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 <strong class="jxr_keyword">if</strong> (n.matches()) {
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                     <strong class="jxr_keyword">int</strong> coreId = ParseUtil.parseIntOrDefault(n.group(1), 0);
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                     <em class="jxr_comment">// Don't overwrite if h matched earlier</em>
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>                     models.putIfAbsent(coreId, n.group(2).trim());
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>                 }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>             }
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>             <strong class="jxr_keyword">if</strong> (ORIGIN.matcher(s.trim()).matches()) {
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>                 readingFlags = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (readingFlags) {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 <strong class="jxr_keyword">if</strong> (s.startsWith(<span class="jxr_string">"  "</span>)) {
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                     featureFlags.add(s.trim());
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>                     readingFlags = false;
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>                 }
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>             }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>         }
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(models, featureFlags);
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>     }
+<a class="jxr_linenumber" name="L355" href="#L355">355</a> 
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>     <strong class="jxr_keyword">private</strong> List&lt;ProcessorCache&gt; getCacheInfoFromLscpu() {
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         <strong class="jxr_keyword">return</strong> parseCachesFromLscpu(ExecutingCommand.runNative(<span class="jxr_string">"lscpu"</span>));
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>     }
+<a class="jxr_linenumber" name="L359" href="#L359">359</a> 
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> <em class="jxr_javadoccomment">     * Parses the CPU cache descriptions from {@code lscpu} output. Package-private for testing.</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L363" href="#L363">363</a> <em class="jxr_javadoccomment">     * @param lscpu the lines of {@code lscpu} output</em>
+<a class="jxr_linenumber" name="L364" href="#L364">364</a> <em class="jxr_javadoccomment">     * @return the ordered list of processor caches</em>
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     <strong class="jxr_keyword">static</strong> List&lt;ProcessorCache&gt; parseCachesFromLscpu(List&lt;String&gt; lscpu) {
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>         Set&lt;ProcessorCache&gt; caches = <strong class="jxr_keyword">new</strong> HashSet&lt;&gt;();
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <strong class="jxr_keyword">for</strong> (String checkLine : lscpu) {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>             <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L1d cache:"</span>)) {
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(1, 0, 0,
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>                         ProcessorCache.Type.DATA));
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L1i cache:"</span>)) {
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(1, 0, 0,
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                         ProcessorCache.Type.INSTRUCTION));
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L2 cache:"</span>)) {
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(2, 0, 0,
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>                         ProcessorCache.Type.UNIFIED));
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (checkLine.contains(<span class="jxr_string">"L3 cache:"</span>)) {
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>                 caches.add(<strong class="jxr_keyword">new</strong> ProcessorCache(3, 0, 0,
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>                         ParseUtil.parseDecimalMemorySizeToBinary(checkLine.split(<span class="jxr_string">":"</span>, -1)[1].trim()),
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>                         ProcessorCache.Type.UNIFIED));
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>             }
+<a class="jxr_linenumber" name="L386" href="#L386">386</a>         }
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">return</strong> orderedProcCaches(caches);
+<a class="jxr_linenumber" name="L388" href="#L388">388</a>     }
+<a class="jxr_linenumber" name="L389" href="#L389">389</a> 
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>     <strong class="jxr_keyword">private</strong> List&lt;LogicalProcessor&gt; parseTopology() {
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         String spec = sysctlString(<span class="jxr_string">"kern.sched.topology_spec"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">if</strong> (spec.isEmpty()) {
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <em class="jxr_comment">// DragonFly BSD has no topology_spec, and publishes each CPU's place under hw.cpu_topology instead</em>
+<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">int</strong> ncpu = sysctlInt(<span class="jxr_string">"hw.ncpu"</span>, 0);
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>             <strong class="jxr_keyword">int</strong>[] physicalIds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[ncpu];
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>             <strong class="jxr_keyword">int</strong>[] coreIds = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">int</strong>[ncpu];
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>             <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; ncpu; i++) {
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>                 physicalIds[i] = sysctlInt(<span class="jxr_string">"hw.cpu_topology.cpu"</span> + i + <span class="jxr_string">".physical_id"</span>, 0);
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 coreIds[i] = sysctlInt(<span class="jxr_string">"hw.cpu_topology.cpu"</span> + i + <span class="jxr_string">".core_id"</span>, -1);
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>             }
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>             <strong class="jxr_keyword">return</strong> buildTopologyFromIds(physicalIds, coreIds);
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         }
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">return</strong> parseTopologySpec(spec);
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>     }
+<a class="jxr_linenumber" name="L405" href="#L405">405</a> 
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L407" href="#L407">407</a> <em class="jxr_javadoccomment">     * Builds the logical processors from {@code kern.sched.topology_spec}. Package-private for testing.</em>
+<a class="jxr_linenumber" name="L408" href="#L408">408</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L409" href="#L409">409</a> <em class="jxr_javadoccomment">     * The spec nests groups of CPUs that share a cache. A group flagged {@code THREAD}, {@code SMT} or {@code HTT}</em>
+<a class="jxr_linenumber" name="L410" href="#L410">410</a> <em class="jxr_javadoccomment">     * holds the hardware threads of one core, and a CPU in no such group is a core of its own; virtual machines often</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a> <em class="jxr_javadoccomment">     * publish a single flat group, so every CPU is its own core. The groups at level 2 that are not thread groups are</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a> <em class="jxr_javadoccomment">     * taken as packages.</em>
+<a class="jxr_linenumber" name="L413" href="#L413">413</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L414" href="#L414">414</a> <em class="jxr_javadoccomment">     * &lt;pre&gt;{@code</em>
+<a class="jxr_linenumber" name="L415" href="#L415">415</a> <em class="jxr_javadoccomment">     * &lt;groups&gt;</em>
+<a class="jxr_linenumber" name="L416" href="#L416">416</a> <em class="jxr_javadoccomment">     *  &lt;group level="1" cache-level="0"&gt;</em>
+<a class="jxr_linenumber" name="L417" href="#L417">417</a> <em class="jxr_javadoccomment">     *   &lt;cpu count="24" mask="ffffff"&gt;0, 1, 2, ..., 23&lt;/cpu&gt;</em>
+<a class="jxr_linenumber" name="L418" href="#L418">418</a> <em class="jxr_javadoccomment">     *   &lt;children&gt;</em>
+<a class="jxr_linenumber" name="L419" href="#L419">419</a> <em class="jxr_javadoccomment">     *    &lt;group level="2" cache-level="2"&gt;</em>
+<a class="jxr_linenumber" name="L420" href="#L420">420</a> <em class="jxr_javadoccomment">     *     &lt;cpu count="12" mask="fff"&gt;0, 1, ..., 11&lt;/cpu&gt;</em>
+<a class="jxr_linenumber" name="L421" href="#L421">421</a> <em class="jxr_javadoccomment">     *     &lt;children&gt;</em>
+<a class="jxr_linenumber" name="L422" href="#L422">422</a> <em class="jxr_javadoccomment">     *      &lt;group level="3" cache-level="1"&gt;</em>
+<a class="jxr_linenumber" name="L423" href="#L423">423</a> <em class="jxr_javadoccomment">     *       &lt;cpu count="2" mask="3"&gt;0, 1&lt;/cpu&gt;</em>
+<a class="jxr_linenumber" name="L424" href="#L424">424</a> <em class="jxr_javadoccomment">     *       &lt;flags&gt;&lt;flag name="THREAD"&gt;THREAD group&lt;/flag&gt;&lt;flag name="SMT"&gt;SMT group&lt;/flag&gt;&lt;/flags&gt;</em>
+<a class="jxr_linenumber" name="L425" href="#L425">425</a> <em class="jxr_javadoccomment">     *      &lt;/group&gt;</em>
+<a class="jxr_linenumber" name="L426" href="#L426">426</a> <em class="jxr_javadoccomment">     * }&lt;/pre&gt;</em>
+<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     * @param spec the value of {@code kern.sched.topology_spec}</em>
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     * @return the logical processors, in CPU order</em>
+<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>     <strong class="jxr_keyword">static</strong> List&lt;LogicalProcessor&gt; parseTopologySpec(String spec) {
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         List&lt;TopologyGroup&gt; groups = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         Deque&lt;TopologyGroup&gt; open = <strong class="jxr_keyword">new</strong> ArrayDeque&lt;&gt;();
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">for</strong> (String line : spec.split(<span class="jxr_string">"[&#92;&#92;n&#92;&#92;r]"</span>, -1)) {
+<a class="jxr_linenumber" name="L435" href="#L435">435</a>             <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;group level="</span>)) {
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>                 TopologyGroup group = <strong class="jxr_keyword">new</strong> TopologyGroup(open.size() + 1);
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>                 groups.add(group);
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>                 open.push(group);
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;/group&gt;"</span>)) {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>                 open.poll();
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (!open.isEmpty()) {
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>                 TopologyGroup group = open.element();
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>                 <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;cpu"</span>)) {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                     group.cpus.addAll(parseCpuList(line));
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>                 } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (line.contains(<span class="jxr_string">"&lt;flag name=\&quot;THREAD\&quot;"</span>) || line.contains(<span class="jxr_string">"&lt;flag name=\&quot;SMT\&quot;"</span>)
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>                         || line.contains(<span class="jxr_string">"&lt;flag name=\&quot;HTT\&quot;"</span>)) {
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>                     <em class="jxr_comment">// The kernel prints THREAD alongside either of the others, but any of them marks a core</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a>                     group.thread = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>                 }
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>             }
 <a class="jxr_linenumber" name="L451" href="#L451">451</a>         }
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <em class="jxr_comment">// The CPUs of each core, keyed by the core's lowest CPU, and each CPU's package</em>
-<a class="jxr_linenumber" name="L453" href="#L453">453</a>         Map&lt;Integer, Integer&gt; coreOf = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>         Map&lt;Integer, Integer&gt; packageOf = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <strong class="jxr_keyword">int</strong> packageNumber = 0;
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         <strong class="jxr_keyword">for</strong> (TopologyGroup group : groups) {
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>             <strong class="jxr_keyword">if</strong> (group.thread &amp;&amp; !group.cpus.isEmpty()) {
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>                 <strong class="jxr_keyword">int</strong> first = Collections.min(group.cpus);
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu : group.cpus) {
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>                     coreOf.put(cpu, first);
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>                 }
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (group.level == 2) {
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu : group.cpus) {
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>                     packageOf.put(cpu, packageNumber);
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>                 }
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>                 packageNumber++;
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>             }
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         }
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>         List&lt;LogicalProcessor&gt; logProcs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         Map&lt;Integer, Integer&gt; coreNumbers = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu : <strong class="jxr_keyword">new</strong> TreeSet&lt;&gt;(groups.get(0).cpus)) {
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>             <strong class="jxr_keyword">int</strong> core = coreNumbers.computeIfAbsent(coreOf.getOrDefault(cpu, cpu), k -&gt; coreNumbers.size());
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>             logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(cpu, core, packageOf.getOrDefault(cpu, 0), 0));
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>         }
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">return</strong> logProcs;
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>     }
-<a class="jxr_linenumber" name="L477" href="#L477">477</a> 
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> <em class="jxr_javadoccomment">     * Reads the CPU numbers of a {@code &lt;cpu&gt;} line, from the list it prints or, failing that, from its mask. The mask</em>
-<a class="jxr_linenumber" name="L480" href="#L480">480</a> <em class="jxr_javadoccomment">     * is a comma-separated list of 64-bit hex words, lowest CPUs first.</em>
-<a class="jxr_linenumber" name="L481" href="#L481">481</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;Integer&gt; parseCpuList(String line) {
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>         List&lt;Integer&gt; cpus = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <strong class="jxr_keyword">int</strong> open = line.indexOf('&gt;');
-<a class="jxr_linenumber" name="L485" href="#L485">485</a>         <strong class="jxr_keyword">int</strong> close = line.indexOf(<span class="jxr_string">"&lt;/cpu&gt;"</span>);
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <strong class="jxr_keyword">if</strong> (open &gt;= 0 &amp;&amp; close &gt; open) {
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>             <strong class="jxr_keyword">for</strong> (String cpu : line.substring(open + 1, close).split(<span class="jxr_string">","</span>, -1)) {
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>                 <strong class="jxr_keyword">int</strong> n = ParseUtil.parseIntOrDefault(cpu.trim(), -1);
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>                 <strong class="jxr_keyword">if</strong> (n &gt;= 0) {
-<a class="jxr_linenumber" name="L490" href="#L490">490</a>                     cpus.add(n);
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>                 }
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>             }
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>         }
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>         <strong class="jxr_keyword">if</strong> (cpus.isEmpty()) {
-<a class="jxr_linenumber" name="L495" href="#L495">495</a>             Matcher m = CPUMASK.matcher(line);
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>             <strong class="jxr_keyword">if</strong> (m.find()) {
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>                 String[] words = m.group(1).split(<span class="jxr_string">","</span>, -1);
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> w = 0; w &lt; words.length; w++) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>                     <strong class="jxr_keyword">long</strong> bits = ParseUtil.hexStringToLong(words[w], 0L);
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> b = 0; b &lt; Long.SIZE; b++) {
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>                         <strong class="jxr_keyword">if</strong> ((bits &amp; (1L &lt;&lt; b)) != 0) {
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>                             cpus.add(w * Long.SIZE + b);
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>                         }
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>                     }
-<a class="jxr_linenumber" name="L505" href="#L505">505</a>                 }
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>             }
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>         }
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>         <strong class="jxr_keyword">return</strong> cpus;
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>     }
-<a class="jxr_linenumber" name="L510" href="#L510">510</a> 
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>     <em class="jxr_javadoccomment">/** A group of CPUs in {@code kern.sched.topology_spec}. */</em>
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> TopologyGroup {
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> level;
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;Integer&gt; cpus = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> thread;
-<a class="jxr_linenumber" name="L516" href="#L516">516</a> 
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>         <strong class="jxr_keyword">private</strong> TopologyGroup(<strong class="jxr_keyword">int</strong> level) {
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>             <strong class="jxr_keyword">this</strong>.level = level;
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>         }
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>     }
-<a class="jxr_linenumber" name="L521" href="#L521">521</a> 
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L523" href="#L523">523</a> <em class="jxr_javadoccomment">     * Builds the logical processors from each CPU's package and core IDs, as DragonFly BSD publishes them in</em>
-<a class="jxr_linenumber" name="L524" href="#L524">524</a> <em class="jxr_javadoccomment">     * {@code hw.cpu_topology.cpu&lt;n&gt;.physical_id} and {@code core_id}. Package-private for testing.</em>
-<a class="jxr_linenumber" name="L525" href="#L525">525</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">     * A core ID is only unique within its package, so cores are numbered across the system in order of first</em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">     * appearance. DragonFly BSD omits {@code core_id} when each chip has one core, in which case every CPU is its own</em>
-<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">     * core.</em>
-<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     * @param physicalIds each CPU's package ID</em>
-<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     * @param coreIds     each CPU's core ID within its package, or -1 where it has none</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">     * @return the logical processors, in CPU order</em>
-<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>     <strong class="jxr_keyword">static</strong> List&lt;LogicalProcessor&gt; buildTopologyFromIds(<strong class="jxr_keyword">int</strong>[] physicalIds, <strong class="jxr_keyword">int</strong>[] coreIds) {
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>         List&lt;LogicalProcessor&gt; logProcs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>         Map&lt;String, Integer&gt; coreNumbers = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; physicalIds.length; i++) {
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>             String core = physicalIds[i] + <span class="jxr_string">":"</span> + (coreIds[i] &lt; 0 ? <span class="jxr_string">"cpu"</span> + i : coreIds[i]);
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>             Integer coreNumber = coreNumbers.computeIfAbsent(core, k -&gt; coreNumbers.size());
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>             logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(i, coreNumber, physicalIds[i], 0));
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>         }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>         <strong class="jxr_keyword">return</strong> logProcs;
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>     }
-<a class="jxr_linenumber" name="L544" href="#L544">544</a> 
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>     @Override
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] queryCurrentFreq() {
-<a class="jxr_linenumber" name="L547" href="#L547">547</a>         <strong class="jxr_keyword">long</strong>[] freq = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[1];
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>         freq[0] = sysctlLong(<span class="jxr_string">"dev.cpu.0.freq"</span>, -1L);
-<a class="jxr_linenumber" name="L549" href="#L549">549</a>         <strong class="jxr_keyword">if</strong> (freq[0] &gt; 0) {
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>             <em class="jxr_comment">// If success, value is in MHz</em>
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>             freq[0] *= 1_000_000L;
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>             freq[0] = sysctlLong(<span class="jxr_string">"machdep.tsc_freq"</span>, -1L);
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         }
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <strong class="jxr_keyword">return</strong> freq;
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>     }
-<a class="jxr_linenumber" name="L557" href="#L557">557</a> 
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     @Override
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">long</strong> max = -1L;
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>         String freqLevels = sysctlString(<span class="jxr_string">"dev.cpu.0.freq_levels"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>         <em class="jxr_comment">// MHz/Watts pairs like: 2501/32000 2187/27125 2000/24000</em>
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">for</strong> (String s : ParseUtil.whitespaces.split(freqLevels, -1)) {
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>             <strong class="jxr_keyword">long</strong> freq = ParseUtil.parseLongOrDefault(s.split(<span class="jxr_string">"/"</span>, -1)[0], -1L);
-<a class="jxr_linenumber" name="L565" href="#L565">565</a>             <strong class="jxr_keyword">if</strong> (max &lt; freq) {
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>                 max = freq;
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>             }
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>         }
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         <strong class="jxr_keyword">if</strong> (max &gt; 0) {
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>             <em class="jxr_comment">// If success, value is in MHz</em>
-<a class="jxr_linenumber" name="L571" href="#L571">571</a>             max *= 1_000_000;
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>             max = sysctlLong(<span class="jxr_string">"machdep.tsc_freq"</span>, -1L);
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>         }
-<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <strong class="jxr_keyword">return</strong> max;
-<a class="jxr_linenumber" name="L576" href="#L576">576</a>     }
-<a class="jxr_linenumber" name="L577" href="#L577">577</a> 
-<a class="jxr_linenumber" name="L578" href="#L578">578</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L579" href="#L579">579</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root permissions), otherwise uses the values from</em>
-<a class="jxr_linenumber" name="L580" href="#L580">580</a> <em class="jxr_javadoccomment">     * /var/run/dmesg.boot</em>
-<a class="jxr_linenumber" name="L581" href="#L581">581</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     * @param processorID The processorID as a long</em>
-<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     * @return The ProcessorID string</em>
-<a class="jxr_linenumber" name="L584" href="#L584">584</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L585" href="#L585">585</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String getProcessorIDfromDmiDecode(<strong class="jxr_keyword">long</strong> processorID) {
-<a class="jxr_linenumber" name="L586" href="#L586">586</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
-<a class="jxr_linenumber" name="L587" href="#L587">587</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
-<a class="jxr_linenumber" name="L588" href="#L588">588</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t processor"</span>)) {
-<a class="jxr_linenumber" name="L589" href="#L589">589</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L590" href="#L590">590</a>                 marker = <span class="jxr_string">"ID:"</span>;
-<a class="jxr_linenumber" name="L591" href="#L591">591</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L592" href="#L592">592</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
-<a class="jxr_linenumber" name="L593" href="#L593">593</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.getTextAfterString(checkLine, marker).trim();
-<a class="jxr_linenumber" name="L594" href="#L594">594</a>             }
-<a class="jxr_linenumber" name="L595" href="#L595">595</a>         }
-<a class="jxr_linenumber" name="L596" href="#L596">596</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Used the passed-in values</em>
-<a class="jxr_linenumber" name="L597" href="#L597">597</a>         <strong class="jxr_keyword">return</strong> String.format(Locale.ROOT, <span class="jxr_string">"%016X"</span>, processorID);
-<a class="jxr_linenumber" name="L598" href="#L598">598</a>     }
-<a class="jxr_linenumber" name="L599" href="#L599">599</a> }
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         <strong class="jxr_keyword">if</strong> (groups.isEmpty()) {
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         }
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>         <em class="jxr_comment">// The CPUs of each core, keyed by the core's lowest CPU, and each CPU's package</em>
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         Map&lt;Integer, Integer&gt; coreOf = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>         Map&lt;Integer, Integer&gt; packageOf = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <strong class="jxr_keyword">int</strong> packageNumber = 0;
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <strong class="jxr_keyword">for</strong> (TopologyGroup group : groups) {
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>             <strong class="jxr_keyword">if</strong> (group.thread &amp;&amp; !group.cpus.isEmpty()) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>                 <strong class="jxr_keyword">int</strong> first = Collections.min(group.cpus);
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu : group.cpus) {
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>                     coreOf.put(cpu, first);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>                 }
+<a class="jxr_linenumber" name="L465" href="#L465">465</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (group.level == 2) {
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu : group.cpus) {
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>                     packageOf.put(cpu, packageNumber);
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>                 }
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>                 packageNumber++;
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>             }
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         }
+<a class="jxr_linenumber" name="L472" href="#L472">472</a>         List&lt;LogicalProcessor&gt; logProcs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         Map&lt;Integer, Integer&gt; coreNumbers = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> cpu : <strong class="jxr_keyword">new</strong> TreeSet&lt;&gt;(groups.get(0).cpus)) {
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>             <strong class="jxr_keyword">int</strong> core = coreNumbers.computeIfAbsent(coreOf.getOrDefault(cpu, cpu), k -&gt; coreNumbers.size());
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>             logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(cpu, core, packageOf.getOrDefault(cpu, 0), 0));
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>         }
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <strong class="jxr_keyword">return</strong> logProcs;
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>     }
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L482" href="#L482">482</a> <em class="jxr_javadoccomment">     * Reads the CPU numbers of a {@code &lt;cpu&gt;} line, from the list it prints or, failing that, from its mask. The mask</em>
+<a class="jxr_linenumber" name="L483" href="#L483">483</a> <em class="jxr_javadoccomment">     * is a comma-separated list of 64-bit hex words, lowest CPUs first.</em>
+<a class="jxr_linenumber" name="L484" href="#L484">484</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> List&lt;Integer&gt; parseCpuList(String line) {
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         List&lt;Integer&gt; cpus = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         <strong class="jxr_keyword">int</strong> open = line.indexOf('&gt;');
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <strong class="jxr_keyword">int</strong> close = line.indexOf(<span class="jxr_string">"&lt;/cpu&gt;"</span>);
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         <strong class="jxr_keyword">if</strong> (open &gt;= 0 &amp;&amp; close &gt; open) {
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>             <strong class="jxr_keyword">for</strong> (String cpu : line.substring(open + 1, close).split(<span class="jxr_string">","</span>, -1)) {
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>                 <strong class="jxr_keyword">int</strong> n = ParseUtil.parseIntOrDefault(cpu.trim(), -1);
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>                 <strong class="jxr_keyword">if</strong> (n &gt;= 0) {
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>                     cpus.add(n);
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>                 }
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>             }
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         }
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         <strong class="jxr_keyword">if</strong> (cpus.isEmpty()) {
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>             Matcher m = CPUMASK.matcher(line);
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>             <strong class="jxr_keyword">if</strong> (m.find()) {
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>                 String[] words = m.group(1).split(<span class="jxr_string">","</span>, -1);
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>                 <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> w = 0; w &lt; words.length; w++) {
+<a class="jxr_linenumber" name="L502" href="#L502">502</a>                     <strong class="jxr_keyword">long</strong> bits = ParseUtil.hexStringToLong(words[w], 0L);
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>                     <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> b = 0; b &lt; Long.SIZE; b++) {
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>                         <strong class="jxr_keyword">if</strong> ((bits &amp; (1L &lt;&lt; b)) != 0) {
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>                             cpus.add(w * Long.SIZE + b);
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>                         }
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>                     }
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>                 }
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>             }
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>         }
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>         <strong class="jxr_keyword">return</strong> cpus;
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>     }
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> 
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>     <em class="jxr_javadoccomment">/** A group of CPUs in {@code kern.sched.topology_spec}. */</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> TopologyGroup {
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> level;
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> List&lt;Integer&gt; cpus = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> thread;
+<a class="jxr_linenumber" name="L519" href="#L519">519</a> 
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">private</strong> TopologyGroup(<strong class="jxr_keyword">int</strong> level) {
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>             <strong class="jxr_keyword">this</strong>.level = level;
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>         }
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>     }
+<a class="jxr_linenumber" name="L524" href="#L524">524</a> 
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L526" href="#L526">526</a> <em class="jxr_javadoccomment">     * Builds the logical processors from each CPU's package and core IDs, as DragonFly BSD publishes them in</em>
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> <em class="jxr_javadoccomment">     * {@code hw.cpu_topology.cpu&lt;n&gt;.physical_id} and {@code core_id}. Package-private for testing.</em>
+<a class="jxr_linenumber" name="L528" href="#L528">528</a> <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a> <em class="jxr_javadoccomment">     * A core ID is only unique within its package, so cores are numbered across the system in order of first</em>
+<a class="jxr_linenumber" name="L530" href="#L530">530</a> <em class="jxr_javadoccomment">     * appearance. DragonFly BSD omits {@code core_id} when each chip has one core, in which case every CPU is its own</em>
+<a class="jxr_linenumber" name="L531" href="#L531">531</a> <em class="jxr_javadoccomment">     * core.</em>
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L533" href="#L533">533</a> <em class="jxr_javadoccomment">     * @param physicalIds each CPU's package ID</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a> <em class="jxr_javadoccomment">     * @param coreIds     each CPU's core ID within its package, or -1 where it has none</em>
+<a class="jxr_linenumber" name="L535" href="#L535">535</a> <em class="jxr_javadoccomment">     * @return the logical processors, in CPU order</em>
+<a class="jxr_linenumber" name="L536" href="#L536">536</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>     <strong class="jxr_keyword">static</strong> List&lt;LogicalProcessor&gt; buildTopologyFromIds(<strong class="jxr_keyword">int</strong>[] physicalIds, <strong class="jxr_keyword">int</strong>[] coreIds) {
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>         List&lt;LogicalProcessor&gt; logProcs = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>         Map&lt;String, Integer&gt; coreNumbers = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; physicalIds.length; i++) {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             String core = physicalIds[i] + <span class="jxr_string">":"</span> + (coreIds[i] &lt; 0 ? <span class="jxr_string">"cpu"</span> + i : coreIds[i]);
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>             Integer coreNumber = coreNumbers.computeIfAbsent(core, k -&gt; coreNumbers.size());
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>             logProcs.add(<strong class="jxr_keyword">new</strong> LogicalProcessor(i, coreNumber, physicalIds[i], 0));
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>         }
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>         <strong class="jxr_keyword">return</strong> logProcs;
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>     }
+<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>     @Override
+<a class="jxr_linenumber" name="L549" href="#L549">549</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong>[] queryCurrentFreq() {
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>         <strong class="jxr_keyword">long</strong>[] freq = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[1];
+<a class="jxr_linenumber" name="L551" href="#L551">551</a>         freq[0] = sysctlLong(<span class="jxr_string">"dev.cpu.0.freq"</span>, -1L);
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">if</strong> (freq[0] &gt; 0) {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>             <em class="jxr_comment">// If success, value is in MHz</em>
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>             freq[0] *= 1_000_000L;
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>             freq[0] = sysctlLong(<span class="jxr_string">"machdep.tsc_freq"</span>, -1L);
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>         }
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>         <strong class="jxr_keyword">return</strong> freq;
+<a class="jxr_linenumber" name="L559" href="#L559">559</a>     }
+<a class="jxr_linenumber" name="L560" href="#L560">560</a> 
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>     @Override
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> queryMaxFreq() {
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">long</strong> max = -1L;
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         String freqLevels = sysctlString(<span class="jxr_string">"dev.cpu.0.freq_levels"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         <em class="jxr_comment">// MHz/Watts pairs like: 2501/32000 2187/27125 2000/24000</em>
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>         <strong class="jxr_keyword">for</strong> (String s : ParseUtil.whitespaces.split(freqLevels, -1)) {
+<a class="jxr_linenumber" name="L567" href="#L567">567</a>             <strong class="jxr_keyword">long</strong> freq = ParseUtil.parseLongOrDefault(s.split(<span class="jxr_string">"/"</span>, -1)[0], -1L);
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>             <strong class="jxr_keyword">if</strong> (max &lt; freq) {
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>                 max = freq;
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>             }
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>         }
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>         <strong class="jxr_keyword">if</strong> (max &gt; 0) {
+<a class="jxr_linenumber" name="L573" href="#L573">573</a>             <em class="jxr_comment">// If success, value is in MHz</em>
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>             max *= 1_000_000;
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>             max = sysctlLong(<span class="jxr_string">"machdep.tsc_freq"</span>, -1L);
+<a class="jxr_linenumber" name="L577" href="#L577">577</a>         }
+<a class="jxr_linenumber" name="L578" href="#L578">578</a>         <strong class="jxr_keyword">return</strong> max;
+<a class="jxr_linenumber" name="L579" href="#L579">579</a>     }
+<a class="jxr_linenumber" name="L580" href="#L580">580</a> 
+<a class="jxr_linenumber" name="L581" href="#L581">581</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L582" href="#L582">582</a> <em class="jxr_javadoccomment">     * Fetches the ProcessorID from dmidecode (if possible with root permissions), otherwise uses the values from</em>
+<a class="jxr_linenumber" name="L583" href="#L583">583</a> <em class="jxr_javadoccomment">     * /var/run/dmesg.boot</em>
+<a class="jxr_linenumber" name="L584" href="#L584">584</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L585" href="#L585">585</a> <em class="jxr_javadoccomment">     * @param processorID The processorID as a long</em>
+<a class="jxr_linenumber" name="L586" href="#L586">586</a> <em class="jxr_javadoccomment">     * @return The ProcessorID string</em>
+<a class="jxr_linenumber" name="L587" href="#L587">587</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L588" href="#L588">588</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> String getProcessorIDfromDmiDecode(<strong class="jxr_keyword">long</strong> processorID) {
+<a class="jxr_linenumber" name="L589" href="#L589">589</a>         <strong class="jxr_keyword">boolean</strong> procInfo = false;
+<a class="jxr_linenumber" name="L590" href="#L590">590</a>         String marker = <span class="jxr_string">"Processor Information"</span>;
+<a class="jxr_linenumber" name="L591" href="#L591">591</a>         <strong class="jxr_keyword">for</strong> (String checkLine : ExecutingCommand.runNative(<span class="jxr_string">"dmidecode -t processor"</span>)) {
+<a class="jxr_linenumber" name="L592" href="#L592">592</a>             <strong class="jxr_keyword">if</strong> (!procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L593" href="#L593">593</a>                 marker = <span class="jxr_string">"ID:"</span>;
+<a class="jxr_linenumber" name="L594" href="#L594">594</a>                 procInfo = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L595" href="#L595">595</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (procInfo &amp;&amp; checkLine.contains(marker)) {
+<a class="jxr_linenumber" name="L596" href="#L596">596</a>                 <strong class="jxr_keyword">return</strong> ParseUtil.getTextAfterString(checkLine, marker).trim();
+<a class="jxr_linenumber" name="L597" href="#L597">597</a>             }
+<a class="jxr_linenumber" name="L598" href="#L598">598</a>         }
+<a class="jxr_linenumber" name="L599" href="#L599">599</a>         <em class="jxr_comment">// If we've gotten this far, dmidecode failed. Used the passed-in values</em>
+<a class="jxr_linenumber" name="L600" href="#L600">600</a>         <strong class="jxr_keyword">return</strong> String.format(Locale.ROOT, <span class="jxr_string">"%016X"</span>, processorID);
+<a class="jxr_linenumber" name="L601" href="#L601">601</a>     }
+<a class="jxr_linenumber" name="L602" href="#L602">602</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

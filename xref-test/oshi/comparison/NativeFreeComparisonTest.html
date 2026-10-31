@@ -314,7 +314,7 @@
 <a class="jxr_linenumber" name="L306" href="#L306">306</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
 <a class="jxr_linenumber" name="L307" href="#L307">307</a>         }
 <a class="jxr_linenumber" name="L308" href="#L308">308</a>         <strong class="jxr_keyword">return</strong> jna.getVirtualSize() == 0 || nf.getVirtualSize() == 0 || jna.getPath().isEmpty()
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 || nf.getPath().isEmpty();
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>                 || nf.getPath().isEmpty() || jna.getCommandLine().isEmpty() || nf.getCommandLine().isEmpty();
 <a class="jxr_linenumber" name="L310" href="#L310">310</a>     }
 <a class="jxr_linenumber" name="L311" href="#L311">311</a> }
 </pre>

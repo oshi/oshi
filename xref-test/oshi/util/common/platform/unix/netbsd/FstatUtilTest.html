@@ -13,10 +13,10 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.common.platform.unix.netbsd;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.emptyString;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.greaterThanOrEqualTo;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.not;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.greaterThanOrEqualTo;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.notNullValue;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.startsWith;
 <a class="jxr_linenumber" name="L12" href="#L12">12</a>  
 <a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.lang.management.ManagementFactory;
 <a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
@@ -76,9 +76,16 @@
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">int</strong> pid = ParseUtil.parseIntOrDefault(ManagementFactory.getRuntimeMXBean().getName().split(<span class="jxr_string">"@"</span>, 2)[0], -1);
 <a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(<span class="jxr_string">"Number of open files must be nonnegative"</span>, FstatUtil.getOpenFiles(pid),
 <a class="jxr_linenumber" name="L70" href="#L70">70</a>                  is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          assertThat(<span class="jxr_string">"Cwd should not be empty"</span>, FstatUtil.getCwd(pid), is(not(emptyString())));
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>      }
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>  }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <em class="jxr_comment">// NetBSD builds the /proc/&lt;pid&gt;/cwd link through getcwd_common(), which resolves the vnode through the name</em>
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <em class="jxr_comment">// cache and fails when it holds no entry for the directory, so the link reads back empty. Tolerate that, but</em>
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <em class="jxr_comment">// when a path is returned it must be absolute.</em>
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          String cwd = FstatUtil.getCwd(pid);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(<span class="jxr_string">"getCwd must never return null"</span>, cwd, is(notNullValue()));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          <strong class="jxr_keyword">if</strong> (!cwd.isEmpty()) {
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              assertThat(<span class="jxr_string">"A resolved cwd should be an absolute path"</span>, cwd, startsWith(<span class="jxr_string">"/"</span>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

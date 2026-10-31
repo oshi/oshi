@@ -187,7 +187,7 @@
 <a class="jxr_linenumber" name="L179" href="#L179">179</a>         buff.putInt(45);
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         buff.putShort((<strong class="jxr_keyword">short</strong>) 67);
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>         buff.put((byte) 89);
-<a class="jxr_linenumber" name="L182" href="#L182">182</a>         byte[] arr = <strong class="jxr_keyword">new</strong> byte[] { 1, 2, 3 };
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         byte[] arr = { 1, 2, 3 };
 <a class="jxr_linenumber" name="L183" href="#L183">183</a>         buff.put(arr);
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> 
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>         <em class="jxr_comment">// Snapshot the backing array since buff is reassigned below</em>
@@ -209,7 +209,7 @@
 <a class="jxr_linenumber" name="L201" href="#L201">201</a>         assertThat(<span class="jxr_string">"Int from buffer at limit should be 0"</span>, FileUtil.readIntFromBuffer(buff), is(0));
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>         assertThat(<span class="jxr_string">"Short from buffer at limit should be 0"</span>, FileUtil.readShortFromBuffer(buff), is((<strong class="jxr_keyword">short</strong>) 0));
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>         assertThat(<span class="jxr_string">"Byte from buffer at limit should be 0"</span>, FileUtil.readByteFromBuffer(buff), is((byte) 0));
-<a class="jxr_linenumber" name="L204" href="#L204">204</a>         byte[] arr0 = <strong class="jxr_keyword">new</strong> byte[] { 0, 0, 0 };
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>         byte[] arr0 = { 0, 0, 0 };
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>         array = <strong class="jxr_keyword">new</strong> byte[3];
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>         FileUtil.readByteArrayFromBuffer(buff, array);
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>         assertArrayEquals(arr0, array, <span class="jxr_string">"Byte array from buffer at limit should be all 0s"</span>);

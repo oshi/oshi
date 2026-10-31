@@ -57,13 +57,13 @@
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>  <em class="jxr_javadoccomment"> * JMX agent server implementation.</em>
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>  <em class="jxr_javadoccomment"> */</em>
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">class</strong> <a name="JMXOshiAgentServer" href="../../../oshi/demo/jmx/JMXOshiAgentServer.html#JMXOshiAgentServer">JMXOshiAgentServer</a> <strong class="jxr_keyword">implements</strong> <a name="JMXOshiAgent" href="../../../oshi/demo/jmx/api/JMXOshiAgent.html#JMXOshiAgent">JMXOshiAgent</a> {
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> String host;
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> Integer port;
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> Map&lt;String, ?&gt; properties;
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> String host;
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Integer port;
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> Map&lt;String, ?&gt; properties;
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> MBeanServer server;
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>      <strong class="jxr_keyword">private</strong> JMXConnectorServer cntorServer;
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <a name="ContextRegistrationPlatform" href="../../../oshi/demo/jmx/ContextRegistrationPlatform.html#ContextRegistrationPlatform">ContextRegistrationPlatform</a> contextRegistrationPlatform;
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <a name="ContextRegistrationPlatform" href="../../../oshi/demo/jmx/ContextRegistrationPlatform.html#ContextRegistrationPlatform">ContextRegistrationPlatform</a> contextRegistrationPlatform;
 <a class="jxr_linenumber" name="L59" href="#L59">59</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <a name="JMXOshiAgentServer" href="../../../oshi/demo/jmx/JMXOshiAgentServer.html#JMXOshiAgentServer">JMXOshiAgentServer</a> jmxOshiAgentServer;
 <a class="jxr_linenumber" name="L60" href="#L60">60</a>  
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">private</strong> <a name="JMXOshiAgentServer" href="../../../oshi/demo/jmx/JMXOshiAgentServer.html#JMXOshiAgentServer">JMXOshiAgentServer</a>(Integer port, String host, Map&lt;String, ?&gt; properties,

@@ -79,69 +79,94 @@
 <a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
 <a class="jxr_linenumber" name="L72" href="#L72">72</a>  
 <a class="jxr_linenumber" name="L73" href="#L73">73</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * Properties for a virtual disk. The Object ID uniquely defines the disk.</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">public</strong> enum VirtualDiskProperty {
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <em class="jxr_javadoccomment">/** Friendly name of the virtual disk. */</em>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          FRIENDLYNAME,
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <em class="jxr_javadoccomment">/** Object ID of the virtual disk. */</em>
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          OBJECTID;
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      }
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>  <em class="jxr_javadoccomment">     * Constructor.</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">protected</strong> <a name="MSFTStorage" href="../../../../../oshi/driver/common/windows/wmi/MSFTStorage.html#MSFTStorage">MSFTStorage</a>() {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>  <em class="jxr_javadoccomment">     * Queries storage pools.</em>
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     * @return Storage pool information.</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;StoragePoolProperty&gt; queryStoragePools(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          WmiQuery&lt;StoragePoolProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE,
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>                  MSFT_STORAGE_POOL_WHERE_IS_PRIMORDIAL_FALSE, StoragePoolProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> <em class="jxr_javadoccomment">     * Queries storage pool to physical disk mapping.</em>
-<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
-<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     * @return Storage pool to physical disk mapping.</em>
-<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; queryStoragePoolPhysicalDisks(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         WmiQuery&lt;StoragePoolToPhysicalDiskProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE,
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 MSFT_STORAGE_POOL_TO_PHYSICAL_DISK, StoragePoolToPhysicalDiskProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L114" href="#L114">114</a> <em class="jxr_javadoccomment">     * Queries physical disks.</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
-<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * @return Physical disk information.</em>
-<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;PhysicalDiskProperty&gt; queryPhysicalDisks(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>         WmiQuery&lt;PhysicalDiskProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 PhysicalDiskProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
-<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L126" href="#L126">126</a> <em class="jxr_javadoccomment">     * Queries virtual disks.</em>
-<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     * @return Virtual disk information.</em>
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;VirtualDiskProperty&gt; queryVirtualDisks(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         WmiQuery&lt;VirtualDiskProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_VIRTUAL_DISK,
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>                 VirtualDiskProperty.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>  <em class="jxr_javadoccomment">     * Properties for a physical disk's media type. Unlike {@code Win32_DiskDrive}'s MediaType, which reports only</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>  <em class="jxr_javadoccomment">     * removability, this MediaType reports the media technology and so distinguishes an SSD from an HDD.</em>
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">public</strong> enum PhysicalDiskMediaTypeProperty {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_javadoccomment">/** Device ID of the physical disk. For a directly attached disk this is its physical drive number. */</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          DEVICEID,
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_javadoccomment">/** Media type: 3 is HDD, 4 is SSD, 5 is storage class memory, 0 is unspecified. */</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          MEDIATYPE,
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          <em class="jxr_javadoccomment">/** Spindle speed in RPM. Zero for non-rotational media, {@code UINT32_MAX} if rotating at unknown speed. */</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          SPINDLESPEED;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  <em class="jxr_javadoccomment">     * Properties for a virtual disk. The Object ID uniquely defines the disk.</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">public</strong> enum VirtualDiskProperty {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <em class="jxr_javadoccomment">/** Friendly name of the virtual disk. */</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          FRIENDLYNAME,
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <em class="jxr_javadoccomment">/** Object ID of the virtual disk. */</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          OBJECTID;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * Constructor.</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">protected</strong> <a name="MSFTStorage" href="../../../../../oshi/driver/common/windows/wmi/MSFTStorage.html#MSFTStorage">MSFTStorage</a>() {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
+<a class="jxr_linenumber" name="L101" href="#L101">101</a> 
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a> <em class="jxr_javadoccomment">     * Queries storage pools.</em>
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
+<a class="jxr_linenumber" name="L106" href="#L106">106</a> <em class="jxr_javadoccomment">     * @return Storage pool information.</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;StoragePoolProperty&gt; queryStoragePools(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         WmiQuery&lt;StoragePoolProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE,
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>                 MSFT_STORAGE_POOL_WHERE_IS_PRIMORDIAL_FALSE, StoragePoolProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
+<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a> <em class="jxr_javadoccomment">     * Queries storage pool to physical disk mapping.</em>
+<a class="jxr_linenumber" name="L116" href="#L116">116</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L117" href="#L117">117</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> <em class="jxr_javadoccomment">     * @return Storage pool to physical disk mapping.</em>
+<a class="jxr_linenumber" name="L119" href="#L119">119</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; queryStoragePoolPhysicalDisks(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         WmiQuery&lt;StoragePoolToPhysicalDiskProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE,
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>                 MSFT_STORAGE_POOL_TO_PHYSICAL_DISK, StoragePoolToPhysicalDiskProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a> <em class="jxr_javadoccomment">     * Queries physical disks.</em>
+<a class="jxr_linenumber" name="L128" href="#L128">128</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
+<a class="jxr_linenumber" name="L130" href="#L130">130</a> <em class="jxr_javadoccomment">     * @return Physical disk information.</em>
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;PhysicalDiskProperty&gt; queryPhysicalDisks(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         WmiQuery&lt;PhysicalDiskProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 PhysicalDiskProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     }
+<a class="jxr_linenumber" name="L137" href="#L137">137</a> 
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L139" href="#L139">139</a> <em class="jxr_javadoccomment">     * Queries physical disk media types. Requires Windows 8 or Server 2012.</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L141" href="#L141">141</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> <em class="jxr_javadoccomment">     * @return Physical disk media type information.</em>
+<a class="jxr_linenumber" name="L143" href="#L143">143</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;PhysicalDiskMediaTypeProperty&gt; queryPhysicalDiskMediaTypes(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         WmiQuery&lt;PhysicalDiskMediaTypeProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_PHYSICAL_DISK,
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 PhysicalDiskMediaTypeProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     }
+<a class="jxr_linenumber" name="L149" href="#L149">149</a> 
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L151" href="#L151">151</a> <em class="jxr_javadoccomment">     * Queries virtual disks.</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L153" href="#L153">153</a> <em class="jxr_javadoccomment">     * @param h An instantiated {@link WmiQueryExecutor}. User should have already initialized COM.</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a> <em class="jxr_javadoccomment">     * @return Virtual disk information.</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">static</strong> WmiResult&lt;VirtualDiskProperty&gt; queryVirtualDisks(<a name="WmiQueryExecutor" href="../../../../../oshi/driver/common/windows/wmi/WmiQueryExecutor.html#WmiQueryExecutor">WmiQueryExecutor</a> h) {
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         WmiQuery&lt;VirtualDiskProperty&gt; query = <strong class="jxr_keyword">new</strong> WmiQuery&lt;&gt;(STORAGE_NAMESPACE, MSFT_VIRTUAL_DISK,
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>                 VirtualDiskProperty.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>         <strong class="jxr_keyword">return</strong> h.queryWMI(query, false);
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     }
+<a class="jxr_linenumber" name="L161" href="#L161">161</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

@@ -439,7 +439,7 @@
 <a class="jxr_linenumber" name="L431" href="#L431">431</a>         <em class="jxr_comment">// Passing a typed array for the varargs parameter is legal Java, so the copy must widen to Object[]:</em>
 <a class="jxr_linenumber" name="L432" href="#L432">432</a>         <em class="jxr_comment">// a copy keeping the String[] component type would throw ArrayStoreException on appending the throwable.</em>
 <a class="jxr_linenumber" name="L433" href="#L433">433</a>         <em class="jxr_comment">// The cast only tells javac the array is meant to be spread; at runtime this is still a String[].</em>
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>         String[] args = <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span> };
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         String[] args = { <span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span> };
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>         ExceptionUtil.logAtLevel(recorder.logger(), LogLevel.WARN, <span class="jxr_string">"Failed to read {} of {}"</span>, t, (Object[]) args);
 <a class="jxr_linenumber" name="L436" href="#L436">436</a>         assertThat(<span class="jxr_string">"Caller args then throwable"</span>, recorder.arguments(), arrayContaining(<span class="jxr_string">"key"</span>, <span class="jxr_string">"value"</span>, t));
 <a class="jxr_linenumber" name="L437" href="#L437">437</a>     }

@@ -39,8 +39,8 @@
 <a class="jxr_linenumber" name="L31" href="#L31">31</a>      <em class="jxr_comment">// Daemon thread for Load Average</em>
 <a class="jxr_linenumber" name="L32" href="#L32">32</a>      <strong class="jxr_keyword">private</strong> @Nullable Thread loadAvgThread = <strong class="jxr_keyword">null</strong>;
 <a class="jxr_linenumber" name="L33" href="#L33">33</a>  
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] loadAverages = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] { -1d, -1d, -1d };
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] EXP_WEIGHT = <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">double</strong>[] {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] loadAverages = { -1d, -1d, -1d };
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">double</strong>[] EXP_WEIGHT = {
 <a class="jxr_linenumber" name="L36" href="#L36">36</a>              <em class="jxr_comment">// 1-, 5-, and 15-minute exponential smoothing weight</em>
 <a class="jxr_linenumber" name="L37" href="#L37">37</a>              Math.exp(-5d / 60d), Math.exp(-5d / 300d), Math.exp(-5d / 900d) };
 <a class="jxr_linenumber" name="L38" href="#L38">38</a>  
