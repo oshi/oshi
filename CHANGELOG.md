@@ -1,14 +1,8 @@
-# 7.7.3 (in progress)
+# 7.7.4 (in progress)
 
-##### Bug Fixes and Improvements
+* Your contribution here!
 
-* [#3837](https://github.com/oshi/oshi/pull/3837): Reject IPv6 address text with a dotted IPv4 component before compressed zero groups - [@PHJ2000](https://github.com/PHJ2000).
-* [#3843](https://github.com/oshi/oshi/pull/3843): `HWDiskStore.getDiskType()` on Windows now reports `SSD`, `HDD`, `Removable` or `Virtual`, read from the storage driver and falling back to `MSFT_PhysicalDisk` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3848](https://github.com/oshi/oshi/pull/3848): Fixed listing processes on DragonFly BSD, which could panic the kernel since 7.7.2. `OSProcess.getPath()` there now reads the full path from the kernel for the current process only, and `argv[0]` or the command name for others - [@dbwiddis](https://github.com/dbwiddis).
-* [#3852](https://github.com/oshi/oshi/pull/3852): Fixed IPv4 and IPv6 addresses reported byte-reversed on big-endian Linux, such as s390x, in `NetworkParams.getRoutes()` and `InternetProtocolStats.getConnections()` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3853](https://github.com/oshi/oshi/pull/3853): `NetworkParams.getIpv4DefaultGateway()` and `getIpv6DefaultGateway()` on Linux now read the kernel routing table, so they no longer return an empty string when the `route` command is missing or not on the `PATH` - [@dbwiddis](https://github.com/dbwiddis).
-
-# 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20)
+# 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
 ##### New Features
 
@@ -61,7 +55,7 @@
   [#3821](https://github.com/oshi/oshi/pull/3821),
   [#3827](https://github.com/oshi/oshi/pull/3827),
   [#3829](https://github.com/oshi/oshi/pull/3829),
-  [#3832](https://github.com/oshi/oshi/pull/3832): Fixed `OSProcess` on the BSDs. `getPath()` now returns the executable's full path from the kernel on FreeBSD, DragonFly BSD and NetBSD, as does `getCurrentWorkingDirectory()` on NetBSD. DragonFly BSD now reports bitness and affinity, FreeBSD other processes' open-file limits, and NetBSD every thread of a process and only real descriptors in `getOpenFiles()`. `getServices()` skips rcorder placeholders - [@dbwiddis](https://github.com/dbwiddis).
+  [#3832](https://github.com/oshi/oshi/pull/3832): Fixed `OSProcess` on the BSDs. `getPath()` now returns the executable's full path from the kernel on FreeBSD and NetBSD, as does `getCurrentWorkingDirectory()` on NetBSD. DragonFly BSD now reports bitness and affinity, FreeBSD other processes' open-file limits, and NetBSD every thread of a process and only real descriptors in `getOpenFiles()`. `getServices()` skips rcorder placeholders - [@dbwiddis](https://github.com/dbwiddis).
 * [#3797](https://github.com/oshi/oshi/pull/3797),
   [#3805](https://github.com/oshi/oshi/pull/3805),
   [#3826](https://github.com/oshi/oshi/pull/3826): Fixed `getPowerSources()` on FreeBSD and DragonFly BSD, which reported a battery on machines with none and only one of several, with units and signs now matching other platforms; `getGraphicsCards()` on current FreeBSD, which reported the wrong vendor and no device ID; and `getUsbDevices()` on FreeBSD, which was empty - [@dbwiddis](https://github.com/dbwiddis).
@@ -69,6 +63,11 @@
   [#3820](https://github.com/oshi/oshi/pull/3820),
   [#3823](https://github.com/oshi/oshi/pull/3823),
   [#3825](https://github.com/oshi/oshi/pull/3825): Fixed `FileSystem` and `OSFileStore` on the BSDs. `getMaxFileDescriptorsPerProcess()` returns the per-process limit, NetBSD's `getOpenFileDescriptors()` is no longer 0, FreeBSD's `getUUID()` is found for every volume, and mount points with spaces and NetBSD and OpenBSD inode counts are read correctly - [@dbwiddis](https://github.com/dbwiddis).
+* [#3837](https://github.com/oshi/oshi/pull/3837): Reject IPv6 address text with a dotted IPv4 component before compressed zero groups - [@PHJ2000](https://github.com/PHJ2000).
+* [#3843](https://github.com/oshi/oshi/pull/3843): `HWDiskStore.getDiskType()` on Windows now reports `SSD`, `HDD`, `Removable` or `Virtual`, read from the storage driver and falling back to `MSFT_PhysicalDisk` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3848](https://github.com/oshi/oshi/pull/3848): Fixed listing processes on DragonFly BSD, which could panic the kernel since 7.7.2. `OSProcess.getPath()` there now reads the full path from the kernel for the current process only, and `argv[0]` or the command name for others - [@dbwiddis](https://github.com/dbwiddis).
+* [#3852](https://github.com/oshi/oshi/pull/3852): Fixed IPv4 and IPv6 addresses reported byte-reversed on big-endian Linux, such as s390x, in `NetworkParams.getRoutes()` and `InternetProtocolStats.getConnections()` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3853](https://github.com/oshi/oshi/pull/3853): `NetworkParams.getIpv4DefaultGateway()` and `getIpv6DefaultGateway()` on Linux now read the kernel routing table, so they no longer return an empty string when the `route` command is missing or not on the `PATH` - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.6.0 (2026-08-23), 7.6.1 (2026-09-01)
 

@@ -51,9 +51,9 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.7.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.7.2)
-  * FFM: [oshi-core-ffm-7.7.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.7.2)
-  * Common: [oshi-common-7.7.2](https://central.sonatype.com/artifact/com.github.oshi/oshi-common/7.7.2)
+  * JNA: [oshi-core-7.7.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.7.3)
+  * FFM: [oshi-core-ffm-7.7.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.7.3)
+  * Common: [oshi-common-7.7.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-common/7.7.3)
 
 Snapshot builds of the next version are published to `https://central.sonatype.com/repository/maven-snapshots/`, which your build must be configured to use.
 
