@@ -4,7 +4,8 @@
 
 * [#3855](https://github.com/oshi/oshi/pull/3855),
   [#3856](https://github.com/oshi/oshi/pull/3856),
-  [#3858](https://github.com/oshi/oshi/pull/3858): `HWDiskStore.getBackingStores()` lists the disks, partitions or file stores a layered disk is built on, so a caller can tell which entries in `getDiskStores()` duplicate the capacity and I/O of others. Reported on Linux and macOS - [@dbwiddis](https://github.com/dbwiddis).
+  [#3858](https://github.com/oshi/oshi/pull/3858),
+  [#3859](https://github.com/oshi/oshi/pull/3859): `HWDiskStore.getBackingStores()` lists the disks, partitions or file stores a layered disk is built on, so a caller can tell which entries in `getDiskStores()` duplicate the capacity and I/O of others. Reported on Linux, macOS and Windows - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Behavior Changes
 

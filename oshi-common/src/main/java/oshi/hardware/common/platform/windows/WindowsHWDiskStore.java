@@ -4,6 +4,9 @@
  */
 package oshi.hardware.common.platform.windows;
 
+import static oshi.driver.common.windows.wmi.MSFTStorage.PD_OBJECT_ID;
+import static oshi.driver.common.windows.wmi.MSFTStorage.VD_OBJECT_ID;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -11,6 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -21,10 +28,17 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.perfmon.PhysicalDisk.PhysicalDiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage;
+import oshi.driver.common.windows.wmi.MSFTStorage.DiskProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskIdProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskMediaTypeProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskIdProperty;
+import oshi.driver.common.windows.wmi.MSFTStorage.VirtualDiskToPhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
+import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
+import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.tuples.Pair;
@@ -50,6 +64,8 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
 
     /** Disk type reported when the media technology could not be determined. */
     protected static final String DISK_TYPE_UNKNOWN = "Unknown";
+
+    private final Supplier<Map<String, List<String>>> backingStores;
     private static final String DISK_TYPE_SSD = "SSD";
     private static final String DISK_TYPE_HDD = "HDD";
     private static final String DISK_TYPE_REMOVABLE = "Removable";
@@ -105,6 +121,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      */
     protected WindowsHWDiskStore(String name, String model, String serial, long size) {
         super(name, model, serial, size);
+        this.backingStores = Collections::emptyMap;
     }
 
     /**
@@ -118,6 +135,130 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      */
     protected WindowsHWDiskStore(String name, String model, String serial, long size, String diskType) {
         super(name, model, serial, size, diskType);
+        this.backingStores = Collections::emptyMap;
+    }
+
+    /**
+     * Constructor for a disk whose backing stores are looked up on demand.
+     *
+     * @param name          the name
+     * @param model         the model
+     * @param serial        the serial
+     * @param size          the size
+     * @param diskType      the diskType
+     * @param backingStores supplies the backing stores of every disk in the enumeration this disk came from, keyed by
+     *                      disk name; shared by those disks so that the Storage namespace is queried at most once
+     */
+    protected WindowsHWDiskStore(String name, String model, String serial, long size, String diskType,
+            Supplier<Map<String, List<String>>> backingStores) {
+        super(name, model, serial, size, diskType);
+        this.backingStores = backingStores;
+    }
+
+    @Override
+    public Optional<List<String>> getBackingStores() {
+        return Optional.ofNullable(backingStores.get().get(getName()));
+    }
+
+    /**
+     * Queries the Storage namespace for what each disk is built on. Requires Windows 8 or Server 2012.
+     *
+     * @param h       an instantiated {@link WmiQueryExecutor}, with COM already initialized
+     * @param mountOf returns the mount point of the volume holding a path, or an empty string if it cannot be read
+     * @return the backing stores of each disk the Storage namespace reports, keyed by disk name
+     */
+    protected static Map<String, List<String>> queryBackingStores(WmiQueryExecutor h,
+            Function<String, String> mountOf) {
+        return buildBackingStores(MSFTStorage.queryDisks(h), MSFTStorage.queryVirtualDiskIds(h),
+                MSFTStorage.queryVirtualDiskToPhysicalDisks(h), MSFTStorage.queryPhysicalDiskIds(h), mountOf);
+    }
+
+    /**
+     * Correlates the Storage namespace query results into each disk's backing stores. A file-backed virtual disk is
+     * built on the volume holding its backing file. A Storage Spaces disk is built on the physical disks holding its
+     * virtual disk, which Windows does not list as disks of their own once they are pooled. Any other disk is built on
+     * nothing. A disk whose backing stores cannot be determined is left out, so it reports none rather than an empty
+     * list.
+     *
+     * @param disks   the {@code MSFT_Disk} query result
+     * @param vds     the {@code MSFT_VirtualDisk} identity query result
+     * @param vdpd    the virtual disk to physical disk association query result
+     * @param pds     the {@code MSFT_PhysicalDisk} identity query result
+     * @param mountOf returns the mount point of the volume holding a path, or an empty string if it cannot be read
+     * @return the backing stores of each disk, keyed by disk name, sorted
+     */
+    protected static Map<String, List<String>> buildBackingStores(WmiResult<DiskProperty> disks,
+            WmiResult<VirtualDiskIdProperty> vds, WmiResult<VirtualDiskToPhysicalDiskProperty> vdpd,
+            WmiResult<PhysicalDiskIdProperty> pds, Function<String, String> mountOf) {
+        try {
+            Map<String, String> deviceIdByPd = new HashMap<>();
+            for (int i = 0; i < pds.getResultCount(); i++) {
+                String pd = objectGuid(PD_OBJECT_ID, WmiUtil.getString(pds, PhysicalDiskIdProperty.OBJECTID, i));
+                deviceIdByPd.put(pd, WmiUtil.getString(pds, PhysicalDiskIdProperty.DEVICEID, i));
+            }
+            Map<String, String> vdByUniqueId = new HashMap<>();
+            for (int i = 0; i < vds.getResultCount(); i++) {
+                vdByUniqueId.put(WmiUtil.getString(vds, VirtualDiskIdProperty.UNIQUEID, i),
+                        objectGuid(VD_OBJECT_ID, WmiUtil.getString(vds, VirtualDiskIdProperty.OBJECTID, i)));
+            }
+            Map<String, List<String>> pdsByVd = new HashMap<>();
+            for (int i = 0; i < vdpd.getResultCount(); i++) {
+                String vd = objectGuid(VD_OBJECT_ID,
+                        WmiUtil.getRefString(vdpd, VirtualDiskToPhysicalDiskProperty.VIRTUALDISK, i));
+                String pd = objectGuid(PD_OBJECT_ID,
+                        WmiUtil.getRefString(vdpd, VirtualDiskToPhysicalDiskProperty.PHYSICALDISK, i));
+                pdsByVd.computeIfAbsent(vd, k -> new ArrayList<>()).add(pd);
+            }
+            Map<String, List<String>> result = new HashMap<>();
+            for (int i = 0; i < disks.getResultCount(); i++) {
+                String name = PHYSICALDRIVE_PREFIX + WmiUtil.getUint32(disks, DiskProperty.NUMBER, i);
+                int busType = WmiUtil.getUint16(disks, DiskProperty.BUSTYPE, i);
+                if (busType == BUS_TYPE_FILE_BACKED_VIRTUAL) {
+                    String location = WmiUtil.getString(disks, DiskProperty.LOCATION, i);
+                    String mount = location.isEmpty() ? "" : mountOf.apply(location);
+                    if (!mount.isEmpty()) {
+                        result.put(name, Collections.singletonList(StoreKind.FILE.entry(mount)));
+                    }
+                } else if (busType == BUS_TYPE_SPACES) {
+                    String vd = vdByUniqueId.get(WmiUtil.getString(disks, DiskProperty.UNIQUEID, i));
+                    TreeSet<String> stores = new TreeSet<>();
+                    for (String pd : pdsByVd.getOrDefault(vd == null ? "" : vd, Collections.emptyList())) {
+                        String deviceId = deviceIdByPd.get(pd);
+                        if (deviceId != null && !deviceId.isEmpty()) {
+                            stores.add(StoreKind.DISK.entry(PHYSICALDRIVE_PREFIX + deviceId));
+                        }
+                    }
+                    if (!stores.isEmpty()) {
+                        result.put(name, Collections.unmodifiableList(new ArrayList<>(stores)));
+                    }
+                } else {
+                    result.put(name, Collections.emptyList());
+                }
+            }
+            return Collections.unmodifiableMap(result);
+        } catch (ClassCastException e) {
+            LOG.debug("Unexpected Storage namespace property type", e);
+            return Collections.emptyMap();
+        }
+    }
+
+    /**
+     * Extracts the GUIDs identifying a storage object from its object ID or a reference to it.
+     *
+     * @param pattern  the pattern matching that kind of object
+     * @param objectId the object ID or reference
+     * @return the captured GUIDs, or the whole string if it does not match
+     */
+    private static String objectGuid(Pattern pattern, String objectId) {
+        Matcher m = pattern.matcher(objectId);
+        if (!m.matches()) {
+            return objectId;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int g = 1; g <= m.groupCount(); g++) {
+            sb.append(m.group(g));
+        }
+        return sb.toString();
     }
 
     /**

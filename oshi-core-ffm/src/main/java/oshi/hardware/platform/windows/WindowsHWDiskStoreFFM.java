@@ -13,9 +13,11 @@ import java.lang.foreign.MemorySegment;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -42,6 +44,7 @@ import oshi.ffm.util.platform.windows.WmiQueryHandlerFFM;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.windows.WindowsHWDiskStore;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
@@ -53,8 +56,9 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStoreFFM.class);
 
-    private WindowsHWDiskStoreFFM(String name, String model, String serial, long size, String diskType) {
-        super(name, model, serial, size, diskType);
+    private WindowsHWDiskStoreFFM(String name, String model, String serial, long size, String diskType,
+            Supplier<Map<String, List<String>>> backingStores) {
+        super(name, model, serial, size, diskType, backingStores);
     }
 
     @Override
@@ -94,13 +98,16 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
                 }
             }
 
+            // Shared by the disks of this enumeration, and only queried when one is asked for its backing stores
+            Supplier<Map<String, List<String>>> backingStores = Memoizer
+                    .memoize(WindowsHWDiskStoreFFM::queryBackingStores);
             List<HWDiskStore> result = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 WindowsHWDiskStoreFFM ds = new WindowsHWDiskStoreFFM(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
                         (WmiUtil.getString(vals, DiskDriveProperty.MODEL, i) + " "
                                 + WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
-                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i), diskTypes[i]);
+                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i), diskTypes[i], backingStores);
 
                 String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
                 ds.setDiskStats(stats, index);
@@ -115,6 +122,44 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
             if (comInit) {
                 h.unInitCOM();
             }
+        }
+    }
+
+    /**
+     * Queries what each disk is built on, in its own COM session since it may run on any thread.
+     *
+     * @return the backing stores of each disk the Storage namespace reports, keyed by disk name, or an empty map if the
+     *         namespace could not be queried
+     */
+    private static Map<String, List<String>> queryBackingStores() {
+        WmiQueryHandlerFFM h = Objects.requireNonNull(WmiQueryHandlerFFM.createInstance());
+        boolean comInit = false;
+        int savedTimeout = h.getWmiTimeout();
+        try {
+            comInit = h.initCOM();
+            if (savedTimeout < 0) {
+                h.setWmiTimeout(MSFT_PHYSICAL_DISK_TIMEOUT_MS);
+            }
+            return queryBackingStores(h, WindowsHWDiskStoreFFM::queryVolumePathName);
+        } catch (FfmComException e) {
+            LOG.debug("Unable to query the Storage namespace for backing stores", e);
+            return Collections.emptyMap();
+        } finally {
+            h.setWmiTimeout(savedTimeout);
+            if (comInit) {
+                h.unInitCOM();
+            }
+        }
+    }
+
+    private static final int MAX_PATH = 260;
+
+    private static String queryVolumePathName(String path) {
+        try (Arena arena = Arena.ofConfined()) {
+            int len = MAX_PATH + 1;
+            MemorySegment buf = arena.allocate(JAVA_CHAR, len);
+            OptionalInt ok = Kernel32FFM.GetVolumePathName(WindowsForeignFunctions.toWideString(arena, path), buf, len);
+            return ok.isPresent() && ok.getAsInt() != 0 ? WindowsForeignFunctions.readWideString(buf) : "";
         }
     }
 

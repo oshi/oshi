@@ -7,16 +7,20 @@ package oshi.hardware.platform.windows;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.platform.win32.COM.COMException;
 import com.sun.jna.platform.win32.Kernel32;
 import com.sun.jna.platform.win32.WinBase;
+import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinNT;
 import com.sun.jna.platform.win32.WinNT.HANDLE;
 
@@ -37,6 +41,7 @@ import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.windows.WindowsHWDiskStore;
 import oshi.jna.ByRef.CloseableIntByReference;
+import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.platform.windows.WmiQueryHandler;
 import oshi.util.tuples.Pair;
@@ -49,8 +54,9 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsHWDiskStoreJNA.class);
 
-    private WindowsHWDiskStoreJNA(String name, String model, String serial, long size, String diskType) {
-        super(name, model, serial, size, diskType);
+    private WindowsHWDiskStoreJNA(String name, String model, String serial, long size, String diskType,
+            Supplier<Map<String, List<String>>> backingStores) {
+        super(name, model, serial, size, diskType, backingStores);
     }
 
     @Override
@@ -90,13 +96,16 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
                 }
             }
 
+            // Shared by the disks of this enumeration, and only queried when one is asked for its backing stores
+            Supplier<Map<String, List<String>>> backingStores = Memoizer
+                    .memoize(WindowsHWDiskStoreJNA::queryBackingStores);
             List<HWDiskStore> result = new ArrayList<>(count);
             for (int i = 0; i < count; i++) {
                 WindowsHWDiskStoreJNA ds = new WindowsHWDiskStoreJNA(WmiUtil.getString(vals, DiskDriveProperty.NAME, i),
                         (WmiUtil.getString(vals, DiskDriveProperty.MODEL, i) + " "
                                 + WmiUtil.getString(vals, DiskDriveProperty.MANUFACTURER, i)).trim(),
                         ParseUtil.hexStringToString(WmiUtil.getString(vals, DiskDriveProperty.SERIALNUMBER, i)),
-                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i), diskTypes[i]);
+                        WmiUtil.getUint64(vals, DiskDriveProperty.SIZE, i), diskTypes[i], backingStores);
 
                 String index = Integer.toString(WmiUtil.getUint32(vals, DiskDriveProperty.INDEX, i));
                 ds.setDiskStats(stats, index);
@@ -112,6 +121,38 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
                 h.unInitCOM();
             }
         }
+    }
+
+    /**
+     * Queries what each disk is built on, in its own COM session since it may run on any thread.
+     *
+     * @return the backing stores of each disk the Storage namespace reports, keyed by disk name, or an empty map if the
+     *         namespace could not be queried
+     */
+    private static Map<String, List<String>> queryBackingStores() {
+        WmiQueryHandler h = Objects.requireNonNull(WmiQueryHandler.createInstance());
+        boolean comInit = false;
+        int savedTimeout = h.getWmiTimeout();
+        try {
+            comInit = h.initCOM();
+            if (savedTimeout < 0) {
+                h.setWmiTimeout(MSFT_PHYSICAL_DISK_TIMEOUT_MS);
+            }
+            return queryBackingStores(h, WindowsHWDiskStoreJNA::queryVolumePathName);
+        } catch (COMException e) {
+            LOG.debug("Unable to query the Storage namespace for backing stores", e);
+            return Collections.emptyMap();
+        } finally {
+            h.setWmiTimeout(savedTimeout);
+            if (comInit) {
+                h.unInitCOM();
+            }
+        }
+    }
+
+    private static String queryVolumePathName(String path) {
+        char[] buf = new char[WinDef.MAX_PATH + 1];
+        return Kernel32.INSTANCE.GetVolumePathName(path, buf, buf.length) ? Native.toString(buf) : "";
     }
 
     /**

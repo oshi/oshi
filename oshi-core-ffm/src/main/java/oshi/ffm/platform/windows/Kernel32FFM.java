@@ -218,6 +218,16 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
                 "Kernel32FFM.GetVolumePathNamesForVolumeName failed");
     }
 
+    private static final MethodHandle GetVolumePathName = downcall(K32, "GetVolumePathNameW", JAVA_INT, ADDRESS,
+            ADDRESS, JAVA_INT);
+
+    public static OptionalInt GetVolumePathName(MemorySegment lpszFileName, MemorySegment lpszVolumePathName,
+            int cchBufferLength) {
+        return getOptionalInt(
+                () -> (int) GetVolumePathName.invokeExact(lpszFileName, lpszVolumePathName, cchBufferLength), LOG,
+                "Kernel32FFM.GetVolumePathName failed");
+    }
+
     private static final MethodHandle GetTickCount = downcall(K32, "GetTickCount64", JAVA_LONG);
 
     public static OptionalLong GetTickCount() {
