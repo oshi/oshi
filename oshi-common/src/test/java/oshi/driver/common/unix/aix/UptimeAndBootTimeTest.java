@@ -85,7 +85,10 @@ class UptimeAndBootTimeTest {
 
         long msSinceBoot = Uptime.queryUpTime();
         assertThat("Up time should be positive", msSinceBoot, greaterThan(0L));
-        assertThat("Boot time plus uptime should be just before now", msSinceBoot + msSinceEpoch,
-                lessThanOrEqualTo(System.currentTimeMillis()));
+        // who -b and uptime each report whole minutes, so their sum can land up to a minute either side of the moment
+        // they describe: a boot at 23:31:50 is printed 23:31, and the uptime is cut or rounded to the minute
+        long now = System.currentTimeMillis();
+        assertThat("Boot time plus uptime should be within two minutes of now",
+                Math.abs(msSinceBoot + msSinceEpoch - now), lessThanOrEqualTo(2 * 60_000L));
     }
 }
