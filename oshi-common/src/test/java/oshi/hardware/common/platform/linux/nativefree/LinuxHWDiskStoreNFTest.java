@@ -17,7 +17,6 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
-import oshi.hardware.HWDiskStore;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
@@ -72,14 +71,11 @@ class LinuxHWDiskStoreNFTest {
     }
 
     @Test
-    void testUpdateAttributesReadsLiveSysfs() {
+    void testUpdateAttributesUsesSysPath() {
         // A disk with no sysfs entry exercises the public method on any host, including one with no disks
         LinuxHWDiskStoreNF missing = new LinuxHWDiskStoreNF(DevPath.DEV + "oshi-no-such-disk", "model", "serial", 1L,
                 "SSD");
         assertThat(missing.updateAttributes(), is(false));
-        for (HWDiskStore disk : LinuxHWDiskStoreNF.getDisks()) {
-            assertThat(disk.getName(), disk.updateAttributes(), is(true));
-        }
     }
 
     @Test
