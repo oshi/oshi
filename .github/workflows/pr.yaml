@@ -486,7 +486,7 @@ jobs:
             if LD_DEBUG=files java -version 2>&1 | grep -q libumem; then
               echo "libumem preloaded, ${UMEM_OPTIONS}"
             else
-              echo "ERROR: libumem was not preloaded; the malloc fix is not in effect"
+              echo "ERROR: libumem was not preloaded; the malloc fix is not in effect" >&2
               exit 1
             fi
             # _JAVA_OPTIONS reaches the Maven JVM and the forked test JVMs alike.

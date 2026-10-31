@@ -299,8 +299,8 @@ class OshiMetricsTest {
     @Test
     void builderSelectiveRegistration() {
         MeterRegistry selective = new SimpleMeterRegistry();
-        SystemInfoProvider si = new SystemInfo();
-        OshiMetrics.builder(si).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
+        SystemInfoProvider provider = new SystemInfo();
+        OshiMetrics.builder(provider).enableCpu(true).enableMemory(false).enablePaging(false).enableDisk(false)
                 .enableFileSystem(false).enableNetwork(false).enableGeneral(false).enableProcess(false)
                 .enableContainer(false).build().bindTo(selective);
         // CPU should be registered
