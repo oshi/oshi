@@ -19,6 +19,10 @@ manually deployed using `mvn clean deploy`
 * Manually run tests on any non-CI-covered OS using `mvn clean test`.
 * Review [SonarQube](https://sonarcloud.io/dashboard?id=com.github.oshi%3Aoshi-parent) for any bugs.
 * Run the javac lint sweep described under [Pre-release bug hunt](#pre-release-bug-hunt) below.
+* Dispatch the two weekly scans, so the release is checked against its final code rather than last
+  Saturday's: `gh workflow run coverity.yaml` and `gh workflow run ffm-audit.yaml`. Review new
+  [Coverity Scan](https://scan.coverity.com/projects/oshi-oshi) defects, and download the artifacts
+  of any failed FFM audit job.
 * Choose an appropriate [version number](https://semver.org/) for the release
     * Proactively change version numbers in the download links on [README.md](README.md).
     * Copy `README.md` to `src/site/markdown/index.md`, then apply the site transformations below.
@@ -55,9 +59,10 @@ manually deployed using `mvn clean deploy`
 
 ### Pre-release bug hunt
 
-Error Prone, SonarCloud, Coverity, and the `oshi.comparison` twin-agreement tests all run on every
-PR, so they need no pre-release step. The one bug-hunting signal that is **not** continuously
-enforced is javac's own `-Xlint`, and it is worth sweeping once per release.
+Error Prone, SonarCloud, and the `oshi.comparison` twin-agreement tests all run on every PR, so
+they need no pre-release step. Coverity and the FFM signature audit run weekly and are dispatched
+by hand during [Prepare](#prepare). The one bug-hunting signal that is **not** run on any schedule
+is javac's own `-Xlint`, and it is worth sweeping once per release.
 
 It is deliberately not wired into the build. `-Xlint:all` expands to a different set of categories on
 every JDK, and an unrecognized category is a hard `error: invalid flag` rather than a warning — so it

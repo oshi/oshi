@@ -1,15 +1,13 @@
 # Compares every FFM FunctionDescriptor in oshi-core-ffm against the platform SDK's real prototype.
 # Catches the parameter- and return-width mismatches that otherwise surface as an intermittent
-# crash rather than a test failure. Fork-side diagnostic; not part of the release gate.
+# crash rather than a test failure. A periodic quality check, not part of the release gate: run it
+# on demand (here or on a fork) when adding or changing FFM bindings.
 name: FFM signature audit
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/ffm-audit/**'
-      - '.github/workflows/ffm-audit.yaml'
-      - 'oshi-core-ffm/src/main/java/oshi/ffm/**'
+  schedule:
+    - cron: "0 0 * * 6" # weekly, Saturday 00:00 UTC, alongside the Coverity scan
 
 permissions:
   contents: read
@@ -117,10 +115,10 @@ jobs:
         uses: vmactions/openbsd-vm@f1ca8bc8ecc5b6ef7218e5b914836e067e1546d3 # v1
         with:
           release: "7.9"
+          disable-cache: true
           usesh: false
           mem: 2048
           copyback: true
-          cache-after-prepare: true
           prepare: |
             pkg_add python%3 cups-libs
           run: |
