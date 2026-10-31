@@ -119,8 +119,19 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
 
     @Override
     public synchronized boolean updateAttributes() {
+        return updateAttributes(SysPath.BLOCK);
+    }
+
+    /**
+     * Updates this disk's statistics from its {@code stat} file under the given sysfs block directory. Package-private
+     * for testing.
+     *
+     * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @return true if the statistics were read, false if the disk's {@code stat} file is missing or empty
+     */
+    synchronized boolean updateAttributes(String sysBlock) {
         String sysfsName = toSysfsName(getName().substring(DevPath.DEV.length()));
-        String statStr = FileUtil.getStringFromFile(SysPath.BLOCK + sysfsName + "/" + STAT).trim();
+        String statStr = FileUtil.getStringFromFile(sysBlock + sysfsName + "/" + STAT).trim();
         if (statStr.isEmpty()) {
             return false;
         }
