@@ -154,7 +154,13 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
 
     private static final int MAX_PATH = 260;
 
-    private static String queryVolumePathName(String path) {
+    /**
+     * Gets the root of the volume holding a path.
+     *
+     * @param path the path
+     * @return the volume's mount point, ending in a backslash, or an empty string if it could not be read
+     */
+    static String queryVolumePathName(String path) {
         try (Arena arena = Arena.ofConfined()) {
             int len = MAX_PATH + 1;
             MemorySegment buf = arena.allocate(JAVA_CHAR, len);

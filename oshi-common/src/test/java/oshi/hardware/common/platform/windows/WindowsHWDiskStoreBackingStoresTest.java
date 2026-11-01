@@ -110,11 +110,19 @@ class WindowsHWDiskStoreBackingStoresTest {
     }
 
     private static WmiResult<VirtualDiskToPhysicalDiskProperty> members(String... pdGuids) {
+        String[] refs = new String[pdGuids.length];
+        for (int i = 0; i < pdGuids.length; i++) {
+            refs[i] = objectId("PD", pdGuids[i]);
+        }
+        return memberRefs(refs);
+    }
+
+    private static WmiResult<VirtualDiskToPhysicalDiskProperty> memberRefs(String... pdRefs) {
         List<Map<VirtualDiskToPhysicalDiskProperty, Object>> rows = new ArrayList<>();
-        for (String pd : pdGuids) {
+        for (String pd : pdRefs) {
             Map<VirtualDiskToPhysicalDiskProperty, Object> row = new EnumMap<>(VirtualDiskToPhysicalDiskProperty.class);
             row.put(VirtualDiskToPhysicalDiskProperty.VIRTUALDISK, objectId("VD", SP_GUID, VD_GUID));
-            row.put(VirtualDiskToPhysicalDiskProperty.PHYSICALDISK, objectId("PD", pd));
+            row.put(VirtualDiskToPhysicalDiskProperty.PHYSICALDISK, pd);
             rows.add(row);
         }
         Map<VirtualDiskToPhysicalDiskProperty, Integer> types = new EnumMap<>(VirtualDiskToPhysicalDiskProperty.class);
@@ -167,6 +175,22 @@ class WindowsHWDiskStoreBackingStoresTest {
                 disks(4, 15, "D:\\oshi3.vhdx", "", 6, 15, "", "", 5, 16, "", "NO-SUCH-VIRTUAL-DISK"), virtualDisk(),
                 members(PD1_GUID), physicalDisks(), path -> "");
         // The volume could not be read, the location is missing, and the virtual disk is unknown
+        assertThat(stores, is(anEmptyMap()));
+    }
+
+    @Test
+    void testSpaceMembersWithoutADeviceIdAreSkipped() {
+        // One member has no DeviceId, and one is a reference in no form the patterns know, so has no physical disk
+        List<Map<PhysicalDiskIdProperty, Object>> rows = new ArrayList<>();
+        Map<PhysicalDiskIdProperty, Object> row = new EnumMap<>(PhysicalDiskIdProperty.class);
+        row.put(PhysicalDiskIdProperty.DEVICEID, "");
+        row.put(PhysicalDiskIdProperty.OBJECTID, objectId("PD", PD1_GUID));
+        rows.add(row);
+        WmiResult<PhysicalDiskIdProperty> noDeviceId = result(rows, new EnumMap<>(PhysicalDiskIdProperty.class));
+        Map<String, List<String>> stores = WindowsHWDiskStore.buildBackingStores(disks(5, 16, "", SPACE_UNIQUE_ID),
+                virtualDisk(), memberRefs("not an object reference", objectId("PD", PD1_GUID)), noDeviceId,
+                WindowsHWDiskStoreBackingStoresTest::driveRoot);
+        // With no member resolvable to a physical drive the Space is not reported, rather than reported unlayered
         assertThat(stores, is(anEmptyMap()));
     }
 

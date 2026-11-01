@@ -150,7 +150,13 @@ public final class WindowsHWDiskStoreJNA extends WindowsHWDiskStore {
         }
     }
 
-    private static String queryVolumePathName(String path) {
+    /**
+     * Gets the root of the volume holding a path.
+     *
+     * @param path the path
+     * @return the volume's mount point, ending in a backslash, or an empty string if it could not be read
+     */
+    static String queryVolumePathName(String path) {
         char[] buf = new char[WinDef.MAX_PATH + 1];
         return Kernel32.INSTANCE.GetVolumePathName(path, buf, buf.length) ? Native.toString(buf) : "";
     }
