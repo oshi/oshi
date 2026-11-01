@@ -117,8 +117,8 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
     private static int[] readMajorMinor(String sysPath) {
         String devStr = FileUtil.getStringFromFile(sysPath + "dev").trim();
         int[] majMin = { 0, 0 };
-        if (devStr.contains(":")) {
-            String[] split = devStr.split(":", -1);
+        String[] split = devStr.split(":", -1);
+        if (split.length == 2) {
             majMin[0] = ParseUtil.parseIntOrDefault(split[0], 0);
             majMin[1] = ParseUtil.parseIntOrDefault(split[1], 0);
         }

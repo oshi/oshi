@@ -20,11 +20,11 @@ public class MSFTStorage {
     public static final String STORAGE_NAMESPACE = "ROOT\\Microsoft\\Windows\\Storage";
 
     /** Matches a storage pool reference or object ID, capturing the pool's GUID. */
-    public static final Pattern SP_OBJECT_ID = Pattern.compile(".*ObjectId=.*SP:(\\{.*\\}).*");
+    public static final Pattern SP_OBJECT_ID = Pattern.compile("SP:(\\{[^}]*\\})");
     /** Matches a physical disk reference or object ID, capturing the disk's GUID. */
-    public static final Pattern PD_OBJECT_ID = Pattern.compile(".*ObjectId=.*PD:(\\{.*\\}).*");
+    public static final Pattern PD_OBJECT_ID = Pattern.compile("PD:(\\{[^}]*\\})");
     /** Matches a virtual disk reference or object ID, capturing its pool's GUID and then its own. */
-    public static final Pattern VD_OBJECT_ID = Pattern.compile(".*ObjectId=.*VD:(\\{.*\\})(\\{.*\\}).*");
+    public static final Pattern VD_OBJECT_ID = Pattern.compile("VD:(\\{[^}]*\\})(\\{[^}]*\\})");
 
     /**
      * The WMI class name for non-primordial storage pools.

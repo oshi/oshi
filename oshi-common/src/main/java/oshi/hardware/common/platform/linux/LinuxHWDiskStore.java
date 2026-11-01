@@ -19,7 +19,6 @@ import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.HWDiskStore;
-import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.FileUtil;
@@ -171,7 +170,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
             StoreKind kind = new File(sysBlock + slaveName).exists() ? StoreKind.DISK : StoreKind.PARTITION;
             stores.add(kind.entry(devRoot + toDevName(slaveName)));
         }
-        Collections.sort(stores);
+        stores.sort(null);
         return Optional.of(Collections.unmodifiableList(stores));
     }
 

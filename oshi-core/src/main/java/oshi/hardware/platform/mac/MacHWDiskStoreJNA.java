@@ -106,7 +106,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                     // Should be an IOMedia object with a parent
                     // IOBlockStorageDriver or AppleAPFSContainerScheme object
                     // Get the properties from the parent
-                    if (drive.conformsTo("IOMedia")) {
+                    if (drive.conformsTo(IO_MEDIA)) {
                         IORegistryEntry parent = drive.getParentEntry("IOService");
                         if (parent != null && (parent.conformsTo("IOBlockStorageDriver")
                                 || parent.conformsTo("AppleAPFSContainerScheme"))) {
@@ -264,11 +264,11 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
 
                 // Get IOMedia objects representing whole drives
                 List<String> bsdNames = new ArrayList<>();
-                IOIterator iter = IOKitUtil.getMatchingServices("IOMedia");
+                IOIterator iter = IOKitUtil.getMatchingServices(IO_MEDIA);
                 if (iter != null) {
                     IORegistryEntry media = iter.next();
                     while (media != null) {
-                        Boolean whole = media.getBooleanProperty("Whole");
+                        Boolean whole = media.getBooleanProperty(WHOLE);
                         if (whole != null && whole) {
                             DADiskRef disk = DA.DADiskCreateFromIOMedia(CF.CFAllocatorGetDefault(), session, media);
                             if (disk != null) {
@@ -408,7 +408,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
             while (entry != null) {
                 IORegistryEntry current = entry;
                 try {
-                    if (current.conformsTo("IOMedia")) {
+                    if (current.conformsTo(IO_MEDIA)) {
                         return mediaBackingStore(current.getStringProperty(BSD_NAME),
                                 current.getBooleanProperty(WHOLE));
                     }

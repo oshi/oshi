@@ -83,7 +83,7 @@ public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         for (int i = 0; i < count; i++) {
             String vdObjectId = WmiUtil.getString(vds, VirtualDiskProperty.OBJECTID, i);
             Matcher m = VD_OBJECT_ID.matcher(vdObjectId);
-            if (m.matches()) {
+            if (m.find()) {
                 vdObjectId = m.group(2) + " " + m.group(1);
             }
             // Store key with SP|VD
@@ -96,7 +96,7 @@ public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         for (int i = 0; i < count; i++) {
             String pdObjectId = WmiUtil.getString(pds, PhysicalDiskProperty.OBJECTID, i);
             Matcher m = PD_OBJECT_ID.matcher(pdObjectId);
-            if (m.matches()) {
+            if (m.find()) {
                 pdObjectId = m.group(1);
             }
             // Store key with PD
@@ -111,12 +111,12 @@ public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             // Ref string contains object id, will do partial match later
             String spObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.STORAGEPOOL, i);
             Matcher m = SP_OBJECT_ID.matcher(spObjectId);
-            if (m.matches()) {
+            if (m.find()) {
                 spObjectId = m.group(1);
             }
             String pdObjectId = WmiUtil.getRefString(sppd, StoragePoolToPhysicalDiskProperty.PHYSICALDISK, i);
             m = PD_OBJECT_ID.matcher(pdObjectId);
-            if (m.matches()) {
+            if (m.find()) {
                 pdObjectId = m.group(1);
             }
             sppdMap.put(spObjectId + " " + pdObjectId, pdObjectId);
@@ -131,7 +131,7 @@ public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             // Parse object ID to match
             String spObjectId = WmiUtil.getString(sp, StoragePoolProperty.OBJECTID, i);
             Matcher m = SP_OBJECT_ID.matcher(spObjectId);
-            if (m.matches()) {
+            if (m.find()) {
                 spObjectId = m.group(1);
             }
             Set<String> physicalVolumeSet = new HashSet<>();

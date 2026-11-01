@@ -105,7 +105,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                 return false;
             }
             try (drive) {
-                if (!drive.conformsTo("IOMedia")) {
+                if (!drive.conformsTo(IO_MEDIA)) {
                     LOG.error("Unable to find IOMedia device or parent for {}", bsdName);
                     return false;
                 }
@@ -263,13 +263,13 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
                         return Collections.emptyList();
                     }
                     List<String> bsdNames = new ArrayList<>();
-                    IOIterator iter = IOKitUtilFFM.getMatchingServices("IOMedia");
+                    IOIterator iter = IOKitUtilFFM.getMatchingServices(IO_MEDIA);
                     if (iter != null) {
                         try (iter) {
                             IORegistryEntry media = iter.next();
                             while (media != null) {
                                 try (IORegistryEntry current = media) {
-                                    Boolean whole = current.getBooleanProperty("Whole");
+                                    Boolean whole = current.getBooleanProperty(WHOLE);
                                     if (Boolean.TRUE.equals(whole)) {
                                         try (DADiskRef disk = DADiskRef.createFromIOMedia(alloc, session, current)) {
                                             if (!disk.isNull()) {
@@ -405,7 +405,7 @@ public final class MacHWDiskStoreFFM extends MacHWDiskStore {
             }
             while (entry != null) {
                 try (IORegistryEntry current = entry) {
-                    if (current.conformsTo("IOMedia")) {
+                    if (current.conformsTo(IO_MEDIA)) {
                         return mediaBackingStore(current.getStringProperty(BSD_NAME),
                                 current.getBooleanProperty(WHOLE));
                     }

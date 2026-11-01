@@ -16,8 +16,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeSet;
-import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -38,7 +38,6 @@ import oshi.driver.common.windows.wmi.Win32DiskDrive.DiskDriveProperty;
 import oshi.driver.common.windows.wmi.WmiQueryExecutor;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
-import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.tuples.Pair;
@@ -140,8 +139,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      * @param mountOf returns the mount point of the volume holding a path, or an empty string if it cannot be read
      * @return the backing stores of each disk the Storage namespace reports, keyed by disk name
      */
-    protected static Map<String, List<String>> queryBackingStores(WmiQueryExecutor h,
-            Function<String, String> mountOf) {
+    protected static Map<String, List<String>> queryBackingStores(WmiQueryExecutor h, UnaryOperator<String> mountOf) {
         return buildBackingStores(MSFTStorage.queryDisks(h), MSFTStorage.queryVirtualDiskIds(h),
                 MSFTStorage.queryVirtualDiskToPhysicalDisks(h), MSFTStorage.queryPhysicalDiskIds(h), mountOf);
     }
@@ -162,7 +160,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      */
     protected static Map<String, List<String>> buildBackingStores(WmiResult<DiskProperty> disks,
             WmiResult<VirtualDiskIdProperty> vds, WmiResult<VirtualDiskToPhysicalDiskProperty> vdpd,
-            WmiResult<PhysicalDiskIdProperty> pds, Function<String, String> mountOf) {
+            WmiResult<PhysicalDiskIdProperty> pds, UnaryOperator<String> mountOf) {
         try {
             Map<String, String> deviceIdByPd = new HashMap<>();
             for (int i = 0; i < pds.getResultCount(); i++) {
@@ -224,7 +222,7 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
      */
     private static String objectGuid(Pattern pattern, String objectId) {
         Matcher m = pattern.matcher(objectId);
-        if (!m.matches()) {
+        if (!m.find()) {
             return objectId;
         }
         StringBuilder sb = new StringBuilder();

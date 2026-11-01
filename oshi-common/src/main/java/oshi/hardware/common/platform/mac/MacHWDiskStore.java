@@ -9,12 +9,11 @@ import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.common.AbstractHWDiskStore;
 
 /**
@@ -28,6 +27,8 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
     protected static final String BSD_NAME = "BSD Name";
     /** IORegistry property marking a media object as a whole disk rather than a partition. */
     protected static final String WHOLE = "Whole";
+    /** IOKit class of a block storage medium. */
+    protected static final String IO_MEDIA = "IOMedia";
     /** IORegistry property on a disk image device naming the image it was attached from. */
     protected static final String DISK_IMAGE_URL = "DiskImageURL";
     /** IORegistry class of the device a disk image is attached as. */
@@ -119,7 +120,7 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
      * @param mountOf  returns the mount point of the file store holding a path, or an empty string if it cannot be read
      * @return the backing store, or empty if the image is not a local file or its file store could not be read
      */
-    protected static Optional<List<String>> imageBackingStore(String imageUrl, Function<String, String> mountOf) {
+    protected static Optional<List<String>> imageBackingStore(String imageUrl, UnaryOperator<String> mountOf) {
         String path = imagePath(imageUrl);
         if (path.isEmpty()) {
             return Optional.empty();
@@ -189,7 +190,7 @@ public abstract class MacHWDiskStore extends AbstractHWDiskStore {
         /** Leaf node indicator. */
         LEAF("Leaf"),
         /** Whole disk indicator. */
-        WHOLE("Whole"),
+        WHOLE(MacHWDiskStore.WHOLE),
         /** DiskArbitration media name. */
         DA_MEDIA_NAME("DAMediaName"),
         /** DiskArbitration volume name. */
