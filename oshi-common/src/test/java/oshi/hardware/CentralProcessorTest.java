@@ -74,6 +74,18 @@ class CentralProcessorTest {
     }
 
     @Test
+    void testProcessorCacheAssociativityIsUnsigned() {
+        // The shared L3 of an IBM z16 is 180-way, which does not fit a signed byte
+        ProcessorCache l3 = new ProcessorCache(3, 180, 256, 377_487_360L, ProcessorCache.Type.UNIFIED);
+        assertThat(Byte.toUnsignedInt(l3.getAssociativity()), is(180));
+        assertThat(l3.toString(), containsString("180-way associativity"));
+        assertThat(new ProcessorCache(1, 0xFF, 64, 32768, ProcessorCache.Type.DATA).toString(),
+                containsString("full associativity"));
+        assertThat(new ProcessorCache(1, 0, 64, 32768, ProcessorCache.Type.DATA).toString(),
+                containsString("unknown associativity"));
+    }
+
+    @Test
     void testProcessorCacheEqualsAndHashCode() {
         ProcessorCache a = new ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
         ProcessorCache b = new ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
@@ -143,6 +155,15 @@ class CentralProcessorTest {
         assertThat(id.getVendor(), is("ARM"));
         assertThat(id.getIdentifier(), is("ARM Family 8 Model 0xd0c Stepping r3p1"));
         assertThat(id.getMicroarchitecture(), is("Neoverse-N1"));
+    }
+
+    @Test
+    void testS390MicroarchitectureFromMachineType() {
+        // The fields LinuxCentralProcessor builds from /proc/cpuinfo on a z16 KVM guest
+        ProcessorIdentifier id = new ProcessorIdentifier("IBM/S390", "IBM z16", "", "3932", "", "FF12DFD83932", true);
+        assertThat(id.getMicroarchitecture(), is("z16"));
+        ProcessorIdentifier unknown = new ProcessorIdentifier("IBM/S390", "IBM/S390 1234", "", "1234", "", "", true);
+        assertThat(unknown.getMicroarchitecture(), is(Constants.UNKNOWN));
     }
 
     @Test

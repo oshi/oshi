@@ -762,7 +762,9 @@ public interface CentralProcessor {
         }
 
         /**
-         * The cache associativity. If this member is {@code 0xFF}, the cache is fully associative.
+         * The cache associativity, as an unsigned byte: read it with {@link Byte#toUnsignedInt(byte)}, as a cache may
+         * have more than 127 ways. If this member is {@code 0xFF}, the cache is fully associative, and if it is
+         * {@code 0}, the associativity is unknown.
          *
          * @return the associativity
          */
@@ -800,8 +802,15 @@ public interface CentralProcessor {
         @Override
         public String toString() {
             return "ProcessorCache [L" + level + " " + type + ", cacheSize=" + cacheSize + ", "
-                    + (associativity > 0 ? associativity + "-way" : "unknown") + " associativity, lineSize=" + lineSize
-                    + "]";
+                    + describeAssociativity() + " associativity, lineSize=" + lineSize + "]";
+        }
+
+        private String describeAssociativity() {
+            int ways = Byte.toUnsignedInt(associativity);
+            if (ways == 0) {
+                return "unknown";
+            }
+            return ways == 0xFF ? "full" : ways + "-way";
         }
 
         @Override
@@ -1050,6 +1059,8 @@ public interface CentralProcessor {
                 sb.append("amd.");
             } else if (ucVendor.contains("ARM")) {
                 sb.append("arm.");
+            } else if (ucVendor.contains("S390")) {
+                sb.append("s390.");
             } else if (ucVendor.contains("IBM")) {
                 // Directly parse the name to POWER#
                 int powerIdx = this.cpuName.indexOf("_POWER");
@@ -1059,9 +1070,10 @@ public interface CentralProcessor {
             } else if (ucVendor.contains("APPLE")) {
                 sb.append("apple.");
             }
-            // ARM keys are the part number alone, arm.0xd0c, with no family before it
-            boolean isArm = sb.toString().equals("arm.");
-            if (Util.isBlank(arch) && !isArm) {
+            // ARM keys are the part number alone, arm.0xd0c, and s390 keys the machine type, s390.3931, with no family
+            String prefix = sb.toString();
+            boolean modelOnly = "arm.".equals(prefix) || "s390.".equals(prefix);
+            if (Util.isBlank(arch) && !modelOnly) {
                 // Append family
                 sb.append(this.cpuFamily);
                 arch = archProps.getProperty(sb.toString());
@@ -1069,7 +1081,7 @@ public interface CentralProcessor {
 
             if (Util.isBlank(arch)) {
                 // Append model
-                if (!isArm) {
+                if (!modelOnly) {
                     sb.append('.');
                 }
                 sb.append(this.cpuModel);

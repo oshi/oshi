@@ -23,6 +23,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
@@ -54,6 +55,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(LinuxCentralProcessor.class);
 
+    private static final String ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+
+    private static final Pattern CPUINFO_CACHE_KEY = Pattern.compile("cache\\d+");
+
     private final long hz;
 
     /**
@@ -83,8 +88,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq = cpuCapacity;
             }
         }
-        String processorID = getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(),
-                queryHwcap());
+        String processorID = id.processorId().isEmpty()
+                ? getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(), queryHwcap())
+                : id.processorId();
         String cpuVendor = id.vendor();
         String cpuModel = id.model();
         if (cpuVendor.startsWith("0x") || cpuModel.isEmpty() || cpuName.isEmpty()) {
@@ -108,9 +114,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         private final String[] flags;
         private final long freq;
         private final boolean cpu64bit;
+        private final String processorId;
 
         CpuInfoIdentity(String vendor, String name, String family, String model, String stepping, String[] flags,
-                long freq, boolean cpu64bit) {
+                long freq, boolean cpu64bit, String processorId) {
             this.vendor = vendor;
             this.name = name;
             this.family = family;
@@ -119,6 +126,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             this.flags = flags;
             this.freq = freq;
             this.cpu64bit = cpu64bit;
+            this.processorId = processorId;
         }
 
         String vendor() {
@@ -152,6 +160,13 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         boolean cpu64bit() {
             return cpu64bit;
         }
+
+        /**
+         * The processor ID when {@code /proc/cpuinfo} carries one directly, as on s390, otherwise empty.
+         */
+        String processorId() {
+            return processorId;
+        }
     }
 
     /**
@@ -170,6 +185,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         long freq = 0L;
         boolean cpu64bit = false;
         StringBuilder armStepping = new StringBuilder(); // For ARM equivalent
+        // s390 replaces family, model and stepping with the fields of the CPU ID that STIDP stores
+        String s390Version = "";
+        String s390Ident = "";
+        String s390Machine = "";
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, -1);
             if (splitLine.length < 2) {
@@ -200,8 +219,23 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                         }
                     }
                     break;
+                case "features":
+                    // s390 lists its facilities here; zarch is the 64-bit z/Architecture mode
+                    if (Arrays.asList(ParseUtil.whitespaces.split(splitLine[1].trim(), -1)).contains("zarch")) {
+                        cpu64bit = true;
+                    }
+                    break;
                 case "stepping":
                     stepping = splitLine[1];
+                    break;
+                case "version":
+                    s390Version = splitLine[1];
+                    break;
+                case "identification":
+                    s390Ident = splitLine[1];
+                    break;
+                case "machine":
+                    s390Machine = splitLine[1];
                     break;
                 case "cpu variant":
                     if (!armStepping.toString().startsWith("r")) {
@@ -232,7 +266,29 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (stepping.isEmpty()) {
             stepping = armStepping.toString();
         }
-        return new CpuInfoIdentity(vendor, name, family, model, stepping, flags, freq, cpu64bit);
+        String processorId = "";
+        // PowerPC also has a "machine" line, naming the platform rather than a machine type
+        if (vendor.startsWith("IBM/S390") && !s390Machine.isEmpty()) {
+            model = s390Machine;
+            if (name.isEmpty()) {
+                name = s390Name(s390Machine);
+            }
+            if (!s390Version.isEmpty() && !s390Ident.isEmpty()) {
+                processorId = s390Version + s390Ident + s390Machine;
+            }
+        }
+        return new CpuInfoIdentity(vendor, name, family, model, stepping, flags, freq, cpu64bit, processorId);
+    }
+
+    /**
+     * Names an s390 processor from its machine type, using the generation in {@code oshi.architecture.properties}.
+     *
+     * @param machine the machine type, such as {@code 3931}
+     * @return the name, such as {@code IBM z16}, or the vendor and machine type if the generation is not known
+     */
+    private static String s390Name(String machine) {
+        String generation = FileUtil.readPropertiesFromFilename(ARCHITECTURE_PROPERTIES).getProperty("s390." + machine);
+        return Util.isBlank(generation) ? "IBM/S390 " + machine : "IBM " + generation;
     }
 
     /**
@@ -270,7 +326,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             topology = readTopologyFromCpuinfo();
         }
         List<LogicalProcessor> logProcs = topology.getA();
-        List<ProcessorCache> caches = topology.getB();
+        List<ProcessorCache> caches = addMissingCaches(topology.getB(),
+                parseCachesFromCpuinfo(FileUtil.readFile(CPUINFO)));
         Map<Integer, Integer> coreEfficiencyMap = topology.getC();
         Map<Integer, String> modAliasMap = topology.getD();
         // Failsafe
@@ -411,6 +468,59 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             // ignore
         }
         return new LogicalProcessor(processor, coreId, pkgId, nodeId);
+    }
+
+    /**
+     * Parses the {@code cacheN} lines that s390 prints in {@code /proc/cpuinfo}, such as
+     * {@code cache3 : level=3 type=Unified scope=Shared size=368640K line_size=256 associativity=180}. Package-private
+     * for testing.
+     *
+     * @param cpuInfo the lines of {@code /proc/cpuinfo}
+     * @return the caches described, empty if there are none
+     */
+    static Set<ProcessorCache> parseCachesFromCpuinfo(List<String> cpuInfo) {
+        Set<ProcessorCache> caches = new HashSet<>();
+        for (String line : cpuInfo) {
+            String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, 2);
+            if (splitLine.length < 2 || !CPUINFO_CACHE_KEY.matcher(splitLine[0]).matches()) {
+                continue;
+            }
+            Map<String, String> fields = new HashMap<>();
+            for (String field : ParseUtil.whitespaces.split(splitLine[1].trim(), -1)) {
+                int eq = field.indexOf('=');
+                if (eq > 0) {
+                    fields.put(field.substring(0, eq), field.substring(eq + 1));
+                }
+            }
+            int level = ParseUtil.parseIntOrDefault(fields.getOrDefault("level", ""), 0);
+            if (level > 0) {
+                caches.add(new ProcessorCache(level,
+                        ParseUtil.parseIntOrDefault(fields.getOrDefault("associativity", ""), 0),
+                        ParseUtil.parseIntOrDefault(fields.getOrDefault("line_size", ""), 0),
+                        ParseUtil.parseDecimalMemorySizeToBinary(fields.getOrDefault("size", "")),
+                        parseCacheType(fields.getOrDefault("type", ""))));
+            }
+        }
+        return caches;
+    }
+
+    /**
+     * Adds the caches whose level and type are not already present, as s390 sysfs omits the shared L3 and L4 that
+     * {@code /proc/cpuinfo} lists. Package-private for testing.
+     *
+     * @param caches     the caches already found
+     * @param candidates caches from another source
+     * @return the ordered union, keeping the existing cache for any level and type both sources describe
+     */
+    static List<ProcessorCache> addMissingCaches(List<ProcessorCache> caches, Set<ProcessorCache> candidates) {
+        Set<ProcessorCache> merged = new HashSet<>(caches);
+        for (ProcessorCache candidate : candidates) {
+            if (caches.stream()
+                    .noneMatch(c -> c.getLevel() == candidate.getLevel() && c.getType() == candidate.getType())) {
+                merged.add(candidate);
+            }
+        }
+        return merged.size() == caches.size() ? caches : orderedProcCaches(merged);
     }
 
     private static ProcessorCache.Type parseCacheType(String type) {
