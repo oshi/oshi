@@ -46,6 +46,16 @@ class LinuxHWDiskStoreTest {
     }
 
     @Test
+    void testSplitLvmDmName() {
+        assertThat(LinuxHWDiskStore.splitLvmDmName("vg0-root"), is(new String[] { "vg0", "root" }));
+        assertThat(LinuxHWDiskStore.splitLvmDmName("my--vg-lv--home"), is(new String[] { "my-vg", "lv-home" }));
+        assertThat(LinuxHWDiskStore.splitLvmDmName("vg0-snap-cow"), is(new String[] { "vg0", "snap" }));
+        assertThat(LinuxHWDiskStore.splitLvmDmName("vg0-pool_tmeta"), is(new String[] { "vg0", "pool_tmeta" }));
+        assertThat(LinuxHWDiskStore.splitLvmDmName("vg0"), is(new String[] { "vg0", "" }));
+        assertThat(LinuxHWDiskStore.splitLvmDmName(""), is(new String[] { "", "" }));
+    }
+
+    @Test
     void testGetDmDevicePath() {
         assertThat(LinuxHWDiskStore.getDmDevicePath("cryptroot", "/dev/dm-0"), is("/dev/mapper/cryptroot"));
         assertThat(LinuxHWDiskStore.getDmDevicePath(null, "/dev/dm-0"), is("/dev/dm-0"));

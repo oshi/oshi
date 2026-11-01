@@ -158,9 +158,8 @@ public interface HWDiskStore {
      * Spaces disk is the only entry carrying their transfers.
      * <p>
      * Backing stores are reported on Linux, from each block device's sysfs {@code slaves} directory; on macOS, from the
-     * IOKit registry; and on Windows 8 and Server 2012 or later, from the Storage namespace of WMI. The native-free
-     * Linux implementation does not list device-mapper or md devices, so their backing stores are available only from
-     * the JNA and FFM implementations. Other platforms return an empty {@link Optional}.
+     * IOKit registry; and on Windows 8 and Server 2012 or later, from the Storage namespace of WMI. Other platforms
+     * return an empty {@link Optional}.
      * <p>
      * Each entry is a {@link StoreKind} prefix followed by a name that matches a getter on the corresponding class:
      * <table>

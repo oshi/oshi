@@ -9,7 +9,8 @@
 
 ##### Behavior Changes
 
-* [#3856](https://github.com/oshi/oshi/pull/3856): On native-free Linux, `HWPartition.getIdentification()` returns the device path, such as `/dev/sda1`, matching the JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
+* [#3856](https://github.com/oshi/oshi/pull/3856),
+  [#3861](https://github.com/oshi/oshi/pull/3861): On native-free Linux, `getDiskStores()` matches the JNA and FFM implementations: it lists device-mapper (LVM, LUKS, multipath), md RAID and other virtual block devices, a partition's identification is its device path such as `/dev/sda1`, and a model or serial that sysfs does not provide is `unknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3858](https://github.com/oshi/oshi/pull/3858): On macOS, `HWDiskStore.getDiskType()` reports `Virtual` for an APFS container and a disk image, which previously reported `Unknown` and `Removable` - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
