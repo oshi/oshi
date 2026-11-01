@@ -242,6 +242,39 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
+     * Splits an LVM device-mapper name into its volume group and logical volume names, as {@code dmsetup splitname}
+     * does for the udev rules that set {@link #DM_VG_NAME} and {@link #DM_LV_NAME}. A single hyphen separates the
+     * names, and a doubled hyphen stands for a hyphen within one, so {@code my--vg-root} is volume group {@code my-vg}
+     * and logical volume {@code root}. Any further component is an LVM layer such as {@code real} or {@code cow}, which
+     * is not part of either name.
+     *
+     * @param dmName the device-mapper name
+     * @return the volume group and logical volume names, either of which is empty if the name does not carry it
+     */
+    protected static String[] splitLvmDmName(String dmName) {
+        String[] names = { "", "" };
+        StringBuilder sb = new StringBuilder();
+        int component = 0;
+        int i = 0;
+        while (i < dmName.length() && component < names.length) {
+            char c = dmName.charAt(i++);
+            if (c != '-') {
+                sb.append(c);
+            } else if (i < dmName.length() && dmName.charAt(i) == '-') {
+                sb.append('-');
+                i++;
+            } else {
+                names[component++] = sb.toString();
+                sb.setLength(0);
+            }
+        }
+        if (component < names.length) {
+            names[component] = sb.toString();
+        }
+        return names;
+    }
+
+    /**
      * Gets the partition name for a device-mapper device.
      *
      * @param vgName the volume group name

@@ -35,32 +35,49 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
      * @return a list of {@link HWDiskStore} objects
      */
     public static List<HWDiskStore> getDisks() {
-        List<HWDiskStore> result = new ArrayList<>();
-        Map<String, String> mountsMap = readMountsMap();
+        return getDisks(SysPath.BLOCK, readMountsMap());
+    }
 
-        File[] blockDevices = new File(SysPath.BLOCK).listFiles();
+    /**
+     * Gets the disk stores under a sysfs block directory, listing the same devices as the udev backends: every block
+     * device except loop and RAM disks. Package-private for testing.
+     *
+     * @param sysBlock  the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @param mountsMap the map of device paths to mount points
+     * @return a list of {@link HWDiskStore} objects
+     */
+    static List<HWDiskStore> getDisks(String sysBlock, Map<String, String> mountsMap) {
+        List<HWDiskStore> result = new ArrayList<>();
+        File[] blockDevices = new File(sysBlock).listFiles();
         if (blockDevices == null) {
             return result;
         }
         for (File blockDev : blockDevices) {
             String name = blockDev.getName();
-            String sysPath = SysPath.BLOCK + name + "/";
-
-            // Filter to real disks (skip loop, ram, etc.)
-            String devType = FileUtil.getStringFromFile(sysPath + "device/type").trim();
-            // No device/type means it's a virtual device; check if it has a device/ subdir
-            if (devType.isEmpty() && !new File(sysPath + "device").exists()) {
+            if (name.startsWith("loop") || name.startsWith("ram")) {
                 continue;
             }
-
-            String model = FileUtil.getStringFromFile(sysPath + "device/model").trim();
-            String serial = FileUtil.getStringFromFile(sysPath + "device/serial").trim();
+            String sysPath = sysBlock + name + "/";
+            String devnode = DevPath.DEV + toDevName(name);
             long size = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(sysPath + SIZE).trim(), 0L)
                     * SECTORSIZE;
-            String diskType = detectDiskType(sysPath);
 
-            LinuxHWDiskStoreNF store = new LinuxHWDiskStoreNF(DevPath.DEV + toDevName(name), model, serial, size,
-                    diskType);
+            LinuxHWDiskStoreNF store;
+            if (new File(sysPath + "dm").isDirectory()) {
+                String dmUuid = FileUtil.getStringFromFile(sysPath + "dm/uuid").trim();
+                store = new LinuxHWDiskStoreNF(devnode, getModelForDmDevice(dmUuid),
+                        ParseUtil.getStringValueOrUnknown(dmUuid), size, "Virtual");
+                String dmName = FileUtil.getStringFromFile(sysPath + "dm/name").trim();
+                String[] vgLv = isLogicalVolume(dmUuid) ? splitLvmDmName(dmName) : new String[] { "", "" };
+                int[] majMin = readMajorMinor(sysPath);
+                addDeviceMapperPartition(store, mountsMap, dmUuid, vgLv[0], vgLv[1], dmName, devnode, name, sysPath,
+                        null, null, null, size, majMin[0], majMin[1]);
+            } else {
+                store = new LinuxHWDiskStoreNF(devnode,
+                        ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(sysPath + "device/model").trim()),
+                        ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(sysPath + "device/serial").trim()),
+                        size, detectDiskType(sysPath));
+            }
 
             // Read stats
             String statStr = FileUtil.getStringFromFile(sysPath + STAT).trim();
@@ -76,18 +93,12 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                     String partPath = sysPath + partName + "/";
                     long partSize = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(partPath + SIZE).trim(), 0L)
                             * SECTORSIZE;
-                    String devStr = FileUtil.getStringFromFile(partPath + "dev").trim();
-                    int major = 0;
-                    int minor = 0;
-                    if (devStr.contains(":")) {
-                        String[] majMin = devStr.split(":", -1);
-                        major = ParseUtil.parseIntOrDefault(majMin[0], 0);
-                        minor = ParseUtil.parseIntOrDefault(majMin[1], 0);
-                    }
+                    int[] majMin = readMajorMinor(partPath);
                     String partDevnode = DevPath.DEV + toDevName(partName);
-                    String mountPoint = mountsMap.getOrDefault(partDevnode, "");
-                    store.getMutablePartitionList().add(
-                            new HWPartition(partDevnode, partName, "", "", "", partSize, major, minor, mountPoint));
+                    String mountPoint = mountsMap.getOrDefault(partDevnode,
+                            getDependentNamesFromHoldersDirectory(partPath));
+                    store.getMutablePartitionList().add(new HWPartition(partDevnode, partName, "", "", "", partSize,
+                            majMin[0], majMin[1], mountPoint));
                 }
             }
 
@@ -95,6 +106,23 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
         }
         finalizePartitions(result);
         return result;
+    }
+
+    /**
+     * Reads a block device's major and minor numbers from its sysfs {@code dev} file.
+     *
+     * @param sysPath the device's sysfs path, ending in a slash
+     * @return the major and minor numbers, each 0 if it could not be read
+     */
+    private static int[] readMajorMinor(String sysPath) {
+        String devStr = FileUtil.getStringFromFile(sysPath + "dev").trim();
+        int[] majMin = { 0, 0 };
+        if (devStr.contains(":")) {
+            String[] split = devStr.split(":", -1);
+            majMin[0] = ParseUtil.parseIntOrDefault(split[0], 0);
+            majMin[1] = ParseUtil.parseIntOrDefault(split[1], 0);
+        }
+        return majMin;
     }
 
     /**

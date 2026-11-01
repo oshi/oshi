@@ -219,10 +219,11 @@ class NativeFreeComparisonTest {
             // udev may normalize spaces to underscores (or vice versa depending on device)
             assertThat(n.getModel().replace('_', ' ')).isEqualTo(j.getModel().replace('_', ' '));
             // Serial: udev ID_SERIAL_SHORT may expose serials not available in sysfs device/serial
-            if (!n.getSerial().isEmpty()) {
+            if (!"unknown".equals(n.getSerial())) {
                 assertThat(n.getSerial()).isEqualTo(j.getSerial());
             }
             assertThat(n.getSize()).isEqualTo(j.getSize());
+            assertThat(n.getDiskType()).as("diskType(%s)", j.getName()).isEqualTo(j.getDiskType());
             assertThat(n.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
             assertThat(n.getPartitions()).as("partitions(%s)", j.getName()).hasSameSizeAs(j.getPartitions());
             assertThat(n.getPartitions().stream().map(HWPartition::getIdentification).sorted())
