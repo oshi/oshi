@@ -11,11 +11,14 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import oshi.SystemInfo;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.HWDiskStore.StoreKind;
 import oshi.hardware.HWPartition;
 
 /**
@@ -51,6 +54,10 @@ class DisksTest {
             assertThat("Update time for statistics should be greater or equal 0", disk.getTimeStamp(),
                     is(greaterThanOrEqualTo(0L)));
             assertThat("toString method should contain the disk name", disk.toString(), containsString(disk.getName()));
+            for (String entry : disk.getBackingStores().orElse(List.of())) {
+                assertThat("Backing store " + entry + " of " + disk.getName() + " should name a known kind",
+                        Arrays.stream(StoreKind.values()).anyMatch(k -> k.matches(entry)), is(true));
+            }
 
             long oldReads = disk.getReads();
             long oldReadBytes = disk.getReadBytes();

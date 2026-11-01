@@ -303,6 +303,7 @@ class NativeComparisonTest {
             assertThat(f.getReads() + f.getWrites()).as("reads+writes(%s)", j.getName())
                     .isGreaterThanOrEqualTo(j.getReads() + j.getWrites());
             assertThat(f.getPartitions()).usingRecursiveComparison().isEqualTo(j.getPartitions());
+            assertThat(f.getBackingStores()).as("backing stores(%s)", j.getName()).isEqualTo(j.getBackingStores());
         }
     }
 

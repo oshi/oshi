@@ -4,6 +4,10 @@
  */
 package oshi.hardware.common.platform.windows;
 
+import static oshi.driver.common.windows.wmi.MSFTStorage.PD_OBJECT_ID;
+import static oshi.driver.common.windows.wmi.MSFTStorage.SP_OBJECT_ID;
+import static oshi.driver.common.windows.wmi.MSFTStorage.VD_OBJECT_ID;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import oshi.driver.common.windows.wmi.MSFTStorage.PhysicalDiskProperty;
 import oshi.driver.common.windows.wmi.MSFTStorage.StoragePoolProperty;
@@ -33,10 +36,6 @@ import oshi.util.tuples.Pair;
  * backend-neutral {@link WmiResult} values; only the COM plumbing that runs them differs between the bindings.
  */
 public class WindowsLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
-
-    private static final Pattern SP_OBJECT_ID = Pattern.compile(".*ObjectId=.*SP:(\\{.*\\}).*");
-    private static final Pattern PD_OBJECT_ID = Pattern.compile(".*ObjectId=.*PD:(\\{.*\\}).*");
-    private static final Pattern VD_OBJECT_ID = Pattern.compile(".*ObjectId=.*VD:(\\{.*\\})(\\{.*\\}).*");
 
     /**
      * Creates a WindowsLogicalVolumeGroup.

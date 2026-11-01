@@ -153,12 +153,14 @@ public interface HWDiskStore {
      * An empty {@link Optional} means the backing stores are not reported, either because the platform does not report
      * them or because they could not be read, and says nothing about whether the disk is layered. A present but empty
      * list means the disk is not built on anything OSHI can see. Summing the I/O of only the disks whose result is
-     * present and empty therefore counts each transfer once, provided every disk's result is present.
+     * present and empty therefore counts each transfer once, provided every disk's result is present and every store it
+     * names is itself listed. Windows does not list the physical disks of a Storage Spaces pool, so there the Storage
+     * Spaces disk is the only entry carrying their transfers.
      * <p>
-     * Backing stores are reported on Linux, from each block device's sysfs {@code slaves} directory, and on macOS, from
-     * the IOKit registry. The native-free Linux implementation does not list device-mapper or md devices, so their
-     * backing stores are available only from the JNA and FFM implementations. Other platforms return an empty
-     * {@link Optional}.
+     * Backing stores are reported on Linux, from each block device's sysfs {@code slaves} directory; on macOS, from the
+     * IOKit registry; and on Windows 8 and Server 2012 or later, from the Storage namespace of WMI. The native-free
+     * Linux implementation does not list device-mapper or md devices, so their backing stores are available only from
+     * the JNA and FFM implementations. Other platforms return an empty {@link Optional}.
      * <p>
      * Each entry is a {@link StoreKind} prefix followed by a name that matches a getter on the corresponding class:
      * <table>
