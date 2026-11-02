@@ -74,4 +74,14 @@ class AuxvTest {
         // An unreadable /proc/self/auxv reads as no bytes, and the parse stops at once
         assertThat(Auxv.parseAuxv(ByteBuffer.allocate(0), true), is(anEmptyMap()));
     }
+
+    @Test
+    void testFallbacksArePositive() {
+        // A missing or nonpositive entry falls back to getconf, and to a default if that gives nothing usable
+        Map<Integer, Long> auxv = Map.of(Auxv.AT_CLKTCK, 0L, Auxv.AT_PAGESZ, -1L);
+        assertThat(Auxv.userHz(auxv), greaterThan(0L));
+        assertThat(Auxv.pageSize(auxv), greaterThan(0L));
+        assertThat(Auxv.userHz(Map.of()), greaterThan(0L));
+        assertThat(Auxv.pageSize(Map.of()), greaterThan(0L));
+    }
 }

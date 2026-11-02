@@ -76,8 +76,7 @@ public final class Auxv {
      * @return clock ticks per second, 100 if neither source gives a value
      */
     public static long userHz(Map<Integer, Long> auxv) {
-        long hz = auxv.getOrDefault(AT_CLKTCK, 0L);
-        return hz > 0 ? hz : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
+        return positiveValue(auxv, AT_CLKTCK, "getconf CLK_TCK", 100L);
     }
 
     /**
@@ -87,8 +86,14 @@ public final class Auxv {
      * @return the page size in bytes, 4096 if neither source gives a value
      */
     public static long pageSize(Map<Integer, Long> auxv) {
-        long pagesz = auxv.getOrDefault(AT_PAGESZ, 0L);
-        return pagesz > 0 ? pagesz
-                : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
+        return positiveValue(auxv, AT_PAGESZ, "getconf PAGE_SIZE", 4096L);
+    }
+
+    private static long positiveValue(Map<Integer, Long> auxv, int key, String command, long defaultValue) {
+        long value = auxv.getOrDefault(key, 0L);
+        if (value <= 0) {
+            value = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer(command), 0L);
+        }
+        return value > 0 ? value : defaultValue;
     }
 }
