@@ -10,8 +10,7 @@ import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
-import oshi.util.ExecutingCommand;
-import oshi.util.ParseUtil;
+import oshi.software.common.os.linux.nativefree.LinuxOperatingSystemNF;
 
 /**
  * Native-free Linux central processor implementation. Extends {@link LinuxCentralProcessor}, using only sysfs and
@@ -21,18 +20,11 @@ import oshi.util.ParseUtil;
 @ThreadSafe
 public final class LinuxCentralProcessorNF extends LinuxCentralProcessor {
 
-    private static final long USER_HZ = queryUserHz();
-
     /**
      * Creates a new native-free Linux central processor.
      */
     public LinuxCentralProcessorNF() {
-        super(USER_HZ);
-    }
-
-    private static long queryUserHz() {
-        long hz = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 0L);
-        return hz > 0 ? hz : 100L;
+        super(LinuxOperatingSystemNF.hz());
     }
 
     @Override

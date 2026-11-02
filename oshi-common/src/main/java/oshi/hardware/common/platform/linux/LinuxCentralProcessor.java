@@ -41,6 +41,7 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.driver.linux.Lshw;
+import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.driver.linux.proc.CpuInfo;
 import oshi.util.driver.linux.proc.CpuStat;
 import oshi.util.linux.SysPath;
@@ -907,13 +908,12 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Queries the hardware capabilities from the auxiliary vector. Subclasses provide platform-specific implementations
-     * using JNA or FFM native access.
+     * Queries the hardware capabilities from the auxiliary vector.
      *
      * @return The hardware capabilities value, or 0 if unavailable
      */
     protected long queryHwcap() {
-        return 0L;
+        return Auxv.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
     }
 
     /**

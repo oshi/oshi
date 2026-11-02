@@ -11,8 +11,6 @@
 --add-opens
   com.github.oshi/oshi.driver.linux=org.junit.platform.commons
 --add-opens
-  com.github.oshi/oshi.driver.linux.proc=org.junit.platform.commons
---add-opens
   com.github.oshi/oshi.driver.mac=org.junit.platform.commons
 --add-opens
   com.github.oshi/oshi.driver.mac.disk=org.junit.platform.commons
