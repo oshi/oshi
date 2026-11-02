@@ -19,7 +19,6 @@ import com.sun.jna.platform.linux.Udev;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.WhoJNA;
-import oshi.driver.linux.proc.AuxvJNA;
 import oshi.jna.Struct.CloseableSysinfo;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.common.os.linux.LinuxOperatingSystem;
@@ -29,7 +28,6 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSSession;
 import oshi.util.ExceptionUtil;
-import oshi.util.ExecutingCommand;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.driver.linux.proc.Auxv;
@@ -60,13 +58,9 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
         boolean hasGettid = false;
         boolean hasSyscallGettid = false;
         try {
-            Map<Integer, Long> auxv = AuxvJNA.queryAuxv();
-            long hz = auxv.getOrDefault(Auxv.AT_CLKTCK, 0L);
-            userHz = hz > 0 ? hz
-                    : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
-            long pagesz = auxv.getOrDefault(Auxv.AT_PAGESZ, 0L);
-            pageSz = pagesz > 0 ? pagesz
-                    : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
+            Map<Integer, Long> auxv = Auxv.queryAuxv();
+            userHz = Auxv.userHz(auxv);
+            pageSz = Auxv.pageSize(auxv);
             if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV, true)) {
                 try {
                     @SuppressWarnings("unused")

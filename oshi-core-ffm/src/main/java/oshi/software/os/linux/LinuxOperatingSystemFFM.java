@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.linux.WhoFFM;
-import oshi.driver.linux.proc.AuxvFFM;
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
 import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.software.common.os.linux.LinuxOperatingSystem;
@@ -34,7 +33,6 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSSession;
-import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.linux.ProcPath;
@@ -56,12 +54,9 @@ public class LinuxOperatingSystemFFM extends LinuxOperatingSystem {
     private static final long USER_HZ;
     private static final long PAGE_SIZE;
     static {
-        Map<Integer, Long> auxv = AuxvFFM.queryAuxv();
-        long hz = auxv.getOrDefault(Auxv.AT_CLKTCK, 0L);
-        USER_HZ = hz > 0 ? hz : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
-        long pagesz = auxv.getOrDefault(Auxv.AT_PAGESZ, 0L);
-        PAGE_SIZE = pagesz > 0 ? pagesz
-                : ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
+        Map<Integer, Long> auxv = Auxv.queryAuxv();
+        USER_HZ = Auxv.userHz(auxv);
+        PAGE_SIZE = Auxv.pageSize(auxv);
     }
 
     /**

@@ -19,13 +19,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.AuxvFFM;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.linux.LinuxLibcFunctions;
 import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 import oshi.software.os.linux.LinuxOperatingSystemFFM;
-import oshi.util.driver.linux.proc.Auxv;
 
 /**
  * FFM-based Linux central processor implementation. Extends {@link LinuxCentralProcessor}, supplying the udev CPU
@@ -70,11 +68,6 @@ public final class LinuxCentralProcessorFFM extends LinuxCentralProcessor {
             }
             return syspaths;
         }, LOG, WARN, "Error enumerating CPUs via udev, falling back to sysfs", null);
-    }
-
-    @Override
-    protected long queryHwcap() {
-        return AuxvFFM.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
     }
 
     @Override

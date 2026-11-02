@@ -6,6 +6,7 @@ package oshi.software.common.os.linux.nativefree;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.jspecify.annotations.Nullable;
 
@@ -16,9 +17,9 @@ import oshi.software.os.NetworkParams;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.util.ExceptionUtil;
-import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.proc.Auxv;
 import oshi.util.linux.ProcPath;
 
 /**
@@ -32,8 +33,9 @@ public class LinuxOperatingSystemNF extends LinuxOperatingSystem {
     private static final long PAGE_SIZE;
 
     static {
-        USER_HZ = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf CLK_TCK"), 100L);
-        PAGE_SIZE = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf PAGE_SIZE"), 4096L);
+        Map<Integer, Long> auxv = Auxv.queryAuxv();
+        USER_HZ = Auxv.userHz(auxv);
+        PAGE_SIZE = Auxv.pageSize(auxv);
     }
 
     /**

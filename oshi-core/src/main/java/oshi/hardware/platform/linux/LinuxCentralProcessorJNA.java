@@ -19,11 +19,9 @@ import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.driver.linux.proc.AuxvJNA;
 import oshi.hardware.common.platform.linux.LinuxCentralProcessor;
 import oshi.jna.platform.linux.LinuxLibc;
 import oshi.software.os.linux.LinuxOperatingSystemJNA;
-import oshi.util.driver.linux.proc.Auxv;
 
 /**
  * JNA-based Linux central processor implementation. Extends {@link LinuxCentralProcessor}, supplying the udev CPU
@@ -70,11 +68,6 @@ final class LinuxCentralProcessorJNA extends LinuxCentralProcessor {
         } finally {
             udev.unref();
         }
-    }
-
-    @Override
-    protected long queryHwcap() {
-        return AuxvJNA.queryAuxv().getOrDefault(Auxv.AT_HWCAP, 0L);
     }
 
     @Override
