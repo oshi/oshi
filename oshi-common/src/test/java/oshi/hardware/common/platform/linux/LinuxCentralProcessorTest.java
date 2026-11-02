@@ -621,6 +621,123 @@ class LinuxCentralProcessorTest {
         assertThat(id.name(), is(""));
     }
 
+    // Fixture: /proc/cpuinfo from a z16 KVM guest (cfarm191), trimmed to two of its eight CPUs
+    private static final List<String> S390_CPUINFO = """
+            vendor_id       : IBM/S390
+            # processors    : 8
+            bogomips per cpu: 28901.00
+            max thread id   : 0
+            features\t: esan3 zarch stfle msa ldisp eimm dfp edat etf3eh highgprs te vx vxd vxe gs vxe2 vxp sort dflt vxp2 nnpa sie\s
+            facilities      : 0 1 2 3 4 6 7 8 9 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 30 31 32 33 34 35
+            cache0          : level=1 type=Data scope=Private size=128K line_size=256 associativity=8
+            cache1          : level=1 type=Instruction scope=Private size=128K line_size=256 associativity=8
+            cache2          : level=2 type=Unified scope=Private size=36864K line_size=256 associativity=18
+            cache3          : level=3 type=Unified scope=Shared size=368640K line_size=256 associativity=180
+            processor 0: version = FF,  identification = 12DFD8,  machine = 3932
+            processor 1: version = FF,  identification = 12DFD8,  machine = 3932
+
+            cpu number      : 0
+            physical id     : 0
+            core id         : 0
+            book id         : 0
+            drawer id       : 0
+            dedicated       : 0
+            address         : 0
+            siblings        : 1
+            cpu cores       : 1
+            version         : FF
+            identification  : 12DFD8
+            machine         : 3932
+            cpu MHz dynamic : 5508
+            cpu MHz static  : 5508
+
+            cpu number      : 1
+            physical id     : 1
+            core id         : 1
+            book id         : 1
+            drawer id       : 1
+            dedicated       : 0
+            address         : 1
+            siblings        : 1
+            cpu cores       : 1
+            version         : FF
+            identification  : 12DFD8
+            machine         : 3932
+            cpu MHz dynamic : 5508
+            cpu MHz static  : 5508
+            """
+            .lines().toList();
+
+    @Test
+    void testParseProcessorIdFromCpuinfoS390() {
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(S390_CPUINFO);
+        assertThat(id.vendor(), is("IBM/S390"));
+        assertThat(id.name(), is("IBM z16"));
+        assertThat(id.family(), is(""));
+        assertThat(id.model(), is("3932"));
+        assertThat(id.stepping(), is(""));
+        assertThat(id.processorId(), is("FF12DFD83932"));
+        assertThat("zarch marks the 64-bit z/Architecture", id.cpu64bit(), is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoS390UnknownMachine() {
+        List<String> cpuinfo = List.of("vendor_id       : IBM/S390", "version         : 00", "identification  : 0ABCDE",
+                "machine         : 1234");
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+        assertThat(id.name(), is("IBM/S390 1234"));
+        assertThat(id.model(), is("1234"));
+        assertThat(id.processorId(), is("000ABCDE1234"));
+        assertThat("No features line, no zarch", id.cpu64bit(), is(false));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoPowerMachineIgnored() {
+        // ppc64 also prints a "machine" line, naming the platform rather than a machine type
+        List<String> cpuinfo = """
+                processor\t: 0
+                cpu\t\t: POWER9 (architected), altivec supported
+                revision\t: 2.2 (pvr 004e 1202)
+                machine\t\t: CHRP IBM,9009-42A
+                """.lines().toList();
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+        assertThat(id.model(), is(""));
+        assertThat(id.processorId(), is(""));
+    }
+
+    @Test
+    void testParseCachesFromCpuinfoS390() {
+        Set<ProcessorCache> caches = LinuxCentralProcessor.parseCachesFromCpuinfo(S390_CPUINFO);
+        assertThat(caches, hasSize(4));
+        assertThat(caches.contains(new ProcessorCache(1, 8, 256, 131_072L, ProcessorCache.Type.DATA)), is(true));
+        assertThat(caches.contains(new ProcessorCache(1, 8, 256, 131_072L, ProcessorCache.Type.INSTRUCTION)), is(true));
+        assertThat(caches.contains(new ProcessorCache(2, 18, 256, 37_748_736L, ProcessorCache.Type.UNIFIED)), is(true));
+        assertThat(caches.contains(new ProcessorCache(3, 180, 256, 377_487_360L, ProcessorCache.Type.UNIFIED)),
+                is(true));
+    }
+
+    @Test
+    void testParseCachesFromCpuinfoX86HasNone() {
+        assertThat(LinuxCentralProcessor.parseCachesFromCpuinfo(
+                List.of("cache size\t: 12288 KB", "cache_alignment\t: 64", "flags\t\t: fpu lm")), is(empty()));
+    }
+
+    @Test
+    void testAddMissingCachesFillsSharedL3() {
+        // sysfs on the z16 guest exposes only index0-2
+        ProcessorCache l1d = new ProcessorCache(1, 8, 256, 131_072L, ProcessorCache.Type.DATA);
+        ProcessorCache l1i = new ProcessorCache(1, 8, 256, 131_072L, ProcessorCache.Type.INSTRUCTION);
+        ProcessorCache l2 = new ProcessorCache(2, 18, 256, 37_748_736L, ProcessorCache.Type.UNIFIED);
+        List<ProcessorCache> sysfs = List.of(l2, l1d, l1i);
+        List<ProcessorCache> merged = LinuxCentralProcessor.addMissingCaches(sysfs,
+                LinuxCentralProcessor.parseCachesFromCpuinfo(S390_CPUINFO));
+        assertThat(merged, hasSize(4));
+        assertThat(merged.get(0), is(new ProcessorCache(3, 180, 256, 377_487_360L, ProcessorCache.Type.UNIFIED)));
+        // A level and type sysfs already describes is kept from sysfs, not duplicated
+        ProcessorCache otherL2 = new ProcessorCache(2, 4, 64, 1_048_576L, ProcessorCache.Type.UNIFIED);
+        assertThat(LinuxCentralProcessor.addMissingCaches(sysfs, Set.of(otherL2)), is(sysfs));
+    }
+
     // -------------------------------------------------------------------------
     // parseLscpuIdentity
     // -------------------------------------------------------------------------

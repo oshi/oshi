@@ -16,6 +16,7 @@
 ##### Bug Fixes and Improvements
 
 * [#3857](https://github.com/oshi/oshi/pull/3857): `HardwareAbstractionLayer.getVirtualization()` now identifies an Amazon EC2 Nitro virtual machine, and not an EC2 bare-metal instance - [@dbwiddis](https://github.com/dbwiddis).
+* [#3862](https://github.com/oshi/oshi/pull/3862): Improved Linux processor identification and cache reporting on IBM Z (s390x) - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
