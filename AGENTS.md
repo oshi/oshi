@@ -69,6 +69,14 @@ Runtime configuration lives in `oshi-common/src/main/resources/oshi.properties`,
 startup, is not thread-safe, and is not re-read during operation. Add new settings there rather
 than introducing a separate mechanism.
 
+Lookup tables live beside it as resource files rather than in code: `oshi.architecture.properties`
+maps CPU vendor, family and model (and ARM part numbers and IBM Z machine types) to
+microarchitectures; the others map hypervisor signatures (`oshi.vm.properties`) and MAC prefixes
+(`oshi.vmmacaddr.properties`) to virtual machines, macOS versions to codenames, and Linux
+release-file names to distributions. Add rows to the existing file, or a new file in the same style,
+rather than a `switch` or a static map. A table that mirrors an upstream source (a kernel header, a
+vendor's list) should say which in a comment, so the next update knows where to look.
+
 ## The feedback loop
 
 ```sh
@@ -417,11 +425,17 @@ Windows/macOS path from a different host:
 - Copy the shape of the nearest working sibling implementation rather than inventing a new approach.
 - Native struct offsets, field widths, and `sysctl`/`ioctl` constants are per-OS and per-architecture.
   Verify them against the platform's real headers; do not infer them from another OS.
+- Do not assume little-endian or derive word size from `os.arch`. s390x is big-endian, and Linux
+  prints some `/proc` fields (`/proc/net/route`, `/proc/net/tcp`) as host-order hex, so decode them
+  with `ByteOrder.nativeOrder()`. For the width of a C `long` or pointer use `Util.is64Bit()`, which
+  reads the JVM's data model; an `os.arch` allowlist misses architectures. Fixture tests for anything
+  byte-order sensitive should cover both orders.
 - Say plainly in the PR description what you could not verify. "Compiles; untested on AIX" is a
   useful and welcome statement.
 - CI covers the rest: GitHub Actions for Windows/macOS/Linux, vmactions VMs for the BSDs and
-  Solaris, and the GCC compile farm (`cfarm.yaml`) for AIX and SPARC. Some of those run only on
-  push to master or via `workflow_dispatch`, not on PRs.
+  Solaris, and the GCC compile farm (`cfarm.yaml`) for AIX, SPARC and big-endian s390x Linux. Some
+  of those run only on push to master, weekly (SPARC and s390x), or via `workflow_dispatch`, not on
+  PRs.
 
 ## Writing tests for hardware that may not exist
 
@@ -474,6 +488,11 @@ belong is a second copy of the PR description. Before trimming detail out of an 
 check that it really does exist in javadoc or `oshi.properties` — cutting the macOS and Windows port
 descriptions from #3678 exposed that `Display.getDevicePort()`'s javadoc still documented only Linux.
 
+Scale the entry to its audience. A fix that matters only on an uncommon architecture or platform
+needs one short sentence naming it — "Improved Linux processor identification and cache reporting
+on IBM Z (s390x)" (#3862) — and a reader on that platform follows the link for the rest. Small
+incidental changes riding along in the same PR go in its description, not the entry.
+
 New entries go at the **bottom** of the in-progress list, which keeps it in ascending PR order. The
 first entry of a release cycle **replaces** the `* Your contribution here!` placeholder rather than
 inserting above it; `RELEASING.md` re-creates the placeholder in the next empty section, so it is a
@@ -496,6 +515,12 @@ covers the major platforms to a few more UNIX variants probably is not. A new *c
 existing method is usually an improvement rather than a feature — #3675's opt-in live Apple Silicon
 frequency stayed under Improvements, while #3660 and #3678's new `Display.getDevicePort()` and
 `getOutputName()` methods were Features.
+
+**`Behavior Changes` is for values that worked.** It warns a caller that something they may rely
+on now reads differently: a sentinel replacing a null, a redefined `used`. Turning a value that was
+plainly broken — blank, reversed, garbage, `unknown` where the data exists — into a correct one is a
+`Bug Fixes and Improvements` entry, even though the value changed. Nobody depended on it being
+wrong. Reviewers, CodeRabbit included, sometimes suggest otherwise; #3862 stayed under Bug Fixes.
 
 One PR occasionally earns **two** entries, and that is acceptable though it should be rare. #3652
 added the `reserved` filesystem state (a Feature) *and* redefined `used` (a Behavior Change), in two

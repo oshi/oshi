@@ -12,6 +12,7 @@ case "$(uname -s)" in
   OpenBSD | NetBSD) swapctl -l ;;
   SunOS) swap -s ;;
   AIX) lsps -s ;;
+  Linux) free -h ;;
   *) echo "no swap command known for $(uname -s)" ;;
 esac || true
 find . -name 'hs_err_pid*.log' -type f | while read -r f; do

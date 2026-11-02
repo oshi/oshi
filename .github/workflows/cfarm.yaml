@@ -1,6 +1,11 @@
-# CI on cfarm physical machines (AIX, Solaris SPARC)
+# CI on cfarm machines (AIX, Solaris SPARC, s390x Linux)
 name: Cfarm CI
 
+# AIX runs on every push to master: no other job covers it. Solaris SPARC and
+# s390x run weekly, as their code rarely changes and the same OS is tested on
+# every push elsewhere (OpenIndiana in unix.yaml, Linux in linux.yaml); what they
+# add is the architecture, SPARC's JDK 17 and s390x's big-endian byte order.
+# workflow_dispatch runs all three against the dispatched branch.
 on:
   workflow_dispatch:
   push:
@@ -10,6 +15,8 @@ on:
       - '**.md'
       - '**.yml'
       - '**.yaml'
+  schedule:
+    - cron: "0 0 * * 6" # weekly, Saturday 00:00 UTC, alongside the Coverity scan and FFM audit
 
 # Default-deny at the workflow level. All jobs SSH into cfarm hosts and never
 # touch GITHUB_TOKEN, so no per-job grants are needed.
@@ -38,7 +45,7 @@ permissions: {}
 # attention rather than patience.
 
 jobs:
-  # Tests the triggering ref on Solaris 11.4 SPARC: master on push, or the
+  # Tests the triggering ref on Solaris 11.4 SPARC: master weekly, or the
   # dispatched branch (possibly from a fork) on workflow_dispatch. Retries
   # once for the occasional junit-platform-maven-test flake.
   testsolaris_sparc:
@@ -47,8 +54,8 @@ jobs:
     # fork's push run -- which fire together whenever a fork's master is synced.
     # Two runs then share ~/git/oshi and clobber each other's target/classes
     # (e.g. "package oshi.driver.common.X does not exist" on the loser). Only the
-    # canonical repo runs on push; forks keep workflow_dispatch for branch tests.
-    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
+    # canonical repo runs on schedule; forks keep workflow_dispatch for branch tests.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.repository == 'oshi/oshi')
     name: Test JDK 17, Solaris SPARC
     concurrency: solaris_cfarm216
     runs-on: ubuntu-latest
@@ -104,7 +111,7 @@ jobs:
   testaix:
     # See testsolaris_sparc: skip fork push runs (they race the upstream run on
     # the shared box); forks keep workflow_dispatch for branch tests.
-    if: github.event_name == 'workflow_dispatch' || github.repository == 'oshi/oshi'
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.repository == 'oshi/oshi')
     name: Test JDK 25, AIX
     concurrency: aix_cfarm119
     runs-on: ubuntu-latest
@@ -152,3 +159,42 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
         flags: aix
+
+  # Tests the triggering ref on s390x Linux (Debian, big-endian): master weekly,
+  # or the dispatched branch (possibly from a fork) on workflow_dispatch. No
+  # coverage upload: s390x runs the same Linux code as the `linux` flag, so a flag
+  # would add no lines. What this checks is that the tests, including the
+  # JNA/FFM/native-free comparison tests, pass in big-endian byte order.
+  tests390x:
+    # See testsolaris_sparc.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'schedule' && github.repository == 'oshi/oshi')
+    name: Test JDK 25, s390x Linux
+    concurrency: s390x_cfarm191
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      with:
+        persist-credentials: false
+    # See "Host availability" at the top of this file.
+    - name: Check cfarm191.cfarm.net is reachable
+      id: reach
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+      run: |
+        rc=0
+        .github/cfarm/remote.sh check cfarm191.cfarm.net || rc=$?
+        echo "up=$([ $rc = 0 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+        if [ $rc = 1 ]; then
+          echo "::error title=cfarm191.cfarm.net refused ssh::cfarm191.cfarm.net accepts connections but ssh kept failing; check the key and account."
+          exit 1
+        elif [ $rc = 2 ]; then
+          echo "::warning title=cfarm191.cfarm.net unreachable::cfarm191.cfarm.net did not answer on port 22, so its tests were skipped."
+          echo "cfarm191.cfarm.net did not answer on port 22, so its tests were skipped." >> "$GITHUB_STEP_SUMMARY"
+        fi
+    - name: Test in s390x Linux
+      if: steps.reach.outputs.up == 'true'
+      env:
+        GCC_CI_KEY: ${{ secrets.GCC_CI_KEY }}
+        REPO_URL: https://github.com/${{ github.repository }}
+        BRANCH: ${{ github.ref_name }}
+      run: .github/cfarm/remote.sh run cfarm191.cfarm.net .github/cfarm/s390x.sh
