@@ -26,7 +26,7 @@ jobs:
           # cov-build 2024.12.1 (the version the free Coverity Scan tier serves) cannot capture JDK 25 bytecode, so
           # the scan runs on JDK 23 and lowers the FFM/benchmark compile target to 23 via -Doshi.ffm.release. Revert
           # to 25 (and drop -Pcoverity/-Doshi.ffm.release below) once Coverity Scan ships a JDK 25-capable build tool.
-          java-version: 23
+          java-version: 25
           distribution: temurin
 
       - name: Analyze with Coverity
