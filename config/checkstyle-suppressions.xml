@@ -111,8 +111,10 @@
 
     <!-- Imports for classes linked in javadocs -->
     <suppress checks="UnusedImports" files="(CentralProcessor|OSDesktopWindow|OSProcess)\.java"/>
-    <!-- Test files -->
-    <suppress checks="(JavadocPackage|MissingJavadocType|MissingJavadocMethod|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants|TestConditions)\.java"/>
+    <!-- Test files. JavadocPackage is package-scoped but reported against whichever file is audited first, so it
+         is suppressed by path: a filename pattern passes or fails depending on audit order. -->
+    <suppress checks="JavadocPackage" files="[\\/]src[\\/]test[\\/]"/>
+    <suppress checks="(MissingJavadocType|MissingJavadocMethod|MemberName|ConstantName|StaticVariableName)" files="(.*Test|TestConstants|TestConditions)\.java"/>
     <suppress checks="(ConstantName|VisibilityModifier)" files="SystemInfoTest\.java"/>
     <suppress checks="(VisibilityModifier)" files="OperatingSystemTest\.java"/>
 </suppressions>
