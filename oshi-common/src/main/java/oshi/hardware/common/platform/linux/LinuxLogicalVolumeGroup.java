@@ -68,7 +68,7 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         Map<String, Set<String>> physicalVolumesMap = new HashMap<>();
         for (String s : pvs) {
             String[] split = ParseUtil.whitespaces.split(s.trim(), -1);
-            if (split.length == 2 && split[1].startsWith(DevPath.DEV)) {
+            if (split.length == 2 && split[1].startsWith(DevPath.NODE_ROOT)) {
                 physicalVolumesMap.computeIfAbsent(split[0], k -> new HashSet<>()).add(split[1]);
             }
         }
@@ -160,7 +160,7 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             File[] slaves = new File(device.syspath + "/slaves").listFiles();
             if (slaves != null) {
                 for (File f : slaves) {
-                    String pvName = DevPath.DEV + f.getName();
+                    String pvName = DevPath.NODE_ROOT + f.getName();
                     lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(pvName);
                     pvSetForGroup.add(pvName);
                 }

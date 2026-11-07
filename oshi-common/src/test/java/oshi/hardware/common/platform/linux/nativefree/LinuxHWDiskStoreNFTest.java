@@ -60,7 +60,7 @@ class LinuxHWDiskStoreNFTest {
     void testUpdateAttributesReadsStat() throws IOException {
         // reads, merged, sectors read, ms reading, writes, merged, sectors written, ms writing, in flight, ms active
         writeStat("sda", 100, 1, 2000, 30, 50, 2, 4000, 60, 3, 700);
-        LinuxHWDiskStoreNF disk = new LinuxHWDiskStoreNF(DevPath.DEV + "sda", "model", "serial", 1L, "SSD");
+        LinuxHWDiskStoreNF disk = new LinuxHWDiskStoreNF(DevPath.NODE_ROOT + "sda", "model", "serial", 1L, "SSD");
         assertThat(disk.updateAttributes(sysBlock.toString() + "/"), is(true));
         assertThat(disk.getReads(), is(100L));
         assertThat(disk.getReadBytes(), is(2000L * 512));
@@ -74,7 +74,8 @@ class LinuxHWDiskStoreNFTest {
     @Test
     void testUpdateAttributesEncodesSlashInName() throws IOException {
         writeStat("cciss!c0d0", 7);
-        LinuxHWDiskStoreNF disk = new LinuxHWDiskStoreNF(DevPath.DEV + "cciss/c0d0", "model", "serial", 1L, "HDD");
+        LinuxHWDiskStoreNF disk = new LinuxHWDiskStoreNF(DevPath.NODE_ROOT + "cciss/c0d0", "model", "serial", 1L,
+                "HDD");
         assertThat(disk.updateAttributes(sysBlock.toString() + "/"), is(true));
         assertThat(disk.getReads(), is(7L));
     }
@@ -82,14 +83,14 @@ class LinuxHWDiskStoreNFTest {
     @Test
     void testUpdateAttributesUsesSysPath() {
         // A disk with no sysfs entry exercises the public method on any host, including one with no disks
-        LinuxHWDiskStoreNF missing = new LinuxHWDiskStoreNF(DevPath.DEV + "oshi-no-such-disk", "model", "serial", 1L,
-                "SSD");
+        LinuxHWDiskStoreNF missing = new LinuxHWDiskStoreNF(DevPath.NODE_ROOT + "oshi-no-such-disk", "model", "serial",
+                1L, "SSD");
         assertThat(missing.updateAttributes(), is(false));
     }
 
     @Test
     void testUpdateAttributesMissingDisk() {
-        LinuxHWDiskStoreNF disk = new LinuxHWDiskStoreNF(DevPath.DEV + "nvme0n1", "model", "serial", 1L, "SSD");
+        LinuxHWDiskStoreNF disk = new LinuxHWDiskStoreNF(DevPath.NODE_ROOT + "nvme0n1", "model", "serial", 1L, "SSD");
         assertThat(disk.updateAttributes(sysBlock.toString() + "/"), is(false));
         assertThat(disk.getTimeStamp(), is(0L));
     }
@@ -101,7 +102,7 @@ class LinuxHWDiskStoreNFTest {
     }
 
     private static HWDiskStore disk(List<HWDiskStore> disks, String sysfsName) {
-        HWDiskStore disk = disks.stream().filter(d -> d.getName().equals(DevPath.DEV + sysfsName)).findFirst()
+        HWDiskStore disk = disks.stream().filter(d -> d.getName().equals(DevPath.NODE_ROOT + sysfsName)).findFirst()
                 .orElse(null);
         assertNotNull(disk, sysfsName);
         return disk;
@@ -134,7 +135,7 @@ class LinuxHWDiskStoreNFTest {
         write("loop0/size", "8");
         write("ram0/size", "8");
         Map<String, String> mounts = new HashMap<>();
-        mounts.put(DevPath.DEV + "sda1", "/boot");
+        mounts.put(DevPath.NODE_ROOT + "sda1", "/boot");
         mounts.put(DevPath.MAPPER + "cryptdata", "/data");
         return LinuxHWDiskStoreNF.getDisks(sysBlock.toString() + "/", mounts);
     }
@@ -142,7 +143,8 @@ class LinuxHWDiskStoreNFTest {
     @Test
     void testListsLayeredDevicesButNotLoopOrRam() throws IOException {
         assertThat(layeredDisks().stream().map(HWDiskStore::getName).sorted().collect(Collectors.toList()),
-                contains(DevPath.DEV + "dm-0", DevPath.DEV + "dm-1", DevPath.DEV + "md0", DevPath.DEV + "sda"));
+                contains(DevPath.NODE_ROOT + "dm-0", DevPath.NODE_ROOT + "dm-1", DevPath.NODE_ROOT + "md0",
+                        DevPath.NODE_ROOT + "sda"));
     }
 
     @Test
@@ -154,7 +156,7 @@ class LinuxHWDiskStoreNFTest {
         assertThat(sda.getSize(), is(2048L * 512));
         List<HWPartition> parts = sda.getPartitions();
         assertThat(parts.stream().map(HWPartition::getIdentification).collect(Collectors.toList()),
-                contains(DevPath.DEV + "sda1", DevPath.DEV + "sda2"));
+                contains(DevPath.NODE_ROOT + "sda1", DevPath.NODE_ROOT + "sda2"));
         assertThat(parts.get(0).getMountPoint(), is("/boot"));
         assertThat(parts.get(0).getMajor(), is(8));
         assertThat(parts.get(0).getMinor(), is(1));
@@ -170,7 +172,7 @@ class LinuxHWDiskStoreNFTest {
         assertThat(lv.getDiskType(), is("Virtual"));
         assertThat(lv.getPartitions().size(), is(1));
         HWPartition part = lv.getPartitions().get(0);
-        assertThat(part.getIdentification(), is(DevPath.DEV + "my-vg/root"));
+        assertThat(part.getIdentification(), is(DevPath.NODE_ROOT + "my-vg/root"));
         assertThat(part.getName(), is("dm-0"));
         assertThat(part.getSize(), is(1000L * 512));
         assertThat(part.getMajor(), is(253));

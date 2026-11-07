@@ -113,12 +113,14 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     protected static Map<String, String> buildUuidMap() {
         // Map of volume with device path as key
         Map<String, String> volumeDeviceMap = new HashMap<>();
-        File devMapper = new File(DevPath.MAPPER);
+        // Read below the configured device root, but key by device names, which is how /proc/mounts names volumes
+        File devMapper = new File(DevPath.toFilePath(DevPath.MAPPER));
         File[] volumes = devMapper.listFiles();
         if (volumes != null) {
             for (File volume : volumes) {
                 try {
-                    volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());
+                    volumeDeviceMap.put(DevPath.toNodeName(volume.getCanonicalPath()),
+                            DevPath.toNodeName(volume.getAbsolutePath()));
                 } catch (IOException e) {
                     LOG.debug("Couldn't get canonical path for {}", volume.getName(), e);
                 }
@@ -132,7 +134,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             for (File uuid : uuids) {
                 try {
                     // Store UUID as value with path (e.g., /dev/sda1) and volumes as key
-                    String canonicalPath = uuid.getCanonicalPath();
+                    String canonicalPath = DevPath.toNodeName(uuid.getCanonicalPath());
                     uuidMap.put(canonicalPath, uuid.getName().toLowerCase(Locale.ROOT));
                     if (volumeDeviceMap.containsKey(canonicalPath)) {
                         uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
@@ -200,7 +202,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
 
             String description;
-            if (volume.startsWith(DevPath.DEV)) {
+            if (volume.startsWith(DevPath.NODE_ROOT)) {
                 description = "Local Disk";
             } else if (volume.equals("tmpfs")) {
                 description = "Ram Disk";
@@ -213,13 +215,13 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             // Add in logical volume found at /dev/mapper, useful when linking
             // file system with drive.
             String logicalVolume = "";
-            Path link = Paths.get(volume);
+            Path link = Paths.get(DevPath.toFilePath(volume));
             if (link.toFile().exists() && Files.isSymbolicLink(link)) {
                 try {
                     Path slink = Files.readSymbolicLink(link);
-                    Path full = Paths.get(DevPath.MAPPER + slink.toString());
+                    Path full = Paths.get(DevPath.toFilePath(DevPath.MAPPER) + slink.toString()).normalize();
                     if (full.toFile().exists()) {
-                        logicalVolume = full.normalize().toString();
+                        logicalVolume = DevPath.toNodeName(full.toString());
                     }
                 } catch (IOException e) {
                     LOG.debug("Couldn't access symbolic path {}", link, e);
