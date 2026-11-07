@@ -153,7 +153,7 @@
         <maven-fluido-skin.version>2.1.0</maven-fluido-skin.version>
         <!-- build plugins -->
         <git-commit-id-maven-plugin.version>10.0.1</git-commit-id-maven-plugin.version>
-        <build-helper-maven-plugin.version>3.6.2</build-helper-maven-plugin.version>
+        <build-helper-maven-plugin.version>3.7.0</build-helper-maven-plugin.version>
         <maven-jar-plugin.version>3.5.1</maven-jar-plugin.version>
         <bnd-maven-plugin.version>7.4.0</bnd-maven-plugin.version>
         <maven-shade-plugin.version>3.6.2</maven-shade-plugin.version>
@@ -186,7 +186,7 @@
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.6.1</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.2.3</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.23.0</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.24.0</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.8.0.7211</sonar-maven-plugin.version>
         <dependency-check-maven.version>13.0.0</dependency-check-maven.version>
