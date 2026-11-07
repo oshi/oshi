@@ -31,7 +31,7 @@ import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.platform.linux.LinuxLogicalVolumeGroup.UdevBlockDevice;
 import oshi.util.linux.DevPath;
 
-// parsePhysicalVolumes dereferences DevPath.DEV, whose static initializer validates that the configured /dev path
+// parsePhysicalVolumes dereferences DevPath.NODE_ROOT, initializing DevPath, whose static initializer validates that the configured /dev path
 // exists. That holds on Linux, macOS, and the BSD/illumos CI hosts, but not on Windows, where class init throws.
 @DisabledOnOs(OS.WINDOWS)
 class LinuxLogicalVolumeGroupTest {

@@ -58,7 +58,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                 continue;
             }
             String sysPath = sysBlock + name + "/";
-            String devnode = DevPath.DEV + toDevName(name);
+            String devnode = DevPath.NODE_ROOT + toDevName(name);
             long size = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(sysPath + SIZE).trim(), 0L)
                     * SECTORSIZE;
 
@@ -94,7 +94,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                     long partSize = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(partPath + SIZE).trim(), 0L)
                             * SECTORSIZE;
                     int[] majMin = readMajorMinor(partPath);
-                    String partDevnode = DevPath.DEV + toDevName(partName);
+                    String partDevnode = DevPath.NODE_ROOT + toDevName(partName);
                     String mountPoint = mountsMap.getOrDefault(partDevnode,
                             getDependentNamesFromHoldersDirectory(partPath));
                     store.getMutablePartitionList().add(new HWPartition(partDevnode, partName, "", "", "", partSize,
@@ -158,7 +158,7 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
      * @return true if the statistics were read, false if the disk's {@code stat} file is missing or empty
      */
     synchronized boolean updateAttributes(String sysBlock) {
-        String sysfsName = toSysfsName(getName().substring(DevPath.DEV.length()));
+        String sysfsName = toSysfsName(getName().substring(DevPath.NODE_ROOT.length()));
         String statStr = FileUtil.getStringFromFile(sysBlock + sysfsName + "/" + STAT).trim();
         if (statStr.isEmpty()) {
             return false;

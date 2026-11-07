@@ -37,6 +37,8 @@
 --add-opens
   com.github.oshi.common/oshi.util=org.junit.platform.commons
 --add-opens
+  com.github.oshi.common/oshi.util.linux=org.junit.platform.commons
+--add-opens
   com.github.oshi.common/oshi.util.tuples=org.junit.platform.commons
 --add-opens
   com.github.oshi.common/oshi.util.common.gpu=org.junit.platform.commons

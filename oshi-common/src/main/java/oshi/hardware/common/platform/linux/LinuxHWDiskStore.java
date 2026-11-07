@@ -62,9 +62,6 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
     /** Udev serial number property. */
     protected static final String ID_SERIAL_SHORT = "ID_SERIAL_SHORT";
 
-    /** Root of the device nodes udev reports, regardless of any configured {@link DevPath#DEV}. */
-    private static final String UDEV_DEV = "/dev/";
-
     /** Device-mapper UUID property. */
     protected static final String DM_UUID = "DM_UUID";
     /** Device-mapper name property. */
@@ -147,20 +144,19 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * device-mapper, md RAID, or other stacked block device. A slave that has its own {@code /sys/block} entry is a
      * whole disk; any other is a partition. Package-private for testing.
      *
-     * Entries use the same device-node root as the disk's own name, so they match the names its backend gives its disks
-     * and partitions: udev reports nodes under {@code /dev/} even when {@link DevPath#DEV} is configured elsewhere,
-     * while the native-free backend builds them from {@link DevPath#DEV}.
+     * Entries are device names below {@link DevPath#NODE_ROOT}, matching the names every backend gives its disks and
+     * partitions.
      *
      * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
      * @param name     the disk name, a device node path such as {@code /dev/dm-0}
      * @return the backing stores, sorted, or empty if the disk's sysfs entry could not be read
      */
     static Optional<List<String>> readBackingStores(String sysBlock, String name) {
-        String devRoot = name.startsWith(DevPath.DEV) ? DevPath.DEV : UDEV_DEV;
-        if (!name.startsWith(devRoot)) {
+        if (!name.startsWith(DevPath.NODE_ROOT)) {
             return Optional.empty();
         }
-        File[] slaves = new File(sysBlock + toSysfsName(name.substring(devRoot.length())) + "/slaves").listFiles();
+        File[] slaves = new File(sysBlock + toSysfsName(name.substring(DevPath.NODE_ROOT.length())) + "/slaves")
+                .listFiles();
         if (slaves == null) {
             return Optional.empty();
         }
@@ -168,7 +164,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         for (File slave : slaves) {
             String slaveName = slave.getName();
             StoreKind kind = new File(sysBlock + slaveName).exists() ? StoreKind.DISK : StoreKind.PARTITION;
-            stores.add(kind.entry(devRoot + toDevName(slaveName)));
+            stores.add(kind.entry(DevPath.NODE_ROOT + toDevName(slaveName)));
         }
         stores.sort(null);
         return Optional.of(Collections.unmodifiableList(stores));
@@ -232,7 +228,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
         List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount, -1);
-            if (split.length < 2 || !split[0].startsWith(DevPath.DEV)) {
+            if (split.length < 2 || !split[0].startsWith(DevPath.NODE_ROOT)) {
                 continue;
             }
             mountsMap.put(split[0], split[1]);
@@ -281,7 +277,7 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @return the partition name path
      */
     protected static String getPartitionNameForDmDevice(String vgName, String lvName) {
-        return DevPath.DEV + vgName + '/' + lvName;
+        return DevPath.NODE_ROOT + vgName + '/' + lvName;
     }
 
     /**
