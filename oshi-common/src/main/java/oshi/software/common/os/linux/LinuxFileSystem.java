@@ -76,8 +76,6 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
     private static final List<PathMatcher> FS_VOLUME_INCLUDES = FileSystemUtil
             .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_INCLUDES);
 
-    private static final String UNICODE_SPACE = "\\040";
-
     private static final boolean CHECK_NFS = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_FILESYSTEM_CHECKNFS, true);
 
     // Matches addr= or mountaddr= in NFS mount options; captures up to the next comma
@@ -176,9 +174,9 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
             }
 
             // Exclude pseudo file systems
-            String volume = split[0].replace(UNICODE_SPACE, " ");
+            String volume = ParseUtil.unescapeOctal(split[0]);
             String name = volume;
-            String path = split[1].replace(UNICODE_SPACE, " ");
+            String path = ParseUtil.unescapeOctal(split[1]);
             if (path.equals("/")) {
                 name = "/";
             }
@@ -199,7 +197,7 @@ public abstract class LinuxFileSystem extends AbstractFileSystem {
                 continue;
             }
 
-            String uuid = uuidMap != null ? uuidMap.getOrDefault(split[0], "") : "";
+            String uuid = uuidMap != null ? uuidMap.getOrDefault(volume, "") : "";
 
             String description;
             if (volume.startsWith(DevPath.NODE_ROOT)) {

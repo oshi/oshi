@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,17 @@ class LinuxHWDiskStoreTest {
 
     @TempDir
     private Path tempDir;
+
+    @Test
+    void testParseMountsMap() {
+        Map<String, String> mounts = LinuxHWDiskStore.parseMountsMap(List.of(
+                "/dev/sda1 /mnt/my\\040disk ext4 rw,relatime 0 0", "/dev/vda1 /var/lib/data ext4 rw,relatime 0 0",
+                // A bind mount of the same device does not replace its first mount
+                "/dev/vda1 /etc/hosts ext4 rw,relatime 0 0", "tmpfs /tmp tmpfs rw 0 0", "malformed"));
+        assertThat(mounts.size(), is(2));
+        assertThat(mounts.get("/dev/sda1"), is("/mnt/my disk"));
+        assertThat(mounts.get("/dev/vda1"), is("/var/lib/data"));
+    }
 
     @Test
     void testGetModelForDmDevice() {

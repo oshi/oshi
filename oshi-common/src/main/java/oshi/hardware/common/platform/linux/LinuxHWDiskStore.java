@@ -224,14 +224,24 @@ public abstract class LinuxHWDiskStore extends AbstractHWDiskStore {
      * @return a map of device paths to mount points
      */
     protected static Map<String, String> readMountsMap() {
+        return parseMountsMap(FileUtil.readFile(ProcPath.MOUNTS));
+    }
+
+    /**
+     * Parses {@code /proc/mounts} lines into a map of device to mount point. A device mounted more than once maps to
+     * its first mount, which precedes any bind mounts of it. Package-private for testing.
+     *
+     * @param mounts the lines of {@code /proc/mounts}
+     * @return a map of device paths to mount points, with the kernel's octal escapes decoded
+     */
+    static Map<String, String> parseMountsMap(List<String> mounts) {
         Map<String, String> mountsMap = new HashMap<>();
-        List<String> mounts = FileUtil.readFile(ProcPath.MOUNTS);
         for (String mount : mounts) {
             String[] split = ParseUtil.whitespaces.split(mount, -1);
             if (split.length < 2 || !split[0].startsWith(DevPath.NODE_ROOT)) {
                 continue;
             }
-            mountsMap.put(split[0], split[1]);
+            mountsMap.putIfAbsent(ParseUtil.unescapeOctal(split[0]), ParseUtil.unescapeOctal(split[1]));
         }
         return mountsMap;
     }

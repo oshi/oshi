@@ -1003,6 +1003,40 @@ public final class ParseUtil {
     }
 
     /**
+     * Decodes the three-digit octal escapes, such as {@code \040} for a space, with which the Linux kernel writes
+     * whitespace and backslashes in the fields of {@code /proc/mounts}, {@code /proc/self/mountinfo} and
+     * {@code /etc/fstab}. A backslash not followed by three octal digits is kept as it is.
+     *
+     * @param s the text to decode
+     * @return the decoded text
+     */
+    public static String unescapeOctal(String s) {
+        int i = s.indexOf('\\');
+        if (i < 0) {
+            return s;
+        }
+        StringBuilder sb = new StringBuilder(s.length());
+        sb.append(s, 0, i);
+        while (i < s.length()) {
+            char c = s.charAt(i);
+            if (c == '\\' && i + 3 < s.length() && isOctalDigit(s.charAt(i + 1)) && isOctalDigit(s.charAt(i + 2))
+                    && isOctalDigit(s.charAt(i + 3))) {
+                sb.append(
+                        (char) ((s.charAt(i + 1) - '0') * 64 + (s.charAt(i + 2) - '0') * 8 + (s.charAt(i + 3) - '0')));
+                i += 4;
+            } else {
+                sb.append(c);
+                i++;
+            }
+        }
+        return sb.toString();
+    }
+
+    private static boolean isOctalDigit(char c) {
+        return c >= '0' && c <= '7';
+    }
+
+    /**
      * Convert a long representing filetime (100-ns since 1601 epoch) to ms since 1970 epoch
      *
      * @param filetime A 64-bit value equivalent to FILETIME

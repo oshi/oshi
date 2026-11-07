@@ -88,14 +88,16 @@ class LinuxLogicalVolumeGroupTest {
 
     @Test
     void testAssemblesGroupFromSlavesDirectory(@TempDir Path tmp) throws IOException {
-        String syspath = syspathWithSlaves(tmp, "dm-0", "sda2", "sdb1");
+        String syspath = syspathWithSlaves(tmp, "dm-0", "sda2", "sdb1", "cciss!c0d0p1");
         List<LogicalVolumeGroup> lvgs = build(List.of(lvmDevice(syspath, "vg0", "root")));
 
         assertThat(lvgs, hasSize(1));
         assertThat(lvgs.get(0).getName(), is("vg0"));
+        // sysfs spells the slash in cciss/c0d0p1 as '!'
         assertThat("Each slaves entry becomes a /dev physical volume", lvgs.get(0).getPhysicalVolumes(),
-                containsInAnyOrder("/dev/sda2", "/dev/sdb1"));
-        assertThat(lvgs.get(0).getLogicalVolumes().get("root"), containsInAnyOrder("/dev/sda2", "/dev/sdb1"));
+                containsInAnyOrder("/dev/sda2", "/dev/sdb1", "/dev/cciss/c0d0p1"));
+        assertThat(lvgs.get(0).getLogicalVolumes().get("root"),
+                containsInAnyOrder("/dev/sda2", "/dev/sdb1", "/dev/cciss/c0d0p1"));
     }
 
     @Test

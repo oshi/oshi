@@ -160,7 +160,8 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             File[] slaves = new File(device.syspath + "/slaves").listFiles();
             if (slaves != null) {
                 for (File f : slaves) {
-                    String pvName = DevPath.NODE_ROOT + f.getName();
+                    // sysfs spells a slash in a device name as '!', as in cciss!c0d0p1 for /dev/cciss/c0d0p1
+                    String pvName = DevPath.NODE_ROOT + f.getName().replace('!', '/');
                     lvMapForGroup.computeIfAbsent(lvName, k -> new HashSet<>()).add(pvName);
                     pvSetForGroup.add(pvName);
                 }
