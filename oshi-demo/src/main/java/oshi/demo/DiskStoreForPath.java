@@ -5,6 +5,7 @@
 package oshi.demo;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -21,7 +22,7 @@ import oshi.util.tuples.Pair;
  * Uses OSHI to attempt to identify which OSFileStore, HWDiskStore, and HWPartition a file resides on. Intended as a
  * demonstration, not intended to be used in production code.
  * <p>
- * In pariticular, this won't work in all cases, particularly with logical partitions.
+ * In particular, this won't work in all cases, particularly with logical partitions.
  */
 public class DiskStoreForPath {
 
@@ -36,13 +37,15 @@ public class DiskStoreForPath {
      *
      * @param args Optional file path
      * @throws URISyntaxException on invalid path
+     * @throws IOException        if the path cannot be resolved
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
-    public static void main(String[] args) throws URISyntaxException {
-        // Use the arg as a file path or get this class's path
-        String filePath = args.length > 0 ? args[0]
-                : new File(DiskStoreForPath.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-                        .getPath();
+    public static void main(String[] args) throws URISyntaxException, IOException {
+        // Use the arg as a file path or get this class's path. The canonical path resolves . and .. and symbolic
+        // links, so the lookup matches the mount the file is actually on.
+        String filePath = (args.length > 0 ? new File(args[0])
+                : new File(DiskStoreForPath.class.getProtectionDomain().getCodeSource().getLocation().toURI()))
+                        .getCanonicalPath();
         System.out.println("Searching stores for path: " + filePath);
 
         SystemInfo si = new SystemInfo();
@@ -75,26 +78,48 @@ public class DiskStoreForPath {
     }
 
     private static Pair<Integer, Integer> getDiskStoreAndPartitionForPath(String path, List<HWDiskStore> diskStores) {
+        Pair<Integer, Integer> best = new Pair<>(-1, -1);
+        int bestLength = -1;
         for (int ds = 0; ds < diskStores.size(); ds++) {
             HWDiskStore store = diskStores.get(ds);
             List<HWPartition> parts = store.getPartitions();
             for (int part = 0; part < parts.size(); part++) {
                 String mount = parts.get(part).getMountPoint();
-                if (!mount.isEmpty() && path.substring(0, mount.length()).equalsIgnoreCase(mount)) {
-                    return new Pair<>(ds, part);
+                if (mount.length() > bestLength && isUnder(path, mount)) {
+                    best = new Pair<>(ds, part);
+                    bestLength = mount.length();
                 }
             }
         }
-        return new Pair<>(-1, -1);
+        return best;
     }
 
     private static int getFileStoreForPath(String path, List<OSFileStore> fileStores) {
+        int best = -1;
+        int bestLength = -1;
         for (int fs = 0; fs < fileStores.size(); fs++) {
             String mount = fileStores.get(fs).getMount();
-            if (!mount.isEmpty() && path.substring(0, mount.length()).equalsIgnoreCase(mount)) {
-                return fs;
+            if (mount.length() > bestLength && isUnder(path, mount)) {
+                best = fs;
+                bestLength = mount.length();
             }
         }
-        return -1;
+        return best;
+    }
+
+    /**
+     * Whether a path lies under a mount point. Every path is under {@code /}, so callers keep the longest match. The
+     * comparison ignores case, for Windows drive letters such as {@code C:\}, and only matches whole path components,
+     * so {@code /home2} is not under {@code /home}.
+     */
+    private static boolean isUnder(String path, String mount) {
+        if (mount.isEmpty() || !path.regionMatches(true, 0, mount, 0, mount.length())) {
+            return false;
+        }
+        // The path is canonical, so its only separator is the platform's: a backslash is part of a UNIX file name
+        if (path.length() == mount.length() || mount.charAt(mount.length() - 1) == File.separatorChar) {
+            return true;
+        }
+        return path.charAt(mount.length()) == File.separatorChar;
     }
 }
