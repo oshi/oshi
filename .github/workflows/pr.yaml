@@ -472,6 +472,10 @@ jobs:
           prepare: |
             pkg install openjdk25
           run: |
+            # TEMPORARY (#3879): show what this VM's CPU nodes publish; revert before merge
+            psrinfo -pv || true
+            /usr/sbin/prtpicl -v -c cpu | head -60 || true
+            echo "cache properties: $(/usr/sbin/prtpicl -v -c cpu | grep -c cache)"
             export JAVA_HOME=/usr/jdk/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
             # Fixes the intermittent "Native memory allocation (malloc) failed" crashes: illumos
