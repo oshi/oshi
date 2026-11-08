@@ -116,10 +116,10 @@ public class DiskStoreForPath {
         if (mount.isEmpty() || !path.regionMatches(true, 0, mount, 0, mount.length())) {
             return false;
         }
-        if (path.length() == mount.length() || mount.endsWith("/") || mount.endsWith("\\")) {
+        // The path is canonical, so its only separator is the platform's: a backslash is part of a UNIX file name
+        if (path.length() == mount.length() || mount.charAt(mount.length() - 1) == File.separatorChar) {
             return true;
         }
-        char next = path.charAt(mount.length());
-        return next == '/' || next == '\\';
+        return path.charAt(mount.length()) == File.separatorChar;
     }
 }
