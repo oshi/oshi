@@ -5,6 +5,7 @@
 package oshi.demo;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
 
@@ -36,13 +37,15 @@ public class DiskStoreForPath {
      *
      * @param args Optional file path
      * @throws URISyntaxException on invalid path
+     * @throws IOException        if the path cannot be resolved
      */
     @SuppressForbidden(reason = "Using System.out in a demo class")
-    public static void main(String[] args) throws URISyntaxException {
-        // Use the arg as a file path or get this class's path
-        String filePath = args.length > 0 ? new File(args[0]).getAbsolutePath()
-                : new File(DiskStoreForPath.class.getProtectionDomain().getCodeSource().getLocation().toURI())
-                        .getPath();
+    public static void main(String[] args) throws URISyntaxException, IOException {
+        // Use the arg as a file path or get this class's path. The canonical path resolves . and .. and symbolic
+        // links, so the lookup matches the mount the file is actually on.
+        String filePath = (args.length > 0 ? new File(args[0])
+                : new File(DiskStoreForPath.class.getProtectionDomain().getCodeSource().getLocation().toURI()))
+                        .getCanonicalPath();
         System.out.println("Searching stores for path: " + filePath);
 
         SystemInfo si = new SystemInfo();
