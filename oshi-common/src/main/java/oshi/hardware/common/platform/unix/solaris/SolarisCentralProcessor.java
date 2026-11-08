@@ -32,9 +32,9 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
 
-    // :l2-dcache-size 131072, :l3-cache-line-size 64, :l1-icache-associativity 4
+    // SPARC prints decimal (:l2-dcache-size 131072), x86 prints hex (:l2-cache-size 0x80000)
     private static final Pattern PICL_CACHE_PROPERTY = Pattern
-            .compile("\\s*:l(\\d)-([id]?)cache-(size|line-size|associativity)\\s+(\\d+)\\s*");
+            .compile("\\s*:l(\\d)-([id]?)cache-(size|line-size|associativity)\\s+(0x\\p{XDigit}+|\\d+)\\s*");
 
     @Override
     protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
@@ -132,7 +132,8 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
     /**
      * Parses the output of {@code prtpicl -v -c cpu} into the set of distinct processor caches. Each {@code cpu} node
      * carries {@code l<n>-icache-*}, {@code l<n>-dcache-*} or (for a unified cache) {@code l<n>-cache-*} properties
-     * giving the size, line size and associativity of every cache level that CPU sees.
+     * giving the size, line size and associativity of every cache level that CPU sees. SPARC prints the values in
+     * decimal and x86 in hexadecimal.
      *
      * @param prtpicl the lines emitted by {@code prtpicl -v -c cpu}
      * @return the distinct caches, ordered by level and type; empty if the CPU nodes carry no cache properties
@@ -145,7 +146,7 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
             Matcher m = PICL_CACHE_PROPERTY.matcher(line);
             if (m.matches()) {
                 long[] values = nodeCaches.computeIfAbsent(m.group(1) + m.group(2), k -> new long[3]);
-                long value = ParseUtil.parseLongOrDefault(m.group(4), 0L);
+                long value = ParseUtil.parseLastLong(m.group(4), 0L);
                 switch (m.group(3)) {
                     case "size":
                         values[0] = value;
@@ -166,6 +167,13 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
         return orderedProcCaches(caches);
     }
 
+    /**
+     * Converts one CPU node's accumulated cache properties into {@link ProcessorCache} entries, then clears them.
+     *
+     * @param nodeCaches cache key (level digit plus {@code i}, {@code d} or nothing) to {size, line size,
+     *                   associativity}
+     * @param caches     the set to add the node's caches to
+     */
     private static void addPiclCaches(Map<String, long[]> nodeCaches, Set<ProcessorCache> caches) {
         for (Map.Entry<String, long[]> e : nodeCaches.entrySet()) {
             long[] values = e.getValue();

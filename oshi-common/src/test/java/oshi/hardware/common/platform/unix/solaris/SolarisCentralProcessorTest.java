@@ -17,7 +17,6 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.ProcessorCache;
-import oshi.hardware.CentralProcessor.ProcessorCache.Type;
 
 class SolarisCentralProcessorTest {
 
@@ -135,11 +134,40 @@ class SolarisCentralProcessorTest {
         List<String> prtpicl = ("  cpu (cpu, 298000001c1)\n" + node + "  cpu (cpu, 298000001d1)\n" + node).lines()
                 .toList();
         assertThat(SolarisCentralProcessor.parsePiclCaches(prtpicl),
-                contains(new ProcessorCache(3, 16, 64, 33554432L, Type.UNIFIED),
-                        new ProcessorCache(2, 8, 64, 262144L, Type.INSTRUCTION),
-                        new ProcessorCache(2, 8, 64, 131072L, Type.DATA),
-                        new ProcessorCache(1, 4, 64, 32768L, Type.INSTRUCTION),
-                        new ProcessorCache(1, 4, 64, 16384L, Type.DATA)));
+                contains(new ProcessorCache(3, 16, 64, 33554432L, ProcessorCache.Type.UNIFIED),
+                        new ProcessorCache(2, 8, 64, 262144L, ProcessorCache.Type.INSTRUCTION),
+                        new ProcessorCache(2, 8, 64, 131072L, ProcessorCache.Type.DATA),
+                        new ProcessorCache(1, 4, 64, 32768L, ProcessorCache.Type.INSTRUCTION),
+                        new ProcessorCache(1, 4, 64, 16384L, ProcessorCache.Type.DATA)));
+    }
+
+    @Test
+    void testParsePiclCachesHex() {
+        // Trimmed from prtpicl -v -c cpu on an OpenIndiana x86 VM (AMD EPYC 9V74); x86 prints the values in hex
+        List<String> prtpicl = """
+                  cpu (cpu, 11f0000031a)
+                  :ID\t 0\s
+                  :cpu-mhz\t 0xa28\s
+                  :dtlb-2M-size\t 0xff\s
+                  :dtlb-2M-associativity\t 0x1\s
+                  :l1-dcache-associativity\t 0x2\s
+                  :l1-dcache-lines-per-tag\t 0x1\s
+                  :l1-dcache-line-size\t 0x40\s
+                  :l1-dcache-size\t 0x10000\s
+                  :l1-icache-associativity\t 0x2\s
+                  :l1-icache-lines-per-tag\t 0x1\s
+                  :l1-icache-line-size\t 0x40\s
+                  :l1-icache-size\t 0x10000\s
+                  :l2-cache-associativity\t 0x10\s
+                  :l2-cache-lines-per-tag\t 0x1\s
+                  :l2-cache-line-size\t 0x40\s
+                  :l2-cache-size\t 0x80000\s
+                  :name\t cpu\s
+                """.lines().toList();
+        assertThat(SolarisCentralProcessor.parsePiclCaches(prtpicl),
+                contains(new ProcessorCache(2, 16, 64, 524288L, ProcessorCache.Type.UNIFIED),
+                        new ProcessorCache(1, 2, 64, 65536L, ProcessorCache.Type.INSTRUCTION),
+                        new ProcessorCache(1, 2, 64, 65536L, ProcessorCache.Type.DATA)));
     }
 
     @Test
