@@ -196,4 +196,17 @@ class NetBsdHWDiskStoreTest {
                 .parseWedges(List.of("boot device: dk1"), List.of("dk1"), Map.of(), (disk, part) -> new Pair<>(0, 0))
                 .isEmpty(), is(true));
     }
+
+    @Test
+    void testWithMountPoints() {
+        List<HWPartition> parts = List.of(new HWPartition("vnd0a", "a", "4.2BSD", "", 1024L, 0, 0, ""),
+                new HWPartition("vnd0e", "e", "4.2BSD", "", 1024L, 0, 0, ""),
+                new HWPartition("ld0a", "a", "4.2BSD", "", 1024L, 0, 0, "/kept"));
+        List<HWPartition> filled = NetBsdHWDiskStore.withMountPoints(parts,
+                Map.of("vnd0a", "/mnt/data", "ld0a", "/other"));
+        assertThat(filled.get(0).getMountPoint(), is("/mnt/data"));
+        assertThat(filled.get(0).getSize(), is(1024L));
+        assertThat("Not mounted", filled.get(1).getMountPoint(), is(""));
+        assertThat("An existing mount point is kept", filled.get(2).getMountPoint(), is("/kept"));
+    }
 }

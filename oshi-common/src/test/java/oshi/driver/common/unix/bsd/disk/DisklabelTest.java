@@ -44,7 +44,7 @@ class DisklabelTest {
 
     @Test
     void testParseDiskParamsExtractsHeaderAndPartitions() {
-        // Representative output of `disklabel -n sd0` on OpenBSD/NetBSD.
+        // Representative output of `disklabel -n sd0` on OpenBSD.
         List<String> disklabelOut = """
                 # /dev/rsd0c:
                 type: SCSI
@@ -239,6 +239,77 @@ class DisklabelTest {
         Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("sd0", disklabelOut,
                 ZERO_MAJOR_MINOR);
         assertThat(result.getD(), is(empty()));
+    }
+
+    @Test
+    void testParseDiskParamsOpenBsdPartitionNotInFstab() {
+        // Captured from `disklabel -n sd0` on OpenBSD 7.9 after removing `k` from /etc/fstab: a row whose partition
+        // fstab does not list ends at the cpg column, with no comment
+        List<String> disklabelOut = """
+                duid: f7fe0d0e5dd3df78
+                bytes/sector: 512
+                total sectors: 419430400
+                #                size           offset  fstype [fsize bsize   cpg]
+                  a:          2097152               64  4.2BSD   2048 16384 12960 # /
+                  k:        244860192        174570208  4.2BSD   2048 16384 12960
+                """.lines().toList();
+
+        List<HWPartition> parts = Disklabel.parseDiskParams("sd0", disklabelOut, ZERO_MAJOR_MINOR).getD();
+        assertThat(parts, hasSize(2));
+        assertThat(parts.get(0).getMountPoint(), is("/"));
+        assertThat("The cpg column is not a mount point", parts.get(1).getMountPoint(), is(""));
+        assertThat(parts.get(1).getUuid(), is("f7fe0d0e5dd3df78.k"));
+    }
+
+    @Test
+    void testParseDiskParamsNetBsd() {
+        // Captured from `disklabel vnd0` on NetBSD 10.1. NetBSD has no DUID, and its row comment is the cylinder range
+        List<String> disklabelOut = """
+                # /dev/rvnd0:
+                type: vnd
+                disk: vnd
+                label: fictitious
+                flags:
+                bytes/sector: 512
+                sectors/track: 32
+                tracks/cylinder: 64
+                sectors/cylinder: 2048
+                cylinders: 64
+                total sectors: 131072
+                rpm: 3600
+                interleave: 1
+                trackskew: 0
+                cylinderskew: 0
+                headswitch: 0\t\t# microseconds
+                track-to-track seek: 0\t# microseconds
+                drivedata: 0
+
+                4 partitions:
+                #        size    offset     fstype [fsize bsize cpg/sgs]
+                 a:    131072         0     4.2BSD      0     0     0  # (Cyl.      0 -     63)
+                 d:    131072         0     unused      0     0        # (Cyl.      0 -     63)
+                """.lines().toList();
+
+        Quartet<String, String, Long, List<HWPartition>> result = Disklabel.parseDiskParams("vnd0", disklabelOut,
+                ZERO_MAJOR_MINOR);
+        assertThat(result.getA(), is("fictitious"));
+        assertThat(result.getB(), is(""));
+        assertThat(result.getC(), is(131072L * 512L));
+        assertThat(result.getD(), hasSize(2));
+        for (HWPartition part : result.getD()) {
+            assertThat("A cylinder range is not a mount point", part.getMountPoint(), is(""));
+            assertThat("No DUID, so no UUID", part.getUuid(), is(""));
+        }
+        assertThat(result.getD().get(0).getIdentification(), is("vnd0a"));
+        assertThat(result.getD().get(0).getType(), is("4.2BSD"));
+    }
+
+    @Test
+    void testParseMountPoint() {
+        assertThat(Disklabel.parseMountPoint("  a: 2097152 64 4.2BSD 2048 16384 12960 # /usr/X11R6"), is("/usr/X11R6"));
+        assertThat(Disklabel.parseMountPoint("  i: 960 64 MSDOS # /mnt/my disk"), is("/mnt/my disk"));
+        assertThat(Disklabel.parseMountPoint("  c: 419430400 0 unused"), is(""));
+        assertThat(Disklabel.parseMountPoint(" a: 131072 0 4.2BSD 0 0 0  # (Cyl.      0 -     63)"), is(""));
     }
 
     // ---- Live-system smoke tests gated to OpenBSD and NetBSD ----

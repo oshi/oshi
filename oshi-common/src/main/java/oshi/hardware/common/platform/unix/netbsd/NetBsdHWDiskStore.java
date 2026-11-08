@@ -65,7 +65,8 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
         // NetBSD: hw.disknames = ld0 fd0 dk0 dk1 cd0 (space-separated, no colon suffix)
         String[] devices = ParseUtil.whitespaces.split(BsdSysctlUtil.sysctl("hw.disknames", "").trim(), -1);
         List<String> dmesg = queryDmesg();
-        Map<String, List<HWPartition>> wedges = parseWedges(dmesg, Arrays.asList(devices), queryMounts(),
+        Map<String, String> mounts = queryMounts();
+        Map<String, List<HWPartition>> wedges = parseWedges(dmesg, Arrays.asList(devices), mounts,
                 Disklabel::getMajorMinor);
         Set<String> wedgeNames = new HashSet<>();
         for (List<HWPartition> parts : wedges.values()) {
@@ -118,7 +119,7 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
             store = new NetBsdHWDiskStore(diskName, model, diskdata.getB(), size, iostatSupplier);
             // On a disk carrying wedges, the wedges are its partitions; any disklabel describes the same space
             List<HWPartition> diskWedges = wedges.get(diskName);
-            store.setPartitionList(diskWedges == null ? diskdata.getD() : diskWedges);
+            store.setPartitionList(diskWedges == null ? withMountPoints(diskdata.getD(), mounts) : diskWedges);
             store.updateAttributes();
 
             diskList.add(store);
@@ -175,6 +176,25 @@ public final class NetBsdHWDiskStore extends AbstractHWDiskStore {
                             majorMinor.getA(), majorMinor.getB(), mounts.getOrDefault(name, "")));
         }
         return wedges;
+    }
+
+    /**
+     * Fills in the mount points of disklabel partitions, which NetBSD's {@code disklabel} does not report. A partition
+     * that already has one, as the {@code df} fallback's do, is kept as it is. Package-private for testing.
+     *
+     * @param partitions the partitions read from {@code disklabel}
+     * @param mounts     mount points keyed by device name, as {@link #parseMounts(List)} returns them
+     * @return the partitions, with mount points from {@code mounts} where they had none
+     */
+    static List<HWPartition> withMountPoints(List<HWPartition> partitions, Map<String, String> mounts) {
+        List<HWPartition> result = new ArrayList<>(partitions.size());
+        for (HWPartition p : partitions) {
+            String mount = mounts.get(p.getIdentification());
+            result.add(!p.getMountPoint().isEmpty() || mount == null ? p
+                    : new HWPartition(p.getIdentification(), p.getName(), p.getType(), p.getUuid(), p.getLabel(),
+                            p.getSize(), p.getMajor(), p.getMinor(), mount));
+        }
+        return result;
     }
 
     /**

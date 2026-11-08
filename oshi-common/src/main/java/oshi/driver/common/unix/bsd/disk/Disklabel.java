@@ -96,13 +96,31 @@ public final class Disklabel {
                 if (split.length > 4) {
                     String name = split[0].substring(0, 1);
                     Pair<Integer, Integer> majorMinor = majorMinorLookup.apply(diskName, name);
-                    partitions.add(new HWPartition(diskName + name, name, split[3], duid + "." + name,
-                            ParseUtil.parseLongOrDefault(split[1], 0L) * bytesPerSector, majorMinor.getA(),
-                            majorMinor.getB(), split.length > 5 ? split[split.length - 1] : ""));
+                    partitions.add(
+                            new HWPartition(diskName + name, name, split[3], duid.isEmpty() ? "" : duid + "." + name,
+                                    ParseUtil.parseLongOrDefault(split[1], 0L) * bytesPerSector, majorMinor.getA(),
+                                    majorMinor.getB(), parseMountPoint(line)));
                 }
             }
         }
         return new Quartet<>(label, duid, totalSectors * bytesPerSector, partitions);
+    }
+
+    /**
+     * Gets the mount point from the comment that ends a partition row. OpenBSD writes the partition's mount point from
+     * {@code fstab} there, and nothing for a partition {@code fstab} does not list. NetBSD never writes a mount point:
+     * its comment is the partition's cylinder range, as in {@code # (Cyl. 0 - 63)}.
+     *
+     * @param line a partition row of {@code disklabel} output
+     * @return the mount point, or an empty string if the row does not name one
+     */
+    static String parseMountPoint(String line) {
+        int hash = line.indexOf('#');
+        if (hash < 0) {
+            return "";
+        }
+        String comment = line.substring(hash + 1).trim();
+        return comment.startsWith("(") ? "" : comment;
     }
 
     /**
