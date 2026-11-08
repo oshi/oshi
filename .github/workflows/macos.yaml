@@ -25,7 +25,7 @@ jobs:
       matrix:
         # Previous LTS, Current LTS, Current release
         java: [21, 25, 26]
-        os: [macos-14, macos-15, macos-26]
+        os: [macos-15, macos-26]
         include:
           # Apple's licensing only permits macOS guests on Apple hardware, and GitHub satisfies it on Intel by
           # running physical machines: this runner reports itself as a Macmini6,2, where the Apple Silicon runners
