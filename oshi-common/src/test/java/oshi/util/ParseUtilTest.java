@@ -895,6 +895,21 @@ class ParseUtilTest {
     }
 
     @Test
+    void testUnescapeOctal() {
+        // The four characters the kernel escapes in /proc/mounts: space, tab, newline and backslash
+        assertThat(ParseUtil.unescapeOctal("/mnt/my\\040disk"), is("/mnt/my disk"));
+        // CHECKSTYLE.SUPPRESS: IllegalTokenText for 1 lines - the octal text is the input under test, not an escape
+        assertThat(ParseUtil.unescapeOctal("/mnt/a\\011b\\012c\\134d"), is("/mnt/a\tb\nc\\d"));
+        assertThat(ParseUtil.unescapeOctal("\\040"), is(" "));
+        assertThat(ParseUtil.unescapeOctal("/mnt/plain"), is("/mnt/plain"));
+        assertThat(ParseUtil.unescapeOctal(""), is(""));
+        // A backslash not followed by three octal digits is kept
+        assertThat(ParseUtil.unescapeOctal("a\\04"), is("a\\04"));
+        assertThat(ParseUtil.unescapeOctal("a\\089b"), is("a\\089b"));
+        assertThat(ParseUtil.unescapeOctal("a\\"), is("a\\"));
+    }
+
+    @Test
     void testGetTextAfterString() {
         assertThat(ParseUtil.getTextAfterString("Serial Number: ABC123", "Serial Number:"), is(" ABC123"));
         // Marker at the start, as the startsWith-guarded call sites have it
