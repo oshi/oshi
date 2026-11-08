@@ -21,6 +21,7 @@
 * [#3873](https://github.com/oshi/oshi/pull/3873): Fixed Linux disk and file store reporting with a custom `oshi.util.dev.path`: device names are the `/dev/` names the kernel reports in every implementation, and loop, RAM and device-mapper devices, partition mount points, physical volumes and file store UUIDs are recognized - [@dbwiddis](https://github.com/dbwiddis).
 * [#3874](https://github.com/oshi/oshi/pull/3874): Fixed Linux `HWPartition.getMountPoint()` for a mount point containing a space, and for a device that is also bind-mounted elsewhere; `OSFileStore` mount points containing a tab, newline or backslash; and `LogicalVolumeGroup` physical volume names containing a slash - [@dbwiddis](https://github.com/dbwiddis).
 * [#3876](https://github.com/oshi/oshi/pull/3876): Fixed `HWPartition.getMountPoint()` for disklabel partitions on NetBSD, which reported part of the cylinder range and now reports the mounted file system, and on OpenBSD for a partition not listed in `fstab`. NetBSD disklabel partitions no longer report a `.a`-style UUID - [@dbwiddis](https://github.com/dbwiddis).
+* [#3879](https://github.com/oshi/oshi/pull/3879): `CentralProcessor.getProcessorCaches()` now reports processor caches on Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
