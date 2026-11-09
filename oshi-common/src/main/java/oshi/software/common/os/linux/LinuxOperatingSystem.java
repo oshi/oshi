@@ -289,13 +289,16 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     /**
-     * Attempts to read /etc/os-release
+     * Attempts to read /etc/os-release, or /usr/lib/os-release where /etc has none
      *
      * @return a triplet with the parsed family, versionID and codeName if file successfully read and NAME= found, null
      *         otherwise
      */
     private static @Nullable Triplet<String, String, String> readOsRelease() {
-        return readOsRelease(FileUtil.readFile("/etc/os-release"));
+        // os-release(5): read /etc/os-release, falling back to /usr/lib/os-release, which images with a read-only /usr
+        // and no /etc copy (some minimal and distroless containers) ship alone
+        List<String> osRelease = FileUtil.readFile("/etc/os-release", false);
+        return readOsRelease(osRelease.isEmpty() ? FileUtil.readFile("/usr/lib/os-release", false) : osRelease);
     }
 
     /**
