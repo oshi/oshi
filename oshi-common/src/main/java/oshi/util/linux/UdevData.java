@@ -17,9 +17,9 @@ import oshi.util.FileUtil;
  * files are world-readable and hold the same {@code E:} properties libudev returns from
  * {@code udev_device_get_property_value}, so code that cannot load libudev can still read them.
  * <p>
- * Each device has one file, named by subsystem: {@code b<major>:<minor>} for a block device and {@code n<ifindex>} for
- * a network interface. A host without {@code udevd}, such as most containers, has no database; every query then returns
- * an empty map.
+ * Each device has one file, named by subsystem: {@code b<major>:<minor>} for a block device, {@code n<ifindex>} for a
+ * network interface, and {@code +<subsystem>:<name>} for a device with no device node, such as a PCI function. A host
+ * without {@code udevd}, such as most containers, has no database; every query then returns an empty map.
  */
 @ThreadSafe
 public final class UdevData {
@@ -80,6 +80,33 @@ public final class UdevData {
             return Collections.emptyMap();
         }
         return parseProperties(FileUtil.readFile(dataDir + "n" + ifindex, false));
+    }
+
+    /**
+     * Reads the udev properties of a device that has no device node, such as a PCI function.
+     *
+     * @param subsystem the device's subsystem, such as {@code pci}
+     * @param sysname   the device's name in that subsystem, such as {@code 0000:01:00.0}
+     * @return the properties, or an empty map if udev has no record of the device
+     */
+    public static Map<String, String> queryDevice(String subsystem, String sysname) {
+        return queryDevice(RUN_UDEV_DATA, subsystem, sysname);
+    }
+
+    /**
+     * Reads the udev properties of a device that has no device node from a given database directory. Used for testing
+     * and for a database copied from another host.
+     *
+     * @param dataDir   the database directory, ending in a slash
+     * @param subsystem the device's subsystem
+     * @param sysname   the device's name in that subsystem
+     * @return the properties, or an empty map if there is no record
+     */
+    public static Map<String, String> queryDevice(String dataDir, String subsystem, String sysname) {
+        if (subsystem.isEmpty() || sysname.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        return parseProperties(FileUtil.readFile(dataDir + "+" + subsystem + ":" + sysname, false));
     }
 
     /**

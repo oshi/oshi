@@ -87,14 +87,22 @@ public final class Devicetree {
      */
     static @Nullable String queryManufacturer(String base) {
         List<String> compatible = readStrings(base + "compatible");
-        if (compatible.isEmpty()) {
-            return null;
-        }
-        int comma = compatible.get(0).indexOf(',');
+        return compatible.isEmpty() ? null : queryVendor(compatible.get(0));
+    }
+
+    /**
+     * Names the vendor of a devicetree {@code compatible} string, {@code vendor,device}, through
+     * {@code oshi.devicetree.properties}.
+     *
+     * @param compatible a compatible string, such as {@code raspberrypi,4-model-b}
+     * @return The vendor's name, the prefix itself if it is not listed, or null if there is no vendor prefix
+     */
+    public static @Nullable String queryVendor(String compatible) {
+        int comma = compatible.indexOf(',');
         if (comma <= 0) {
             return null;
         }
-        String vendor = compatible.get(0).substring(0, comma);
+        String vendor = compatible.substring(0, comma);
         // QEMU's generic virt machine claims no real vendor
         if ("linux".equals(vendor)) {
             return null;

@@ -71,5 +71,7 @@ class UdevDataTest {
     void testDefaultDatabaseRejectsUnsetNumbers() {
         assertThat(UdevData.queryBlockDevice(0, 0), anEmptyMap());
         assertThat(UdevData.queryNetworkInterface(0), anEmptyMap());
+        assertThat(UdevData.queryDevice("pci", ""), anEmptyMap());
+        assertThat(UdevData.queryDevice("", "0000:01:00.0"), anEmptyMap());
     }
 }
