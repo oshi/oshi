@@ -17,6 +17,7 @@ import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 import oshi.util.linux.SysPath;
+import oshi.util.linux.UdevData;
 
 /**
  * Native-free Linux disk store implementation. Enumerates block devices from {@code /sys/block/} and reads stats from
@@ -35,18 +36,19 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
      * @return a list of {@link HWDiskStore} objects
      */
     public static List<HWDiskStore> getDisks() {
-        return getDisks(SysPath.BLOCK, readMountsMap());
+        return getDisks(SysPath.BLOCK, readMountsMap(), UdevData.RUN_UDEV_DATA);
     }
 
     /**
      * Gets the disk stores under a sysfs block directory, listing the same devices as the udev backends: every block
      * device except loop and RAM disks. Package-private for testing.
      *
-     * @param sysBlock  the sysfs block directory, normally {@link SysPath#BLOCK}
-     * @param mountsMap the map of device paths to mount points
+     * @param sysBlock    the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @param mountsMap   the map of device paths to mount points
+     * @param udevDataDir the udev database directory, normally {@link UdevData#RUN_UDEV_DATA}
      * @return a list of {@link HWDiskStore} objects
      */
-    static List<HWDiskStore> getDisks(String sysBlock, Map<String, String> mountsMap) {
+    static List<HWDiskStore> getDisks(String sysBlock, Map<String, String> mountsMap, String udevDataDir) {
         List<HWDiskStore> result = new ArrayList<>();
         File[] blockDevices = new File(sysBlock).listFiles();
         if (blockDevices == null) {
@@ -62,6 +64,9 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
             long size = ParseUtil.parseLongOrDefault(FileUtil.getStringFromFile(sysPath + SIZE).trim(), 0L)
                     * SECTORSIZE;
 
+            int[] diskMajMin = readMajorMinor(sysPath);
+            // The udev database holds the properties libudev would return, when udevd runs on this host
+            Map<String, String> udev = UdevData.queryBlockDevice(udevDataDir, diskMajMin[0], diskMajMin[1]);
             LinuxHWDiskStoreNF store;
             if (new File(sysPath + "dm").isDirectory()) {
                 String dmUuid = FileUtil.getStringFromFile(sysPath + "dm/uuid").trim();
@@ -69,14 +74,17 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                         ParseUtil.getStringValueOrUnknown(dmUuid), size, "Virtual");
                 String dmName = FileUtil.getStringFromFile(sysPath + "dm/name").trim();
                 String[] vgLv = isLogicalVolume(dmUuid) ? splitLvmDmName(dmName) : new String[] { "", "" };
-                int[] majMin = readMajorMinor(sysPath);
                 addDeviceMapperPartition(store, mountsMap, dmUuid, vgLv[0], vgLv[1], dmName, devnode, name, sysPath,
-                        null, null, null, size, majMin[0], majMin[1]);
+                        udev.get(ID_FS_TYPE), udev.get(ID_FS_UUID), udev.get(ID_FS_LABEL), size, diskMajMin[0],
+                        diskMajMin[1]);
             } else {
-                store = new LinuxHWDiskStoreNF(devnode,
-                        ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(sysPath + "device/model").trim()),
-                        ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(sysPath + "device/serial").trim()),
-                        size, detectDiskType(sysPath));
+                // Prefer udev's values, as the libudev backends do; sysfs carries a serial only for some transports
+                String model = ParseUtil.getStringValueOrDefault(udev.get(ID_MODEL),
+                        FileUtil.getStringFromFile(sysPath + "device/model").trim());
+                String serial = ParseUtil.getStringValueOrDefault(udev.get(ID_SERIAL_SHORT),
+                        FileUtil.getStringFromFile(sysPath + "device/serial").trim());
+                store = new LinuxHWDiskStoreNF(devnode, ParseUtil.getStringValueOrUnknown(model),
+                        ParseUtil.getStringValueOrUnknown(serial), size, detectDiskType(sysPath));
             }
 
             // Read stats
@@ -97,8 +105,13 @@ public final class LinuxHWDiskStoreNF extends LinuxHWDiskStore {
                     String partDevnode = DevPath.NODE_ROOT + toDevName(partName);
                     String mountPoint = mountsMap.getOrDefault(partDevnode,
                             getDependentNamesFromHoldersDirectory(partPath));
-                    store.getMutablePartitionList().add(new HWPartition(partDevnode, partName, "", "", "", partSize,
-                            majMin[0], majMin[1], mountPoint));
+                    Map<String, String> partUdev = UdevData.queryBlockDevice(udevDataDir, majMin[0], majMin[1]);
+                    store.getMutablePartitionList()
+                            .add(new HWPartition(partDevnode, partName,
+                                    ParseUtil.getStringValueOrDefault(partUdev.get(ID_FS_TYPE), PARTITION),
+                                    ParseUtil.getStringValueOrEmpty(partUdev.get(ID_FS_UUID)),
+                                    ParseUtil.getStringValueOrEmpty(partUdev.get(ID_FS_LABEL)), partSize, majMin[0],
+                                    majMin[1], mountPoint));
                 }
             }
 

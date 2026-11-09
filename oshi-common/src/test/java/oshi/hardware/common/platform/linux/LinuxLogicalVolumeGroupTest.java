@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -155,5 +156,44 @@ class LinuxLogicalVolumeGroupTest {
     @Test
     void testNoDevicesYieldsNoGroups() {
         assertThat(build(Collections.emptyList()), is(empty()));
+    }
+
+    // -- sysfs enumeration, used without libudev --
+
+    private static void dmDevice(Path sysBlock, String name, String uuid, String dmName, String... slaves)
+            throws IOException {
+        Path dm = Files.createDirectories(sysBlock.resolve(name).resolve("dm"));
+        Files.writeString(dm.resolve("uuid"), uuid + "\n");
+        Files.writeString(dm.resolve("name"), dmName + "\n");
+        Path slaveDir = Files.createDirectories(sysBlock.resolve(name).resolve("slaves"));
+        for (String slave : slaves) {
+            Files.createFile(slaveDir.resolve(slave));
+        }
+    }
+
+    @Test
+    // Splitting the device-mapper name loads LinuxHWDiskStore, whose static initializer needs /proc
+    @EnabledOnOs(OS.LINUX)
+    void testSysfsBlockDevicesAssembleVolumeGroups(@TempDir Path tmp) throws IOException {
+        dmDevice(tmp, "dm-0", "LVM-Abc123Def456", "my--vg-root", "sda2");
+        dmDevice(tmp, "dm-1", "LVM-Abc123Ghi789", "my--vg-swap_1", "sda2");
+        dmDevice(tmp, "dm-2", "CRYPT-LUKS2-0123456789abcdef-luks", "luks-0123");
+        // A mapping created with dmsetup and no UUID
+        dmDevice(tmp, "dm-3", "", "plain");
+        Files.createDirectories(tmp.resolve("sda"));
+
+        List<UdevBlockDevice> devices = LinuxLogicalVolumeGroup.querySysfsBlockDevices(tmp + "/");
+        assertThat("Only dm-N devices are read", devices, hasSize(4));
+
+        List<LogicalVolumeGroup> lvgs = build(devices);
+        assertThat("The LUKS mapping is not a volume group", lvgs, hasSize(1));
+        assertThat("A doubled hyphen is a hyphen in the name", lvgs.get(0).getName(), is("my-vg"));
+        assertThat(lvgs.get(0).getLogicalVolumes().keySet(), containsInAnyOrder("root", "swap_1"));
+        assertThat(lvgs.get(0).getPhysicalVolumes(), contains("/dev/sda2"));
+    }
+
+    @Test
+    void testSysfsBlockDevicesMissingDirectory(@TempDir Path tmp) {
+        assertThat(LinuxLogicalVolumeGroup.querySysfsBlockDevices(tmp.resolve("absent") + "/"), is(empty()));
     }
 }

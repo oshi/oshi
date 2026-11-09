@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.linux;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,9 +19,11 @@ import org.jspecify.annotations.Nullable;
 import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.common.AbstractLogicalVolumeGroup;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.linux.DevPath;
+import oshi.util.linux.SysPath;
 
 /**
  * Linux implementation of LogicalVolumeGroup.
@@ -45,6 +48,44 @@ public class LinuxLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
      */
     protected LinuxLogicalVolumeGroup(String name, Map<String, Set<String>> lvMap, Set<String> pvSet) {
         super(name, lvMap, pvSet);
+    }
+
+    /**
+     * Gets the logical volume groups from sysfs alone, for hosts without libudev and for the native-free
+     * implementation. The kernel publishes each device-mapper device's UUID and name under {@code /sys/block/dm-N/dm/},
+     * and LVM's name encodes the volume group and logical volume the udev rules would report.
+     *
+     * @return the volume groups, never null
+     */
+    public static List<LogicalVolumeGroup> querySysfsLogicalVolumeGroups() {
+        return buildLogicalVolumeGroups(querySysfsBlockDevices(SysPath.BLOCK), LinuxLogicalVolumeGroup::new);
+    }
+
+    /**
+     * Reads the device-mapper block devices under a sysfs block directory into the records udev would supply.
+     * Package-private for testing.
+     *
+     * @param sysBlock the sysfs block directory, normally {@link SysPath#BLOCK}
+     * @return one record per {@code dm-N} device
+     */
+    static List<UdevBlockDevice> querySysfsBlockDevices(String sysBlock) {
+        List<UdevBlockDevice> devices = new ArrayList<>();
+        File[] blockDevices = new File(sysBlock).listFiles();
+        if (blockDevices == null) {
+            return devices;
+        }
+        for (File blockDev : blockDevices) {
+            String name = blockDev.getName();
+            if (!name.startsWith("dm-")) {
+                continue;
+            }
+            String sysPath = sysBlock + name;
+            String uuid = FileUtil.getStringFromFile(sysPath + "/dm/uuid").trim();
+            String[] vgLv = LinuxHWDiskStore.splitLvmDmName(FileUtil.getStringFromFile(sysPath + "/dm/name").trim());
+            devices.add(new UdevBlockDevice(sysPath, DevPath.NODE_ROOT + name, uuid.isEmpty() ? null : uuid, vgLv[0],
+                    vgLv[1]));
+        }
+        return devices;
     }
 
     /**

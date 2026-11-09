@@ -215,13 +215,9 @@ class NativeFreeComparisonTest {
         for (HWDiskStore j : jna) {
             HWDiskStore n = nfByName.get(j.getName());
             assertThat(n).as("disk %s", j.getName()).isNotNull();
-            // Model may differ in space vs underscore: sysfs uses raw kernel string,
-            // udev may normalize spaces to underscores (or vice versa depending on device)
-            assertThat(n.getModel().replace('_', ' ')).isEqualTo(j.getModel().replace('_', ' '));
-            // Serial: udev ID_SERIAL_SHORT may expose serials not available in sysfs device/serial
-            if (!"unknown".equals(n.getSerial())) {
-                assertThat(n.getSerial()).isEqualTo(j.getSerial());
-            }
+            // Both read udev's ID_MODEL and ID_SERIAL_SHORT, native-free from the udev database
+            assertThat(n.getModel()).as("model(%s)", j.getName()).isEqualTo(j.getModel());
+            assertThat(n.getSerial()).as("serial(%s)", j.getName()).isEqualTo(j.getSerial());
             assertThat(n.getSize()).isEqualTo(j.getSize());
             assertThat(n.getDiskType()).as("diskType(%s)", j.getName()).isEqualTo(j.getDiskType());
             assertThat(n.getReads()).as("reads(%s)", j.getName()).isGreaterThanOrEqualTo(j.getReads());
@@ -229,6 +225,15 @@ class NativeFreeComparisonTest {
             assertThat(n.getPartitions().stream().map(HWPartition::getIdentification).sorted())
                     .as("partition identifications(%s)", j.getName()).containsExactlyElementsOf(j.getPartitions()
                             .stream().map(HWPartition::getIdentification).sorted().collect(Collectors.toList()));
+            Map<String, HWPartition> nfParts = n.getPartitions().stream()
+                    .collect(Collectors.toMap(HWPartition::getIdentification, Function.identity()));
+            for (HWPartition jp : j.getPartitions()) {
+                HWPartition np = nfParts.get(jp.getIdentification());
+                assertThat(np).as("partition %s", jp.getIdentification()).isNotNull();
+                assertThat(np.getType()).as("type(%s)", jp.getIdentification()).isEqualTo(jp.getType());
+                assertThat(np.getUuid()).as("uuid(%s)", jp.getIdentification()).isEqualTo(jp.getUuid());
+                assertThat(np.getLabel()).as("label(%s)", jp.getIdentification()).isEqualTo(jp.getLabel());
+            }
             assertThat(n.getBackingStores()).as("backing stores(%s)", j.getName()).isEqualTo(j.getBackingStores());
         }
     }
@@ -245,6 +250,7 @@ class NativeFreeComparisonTest {
         for (NetworkIF j : jna) {
             NetworkIF n = nfByName.get(j.getName());
             assertThat(n).as("networkIF %s", j.getName()).isNotNull();
+            assertThat(n.getDisplayName()).as("displayName(%s)", j.getName()).isEqualTo(j.getDisplayName());
             assertThat(n.getMacaddr()).isEqualTo(j.getMacaddr());
             assertThat(n.getIPv4addr()).isEqualTo(j.getIPv4addr());
             assertThat(n.getIPv6addr()).isEqualTo(j.getIPv6addr());

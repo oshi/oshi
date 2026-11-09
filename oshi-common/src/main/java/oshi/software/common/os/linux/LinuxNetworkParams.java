@@ -5,9 +5,13 @@
 package oshi.software.common.os.linux;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
@@ -25,10 +29,47 @@ import oshi.util.linux.ProcPath;
 @ThreadSafe
 public abstract class LinuxNetworkParams extends AbstractNetworkParams {
 
+    /** The resolv.conf systemd-resolved writes with the upstream servers it forwards to. */
+    private static final String RESOLVED_UPSTREAM_CONF = "/run/systemd/resolve/resolv.conf";
+    /** The addresses of systemd-resolved's stub listeners. */
+    private static final Set<String> RESOLVED_STUBS = new HashSet<>(Arrays.asList("127.0.0.53", "127.0.0.54"));
+
     /**
      * Default constructor.
      */
     protected LinuxNetworkParams() {
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Where {@code /etc/resolv.conf} points only at the local systemd-resolved stub, returns the upstream servers
+     * resolved forwards to instead, from the file it maintains for that purpose.
+     */
+    @Override
+    public String[] getDnsServers() {
+        return getDnsServers(FileUtil.readFile("/etc/resolv.conf"),
+                () -> FileUtil.readFile(RESOLVED_UPSTREAM_CONF, false));
+    }
+
+    /**
+     * Chooses the name servers from {@code /etc/resolv.conf}, or from resolved's upstream list when the former names
+     * only its stub listener. Package-private for testing.
+     *
+     * @param resolv   the lines of {@code /etc/resolv.conf}
+     * @param upstream supplies the lines of {@code /run/systemd/resolve/resolv.conf}, read only when needed
+     * @return the name server addresses
+     */
+    static String[] getDnsServers(List<String> resolv, Supplier<List<String>> upstream) {
+        String[] servers = parseDnsServers(resolv);
+        if (servers.length > 0 && Arrays.stream(servers).allMatch(RESOLVED_STUBS::contains)) {
+            // resolved forwards to every server it lists, not just the three the libc resolver would read
+            String[] upstreamServers = parseDnsServers(upstream.get(), Integer.MAX_VALUE);
+            if (upstreamServers.length > 0) {
+                return upstreamServers;
+            }
+        }
+        return servers;
     }
 
     @Override

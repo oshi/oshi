@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.common.platform.linux.UdevUsbDevice;
+import oshi.hardware.common.platform.linux.nativefree.LinuxUsbDeviceNF;
 
 /**
  * Enumerates Linux USB devices via FFM/libudev, returning raw {@link UdevUsbDevice} attributes for
@@ -46,8 +47,8 @@ public final class LinuxUsbDeviceFFM {
      */
     public static List<UdevUsbDevice> queryUsbDevices() {
         if (!HAS_UDEV) {
-            LOG.warn("USB Device information requires libudev, which is not present.");
-            return emptyList();
+            LOG.debug("libudev is not present; reading USB devices from sysfs.");
+            return LinuxUsbDeviceNF.queryUsbDevices();
         }
         return callInArenaOrDefault(arena -> {
             List<UdevUsbDevice> devices = new ArrayList<>();

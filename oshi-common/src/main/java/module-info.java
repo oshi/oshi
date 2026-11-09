@@ -37,6 +37,7 @@ import org.jspecify.annotations.NullMarked;
     exports oshi.hardware;
     exports oshi.hardware.common;
     exports oshi.hardware.common.platform.linux;
+    exports oshi.hardware.common.platform.linux.nativefree;
     exports oshi.hardware.common.platform.mac;
     exports oshi.hardware.common.platform.unix;
     exports oshi.hardware.common.platform.unix.aix;

@@ -279,9 +279,30 @@ public abstract class LinuxOSProcess extends AbstractOSProcess {
 
     @Override
     public long getAffinityMask() {
-        // Would prefer to use native sched_getaffinity call but variable sizing is
-        // kernel-dependent and requires C macros, so we use command line instead.
+        // The kernel prints the same mask sched_getaffinity returns in /proc/<pid>/status, which avoids both the native
+        // call's kernel-dependent mask size and spawning taskset, absent on minimal images
+        String cpusAllowed = FileUtil
+                .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), ":")
+                .get("Cpus_allowed");
+        if (cpusAllowed != null) {
+            return parseCpusAllowed(cpusAllowed);
+        }
         return parseAffinityMask(ExecutingCommand.getFirstAnswer("taskset -p " + getProcessID()));
+    }
+
+    /**
+     * Parses the {@code Cpus_allowed} field of {@code /proc/<pid>/status}: a hexadecimal mask written as
+     * comma-separated 32-bit words, most significant first, so a 72-CPU host prints {@code ff,ffffffff,ffffffff}.
+     *
+     * @param cpusAllowed the field value
+     * @return the low 64 bits of the mask, or 0 if unparseable
+     */
+    static long parseCpusAllowed(String cpusAllowed) {
+        String hex = cpusAllowed.replace(",", "").trim();
+        if (hex.isEmpty()) {
+            return 0;
+        }
+        return ExceptionUtil.getLongOrDefault(() -> new BigInteger(hex, 16).longValue(), 0);
     }
 
     /**

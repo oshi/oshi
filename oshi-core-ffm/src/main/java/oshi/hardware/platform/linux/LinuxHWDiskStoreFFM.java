@@ -23,6 +23,7 @@ import oshi.ffm.platform.linux.UdevFunctions;
 import oshi.hardware.HWDiskStore;
 import oshi.hardware.HWPartition;
 import oshi.hardware.common.platform.linux.LinuxHWDiskStore;
+import oshi.hardware.common.platform.linux.nativefree.LinuxHWDiskStoreNF;
 import oshi.util.ParseUtil;
 import oshi.util.linux.DevPath;
 
@@ -53,10 +54,13 @@ public final class LinuxHWDiskStoreFFM extends LinuxHWDiskStore {
 
     static List<HWDiskStore> getDisks(@Nullable LinuxHWDiskStore storeToUpdate) {
         if (!HAS_UDEV) {
-            if (storeToUpdate == null) {
-                LOG.warn("Disk Store information requires libudev, which is not present.");
+            // Without libudev the stores come from sysfs and update themselves, so a store of this class is never
+            // handed back here to refresh.
+            if (storeToUpdate != null) {
+                return Collections.emptyList();
             }
-            return Collections.emptyList();
+            LOG.debug("libudev is not present; reading disk stores from sysfs.");
+            return LinuxHWDiskStoreNF.getDisks();
         }
         LinuxHWDiskStoreFFM store = null;
         List<HWDiskStore> result = new ArrayList<>();

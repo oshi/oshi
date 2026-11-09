@@ -37,12 +37,12 @@ public final class LinuxNetworkIFFFM extends LinuxNetworkIF {
     private static String queryIfModel(NetworkInterface netint) {
         String name = netint.getName();
         if (!HAS_UDEV) {
-            return queryIfModelFromSysfs(name);
+            return queryIfModelFromUdevData(name);
         }
         return callInArenaOrDefault(arena -> {
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
-                return queryIfModelFromSysfs(name);
+                return queryIfModelFromUdevData(name);
             }
             // wrapped only to release the native handle on close
             try (var _ = NativeHandle.of(udev, UdevFunctions::udev_unref)) {

@@ -41,6 +41,10 @@ class LinuxHWDiskStoreNFTest {
     @TempDir
     private Path sysBlock;
 
+    /** The udev database; empty unless a test writes records, as on a host without udevd. */
+    @TempDir
+    private Path udevData;
+
     /**
      * Writes a {@code stat} file with the given leading fields, padded with zeros to the field count of this kernel's
      * {@code /proc/diskstats}, which is the count the parser expects, or to the 11 fields it assumes without one.
@@ -137,7 +141,7 @@ class LinuxHWDiskStoreNFTest {
         Map<String, String> mounts = new HashMap<>();
         mounts.put(DevPath.NODE_ROOT + "sda1", "/boot");
         mounts.put(DevPath.MAPPER + "cryptdata", "/data");
-        return LinuxHWDiskStoreNF.getDisks(sysBlock.toString() + "/", mounts);
+        return LinuxHWDiskStoreNF.getDisks(sysBlock.toString() + "/", mounts, udevData.toString() + "/");
     }
 
     @Test
@@ -162,6 +166,43 @@ class LinuxHWDiskStoreNFTest {
         assertThat(parts.get(0).getMinor(), is(1));
         // An unmounted physical volume names the device built on it, as the udev backends do
         assertThat(parts.get(1).getMountPoint(), is("dm-0"));
+        // Without a udev database, the defaults the udev backends use when udev has no value
+        assertThat(parts.get(0).getType(), is("partition"));
+        assertThat(parts.get(0).getUuid(), is(""));
+        assertThat(parts.get(0).getLabel(), is(""));
+    }
+
+    private void writeUdev(String id, String... properties) throws IOException {
+        StringBuilder sb = new StringBuilder("S:disk/by-id/fixture\nI:1234567890\n");
+        for (String property : properties) {
+            sb.append("E:").append(property).append('\n');
+        }
+        Files.writeString(udevData.resolve(id), sb.append("G:systemd\n").toString());
+    }
+
+    @Test
+    void testUdevDatabaseSuppliesWhatLibudevWould() throws IOException {
+        write("sda/dev", "8:0");
+        // udev's values win over sysfs, matching the libudev backends
+        writeUdev("b8:0", "ID_MODEL=Udev_Model", "ID_SERIAL_SHORT=U999", "ID_TYPE=disk");
+        writeUdev("b8:1", "ID_FS_TYPE=vfat", "ID_FS_UUID=ABCD-1234", "ID_FS_LABEL=EFI");
+        writeUdev("b253:0", "ID_FS_TYPE=ext4", "ID_FS_UUID=0f1e2d3c-aaaa-bbbb-cccc-000000000000", "ID_FS_LABEL=root");
+        List<HWDiskStore> disks = layeredDisks();
+
+        HWDiskStore sda = disk(disks, "sda");
+        assertThat(sda.getModel(), is("Udev_Model"));
+        assertThat(sda.getSerial(), is("U999"));
+        HWPartition efi = sda.getPartitions().get(0);
+        assertThat(efi.getType(), is("vfat"));
+        assertThat(efi.getUuid(), is("ABCD-1234"));
+        assertThat(efi.getLabel(), is("EFI"));
+        assertThat(efi.getName(), is("sda1"));
+        // No record for sda2: the defaults
+        assertThat(sda.getPartitions().get(1).getType(), is("partition"));
+
+        HWPartition root = disk(disks, "dm-0").getPartitions().get(0);
+        assertThat(root.getType(), is("ext4"));
+        assertThat(root.getUuid(), is("0f1e2d3c-aaaa-bbbb-cccc-000000000000"));
     }
 
     @Test

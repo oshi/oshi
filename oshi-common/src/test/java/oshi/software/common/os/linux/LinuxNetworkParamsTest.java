@@ -82,4 +82,53 @@ class LinuxNetworkParamsTest {
         assertThat("A default route without a next hop is not a gateway",
                 LinuxNetworkParams.defaultGateway(List.of(route("::", 0, "", 4294967295L))), is(""));
     }
+
+    // /etc/resolv.conf as systemd-resolved writes it on Ubuntu, Fedora and most systemd distributions
+    private static final List<String> STUB_RESOLV = List.of(
+            "# This is /run/systemd/resolve/stub-resolv.conf managed by", "# man:systemd-resolved(8).",
+            "nameserver 127.0.0.53", "options edns0 trust-ad", "search lan");
+
+    @Test
+    void testDnsServersBehindResolvedStub() {
+        List<String> upstream = List.of(
+                "# This is /run/systemd/resolve/resolv.conf managed by man:systemd-resolved(8).",
+                "nameserver 192.168.1.1", "nameserver fd00::1", "search lan");
+        assertThat(LinuxNetworkParams.getDnsServers(STUB_RESOLV, () -> upstream),
+                is(new String[] { "192.168.1.1", "fd00::1" }));
+    }
+
+    @Test
+    void testDnsServersBehindResolvedStubReportsEveryUpstream() {
+        // resolved lists every configured server, past the libc resolver's limit of three
+        List<String> upstream = List.of("nameserver 10.0.0.1", "nameserver 10.0.0.2", "nameserver 10.0.0.3",
+                "nameserver 10.0.0.4");
+        assertThat(LinuxNetworkParams.getDnsServers(STUB_RESOLV, () -> upstream),
+                is(new String[] { "10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4" }));
+        assertThat("resolv.conf itself keeps the limit", LinuxNetworkParams.getDnsServers(upstream, () -> {
+            throw new AssertionError("upstream read");
+        }), is(new String[] { "10.0.0.1", "10.0.0.2", "10.0.0.3" }));
+    }
+
+    @Test
+    void testDnsServersEmptyResolvConf() {
+        assertThat(LinuxNetworkParams.getDnsServers(Collections.emptyList(), () -> {
+            throw new AssertionError("upstream read");
+        }), is(new String[0]));
+    }
+
+    @Test
+    void testDnsServersStubWithoutUpstreamFile() {
+        // resolved not running its upstream file: report what resolv.conf says rather than nothing
+        assertThat(LinuxNetworkParams.getDnsServers(STUB_RESOLV, Collections::emptyList),
+                is(new String[] { "127.0.0.53" }));
+    }
+
+    @Test
+    void testDnsServersNotUsingResolved() {
+        List<String> resolv = List.of("nameserver 10.0.0.2", "nameserver 127.0.0.53");
+        // A real server alongside the stub: resolv.conf is authoritative, and the upstream file is never read
+        assertThat(LinuxNetworkParams.getDnsServers(resolv, () -> {
+            throw new AssertionError("upstream read");
+        }), is(new String[] { "10.0.0.2", "127.0.0.53" }));
+    }
 }

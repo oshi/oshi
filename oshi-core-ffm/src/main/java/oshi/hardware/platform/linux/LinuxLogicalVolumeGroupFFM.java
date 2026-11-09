@@ -36,8 +36,8 @@ final class LinuxLogicalVolumeGroupFFM extends LinuxLogicalVolumeGroup {
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
         if (!HAS_UDEV) {
-            LOG.warn("Logical Volume Group information requires libudev, which is not present.");
-            return Collections.emptyList();
+            LOG.debug("libudev is not present; reading logical volume groups from sysfs.");
+            return querySysfsLogicalVolumeGroups();
         }
         return buildLogicalVolumeGroups(enumerateBlockDevices(), LinuxLogicalVolumeGroupFFM::new);
     }

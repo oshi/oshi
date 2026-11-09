@@ -20,6 +20,7 @@ import com.sun.jna.platform.linux.Udev.UdevEnumerate;
 import com.sun.jna.platform.linux.Udev.UdevListEntry;
 
 import oshi.hardware.common.platform.linux.UdevUsbDevice;
+import oshi.hardware.common.platform.linux.nativefree.LinuxUsbDeviceNF;
 
 /**
  * Enumerates Linux USB devices via JNA/libudev, returning raw {@link UdevUsbDevice} attributes for
@@ -47,8 +48,8 @@ public final class LinuxUsbDeviceJNA {
      */
     public static List<UdevUsbDevice> queryUsbDevices() {
         if (!HAS_UDEV) {
-            LOG.warn("USB Device information requires libudev, which is not present.");
-            return emptyList();
+            LOG.debug("libudev is not present; reading USB devices from sysfs.");
+            return LinuxUsbDeviceNF.queryUsbDevices();
         }
         List<UdevUsbDevice> devices = new ArrayList<>();
         Udev.UdevContext udev = Udev.INSTANCE.udev_new();

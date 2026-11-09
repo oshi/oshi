@@ -11,13 +11,17 @@ import oshi.hardware.CentralProcessor;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
+import oshi.hardware.Printer;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.platform.linux.LinuxGlobalMemory;
 import oshi.hardware.common.platform.linux.LinuxHardwareAbstractionLayer;
+import oshi.hardware.common.platform.linux.LinuxLogicalVolumeGroup;
 import oshi.hardware.common.platform.linux.LinuxPowerSource;
 import oshi.hardware.common.platform.linux.LinuxUsbDevice;
+import oshi.hardware.common.platform.unix.LpstatPrinter;
 import oshi.software.common.os.linux.nativefree.LinuxOperatingSystemNF;
 
 /**
@@ -45,6 +49,16 @@ public final class LinuxHardwareAbstractionLayerNF extends LinuxHardwareAbstract
     @Override
     public List<NetworkIF> getNetworkIFs(boolean includeLocalInterfaces) {
         return LinuxNetworkIfNF.getNetworks(includeLocalInterfaces);
+    }
+
+    @Override
+    public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        return LinuxLogicalVolumeGroup.querySysfsLogicalVolumeGroups();
+    }
+
+    @Override
+    public List<Printer> getPrinters() {
+        return LpstatPrinter.getPrinters();
     }
 
     @Override

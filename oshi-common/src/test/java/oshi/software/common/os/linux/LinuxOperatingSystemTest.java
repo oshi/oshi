@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
@@ -341,7 +342,8 @@ class LinuxOperatingSystemTest {
                 247 unit files listed.
                 """.lines().toList();
         Set<String> running = new HashSet<>(List.of("ssh", "resolve1"));
-        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, "/nonexistent-init-dir");
+        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, "/nonexistent-init-dir",
+                "/nonexistent-init.d-dir");
         // ssh (full-name match) and resolve1 (short-name match) deduped; bluetooth disabled; only cron remains
         assertThat(services, hasSize(1));
         assertThat(services.get(0).getName(), is("cron"));
@@ -357,7 +359,8 @@ class LinuxOperatingSystemTest {
         List<String> systemctl = List.of("UNIT FILE          STATE      VENDOR PRESET",
                 "ssh.service        enabled    enabled");
         Set<String> running = new HashSet<>(List.of("ssh"));
-        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, initDir.toString());
+        List<OSService> services = LinuxOperatingSystem.parseServices(systemctl, running, initDir.toString(),
+                initDir.toString());
         assertThat(services, is(empty()));
     }
 
@@ -369,7 +372,7 @@ class LinuxOperatingSystemTest {
         Files.writeString(initDir.resolve("README.txt"), "not a job\n");
         Set<String> running = new HashSet<>(List.of("ssh"));
         List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), running,
-                initDir.toString());
+                initDir.toString(), initDir.resolve("no-init.d").toString());
         // ssh.conf deduped against running, README.txt is not a .conf; only tty1 remains
         assertThat(services, hasSize(1));
         assertThat(services.get(0).getName(), is("tty1"));
@@ -380,8 +383,31 @@ class LinuxOperatingSystemTest {
     void testParseServicesInitDirMissing(@TempDir Path tempDir) {
         // No systemctl services and a nonexistent init directory -> empty list (error logged)
         List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), new HashSet<>(),
-                tempDir.resolve("does-not-exist").toString());
+                tempDir.resolve("does-not-exist").toString(), tempDir.resolve("does-not-exist.d").toString());
         assertThat(services, is(empty()));
+    }
+
+    @Test
+    // A file's executable bit is not settable through java.io.File on Windows
+    @DisabledOnOs(OS.WINDOWS)
+    void testParseServicesInitdFallback(@TempDir Path tempDir) throws IOException {
+        // OpenRC (Alpine) and SysV keep executable service scripts in /etc/init.d
+        Path initd = Files.createDirectories(tempDir.resolve("init.d"));
+        for (String script : List.of("sshd", "crond", "networking")) {
+            Path p = initd.resolve(script);
+            Files.writeString(p, "#!/sbin/openrc-run\n");
+            assertThat(p.toFile().setExecutable(true), is(true));
+        }
+        // RHEL's helper library is not executable, and dotfiles are dependency caches
+        Files.writeString(initd.resolve("functions"), "# sourced\n");
+        Files.writeString(initd.resolve(".depend.boot"), "");
+        Path upstart = Files.createDirectories(tempDir.resolve("init"));
+        // An Upstart job of the same name as a script is the same service
+        Files.writeString(upstart.resolve("networking.conf"), "start on runlevel\n");
+        Set<String> running = new HashSet<>(List.of("sshd"));
+        List<OSService> services = LinuxOperatingSystem.parseServices(Collections.emptyList(), running,
+                upstart.toString(), initd.toString());
+        assertThat(services.stream().map(OSService::getName).sorted().toList(), is(List.of("crond", "networking")));
     }
 
     // -------------------------------------------------------------------------

@@ -85,4 +85,16 @@ class LinuxOSProcessTest {
         assertThat(status.get("Name"), is("Web Content (pid 42)"));
         assertThat(status.get("State"), is("S"));
     }
+
+    @Test
+    void testParseCpusAllowed() {
+        assertThat(LinuxOSProcess.parseCpusAllowed("ff"), is(255L));
+        assertThat(LinuxOSProcess.parseCpusAllowed("\t00000003 "), is(3L));
+        // More than 32 CPUs: 32-bit words separated by commas, most significant first
+        assertThat(LinuxOSProcess.parseCpusAllowed("00000001,00000000"), is(1L << 32));
+        // More than 64 CPUs: the low 64 bits, as from taskset
+        assertThat(LinuxOSProcess.parseCpusAllowed("ff,ffffffff,ffffffff"), is(-1L));
+        assertThat(LinuxOSProcess.parseCpusAllowed(""), is(0L));
+        assertThat(LinuxOSProcess.parseCpusAllowed("zz"), is(0L));
+    }
 }
