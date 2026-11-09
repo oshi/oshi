@@ -7,7 +7,6 @@ package oshi.hardware.platform.linux;
 import static oshi.software.os.linux.LinuxOperatingSystemJNA.HAS_UDEV;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +32,8 @@ final class LinuxLogicalVolumeGroupJNA extends LinuxLogicalVolumeGroup {
 
     static List<LogicalVolumeGroup> getLogicalVolumeGroups() {
         if (!HAS_UDEV) {
-            LOG.warn("Logical Volume Group information requires libudev, which is not present.");
-            return Collections.emptyList();
+            LOG.debug("libudev is not present; reading logical volume groups from sysfs.");
+            return querySysfsLogicalVolumeGroups();
         }
         return buildLogicalVolumeGroups(enumerateBlockDevices(), LinuxLogicalVolumeGroupJNA::new);
     }
