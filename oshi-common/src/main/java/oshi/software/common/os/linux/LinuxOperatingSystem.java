@@ -32,12 +32,14 @@ import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSProcess.State;
 import oshi.software.os.OSService;
+import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.Who;
 import oshi.util.driver.linux.proc.CpuStat;
 import oshi.util.driver.linux.proc.ProcessStat;
 import oshi.util.driver.linux.proc.UpTime;
@@ -542,6 +544,18 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
             String family = filenameProps.getProperty(name.toLowerCase(Locale.ROOT));
             return family != null ? family : name.substring(0, 1).toUpperCase(Locale.ROOT) + name.substring(1);
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Reads {@code who}, which reads utmp, then systemd-logind's {@code /run/systemd/sessions} records for
+     * distributions that no longer write utmp. The native backends override this to read utmp directly.
+     */
+    @Override
+    public List<OSSession> getSessions() {
+        List<OSSession> sessions = Who.queryWho();
+        return sessions.isEmpty() ? Who.querySystemdFiles() : sessions;
     }
 
     @Override
