@@ -12,6 +12,8 @@ import static oshi.util.TestFileUtil.writeFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -24,19 +26,64 @@ class LinuxSensorsTest {
     void testNoSensorsFound(@TempDir Path tempDir) {
         // No hwmon or thermal_zone directories exist
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         assertThat(sensors.queryCpuTemperature(), closeTo(0d, EPS));
         assertThat(sensors.queryFanSpeeds().length, is(0));
         assertThat(sensors.queryCpuVoltage(), closeTo(0d, EPS));
     }
 
+    // A host without the Raspberry Pi firmware tool
+    private static String noVcgencmd(String arg) {
+        return "";
+    }
+
+    private static UnaryOperator<String> vcgencmd(AtomicInteger calls) {
+        // Answers the way the Raspberry Pi firmware tool prints
+        return arg -> {
+            calls.incrementAndGet();
+            return "measure_temp".equals(arg) ? "temp=50.8'C" : "volt=0.8563V";
+        };
+    }
+
     @Test
-    void testIsPiReturnsDefaults() {
-        // isPi=true but vcgencmd won't work on test machine, so returns 0/empty
-        LinuxSensors sensors = new LinuxSensors("/nonexistent/hwmon", "/nonexistent/thermal_zone", true);
-        assertThat(sensors.queryCpuTemperature(), closeTo(0d, EPS));
+    void testVcgencmdFallback() {
+        // An older Pi kernel without the thermal driver: only the firmware tool has readings
+        AtomicInteger calls = new AtomicInteger();
+        LinuxSensors sensors = new LinuxSensors("/nonexistent/hwmon", "/nonexistent/thermal_zone", vcgencmd(calls));
+        assertThat(sensors.queryCpuTemperature(), closeTo(50.8, EPS));
+        assertThat(sensors.queryCpuVoltage(), closeTo(0.8563, EPS));
         assertThat(sensors.queryFanSpeeds().length, is(0));
-        assertThat(sensors.queryCpuVoltage(), closeTo(0d, EPS));
+    }
+
+    @Test
+    void testPiReadsSysfsFirst(@TempDir Path tempDir) throws IOException {
+        // A Pi 5: the CPU temperature is a thermal zone, the fan is in hwmon, the core voltage only in the firmware
+        Path zone = Files.createDirectories(tempDir.resolve("thermal_zone0"));
+        writeFile(zone.resolve("type"), "cpu-thermal");
+        writeFile(zone.resolve("temp"), "48000");
+        Path hwmon0 = createHwmonDir(tempDir, 0, "pwmfan");
+        writeFile(hwmon0.resolve("fan1_input"), "3012");
+        AtomicInteger calls = new AtomicInteger();
+        LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
+                tempDir.resolve("thermal_zone").toString(), vcgencmd(calls));
+        assertThat(sensors.queryCpuTemperature(), closeTo(48.0, EPS));
+        assertThat("No command while sysfs has the temperature", calls.get(), is(0));
+        assertThat(sensors.queryFanSpeeds(), is(new int[] { 3012 }));
+        assertThat(sensors.queryCpuVoltage(), closeTo(0.8563, EPS));
+    }
+
+    @Test
+    void testNoVcgencmdIsCheckedOnce() {
+        AtomicInteger calls = new AtomicInteger();
+        LinuxSensors sensors = new LinuxSensors("/nonexistent/hwmon", "/nonexistent/thermal_zone", arg -> {
+            calls.incrementAndGet();
+            return "";
+        });
+        for (int i = 0; i < 3; i++) {
+            assertThat(sensors.queryCpuTemperature(), closeTo(0d, EPS));
+            assertThat(sensors.queryCpuVoltage(), closeTo(0d, EPS));
+        }
+        assertThat("A host without the tool runs it once", calls.get(), is(1));
     }
 
     @Test
@@ -45,7 +92,7 @@ class LinuxSensorsTest {
         writeFile(hwmon0.resolve("temp1_input"), "52000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // 52000 millidegrees = 52.0 C
         assertThat(sensors.queryCpuTemperature(), closeTo(52.0, EPS));
     }
@@ -59,7 +106,7 @@ class LinuxSensorsTest {
         writeFile(hwmon0.resolve("temp3_input"), "60000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // Average of 50000 and 60000 = 55000 millidegrees = 55.0 C
         assertThat(sensors.queryCpuTemperature(), closeTo(55.0, EPS));
     }
@@ -73,7 +120,7 @@ class LinuxSensorsTest {
         writeFile(hwmon1.resolve("temp1_input"), "55000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // coretemp has higher priority (lower index), so 55.0 C
         assertThat(sensors.queryCpuTemperature(), closeTo(55.0, EPS));
     }
@@ -85,7 +132,7 @@ class LinuxSensorsTest {
         writeFile(hwmon0.resolve("temp1_input"), "60000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // No recognized temp sensor, falls through to thermal_zone (also absent) → 0
         assertThat(sensors.queryCpuTemperature(), closeTo(0d, EPS));
     }
@@ -101,7 +148,7 @@ class LinuxSensorsTest {
         writeFile(tz0.resolve("temp"), "99000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // hwmon coretemp found → thermal_zone never consulted → 52.0 C, not 99.0
         assertThat(sensors.queryCpuTemperature(), closeTo(52.0, EPS));
     }
@@ -115,7 +162,7 @@ class LinuxSensorsTest {
         writeFile(tz0.resolve("temp"), "48000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // 48000 millidegrees = 48.0 C
         assertThat(sensors.queryCpuTemperature(), closeTo(48.0, EPS));
     }
@@ -134,7 +181,7 @@ class LinuxSensorsTest {
         writeFile(tz1.resolve("temp"), "45000");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // cpu-thermal has higher priority → 45.0 C
         assertThat(sensors.queryCpuTemperature(), closeTo(45.0, EPS));
     }
@@ -146,7 +193,7 @@ class LinuxSensorsTest {
         writeFile(hwmon0.resolve("fan2_input"), "800");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         int[] fans = sensors.queryFanSpeeds();
         assertThat(fans.length, is(2));
         assertThat(fans[0], is(1200));
@@ -159,7 +206,7 @@ class LinuxSensorsTest {
         writeFile(hwmon0.resolve("in1_input"), "1200");
 
         LinuxSensors sensors = new LinuxSensors(tempDir.resolve("hwmon").toString(),
-                tempDir.resolve("thermal_zone").toString(), false);
+                tempDir.resolve("thermal_zone").toString(), LinuxSensorsTest::noVcgencmd);
         // 1200 millivolts = 1.2 V
         assertThat(sensors.queryCpuVoltage(), closeTo(1.2, EPS));
     }

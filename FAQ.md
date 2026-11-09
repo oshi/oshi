@@ -464,7 +464,7 @@ few can be switched off explicitly, which [configuration](#how-do-i-configure-os
 | **lscpu** | CPU cache sizes and NUMA node mapping when the sysfs CPU topology is missing, and the processor vendor and name where `/proc/cpuinfo` lacks them, which is common on ARM. |
 | **cpuid** | The processor ID, when `dmidecode` is absent or not permitted. Without either, OSHI builds the ID from `/proc/cpuinfo`. |
 | **NVIDIA driver / NVML** — the `libnvidia-ml` library, which ships with the proprietary driver | GPU utilization, memory, temperature, power and clocks on NVIDIA cards, whose proprietary driver publishes none of them through sysfs. AMD and Intel cards report these through sysfs and hwmon without it. |
-| **vcgencmd** (Raspberry Pi only; present in Raspberry Pi OS, packaged separately elsewhere) | Firmware details, which a Pi has no DMI data to supply. SoC temperature and core voltage come from it first, and otherwise from the kernel's hwmon and thermal sensors. |
+| **vcgencmd** (Raspberry Pi only; present in Raspberry Pi OS, packaged separately elsewhere) | Firmware details, which a Pi has no DMI data to supply. SoC temperature and core voltage come from the kernel's hwmon and thermal sensors first, and from it when those have no reading. |
 
 #### Windows
 
