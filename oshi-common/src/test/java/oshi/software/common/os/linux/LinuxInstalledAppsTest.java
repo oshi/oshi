@@ -33,7 +33,8 @@ class LinuxInstalledAppsTest {
         assertThat(app.getName(), is("firefox"));
         assertThat(app.getVersion(), is("120.0"));
         assertThat(app.getVendor(), is("Mozilla Team"));
-        assertThat(app.getTimestamp(), is(1700000000L));
+        // dpkg and rpm print epoch seconds; the API is milliseconds
+        assertThat(app.getTimestamp(), is(1700000000_000L));
         assertThat(app.getAdditionalInfo().get("architecture"), is("amd64"));
         assertThat(app.getAdditionalInfo().get("installedSize"), is("250000"));
         assertThat(app.getAdditionalInfo().get("source"), is("firefox-source"));

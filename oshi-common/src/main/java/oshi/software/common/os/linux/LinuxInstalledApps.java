@@ -97,8 +97,8 @@ public final class LinuxInstalledApps {
                 ApplicationInfo app = new ApplicationInfo(ParseUtil.getStringValueOrUnknown(parts[0]), // Package name
                         ParseUtil.getStringValueOrUnknown(parts[1]), // Version
                         ParseUtil.getStringValueOrUnknown(parts[5]), // Vendor
-                        ParseUtil.parseLongOrDefault(parts[4], 0L), // Date Epoch
-                        additionalInfo);
+                        // dpkg and rpm print epoch seconds; the API reports milliseconds
+                        ParseUtil.parseLongOrDefault(parts[4], 0L) * 1000L, additionalInfo);
 
                 appInfoSet.add(app);
             }
