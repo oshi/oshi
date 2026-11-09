@@ -23,6 +23,8 @@ import oshi.util.tuples.Quartet;
 @ThreadSafe
 public final class CpuInfo {
 
+    private static final String ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+
     private CpuInfo() {
     }
 
@@ -44,33 +46,9 @@ public final class CpuInfo {
     static @Nullable String queryCpuManufacturer(List<String> cpuInfo) {
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
-                int part = ParseUtil.parseLastInt(line, 0);
-                switch (part) {
-                    case 0x41:
-                        return "ARM";
-                    case 0x42:
-                        return "Broadcom";
-                    case 0x43:
-                        return "Cavium";
-                    case 0x44:
-                        return "DEC";
-                    case 0x4e:
-                        return "Nvidia";
-                    case 0x50:
-                        return "APM";
-                    case 0x51:
-                        return "Qualcomm";
-                    case 0x53:
-                        return "Samsung";
-                    case 0x56:
-                        return "Marvell";
-                    case 0x66:
-                        return "Faraday";
-                    case 0x69:
-                        return "Intel";
-                    default:
-                        return null;
-                }
+                // The implementer codes are those ProcessorIdentifier translates, from the same table
+                String key = String.format(Locale.ROOT, "hw_impl.0x%02x", ParseUtil.parseLastInt(line, 0));
+                return FileUtil.readPropertiesFromFilename(ARCHITECTURE_PROPERTIES).getProperty(key);
             }
         }
         return null;

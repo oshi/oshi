@@ -51,6 +51,14 @@ class CpuInfoTest {
     }
 
     @Test
+    void testQueryCpuManufacturerFromArchitectureTable() {
+        // Implementers the table carries, such as Apple Silicon running Linux in a VM or under Asahi
+        assertThat(CpuInfo.queryCpuManufacturer(List.of("CPU implementer\t: 0x61")), is("Apple"));
+        assertThat(CpuInfo.queryCpuManufacturer(List.of("CPU implementer\t: 0xc0")), is("Ampere"));
+        assertThat(CpuInfo.queryCpuManufacturer(List.of("CPU implementer\t: 0x48")), is("HiSilicon"));
+    }
+
+    @Test
     void testQueryCpuManufacturerUnknown() {
         List<String> unknown = List.of("CPU implementer\t: 0xff");
         assertThat(CpuInfo.queryCpuManufacturer(unknown), is(nullValue()));
