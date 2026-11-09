@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
@@ -111,9 +110,7 @@ public final class CpuInfo {
                     break;
                 case "Revision":
                     pcVersion = splitLine[1];
-                    if (pcVersion.length() > 1) {
-                        pcManufacturer = queryBoardManufacturer(pcVersion.charAt(1));
-                    }
+                    pcManufacturer = queryBoardManufacturer(pcVersion);
                     break;
                 case "Serial":
                     pcSerialNumber = splitLine[1];
@@ -125,22 +122,33 @@ public final class CpuInfo {
         return new Quartet<>(pcManufacturer, pcModel, pcVersion, pcSerialNumber);
     }
 
-    private static String queryBoardManufacturer(char digit) {
-        switch (digit) {
-            case '0':
+    /**
+     * Decodes the manufacturer of a Raspberry Pi from its revision code. Only the new-style codes, which set bit 23,
+     * carry one, in bits 16 to 19. Other ARM kernels print a revision too, usually {@code 0000}, that means nothing of
+     * the kind.
+     *
+     * @param revision the {@code Revision} value, in hex
+     * @return the manufacturer, or null if the code does not name one
+     */
+    private static @Nullable String queryBoardManufacturer(String revision) {
+        long code = ParseUtil.hexStringToLong(revision, 0L);
+        if ((code & 0x80_0000L) == 0) {
+            return null;
+        }
+        switch ((int) (code >> 16) & 0xF) {
+            case 0:
                 return "Sony UK";
-            case '1':
+            case 1:
                 return "Egoman";
-            case '2':
+            case 2:
+            case 4:
                 return "Embest";
-            case '3':
+            case 3:
                 return "Sony Japan";
-            case '4':
-                return "Embest";
-            case '5':
+            case 5:
                 return "Stadium";
             default:
-                return Constants.UNKNOWN;
+                return null;
         }
     }
 

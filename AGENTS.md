@@ -72,8 +72,8 @@ than introducing a separate mechanism.
 Lookup tables live beside it as resource files rather than in code: `oshi.architecture.properties`
 maps CPU vendor, family and model (and ARM part numbers and IBM Z machine types) to
 microarchitectures; the others map hypervisor signatures (`oshi.vm.properties`) and MAC prefixes
-(`oshi.vmmacaddr.properties`) to virtual machines, macOS versions to codenames, and Linux
-release-file names to distributions. Add rows to the existing file, or a new file in the same style,
+(`oshi.vmmacaddr.properties`) to virtual machines, macOS versions to codenames, Linux
+release-file names to distributions, and devicetree vendor prefixes to board manufacturers. Add rows to the existing file, or a new file in the same style,
 rather than a `switch` or a static map. A table that mirrors an upstream source (a kernel header, a
 vendor's list) should say which in a comment, so the next update knows where to look.
 
