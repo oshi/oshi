@@ -92,7 +92,16 @@ public abstract class AbstractNetworkParams implements NetworkParams {
 
     @Override
     public String[] getDnsServers() {
-        List<String> resolv = FileUtil.readFile("/etc/resolv.conf");
+        return parseDnsServers(FileUtil.readFile("/etc/resolv.conf"));
+    }
+
+    /**
+     * Parses the first three {@code nameserver} entries of a {@code resolv.conf} file, as the resolver uses.
+     *
+     * @param resolv the lines of the file
+     * @return the name server addresses
+     */
+    protected static String[] parseDnsServers(List<String> resolv) {
         String key = NAMESERVER;
         int maxNameServer = 3;
         List<String> servers = new ArrayList<>();
