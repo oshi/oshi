@@ -567,20 +567,23 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
             services.add(s);
             running.add(p.getName());
         }
-        services.addAll(parseServices(ExecutingCommand.runNative("systemctl list-unit-files"), running, "/etc/init"));
+        services.addAll(parseServices(ExecutingCommand.runNative("systemctl list-unit-files"), running, "/etc/init",
+                "/etc/init.d"));
         return services;
     }
 
     /**
-     * Parse enabled-but-not-running services from {@code systemctl list-unit-files}, falling back to {@code .conf}
-     * files in the init directory when systemctl reports none.
+     * Parse enabled-but-not-running services from {@code systemctl list-unit-files}. When systemctl reports none, as on
+     * OpenRC (Alpine, Gentoo), SysV init and most containers, fall back to the service scripts in the init.d directory
+     * and the job files in the Upstart directory.
      *
      * @param systemctl output of {@code systemctl list-unit-files}
      * @param running   names of services already known to be running (used to avoid duplicates)
-     * @param initDir   the upstart init directory to scan when systemctl yields nothing (normally {@code /etc/init})
+     * @param initDir   the Upstart directory of {@code .conf} jobs (normally {@code /etc/init})
+     * @param initdDir  the OpenRC and SysV directory of executable service scripts (normally {@code /etc/init.d})
      * @return the list of stopped services
      */
-    static List<OSService> parseServices(List<String> systemctl, Set<String> running, String initDir) {
+    static List<OSService> parseServices(List<String> systemctl, Set<String> running, String initDir, String initdDir) {
         List<OSService> services = new ArrayList<>();
         boolean systemctlFound = false;
         for (String str : systemctl) {
@@ -598,22 +601,35 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
             }
         }
         if (!systemctlFound) {
-            File dir = new File(initDir);
-            File[] confFiles = dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".conf"));
-            if (confFiles != null) {
-                for (File f : confFiles) {
-                    String name = f.getName().substring(0, f.getName().length() - 5);
-                    int index = name.lastIndexOf('.');
-                    String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
-                    if (!running.contains(name) && !running.contains(shortName)) {
-                        services.add(new OSService(name, 0, STOPPED));
-                    }
-                }
-            } else {
-                LOG.error("Directory: {} does not exist", initDir);
+            Set<String> seen = new HashSet<>(running);
+            // A script that is not executable is a helper such as RHEL's init.d/functions, not a service
+            File[] scripts = new File(initdDir)
+                    .listFiles(f -> f.isFile() && f.canExecute() && !f.getName().startsWith("."));
+            addStoppedServices(services, scripts, "", seen);
+            File[] confFiles = new File(initDir)
+                    .listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".conf"));
+            addStoppedServices(services, confFiles, ".conf", seen);
+            if (scripts == null && confFiles == null) {
+                LOG.debug("No systemctl, {} or {}; listing only running services", initdDir, initDir);
             }
         }
         return services;
+    }
+
+    private static void addStoppedServices(List<OSService> services, File @Nullable [] files, String suffix,
+            Set<String> seen) {
+        if (files == null) {
+            return;
+        }
+        for (File f : files) {
+            String name = f.getName().substring(0, f.getName().length() - suffix.length());
+            int index = name.lastIndexOf('.');
+            String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
+            if (!seen.contains(name) && !seen.contains(shortName)) {
+                services.add(new OSService(name, 0, STOPPED));
+                seen.add(name);
+            }
+        }
     }
 
     /**
