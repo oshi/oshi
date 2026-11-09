@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -20,45 +21,52 @@ import oshi.hardware.NetworkIF.IfOperStatus;
 class LinuxNetworkIFTest {
 
     // -------------------------------------------------------------------------
-    // queryIfModelFromSysfs
+    // queryIfModelFromUdevData
     // -------------------------------------------------------------------------
+
+    private static String model(Path tempDir, @Nullable String ifindex, @Nullable String udevRecord)
+            throws IOException {
+        Path sys = Files.createDirectories(tempDir.resolve("sys"));
+        Path udev = Files.createDirectories(tempDir.resolve("udev"));
+        if (ifindex != null) {
+            Path eth0 = Files.createDirectories(sys.resolve("eth0"));
+            writeFile(eth0.resolve("ifindex"), ifindex);
+            // The kernel uevent file never carries the hwdb properties, so it must not be what is read
+            writeFile(eth0.resolve("uevent"),
+                    "INTERFACE=eth0\nIFINDEX=" + ifindex + "\nID_MODEL_FROM_DATABASE=Not From Uevent");
+        }
+        if (udevRecord != null) {
+            writeFile(udev.resolve("n2"), udevRecord);
+        }
+        return LinuxNetworkIF.queryIfModelFromUdevData("eth0", sys + "/", udev + "/");
+    }
 
     @Test
     void testQueryIfModelVendorAndModel(@TempDir Path tempDir) throws IOException {
-        Path eth0 = tempDir.resolve("eth0");
-        Files.createDirectories(eth0);
-        writeFile(eth0.resolve("uevent"),
-                "ID_VENDOR_FROM_DATABASE=Intel Corporation\nID_MODEL_FROM_DATABASE=Ethernet Controller I225-V");
-
-        String model = LinuxNetworkIF.queryIfModelFromSysfs("eth0", tempDir.toString() + "/");
-        assertThat(model, is("Intel Corporation Ethernet Controller I225-V"));
+        assertThat(model(tempDir, "2", "I:1700000000\nE:ID_NET_NAME_PATH=enp3s0\n"
+                + "E:ID_VENDOR_FROM_DATABASE=Intel Corporation\nE:ID_MODEL_FROM_DATABASE=Ethernet Controller I225-V\n"
+                + "G:systemd"), is("Intel Corporation Ethernet Controller I225-V"));
     }
 
     @Test
     void testQueryIfModelOnlyModel(@TempDir Path tempDir) throws IOException {
-        Path eth0 = tempDir.resolve("eth0");
-        Files.createDirectories(eth0);
-        writeFile(eth0.resolve("uevent"), "ID_MODEL_FROM_DATABASE=RTL8111/8168/8411");
-
-        String model = LinuxNetworkIF.queryIfModelFromSysfs("eth0", tempDir.toString() + "/");
-        assertThat(model, is("RTL8111/8168/8411"));
+        assertThat(model(tempDir, "2", "E:ID_MODEL_FROM_DATABASE=RTL8111/8168/8411"), is("RTL8111/8168/8411"));
     }
 
     @Test
-    void testQueryIfModelNoUevent(@TempDir Path tempDir) {
-        // No uevent file — should return the interface name
-        String model = LinuxNetworkIF.queryIfModelFromSysfs("eth0", tempDir.toString() + "/");
-        assertThat(model, is("eth0"));
+    void testQueryIfModelNoUdevRecord(@TempDir Path tempDir) throws IOException {
+        // A host without udevd, such as a container: the interface name, never the uevent text
+        assertThat(model(tempDir, "2", null), is("eth0"));
     }
 
     @Test
-    void testQueryIfModelEmptyUevent(@TempDir Path tempDir) throws IOException {
-        Path eth0 = tempDir.resolve("eth0");
-        Files.createDirectories(eth0);
-        writeFile(eth0.resolve("uevent"), "DRIVER=e1000e");
+    void testQueryIfModelNoIfindex(@TempDir Path tempDir) throws IOException {
+        assertThat(model(tempDir, null, "E:ID_MODEL_FROM_DATABASE=RTL8111/8168/8411"), is("eth0"));
+    }
 
-        String model = LinuxNetworkIF.queryIfModelFromSysfs("eth0", tempDir.toString() + "/");
-        assertThat(model, is("eth0"));
+    @Test
+    void testQueryIfModelRecordWithoutModel(@TempDir Path tempDir) throws IOException {
+        assertThat(model(tempDir, "2", "E:ID_NET_DRIVER=e1000e"), is("eth0"));
     }
 
     // -------------------------------------------------------------------------

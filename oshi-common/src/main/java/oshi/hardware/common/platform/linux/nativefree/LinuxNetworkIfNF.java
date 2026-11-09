@@ -18,7 +18,7 @@ import oshi.hardware.common.platform.linux.LinuxNetworkIF;
 public final class LinuxNetworkIfNF extends LinuxNetworkIF {
 
     LinuxNetworkIfNF(NetworkInterface netint) throws InstantiationException {
-        super(netint, queryIfModelFromSysfs(netint.getName()));
+        super(netint, queryIfModelFromUdevData(netint.getName()));
     }
 
     /**

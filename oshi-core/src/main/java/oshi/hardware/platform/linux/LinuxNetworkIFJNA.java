@@ -31,7 +31,7 @@ public final class LinuxNetworkIFJNA extends LinuxNetworkIF {
     private static String queryIfModel(NetworkInterface netint) {
         String name = netint.getName();
         if (!HAS_UDEV) {
-            return queryIfModelFromSysfs(name);
+            return queryIfModelFromUdevData(name);
         }
         UdevContext udev = Udev.INSTANCE.udev_new();
         if (udev != null) {

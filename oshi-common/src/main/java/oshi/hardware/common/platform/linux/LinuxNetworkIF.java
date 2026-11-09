@@ -13,8 +13,10 @@ import org.jspecify.annotations.Nullable;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.FileUtil;
+import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.linux.SysPath;
+import oshi.util.linux.UdevData;
 
 /**
  * LinuxNetworks class.
@@ -40,18 +42,30 @@ public abstract class LinuxNetworkIF extends AbstractNetworkIF {
     }
 
     /**
-     * Reads vendor/model from the sysfs uevent file.
+     * Reads the vendor and model that udev's hardware database assigned to an interface, from the udev database rather
+     * than libudev. The kernel's own {@code uevent} file never carries these {@code *_FROM_DATABASE} properties; udev
+     * adds them.
      *
      * @param name the interface name
-     * @return vendor + model string, or the interface name if not found
+     * @return vendor + model string, or the interface name if udev has no record
      */
-    protected static String queryIfModelFromSysfs(String name) {
-        return queryIfModelFromSysfs(name, SysPath.NET);
+    protected static String queryIfModelFromUdevData(String name) {
+        return queryIfModelFromUdevData(name, SysPath.NET, UdevData.RUN_UDEV_DATA);
     }
 
-    static String queryIfModelFromSysfs(String name, String netPath) {
-        Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(netPath + name + "/uevent", "=");
-        return formatModel(uevent.get("ID_VENDOR_FROM_DATABASE"), uevent.get("ID_MODEL_FROM_DATABASE"), name);
+    /**
+     * Reads an interface's vendor and model from the given sysfs and udev database directories. Package-private for
+     * testing.
+     *
+     * @param name        the interface name
+     * @param netPath     the sysfs network class directory, ending in a slash
+     * @param udevDataDir the udev database directory, ending in a slash
+     * @return vendor + model string, or the interface name if udev has no record
+     */
+    static String queryIfModelFromUdevData(String name, String netPath, String udevDataDir) {
+        int ifindex = ParseUtil.parseIntOrDefault(FileUtil.getStringFromFile(netPath + name + "/ifindex").trim(), 0);
+        Map<String, String> properties = UdevData.queryNetworkInterface(udevDataDir, ifindex);
+        return formatModel(properties.get("ID_VENDOR_FROM_DATABASE"), properties.get("ID_MODEL_FROM_DATABASE"), name);
     }
 
     /**
