@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.solaris;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.jupiter.api.Test;
+
+import oshi.hardware.CentralProcessor.ProcessorCache;
 
 class SolarisCentralProcessorTest {
 
@@ -99,5 +102,83 @@ class SolarisCentralProcessorTest {
     @Test
     void testSumKstatLongEmpty() {
         assertThat(SolarisCentralProcessor.sumKstatLong(Collections.emptyList()), is(0L));
+    }
+
+    @Test
+    void testParsePiclCaches() {
+        // Trimmed from prtpicl -v -c cpu on a SPARC M8 logical domain (Solaris 11.4); every CPU node repeats the set
+        String node = """
+                  :ID\t 64\s
+                  :dtlb-entries\t 128\s
+                  :l2-dcache-line-size\t 64\s
+                  :l2-dcache-size\t 131072\s
+                  :l2-dcache-associativity\t 8\s
+                  :l1-dcache-line-size\t 64\s
+                  :l1-dcache-size\t 16384\s
+                  :l1-dcache-associativity\t 4\s
+                  :l3-cache-line-size\t 64\s
+                  :l3-cache-size\t 33554432\s
+                  :l3-cache-associativity\t 16\s
+                  :l2-icache-line-size\t 64\s
+                  :l2-icache-size\t 262144\s
+                  :l2-icache-associativity\t 8\s
+                  :l1-icache-line-size\t 64\s
+                  :l1-icache-size\t 32768\s
+                  :l1-icache-associativity\t 4\s
+                  :compatible\t(298000001caTBL)\s
+                   | SPARC-M8 |
+                   | sun4v |
+                  :clock-frequency\t 0xffffffff\s
+                  :name\t cpu\s
+                """;
+        List<String> prtpicl = ("  cpu (cpu, 298000001c1)\n" + node + "  cpu (cpu, 298000001d1)\n" + node).lines()
+                .toList();
+        assertThat(SolarisCentralProcessor.parsePiclCaches(prtpicl),
+                contains(new ProcessorCache(3, 16, 64, 33554432L, ProcessorCache.Type.UNIFIED),
+                        new ProcessorCache(2, 8, 64, 262144L, ProcessorCache.Type.INSTRUCTION),
+                        new ProcessorCache(2, 8, 64, 131072L, ProcessorCache.Type.DATA),
+                        new ProcessorCache(1, 4, 64, 32768L, ProcessorCache.Type.INSTRUCTION),
+                        new ProcessorCache(1, 4, 64, 16384L, ProcessorCache.Type.DATA)));
+    }
+
+    @Test
+    void testParsePiclCachesHex() {
+        // Trimmed from prtpicl -v -c cpu on an OpenIndiana x86 VM (AMD EPYC 9V74); x86 prints the values in hex
+        List<String> prtpicl = """
+                  cpu (cpu, 11f0000031a)
+                  :ID\t 0\s
+                  :cpu-mhz\t 0xa28\s
+                  :dtlb-2M-size\t 0xff\s
+                  :dtlb-2M-associativity\t 0x1\s
+                  :l1-dcache-associativity\t 0x2\s
+                  :l1-dcache-lines-per-tag\t 0x1\s
+                  :l1-dcache-line-size\t 0x40\s
+                  :l1-dcache-size\t 0x10000\s
+                  :l1-icache-associativity\t 0x2\s
+                  :l1-icache-lines-per-tag\t 0x1\s
+                  :l1-icache-line-size\t 0x40\s
+                  :l1-icache-size\t 0x10000\s
+                  :l2-cache-associativity\t 0x10\s
+                  :l2-cache-lines-per-tag\t 0x1\s
+                  :l2-cache-line-size\t 0x40\s
+                  :l2-cache-size\t 0x80000\s
+                  :name\t cpu\s
+                """.lines().toList();
+        assertThat(SolarisCentralProcessor.parsePiclCaches(prtpicl),
+                contains(new ProcessorCache(2, 16, 64, 524288L, ProcessorCache.Type.UNIFIED),
+                        new ProcessorCache(1, 2, 64, 65536L, ProcessorCache.Type.INSTRUCTION),
+                        new ProcessorCache(1, 2, 64, 65536L, ProcessorCache.Type.DATA)));
+    }
+
+    @Test
+    void testParsePiclCachesNoCacheProperties() {
+        // A VM whose CPU nodes carry no cache properties yields no caches
+        List<String> prtpicl = """
+                  cpu (cpu, 1a)
+                  :ID\t 0\s
+                  :State\t on-line\s
+                """.lines().toList();
+        assertThat(SolarisCentralProcessor.parsePiclCaches(prtpicl).isEmpty(), is(true));
+        assertThat(SolarisCentralProcessor.parsePiclCaches(Collections.emptyList()).isEmpty(), is(true));
     }
 }

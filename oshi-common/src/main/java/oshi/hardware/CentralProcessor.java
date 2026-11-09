@@ -130,8 +130,6 @@ public interface CentralProcessor {
      * Values are unreliable in virtual machines and rely in information made available by the VM or hypervisor. Callers
      * should conduct sanity checking of the returned objects. Not all values are available on all operating systems or
      * architectures.
-     * <p>
-     * Not available on Solaris.
      *
      * @return An {@code UnmodifiabeList} of processor caches.
      */
