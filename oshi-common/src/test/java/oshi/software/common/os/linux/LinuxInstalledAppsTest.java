@@ -8,6 +8,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.util.Collections;
 import java.util.List;
@@ -99,5 +101,104 @@ class LinuxInstalledAppsTest {
 
         assertThat(result, hasSize(1));
         assertThat(result.get(0).getName(), is("firefox"));
+    }
+
+    // Trimmed from /lib/apk/db/installed on Alpine 3.24 (the eclipse-temurin:25-jdk-alpine image)
+    private static final String APK_DB = """
+            C:Q1abcdefghijklmnopqrstuvwxyz=
+            P:alpine-baselayout-data
+            V:3.7.2-r1
+            A:aarch64
+            S:11583
+            I:19034
+            T:Alpine base dir structure and init scripts
+            U:https://gitlab.alpinelinux.org/alpine/aports/-/tree/master/main/alpine-baselayout
+            L:GPL-2.0-only
+            o:alpine-baselayout
+            m:Natanael Copa <ncopa@alpinelinux.org>
+            t:1774381254
+            F:etc
+            R:fstab
+
+            C:Q1zyxwvutsrqponmlkjihgfedcba=
+            P:musl
+            V:1.2.5-r10
+            A:aarch64
+            I:678912
+            o:musl
+            m:Timo Teras <timo.teras@iki.fi>
+            U:https://musl.libc.org/
+            """;
+
+    @Test
+    void testParseApkInstalled() {
+        List<ApplicationInfo> apps = LinuxInstalledApps.parseApkInstalled(APK_DB.lines().toList());
+        assertThat(apps, hasSize(2));
+        ApplicationInfo base = apps.get(0);
+        assertThat(base.getName(), is("alpine-baselayout-data"));
+        assertThat(base.getVersion(), is("3.7.2-r1"));
+        assertThat(base.getVendor(), is("Natanael Copa <ncopa@alpinelinux.org>"));
+        assertThat("apk records no install time, and t: is the build time", base.getTimestamp(), is(0L));
+        assertThat(base.getAdditionalInfo().get("architecture"), is("aarch64"));
+        assertThat(base.getAdditionalInfo().get("installedSize"), is("19034"));
+        assertThat(base.getAdditionalInfo().get("source"), is("alpine-baselayout"));
+        // The last record has no trailing blank line
+        assertThat(apps.get(1).getName(), is("musl"));
+        assertThat(apps.get(1).getAdditionalInfo().get("homepage"), is("https://musl.libc.org/"));
+    }
+
+    // From /var/lib/pacman/local/bash-5.3.20-1/desc in the archlinux image
+    private static final String PACMAN_DESC = """
+            %NAME%
+            bash
+
+            %VERSION%
+            5.3.20-1
+
+            %BASE%
+            bash
+
+            %DESC%
+            The GNU Bourne Again shell
+
+            %URL%
+            https://www.gnu.org/software/bash/bash.html
+
+            %ARCH%
+            x86_64
+
+            %BUILDDATE%
+            1789501639
+
+            %INSTALLDATE%
+            1793491200
+
+            %PACKAGER%
+            Tobias Powalowski <tpowa@archlinux.org>
+
+            %SIZE%
+            10055840
+
+            %LICENSE%
+            GPL-3.0-or-later
+
+            %DEPENDS%
+            readline
+            libreadline.so=8-64
+            glibc
+            """;
+
+    @Test
+    void testParsePacmanDesc() {
+        ApplicationInfo bash = LinuxInstalledApps.parsePacmanDesc(PACMAN_DESC.lines().toList());
+        assertNotNull(bash);
+        assertThat(bash.getName(), is("bash"));
+        assertThat(bash.getVersion(), is("5.3.20-1"));
+        assertThat(bash.getVendor(), is("Tobias Powalowski <tpowa@archlinux.org>"));
+        assertThat("pacman prints seconds", bash.getTimestamp(), is(1793491200_000L));
+        assertThat(bash.getAdditionalInfo().get("architecture"), is("x86_64"));
+        assertThat(bash.getAdditionalInfo().get("installedSize"), is("10055840"));
+        assertThat(bash.getAdditionalInfo().get("homepage"), is("https://www.gnu.org/software/bash/bash.html"));
+        assertThat(LinuxInstalledApps.parsePacmanDesc(List.of("%VERSION%", "1.0")), is(nullValue()));
     }
 }

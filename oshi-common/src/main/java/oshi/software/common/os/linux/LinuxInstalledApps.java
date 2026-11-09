@@ -4,6 +4,7 @@
  */
 package oshi.software.common.os.linux;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,8 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jspecify.annotations.Nullable;
+
 import oshi.software.os.ApplicationInfo;
 import oshi.util.ExecutingCommand;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 
 /**
@@ -23,6 +27,11 @@ import oshi.util.ParseUtil;
 public final class LinuxInstalledApps {
 
     private static final Map<String, String> PACKAGE_MANAGER_COMMANDS = initializePackageManagerCommands();
+
+    /** Alpine's apk database of installed packages. */
+    private static final String APK_INSTALLED = "/lib/apk/db/installed";
+    /** Arch's pacman database, one directory of metadata files per installed package. */
+    private static final String PACMAN_LOCAL = "/var/lib/pacman/local";
 
     private LinuxInstalledApps() {
     }
@@ -48,8 +57,25 @@ public final class LinuxInstalledApps {
      * @return A list of {@link ApplicationInfo} objects representing installed applications.
      */
     public static List<ApplicationInfo> queryInstalledApps() {
-        List<String> output = fetchInstalledApps();
-        return parseLinuxAppInfo(output);
+        if (!PACKAGE_MANAGER_COMMANDS.isEmpty()) {
+            return parseLinuxAppInfo(fetchInstalledApps());
+        }
+        // apk and pacman keep their databases as plain text, so no command is needed
+        if (new File(APK_INSTALLED).isFile()) {
+            return parseApkInstalled(FileUtil.readFile(APK_INSTALLED, false));
+        }
+        File[] pacmanPackages = new File(PACMAN_LOCAL).listFiles(File::isDirectory);
+        if (pacmanPackages != null) {
+            List<ApplicationInfo> apps = new ArrayList<>();
+            for (File pkg : pacmanPackages) {
+                ApplicationInfo app = parsePacmanDesc(FileUtil.readFile(pkg.getPath() + "/desc", false));
+                if (app != null) {
+                    apps.add(app);
+                }
+            }
+            return apps;
+        }
+        return Collections.emptyList();
     }
 
     /**
@@ -87,23 +113,85 @@ public final class LinuxInstalledApps {
 
             // Check if we have all 8 fields
             if (parts.length >= 8) {
-                // Additional info map
-                Map<String, String> additionalInfo = new LinkedHashMap<>();
-                additionalInfo.put("architecture", ParseUtil.getStringValueOrUnknown(parts[2]));
-                additionalInfo.put("installedSize", String.valueOf(ParseUtil.parseLongOrDefault(parts[3], 0L)));
-                additionalInfo.put("source", ParseUtil.getStringValueOrUnknown(parts[6]));
-                additionalInfo.put("homepage", ParseUtil.getStringValueOrUnknown(parts[7]));
-
-                ApplicationInfo app = new ApplicationInfo(ParseUtil.getStringValueOrUnknown(parts[0]), // Package name
-                        ParseUtil.getStringValueOrUnknown(parts[1]), // Version
-                        ParseUtil.getStringValueOrUnknown(parts[5]), // Vendor
-                        // dpkg and rpm print epoch seconds; the API reports milliseconds
-                        ParseUtil.parseLongOrDefault(parts[4], 0L) * 1000L, additionalInfo);
-
-                appInfoSet.add(app);
+                // dpkg and rpm print epoch seconds; the API reports milliseconds
+                appInfoSet.add(toAppInfo(parts[0], parts[1], parts[2], parts[3],
+                        ParseUtil.parseLongOrDefault(parts[4], 0L) * 1000L, parts[5], parts[6], parts[7]));
             }
         }
 
         return new ArrayList<>(appInfoSet);
+    }
+
+    /**
+     * Parses Alpine's {@code /lib/apk/db/installed}: one record per package, separated by blank lines, each line a
+     * one-letter key, a colon and a value ({@code P} name, {@code V} version, {@code A} architecture, {@code I}
+     * installed size, {@code m} maintainer, {@code o} origin package, {@code U} URL). The database records no install
+     * time, and its {@code t} build time is not one, so the timestamp is 0.
+     *
+     * @param lines the lines of the database
+     * @return the installed packages
+     */
+    static List<ApplicationInfo> parseApkInstalled(List<String> lines) {
+        List<ApplicationInfo> apps = new ArrayList<>();
+        Map<Character, String> record = new HashMap<>();
+        for (String line : lines) {
+            if (line.isEmpty()) {
+                addApkRecord(apps, record);
+            } else if (line.length() > 2 && line.charAt(1) == ':') {
+                // Repeated keys (files, checksums) are not used, so keeping the last is harmless
+                record.put(line.charAt(0), line.substring(2));
+            }
+        }
+        addApkRecord(apps, record);
+        return apps;
+    }
+
+    private static void addApkRecord(List<ApplicationInfo> apps, Map<Character, String> record) {
+        String name = record.get('P');
+        if (name != null) {
+            apps.add(toAppInfo(name, record.get('V'), record.get('A'), record.get('I'), 0L, record.get('m'),
+                    record.get('o'), record.get('U')));
+        }
+        record.clear();
+    }
+
+    /**
+     * Parses one package's {@code desc} file from Arch's pacman database: sections headed {@code %KEY%}, each followed
+     * by its value lines and a blank line.
+     *
+     * @param lines the lines of the file
+     * @return the package, or {@code null} if the file has no name
+     */
+    static @Nullable ApplicationInfo parsePacmanDesc(List<String> lines) {
+        Map<String, String> fields = new HashMap<>();
+        String key = null;
+        for (String line : lines) {
+            if (line.length() > 2 && line.startsWith("%") && line.endsWith("%")) {
+                key = line.substring(1, line.length() - 1);
+            } else if (key != null && !line.isEmpty()) {
+                // Only the first value line: multi-valued sections (licenses, dependencies) are not used
+                fields.putIfAbsent(key, line);
+            }
+        }
+        String name = fields.get("NAME");
+        if (name == null) {
+            return null;
+        }
+        // pacman prints epoch seconds
+        return toAppInfo(name, fields.get("VERSION"), fields.get("ARCH"), fields.get("SIZE"),
+                ParseUtil.parseLongOrDefault(fields.get("INSTALLDATE"), 0L) * 1000L, fields.get("PACKAGER"),
+                fields.get("BASE"), fields.get("URL"));
+    }
+
+    private static ApplicationInfo toAppInfo(@Nullable String name, @Nullable String version, @Nullable String arch,
+            @Nullable String size, long timestampMillis, @Nullable String vendor, @Nullable String source,
+            @Nullable String homepage) {
+        Map<String, String> additionalInfo = new LinkedHashMap<>();
+        additionalInfo.put("architecture", ParseUtil.getStringValueOrUnknown(arch));
+        additionalInfo.put("installedSize", String.valueOf(ParseUtil.parseLongOrDefault(size, 0L)));
+        additionalInfo.put("source", ParseUtil.getStringValueOrUnknown(source));
+        additionalInfo.put("homepage", ParseUtil.getStringValueOrUnknown(homepage));
+        return new ApplicationInfo(ParseUtil.getStringValueOrUnknown(name), ParseUtil.getStringValueOrUnknown(version),
+                ParseUtil.getStringValueOrUnknown(vendor), timestampMillis, additionalInfo);
     }
 }
