@@ -76,6 +76,8 @@ public class LinuxPowerSource extends AbstractPowerSource {
         POWER_SUPPLY_TEMP,
         /** Estimated time to empty in seconds. */
         POWER_SUPPLY_TIME_TO_EMPTY_NOW,
+        /** Time to empty in seconds, averaged by the battery. */
+        POWER_SUPPLY_TIME_TO_EMPTY_AVG,
         /** Estimated time to full in seconds. */
         POWER_SUPPLY_TIME_TO_FULL_NOW,
         /** Manufacture year. */
@@ -177,6 +179,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
         if (psArr == null) {
             return Collections.emptyList();
         }
+        boolean externalOnLine = queryExternalPowerOnLine(powerSupplyPath);
         for (File ps : psArr) {
             String name = ps.getName();
             if (!name.startsWith("ADP") && !name.startsWith("AC") && !name.contains("USBC")) {
@@ -192,7 +195,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
                     }
                 }
                 if (ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_PRESENT), 1) > 0) {
-                    psList.add(buildPowerSource(name, props));
+                    psList.add(buildPowerSource(name, props, externalOnLine));
                 }
             }
         }
@@ -200,17 +203,53 @@ public class LinuxPowerSource extends AbstractPowerSource {
     }
 
     /**
+     * Reports whether an external supply (a mains adapter, a USB port or a wireless charger) is delivering power.
+     *
+     * @return whether any external supply is online
+     */
+    protected static boolean queryExternalPowerOnLine() {
+        return queryExternalPowerOnLine(SysPath.POWER_SUPPLY);
+    }
+
+    /**
+     * Reports whether an external supply under the given power supply directory is delivering power. The kernel reports
+     * one entry per supply, with a {@code type} of {@code Battery}, {@code UPS}, {@code Mains}, {@code USB} or
+     * {@code Wireless}, and the external ones an {@code online} flag.
+     *
+     * @param powerSupplyPath the power supply directory
+     * @return whether any external supply is online
+     */
+    static boolean queryExternalPowerOnLine(String powerSupplyPath) {
+        File[] supplies = new File(powerSupplyPath).listFiles();
+        if (supplies != null) {
+            for (File supply : supplies) {
+                String path = powerSupplyPath + "/" + supply.getName() + "/";
+                String type = FileUtil.getStringFromFile(path + "type");
+                if (("Mains".equals(type) || "USB".equals(type) || "Wireless".equals(type))
+                        && FileUtil.getIntFromFile(path + "online") > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
      * Builds a LinuxPowerSource from parsed uevent properties.
      *
-     * @param name  the power supply name
-     * @param props the parsed properties map
+     * @param name           the power supply name
+     * @param props          the parsed properties map
+     * @param externalOnLine whether an external supply is online, from {@link #queryExternalPowerOnLine()}
      * @return a new LinuxPowerSource instance
      */
-    protected static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props) {
+    protected static LinuxPowerSource buildPowerSource(String name, Map<Prop, String> props, boolean externalOnLine) {
         String psName = props.getOrDefault(Prop.POWER_SUPPLY_NAME, name);
         String status = props.get(Prop.POWER_SUPPLY_STATUS);
         boolean psCharging = "Charging".equals(status);
         boolean psDischarging = "Discharging".equals(status);
+        // A battery that is charging, or held from charging at a charge limit, is plugged in. This covers boards
+        // whose adapter has no power_supply entry of its own.
+        boolean psPowerOnLine = externalOnLine || psCharging || "Not charging".equals(status);
         double psRemainingCapacityPercent = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_CAPACITY), -100)
                 / 100d;
 
@@ -274,9 +313,25 @@ public class LinuxPowerSource extends AbstractPowerSource {
         int rawTemp = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_TEMP), -1);
         double psTemperature = rawTemp >= 0 ? rawTemp / 10d : 0d;
 
-        // TIME_TO_EMPTY_NOW when discharging, TIME_TO_FULL_NOW when charging; both in seconds
+        // TIME_TO_EMPTY_NOW when discharging, TIME_TO_FULL_NOW when charging; both in seconds. Few drivers provide
+        // them (the ACPI battery driver does not), so otherwise divide the energy or charge left to go by the rate.
         Prop timeKey = psCharging ? Prop.POWER_SUPPLY_TIME_TO_FULL_NOW : Prop.POWER_SUPPLY_TIME_TO_EMPTY_NOW;
         double psTimeRemainingInstant = ParseUtil.parseIntOrDefault(props.get(timeKey), -1);
+        if (psTimeRemainingInstant < 0 && (psCharging || psDischarging)) {
+            psTimeRemainingInstant = timeFromRate(psCharging, psCapacityUnits, psCurrentCapacity, psMaxCapacity,
+                    psPowerUsageRate, psAmperage);
+        }
+        // The estimate follows the other platforms: unlimited on external power, and while discharging the battery's
+        // own average where it keeps one
+        double psTimeRemainingEstimated = -1d;
+        if (psDischarging) {
+            psTimeRemainingEstimated = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_TIME_TO_EMPTY_AVG), -1);
+            if (psTimeRemainingEstimated < 0) {
+                psTimeRemainingEstimated = psTimeRemainingInstant;
+            }
+        } else if (psPowerOnLine) {
+            psTimeRemainingEstimated = -2d;
+        }
 
         int year = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_MANUFACTURE_YEAR), -1);
         int month = ParseUtil.parseIntOrDefault(props.get(Prop.POWER_SUPPLY_MANUFACTURE_MONTH), -1);
@@ -284,9 +339,31 @@ public class LinuxPowerSource extends AbstractPowerSource {
         @Nullable
         LocalDate psManufactureDate = (year > 0 && month > 0 && day > 0) ? LocalDate.of(year, month, day) : null;
 
-        return new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent, -1d, psTimeRemainingInstant,
-                psPowerUsageRate, psVoltage, psAmperage, false, psCharging, psDischarging, psCapacityUnits,
-                psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry, psManufactureDate,
-                psManufacturer, psSerialNumber, psTemperature);
+        return new LinuxPowerSource(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
+                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
+                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
+                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+    }
+
+    /**
+     * Computes the seconds to empty, or to full while charging, from the capacity and the rate it is changing at.
+     *
+     * @param charging        whether the battery is charging
+     * @param units           the units of the capacities, mWh or mAh
+     * @param currentCapacity the current capacity, or -1 if unknown
+     * @param maxCapacity     the full capacity, or -1 if unknown
+     * @param powerUsageRate  the power in mW, signed
+     * @param amperage        the current in mA, signed
+     * @return the seconds remaining, or -1 if unknown
+     */
+    private static double timeFromRate(boolean charging, CapacityUnits units, int currentCapacity, int maxCapacity,
+            double powerUsageRate, double amperage) {
+        // Energy pairs with power and charge with current, so the hours come out of either ratio
+        double rate = Math.abs(units == CapacityUnits.MWH ? powerUsageRate : amperage);
+        int toGo = charging ? maxCapacity - currentCapacity : currentCapacity;
+        if (rate <= 0 || currentCapacity < 0 || (charging && maxCapacity < 0) || toGo < 0) {
+            return -1d;
+        }
+        return 3600d * toGo / rate;
     }
 }

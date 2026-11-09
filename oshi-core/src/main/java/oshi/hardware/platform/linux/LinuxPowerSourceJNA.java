@@ -48,6 +48,7 @@ public final class LinuxPowerSourceJNA extends LinuxPowerSource {
             return LinuxPowerSource.getPowerSources();
         }
         List<PowerSource> psList = new ArrayList<>();
+        boolean externalOnLine = queryExternalPowerOnLine();
         UdevContext udev = Udev.INSTANCE.udev_new();
         if (udev == null) {
             return LinuxPowerSource.getPowerSources();
@@ -75,7 +76,7 @@ public final class LinuxPowerSourceJNA extends LinuxPowerSource {
                                         props.put(p, val);
                                     }
                                 }
-                                psList.add(new LinuxPowerSourceJNA(buildPowerSource(name, props)));
+                                psList.add(new LinuxPowerSourceJNA(buildPowerSource(name, props, externalOnLine)));
                             }
                         } finally {
                             device.unref();

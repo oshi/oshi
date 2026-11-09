@@ -51,7 +51,7 @@ class LinuxPowerSourceTest {
 
     @Test
     void testSampleUeventDischarging() {
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", sampleProps());
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", sampleProps(), false);
 
         assertThat(ps.getName(), is("BAT0"));
         assertThat(ps.getDeviceName(), is("UX32-65"));
@@ -89,7 +89,7 @@ class LinuxPowerSourceTest {
         Map<LinuxPowerSource.Prop, String> props = sampleProps();
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, "Charging");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.isCharging(), is(true));
         assertThat(ps.isDischarging(), is(false));
@@ -109,7 +109,7 @@ class LinuxPowerSourceTest {
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_VOLTAGE_NOW, "7400000");
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CURRENT_NOW, "1500000");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getCapacityUnits(), is(CapacityUnits.MAH));
         assertThat(ps.getCurrentCapacity(), is(3000));
@@ -128,7 +128,7 @@ class LinuxPowerSourceTest {
         Map<LinuxPowerSource.Prop, String> props = sampleProps();
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CURRENT_NOW, "1200000");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getPowerUsageRate(), closeTo(-9361.0, EPS));
         assertThat(ps.getAmperage(), closeTo(-1200.0, EPS));
@@ -140,7 +140,7 @@ class LinuxPowerSourceTest {
         Map<LinuxPowerSource.Prop, String> props = sampleProps();
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_ENERGY_NOW, "corrupt");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         // ENERGY_NOW fails to parse → falls back to CHARGE_NOW (absent) → -1
         assertThat(ps.getCurrentCapacity(), is(-1));
@@ -153,7 +153,7 @@ class LinuxPowerSourceTest {
         // TEMP is in tenths of degrees Celsius: 293 → 29.3°C
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TEMP, "293");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getTemperature(), closeTo(29.3, EPS));
     }
@@ -165,7 +165,7 @@ class LinuxPowerSourceTest {
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_MANUFACTURE_MONTH, "6");
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_MANUFACTURE_DAY, "15");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         LocalDate manufactureDate = ps.getManufactureDate();
         assertNotNull(manufactureDate);
@@ -180,7 +180,7 @@ class LinuxPowerSourceTest {
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_MANUFACTURE_YEAR, "2021");
         // month and day absent → date should be null
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getManufactureDate(), is(nullValue()));
     }
@@ -191,7 +191,7 @@ class LinuxPowerSourceTest {
         // TIME_TO_EMPTY_NOW in seconds
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_EMPTY_NOW, "3600");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getTimeRemainingInstant(), closeTo(3600.0, EPS));
     }
@@ -202,9 +202,76 @@ class LinuxPowerSourceTest {
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, "Charging");
         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_FULL_NOW, "1800");
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getTimeRemainingInstant(), closeTo(1800.0, EPS));
+    }
+
+    @Test
+    void testTimeRemainingComputedFromEnergyAndPower() {
+        // The ACPI battery driver gives no TIME_TO_* keys: 20712 mWh left at 9361 mW is 7965 s
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", sampleProps(), false);
+        assertThat(ps.getTimeRemainingInstant(), closeTo(3600d * 20712 / 9361, EPS));
+        assertThat("Without an average the estimate is the instant value", ps.getTimeRemainingEstimated(),
+                closeTo(ps.getTimeRemainingInstant(), EPS));
+        assertThat(ps.isPowerOnLine(), is(false));
+    }
+
+    @Test
+    void testTimeRemainingComputedFromChargeAndCurrent() {
+        Map<LinuxPowerSource.Prop, String> props = new EnumMap<>(LinuxPowerSource.Prop.class);
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, "Charging");
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_VOLTAGE_NOW, "12000000");
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CHARGE_NOW, "2000000");
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CHARGE_FULL, "5000000");
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CURRENT_NOW, "1500000");
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
+        // 3000 mAh to go at 1500 mA
+        assertThat(ps.getTimeRemainingInstant(), closeTo(7200d, EPS));
+        assertThat("Charging means plugged in", ps.isPowerOnLine(), is(true));
+        assertThat("Unlimited on external power", ps.getTimeRemainingEstimated(), closeTo(-2d, EPS));
+    }
+
+    @Test
+    void testTimeRemainingAverageAndUnknownRate() {
+        Map<LinuxPowerSource.Prop, String> props = sampleProps();
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_EMPTY_AVG, "7000");
+        assertThat(LinuxPowerSource.buildPowerSource("BAT0", props, false).getTimeRemainingEstimated(),
+                closeTo(7000d, EPS));
+        props.remove(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_EMPTY_AVG);
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_POWER_NOW, "0");
+        LinuxPowerSource idle = LinuxPowerSource.buildPowerSource("BAT0", props, false);
+        assertThat("No rate, no time", idle.getTimeRemainingInstant(), closeTo(-1d, EPS));
+        assertThat(idle.getTimeRemainingEstimated(), closeTo(-1d, EPS));
+    }
+
+    @Test
+    void testPowerOnLineFromStatus() {
+        Map<LinuxPowerSource.Prop, String> props = sampleProps();
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, "Not charging");
+        LinuxPowerSource held = LinuxPowerSource.buildPowerSource("BAT0", props, false);
+        assertThat("Held at a charge limit means plugged in", held.isPowerOnLine(), is(true));
+        assertThat(held.getTimeRemainingInstant(), closeTo(-1d, EPS));
+        props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, "Full");
+        assertThat(LinuxPowerSource.buildPowerSource("BAT0", props, true).isPowerOnLine(), is(true));
+        assertThat(LinuxPowerSource.buildPowerSource("BAT0", props, false).isPowerOnLine(), is(false));
+    }
+
+    @Test
+    void testQueryExternalPowerOnLine(@TempDir Path tempDir) throws IOException {
+        Path bat = Files.createDirectories(tempDir.resolve("BAT0"));
+        Files.writeString(bat.resolve("type"), "Battery\n");
+        Path ac = Files.createDirectories(tempDir.resolve("AC"));
+        Files.writeString(ac.resolve("type"), "Mains\n");
+        Files.writeString(ac.resolve("online"), "0\n");
+        Path usb = Files.createDirectories(tempDir.resolve("ucsi-source-psy-USBC000-001"));
+        Files.writeString(usb.resolve("type"), "USB\n");
+        Files.writeString(usb.resolve("online"), "0\n");
+        assertThat("Adapters present but unplugged", LinuxPowerSource.queryExternalPowerOnLine(tempDir.toString()),
+                is(false));
+        Files.writeString(usb.resolve("online"), "1\n");
+        assertThat(LinuxPowerSource.queryExternalPowerOnLine(tempDir.toString()), is(true));
+        assertThat(LinuxPowerSource.queryExternalPowerOnLine(tempDir.resolve("absent").toString()), is(false));
     }
 
     @Test
@@ -212,14 +279,14 @@ class LinuxPowerSourceTest {
         Map<LinuxPowerSource.Prop, String> props = sampleProps();
         props.remove(LinuxPowerSource.Prop.POWER_SUPPLY_NAME);
 
-        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props);
+        LinuxPowerSource ps = LinuxPowerSource.buildPowerSource("BAT0", props, false);
 
         assertThat(ps.getName(), is("BAT0"));
     }
 
     @Test
     void testCopyConstructor() {
-        LinuxPowerSource original = LinuxPowerSource.buildPowerSource("BAT0", sampleProps());
+        LinuxPowerSource original = LinuxPowerSource.buildPowerSource("BAT0", sampleProps(), false);
         LinuxPowerSource copy = new LinuxPowerSource(original);
 
         assertThat(copy.getName(), is(original.getName()));

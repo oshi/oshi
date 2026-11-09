@@ -55,6 +55,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
         @Nullable
         List<PowerSource> psList = callInArenaOrDefault(arena -> {
             List<PowerSource> result = new ArrayList<>();
+            boolean externalOnLine = queryExternalPowerOnLine();
             MemorySegment udev = UdevFunctions.udev_new();
             if (MemorySegment.NULL.equals(udev)) {
                 return null;
@@ -93,7 +94,7 @@ public final class LinuxPowerSourceFFM extends LinuxPowerSource {
                                         props.put(p, val);
                                     }
                                 }
-                                result.add(new LinuxPowerSourceFFM(buildPowerSource(name, props)));
+                                result.add(new LinuxPowerSourceFFM(buildPowerSource(name, props, externalOnLine)));
                             }
                         }
                     }
