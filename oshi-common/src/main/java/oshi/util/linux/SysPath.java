@@ -27,6 +27,8 @@ public final class SysPath {
     public static final String BLOCK = SYS + "block/";
     /** Path to CPU devices. */
     public static final String CPU = SYS + "devices/system/cpu/";
+    /** The CPUs of an Intel hybrid processor's performance-core PMU. */
+    public static final String HYBRID_PERFORMANCE_CPUS = SYS + "devices/cpu_core/cpus";
     /** Path to DMI identification. */
     public static final String DMI_ID = SYS + "devices/virtual/dmi/id/";
     /** Path to network interfaces. */

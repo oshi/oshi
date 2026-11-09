@@ -16,7 +16,9 @@ import static oshi.util.TestFileUtil.writeFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -621,6 +623,31 @@ class LinuxCentralProcessorTest {
         assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo).cpu64bit(), is(true));
         assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(List.of("isa\t\t: rv32imac")).cpu64bit(),
                 is(false));
+    }
+
+    @Test
+    void testApplyHybridCoreTypes() {
+        // Core i7-12700: 8 two-thread P-cores (core_id 0-28 step 4, CPUs 0-15) and 4 E-cores (core_id 32-35)
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, Integer> efficiency = new HashMap<>();
+        for (int cpu = 0; cpu < 20; cpu++) {
+            int core = cpu < 16 ? (cpu / 2) * 4 : 32 + cpu - 16;
+            logProcs.add(new LogicalProcessor(cpu, core, 0));
+            efficiency.put(core, 0);
+        }
+        LinuxCentralProcessor.applyHybridCoreTypes(efficiency, logProcs, "0-15");
+        assertThat(efficiency.get(0), is(1));
+        assertThat(efficiency.get(28), is(1));
+        assertThat(efficiency.get(32), is(0));
+        assertThat(efficiency.values().stream().filter(e -> e == 1).count(), is(8L));
+
+        // No hybrid PMU, or capacities the kernel already published, leave the values alone
+        Map<Integer, Integer> plain = new HashMap<>(Map.of(0, 0, 4, 0));
+        LinuxCentralProcessor.applyHybridCoreTypes(plain, logProcs, "");
+        assertThat(plain, is(Map.of(0, 0, 4, 0)));
+        Map<Integer, Integer> arm = new HashMap<>(Map.of(0, 446, 4, 1024));
+        LinuxCentralProcessor.applyHybridCoreTypes(arm, logProcs, "0-3");
+        assertThat(arm, is(Map.of(0, 446, 4, 1024)));
     }
 
     @Test

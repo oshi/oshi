@@ -647,7 +647,9 @@ public interface CentralProcessor {
          *         On macOS with Apple Silicon, emulates the same relative efficiency class values as Windows.
          *         <p>
          *         On Linux, returns the {@code cpu_capacity} value from sysfs. This is an optional cpu node property
-         *         representing CPU capacity expressed in normalized DMIPS/MHz.
+         *         representing CPU capacity expressed in normalized DMIPS/MHz. On Intel hybrid processors, for which
+         *         the kernel publishes no capacity, emulates the Windows values: 1 for performance cores and 0 for
+         *         efficient cores.
          *         <p>
          *         On OpenBSD, FreeBSD, and Solaris with ARM big.LITTLE processors, emulates the same relative
          *         efficiency class values as Windows.

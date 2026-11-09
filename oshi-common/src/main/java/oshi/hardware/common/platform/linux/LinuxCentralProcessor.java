@@ -369,6 +369,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (coreEfficiencyMap.isEmpty()) {
             coreEfficiencyMap.put(0, 0);
         }
+        applyHybridCoreTypes(coreEfficiencyMap, logProcs, FileUtil.getStringFromFile(SysPath.HYBRID_PERFORMANCE_CPUS));
         // Sort
         logProcs.sort(Comparator.comparingInt(LogicalProcessor::getProcessorNumber));
 
@@ -380,6 +381,29 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 }).collect(Collectors.toList());
         List<String> featureFlags = CpuInfo.queryFeatureFlags();
         return new Quartet<>(logProcs, physProcs, caches, featureFlags);
+    }
+
+    /**
+     * Marks the performance cores of an Intel hybrid processor. Only ARM and RISC-V kernels publish
+     * {@code cpu_capacity}; on x86 every core reads 0, but a hybrid processor has a separate PMU for each core type,
+     * and the {@code cpu_core} PMU lists the performance cores. Those become efficiency class 1 and the efficient
+     * ({@code cpu_atom}) cores stay 0, the classes Windows reports. Package-private for testing.
+     *
+     * @param coreEfficiencyMap the efficiency of each core, keyed by package and core, updated in place
+     * @param logProcs          the logical processors
+     * @param performanceCpus   the {@code cpu_core} PMU's CPU list, such as {@code 0-11}, or empty if there is none
+     */
+    static void applyHybridCoreTypes(Map<Integer, Integer> coreEfficiencyMap, List<LogicalProcessor> logProcs,
+            String performanceCpus) {
+        if (performanceCpus.isEmpty() || coreEfficiencyMap.values().stream().anyMatch(e -> e != 0)) {
+            return;
+        }
+        Set<Integer> performance = new HashSet<>(ParseUtil.parseHyphenatedIntList(performanceCpus));
+        for (LogicalProcessor lp : logProcs) {
+            if (performance.contains(lp.getProcessorNumber())) {
+                coreEfficiencyMap.put((lp.getPhysicalPackageNumber() << 16) + lp.getPhysicalProcessorNumber(), 1);
+            }
+        }
     }
 
     /**
