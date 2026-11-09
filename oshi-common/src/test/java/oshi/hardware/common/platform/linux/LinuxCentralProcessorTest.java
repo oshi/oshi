@@ -597,7 +597,30 @@ class LinuxCentralProcessorTest {
         assertThat(id.model(), is("0xd08"));
         assertThat(id.stepping(), is("r0p3"));
         assertThat(id.name(), is(""));
-        assertThat(id.cpu64bit(), is(false));
+        assertThat("ARMv8 is 64-bit", id.cpu64bit(), is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoArm32() {
+        // A Raspberry Pi 2 (Cortex-A7, ARMv7) and a Cortex-A32, the one 32-bit-only ARMv8 core
+        List<String> armv7 = List.of("processor\t: 0", "model name\t: ARMv7 Processor rev 5 (v7l)",
+                "CPU implementer\t: 0x41", "CPU architecture: 7", "CPU part\t: 0xc07");
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(armv7).cpu64bit(), is(false));
+        List<String> cortexA32 = List.of("CPU implementer\t: 0x41", "CPU architecture: 8", "CPU part\t: 0xd01");
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cortexA32).cpu64bit(), is(false));
+        // Kernels before 3.11 named the architecture instead of numbering it
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(List.of("CPU architecture: AArch64")).cpu64bit(),
+                is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoRiscv() {
+        // StarFive VisionFive 2 (JH7110); a 32-bit core names rv32 instead
+        List<String> cpuinfo = List.of("processor\t: 0", "hart\t\t: 1", "isa\t\t: rv64imafdc_zicntr_zicsr_zifencei",
+                "mmu\t\t: sv39", "uarch\t\t: sifive,u74-mc");
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo).cpu64bit(), is(true));
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(List.of("isa\t\t: rv32imac")).cpu64bit(),
+                is(false));
     }
 
     @Test

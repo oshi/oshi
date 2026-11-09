@@ -101,8 +101,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             cpuModel = lscpu.getB();
             cpuName = lscpu.getC();
         }
+        // A 64-bit JVM can only run on a 64-bit processor, which covers POWER and any architecture whose cpuinfo
+        // carries no marker; the markers still matter for a 32-bit JVM or userland on 64-bit hardware
         return new ProcessorIdentifier(cpuVendor, cpuName, id.family(), cpuModel, id.stepping(), processorID,
-                id.cpu64bit(), cpuFreq);
+                id.cpu64bit() || Util.is64Bit(), cpuFreq);
     }
 
     /** Immutable holder for the identifier fields parsed from {@code /proc/cpuinfo}. Package-private for testing. */
@@ -190,12 +192,14 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         String s390Version = "";
         String s390Ident = "";
         String s390Machine = "";
+        String armArchitecture = "";
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, -1);
             if (splitLine.length < 2) {
                 // special case
                 if (line.startsWith("CPU architecture: ")) {
                     family = line.replace("CPU architecture: ", "").trim();
+                    armArchitecture = family;
                 }
                 continue;
             }
@@ -223,6 +227,12 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 case "features":
                     // s390 lists its facilities here; zarch is the 64-bit z/Architecture mode
                     if (Arrays.asList(ParseUtil.whitespaces.split(splitLine[1].trim(), -1)).contains("zarch")) {
+                        cpu64bit = true;
+                    }
+                    break;
+                case "isa":
+                    // RISC-V names its base integer ISA, rv32 or rv64, first
+                    if (splitLine[1].startsWith("rv64")) {
                         cpu64bit = true;
                     }
                     break;
@@ -267,6 +277,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         if (stepping.isEmpty()) {
             stepping = armStepping.toString();
         }
+        if (!armArchitecture.isEmpty() && isArm64bit(armArchitecture, vendor, model)) {
+            cpu64bit = true;
+        }
         String processorId = "";
         // PowerPC also has a "machine" line, naming the platform rather than a machine type
         if (vendor.startsWith("IBM/S390") && !s390Machine.isEmpty()) {
@@ -279,6 +292,24 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return new CpuInfoIdentity(vendor, name, family, model, stepping, flags, freq, cpu64bit, processorId);
+    }
+
+    /**
+     * Whether an ARM processor implements AArch64. Every ARMv8-A and later application core does, whether the kernel
+     * running on it is 64-bit or 32-bit, except the 32-bit-only Cortex-A32. Kernels before 3.11 printed {@code AArch64}
+     * in place of the architecture number.
+     *
+     * @param architecture the {@code CPU architecture} value
+     * @param implementer  the {@code CPU implementer} value
+     * @param part         the {@code CPU part} value
+     * @return whether the processor is 64-bit
+     */
+    private static boolean isArm64bit(String architecture, String implementer, String part) {
+        if ("AArch64".equalsIgnoreCase(architecture)) {
+            return true;
+        }
+        return ParseUtil.parseIntOrDefault(architecture, 0) >= 8
+                && !("0x41".equalsIgnoreCase(implementer) && "0xd01".equalsIgnoreCase(part));
     }
 
     /**
