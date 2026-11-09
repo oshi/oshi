@@ -63,7 +63,8 @@ public abstract class LinuxNetworkParams extends AbstractNetworkParams {
     static String[] getDnsServers(List<String> resolv, Supplier<List<String>> upstream) {
         String[] servers = parseDnsServers(resolv);
         if (servers.length > 0 && Arrays.stream(servers).allMatch(RESOLVED_STUBS::contains)) {
-            String[] upstreamServers = parseDnsServers(upstream.get());
+            // resolved forwards to every server it lists, not just the three the libc resolver would read
+            String[] upstreamServers = parseDnsServers(upstream.get(), Integer.MAX_VALUE);
             if (upstreamServers.length > 0) {
                 return upstreamServers;
             }

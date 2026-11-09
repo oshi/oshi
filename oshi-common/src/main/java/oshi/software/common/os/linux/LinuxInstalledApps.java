@@ -60,11 +60,22 @@ public final class LinuxInstalledApps {
         if (!PACKAGE_MANAGER_COMMANDS.isEmpty()) {
             return parseLinuxAppInfo(fetchInstalledApps());
         }
-        // apk and pacman keep their databases as plain text, so no command is needed
-        if (new File(APK_INSTALLED).isFile()) {
-            return parseApkInstalled(FileUtil.readFile(APK_INSTALLED, false));
+        return queryPackageDatabases(APK_INSTALLED, PACMAN_LOCAL);
+    }
+
+    /**
+     * Reads the installed packages from the apk or pacman database, which both keep as plain text, so no command is
+     * needed. Package-private for testing.
+     *
+     * @param apkInstalled the path of apk's {@code installed} database file
+     * @param pacmanLocal  the path of pacman's local database directory, holding one directory per package
+     * @return the installed packages, or an empty list if neither database exists
+     */
+    static List<ApplicationInfo> queryPackageDatabases(String apkInstalled, String pacmanLocal) {
+        if (new File(apkInstalled).isFile()) {
+            return parseApkInstalled(FileUtil.readFile(apkInstalled, false));
         }
-        File[] pacmanPackages = new File(PACMAN_LOCAL).listFiles(File::isDirectory);
+        File[] pacmanPackages = new File(pacmanLocal).listFiles(File::isDirectory);
         if (pacmanPackages != null) {
             List<ApplicationInfo> apps = new ArrayList<>();
             for (File pkg : pacmanPackages) {
@@ -75,7 +86,7 @@ public final class LinuxInstalledApps {
             }
             return apps;
         }
-        return Collections.emptyList();
+        return new ArrayList<>();
     }
 
     /**

@@ -11,12 +11,16 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.api.io.TempDir;
 
 import oshi.software.os.ApplicationInfo;
 
@@ -200,5 +204,31 @@ class LinuxInstalledAppsTest {
         assertThat(bash.getAdditionalInfo().get("installedSize"), is("10055840"));
         assertThat(bash.getAdditionalInfo().get("homepage"), is("https://www.gnu.org/software/bash/bash.html"));
         assertThat(LinuxInstalledApps.parsePacmanDesc(List.of("%VERSION%", "1.0")), is(nullValue()));
+    }
+
+    @Test
+    void testQueryPackageDatabasesApk(@TempDir Path tmp) throws IOException {
+        Path installed = Files.writeString(tmp.resolve("installed"), APK_DB);
+        assertThat(LinuxInstalledApps.queryPackageDatabases(installed.toString(), tmp.resolve("absent").toString()),
+                is(LinuxInstalledApps.parseApkInstalled(APK_DB.lines().toList())));
+    }
+
+    @Test
+    void testQueryPackageDatabasesPacman(@TempDir Path tmp) throws IOException {
+        Path local = Files.createDirectories(tmp.resolve("local"));
+        Files.writeString(Files.createDirectories(local.resolve("bash-5.3.20-1")).resolve("desc"), PACMAN_DESC);
+        // A package directory whose desc has no name is skipped, and pacman's version file is not a package
+        Files.writeString(Files.createDirectories(local.resolve("broken-1.0-1")).resolve("desc"), "%VERSION%\n1.0\n");
+        Files.writeString(local.resolve("ALPM_DB_VERSION"), "9\n");
+        List<ApplicationInfo> apps = LinuxInstalledApps.queryPackageDatabases(tmp.resolve("absent").toString(),
+                local.toString());
+        assertThat(apps, hasSize(1));
+        assertThat(apps.get(0).getName(), is("bash"));
+    }
+
+    @Test
+    void testQueryPackageDatabasesNeither(@TempDir Path tmp) {
+        assertThat(LinuxInstalledApps.queryPackageDatabases(tmp.resolve("installed").toString(),
+                tmp.resolve("local").toString()), is(empty()));
     }
 }

@@ -15,6 +15,8 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 class UdevDataTest {
@@ -51,6 +53,8 @@ class UdevDataTest {
     }
 
     @Test
+    // A block device's record is named major:minor, and Windows does not allow a colon in a file name
+    @DisabledOnOs(OS.WINDOWS)
     void testQueryByDeviceNumberAndIfindex(@TempDir Path dir) throws IOException {
         Files.writeString(dir.resolve("b8:1"), PARTITION_RECORD);
         Files.writeString(dir.resolve("n2"), "E:ID_MODEL_FROM_DATABASE=I225-V\n");
@@ -61,5 +65,11 @@ class UdevDataTest {
         assertThat(UdevData.queryBlockDevice(data, 8, 2), anEmptyMap());
         assertThat(UdevData.queryBlockDevice(data, 0, 0), anEmptyMap());
         assertThat(UdevData.queryNetworkInterface(data, 0), anEmptyMap());
+    }
+
+    @Test
+    void testDefaultDatabaseRejectsUnsetNumbers() {
+        assertThat(UdevData.queryBlockDevice(0, 0), anEmptyMap());
+        assertThat(UdevData.queryNetworkInterface(0), anEmptyMap());
     }
 }

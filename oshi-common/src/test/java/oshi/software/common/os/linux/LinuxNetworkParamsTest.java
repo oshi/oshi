@@ -98,6 +98,25 @@ class LinuxNetworkParamsTest {
     }
 
     @Test
+    void testDnsServersBehindResolvedStubReportsEveryUpstream() {
+        // resolved lists every configured server, past the libc resolver's limit of three
+        List<String> upstream = List.of("nameserver 10.0.0.1", "nameserver 10.0.0.2", "nameserver 10.0.0.3",
+                "nameserver 10.0.0.4");
+        assertThat(LinuxNetworkParams.getDnsServers(STUB_RESOLV, () -> upstream),
+                is(new String[] { "10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4" }));
+        assertThat("resolv.conf itself keeps the limit", LinuxNetworkParams.getDnsServers(upstream, () -> {
+            throw new AssertionError("upstream read");
+        }), is(new String[] { "10.0.0.1", "10.0.0.2", "10.0.0.3" }));
+    }
+
+    @Test
+    void testDnsServersEmptyResolvConf() {
+        assertThat(LinuxNetworkParams.getDnsServers(Collections.emptyList(), () -> {
+            throw new AssertionError("upstream read");
+        }), is(new String[0]));
+    }
+
+    @Test
     void testDnsServersStubWithoutUpstreamFile() {
         // resolved not running its upstream file: report what resolv.conf says rather than nothing
         assertThat(LinuxNetworkParams.getDnsServers(STUB_RESOLV, Collections::emptyList),

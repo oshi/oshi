@@ -178,10 +178,12 @@ class LinuxLogicalVolumeGroupTest {
         dmDevice(tmp, "dm-0", "LVM-Abc123Def456", "my--vg-root", "sda2");
         dmDevice(tmp, "dm-1", "LVM-Abc123Ghi789", "my--vg-swap_1", "sda2");
         dmDevice(tmp, "dm-2", "CRYPT-LUKS2-0123456789abcdef-luks", "luks-0123");
+        // A mapping created with dmsetup and no UUID
+        dmDevice(tmp, "dm-3", "", "plain");
         Files.createDirectories(tmp.resolve("sda"));
 
         List<UdevBlockDevice> devices = LinuxLogicalVolumeGroup.querySysfsBlockDevices(tmp + "/");
-        assertThat("Only dm-N devices are read", devices, hasSize(3));
+        assertThat("Only dm-N devices are read", devices, hasSize(4));
 
         List<LogicalVolumeGroup> lvgs = build(devices);
         assertThat("The LUKS mapping is not a volume group", lvgs, hasSize(1));

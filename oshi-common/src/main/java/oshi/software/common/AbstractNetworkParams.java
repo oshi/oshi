@@ -102,8 +102,18 @@ public abstract class AbstractNetworkParams implements NetworkParams {
      * @return the name server addresses
      */
     protected static String[] parseDnsServers(List<String> resolv) {
+        return parseDnsServers(resolv, 3);
+    }
+
+    /**
+     * Parses up to a given number of {@code nameserver} entries of a {@code resolv.conf} file.
+     *
+     * @param resolv        the lines of the file
+     * @param maxNameServer the most entries to return
+     * @return the name server addresses
+     */
+    protected static String[] parseDnsServers(List<String> resolv, int maxNameServer) {
         String key = NAMESERVER;
-        int maxNameServer = 3;
         List<String> servers = new ArrayList<>();
         for (int i = 0; i < resolv.size() && servers.size() < maxNameServer; i++) {
             String line = resolv.get(i);
