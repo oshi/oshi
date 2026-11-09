@@ -27,12 +27,16 @@ public final class SysPath {
     public static final String BLOCK = SYS + "block/";
     /** Path to CPU devices. */
     public static final String CPU = SYS + "devices/system/cpu/";
+    /** The CPUs of an Intel hybrid processor's performance-core PMU. */
+    public static final String HYBRID_PERFORMANCE_CPUS = SYS + "devices/cpu_core/cpus";
     /** Path to DMI identification. */
     public static final String DMI_ID = SYS + "devices/virtual/dmi/id/";
     /** Path to network interfaces. */
     public static final String NET = SYS + "class/net/";
+    /** Path to the device tree root node. */
+    public static final String DEVICETREE = SYS + "firmware/devicetree/base/";
     /** Path to device tree model. */
-    public static final String MODEL = SYS + "firmware/devicetree/base/model";
+    public static final String MODEL = DEVICETREE + "model";
     /** Path to power supply class. */
     public static final String POWER_SUPPLY = SYS + "class/power_supply";
     /** Path to hardware monitoring. */

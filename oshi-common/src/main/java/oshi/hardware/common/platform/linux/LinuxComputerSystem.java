@@ -66,7 +66,9 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static String queryManufacturer() {
         String result = null;
-        if ((result = Sysfs.querySystemVendor()) == null && (result = CpuInfo.queryCpuManufacturer()) == null) {
+        // Boards without DMI describe themselves in the devicetree; the processor's implementer is a last resort
+        if ((result = Sysfs.querySystemVendor()) == null && (result = Devicetree.queryManufacturer()) == null
+                && (result = CpuInfo.queryCpuManufacturer()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -83,8 +85,9 @@ final class LinuxComputerSystem extends AbstractComputerSystem {
 
     private static String querySerialNumber() {
         String result = null;
-        if ((result = Sysfs.queryProductSerial()) == null && (result = Dmidecode.querySerialNumber()) == null
-                && (result = Lshal.querySerialNumber()) == null && (result = Lshw.querySerialNumber()) == null) {
+        if ((result = Sysfs.queryProductSerial()) == null && (result = Devicetree.querySerialNumber()) == null
+                && (result = Dmidecode.querySerialNumber()) == null && (result = Lshal.querySerialNumber()) == null
+                && (result = Lshw.querySerialNumber()) == null) {
             return Constants.UNKNOWN;
         }
         return result;

@@ -6,8 +6,11 @@ package oshi.hardware.common.platform.linux;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.ToLongFunction;
 
@@ -20,11 +23,14 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
+import oshi.util.driver.linux.Devicetree;
+import oshi.util.linux.UdevData;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Triplet;
 
 /**
- * Graphics card info obtained by lshw, with dynamic metrics from sysfs DRM driver files.
+ * Graphics card info obtained by lspci or lshw, or from the DRM devices in sysfs where neither is installed, with
+ * dynamic metrics from sysfs DRM driver files.
  */
 @ThreadSafe
 public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
@@ -218,6 +224,67 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         List<GraphicsCard> cardList = getGraphicsCardsFromLspci(factory);
         if (cardList.isEmpty()) {
             cardList = getGraphicsCardsFromLshw(factory);
+        }
+        if (cardList.isEmpty()) {
+            cardList = getGraphicsCardsFromDrm(factory, DRM_PATH, UdevData.RUN_UDEV_DATA);
+        }
+        return cardList;
+    }
+
+    /**
+     * Lists the graphics cards the kernel's DRM subsystem drives, for hosts with neither lspci nor lshw, and for the
+     * GPUs of an ARM system-on-chip, which are not PCI devices. A PCI card is named from udev's hardware database, as
+     * lspci would name it; a system-on-chip GPU by its devicetree {@code compatible} string.
+     *
+     * @param factory     function that creates a concrete {@link GraphicsCard} from parsed attributes
+     * @param drmPath     the DRM class directory, ending in a slash
+     * @param udevDataDir the udev database directory, ending in a slash
+     * @return list of graphics cards
+     */
+    static List<GraphicsCard> getGraphicsCardsFromDrm(Function<Attrs, GraphicsCard> factory, String drmPath,
+            String udevDataDir) {
+        List<GraphicsCard> cardList = new ArrayList<>();
+        File[] cards = new File(drmPath).listFiles(f -> f.getName().matches("card\\d+"));
+        if (cards == null) {
+            return cardList;
+        }
+        Arrays.sort(cards, Comparator.comparingInt(f -> ParseUtil.getFirstIntValue(f.getName())));
+        for (File card : cards) {
+            String devicePath = card.getAbsolutePath() + "/device";
+            String driver = readDriverName(devicePath + "/driver");
+            // simpledrm only drives the framebuffer the firmware left behind
+            if (driver.isEmpty() || "simple-framebuffer".equals(driver) || "simpledrm".equals(driver)) {
+                continue;
+            }
+            Map<String, String> uevent = FileUtil.getKeyValueMapFromFile(devicePath + "/uevent", "=");
+            String slot = uevent.getOrDefault("PCI_SLOT_NAME", "");
+            String name = Constants.UNKNOWN;
+            String deviceId = Constants.UNKNOWN;
+            String vendor = Constants.UNKNOWN;
+            String versionInfo = Constants.UNKNOWN;
+            if (!slot.isEmpty()) {
+                Map<String, String> udev = UdevData.queryDevice(udevDataDir, "pci", slot);
+                String vendorId = FileUtil.getStringFromFile(devicePath + "/vendor").trim();
+                deviceId = ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(devicePath + "/device").trim());
+                name = ParseUtil.getStringValueOrUnknown(udev.get("ID_MODEL_FROM_DATABASE"));
+                String vendorName = ParseUtil.getStringValueOrEmpty(udev.get("ID_VENDOR_FROM_DATABASE")).trim();
+                if (!vendorName.isEmpty()) {
+                    vendor = vendorId.isEmpty() ? vendorName : vendorName + " (" + vendorId + ")";
+                } else {
+                    vendor = ParseUtil.getStringValueOrUnknown(vendorId);
+                }
+                String revision = FileUtil.getStringFromFile(devicePath + "/revision").trim();
+                if (revision.startsWith("0x")) {
+                    versionInfo = "Rev:\t" + revision.substring(2);
+                }
+            } else {
+                String compatible = ParseUtil.getStringValueOrEmpty(uevent.get("OF_COMPATIBLE_0")).trim();
+                if (!compatible.isEmpty()) {
+                    name = compatible;
+                    vendor = ParseUtil.getStringValueOrUnknown(Devicetree.queryVendor(compatible));
+                }
+            }
+            cardList.add(factory.apply(new Attrs(name, deviceId, vendor, versionInfo, 0L, devicePath, driver, slot)));
         }
         return cardList;
     }

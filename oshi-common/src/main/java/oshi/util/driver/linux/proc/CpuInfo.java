@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
-import oshi.util.Constants;
 import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
@@ -23,6 +22,8 @@ import oshi.util.tuples.Quartet;
  */
 @ThreadSafe
 public final class CpuInfo {
+
+    private static final String ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
 
     private CpuInfo() {
     }
@@ -45,33 +46,9 @@ public final class CpuInfo {
     static @Nullable String queryCpuManufacturer(List<String> cpuInfo) {
         for (String line : cpuInfo) {
             if (line.startsWith("CPU implementer")) {
-                int part = ParseUtil.parseLastInt(line, 0);
-                switch (part) {
-                    case 0x41:
-                        return "ARM";
-                    case 0x42:
-                        return "Broadcom";
-                    case 0x43:
-                        return "Cavium";
-                    case 0x44:
-                        return "DEC";
-                    case 0x4e:
-                        return "Nvidia";
-                    case 0x50:
-                        return "APM";
-                    case 0x51:
-                        return "Qualcomm";
-                    case 0x53:
-                        return "Samsung";
-                    case 0x56:
-                        return "Marvell";
-                    case 0x66:
-                        return "Faraday";
-                    case 0x69:
-                        return "Intel";
-                    default:
-                        return null;
-                }
+                // The implementer codes are those ProcessorIdentifier translates, from the same table
+                String key = String.format(Locale.ROOT, "hw_impl.0x%02x", ParseUtil.parseLastInt(line, 0));
+                return FileUtil.readPropertiesFromFilename(ARCHITECTURE_PROPERTIES).getProperty(key);
             }
         }
         return null;
@@ -111,9 +88,7 @@ public final class CpuInfo {
                     break;
                 case "Revision":
                     pcVersion = splitLine[1];
-                    if (pcVersion.length() > 1) {
-                        pcManufacturer = queryBoardManufacturer(pcVersion.charAt(1));
-                    }
+                    pcManufacturer = queryBoardManufacturer(pcVersion);
                     break;
                 case "Serial":
                     pcSerialNumber = splitLine[1];
@@ -125,22 +100,33 @@ public final class CpuInfo {
         return new Quartet<>(pcManufacturer, pcModel, pcVersion, pcSerialNumber);
     }
 
-    private static String queryBoardManufacturer(char digit) {
-        switch (digit) {
-            case '0':
+    /**
+     * Decodes the manufacturer of a Raspberry Pi from its revision code. Only the new-style codes, which set bit 23,
+     * carry one, in bits 16 to 19. Other ARM kernels print a revision too, usually {@code 0000}, that means nothing of
+     * the kind.
+     *
+     * @param revision the {@code Revision} value, in hex
+     * @return the manufacturer, or null if the code does not name one
+     */
+    private static @Nullable String queryBoardManufacturer(String revision) {
+        long code = ParseUtil.hexStringToLong(revision, 0L);
+        if ((code & 0x80_0000L) == 0) {
+            return null;
+        }
+        switch ((int) (code >> 16) & 0xF) {
+            case 0:
                 return "Sony UK";
-            case '1':
+            case 1:
                 return "Egoman";
-            case '2':
+            case 2:
+            case 4:
                 return "Embest";
-            case '3':
+            case 3:
                 return "Sony Japan";
-            case '4':
-                return "Embest";
-            case '5':
+            case 5:
                 return "Stadium";
             default:
-                return Constants.UNKNOWN;
+                return null;
         }
     }
 

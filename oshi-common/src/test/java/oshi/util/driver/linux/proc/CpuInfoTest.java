@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
-import oshi.util.Constants;
 import oshi.util.tuples.Quartet;
 
 class CpuInfoTest {
@@ -49,6 +48,14 @@ class CpuInfoTest {
     void testQueryCpuManufacturerQualcomm() {
         List<String> qualcomm = List.of("CPU implementer\t: 0x51");
         assertThat(CpuInfo.queryCpuManufacturer(qualcomm), is("Qualcomm"));
+    }
+
+    @Test
+    void testQueryCpuManufacturerFromArchitectureTable() {
+        // Implementers the table carries, such as Apple Silicon running Linux in a VM or under Asahi
+        assertThat(CpuInfo.queryCpuManufacturer(List.of("CPU implementer\t: 0x61")), is("Apple"));
+        assertThat(CpuInfo.queryCpuManufacturer(List.of("CPU implementer\t: 0xc0")), is("Ampere"));
+        assertThat(CpuInfo.queryCpuManufacturer(List.of("CPU implementer\t: 0x48")), is("HiSilicon"));
     }
 
     @Test
@@ -91,7 +98,20 @@ class CpuInfoTest {
         List<String> unknown = List.of("Revision\t: a920d3");
         Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> info = CpuInfo
                 .queryBoardInfo(unknown);
-        assertThat(info.getA(), is(Constants.UNKNOWN));
+        assertThat(info.getA(), is(nullValue()));
+        // A Pi 4 with the warranty bit (25) set, and a Pi 5 built by Sony UK
+        assertThat(CpuInfo.queryBoardInfo(List.of("Revision\t: 2b03114")).getA(), is("Sony UK"));
+        assertThat(CpuInfo.queryBoardInfo(List.of("Revision\t: d04170")).getA(), is("Sony UK"));
+    }
+
+    @Test
+    void testQueryBoardInfoNotAPiRevision() {
+        // Mainline 32-bit ARM kernels print a revision on every board; old-style Pi codes carry no manufacturer
+        assertThat(CpuInfo.queryBoardInfo(List.of("Revision\t: 0000")).getA(), is(nullValue()));
+        Quartet<@Nullable String, @Nullable String, @Nullable String, @Nullable String> oldPi = CpuInfo
+                .queryBoardInfo(List.of("Revision\t: 000e"));
+        assertThat(oldPi.getA(), is(nullValue()));
+        assertThat(oldPi.getC(), is("000e"));
     }
 
     @Test

@@ -23,6 +23,7 @@
 * [#3876](https://github.com/oshi/oshi/pull/3876): Fixed `HWPartition.getMountPoint()` for disklabel partitions on NetBSD, which reported part of the cylinder range and now reports the mounted file system, and on OpenBSD for a partition not listed in `fstab`. NetBSD disklabel partitions no longer report a `.a`-style UUID - [@dbwiddis](https://github.com/dbwiddis).
 * [#3879](https://github.com/oshi/oshi/pull/3879): `CentralProcessor.getProcessorCaches()` now reports processor caches on Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
 * [#3880](https://github.com/oshi/oshi/pull/3880): Linux reports disks, USB devices and volume groups without libudev (Alpine, distroless), reads udev properties for native-free disks, partitions and network adapters, lists installed applications on Alpine and Arch with millisecond timestamps, lists OpenRC services, and reads affinity from `/proc` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3881](https://github.com/oshi/oshi/pull/3881): Linux reports 64-bit processors on ARM, RISC-V and POWER, P-core and E-core efficiency on Intel hybrid processors, external power and battery time remaining, board manufacturer and serial number from the devicetree, Raspberry Pi fans, and graphics cards without `lspci` or `lshw` - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

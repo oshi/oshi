@@ -16,7 +16,9 @@ import static oshi.util.TestFileUtil.writeFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -597,7 +599,55 @@ class LinuxCentralProcessorTest {
         assertThat(id.model(), is("0xd08"));
         assertThat(id.stepping(), is("r0p3"));
         assertThat(id.name(), is(""));
-        assertThat(id.cpu64bit(), is(false));
+        assertThat("ARMv8 is 64-bit", id.cpu64bit(), is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoArm32() {
+        // A Raspberry Pi 2 (Cortex-A7, ARMv7) and a Cortex-A32, the one 32-bit-only ARMv8 core
+        List<String> armv7 = List.of("processor\t: 0", "model name\t: ARMv7 Processor rev 5 (v7l)",
+                "CPU implementer\t: 0x41", "CPU architecture: 7", "CPU part\t: 0xc07");
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(armv7).cpu64bit(), is(false));
+        List<String> cortexA32 = List.of("CPU implementer\t: 0x41", "CPU architecture: 8", "CPU part\t: 0xd01");
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cortexA32).cpu64bit(), is(false));
+        // Kernels before 3.11 named the architecture instead of numbering it
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(List.of("CPU architecture: AArch64")).cpu64bit(),
+                is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoRiscv() {
+        // StarFive VisionFive 2 (JH7110); a 32-bit core names rv32 instead
+        List<String> cpuinfo = List.of("processor\t: 0", "hart\t\t: 1", "isa\t\t: rv64imafdc_zicntr_zicsr_zifencei",
+                "mmu\t\t: sv39", "uarch\t\t: sifive,u74-mc");
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo).cpu64bit(), is(true));
+        assertThat(LinuxCentralProcessor.parseProcessorIdFromCpuinfo(List.of("isa\t\t: rv32imac")).cpu64bit(),
+                is(false));
+    }
+
+    @Test
+    void testApplyHybridCoreTypes() {
+        // Core i7-12700: 8 two-thread P-cores (core_id 0-28 step 4, CPUs 0-15) and 4 E-cores (core_id 32-35)
+        List<LogicalProcessor> logProcs = new ArrayList<>();
+        Map<Integer, Integer> efficiency = new HashMap<>();
+        for (int cpu = 0; cpu < 20; cpu++) {
+            int core = cpu < 16 ? (cpu / 2) * 4 : 32 + cpu - 16;
+            logProcs.add(new LogicalProcessor(cpu, core, 0));
+            efficiency.put(core, 0);
+        }
+        LinuxCentralProcessor.applyHybridCoreTypes(efficiency, logProcs, "0-15");
+        assertThat(efficiency.get(0), is(1));
+        assertThat(efficiency.get(28), is(1));
+        assertThat(efficiency.get(32), is(0));
+        assertThat(efficiency.values().stream().filter(e -> e == 1).count(), is(8L));
+
+        // No hybrid PMU, or capacities the kernel already published, leave the values alone
+        Map<Integer, Integer> plain = new HashMap<>(Map.of(0, 0, 4, 0));
+        LinuxCentralProcessor.applyHybridCoreTypes(plain, logProcs, "");
+        assertThat(plain, is(Map.of(0, 0, 4, 0)));
+        Map<Integer, Integer> arm = new HashMap<>(Map.of(0, 446, 4, 1024));
+        LinuxCentralProcessor.applyHybridCoreTypes(arm, logProcs, "0-3");
+        assertThat(arm, is(Map.of(0, 446, 4, 1024)));
     }
 
     @Test

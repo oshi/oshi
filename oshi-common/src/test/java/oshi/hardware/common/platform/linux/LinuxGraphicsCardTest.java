@@ -20,6 +20,8 @@ import java.util.function.ToLongFunction;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.GraphicsCard;
@@ -218,6 +220,63 @@ class LinuxGraphicsCardTest {
         Files.createSymbolicLink(deviceDir.resolve("driver"), driverTarget);
         // Write uevent with PCI_SLOT_NAME
         Files.writeString(deviceDir.resolve("uevent"), ("PCI_SLOT_NAME=" + slotName + "\n"));
+    }
+
+    // -------------------------------------------------------------------------
+    // getGraphicsCardsFromDrm, without lspci or lshw
+    // -------------------------------------------------------------------------
+
+    @Test
+    // A PCI function's udev record is named +pci:<slot>, and Windows does not allow a colon in a file name
+    @DisabledOnOs(OS.WINDOWS)
+    void testGraphicsCardsFromDrmPci(@TempDir Path tempDir) throws IOException {
+        Path drm = tempDir.resolve("drm");
+        createCardWithDriver(drm, "card1", "amdgpu", "0000:03:00.0");
+        Path device = drm.resolve("card1/device");
+        writeFile(device.resolve("vendor"), "0x1002");
+        writeFile(device.resolve("device"), "0x744c");
+        writeFile(device.resolve("revision"), "0xc8");
+        // A connector is not a card, and the firmware's framebuffer is not a GPU
+        Files.createDirectories(drm.resolve("card1-DP-1"));
+        createCardWithDriver(drm, "card0", "simple-framebuffer", "");
+        Path udev = Files.createDirectories(tempDir.resolve("udev"));
+        Files.writeString(udev.resolve("+pci:0000:03:00.0"), """
+                E:ID_PCI_CLASS_FROM_DATABASE=Display controller
+                E:ID_VENDOR_FROM_DATABASE=Advanced Micro Devices, Inc. [AMD/ATI]
+                E:ID_MODEL_FROM_DATABASE=Navi 31 [Radeon RX 7900 XT/7900 XTX/7900 GRE/7900M]
+                """);
+
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromDrm(STUB_FACTORY, drm + "/", udev + "/");
+        assertThat(cards.size(), is(1));
+        GraphicsCard card = cards.get(0);
+        assertThat(card.getName(), is("Navi 31 [Radeon RX 7900 XT/7900 XTX/7900 GRE/7900M]"));
+        assertThat(card.getVendor(), is("Advanced Micro Devices, Inc. [AMD/ATI] (0x1002)"));
+        assertThat(card.getDeviceId(), is("0x744c"));
+        assertThat(card.getVersionInfo(), is("Rev:\tc8"));
+
+        // Without a udev database the identifiers still come through
+        card = LinuxGraphicsCard.getGraphicsCardsFromDrm(STUB_FACTORY, drm + "/", tempDir.resolve("none") + "/").get(0);
+        assertThat(card.getName(), is(Constants.UNKNOWN));
+        assertThat(card.getVendor(), is("0x1002"));
+    }
+
+    @Test
+    void testGraphicsCardsFromDrmSoc(@TempDir Path tempDir) throws IOException {
+        // A Raspberry Pi 4's two DRM devices, neither of them PCI
+        Path drm = tempDir.resolve("drm");
+        createCardWithDriver(drm, "card0", "v3d", "");
+        writeFile(drm.resolve("card0/device/uevent"), "DRIVER=v3d\nOF_COMPATIBLE_0=brcm,2711-v3d\n");
+        createCardWithDriver(drm, "card1", "vc4-drm", "");
+        writeFile(drm.resolve("card1/device/uevent"), "DRIVER=vc4-drm\nOF_COMPATIBLE_0=brcm,bcm2711-vc5\n");
+
+        List<GraphicsCard> cards = LinuxGraphicsCard.getGraphicsCardsFromDrm(STUB_FACTORY, drm + "/",
+                tempDir.resolve("none") + "/");
+        assertThat(cards.size(), is(2));
+        assertThat(cards.get(0).getName(), is("brcm,2711-v3d"));
+        assertThat(cards.get(0).getVendor(), is("Broadcom"));
+        assertThat(cards.get(1).getName(), is("brcm,bcm2711-vc5"));
+        assertThat(LinuxGraphicsCard.getGraphicsCardsFromDrm(STUB_FACTORY, tempDir.resolve("absent") + "/", ""),
+                is(empty()));
     }
 
     // -------------------------------------------------------------------------

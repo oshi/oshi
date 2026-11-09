@@ -13,6 +13,7 @@ import org.jspecify.annotations.Nullable;
 import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.AbstractBaseboard;
 import oshi.util.Constants;
+import oshi.util.driver.linux.Devicetree;
 import oshi.util.driver.linux.Sysfs;
 import oshi.util.driver.linux.proc.CpuInfo;
 import oshi.util.tuples.Quartet;
@@ -53,7 +54,8 @@ final class LinuxBaseboard extends AbstractBaseboard {
     private String queryManufacturer() {
         String result = null;
         if ((result = Sysfs.queryBoardVendor()) == null
-                && (result = manufacturerModelVersionSerial.get().getA()) == null) {
+                && (result = manufacturerModelVersionSerial.get().getA()) == null
+                && (result = Devicetree.queryManufacturer()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -61,8 +63,9 @@ final class LinuxBaseboard extends AbstractBaseboard {
 
     private String queryModel() {
         String result = null;
-        if ((result = Sysfs.queryBoardModel()) == null
-                && (result = manufacturerModelVersionSerial.get().getB()) == null) {
+        // A 64-bit ARM kernel prints no Hardware line in cpuinfo
+        if ((result = Sysfs.queryBoardModel()) == null && (result = manufacturerModelVersionSerial.get().getB()) == null
+                && (result = Devicetree.queryModel()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
@@ -80,7 +83,8 @@ final class LinuxBaseboard extends AbstractBaseboard {
     private String querySerialNumber() {
         String result = null;
         if ((result = Sysfs.queryBoardSerial()) == null
-                && (result = manufacturerModelVersionSerial.get().getD()) == null) {
+                && (result = manufacturerModelVersionSerial.get().getD()) == null
+                && (result = Devicetree.querySerialNumber()) == null) {
             return Constants.UNKNOWN;
         }
         return result;
