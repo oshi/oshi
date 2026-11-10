@@ -71,6 +71,11 @@ public abstract class MacBaseboard extends AbstractBaseboard {
                     String mdl = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("board-id"),
                             StandardCharsets.UTF_8);
                     if (Util.isBlank(mdl)) {
+                        // Apple Silicon has no board-id; target-type is its board identifier (e.g. J416c)
+                        mdl = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("target-type"),
+                                StandardCharsets.UTF_8);
+                    }
+                    if (Util.isBlank(mdl)) {
                         mdl = ParseUtil.decodeNulTerminated(entry.getByteArrayProperty("model-number"),
                                 StandardCharsets.UTF_8);
                     }
