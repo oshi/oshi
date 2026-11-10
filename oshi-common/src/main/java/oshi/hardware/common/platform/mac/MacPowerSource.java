@@ -62,6 +62,9 @@ public abstract class MacPowerSource extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    /** The smart battery's {@code TimeRemaining} value, in minutes, meaning unknown or still calculating. */
+    private static final int TIME_REMAINING_UNKNOWN = 0xffff;
+
     /** Battery-wide fields read from the {@code AppleSmartBattery} registry entry, shared by every power source. */
     private static final class BatteryReadings {
         private String deviceName = Constants.UNKNOWN;
@@ -73,7 +76,7 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         private int maxCapacity = 1;
         private int currentCapacity;
         private int cycleCount = -1;
-        private double timeRemainingInstant;
+        private double timeRemainingInstant = -1d;
         private double temperature;
         private double voltage = -1d;
         private double amperage;
@@ -183,6 +186,10 @@ public abstract class MacPowerSource extends AbstractPowerSource {
             b.manufacturer = s;
         }
         s = smartBattery.getStringProperty("BatterySerialNumber");
+        if (s == null) {
+            // Apple Silicon publishes the pack serial under this key instead
+            s = smartBattery.getStringProperty("Serial");
+        }
         if (s != null) {
             b.serialNumber = s;
         }
@@ -206,20 +213,19 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         if (temp != null) {
             b.designCapacity = temp;
         }
-        temp = smartBattery.getIntegerProperty("MaxCapacity");
+        temp = chooseCapacity(smartBattery.getIntegerProperty("AppleRawMaxCapacity"),
+                smartBattery.getIntegerProperty("MaxCapacity"));
         if (temp != null) {
             b.maxCapacity = temp;
         }
-        temp = smartBattery.getIntegerProperty("CurrentCapacity");
+        temp = chooseCapacity(smartBattery.getIntegerProperty("AppleRawCurrentCapacity"),
+                smartBattery.getIntegerProperty("CurrentCapacity"));
         if (temp != null) {
             b.currentCapacity = temp;
         }
         b.capacityUnits = CapacityUnits.MAH;
 
-        temp = smartBattery.getIntegerProperty("TimeRemaining");
-        if (temp != null) {
-            b.timeRemainingInstant = temp * 60d;
-        }
+        b.timeRemainingInstant = minutesToSeconds(smartBattery.getIntegerProperty("TimeRemaining"));
         temp = smartBattery.getIntegerProperty("CycleCount");
         if (temp != null) {
             b.cycleCount = temp;
@@ -249,5 +255,32 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         b.discharging = !b.charging && !b.powerOnLine;
 
         return b;
+    }
+
+    /**
+     * Chooses the battery capacity reading in mAh. {@code AppleRawMaxCapacity} and {@code AppleRawCurrentCapacity} are
+     * in mAh on every Mac; on Apple Silicon the unprefixed {@code MaxCapacity} and {@code CurrentCapacity} are
+     * percentages, so the raw keys are preferred and the unprefixed ones are used only when the raw keys are absent.
+     *
+     * @param raw      the {@code AppleRaw*} value, if published
+     * @param fallback the unprefixed value, if published
+     * @return the capacity in mAh, or {@code null} if neither key is published
+     */
+    static @Nullable Integer chooseCapacity(@Nullable Integer raw, @Nullable Integer fallback) {
+        return raw != null ? raw : fallback;
+    }
+
+    /**
+     * Converts the smart battery's {@code TimeRemaining} from minutes to seconds. The battery reports 65535 while the
+     * estimate is unknown or still being calculated.
+     *
+     * @param minutes the {@code TimeRemaining} value, if published
+     * @return seconds remaining, or -1 if unknown
+     */
+    static double minutesToSeconds(@Nullable Integer minutes) {
+        if (minutes == null || minutes < 0 || minutes >= TIME_REMAINING_UNKNOWN) {
+            return -1d;
+        }
+        return minutes * 60d;
     }
 }
