@@ -130,16 +130,21 @@ public class MacOperatingSystemFFM extends MacOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        return getIntOrDefault(() -> proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE, 0, LOG,
-                "Failed to query processes");
+        // A null buffer returns a padded estimate of the space needed, not a count; fill a buffer to count
+        return callInArenaIntOrDefault(arena -> {
+            int capacity = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE + 10;
+            MemorySegment pidSegment = arena.allocate(JAVA_INT, capacity);
+            return Math.min(proc_listpids(PROC_ALL_PIDS, 0, pidSegment, capacity * INT_SIZE) / INT_SIZE, capacity);
+        }, LOG, WARN, "Failed to query processes", 0);
     }
 
     @Override
     public int getThreadCount() {
         return callInArenaIntOrDefault(arena -> {
-            int numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE;
-            MemorySegment pidSegment = arena.allocate(JAVA_INT, numberOfProcesses + 10);
-            numberOfProcesses = proc_listpids(PROC_ALL_PIDS, 0, pidSegment, numberOfProcesses * INT_SIZE) / INT_SIZE;
+            int capacity = proc_listpids(PROC_ALL_PIDS, 0, MemorySegment.NULL, 0) / INT_SIZE + 10;
+            MemorySegment pidSegment = arena.allocate(JAVA_INT, capacity);
+            int numberOfProcesses = Math
+                    .min(proc_listpids(PROC_ALL_PIDS, 0, pidSegment, capacity * INT_SIZE) / INT_SIZE, capacity);
             int[] pids = pidSegment.asSlice(0, (long) numberOfProcesses * INT_SIZE).toArray(ValueLayout.JAVA_INT);
             MemorySegment buffer = arena.allocate(PROC_TASK_INFO);
             int numberOfThreads = 0;
