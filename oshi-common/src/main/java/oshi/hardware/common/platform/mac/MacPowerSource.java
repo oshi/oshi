@@ -265,14 +265,14 @@ public abstract class MacPowerSource extends AbstractPowerSource {
      * @param current    the {@code CurrentCapacity} value, if published
      * @param max        the {@code MaxCapacity} value, if published
      * @return the units, current capacity and maximum capacity; relative units with a current capacity of 0 and a
-     *         maximum of 1 if neither pair is published
+     *         maximum of 1 if neither pair is published with a positive maximum
      */
     static Triplet<CapacityUnits, Integer, Integer> chooseCapacity(@Nullable Integer rawCurrent,
             @Nullable Integer rawMax, @Nullable Integer current, @Nullable Integer max) {
-        if (rawCurrent != null && rawMax != null) {
+        if (rawCurrent != null && rawMax != null && rawMax > 0) {
             return new Triplet<>(CapacityUnits.MAH, rawCurrent, rawMax);
         }
-        if (current != null && max != null) {
+        if (current != null && max != null && max > 0) {
             return new Triplet<>(max <= 100 ? CapacityUnits.RELATIVE : CapacityUnits.MAH, current, max);
         }
         return new Triplet<>(CapacityUnits.RELATIVE, 0, 1);
