@@ -16,6 +16,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.hardware.common.platform.mac.IOKitProvider.RegistryEntry;
 import oshi.util.Constants;
+import oshi.util.tuples.Triplet;
 
 /**
  * Abstract base for the macOS PowerSource. The {@code AppleSmartBattery} registry read and the per-power-source field
@@ -213,17 +214,13 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         if (temp != null) {
             b.designCapacity = temp;
         }
-        temp = chooseCapacity(smartBattery.getIntegerProperty("AppleRawMaxCapacity"),
-                smartBattery.getIntegerProperty("MaxCapacity"));
-        if (temp != null) {
-            b.maxCapacity = temp;
-        }
-        temp = chooseCapacity(smartBattery.getIntegerProperty("AppleRawCurrentCapacity"),
-                smartBattery.getIntegerProperty("CurrentCapacity"));
-        if (temp != null) {
-            b.currentCapacity = temp;
-        }
-        b.capacityUnits = CapacityUnits.MAH;
+        Triplet<CapacityUnits, Integer, Integer> capacity = chooseCapacity(
+                smartBattery.getIntegerProperty("AppleRawCurrentCapacity"),
+                smartBattery.getIntegerProperty("AppleRawMaxCapacity"),
+                smartBattery.getIntegerProperty("CurrentCapacity"), smartBattery.getIntegerProperty("MaxCapacity"));
+        b.capacityUnits = capacity.getA();
+        b.currentCapacity = capacity.getB();
+        b.maxCapacity = capacity.getC();
 
         b.timeRemainingInstant = minutesToSeconds(smartBattery.getIntegerProperty("TimeRemaining"));
         temp = smartBattery.getIntegerProperty("CycleCount");
@@ -258,16 +255,27 @@ public abstract class MacPowerSource extends AbstractPowerSource {
     }
 
     /**
-     * Chooses the battery capacity reading in mAh. {@code AppleRawMaxCapacity} and {@code AppleRawCurrentCapacity} are
-     * in mAh on every Mac; on Apple Silicon the unprefixed {@code MaxCapacity} and {@code CurrentCapacity} are
-     * percentages, so the raw keys are preferred and the unprefixed ones are used only when the raw keys are absent.
+     * Chooses the battery's current and maximum capacity as a pair, so the two are always in the same units.
+     * {@code AppleRawCurrentCapacity} and {@code AppleRawMaxCapacity} are in mAh on every Mac and are preferred. The
+     * unprefixed {@code CurrentCapacity} and {@code MaxCapacity} are in mAh on Intel Macs but a percentage on Apple
+     * Silicon, so they are reported as relative units when the maximum is no more than 100.
      *
-     * @param raw      the {@code AppleRaw*} value, if published
-     * @param fallback the unprefixed value, if published
-     * @return the capacity in mAh, or {@code null} if neither key is published
+     * @param rawCurrent the {@code AppleRawCurrentCapacity} value, if published
+     * @param rawMax     the {@code AppleRawMaxCapacity} value, if published
+     * @param current    the {@code CurrentCapacity} value, if published
+     * @param max        the {@code MaxCapacity} value, if published
+     * @return the units, current capacity and maximum capacity; relative units with a current capacity of 0 and a
+     *         maximum of 1 if neither pair is published
      */
-    static @Nullable Integer chooseCapacity(@Nullable Integer raw, @Nullable Integer fallback) {
-        return raw != null ? raw : fallback;
+    static Triplet<CapacityUnits, Integer, Integer> chooseCapacity(@Nullable Integer rawCurrent,
+            @Nullable Integer rawMax, @Nullable Integer current, @Nullable Integer max) {
+        if (rawCurrent != null && rawMax != null) {
+            return new Triplet<>(CapacityUnits.MAH, rawCurrent, rawMax);
+        }
+        if (current != null && max != null) {
+            return new Triplet<>(max <= 100 ? CapacityUnits.RELATIVE : CapacityUnits.MAH, current, max);
+        }
+        return new Triplet<>(CapacityUnits.RELATIVE, 0, 1);
     }
 
     /**
