@@ -14,6 +14,7 @@ import oshi.annotation.concurrent.Immutable;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -29,6 +30,8 @@ final class MacFirmwareJNA extends MacFirmware {
         String description = null;
         String version = null;
         String releaseDate = null;
+        String systemFirmware = null;
+        String nameMatch = null;
 
         IORegistryEntry platformExpert = IOKitUtil.getMatchingService("IOPlatformExpertDevice");
         byte[] data;
@@ -64,6 +67,11 @@ final class MacFirmwareJNA extends MacFirmware {
                                             if (data != null) {
                                                 name = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
                                             }
+                                            data = entry.getByteArrayProperty("system-firmware-version");
+                                            if (data != null) {
+                                                systemFirmware = ParseUtil.decodeNulTerminated(data,
+                                                        StandardCharsets.UTF_8);
+                                            }
                                             break;
                                         case "efi":
                                             data = entry.getByteArrayProperty("firmware-abi");
@@ -73,8 +81,8 @@ final class MacFirmwareJNA extends MacFirmware {
                                             }
                                             break;
                                         default:
-                                            if (Util.isBlank(name)) {
-                                                name = entry.getStringProperty("IONameMatch");
+                                            if (Util.isBlank(nameMatch)) {
+                                                nameMatch = entry.getStringProperty("IONameMatch");
                                             }
                                             break;
                                     }
@@ -95,10 +103,15 @@ final class MacFirmwareJNA extends MacFirmware {
                     }
                 }
                 if (Util.isBlank(version)) {
-                    data = platformExpert.getByteArrayProperty("target-type");
-                    if (data != null) {
-                        version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
+                    // Apple Silicon has no rom node; its boot firmware version is published under /chosen
+                    Pair<String, String> nameVersion = splitSystemFirmwareVersion(systemFirmware);
+                    version = nameVersion.getB();
+                    if (Util.isBlank(name)) {
+                        name = nameVersion.getA();
                     }
+                }
+                if (Util.isBlank(name)) {
+                    name = nameMatch;
                 }
                 if (Util.isBlank(name)) {
                     data = platformExpert.getByteArrayProperty("device_type");
