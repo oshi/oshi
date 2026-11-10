@@ -16,6 +16,7 @@ import oshi.hardware.PowerSource;
 import oshi.hardware.common.AbstractPowerSource;
 import oshi.hardware.common.platform.mac.IOKitProvider.RegistryEntry;
 import oshi.util.Constants;
+import oshi.util.tuples.Triplet;
 
 /**
  * Abstract base for the macOS PowerSource. The {@code AppleSmartBattery} registry read and the per-power-source field
@@ -62,6 +63,9 @@ public abstract class MacPowerSource extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    /** The smart battery's {@code TimeRemaining} value, in minutes, meaning unknown or still calculating. */
+    private static final int TIME_REMAINING_UNKNOWN = 0xffff;
+
     /** Battery-wide fields read from the {@code AppleSmartBattery} registry entry, shared by every power source. */
     private static final class BatteryReadings {
         private String deviceName = Constants.UNKNOWN;
@@ -73,7 +77,7 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         private int maxCapacity = 1;
         private int currentCapacity;
         private int cycleCount = -1;
-        private double timeRemainingInstant;
+        private double timeRemainingInstant = -1d;
         private double temperature;
         private double voltage = -1d;
         private double amperage;
@@ -183,6 +187,10 @@ public abstract class MacPowerSource extends AbstractPowerSource {
             b.manufacturer = s;
         }
         s = smartBattery.getStringProperty("BatterySerialNumber");
+        if (s == null) {
+            // Apple Silicon publishes the pack serial under this key instead
+            s = smartBattery.getStringProperty("Serial");
+        }
         if (s != null) {
             b.serialNumber = s;
         }
@@ -206,20 +214,15 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         if (temp != null) {
             b.designCapacity = temp;
         }
-        temp = smartBattery.getIntegerProperty("MaxCapacity");
-        if (temp != null) {
-            b.maxCapacity = temp;
-        }
-        temp = smartBattery.getIntegerProperty("CurrentCapacity");
-        if (temp != null) {
-            b.currentCapacity = temp;
-        }
-        b.capacityUnits = CapacityUnits.MAH;
+        Triplet<CapacityUnits, Integer, Integer> capacity = chooseCapacity(
+                smartBattery.getIntegerProperty("AppleRawCurrentCapacity"),
+                smartBattery.getIntegerProperty("AppleRawMaxCapacity"),
+                smartBattery.getIntegerProperty("CurrentCapacity"), smartBattery.getIntegerProperty("MaxCapacity"));
+        b.capacityUnits = capacity.getA();
+        b.currentCapacity = capacity.getB();
+        b.maxCapacity = capacity.getC();
 
-        temp = smartBattery.getIntegerProperty("TimeRemaining");
-        if (temp != null) {
-            b.timeRemainingInstant = temp * 60d;
-        }
+        b.timeRemainingInstant = minutesToSeconds(smartBattery.getIntegerProperty("TimeRemaining"));
         temp = smartBattery.getIntegerProperty("CycleCount");
         if (temp != null) {
             b.cycleCount = temp;
@@ -249,5 +252,43 @@ public abstract class MacPowerSource extends AbstractPowerSource {
         b.discharging = !b.charging && !b.powerOnLine;
 
         return b;
+    }
+
+    /**
+     * Chooses the battery's current and maximum capacity as a pair, so the two are always in the same units.
+     * {@code AppleRawCurrentCapacity} and {@code AppleRawMaxCapacity} are in mAh on every Mac and are preferred. The
+     * unprefixed {@code CurrentCapacity} and {@code MaxCapacity} are in mAh on Intel Macs but a percentage on Apple
+     * Silicon, so they are reported as relative units when the maximum is no more than 100.
+     *
+     * @param rawCurrent the {@code AppleRawCurrentCapacity} value, if published
+     * @param rawMax     the {@code AppleRawMaxCapacity} value, if published
+     * @param current    the {@code CurrentCapacity} value, if published
+     * @param max        the {@code MaxCapacity} value, if published
+     * @return the units, current capacity and maximum capacity; relative units with a current capacity of 0 and a
+     *         maximum of 1 if neither pair is published with a positive maximum
+     */
+    static Triplet<CapacityUnits, Integer, Integer> chooseCapacity(@Nullable Integer rawCurrent,
+            @Nullable Integer rawMax, @Nullable Integer current, @Nullable Integer max) {
+        if (rawCurrent != null && rawMax != null && rawMax > 0) {
+            return new Triplet<>(CapacityUnits.MAH, rawCurrent, rawMax);
+        }
+        if (current != null && max != null && max > 0) {
+            return new Triplet<>(max <= 100 ? CapacityUnits.RELATIVE : CapacityUnits.MAH, current, max);
+        }
+        return new Triplet<>(CapacityUnits.RELATIVE, 0, 1);
+    }
+
+    /**
+     * Converts the smart battery's {@code TimeRemaining} from minutes to seconds. The battery reports 65535 while the
+     * estimate is unknown or still being calculated.
+     *
+     * @param minutes the {@code TimeRemaining} value, if published
+     * @return seconds remaining, or -1 if unknown
+     */
+    static double minutesToSeconds(@Nullable Integer minutes) {
+        if (minutes == null || minutes < 0 || minutes >= TIME_REMAINING_UNKNOWN) {
+            return -1d;
+        }
+        return minutes * 60d;
     }
 }

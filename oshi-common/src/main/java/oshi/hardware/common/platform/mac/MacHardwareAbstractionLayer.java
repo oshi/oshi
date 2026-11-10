@@ -31,8 +31,15 @@ public abstract class MacHardwareAbstractionLayer extends AbstractHardwareAbstra
 
     @Override
     protected List<SoundCard> createSoundCards() {
-        return MacSoundCard.getSoundCards();
+        return MacSoundCard.getSoundCards(ioKitProvider());
     }
+
+    /**
+     * Returns the IOKit provider for this implementation.
+     *
+     * @return the IOKit provider
+     */
+    protected abstract IOKitProvider ioKitProvider();
 
     @Override
     public List<BluetoothDevice> getBluetoothDevices() {

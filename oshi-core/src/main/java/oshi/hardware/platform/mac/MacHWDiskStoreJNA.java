@@ -308,8 +308,10 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                             size = sizePtr.longValue();
                             diskInfo.release();
 
-                            // Use the model as a key to get serial from IOKit
-                            if (!"Disk Image".equals(model)) {
+                            // Read the serial from this disk's own block storage device; fall back to
+                            // matching on the model for devices that do not publish it there
+                            serial = queryDeviceSerial(bsdName);
+                            if (serial.isEmpty() && !"Disk Image".equals(model)) {
                                 CFStringRef modelNameRef = CFStringRef.createCFString(model);
                                 CFMutableDictionaryRef propertyDict = CF.CFDictionaryCreateMutable(
                                         CF.CFAllocatorGetDefault(), new CFIndex(0), null, null);
@@ -463,7 +465,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                 if (removable != null && removable) {
                     return "Removable";
                 }
-                return parseMediumType(queryMediumType(media));
+                return parseMediumType(queryDeviceCharacteristic(media, "Medium Type"));
             } finally {
                 media.release();
             }
@@ -473,13 +475,44 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
     }
 
     /**
-     * Reads the {@code Medium Type} device characteristic by traversing up from the IOMedia node to the block storage
-     * device, which is where the characteristic is published.
+     * Reads the {@code Serial Number} device characteristic of the block storage device backing a whole disk.
+     *
+     * @param bsdName the BSD name of the whole disk, such as {@code disk0}
+     * @return the serial number, or an empty string if the device does not publish one
+     */
+    private static String queryDeviceSerial(String bsdName) {
+        CFMutableDictionaryRef matchingDict = IOKitUtil.getBSDNameMatchingDict(bsdName);
+        if (matchingDict == null) {
+            return "";
+        }
+        IOIterator iter = IOKitUtil.getMatchingServices(matchingDict);
+        if (iter == null) {
+            return "";
+        }
+        try {
+            IORegistryEntry media = iter.next();
+            if (media == null) {
+                return "";
+            }
+            try {
+                return ParseUtil.getStringValueOrEmpty(queryDeviceCharacteristic(media, "Serial Number"));
+            } finally {
+                media.release();
+            }
+        } finally {
+            iter.release();
+        }
+    }
+
+    /**
+     * Reads a device characteristic, such as {@code Medium Type} or {@code Serial Number}, by traversing up from the
+     * IOMedia node to the block storage device, which is where the characteristics are published.
      *
      * @param media the IOMedia registry entry
-     * @return the {@code Medium Type} string, or {@code null} if any step of the traversal finds nothing
+     * @param key   the key in the device's {@code Device Characteristics} dictionary
+     * @return the characteristic's string value, or {@code null} if any step of the traversal finds nothing
      */
-    private static @Nullable String queryMediumType(IORegistryEntry media) {
+    private static @Nullable String queryDeviceCharacteristic(IORegistryEntry media, String key) {
         // Traverse up: IOMedia -> IOBlockStorageDriver -> IOBlockStorageDevice
         IORegistryEntry driver = media.getParentEntry("IOService");
         if (driver == null) {
@@ -497,7 +530,7 @@ public final class MacHWDiskStoreJNA extends MacHWDiskStore {
                 }
                 try {
                     CFDictionaryRef characteristics = CFUtil.getDictionary(props, "Device Characteristics");
-                    return characteristics == null ? null : CFUtil.getString(characteristics, "Medium Type");
+                    return characteristics == null ? null : CFUtil.getString(characteristics, key);
                 } finally {
                     props.release();
                 }

@@ -13,6 +13,7 @@ import oshi.ffm.util.platform.mac.IOKitUtilFFM;
 import oshi.hardware.common.platform.mac.MacFirmware;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
+import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quintet;
 
 /**
@@ -28,6 +29,8 @@ final class MacFirmwareFFM extends MacFirmware {
         String description = null;
         String version = null;
         String releaseDate = null;
+        String systemFirmware = null;
+        String nameMatch = null;
 
         IORegistryEntry platformExpert = IOKitUtilFFM.getMatchingService("IOPlatformExpertDevice");
         if (platformExpert != null) {
@@ -63,6 +66,11 @@ final class MacFirmwareFFM extends MacFirmware {
                                             if (booter != null) {
                                                 name = ParseUtil.decodeNulTerminated(booter, StandardCharsets.UTF_8);
                                             }
+                                            byte[] sysFw = current.getByteArrayProperty("system-firmware-version");
+                                            if (sysFw != null) {
+                                                systemFirmware = ParseUtil.decodeNulTerminated(sysFw,
+                                                        StandardCharsets.UTF_8);
+                                            }
                                         }
                                         case "efi" -> {
                                             byte[] abi = current.getByteArrayProperty("firmware-abi");
@@ -72,8 +80,8 @@ final class MacFirmwareFFM extends MacFirmware {
                                             }
                                         }
                                         default -> {
-                                            if (Util.isBlank(name)) {
-                                                name = current.getStringProperty("IONameMatch");
+                                            if (Util.isBlank(nameMatch)) {
+                                                nameMatch = current.getStringProperty("IONameMatch");
                                             }
                                         }
                                     }
@@ -90,10 +98,15 @@ final class MacFirmwareFFM extends MacFirmware {
                     }
                 }
                 if (Util.isBlank(version)) {
-                    byte[] data = platformExpert.getByteArrayProperty("target-type");
-                    if (data != null) {
-                        version = ParseUtil.decodeNulTerminated(data, StandardCharsets.UTF_8);
+                    // Apple Silicon has no rom node; its boot firmware version is published under /chosen
+                    Pair<String, String> nameVersion = splitSystemFirmwareVersion(systemFirmware);
+                    version = nameVersion.getB();
+                    if (Util.isBlank(name)) {
+                        name = nameVersion.getA();
                     }
+                }
+                if (Util.isBlank(name)) {
+                    name = nameMatch;
                 }
                 if (Util.isBlank(name)) {
                     byte[] data = platformExpert.getByteArrayProperty("device_type");

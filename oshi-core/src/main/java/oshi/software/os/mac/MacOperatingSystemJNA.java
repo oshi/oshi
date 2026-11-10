@@ -117,7 +117,10 @@ public class MacOperatingSystemJNA extends MacOperatingSystem {
 
     @Override
     public int getProcessCount() {
-        return SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE;
+        // A null buffer returns a padded estimate of the space needed, not a count; fill a buffer to count
+        int[] pids = new int[SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, null, 0) / SystemB.INT_SIZE + 10];
+        return Math.min(SystemB.INSTANCE.proc_listpids(SystemB.PROC_ALL_PIDS, 0, pids, pids.length * SystemB.INT_SIZE)
+                / SystemB.INT_SIZE, pids.length);
     }
 
     @Override
