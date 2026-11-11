@@ -4,6 +4,7 @@
  */
 package oshi.hardware.platform.windows;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.function.BiFunction;
 
@@ -40,11 +41,8 @@ final class WindowsSensorsJNA extends WindowsSensors {
     protected @Nullable WmiResult<ValueProperty> queryHardwareMonitorSensor(String namespace, String typeToQuery,
             String typeName, String sensorType) {
         return getHardwareMonitorSensors(namespace, typeToQuery, typeName, sensorType, (h, hwIdentifiers) -> {
-            String cpuIdentifier = selectOhmCpuIdentifier(hwIdentifiers);
-            if (!cpuIdentifier.isEmpty()) {
-                return OhmSensor.querySensorValue(h, namespace, cpuIdentifier, sensorType);
-            }
-            return null;
+            List<String> identifiers = selectHardwareIdentifiers(hwIdentifiers, typeName);
+            return identifiers.isEmpty() ? null : OhmSensor.querySensorValue(h, namespace, identifiers, sensorType);
         });
     }
 

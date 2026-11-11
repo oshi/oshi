@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 import java.util.ArrayList;
@@ -16,9 +17,12 @@ import org.junit.jupiter.api.Test;
 
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
 import oshi.driver.common.windows.wmi.OhmHardware;
+import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
+import oshi.driver.common.windows.wmi.OhmSensor;
 import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
+import oshi.driver.common.windows.wmi.WmiConstants;
 import oshi.driver.common.windows.wmi.WmiResult;
 
 /**
@@ -40,11 +44,22 @@ class WindowsSensorsQueryTest {
     }
 
     @Test
-    void testFanSpeedQueriesTheProcessorsFanSensors() {
+    void testFanSpeedQueriesTheSuperIoFanSensors() {
         RecordingSensors sensors = new RecordingSensors();
         sensors.queryFanSpeeds();
-        assertThat("Both monitors queried for the processor's fans", sensors.queries,
-                contains("Hardware/CPU/Fan", "Hardware/Cpu/Fan"));
+        assertThat("Both monitors queried for the Super I/O chip's fans; a processor has none", sensors.queries,
+                contains("Hardware/SuperIO/Fan", "Hardware/SuperIO/Fan"));
+    }
+
+    @Test
+    void testCpuTemperatureReadingsExcludeSummariesAndMargins() {
+        assertThat(WindowsSensors.isCpuTemperatureReading("CPU Package", 52.0), is(true));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core #1", 48.0), is(true));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core (Tctl/Tdie)", 61.0), is(true));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core Max", 55.0), is(false));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core Average", 49.0), is(false));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core #1 Distance to TjMax", 52.0), is(false));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core #2", 0.0), is(false));
     }
 
     @Test
@@ -93,5 +108,48 @@ class WindowsSensorsQueryTest {
         protected WmiResult<VoltProperty> queryWmiVoltage() {
             return WmiResult.empty();
         }
+    }
+
+    @Test
+    void testSuperIoFansAreReadFromEveryChipAndProcessorSensorsFromTheFirst() {
+        WmiResult<IdentifierProperty> hardware = identifiers("/lpc/it8689e", "", "/lpc/nct6687d");
+        assertThat(WindowsSensors.selectHardwareIdentifiers(hardware, "SuperIO"),
+                contains("/lpc/it8689e", "/lpc/nct6687d"));
+        assertThat(WindowsSensors.selectHardwareIdentifiers(identifiers("/intelcpu/0", "/intelcpu/1"), "CPU"),
+                contains("/intelcpu/0"));
+        assertThat(WindowsSensors.selectHardwareIdentifiers(identifiers(), "SuperIO"), is(empty()));
+    }
+
+    @Test
+    void testSensorWhereClauseCoversEveryIdentifier() {
+        assertThat(OhmSensor.buildSensorWmiClassNameWithWhere("/intelcpu/0", "Temperature"),
+                is("Sensor WHERE Parent = \"/intelcpu/0\" AND SensorType = \"Temperature\""));
+        assertThat(OhmSensor.buildSensorWmiClassNameWithWhere(List.of("/lpc/a", "/lpc/b"), "Fan"),
+                is("Sensor WHERE (Parent = \"/lpc/a\" OR Parent = \"/lpc/b\") AND SensorType = \"Fan\""));
+    }
+
+    /** A hardware identifier result holding the given strings in its one column. */
+    private static WmiResult<IdentifierProperty> identifiers(String... values) {
+        return new WmiResult<IdentifierProperty>() {
+            @Override
+            public int getResultCount() {
+                return values.length;
+            }
+
+            @Override
+            public @Nullable Object getValue(IdentifierProperty property, int index) {
+                return values[index];
+            }
+
+            @Override
+            public int getVtType(IdentifierProperty property) {
+                return WmiConstants.VT_BSTR;
+            }
+
+            @Override
+            public int getCIMType(IdentifierProperty property) {
+                return WmiConstants.CIM_STRING;
+            }
+        };
     }
 }
