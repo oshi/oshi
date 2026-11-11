@@ -45,8 +45,6 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     private static final int COMPUTER_NAME_DNS_HOSTNAME = 1;
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
 
-    // Microsoft's recommended starting size, which avoids a second call on most systems
-    private static final int ADAPTER_BUFFER_SIZE = 15_000;
     private static final int GAA_FLAGS = IPHlpAPI.GAA_FLAG_SKIP_UNICAST | IPHlpAPI.GAA_FLAG_SKIP_ANYCAST
             | IPHlpAPI.GAA_FLAG_SKIP_MULTICAST | IPHlpAPI.GAA_FLAG_SKIP_FRIENDLY_NAME;
     private static final int IF_OPER_STATUS_UP = 1;
@@ -69,34 +67,23 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     }
 
     @Override
-    protected List<byte[]> queryDnsServerAddresses() {
-        List<byte[]> addresses = new ArrayList<>();
-        int size = ADAPTER_BUFFER_SIZE;
-        // The adapter list can grow between the call that reports the size and the one that fills it
-        for (int attempt = 0; attempt < 3; attempt++) {
-            try (Memory buffer = new Memory(size);
-                    CloseableIntByReference sizeRef = new CloseableIntByReference(size)) {
-                int ret = IPHlpAPI.INSTANCE.GetAdaptersAddresses(IPHlpAPI.AF_UNSPEC, GAA_FLAGS, null, buffer, sizeRef);
-                if (ret == WinError.ERROR_BUFFER_OVERFLOW) {
-                    size = sizeRef.getValue();
-                    continue;
-                }
-                if (ret == WinError.NO_ERROR) {
-                    Pointer p = buffer;
-                    while (p != null) {
-                        IP_ADAPTER_ADDRESSES adapter = new IP_ADAPTER_ADDRESSES(p);
-                        if (adapter.OperStatus == IF_OPER_STATUS_UP) {
-                            addDnsServers(adapter.FirstDnsServerAddress, addresses);
-                        }
-                        p = adapter.Next;
+    protected int queryAdapterDnsServers(int bufferSize, int[] requiredSize, List<byte[]> addresses) {
+        try (Memory buffer = new Memory(bufferSize);
+                CloseableIntByReference sizeRef = new CloseableIntByReference(bufferSize)) {
+            int ret = IPHlpAPI.INSTANCE.GetAdaptersAddresses(IPHlpAPI.AF_UNSPEC, GAA_FLAGS, null, buffer, sizeRef);
+            requiredSize[0] = sizeRef.getValue();
+            if (ret == WinError.NO_ERROR) {
+                Pointer p = buffer;
+                while (p != null) {
+                    IP_ADAPTER_ADDRESSES adapter = new IP_ADAPTER_ADDRESSES(p);
+                    if (adapter.OperStatus == IF_OPER_STATUS_UP) {
+                        addDnsServers(adapter.FirstDnsServerAddress, addresses);
                     }
-                } else if (ret != WinError.ERROR_NO_DATA) {
-                    LOG.error("Failed to get adapter addresses. Error code: {}", ret);
+                    p = adapter.Next;
                 }
-                return addresses;
             }
+            return ret;
         }
-        return addresses;
     }
 
     private static void addDnsServers(@Nullable Pointer first, List<byte[]> addresses) {

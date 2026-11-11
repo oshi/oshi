@@ -26,47 +26,33 @@ public final class WindowsNetworkParamsFFM extends WindowsNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParamsFFM.class);
 
-    // Microsoft's recommended starting size, which avoids a second call on most systems
-    private static final int ADAPTER_BUFFER_SIZE = 15_000;
     private static final int GAA_FLAGS = IPHlpAPIFFM.GAA_FLAG_SKIP_UNICAST | IPHlpAPIFFM.GAA_FLAG_SKIP_ANYCAST
             | IPHlpAPIFFM.GAA_FLAG_SKIP_MULTICAST | IPHlpAPIFFM.GAA_FLAG_SKIP_FRIENDLY_NAME;
     private static final int IF_OPER_STATUS_UP = 1;
-    private static final int ERROR_BUFFER_OVERFLOW = 111;
-    private static final int ERROR_NO_DATA = 232;
 
     @Override
-    protected List<byte[]> queryDnsServerAddresses() {
-        List<byte[]> addresses = new ArrayList<>();
+    protected int queryAdapterDnsServers(int bufferSize, int[] requiredSize, List<byte[]> addresses) {
         try (Arena arena = Arena.ofConfined()) {
             MemorySegment sizeSeg = arena.allocate(JAVA_INT);
-            int size = ADAPTER_BUFFER_SIZE;
-            // The adapter list can grow between the call that reports the size and the one that fills it
-            for (int attempt = 0; attempt < 3; attempt++) {
-                MemorySegment buffer = arena.allocate(size, 8);
-                sizeSeg.set(JAVA_INT, 0, size);
-                int ret = IPHlpAPIFFM.GetAdaptersAddresses(IPHlpAPIFFM.AF_UNSPEC, GAA_FLAGS, buffer, sizeSeg);
-                if (ret == ERROR_BUFFER_OVERFLOW) {
-                    size = sizeSeg.get(JAVA_INT, 0);
-                    continue;
-                }
-                if (ret == 0) {
-                    MemorySegment adapter = buffer;
-                    while (!adapter.equals(MemorySegment.NULL)) {
-                        adapter = adapter.reinterpret(IPHlpAPIFFM.IP_ADAPTER_ADDRESSES_LAYOUT.byteSize());
-                        if (adapter.get(JAVA_INT, IPHlpAPIFFM.OFFSET_ADAPTER_OPER_STATUS) == IF_OPER_STATUS_UP) {
-                            addDnsServers(adapter.get(ADDRESS, IPHlpAPIFFM.OFFSET_ADAPTER_FIRST_DNS_SERVER), addresses);
-                        }
-                        adapter = adapter.get(ADDRESS, IPHlpAPIFFM.OFFSET_ADAPTER_NEXT);
+            sizeSeg.set(JAVA_INT, 0, bufferSize);
+            MemorySegment buffer = arena.allocate(bufferSize, 8);
+            int ret = IPHlpAPIFFM.GetAdaptersAddresses(IPHlpAPIFFM.AF_UNSPEC, GAA_FLAGS, buffer, sizeSeg);
+            requiredSize[0] = sizeSeg.get(JAVA_INT, 0);
+            if (ret == 0) {
+                MemorySegment adapter = buffer;
+                while (!adapter.equals(MemorySegment.NULL)) {
+                    adapter = adapter.reinterpret(IPHlpAPIFFM.IP_ADAPTER_ADDRESSES_LAYOUT.byteSize());
+                    if (adapter.get(JAVA_INT, IPHlpAPIFFM.OFFSET_ADAPTER_OPER_STATUS) == IF_OPER_STATUS_UP) {
+                        addDnsServers(adapter.get(ADDRESS, IPHlpAPIFFM.OFFSET_ADAPTER_FIRST_DNS_SERVER), addresses);
                     }
-                } else if (ret != ERROR_NO_DATA) {
-                    LOG.error("Failed to get adapter addresses. Error code: {}", ret);
+                    adapter = adapter.get(ADDRESS, IPHlpAPIFFM.OFFSET_ADAPTER_NEXT);
                 }
-                return addresses;
             }
+            return ret;
         } catch (Throwable e) { // NOSONAR java:S1181 - an FFM downcall can throw any Throwable
             LOG.error("Failed to read adapter DNS servers.", e);
+            return -1;
         }
-        return addresses;
     }
 
     private static void addDnsServers(MemorySegment first, List<byte[]> addresses) {
