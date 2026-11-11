@@ -42,6 +42,7 @@ import java.lang.foreign.Arena;
 import java.lang.foreign.MemorySegment;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -90,31 +91,11 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
      * @return A list of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
-        return List.of(getPowerSource("System Battery"));
+        return queryBatteries();
     }
 
-    private static WindowsPowerSource getPowerSource(String name) {
-        String psName = name;
-        String psDeviceName = Constants.UNKNOWN;
-        double psRemainingCapacityPercent = 1d;
-        double psTimeRemainingEstimated = -1d;
-        double psTimeRemainingInstant = 0d;
-        int psPowerUsageRate = 0;
-        double psVoltage = -1d;
-        double psAmperage = 0d;
-        boolean psPowerOnLine = false;
-        boolean psCharging = false;
-        boolean psDischarging = false;
-        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
-        int psCurrentCapacity = 0;
-        int psMaxCapacity = 1;
-        int psDesignCapacity = 1;
-        int psCycleCount = -1;
-        String psChemistry = Constants.UNKNOWN;
-        LocalDate psManufactureDate = null;
-        String psManufacturer = Constants.UNKNOWN;
-        String psSerialNumber = Constants.UNKNOWN;
-        double psTemperature = 0d;
+    private static List<PowerSource> queryBatteries() {
+        List<PowerSource> batteries = new ArrayList<>();
 
         // Note: CallNtPowerInformation(SystemBatteryState) was previously used as a
         // first pass here but no longer returns accurate data as of Windows 11 23H2.
@@ -133,8 +114,7 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                 MemorySegment hdev = hdevOpt.get();
                 // wrapped only to release the native handle on close
                 try (var _ = NativeHandle.of(hdev, SetupApiFFM::SetupDiDestroyDeviceInfoList)) {
-                    boolean batteryFound = false;
-                    for (int idev = 0; !batteryFound && idev < 100; idev++) {
+                    for (int idev = 0; idev < 100; idev++) {
                         MemorySegment did = arena.allocate(SP_DEVICE_INTERFACE_DATA);
                         did.set(JAVA_INT, 0, (int) SP_DEVICE_INTERFACE_DATA.byteSize());
 
@@ -195,6 +175,27 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                                     || 0 != (capabilities & BATTERY_IS_SHORT_TERM)) {
                                 continue;
                             }
+                            String psName = batteryName(batteries.size());
+                            String psDeviceName = Constants.UNKNOWN;
+                            double psRemainingCapacityPercent = 1d;
+                            double psTimeRemainingEstimated = -1d;
+                            double psTimeRemainingInstant = 0d;
+                            int psPowerUsageRate = 0;
+                            double psVoltage = -1d;
+                            double psAmperage = 0d;
+                            boolean psPowerOnLine = false;
+                            boolean psCharging = false;
+                            boolean psDischarging = false;
+                            CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
+                            int psCurrentCapacity = 0;
+                            int psMaxCapacity = 1;
+                            int psDesignCapacity = 1;
+                            int psCycleCount = -1;
+                            String psChemistry = Constants.UNKNOWN;
+                            LocalDate psManufactureDate = null;
+                            String psManufacturer = Constants.UNKNOWN;
+                            String psSerialNumber = Constants.UNKNOWN;
+                            double psTemperature = 0d;
 
                             if (0 == (capabilities & BATTERY_CAPACITY_RELATIVE)) {
                                 psCapacityUnits = CapacityUnits.MWH;
@@ -296,16 +297,17 @@ public final class WindowsPowerSourceFFM extends WindowsPowerSource {
                                 psTimeRemainingEstimated = psTimeRemainingInstant;
                             }
 
-                            batteryFound = true;
+                            batteries.add(new WindowsPowerSourceFFM(psName, psDeviceName, psRemainingCapacityPercent,
+                                    psTimeRemainingEstimated, psTimeRemainingInstant, psPowerUsageRate, psVoltage,
+                                    psAmperage, psPowerOnLine, psCharging, psDischarging, psCapacityUnits,
+                                    psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount, psChemistry,
+                                    psManufactureDate, psManufacturer, psSerialNumber, psTemperature));
                         }
                     }
                 }
             }
         }
-        return new WindowsPowerSourceFFM(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+        return batteries;
     }
 
     private static String batteryQueryString(MemorySegment hBattery, int tag, int infoLevel, MemorySegment bqi,

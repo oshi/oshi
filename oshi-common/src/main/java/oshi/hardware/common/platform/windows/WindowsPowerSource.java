@@ -89,4 +89,14 @@ public abstract class WindowsPowerSource extends AbstractPowerSource {
                 psManufacturer, psSerialNumber, psTemperature);
     }
 
+    /**
+     * Names a system battery by its position among the batteries found: the first is {@code System Battery}, and any
+     * further ones are numbered from 2.
+     *
+     * @param index the zero-based position of the battery
+     * @return the battery name
+     */
+    protected static String batteryName(int index) {
+        return index == 0 ? "System Battery" : "System Battery " + (index + 1);
+    }
 }

@@ -7,7 +7,7 @@ package oshi.hardware.platform.windows;
 import java.nio.charset.StandardCharsets;
 import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -71,31 +71,11 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
      * @return A list of PowerSource objects representing batteries, etc.
      */
     public static List<PowerSource> getPowerSources() {
-        return Arrays.asList(getPowerSource("System Battery"));
+        return queryBatteries();
     }
 
-    private static WindowsPowerSource getPowerSource(String name) {
-        String psName = name;
-        String psDeviceName = Constants.UNKNOWN;
-        double psRemainingCapacityPercent = 1d;
-        double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 = unlimited
-        double psTimeRemainingInstant = 0d;
-        int psPowerUsageRate = 0;
-        double psVoltage = -1d;
-        double psAmperage = 0d;
-        boolean psPowerOnLine = false;
-        boolean psCharging = false;
-        boolean psDischarging = false;
-        CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
-        int psCurrentCapacity = 0;
-        int psMaxCapacity = 1;
-        int psDesignCapacity = 1;
-        int psCycleCount = -1;
-        String psChemistry = Constants.UNKNOWN;
-        LocalDate psManufactureDate = null;
-        String psManufacturer = Constants.UNKNOWN;
-        String psSerialNumber = Constants.UNKNOWN;
-        double psTemperature = 0d;
+    private static List<PowerSource> queryBatteries() {
+        List<PowerSource> batteries = new ArrayList<>();
 
         // Note: CallNtPowerInformation(SystemBatteryState) was previously used as a
         // first pass here but no longer returns accurate data as of Windows 11 23H2.
@@ -109,9 +89,8 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                 SetupApi.DIGCF_PRESENT | SetupApi.DIGCF_DEVICEINTERFACE);
         if (!WinBase.INVALID_HANDLE_VALUE.equals(hdev)) {
             try {
-                boolean batteryFound = false;
                 // Limit search to 100 batteries max
-                for (int idev = 0; !batteryFound && idev < 100; idev++) {
+                for (int idev = 0; idev < 100; idev++) {
                     try (CloseableSpDeviceInterfaceData did = new CloseableSpDeviceInterfaceData();
                             CloseableIntByReference requiredSize = new CloseableIntByReference();
                             CloseableIntByReference dwWait = new CloseableIntByReference();
@@ -157,14 +136,34 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                         if (Kernel32.INSTANCE.DeviceIoControl(hBattery,
                                                                 IOCTL_BATTERY_QUERY_INFORMATION, bqi.getPointer(),
                                                                 bqi.size(), bi.getPointer(), bi.size(), dwOut, null)) {
-                                                            // Only non-UPS system batteries count; skip UPS and
-                                                            // short-term batteries entirely so they don't terminate
-                                                            // the search with placeholder data.
+                                                            // Only non-UPS system batteries count
                                                             bi.read();
                                                             if (0 == (bi.Capabilities & BATTERY_SYSTEM_BATTERY)
                                                                     || 0 != (bi.Capabilities & BATTERY_IS_SHORT_TERM)) {
                                                                 continue;
                                                             }
+                                                            String psName = batteryName(batteries.size());
+                                                            String psDeviceName = Constants.UNKNOWN;
+                                                            double psRemainingCapacityPercent = 1d;
+                                                            double psTimeRemainingEstimated = -1d; // -1 = unknown, -2 =
+                                                                                                   // unlimited
+                                                            double psTimeRemainingInstant = 0d;
+                                                            int psPowerUsageRate = 0;
+                                                            double psVoltage = -1d;
+                                                            double psAmperage = 0d;
+                                                            boolean psPowerOnLine = false;
+                                                            boolean psCharging = false;
+                                                            boolean psDischarging = false;
+                                                            CapacityUnits psCapacityUnits = CapacityUnits.RELATIVE;
+                                                            int psCurrentCapacity = 0;
+                                                            int psMaxCapacity = 1;
+                                                            int psDesignCapacity = 1;
+                                                            int psCycleCount = -1;
+                                                            String psChemistry = Constants.UNKNOWN;
+                                                            LocalDate psManufactureDate = null;
+                                                            String psManufacturer = Constants.UNKNOWN;
+                                                            String psSerialNumber = Constants.UNKNOWN;
+                                                            double psTemperature = 0d;
                                                             int maxCapacitySafe = 1;
                                                             // Capabilities flags non-mWh units
                                                             if (0 == (bi.Capabilities & BATTERY_CAPACITY_RELATIVE)) {
@@ -281,8 +280,15 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
                                                             if (psDischarging && psTimeRemainingInstant > 0) {
                                                                 psTimeRemainingEstimated = psTimeRemainingInstant;
                                                             }
-                                                            // Exit loop
-                                                            batteryFound = true;
+                                                            batteries.add(new WindowsPowerSourceJNA(psName,
+                                                                    psDeviceName, psRemainingCapacityPercent,
+                                                                    psTimeRemainingEstimated, psTimeRemainingInstant,
+                                                                    psPowerUsageRate, psVoltage, psAmperage,
+                                                                    psPowerOnLine, psCharging, psDischarging,
+                                                                    psCapacityUnits, psCurrentCapacity, psMaxCapacity,
+                                                                    psDesignCapacity, psCycleCount, psChemistry,
+                                                                    psManufactureDate, psManufacturer, psSerialNumber,
+                                                                    psTemperature));
                                                         }
                                                     }
                                                 }
@@ -303,10 +309,7 @@ public final class WindowsPowerSourceJNA extends WindowsPowerSource {
             }
         }
 
-        return new WindowsPowerSourceJNA(psName, psDeviceName, psRemainingCapacityPercent, psTimeRemainingEstimated,
-                psTimeRemainingInstant, psPowerUsageRate, psVoltage, psAmperage, psPowerOnLine, psCharging,
-                psDischarging, psCapacityUnits, psCurrentCapacity, psMaxCapacity, psDesignCapacity, psCycleCount,
-                psChemistry, psManufactureDate, psManufacturer, psSerialNumber, psTemperature);
+        return batteries;
     }
 
     private static String batteryQueryString(HANDLE hBattery, int tag, int infoLevel, Memory nameBuf) {
