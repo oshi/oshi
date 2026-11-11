@@ -64,11 +64,14 @@ public final class WindowsNetworkIfFFM extends WindowsNetworkIF {
             stats.connectorPresent = (flags & CONNECTOR_PRESENT_BIT) > 0;
             stats.speed = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED);
             stats.bytesRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS);
-            stats.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS);
+            // Unicast plus non-unicast (multicast and broadcast), the total other platforms count
+            stats.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS)
+                    + ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_NUCAST_PKTS);
             stats.inErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS);
             stats.inDrops = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS);
             stats.bytesSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS);
-            stats.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS);
+            stats.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS)
+                    + ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_NUCAST_PKTS);
             stats.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
             stats.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
             // Alias is WCHAR[257] at OFFSET_ALIAS
