@@ -8,11 +8,11 @@ import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET;
 import static com.sun.jna.platform.win32.IPHlpAPI.AF_INET6;
 import static com.sun.jna.platform.win32.IPHlpAPI.AF_UNSPEC;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,17 +20,15 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
-import com.sun.jna.platform.win32.IPHlpAPI.FIXED_INFO;
-import com.sun.jna.platform.win32.IPHlpAPI.IP_ADDR_STRING;
 import com.sun.jna.platform.win32.Kernel32;
-import com.sun.jna.platform.win32.Kernel32Util;
-import com.sun.jna.platform.win32.Win32Exception;
 import com.sun.jna.platform.win32.WinError;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.jna.ByRef.CloseableIntByReference;
 import oshi.jna.ByRef.CloseablePointerByReference;
 import oshi.jna.platform.windows.IPHlpAPI;
+import oshi.jna.platform.windows.IPHlpAPI.IP_ADAPTER_ADDRESSES;
+import oshi.jna.platform.windows.IPHlpAPI.IP_ADAPTER_DNS_SERVER_ADDRESS;
 import oshi.jna.platform.windows.IPHlpAPI.MIB_IPFORWARD_ROW2;
 import oshi.jna.platform.windows.IPHlpAPI.SOCKADDR_INET;
 import oshi.software.common.os.windows.WindowsNetworkParams;
@@ -44,14 +42,24 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParamsJNA.class);
 
+    private static final int COMPUTER_NAME_DNS_HOSTNAME = 1;
     private static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
+
+    private static final int GAA_FLAGS = IPHlpAPI.GAA_FLAG_SKIP_UNICAST | IPHlpAPI.GAA_FLAG_SKIP_ANYCAST
+            | IPHlpAPI.GAA_FLAG_SKIP_MULTICAST | IPHlpAPI.GAA_FLAG_SKIP_FRIENDLY_NAME;
+    private static final int IF_OPER_STATUS_UP = 1;
 
     @Override
     public String getDomainName() {
+        return computerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED);
+    }
+
+    private static String computerNameEx(int format) {
         char[] buffer = new char[256];
         try (CloseableIntByReference bufferSize = new CloseableIntByReference(buffer.length)) {
-            if (!Kernel32.INSTANCE.GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, bufferSize)) {
-                LOG.error("Failed to get dns domain name. Error code: {}", Kernel32.INSTANCE.GetLastError());
+            if (!Kernel32.INSTANCE.GetComputerNameEx(format, buffer, bufferSize)) {
+                LOG.error("Failed to get computer name format {}. Error code: {}", format,
+                        Kernel32.INSTANCE.GetLastError());
                 return "";
             }
         }
@@ -59,47 +67,47 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     }
 
     @Override
-    public String[] getDnsServers() {
-        try (CloseableIntByReference bufferSize = new CloseableIntByReference()) {
-            int ret = IPHlpAPI.INSTANCE.GetNetworkParams(null, bufferSize);
-            if (ret != WinError.ERROR_BUFFER_OVERFLOW) {
-                LOG.error("Failed to get network parameters buffer size. Error code: {}", ret);
-                return new String[0];
-            }
-
-            try (Memory buffer = new Memory(bufferSize.getValue())) {
-                ret = IPHlpAPI.INSTANCE.GetNetworkParams(buffer, bufferSize);
-                if (ret != 0) {
-                    LOG.error("Failed to get network parameters. Error code: {}", ret);
-                    return new String[0];
-                }
-                FIXED_INFO fixedInfo = new FIXED_INFO(buffer);
-
-                List<String> list = new ArrayList<>();
-                IP_ADDR_STRING dns = fixedInfo.DnsServerList;
-                while (dns != null) {
-                    // a char array of size 16.
-                    // This array holds an IPv4 address in dotted decimal notation.
-                    String addr = Native.toString(dns.IpAddress.String, StandardCharsets.US_ASCII);
-                    int nullPos = addr.indexOf(0);
-                    if (nullPos != -1) {
-                        addr = addr.substring(0, nullPos);
+    protected int queryAdapterDnsServers(int bufferSize, int[] requiredSize, List<byte[]> addresses) {
+        try (Memory buffer = new Memory(bufferSize);
+                CloseableIntByReference sizeRef = new CloseableIntByReference(bufferSize)) {
+            int ret = IPHlpAPI.INSTANCE.GetAdaptersAddresses(IPHlpAPI.AF_UNSPEC, GAA_FLAGS, null, buffer, sizeRef);
+            requiredSize[0] = sizeRef.getValue();
+            if (ret == WinError.NO_ERROR) {
+                Pointer p = buffer;
+                while (p != null) {
+                    IP_ADAPTER_ADDRESSES adapter = new IP_ADAPTER_ADDRESSES(p);
+                    if (adapter.OperStatus == IF_OPER_STATUS_UP) {
+                        addDnsServers(adapter.FirstDnsServerAddress, addresses);
                     }
-                    list.add(addr);
-                    dns = dns.Next;
+                    p = adapter.Next;
                 }
-                return list.toArray(new String[0]);
             }
+            return ret;
+        }
+    }
+
+    private static void addDnsServers(@Nullable Pointer first, List<byte[]> addresses) {
+        Pointer p = first;
+        while (p != null) {
+            IP_ADAPTER_DNS_SERVER_ADDRESS dns = new IP_ADAPTER_DNS_SERVER_ADDRESS(p);
+            Pointer sockaddr = dns.lpSockaddr;
+            if (sockaddr != null) {
+                short family = sockaddr.getShort(0);
+                if (family == IPHlpAPI.AF_INET) {
+                    addresses.add(sockaddr.getByteArray(4, 4));
+                } else if (family == IPHlpAPI.AF_INET6) {
+                    addresses.add(sockaddr.getByteArray(8, 16));
+                }
+            }
+            p = dns.Next;
         }
     }
 
     @Override
     public String getHostName() {
-        try {
-            return Kernel32Util.getComputerName();
-        } catch (Win32Exception e) {
-            return super.getHostName();
-        }
+        // The DNS host name: GetComputerName returns the NetBIOS name, upper-cased and cut to 15 characters
+        String name = computerNameEx(COMPUTER_NAME_DNS_HOSTNAME);
+        return name.isEmpty() ? super.getHostName() : name;
     }
 
     @Override

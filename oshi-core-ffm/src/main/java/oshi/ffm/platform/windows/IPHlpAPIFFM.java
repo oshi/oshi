@@ -12,6 +12,7 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 
+import java.lang.foreign.MemoryLayout.PathElement;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.StructLayout;
 import java.lang.foreign.SymbolLookup;
@@ -106,6 +107,48 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
     }
 
     // GetIfEntry2 for network interface statistics
+    // ULONG GetAdaptersAddresses(ULONG Family, ULONG Flags, PVOID Reserved, PIP_ADAPTER_ADDRESSES AdapterAddresses,
+    // PULONG SizePointer)
+    private static final MethodHandle GetAdaptersAddresses = downcall(IPHlpAPI, "GetAdaptersAddresses", JAVA_INT,
+            JAVA_INT, JAVA_INT, ADDRESS, ADDRESS, ADDRESS);
+
+    public static final int GAA_FLAG_SKIP_UNICAST = 0x1;
+    public static final int GAA_FLAG_SKIP_ANYCAST = 0x2;
+    public static final int GAA_FLAG_SKIP_MULTICAST = 0x4;
+    public static final int GAA_FLAG_SKIP_FRIENDLY_NAME = 0x20;
+
+    // IP_ADAPTER_ADDRESSES_LH on 64-bit Windows, naming only the fields read: the first union's Length and IfIndex,
+    // Next, FirstDnsServerAddress and OperStatus. The padding spans AdapterName through the multicast list, DnsSuffix
+    // through IfType, and Ipv6IfIndex through FirstDnsSuffix.
+    public static final StructLayout IP_ADAPTER_ADDRESSES_LAYOUT = structLayout(JAVA_INT.withName("Length"),
+            JAVA_INT.withName("IfIndex"), ADDRESS.withName("Next"), paddingLayout(32),
+            ADDRESS.withName("FirstDnsServerAddress"), paddingLayout(48), JAVA_INT.withName("OperStatus"),
+            paddingLayout(340));
+    public static final long OFFSET_ADAPTER_NEXT = IP_ADAPTER_ADDRESSES_LAYOUT
+            .byteOffset(PathElement.groupElement("Next"));
+    public static final long OFFSET_ADAPTER_FIRST_DNS_SERVER = IP_ADAPTER_ADDRESSES_LAYOUT
+            .byteOffset(PathElement.groupElement("FirstDnsServerAddress"));
+    public static final long OFFSET_ADAPTER_OPER_STATUS = IP_ADAPTER_ADDRESSES_LAYOUT
+            .byteOffset(PathElement.groupElement("OperStatus"));
+
+    public static final StructLayout SOCKET_ADDRESS_LAYOUT = structLayout(ADDRESS.withName("lpSockaddr"),
+            JAVA_INT.withName("iSockaddrLength"), paddingLayout(4));
+
+    public static final StructLayout IP_ADAPTER_DNS_SERVER_ADDRESS_LAYOUT = structLayout(JAVA_INT.withName("Length"),
+            JAVA_INT.withName("Reserved"), ADDRESS.withName("Next"), SOCKET_ADDRESS_LAYOUT.withName("Address"));
+    public static final long OFFSET_DNS_SERVER_NEXT = IP_ADAPTER_DNS_SERVER_ADDRESS_LAYOUT
+            .byteOffset(PathElement.groupElement("Next"));
+    public static final long OFFSET_DNS_SERVER_SOCKADDR = IP_ADAPTER_DNS_SERVER_ADDRESS_LAYOUT
+            .byteOffset(PathElement.groupElement("Address"), PathElement.groupElement("lpSockaddr"));
+
+    // SOCKADDR_IN holds its address at offset 4, SOCKADDR_IN6 at offset 8; the larger is 28 bytes
+    public static final long SOCKADDR_IN6_SIZE = 28;
+
+    public static int GetAdaptersAddresses(int family, int flags, MemorySegment adapterAddresses,
+            MemorySegment sizePointer) throws Throwable {
+        return (int) GetAdaptersAddresses.invokeExact(family, flags, MemorySegment.NULL, adapterAddresses, sizePointer);
+    }
+
     private static final MethodHandle GetIfEntry2 = downcall(IPHlpAPI, "GetIfEntry2", JAVA_INT, ADDRESS);
 
     // MIB_IF_ROW2 is 1352 bytes on 64-bit Windows. We define key field offsets.
@@ -129,10 +172,12 @@ public class IPHlpAPIFFM extends WindowsForeignFunctions {
     public static final long OFFSET_RECEIVE_LINK_SPEED = 1200; // ULONG64
     public static final long OFFSET_IN_OCTETS = 1208; // ULONG64
     public static final long OFFSET_IN_UCAST_PKTS = 1216; // ULONG64
+    public static final long OFFSET_IN_NUCAST_PKTS = 1224; // ULONG64
     public static final long OFFSET_IN_DISCARDS = 1232; // ULONG64
     public static final long OFFSET_IN_ERRORS = 1240; // ULONG64
     public static final long OFFSET_OUT_OCTETS = 1280; // ULONG64
     public static final long OFFSET_OUT_UCAST_PKTS = 1288; // ULONG64
+    public static final long OFFSET_OUT_NUCAST_PKTS = 1296; // ULONG64
     public static final long OFFSET_OUT_DISCARDS = 1304; // ULONG64
     public static final long OFFSET_OUT_ERRORS = 1312; // ULONG64
 

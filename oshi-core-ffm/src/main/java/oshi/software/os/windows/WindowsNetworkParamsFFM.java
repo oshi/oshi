@@ -19,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.ffm.NativeHandle;
 import oshi.ffm.platform.windows.IPHlpAPIFFM;
-import oshi.ffm.util.platform.windows.IPHlpAPIUtilFFM;
 import oshi.ffm.util.platform.windows.Kernel32UtilFFM;
 import oshi.software.common.os.windows.WindowsNetworkParams;
 
@@ -27,9 +26,51 @@ public final class WindowsNetworkParamsFFM extends WindowsNetworkParams {
 
     private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParamsFFM.class);
 
+    private static final int GAA_FLAGS = IPHlpAPIFFM.GAA_FLAG_SKIP_UNICAST | IPHlpAPIFFM.GAA_FLAG_SKIP_ANYCAST
+            | IPHlpAPIFFM.GAA_FLAG_SKIP_MULTICAST | IPHlpAPIFFM.GAA_FLAG_SKIP_FRIENDLY_NAME;
+    private static final int IF_OPER_STATUS_UP = 1;
+
     @Override
-    public String[] getDnsServers() {
-        return IPHlpAPIUtilFFM.getDnsServers();
+    protected int queryAdapterDnsServers(int bufferSize, int[] requiredSize, List<byte[]> addresses) {
+        try (Arena arena = Arena.ofConfined()) {
+            MemorySegment sizeSeg = arena.allocate(JAVA_INT);
+            sizeSeg.set(JAVA_INT, 0, bufferSize);
+            MemorySegment buffer = arena.allocate(bufferSize, 8);
+            int ret = IPHlpAPIFFM.GetAdaptersAddresses(IPHlpAPIFFM.AF_UNSPEC, GAA_FLAGS, buffer, sizeSeg);
+            requiredSize[0] = sizeSeg.get(JAVA_INT, 0);
+            if (ret == 0) {
+                MemorySegment adapter = buffer;
+                while (!adapter.equals(MemorySegment.NULL)) {
+                    adapter = adapter.reinterpret(IPHlpAPIFFM.IP_ADAPTER_ADDRESSES_LAYOUT.byteSize());
+                    if (adapter.get(JAVA_INT, IPHlpAPIFFM.OFFSET_ADAPTER_OPER_STATUS) == IF_OPER_STATUS_UP) {
+                        addDnsServers(adapter.get(ADDRESS, IPHlpAPIFFM.OFFSET_ADAPTER_FIRST_DNS_SERVER), addresses);
+                    }
+                    adapter = adapter.get(ADDRESS, IPHlpAPIFFM.OFFSET_ADAPTER_NEXT);
+                }
+            }
+            return ret;
+        } catch (Throwable e) { // NOSONAR java:S1181 - an FFM downcall can throw any Throwable
+            LOG.error("Failed to read adapter DNS servers.", e);
+            return -1;
+        }
+    }
+
+    private static void addDnsServers(MemorySegment first, List<byte[]> addresses) {
+        MemorySegment dns = first;
+        while (!dns.equals(MemorySegment.NULL)) {
+            dns = dns.reinterpret(IPHlpAPIFFM.IP_ADAPTER_DNS_SERVER_ADDRESS_LAYOUT.byteSize());
+            MemorySegment sockaddr = dns.get(ADDRESS, IPHlpAPIFFM.OFFSET_DNS_SERVER_SOCKADDR);
+            if (!sockaddr.equals(MemorySegment.NULL)) {
+                sockaddr = sockaddr.reinterpret(IPHlpAPIFFM.SOCKADDR_IN6_SIZE);
+                short family = sockaddr.get(JAVA_SHORT, 0);
+                if (family == IPHlpAPIFFM.AF_INET) {
+                    addresses.add(sockaddr.asSlice(4, 4).toArray(JAVA_BYTE));
+                } else if (family == IPHlpAPIFFM.AF_INET6) {
+                    addresses.add(sockaddr.asSlice(8, 16).toArray(JAVA_BYTE));
+                }
+            }
+            dns = dns.get(ADDRESS, IPHlpAPIFFM.OFFSET_DNS_SERVER_NEXT);
+        }
     }
 
     @Override
@@ -39,7 +80,8 @@ public final class WindowsNetworkParamsFFM extends WindowsNetworkParams {
 
     @Override
     public String getHostName() {
-        String name = Kernel32UtilFFM.getComputerName();
+        // The DNS host name: GetComputerName returns the NetBIOS name, upper-cased and cut to 15 characters
+        String name = Kernel32UtilFFM.getDnsHostName();
         return name.isEmpty() ? super.getHostName() : name;
     }
 

@@ -40,4 +40,14 @@ public final class Kernel32UtilFFM {
     public static String getComputerNameEx() {
         return Kernel32FFM.GetComputerNameEx().orElse("");
     }
+
+    /**
+     * Gets the DNS host name, which unlike the NetBIOS name {@link #getComputerName()} returns is neither upper-cased
+     * nor cut to 15 characters.
+     *
+     * @return the DNS host name, or empty string on failure
+     */
+    public static String getDnsHostName() {
+        return Kernel32FFM.GetComputerNameEx(Kernel32FFM.COMPUTER_NAME_DNS_HOSTNAME).orElse("");
+    }
 }

@@ -8,6 +8,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.Structure.FieldOrder;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.win32.W32APIOptions;
 
@@ -100,4 +101,75 @@ public interface IPHlpAPI extends com.sun.jna.platform.win32.IPHlpAPI {
      *      "https://learn.microsoft.com/en-us/windows/win32/api/netioapi/nf-netioapi-freemibtable">FreeMibTable</a>
      */
     void FreeMibTable(Pointer Memory);
+
+    /** {@code GetAdaptersAddresses} flag to leave out unicast addresses. */
+    int GAA_FLAG_SKIP_UNICAST = 0x1;
+    /** {@code GetAdaptersAddresses} flag to leave out anycast addresses. */
+    int GAA_FLAG_SKIP_ANYCAST = 0x2;
+    /** {@code GetAdaptersAddresses} flag to leave out multicast addresses. */
+    int GAA_FLAG_SKIP_MULTICAST = 0x4;
+    /** {@code GetAdaptersAddresses} flag to leave out the adapter's friendly name. */
+    int GAA_FLAG_SKIP_FRIENDLY_NAME = 0x20;
+
+    /**
+     * The leading fields of {@code IP_ADAPTER_ADDRESSES_LH}, through {@code OperStatus}. The structure is read in place
+     * from the buffer {@link #GetAdaptersAddresses} fills, so the fields after these need not be mapped.
+     */
+    @FieldOrder({ "Length", "IfIndex", "Next", "AdapterName", "FirstUnicastAddress", "FirstAnycastAddress",
+            "FirstMulticastAddress", "FirstDnsServerAddress", "DnsSuffix", "Description", "FriendlyName",
+            "PhysicalAddress", "PhysicalAddressLength", "Flags", "Mtu", "IfType", "OperStatus" })
+    class IP_ADAPTER_ADDRESSES extends Structure {
+        public int Length;
+        public int IfIndex;
+        public Pointer Next;
+        public Pointer AdapterName;
+        public Pointer FirstUnicastAddress;
+        public Pointer FirstAnycastAddress;
+        public Pointer FirstMulticastAddress;
+        public Pointer FirstDnsServerAddress;
+        public Pointer DnsSuffix;
+        public Pointer Description;
+        public Pointer FriendlyName;
+        public byte[] PhysicalAddress = new byte[8];
+        public int PhysicalAddressLength;
+        public int Flags;
+        public int Mtu;
+        public int IfType;
+        public int OperStatus;
+
+        public IP_ADAPTER_ADDRESSES(Pointer p) {
+            super(p);
+            read();
+        }
+    }
+
+    /** One DNS server address of an adapter, in a linked list. */
+    @FieldOrder({ "Length", "Reserved", "Next", "lpSockaddr", "iSockaddrLength" })
+    class IP_ADAPTER_DNS_SERVER_ADDRESS extends Structure {
+        public int Length;
+        public int Reserved;
+        public Pointer Next;
+        public Pointer lpSockaddr;
+        public int iSockaddrLength;
+
+        public IP_ADAPTER_DNS_SERVER_ADDRESS(Pointer p) {
+            super(p);
+            read();
+        }
+    }
+
+    /**
+     * Retrieves the addresses associated with the adapters on the local computer.
+     *
+     * @param Family           {@link #AF_INET}, {@link #AF_INET6}, or {@link #AF_UNSPEC} for both
+     * @param Flags            the {@code GAA_FLAG_*} flags
+     * @param Reserved         must be null
+     * @param AdapterAddresses the buffer to fill with a linked list of {@link IP_ADAPTER_ADDRESSES}
+     * @param SizePointer      the buffer size, updated to the size required on {@code ERROR_BUFFER_OVERFLOW}
+     * @return {@code ERROR_SUCCESS} on success
+     * @see <a href=
+     *      "https://learn.microsoft.com/en-us/windows/win32/api/iphlpapi/nf-iphlpapi-getadaptersaddresses">GetAdaptersAddresses</a>
+     */
+    int GetAdaptersAddresses(int Family, int Flags, Pointer Reserved, Pointer AdapterAddresses,
+            IntByReference SizePointer);
 }

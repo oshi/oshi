@@ -79,8 +79,9 @@ public class WindowsNetworkIfJNA extends WindowsNetworkIF {
             stats.connectorPresent = (ifRow.InterfaceAndOperStatusFlags & CONNECTOR_PRESENT_BIT) > 0;
             stats.bytesSent = ifRow.OutOctets;
             stats.bytesRecv = ifRow.InOctets;
-            stats.packetsSent = ifRow.OutUcastPkts;
-            stats.packetsRecv = ifRow.InUcastPkts;
+            // Unicast plus non-unicast (multicast and broadcast), the total other platforms count
+            stats.packetsSent = ifRow.OutUcastPkts + ifRow.OutNUcastPkts;
+            stats.packetsRecv = ifRow.InUcastPkts + ifRow.InNUcastPkts;
             stats.outErrors = ifRow.OutErrors;
             stats.inErrors = ifRow.InErrors;
             stats.collisions = ifRow.OutDiscards;
@@ -106,8 +107,10 @@ public class WindowsNetworkIfJNA extends WindowsNetworkIF {
             stats.ifType = ifRow.dwType;
             stats.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
             stats.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
-            stats.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
-            stats.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
+            stats.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts)
+                    + ParseUtil.unsignedIntToLong(ifRow.dwOutNUcastPkts);
+            stats.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts)
+                    + ParseUtil.unsignedIntToLong(ifRow.dwInNUcastPkts);
             stats.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
             stats.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
             stats.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards);

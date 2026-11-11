@@ -5,8 +5,13 @@
 package oshi.software.common.os.windows;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
@@ -21,6 +26,15 @@ import oshi.util.ParseUtil;
  */
 @ThreadSafe
 public abstract class WindowsNetworkParams extends AbstractNetworkParams {
+
+    private static final Logger LOG = LoggerFactory.getLogger(WindowsNetworkParams.class);
+
+    // Microsoft's recommended starting size for GetAdaptersAddresses, which avoids a second call on most systems
+    private static final int ADAPTER_BUFFER_SIZE = 15_000;
+    private static final int MAX_ADAPTER_ATTEMPTS = 3;
+    private static final int ERROR_SUCCESS = 0;
+    private static final int ERROR_BUFFER_OVERFLOW = 111;
+    private static final int ERROR_NO_DATA = 232;
 
     /** Default constructor. */
     protected WindowsNetworkParams() {
@@ -51,6 +65,76 @@ public abstract class WindowsNetworkParams extends AbstractNetworkParams {
      * @return the rows, or an empty list if the query failed
      */
     protected abstract List<RouteRow> queryRouteRows();
+
+    /**
+     * Makes one {@code GetAdaptersAddresses} call with a buffer of the given size and, if it succeeds, collects the DNS
+     * server addresses of every adapter that is up.
+     *
+     * @param bufferSize   the size of the buffer to allocate and pass
+     * @param requiredSize receives, in its only element, the size the call reports when the buffer was too small
+     * @param addresses    receives the address bytes in network order, four for IPv4 or sixteen for IPv6
+     * @return the call's return code, or -1 if the call itself could not be made
+     */
+    protected abstract int queryAdapterDnsServers(int bufferSize, int[] requiredSize, List<byte[]> addresses);
+
+    /**
+     * Queries the DNS server addresses of every adapter that is up, growing the buffer when the adapter list outgrows
+     * it between the call that reports the size and the one that fills it.
+     *
+     * @return the address bytes in network order, or an empty list if the query failed
+     */
+    List<byte[]> queryDnsServerAddresses() {
+        int size = ADAPTER_BUFFER_SIZE;
+        int[] requiredSize = new int[1];
+        for (int attempt = 0; attempt < MAX_ADAPTER_ATTEMPTS; attempt++) {
+            List<byte[]> addresses = new ArrayList<>();
+            int ret = queryAdapterDnsServers(size, requiredSize, addresses);
+            if (ret == ERROR_BUFFER_OVERFLOW) {
+                size = requiredSize[0];
+                continue;
+            }
+            if (ret == ERROR_SUCCESS) {
+                return addresses;
+            }
+            if (ret != ERROR_NO_DATA) {
+                LOG.error("Failed to get adapter addresses. Error code: {}", ret);
+            }
+            return new ArrayList<>();
+        }
+        LOG.warn("The adapter list outgrew the buffer {} times in a row.", MAX_ADAPTER_ATTEMPTS);
+        return new ArrayList<>();
+    }
+
+    @Override
+    public String[] getDnsServers() {
+        Set<String> servers = new LinkedHashSet<>();
+        for (byte[] address : queryDnsServerAddresses()) {
+            if ((address.length == 4 || address.length == 16) && !isUnconfiguredIpv6Dns(address)) {
+                servers.add(ParseUtil.formatIpAddress(address));
+            }
+        }
+        return servers.toArray(new String[0]);
+    }
+
+    /**
+     * Whether an address is one of the deprecated site-local DNS addresses {@code fec0:0:0:ffff::1} to {@code ::3},
+     * which Windows reports for an adapter with no IPv6 DNS server configured.
+     *
+     * @param address the address bytes
+     * @return true for one of the three placeholder addresses
+     */
+    static boolean isUnconfiguredIpv6Dns(byte[] address) {
+        if (address.length != 16 || address[15] < 1 || address[15] > 3) {
+            return false;
+        }
+        byte[] prefix = { (byte) 0xfe, (byte) 0xc0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff };
+        for (int i = 0; i < 15; i++) {
+            if (address[i] != (i < prefix.length ? prefix[i] : 0)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     @Override
     public List<NetworkParams.IPRoute> getRoutes() {
