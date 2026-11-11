@@ -8,10 +8,12 @@ import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_SHORT;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.util.LogLevel.DEBUG;
 import static oshi.util.LogLevel.ERROR;
 
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.ValueLayout;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +37,14 @@ public final class NetStatFFM {
     private static final int NET_RT_IFLIST2 = 6;
     private static final int RTM_IFINFO2 = 0x12;
 
+    // SIOCGIFMEDIA = _IOWR('i', 56, struct ifmediareq), which is packed to 44 bytes on macOS
+    private static final long SIOCGIFMEDIA = 0xc02c6938L;
+    private static final int IFMEDIAREQ_SIZE = 44;
+    private static final int IFM_STATUS_OFFSET = 24;
+    private static final int IFNAMSIZ = 16;
+    private static final int AF_INET = 2;
+    private static final int SOCK_DGRAM = 2;
+
     // if_msghdr layout (just enough to read ifm_msglen and ifm_type)
     private static final long OFF_IFM_MSGLEN = 0;
     private static final long OFF_IFM_TYPE = 3; // byte at offset 3
@@ -45,6 +55,7 @@ public final class NetStatFFM {
     // 2 bytes padding, int ifm_snd_len (4), int ifm_snd_maxlen (4),
     // int ifm_snd_drops (4), int ifm_timer (4)
     // then if_data64 follows
+    private static final long OFF_IFM2_FLAGS = 8; // int at offset 8 (after msglen+version+type+addrs)
     private static final long OFF_IFM2_INDEX = 12; // short at offset 12 (after msglen+version+type+addrs+flags)
 
     // if_data64 starts after the if_msghdr2 header
@@ -127,6 +138,7 @@ public final class NetStatFFM {
                     int ifIndex = Short.toUnsignedInt(buf.get(JAVA_SHORT, offset + OFF_IFM2_INDEX));
                     if (index < 0 || index == ifIndex) {
                         int ifType = 0xff & buf.get(JAVA_BYTE, offset + OFF_IFI_TYPE);
+                        int flags = buf.get(ValueLayout.JAVA_INT_UNALIGNED, offset + OFF_IFM2_FLAGS);
                         long oPackets = buf.get(JAVA_LONG_UNALIGNED, offset + OFF_IFI_OPACKETS);
                         long iPackets = buf.get(JAVA_LONG_UNALIGNED, offset + OFF_IFI_IPACKETS);
                         long oBytes = buf.get(JAVA_LONG_UNALIGNED, offset + OFF_IFI_OBYTES);
@@ -136,8 +148,8 @@ public final class NetStatFFM {
                         long collisions = buf.get(JAVA_LONG_UNALIGNED, offset + OFF_IFI_COLLISIONS);
                         long iDrops = buf.get(JAVA_LONG_UNALIGNED, offset + OFF_IFI_IQDROPS);
                         long speed = buf.get(JAVA_LONG_UNALIGNED, offset + OFF_IFI_BAUDRATE);
-                        data.put(ifIndex, new IFdata(ifType, oPackets, iPackets, oBytes, iBytes, oErrors, iErrors,
-                                collisions, iDrops, speed, now));
+                        data.put(ifIndex, new IFdata(ifType, flags, oPackets, iPackets, oBytes, iBytes, oErrors,
+                                iErrors, collisions, iDrops, speed, now));
                         if (index >= 0) {
                             return data;
                         }
@@ -147,5 +159,31 @@ public final class NetStatFFM {
             }
             return data;
         }, LOG, ERROR, "Error querying network interface data", data);
+    }
+
+    /**
+     * Queries the media status of an interface, which reports whether its link is active.
+     *
+     * @param ifName the interface name
+     * @return the {@code ifm_status} bits of {@code SIOCGIFMEDIA}, or -1 if the interface does not report media
+     */
+    public static int queryMediaStatus(String ifName) {
+        return callInArenaOrDefault(arena -> {
+            int fd = MacSystemFunctions.socket(AF_INET, SOCK_DGRAM, 0);
+            if (fd < 0) {
+                return -1;
+            }
+            try {
+                MemorySegment req = arena.allocate(IFMEDIAREQ_SIZE);
+                byte[] name = ifName.getBytes(StandardCharsets.US_ASCII);
+                MemorySegment.copy(name, 0, req, JAVA_BYTE, 0, Math.min(name.length, IFNAMSIZ - 1));
+                if (MacSystemFunctions.ioctl(fd, SIOCGIFMEDIA, req) < 0) {
+                    return -1;
+                }
+                return req.get(ValueLayout.JAVA_INT, IFM_STATUS_OFFSET);
+            } finally {
+                MacSystemFunctions.close(fd);
+            }
+        }, -1, LOG, DEBUG, "Error querying media status for {}", ifName);
     }
 }

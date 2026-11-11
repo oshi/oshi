@@ -25,6 +25,14 @@ def split_top(s):
         out.append(cur.strip())
     return out
 
+VARIADIC = re.compile(r'firstVariadicArg\(\s*(\d+)\s*\)')
+
+def fixed_args(args, tail):
+    """Keep only the fixed parameters when the call site passes Linker.Option.firstVariadicArg(n) in tail: the C
+    declaration names those alone, so variadic arguments would otherwise read as an arity mismatch."""
+    v = VARIADIC.search(tail)
+    return args[:int(v.group(1))] if v else args
+
 def extract(path):
     src = open(path, encoding='utf-8').read()
     # strip comments so they can't contain matches
@@ -40,12 +48,13 @@ def extract(path):
         fd = re.search(r'FunctionDescriptor\.(of|ofVoid)\s*\(', rest)
         if not fd:
             continue
-        inner, _ = balanced(rest, fd.end()-1)
+        inner, after = balanced(rest, fd.end()-1)
         parts = split_top(inner)
         if fd.group(1) == 'ofVoid':
             ret, args = None, parts
         else:
             ret, args = (parts[0] if parts else None), parts[1:]
+        args = fixed_args(args, rest[after:].split(';', 1)[0])
         found.append({'symbol': name, 'ret': ret, 'args': args, 'file': path})
 
     # idiom 2: downcall(LIB, "name", RET_or_null, args...)
@@ -60,7 +69,7 @@ def extract(path):
         ret = parts[2] if len(parts) > 2 else None
         if ret == 'null':
             ret = None
-        found.append({'symbol': sym.group(1), 'ret': ret, 'args': parts[3:], 'file': path})
+        found.append({'symbol': sym.group(1), 'ret': ret, 'args': fixed_args(parts[3:], inner), 'file': path})
     return found
 
 if __name__ == '__main__':

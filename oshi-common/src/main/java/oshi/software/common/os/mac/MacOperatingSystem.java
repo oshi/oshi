@@ -12,9 +12,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -52,6 +53,8 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
 
     private static final String SYSTEM_LIBRARY_LAUNCH_AGENTS = "/System/Library/LaunchAgents";
     private static final String SYSTEM_LIBRARY_LAUNCH_DAEMONS = "/System/Library/LaunchDaemons";
+    private static final String LIBRARY_LAUNCH_AGENTS = "/Library/LaunchAgents";
+    private static final String LIBRARY_LAUNCH_DAEMONS = "/Library/LaunchDaemons";
 
     // CHECKSTYLE:OFF VisibilityModifier - protected final, set by the constructor and read by both backends
     /** Maximum number of processes. */
@@ -196,44 +199,80 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
 
     @Override
     public List<OSService> getServices() {
-        // Get running services
+        // Jobs launchd has loaded, with a pid when running: the system domain, then the current user's
+        Map<String, OSService> services = new LinkedHashMap<>();
+        for (OSService s : parseLaunchctlPrint(ExecutingCommand.runNative("launchctl print system"))) {
+            services.putIfAbsent(s.getName(), s);
+        }
+        for (OSService s : parseLaunchctlList(ExecutingCommand.runNative("launchctl list"))) {
+            services.putIfAbsent(s.getName(), s);
+        }
+        if (services.isEmpty()) {
+            // launchctl unavailable: fall back to launchd's children, named by process
+            for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
+                services.putIfAbsent(p.getName(), new OSService(p.getName(), p.getProcessID(), RUNNING));
+            }
+        }
+        // Installed jobs launchd has not loaded, named by their plist
+        String home = System.getProperty("user.home", "");
+        for (String dir : Arrays.asList(SYSTEM_LIBRARY_LAUNCH_AGENTS, SYSTEM_LIBRARY_LAUNCH_DAEMONS,
+                LIBRARY_LAUNCH_AGENTS, LIBRARY_LAUNCH_DAEMONS, home + LIBRARY_LAUNCH_AGENTS)) {
+            File[] plists = new File(dir).listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".plist"));
+            if (plists != null) {
+                for (File f : plists) {
+                    String label = f.getName().substring(0, f.getName().length() - 6);
+                    services.putIfAbsent(label, new OSService(label, 0, STOPPED));
+                }
+            }
+        }
+        return new ArrayList<>(services.values());
+    }
+
+    /**
+     * Parses the services block of {@code launchctl print <domain>}, whose rows are a pid (0 when not running), the
+     * last exit status, and the job label.
+     *
+     * @param lines the command output
+     * @return the loaded jobs
+     */
+    static List<OSService> parseLaunchctlPrint(List<String> lines) {
         List<OSService> services = new ArrayList<>();
-        Set<String> running = new HashSet<>();
-        for (OSProcess p : getChildProcesses(1, ProcessFiltering.ALL_PROCESSES, ProcessSorting.PID_ASC, 0)) {
-            OSService s = new OSService(p.getName(), p.getProcessID(), RUNNING);
-            services.add(s);
-            running.add(p.getName());
-        }
-        // Get Directories for stopped services
-        ArrayList<File> files = new ArrayList<>();
-        File[] listFiles;
-        File dir = new File(SYSTEM_LIBRARY_LAUNCH_AGENTS);
-        if (dir.exists() && dir.isDirectory()) {
-            if ((listFiles = dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".plist"))) != null) {
-                files.addAll(Arrays.asList(listFiles));
-            }
-        } else {
-            LOG.error("Directory: /System/Library/LaunchAgents does not exist");
-        }
-        dir = new File(SYSTEM_LIBRARY_LAUNCH_DAEMONS);
-        if (dir.exists() && dir.isDirectory()) {
-            if ((listFiles = dir.listFiles((f, name) -> name.toLowerCase(Locale.ROOT).endsWith(".plist"))) != null) {
-                files.addAll(Arrays.asList(listFiles));
-            }
-        } else {
-            LOG.error("Directory: /System/Library/LaunchDaemons does not exist");
-        }
-        for (File f : files) {
-            // remove .plist extension
-            String name = f.getName().substring(0, f.getName().length() - 6);
-            int index = name.lastIndexOf('.');
-            String shortName = (index < 0 || index > name.length() - 2) ? name : name.substring(index + 1);
-            if (!running.contains(name) && !running.contains(shortName)) {
-                OSService s = new OSService(name, 0, STOPPED);
-                services.add(s);
+        boolean inServices = false;
+        for (String line : lines) {
+            String trimmed = line.trim();
+            if (!inServices) {
+                inServices = "services = {".equals(trimmed);
+            } else if ("}".equals(trimmed)) {
+                break;
+            } else {
+                addLaunchdJob(services, ParseUtil.whitespaces.split(trimmed));
             }
         }
         return services;
+    }
+
+    /**
+     * Parses {@code launchctl list}, whose rows are a pid ({@code -} when not running), the last exit status, and the
+     * job label, after a header row.
+     *
+     * @param lines the command output
+     * @return the loaded jobs
+     */
+    static List<OSService> parseLaunchctlList(List<String> lines) {
+        List<OSService> services = new ArrayList<>();
+        for (String line : lines) {
+            addLaunchdJob(services, ParseUtil.whitespaces.split(line.trim()));
+        }
+        return services;
+    }
+
+    private static void addLaunchdJob(List<OSService> services, String[] row) {
+        // Skip the header and the per-instance jobs launchd creates for each GUI application
+        if (row.length != 3 || "Label".equals(row[2]) || row[2].startsWith("application.")) {
+            return;
+        }
+        int pid = ParseUtil.parseIntOrDefault(row[0], 0);
+        services.add(new OSService(row[2], Math.max(pid, 0), pid > 0 ? RUNNING : STOPPED));
     }
 
     @Override

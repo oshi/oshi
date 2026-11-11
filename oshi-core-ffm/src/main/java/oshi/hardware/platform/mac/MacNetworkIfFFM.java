@@ -72,4 +72,9 @@ public final class MacNetworkIfFFM extends MacNetworkIF {
     protected Map<Integer, IFdata> queryIFdata(int index) {
         return NetStatFFM.queryIFdata(index);
     }
+
+    @Override
+    protected int queryMediaStatus(String ifName) {
+        return NetStatFFM.queryMediaStatus(ifName);
+    }
 }

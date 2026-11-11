@@ -12,6 +12,7 @@
 * [#3856](https://github.com/oshi/oshi/pull/3856),
   [#3861](https://github.com/oshi/oshi/pull/3861): On native-free Linux, `getDiskStores()` matches the JNA and FFM implementations: it lists device-mapper (LVM, LUKS, multipath), md RAID and other virtual block devices, a partition's identification is its device path such as `/dev/sda1`, and a model or serial that sysfs does not provide is `unknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3858](https://github.com/oshi/oshi/pull/3858): On macOS, `HWDiskStore.getDiskType()` reports `Virtual` for an APFS container and a disk image, which previously reported `Unknown` and `Removable` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3885](https://github.com/oshi/oshi/pull/3885): On macOS, `OperatingSystem.getServices()` lists launchd jobs by label, including those in `/Library` and the user's `~/Library/LaunchAgents`, instead of every child process of launchd by process name - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
@@ -25,6 +26,7 @@
 * [#3880](https://github.com/oshi/oshi/pull/3880): Linux reports disks, USB devices and volume groups without libudev (Alpine, distroless), reads udev properties for native-free disks, partitions and network adapters, lists installed applications on Alpine and Arch with millisecond timestamps, lists OpenRC services, and reads affinity from `/proc` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3881](https://github.com/oshi/oshi/pull/3881): Linux reports 64-bit processors on ARM, RISC-V and POWER, P-core and E-core efficiency on Intel hybrid processors, external power and battery time remaining, board manufacturer and serial number from the devicetree, Raspberry Pi fans, and graphics cards without `lspci` or `lshw` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3884](https://github.com/oshi/oshi/pull/3884): Fixed macOS on Apple Silicon: battery capacity in mAh, battery serial number, firmware version, baseboard model, disk serial numbers and sound cards; and `getProcessCount()` on every Mac - [@dbwiddis](https://github.com/dbwiddis).
+* [#3885](https://github.com/oshi/oshi/pull/3885): `NetworkIF.getIfOperStatus()` now reports link state on macOS, and macOS `GraphicsCard.getVersionInfo()` includes Metal support - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

@@ -9,6 +9,7 @@ import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 
 import java.lang.foreign.FunctionDescriptor;
+import java.lang.foreign.Linker;
 import java.lang.foreign.MemorySegment;
 import java.lang.foreign.SymbolLookup;
 import java.lang.foreign.ValueLayout;
@@ -243,6 +244,33 @@ public final class MacSystemFunctions extends MacForeignFunctions {
     public static String gai_strerror(int ecode) throws Throwable {
         MemorySegment result = (MemorySegment) gai_strerror.invokeExact(ecode);
         return result.equals(MemorySegment.NULL) ? "" : result.reinterpret(256).getString(0);
+    }
+
+    // int socket(int domain, int type, int protocol);
+
+    private static final MethodHandle socket = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("socket"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_INT, JAVA_INT));
+
+    public static int socket(int domain, int type, int protocol) throws Throwable {
+        return (int) socket.invokeExact(domain, type, protocol);
+    }
+
+    // int ioctl(int fildes, unsigned long request, ...); called here with one pointer argument
+
+    private static final MethodHandle ioctl = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("ioctl"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT, JAVA_LONG, ADDRESS), Linker.Option.firstVariadicArg(2));
+
+    public static int ioctl(int fd, long request, MemorySegment arg) throws Throwable {
+        return (int) ioctl.invokeExact(fd, request, arg);
+    }
+
+    // int close(int fildes);
+
+    private static final MethodHandle close = LINKER.downcallHandle(SYSTEM_LIBRARY.findOrThrow("close"),
+            FunctionDescriptor.of(JAVA_INT, JAVA_INT));
+
+    public static int close(int fd) throws Throwable {
+        return (int) close.invokeExact(fd);
     }
 
     private static final MethodHandle mach_host_self_handle = LINKER

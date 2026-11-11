@@ -64,6 +64,9 @@ public interface GraphicsCard {
 
     /**
      * Retrieves the Video RAM (VRAM) available on the GPU
+     * <p>
+     * On macOS, an Apple Silicon GPU has no dedicated VRAM and reports the total system memory it shares, or zero if
+     * that is unavailable.
      *
      * @return Total number of bytes.
      */

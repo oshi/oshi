@@ -9,6 +9,7 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.mac.IFdata;
+import oshi.hardware.NetworkIF.IfOperStatus;
 import oshi.hardware.common.AbstractNetworkIF;
 
 /**
@@ -18,7 +19,13 @@ import oshi.hardware.common.AbstractNetworkIF;
 @ThreadSafe
 public abstract class MacNetworkIF extends AbstractNetworkIF {
 
+    private static final int IFF_UP = 0x1;
+    private static final int IFF_RUNNING = 0x40;
+    private static final int IFM_AVALID = 0x1;
+    private static final int IFM_ACTIVE = 0x2;
+
     private volatile int ifType;
+    private volatile IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
     /**
      * Creates a MacNetworkIF.
@@ -34,6 +41,11 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
     @Override
     public int getIfType() {
         return this.ifType;
+    }
+
+    @Override
+    public IfOperStatus getIfOperStatus() {
+        return this.ifOperStatus;
     }
 
     @Override
@@ -62,6 +74,7 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
             this.inDrops = ifData.getIDrops();
             this.speed = ifData.getSpeed();
             this.timeStamp = ifData.getTimeStamp();
+            this.ifOperStatus = operStatus(ifData.getFlags(), queryMediaStatus(queryNetworkInterface().getName()));
             return true;
         }
         return false;
@@ -74,4 +87,31 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
      * @return map of interface index to {@link IFdata}
      */
     protected abstract Map<Integer, IFdata> queryIFdata(int index);
+
+    /**
+     * Queries the media status of an interface via the platform-specific (JNA or FFM) {@code SIOCGIFMEDIA} backend.
+     *
+     * @param ifName the interface name
+     * @return the {@code ifm_status} bits, or -1 if the interface does not report media
+     */
+    protected abstract int queryMediaStatus(String ifName);
+
+    /**
+     * Derives the operational status from the interface flags and media status. macOS sets {@code IFF_RUNNING} on any
+     * interface that is up, whether or not its link is active, so the media status decides where an interface reports
+     * one.
+     *
+     * @param flags       the {@code IFF_*} interface flags
+     * @param mediaStatus the {@code ifm_status} bits, or -1 if the interface does not report media
+     * @return the operational status
+     */
+    static IfOperStatus operStatus(int flags, int mediaStatus) {
+        if ((flags & IFF_UP) == 0) {
+            return IfOperStatus.DOWN;
+        }
+        if (mediaStatus >= 0 && (mediaStatus & IFM_AVALID) != 0) {
+            return (mediaStatus & IFM_ACTIVE) != 0 ? IfOperStatus.UP : IfOperStatus.DOWN;
+        }
+        return (flags & IFF_RUNNING) != 0 ? IfOperStatus.UP : IfOperStatus.DOWN;
+    }
 }

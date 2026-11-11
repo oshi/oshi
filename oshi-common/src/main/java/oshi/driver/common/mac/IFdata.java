@@ -13,6 +13,7 @@ import oshi.annotation.concurrent.Immutable;
 @Immutable
 public class IFdata {
     private final int ifType;
+    private final int flags;
     private final long oPackets;
     private final long iPackets;
     private final long oBytes;
@@ -29,6 +30,7 @@ public class IFdata {
      * underlying {@code if_data64} fields wrap at {@code 2^32}.
      *
      * @param ifType     the interface type
+     * @param flags      the interface flags ({@code IFF_*})
      * @param oPackets   packets sent
      * @param iPackets   packets received
      * @param oBytes     bytes sent
@@ -40,10 +42,11 @@ public class IFdata {
      * @param speed      interface speed (baud rate)
      * @param timeStamp  the time the data was sampled, in milliseconds since the epoch
      */
-    public IFdata(int ifType, // NOSONAR java:S107
+    public IFdata(int ifType, int flags, // NOSONAR java:S107
             long oPackets, long iPackets, long oBytes, long iBytes, long oErrors, long iErrors, long collisions,
             long iDrops, long speed, long timeStamp) {
         this.ifType = ifType;
+        this.flags = flags;
         this.oPackets = oPackets & 0xffffffffL;
         this.iPackets = iPackets & 0xffffffffL;
         this.oBytes = oBytes & 0xffffffffL;
@@ -61,6 +64,13 @@ public class IFdata {
      */
     public int getIfType() {
         return ifType;
+    }
+
+    /**
+     * @return the interface flags ({@code IFF_*})
+     */
+    public int getFlags() {
+        return flags;
     }
 
     /**
