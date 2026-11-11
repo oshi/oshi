@@ -74,4 +74,25 @@ public interface SystemB extends com.sun.jna.platform.mac.SystemB, CLibrary {
     }
 
     int getrusage(int who, Rusage rusage);
+
+    /**
+     * Creates an endpoint for communication.
+     *
+     * @param domain   the communication domain
+     * @param type     the socket type
+     * @param protocol the protocol, or 0 for the default
+     * @return a file descriptor, or -1 on error
+     */
+    int socket(int domain, int type, int protocol);
+
+    /**
+     * Controls a device. The request takes a variable argument list, so the argument must be passed as a vararg for the
+     * arm64 calling convention, which passes variadic arguments on the stack.
+     *
+     * @param fd      the file descriptor
+     * @param request the request code
+     * @param args    the request argument
+     * @return 0 on success, -1 on error
+     */
+    int ioctl(int fd, NativeLong request, Object... args);
 }

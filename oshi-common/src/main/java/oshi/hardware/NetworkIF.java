@@ -75,7 +75,7 @@ public interface NetworkIF {
     /**
      * The {@code ifOperStatus} as described in RFC 2863.
      * <p>
-     * Only implemented for Windows (Vista and newer) and Linux.
+     * Only implemented for Windows (Vista and newer), Linux and macOS.
      *
      * @return The current operational state of the interface.
      */

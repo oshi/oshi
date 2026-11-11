@@ -71,4 +71,9 @@ public final class MacNetworkIfJNA extends MacNetworkIF {
     protected Map<Integer, IFdata> queryIFdata(int index) {
         return NetStat.queryIFdata(index);
     }
+
+    @Override
+    protected int queryMediaStatus(String ifName) {
+        return NetStat.queryMediaStatus(ifName);
+    }
 }
