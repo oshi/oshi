@@ -1,4 +1,6 @@
 sys/types.h
+sys/socket.h
+sys/ioctl.h
 sys/sysctl.h
 sys/resource.h
 sys/mount.h
