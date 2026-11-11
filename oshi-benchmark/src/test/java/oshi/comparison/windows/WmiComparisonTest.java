@@ -425,8 +425,10 @@ class WmiComparisonTest {
         boolean jnaComInit = jnaHandler.initCOM();
         boolean ffmComInit = ffmHandler.initCOM();
         try {
-            WmiResult<ValueProperty> jna = OhmSensor.querySensorValue(jnaHandler, OhmSensor.OHM_NAMESPACE, (String) null, null);
-            WmiResult<ValueProperty> ffm = OhmSensor.querySensorValue(ffmHandler, OhmSensor.OHM_NAMESPACE, (String) null, null);
+            WmiResult<ValueProperty> jna = OhmSensor.querySensorValue(jnaHandler, OhmSensor.OHM_NAMESPACE,
+                    (String) null, null);
+            WmiResult<ValueProperty> ffm = OhmSensor.querySensorValue(ffmHandler, OhmSensor.OHM_NAMESPACE,
+                    (String) null, null);
             assertThat(ffm.getResultCount()).as("OhmSensor count").isEqualTo(jna.getResultCount());
 
             WmiResult<IdentifierProperty> jnaHw = OhmHardware.queryHwIdentifier(jnaHandler, OhmHardware.OHM_NAMESPACE,
