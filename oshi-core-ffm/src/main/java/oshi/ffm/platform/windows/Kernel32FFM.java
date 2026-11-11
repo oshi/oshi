@@ -131,7 +131,14 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
     private static final MethodHandle GetComputerNameEx = downcall(K32, "GetComputerNameExW", JAVA_INT, JAVA_INT,
             ADDRESS, ADDRESS);
 
+    public static final int COMPUTER_NAME_DNS_HOSTNAME = 1;
+    public static final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
+
     public static Optional<String> GetComputerNameEx() {
+        return GetComputerNameEx(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED);
+    }
+
+    public static Optional<String> GetComputerNameEx(int format) {
         return callInArenaOrDefault(arena -> {
             int maxLen = 256;
 
@@ -139,13 +146,10 @@ public final class Kernel32FFM extends WindowsForeignFunctions {
             MemorySegment sizeSegment = arena.allocate(JAVA_INT);
             sizeSegment.set(ValueLayout.JAVA_INT, 0, maxLen);
 
-            final int COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED = 3;
-
-            boolean success = isSuccess(
-                    (int) GetComputerNameEx.invokeExact(COMPUTER_NAME_DNS_DOMAIN_FULLY_QUALIFIED, buffer, sizeSegment));
+            boolean success = isSuccess((int) GetComputerNameEx.invokeExact(format, buffer, sizeSegment));
             if (!success) {
                 int errorCode = (int) GetLastError.invokeExact();
-                LOG.error("Failed to get DNS domain name. Error code: {}", errorCode);
+                LOG.error("Failed to get computer name format {}. Error code: {}", format, errorCode);
                 return Optional.<String>empty();
             }
 

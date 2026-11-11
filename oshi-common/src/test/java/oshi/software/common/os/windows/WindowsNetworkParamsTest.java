@@ -25,14 +25,25 @@ class WindowsNetworkParamsTest {
     /** A params instance whose IP Helper API rows are supplied by the test. */
     private static final class StubParams extends WindowsNetworkParams {
         private final List<WindowsNetworkParams.RouteRow> rows;
+        private final List<byte[]> dnsServers;
 
         StubParams(List<WindowsNetworkParams.RouteRow> rows) {
+            this(rows, List.of());
+        }
+
+        StubParams(List<WindowsNetworkParams.RouteRow> rows, List<byte[]> dnsServers) {
             this.rows = rows;
+            this.dnsServers = dnsServers;
         }
 
         @Override
         protected List<WindowsNetworkParams.RouteRow> queryRouteRows() {
             return this.rows;
+        }
+
+        @Override
+        protected List<byte[]> queryDnsServerAddresses() {
+            return this.dnsServers;
         }
     }
 
@@ -105,5 +116,29 @@ class WindowsNetworkParamsTest {
     @Test
     void testAnEmptyTableProducesAnEmptyList() {
         assertThat(new StubParams(Collections.emptyList()).getRoutes(), hasSize(0));
+    }
+
+    @Test
+    void testDnsServersBothFamiliesDeduplicatedWithoutPlaceholders() {
+        byte[] google6 = { 0x20, 0x01, 0x48, 0x60, 0x48, 0x60, 0, 0, 0, 0, 0, 0, 0, 0, (byte) 0x88, (byte) 0x88 };
+        byte[] placeholder = { (byte) 0xfe, (byte) 0xc0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff, 0, 0, 0, 0, 0, 0, 0, 1 };
+        byte[] router = { -64, -88, 1, 1 };
+        // Two adapters that are up: one with an IPv4 and an IPv6 server, one repeating the IPv4 server and
+        // reporting the placeholder Windows lists when no IPv6 server is configured
+        String[] servers = new StubParams(List.of(), List.of(router, google6, router.clone(), placeholder, new byte[3]))
+                .getDnsServers();
+        assertThat(servers, is(new String[] { "192.168.1.1", "2001:4860:4860::8888" }));
+    }
+
+    @Test
+    void testUnconfiguredIpv6DnsPlaceholders() {
+        byte[] address = { (byte) 0xfe, (byte) 0xc0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff, 0, 0, 0, 0, 0, 0, 0, 3 };
+        assertThat(WindowsNetworkParams.isUnconfiguredIpv6Dns(address), is(true));
+        address[15] = 4;
+        assertThat(WindowsNetworkParams.isUnconfiguredIpv6Dns(address), is(false));
+        address[15] = 1;
+        address[7] = 0;
+        assertThat(WindowsNetworkParams.isUnconfiguredIpv6Dns(address), is(false));
+        assertThat(WindowsNetworkParams.isUnconfiguredIpv6Dns(new byte[] { -2, -64, 0, 1 }), is(false));
     }
 }

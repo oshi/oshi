@@ -5,8 +5,10 @@
 package oshi.software.common.os.windows;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractNetworkParams;
@@ -51,6 +53,45 @@ public abstract class WindowsNetworkParams extends AbstractNetworkParams {
      * @return the rows, or an empty list if the query failed
      */
     protected abstract List<RouteRow> queryRouteRows();
+
+    /**
+     * Queries the DNS server addresses of every adapter that is up, from {@code GetAdaptersAddresses}.
+     *
+     * @return the address bytes in network order, four for IPv4 or sixteen for IPv6, or an empty list if the query
+     *         failed
+     */
+    protected abstract List<byte[]> queryDnsServerAddresses();
+
+    @Override
+    public String[] getDnsServers() {
+        Set<String> servers = new LinkedHashSet<>();
+        for (byte[] address : queryDnsServerAddresses()) {
+            if ((address.length == 4 || address.length == 16) && !isUnconfiguredIpv6Dns(address)) {
+                servers.add(ParseUtil.formatIpAddress(address));
+            }
+        }
+        return servers.toArray(new String[0]);
+    }
+
+    /**
+     * Whether an address is one of the deprecated site-local DNS addresses {@code fec0:0:0:ffff::1} to {@code ::3},
+     * which Windows reports for an adapter with no IPv6 DNS server configured.
+     *
+     * @param address the address bytes
+     * @return true for one of the three placeholder addresses
+     */
+    static boolean isUnconfiguredIpv6Dns(byte[] address) {
+        if (address.length != 16 || address[15] < 1 || address[15] > 3) {
+            return false;
+        }
+        byte[] prefix = { (byte) 0xfe, (byte) 0xc0, 0, 0, 0, 0, (byte) 0xff, (byte) 0xff };
+        for (int i = 0; i < 15; i++) {
+            if (address[i] != (i < prefix.length ? prefix[i] : 0)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     @Override
     public List<NetworkParams.IPRoute> getRoutes() {

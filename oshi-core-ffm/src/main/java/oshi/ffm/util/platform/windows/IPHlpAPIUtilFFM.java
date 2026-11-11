@@ -6,19 +6,15 @@ package oshi.ffm.util.platform.windows;
 
 import static java.lang.foreign.MemoryLayout.PathElement;
 import static java.lang.foreign.MemorySegment.NULL;
-import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.AF_INET;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.AF_INET6;
-import static oshi.ffm.platform.windows.IPHlpAPIFFM.FIXED_INFO_LAYOUT;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.GetExtendedTcpTable;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.GetExtendedUdpTable;
-import static oshi.ffm.platform.windows.IPHlpAPIFFM.GetNetworkParams;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.GetTcpStatisticsEx;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.GetUdpStatisticsEx;
-import static oshi.ffm.platform.windows.IPHlpAPIFFM.IP_ADDR_STRING_LAYOUT;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.MIB_TCP6ROW_OWNER_PID_LAYOUT;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.MIB_TCPROW_OWNER_PID_LAYOUT;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.MIB_TCPSTATS_LAYOUT;
@@ -27,10 +23,8 @@ import static oshi.ffm.platform.windows.IPHlpAPIFFM.MIB_UDPROW_OWNER_PID_LAYOUT;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.MIB_UDPSTATS_LAYOUT;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.TCP_TABLE_OWNER_PID_ALL;
 import static oshi.ffm.platform.windows.IPHlpAPIFFM.UDP_TABLE_OWNER_PID;
-import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_BUFFER_OVERFLOW;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_INSUFFICIENT_BUFFER;
 import static oshi.ffm.platform.windows.WinErrorFFM.ERROR_SUCCESS;
-import static oshi.ffm.platform.windows.WindowsForeignFunctions.readAnsiString;
 import static oshi.software.os.InternetProtocolStats.TcpState;
 
 import java.lang.foreign.MemorySegment;
@@ -64,59 +58,6 @@ public final class IPHlpAPIUtilFFM {
     private static final int MAX_BUFFER_RETRIES = 5;
 
     private IPHlpAPIUtilFFM() {
-    }
-
-    /**
-     * Retrieves the list of DNS server addresses configured on the system.
-     *
-     * @return an array of DNS server IP address strings, or an empty array on failure
-     */
-    public static String[] getDnsServers() {
-        return callInArenaOrDefault(arena -> {
-            MemorySegment sizeSegment = arena.allocate(JAVA_INT);
-            int ret = GetNetworkParams(NULL, sizeSegment);
-            if (ret != ERROR_BUFFER_OVERFLOW) {
-                LOG.error("Failed to get network parameters size. Error: {}", ret);
-                return new String[0];
-            }
-
-            int size = sizeSegment.get(JAVA_INT, 0);
-            MemorySegment buffer = arena.allocate(size);
-            ret = GetNetworkParams(buffer, sizeSegment);
-            if (ret != 0) {
-                LOG.error("Failed to get network parameters. Error: {}", ret);
-                return new String[0];
-            }
-
-            MemorySegment fixedInfo = buffer.asSlice(0, FIXED_INFO_LAYOUT.byteSize());
-            List<String> dnsServers = new ArrayList<>();
-
-            MemorySegment dnsServerList = fixedInfo.asSlice(
-                    FIXED_INFO_LAYOUT.byteOffset(PathElement.groupElement("DnsServerList")),
-                    IP_ADDR_STRING_LAYOUT.byteSize());
-
-            while (dnsServerList.address() != 0) {
-                MemorySegment ipStringSeg = dnsServerList
-                        .asSlice(IP_ADDR_STRING_LAYOUT.byteOffset(PathElement.groupElement("IpAddress")), 16);
-
-                String ipString = readAnsiString(ipStringSeg, 16);
-                if (!ipString.isEmpty()) {
-                    dnsServers.add(ipString);
-                }
-
-                dnsServerList = dnsServerList.get(ADDRESS,
-                        IP_ADDR_STRING_LAYOUT.byteOffset(PathElement.groupElement("Next")));
-                if (dnsServerList.address() == 0) {
-                    break;
-                }
-                // A pointer read yields a zero-length segment; give it the struct's extent so the next iteration can
-                // slice the IpAddress and Next fields instead of throwing IndexOutOfBoundsException (which was being
-                // swallowed, returning no DNS servers on any machine with two or more configured).
-                dnsServerList = dnsServerList.reinterpret(IP_ADDR_STRING_LAYOUT.byteSize());
-            }
-
-            return dnsServers.toArray(new String[0]);
-        }, LOG, LogLevel.ERROR, "GetNetworkParams failed", new String[0]);
     }
 
     /**
