@@ -26,6 +26,8 @@ public class OhmSensor {
      * Sensor value property.
      */
     public enum ValueProperty {
+        /** Sensor name, such as {@code CPU Package} or {@code Core #1}. */
+        NAME,
         /** Sensor value. */
         VALUE;
     }

@@ -40,11 +40,22 @@ class WindowsSensorsQueryTest {
     }
 
     @Test
-    void testFanSpeedQueriesTheProcessorsFanSensors() {
+    void testFanSpeedQueriesTheSuperIoFanSensors() {
         RecordingSensors sensors = new RecordingSensors();
         sensors.queryFanSpeeds();
-        assertThat("Both monitors queried for the processor's fans", sensors.queries,
-                contains("Hardware/CPU/Fan", "Hardware/Cpu/Fan"));
+        assertThat("Both monitors queried for the Super I/O chip's fans; a processor has none", sensors.queries,
+                contains("Hardware/SuperIO/Fan", "Hardware/SuperIO/Fan"));
+    }
+
+    @Test
+    void testCpuTemperatureReadingsExcludeSummariesAndMargins() {
+        assertThat(WindowsSensors.isCpuTemperatureReading("CPU Package", 52.0), is(true));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core #1", 48.0), is(true));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core (Tctl/Tdie)", 61.0), is(true));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core Max", 55.0), is(false));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core Average", 49.0), is(false));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core #1 Distance to TjMax", 52.0), is(false));
+        assertThat(WindowsSensors.isCpuTemperatureReading("Core #2", 0.0), is(false));
     }
 
     @Test

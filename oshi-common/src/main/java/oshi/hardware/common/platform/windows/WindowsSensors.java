@@ -51,6 +51,12 @@ public abstract class WindowsSensors extends AbstractSensors {
     /** Libre Hardware Monitor's {@code HardwareType} value for a processor, which OHM spells {@code CPU}. */
     private static final String LHM_CPU = "Cpu";
 
+    /**
+     * Both monitors' {@code HardwareType} value for the motherboard's Super I/O chip, which carries the fan sensors; a
+     * processor carries none.
+     */
+    private static final String SUPER_IO = "SuperIO";
+
     /** {@code SensorType} values. Both monitors publish the same names, in WMI and through the jar alike. */
     private static final String TEMPERATURE = "Temperature";
     private static final String FAN = "Fan";
@@ -105,17 +111,34 @@ public abstract class WindowsSensors extends AbstractSensors {
                 TEMPERATURE);
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             double sum = 0;
+            int count = 0;
             for (int i = 0; i < ohmSensors.getResultCount(); i++) {
-                sum += WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
+                double value = WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
+                if (isCpuTemperatureReading(WmiUtil.getString(ohmSensors, ValueProperty.NAME, i), value)) {
+                    sum += value;
+                    count++;
+                }
             }
-            return sum / ohmSensors.getResultCount();
+            return count > 0 ? sum / count : 0;
         }
         return 0;
     }
 
     private static double getTempFromLhmJar() {
-        return getAverageValueFromLhmJar("CPU", TEMPERATURE,
-                (name, value) -> !name.contains("Max") && !name.contains("Average") && value > 0);
+        return getAverageValueFromLhmJar("CPU", TEMPERATURE, WindowsSensors::isCpuTemperatureReading);
+    }
+
+    /**
+     * Whether a processor temperature sensor is a reading to average. Both monitors also publish summaries of the
+     * per-core readings ({@code Core Max}, {@code Core Average}) and, on Intel processors, each core's
+     * {@code Distance to TjMax}, which is a margin below the throttling point rather than a temperature.
+     *
+     * @param name  the sensor name
+     * @param value the sensor value, in degrees Celsius
+     * @return true for a positive temperature that is not a summary or a margin
+     */
+    static boolean isCpuTemperatureReading(String name, double value) {
+        return value > 0 && !name.contains("Max") && !name.contains("Average") && !name.contains("Distance");
     }
 
     private double getTempFromWMI() {
@@ -137,12 +160,12 @@ public abstract class WindowsSensors extends AbstractSensors {
     @Override
     public int[] queryFanSpeeds() {
         // Attempt to fetch value from Open Hardware Monitor if it is running
-        int[] fanSpeeds = getFansFromMonitorWmi(OhmHardware.OHM_NAMESPACE, OHM_CPU);
+        int[] fanSpeeds = getFansFromMonitorWmi(OhmHardware.OHM_NAMESPACE);
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
         // Then Libre Hardware Monitor, the maintained successor, which publishes the same schema
-        fanSpeeds = getFansFromMonitorWmi(LhmSensor.LHM_NAMESPACE, LHM_CPU);
+        fanSpeeds = getFansFromMonitorWmi(LhmSensor.LHM_NAMESPACE);
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
@@ -160,11 +183,11 @@ public abstract class WindowsSensors extends AbstractSensors {
         return new int[0];
     }
 
-    private int[] getFansFromMonitorWmi(String namespace, String cpuTypeName) {
+    private int[] getFansFromMonitorWmi(String namespace) {
         if (HardwareMonitorDisabled.isWmiDisabled(namespace)) {
             return new int[0];
         }
-        WmiResult<ValueProperty> ohmSensors = queryHardwareMonitorSensor(namespace, OhmHardware.HARDWARE, cpuTypeName,
+        WmiResult<ValueProperty> ohmSensors = queryHardwareMonitorSensor(namespace, OhmHardware.HARDWARE, SUPER_IO,
                 FAN);
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             int[] fanSpeeds = new int[ohmSensors.getResultCount()];
