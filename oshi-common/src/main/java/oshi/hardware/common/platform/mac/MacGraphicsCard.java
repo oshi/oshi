@@ -76,7 +76,7 @@ public abstract class MacGraphicsCard extends AbstractGraphicsCard {
                     deviceId = split[1].trim();
                 } else if (prefix.equals("vendor")) {
                     vendor = split[1].trim();
-                } else if (prefix.contains("version") || prefix.contains("revision")) {
+                } else if (prefix.contains("version") || prefix.contains("revision") || prefix.startsWith("metal")) {
                     versionInfoList.add(line.trim());
                 } else if (prefix.startsWith("vram")) {
                     vram = ParseUtil.parseDecimalMemorySizeToBinary(split[1].trim());

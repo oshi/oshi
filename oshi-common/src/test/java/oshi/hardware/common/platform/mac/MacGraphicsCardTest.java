@@ -64,6 +64,7 @@ class MacGraphicsCardTest {
         assertThat(cards.get(0).getName(), is("Apple M3 Pro"));
         assertThat(cards.get(0).getVendor(), is("Apple (0x106b)"));
         assertThat(cards.get(0).getDeviceId(), is(Constants.UNKNOWN));
+        assertThat(cards.get(0).getVersionInfo(), is("Metal Support: Metal 4"));
     }
 
     @Test
