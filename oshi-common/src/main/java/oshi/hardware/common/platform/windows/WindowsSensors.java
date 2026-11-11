@@ -5,6 +5,7 @@
 package oshi.hardware.common.platform.windows;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -314,14 +315,24 @@ public abstract class WindowsSensors extends AbstractSensors {
     }
 
     /**
-     * Selects the hardware identifier to read sensors from. The query which produced the result already filtered on
-     * {@code HardwareType}, so the first identifier is the one wanted.
+     * Selects the hardware identifiers to read sensors from. The query which produced the result already filtered on
+     * {@code HardwareType}. A processor's sensors are read from the first identifier; fans are read from every Super
+     * I/O chip, since a board may carry more than one and the first need not be the one wired to the fan headers.
      *
-     * @param ohmHardware the hardware identifier result
-     * @return the selected identifier (possibly empty)
+     * @param hardware the hardware identifier result
+     * @param typeName the {@code HardwareType} the result was filtered on
+     * @return the identifiers to query, empty if there are none
      */
-    protected static String selectOhmCpuIdentifier(WmiResult<IdentifierProperty> ohmHardware) {
-        return WmiUtil.getString(ohmHardware, IdentifierProperty.IDENTIFIER, 0);
+    protected static List<String> selectHardwareIdentifiers(WmiResult<IdentifierProperty> hardware, String typeName) {
+        List<String> identifiers = new ArrayList<>();
+        int count = SUPER_IO.equals(typeName) ? hardware.getResultCount() : Math.min(1, hardware.getResultCount());
+        for (int i = 0; i < count; i++) {
+            String identifier = WmiUtil.getString(hardware, IdentifierProperty.IDENTIFIER, i);
+            if (!identifier.isEmpty()) {
+                identifiers.add(identifier);
+            }
+        }
+        return identifiers;
     }
 
     private static double getAverageValueFromLhmJar(String hardwareType, String sensorType,
