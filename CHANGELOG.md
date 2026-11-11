@@ -27,6 +27,7 @@
 * [#3881](https://github.com/oshi/oshi/pull/3881): Linux reports 64-bit processors on ARM, RISC-V and POWER, P-core and E-core efficiency on Intel hybrid processors, external power and battery time remaining, board manufacturer and serial number from the devicetree, Raspberry Pi fans, and graphics cards without `lspci` or `lshw` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3884](https://github.com/oshi/oshi/pull/3884): Fixed macOS on Apple Silicon: battery capacity in mAh, battery serial number, firmware version, baseboard model, disk serial numbers and sound cards; and `getProcessCount()` on every Mac - [@dbwiddis](https://github.com/dbwiddis).
 * [#3885](https://github.com/oshi/oshi/pull/3885): `NetworkIF.getIfOperStatus()` now reports link state on macOS, and macOS `GraphicsCard.getVersionInfo()` includes Metal support - [@dbwiddis](https://github.com/dbwiddis).
+* [#3886](https://github.com/oshi/oshi/pull/3886): Fixed Windows `getPowerSources()`, which reported a placeholder battery on a desktop and only the first of several batteries; `NetworkIF` packet counts, which counted only unicast; `getDnsServers()`, which listed only IPv4 servers; and `getHostName()`, which returned the 15-character NetBIOS name - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
