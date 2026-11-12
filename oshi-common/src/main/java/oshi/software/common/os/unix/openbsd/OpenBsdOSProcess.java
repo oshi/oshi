@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,6 @@ import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 /**
@@ -53,6 +53,9 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
      */
     public static final List<BsdPsKeyword> PS_KEYWORDS = Collections.unmodifiableList(Arrays.asList(STATE, PID, PPID,
             USER, UID, GROUP, GID, PRI, VSZ, RSS, ETIME, CPUTIME, COMM, MAJFLT, MINFLT, NVCSW, NIVCSW, ARGS));
+
+    /** The {@code cs_flags} bit of {@code struct cpustats} marking a processor the scheduler may use. */
+    private static final long CPUSTATS_ONLINE = 0x1L;
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
@@ -78,10 +81,45 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
 
     @Override
     public long getAffinityMask() {
-        // OpenBSD has no interface to bind a process to processors, so every online processor is eligible
-        int ncpu = BsdSysctlUtil.sysctl("hw.ncpuonline", 0);
-        return ncpu < Long.SIZE ? (1L << ncpu) - 1 : -1L;
+        // OpenBSD has no interface to bind a process to processors, so every online processor is eligible. Processors
+        // are taken offline as a set (SMT siblings when hw.smt=0), so the online ones need not be contiguous.
+        return onlineCpuMask(queryCpuCount(), this::queryCpuStats);
     }
+
+    /**
+     * Builds a mask of the online processors from each processor's {@code kern.cpustats} record.
+     *
+     * @param cpuCount the number of processors the kernel found ({@code hw.ncpufound})
+     * @param cpuStats the {@code kern.cpustats} record for a processor: its {@code cs_time} array followed by
+     *                 {@code cs_flags}, or an empty array if it could not be read
+     * @return a mask with a bit set for each online processor, or 0 if none could be read
+     */
+    static long onlineCpuMask(int cpuCount, IntFunction<long[]> cpuStats) {
+        long mask = 0L;
+        for (int cpu = 0; cpu < cpuCount && cpu < Long.SIZE; cpu++) {
+            long[] stats = cpuStats.apply(cpu);
+            // cs_flags follows the cs_time array, whose length depends on the release
+            if (stats.length > 0 && (stats[stats.length - 1] & CPUSTATS_ONLINE) != 0) {
+                mask |= 1L << cpu;
+            }
+        }
+        return mask;
+    }
+
+    /**
+     * Queries the number of processors the kernel found, including any that are offline.
+     *
+     * @return the value of {@code hw.ncpufound}, or 0 if it could not be read
+     */
+    protected abstract int queryCpuCount();
+
+    /**
+     * Queries one processor's {@code kern.cpustats} record.
+     *
+     * @param cpu the processor number
+     * @return the record as an array of 64-bit values, or an empty array if it could not be read
+     */
+    protected abstract long[] queryCpuStats(int cpu);
 
     @Override
     public String getCurrentWorkingDirectory() {

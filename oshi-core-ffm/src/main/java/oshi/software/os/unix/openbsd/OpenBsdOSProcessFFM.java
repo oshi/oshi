@@ -6,11 +6,15 @@ package oshi.software.os.unix.openbsd;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
+import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
 import static oshi.ffm.ForeignFunctions.NATIVE_LONG_SIZE;
 import static oshi.ffm.ForeignFunctions.callInArenaOrDefault;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_HW;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.CTL_KERN;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.HW_NCPUFOUND;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_ARGMAX;
+import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_CPUSTATS;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ARGS;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ARGV;
 import static oshi.ffm.platform.unix.openbsd.OpenBsdLibcFunctions.KERN_PROC_ENV;
@@ -146,4 +150,14 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
         }, LOG, WARN, "Failed getrlimit", -1L);
     }
 
+    @Override
+    protected int queryCpuCount() {
+        return OpenBsdSysctlUtilFFM.sysctl(new int[] { CTL_HW, HW_NCPUFOUND }, 0);
+    }
+
+    @Override
+    protected long[] queryCpuStats(int cpu) {
+        MemorySegment buf = OpenBsdSysctlUtilFFM.sysctl(new int[] { CTL_KERN, KERN_CPUSTATS, cpu });
+        return buf == null ? new long[0] : buf.toArray(JAVA_LONG);
+    }
 }

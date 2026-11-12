@@ -169,9 +169,13 @@ class OperatingSystemTest {
             long mask = proc.getAffinityMask();
             int logical = new SystemInfo().getHardware().getProcessor().getLogicalProcessorCount();
             assertThat("Affinity should include at least one processor", mask, is(not(0L)));
-            assertThat("Affinity should be the lowest-numbered processors", mask & (mask + 1), is(0L));
-            assertThat("Affinity should not exceed the logical processors", Long.bitCount(mask),
-                    is(lessThanOrEqualTo(logical)));
+            if (logical < Long.SIZE) {
+                assertThat("Affinity should only include logical processors", mask >>> logical, is(0L));
+            }
+            if (Platform.isMac()) {
+                assertThat("Affinity should include every logical processor", Long.bitCount(mask),
+                        is(Math.min(logical, Long.SIZE)));
+            }
         }
     }
 

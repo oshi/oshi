@@ -24,6 +24,7 @@ import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.OpenBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.openbsd.OpenBsdOSProcess;
+import oshi.util.platform.unix.openbsd.OpenBsdSysctlUtil;
 
 /**
  * OSProcess implementation
@@ -152,4 +153,15 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
         return soft ? rlimit.rlim_cur : rlimit.rlim_max;
     }
 
+    @Override
+    protected int queryCpuCount() {
+        return OpenBsdSysctlUtil.sysctl(new int[] { OpenBsdLibc.CTL_HW, OpenBsdLibc.HW_NCPUFOUND }, 0);
+    }
+
+    @Override
+    protected long[] queryCpuStats(int cpu) {
+        try (Memory m = OpenBsdSysctlUtil.sysctl(new int[] { OpenBsdLibc.CTL_KERN, OpenBsdLibc.KERN_CPUSTATS, cpu })) {
+            return m == null ? new long[0] : m.getLongArray(0, (int) (m.size() / Long.BYTES));
+        }
+    }
 }
