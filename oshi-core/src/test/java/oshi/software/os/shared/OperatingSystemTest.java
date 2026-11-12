@@ -169,12 +169,10 @@ class OperatingSystemTest {
             long mask = proc.getAffinityMask();
             int logical = new SystemInfo().getHardware().getProcessor().getLogicalProcessorCount();
             assertThat("Affinity should include at least one processor", mask, is(not(0L)));
-            if (logical < Long.SIZE) {
-                assertThat("Affinity should only include logical processors", mask >>> logical, is(0L));
-            }
+            // OpenBSD's online processors need not be the lowest-numbered, so only macOS has a known mask
             if (Platform.isMac()) {
-                assertThat("Affinity should include every logical processor", Long.bitCount(mask),
-                        is(Math.min(logical, Long.SIZE)));
+                long all = logical < Long.SIZE ? (1L << logical) - 1 : -1L;
+                assertThat("Affinity should include every logical processor", mask, is(all));
             }
         }
     }
