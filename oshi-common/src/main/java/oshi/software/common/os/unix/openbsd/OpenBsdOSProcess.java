@@ -38,6 +38,7 @@ import oshi.software.common.os.unix.bsd.BsdPsThreadKeyword;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.common.platform.unix.bsd.BsdSysctlUtil;
 import oshi.util.common.platform.unix.openbsd.FstatUtil;
 
 /**
@@ -73,6 +74,13 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
     @Override
     protected String psCommandArgs() {
         return PS_COMMAND_ARGS;
+    }
+
+    @Override
+    public long getAffinityMask() {
+        // OpenBSD has no interface to bind a process to processors, so every online processor is eligible
+        int ncpu = BsdSysctlUtil.sysctl("hw.ncpuonline", 1);
+        return ncpu < Long.SIZE ? (1L << ncpu) - 1 : -1L;
     }
 
     @Override

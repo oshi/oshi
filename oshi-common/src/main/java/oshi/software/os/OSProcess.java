@@ -378,7 +378,8 @@ public interface OSProcess {
      * a different group). If the calling process contains threads in multiple groups, returns zero.
      * <p>
      * Because macOS does not export interfaces that identify processors or control thread placement, explicit thread to
-     * processor binding is not supported and this method will return a bitmask of all logical processors.
+     * processor binding is not supported and this method will return a bitmask of all logical processors. OpenBSD
+     * likewise offers no processor binding, and returns a bitmask of all online logical processors.
      * <p>
      * If the Operating System fails to retrieve an affinity mask (e.g., the process has terminated), returns zero.
      *
