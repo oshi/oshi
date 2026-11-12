@@ -109,7 +109,7 @@ public class OpenBsdVirtualMemory extends AbstractVirtualMemory {
      */
     static long parseUvmCounter(List<String> uvm, String name) {
         for (String line : uvm) {
-            String[] tokens = ParseUtil.whitespaces.split(line.trim());
+            String[] tokens = ParseUtil.whitespaces.split(line.trim(), -1);
             for (int i = 0; i < tokens.length; i++) {
                 if (tokens[i].equalsIgnoreCase(name)) {
                     return i > 0 ? ParseUtil.parseLongOrDefault(tokens[i - 1], 0L) : 0L;

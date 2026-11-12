@@ -79,7 +79,7 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
     @Override
     public long getAffinityMask() {
         // OpenBSD has no interface to bind a process to processors, so every online processor is eligible
-        int ncpu = BsdSysctlUtil.sysctl("hw.ncpuonline", 1);
+        int ncpu = BsdSysctlUtil.sysctl("hw.ncpuonline", 0);
         return ncpu < Long.SIZE ? (1L << ncpu) - 1 : -1L;
     }
 
