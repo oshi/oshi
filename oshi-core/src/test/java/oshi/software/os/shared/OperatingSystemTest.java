@@ -163,6 +163,21 @@ class OperatingSystemTest {
     }
 
     @Test
+    void testAffinityWithoutBinding() {
+        // macOS and OpenBSD cannot bind a process to processors, so every online logical processor is eligible
+        if (Platform.isMac() || Platform.isOpenBSD()) {
+            long mask = proc.getAffinityMask();
+            int logical = new SystemInfo().getHardware().getProcessor().getLogicalProcessorCount();
+            assertThat("Affinity should include at least one processor", mask, is(not(0L)));
+            // OpenBSD's online processors need not be the lowest-numbered, so only macOS has a known mask
+            if (Platform.isMac()) {
+                long all = logical < Long.SIZE ? (1L << logical) - 1 : -1L;
+                assertThat("Affinity should include every logical processor", mask, is(all));
+            }
+        }
+    }
+
+    @Test
     void testProcessStats() {
         assertThat("Current running process state shouldn't be INVALID", proc.getState(), is(not(State.INVALID)));
         assertThat("Current running process id should be equal to the OS current running process id", os.getProcessId(),

@@ -31,6 +31,7 @@ public interface OpenBsdLibc extends CLibrary {
     int KERN_ARGMAX = 8; // int: max arguments to exec
     int KERN_CPTIME = 40; // array: cp_time
     int KERN_CPTIME2 = 71; // array: cp_time2
+    int KERN_CPUSTATS = 85; // struct: cpu statistics
 
     int VM_UVMEXP = 4; // struct uvmexp
 

@@ -89,6 +89,7 @@ public final class OpenBsdLibcFunctions extends PosixLibcFunctions {
     public static final int KERN_ARGMAX = 8;
     public static final int KERN_CPTIME = 40;
     public static final int KERN_CPTIME2 = 71;
+    public static final int KERN_CPUSTATS = 85;
 
     public static final int HW_MACHINE = 1;
     public static final int HW_MODEL = 2;
