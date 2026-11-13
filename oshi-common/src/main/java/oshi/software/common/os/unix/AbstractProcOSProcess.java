@@ -35,8 +35,9 @@ import oshi.util.tuples.Pair;
 /**
  * Abstract base for the {@code /proc}-filesystem Unix OSProcess implementations (Solaris and AIX). Both read process
  * info from {@code /proc}, enumerate threads from {@code /proc/<pid>/lwp}, count open files from
- * {@code /proc/<pid>/fd}, determine bitness from {@code pflags}, and fall back to a truncated command line. Subclasses
- * supply their native argument/environment read, their {@link OSThread} factory, and their platform-specific
+ * {@code /proc/<pid>/fd}, determine bitness from the {@code data model} line of a process-flags command
+ * ({@code pflags}, or {@code procflags} on AIX), and fall back to a truncated command line. Subclasses supply their
+ * native argument/environment read, their {@link OSThread} factory, and their platform-specific
  * {@code updateAttributes()}.
  */
 @ThreadSafe
@@ -144,8 +145,18 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
         return this.bitness.get();
     }
 
+    /**
+     * Gets the command that prints a process's {@code data model} line, followed by a space. Solaris names it
+     * {@code pflags}; AIX names it {@code procflags}.
+     *
+     * @return the command prefix to which the process ID is appended
+     */
+    protected String processFlagsCommand() {
+        return "pflags ";
+    }
+
     private int queryBitness() {
-        List<String> pflags = ExecutingCommand.runNative("pflags " + getProcessID());
+        List<String> pflags = ExecutingCommand.runNative(processFlagsCommand() + getProcessID());
         for (String line : pflags) {
             if (line.contains("data model")) {
                 if (line.contains("LP32")) {
