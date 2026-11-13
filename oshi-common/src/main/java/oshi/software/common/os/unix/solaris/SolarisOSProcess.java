@@ -78,6 +78,11 @@ public abstract class SolarisOSProcess extends AbstractProcOSProcess {
     }
 
     @Override
+    protected String cwdLinkName() {
+        return "path/cwd";
+    }
+
+    @Override
     public long getMinorFaults() {
         return this.minorFaults;
     }

@@ -87,10 +87,20 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
         return cmdEnv.get().getB();
     }
 
+    /**
+     * Gets the name of the {@code /proc/<pid>} entry that links to the process's working directory. AIX publishes it as
+     * {@code cwd}; on Solaris {@code cwd} does not resolve to a path, and {@code path/cwd} does.
+     *
+     * @return the entry name relative to {@code /proc/<pid>/}
+     */
+    protected String cwdLinkName() {
+        return "cwd";
+    }
+
     @Override
     public String getCurrentWorkingDirectory() {
         try {
-            String cwdLink = "/proc/" + getProcessID() + "/cwd";
+            String cwdLink = "/proc/" + getProcessID() + "/" + cwdLinkName();
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 return cwd;
