@@ -42,8 +42,10 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         public long sys;
         public long idle;
         public long wait;
-        public long devintrs;
-        public long softintrs;
+        public long puser;
+        public long psys;
+        public long pidle;
+        public long pwait;
         public long idle_stolen_purr;
         public long busy_stolen_purr;
     }
@@ -53,6 +55,8 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         public int ncpus;
         public long processorHZ;
         public long pswitch;
+        public long devintrs;
+        public long softintrs;
         public long[] loadavg = new long[3];
     }
 
@@ -277,16 +281,29 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         return row.devintrs + row.softintrs;
     }
 
-    private static long[] ticksFromRow(CpuTickRow row) {
+    /**
+     * Converts a perfstat tick row to OSHI's tick array in milliseconds.
+     * <p>
+     * perfstat counts no time spent servicing interrupts ({@code devintrs} and {@code softintrs} are event counts), so
+     * IRQ and SOFTIRQ stay 0. Stolen time is reported only as processor (PURR) cycles, which are converted to clock
+     * ticks using the ratio of this row's clock ticks to its PURR cycles.
+     *
+     * @param row the perfstat values
+     * @return the ticks, indexed by {@link TickType}
+     */
+    static long[] ticksFromRow(CpuTickRow row) {
         long[] ticks = new long[TickType.values().length];
         ticks[TickType.USER.getIndex()] = row.user * 1000L / USER_HZ;
         // Skip NICE
         ticks[TickType.SYSTEM.getIndex()] = row.sys * 1000L / USER_HZ;
         ticks[TickType.IDLE.getIndex()] = row.idle * 1000L / USER_HZ;
         ticks[TickType.IOWAIT.getIndex()] = row.wait * 1000L / USER_HZ;
-        ticks[TickType.IRQ.getIndex()] = row.devintrs * 1000L / USER_HZ;
-        ticks[TickType.SOFTIRQ.getIndex()] = row.softintrs * 1000L / USER_HZ;
-        ticks[TickType.STEAL.getIndex()] = (row.idle_stolen_purr + row.busy_stolen_purr) * 1000L / USER_HZ;
+        long clockTicks = row.user + row.sys + row.idle + row.wait;
+        long purrCycles = row.puser + row.psys + row.pidle + row.pwait;
+        if (purrCycles > 0) {
+            double stolenTicks = (row.idle_stolen_purr + row.busy_stolen_purr) * (double) clockTicks / purrCycles;
+            ticks[TickType.STEAL.getIndex()] = (long) (stolenTicks * 1000d / USER_HZ);
+        }
         return ticks;
     }
 

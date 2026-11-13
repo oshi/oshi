@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Constants;
 import oshi.util.tuples.Quartet;
 
@@ -106,5 +107,42 @@ class AixCentralProcessorTest {
         assertThat(l3.getCacheSize(), is((4 * 10) << 20));
         // unknown version yields no caches
         assertThat(AixCentralProcessor.cachesForPowerVersion(99, 4), is(empty()));
+    }
+
+    @Test
+    void testTicksFromRow() {
+        AixCentralProcessor.CpuTotalRow row = new AixCentralProcessor.CpuTotalRow();
+        row.user = 400;
+        row.sys = 200;
+        row.idle = 300;
+        row.wait = 100;
+        // Event counts, not time: must not appear as ticks
+        row.devintrs = 1_000_000;
+        row.softintrs = 2_000_000;
+        // 1000 clock ticks correspond to 1e9 PURR cycles, so 1e8 stolen cycles are 100 clock ticks
+        row.puser = 400_000_000L;
+        row.psys = 200_000_000L;
+        row.pidle = 300_000_000L;
+        row.pwait = 100_000_000L;
+        row.idle_stolen_purr = 60_000_000L;
+        row.busy_stolen_purr = 40_000_000L;
+
+        long[] ticks = AixCentralProcessor.ticksFromRow(row);
+        long hz = AixCentralProcessor.USER_HZ;
+        assertThat(ticks[TickType.USER.getIndex()], is(400 * 1000L / hz));
+        assertThat(ticks[TickType.SYSTEM.getIndex()], is(200 * 1000L / hz));
+        assertThat(ticks[TickType.IDLE.getIndex()], is(300 * 1000L / hz));
+        assertThat(ticks[TickType.IOWAIT.getIndex()], is(100 * 1000L / hz));
+        assertThat(ticks[TickType.IRQ.getIndex()], is(0L));
+        assertThat(ticks[TickType.SOFTIRQ.getIndex()], is(0L));
+        assertThat(ticks[TickType.STEAL.getIndex()], is(100 * 1000L / hz));
+    }
+
+    @Test
+    void testTicksFromRowNoPurr() {
+        AixCentralProcessor.CpuTickRow row = new AixCentralProcessor.CpuTickRow();
+        row.user = 100;
+        row.busy_stolen_purr = 5_000L;
+        assertThat(AixCentralProcessor.ticksFromRow(row)[TickType.STEAL.getIndex()], is(0L));
     }
 }

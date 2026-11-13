@@ -189,6 +189,26 @@ public final class PerfstatFunctions extends ForeignFunctions {
         return seg.get(JAVA_LONG, 200L + i * 8L);
     }
 
+    /** {@code puser}: physical processor (PURR) cycles in user mode (total). */
+    public static long cpuTotalPuser(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 464);
+    }
+
+    /** {@code psys}: physical processor (PURR) cycles in system mode (total). */
+    public static long cpuTotalPsys(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 472);
+    }
+
+    /** {@code pidle}: physical processor (PURR) cycles idle (total). */
+    public static long cpuTotalPidle(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 480);
+    }
+
+    /** {@code pwait}: physical processor (PURR) cycles waiting for I/O (total). */
+    public static long cpuTotalPwait(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 488);
+    }
+
     /** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor. */
     public static long cpuTotalIdleStolenPurr(MemorySegment seg) {
         return seg.get(JAVA_LONG, 560);
@@ -228,24 +248,34 @@ public final class PerfstatFunctions extends ForeignFunctions {
         return seg.get(JAVA_LONG, elementOffset + 88);
     }
 
-    /** {@code devintrs}: device interrupts (this CPU). Offset within JNA layout: 384. */
-    public static long cpuDevintrs(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 384);
+    /** {@code puser}: physical processor (PURR) cycles in user mode (this CPU). */
+    public static long cpuPuser(MemorySegment seg, long elementOffset) {
+        return seg.get(JAVA_LONG, elementOffset + 264);
     }
 
-    /** {@code softintrs}: software interrupts (this CPU). Offset within JNA layout: 392. */
-    public static long cpuSoftintrs(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 392);
+    /** {@code psys}: physical processor (PURR) cycles in system mode (this CPU). */
+    public static long cpuPsys(MemorySegment seg, long elementOffset) {
+        return seg.get(JAVA_LONG, elementOffset + 272);
     }
 
-    /** {@code idle_stolen_purr}: idle cycles stolen (this CPU). Offset within JNA layout: 432. */
+    /** {@code pidle}: physical processor (PURR) cycles idle (this CPU). */
+    public static long cpuPidle(MemorySegment seg, long elementOffset) {
+        return seg.get(JAVA_LONG, elementOffset + 280);
+    }
+
+    /** {@code pwait}: physical processor (PURR) cycles waiting for I/O (this CPU). */
+    public static long cpuPwait(MemorySegment seg, long elementOffset) {
+        return seg.get(JAVA_LONG, elementOffset + 288);
+    }
+
+    /** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor (this CPU). */
     public static long cpuIdleStolenPurr(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 432);
+        return seg.get(JAVA_LONG, elementOffset + 480);
     }
 
-    /** {@code busy_stolen_purr}: busy cycles stolen (this CPU). Offset within JNA layout: 448. */
+    /** {@code busy_stolen_purr}: busy cycles stolen by the hypervisor (this CPU). */
     public static long cpuBusyStolenPurr(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 448);
+        return seg.get(JAVA_LONG, elementOffset + 496);
     }
 
     // ===========================================================================================

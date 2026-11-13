@@ -8,10 +8,12 @@ import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_CPU_TOTAL_T_
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_CPU_T_SIZE;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuBusyStolenPurr;
-import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuDevintrs;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuIdle;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuIdleStolenPurr;
-import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuSoftintrs;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuPidle;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuPsys;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuPuser;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuPwait;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuSys;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalBusyStolenPurr;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalDevintrs;
@@ -19,8 +21,12 @@ import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalIdle;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalIdleStolenPurr;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalLoadavg;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalNcpus;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPidle;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalProcessorHZ;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPswitch;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPsys;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPuser;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPwait;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalSoftintrs;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalSys;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalUser;
@@ -63,6 +69,10 @@ public final class PerfstatCpuFFM {
         public long devintrs;
         public long softintrs;
         public long[] loadavg = new long[3];
+        public long puser;
+        public long psys;
+        public long pidle;
+        public long pwait;
         public long idle_stolen_purr;
         public long busy_stolen_purr;
     }
@@ -73,8 +83,10 @@ public final class PerfstatCpuFFM {
         public long sys;
         public long idle;
         public long wait;
-        public long devintrs;
-        public long softintrs;
+        public long puser;
+        public long psys;
+        public long pidle;
+        public long pwait;
         public long idle_stolen_purr;
         public long busy_stolen_purr;
     }
@@ -102,6 +114,10 @@ public final class PerfstatCpuFFM {
                 for (int i = 0; i < 3; i++) {
                     result.loadavg[i] = cpuTotalLoadavg(buf, i);
                 }
+                result.puser = cpuTotalPuser(buf);
+                result.psys = cpuTotalPsys(buf);
+                result.pidle = cpuTotalPidle(buf);
+                result.pwait = cpuTotalPwait(buf);
                 result.idle_stolen_purr = cpuTotalIdleStolenPurr(buf);
                 result.busy_stolen_purr = cpuTotalBusyStolenPurr(buf);
             }
@@ -136,8 +152,10 @@ public final class PerfstatCpuFFM {
                 c.sys = cpuSys(buf, off);
                 c.idle = cpuIdle(buf, off);
                 c.wait = cpuWait(buf, off);
-                c.devintrs = cpuDevintrs(buf, off);
-                c.softintrs = cpuSoftintrs(buf, off);
+                c.puser = cpuPuser(buf, off);
+                c.psys = cpuPsys(buf, off);
+                c.pidle = cpuPidle(buf, off);
+                c.pwait = cpuPwait(buf, off);
                 c.idle_stolen_purr = cpuIdleStolenPurr(buf, off);
                 c.busy_stolen_purr = cpuBusyStolenPurr(buf, off);
                 result[i] = c;
