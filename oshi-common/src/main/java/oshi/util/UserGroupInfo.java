@@ -51,7 +51,8 @@ public final class UserGroupInfo {
      */
     public static String getUser(String userId) {
         // If value is in cached /etc/passwd return, else do getent passwd uid
-        return USERS_ID_MAP.get().getOrDefault(userId, getentPasswd(userId));
+        String name = USERS_ID_MAP.get().get(userId);
+        return name == null ? getentPasswd(userId) : name;
     }
 
     /**
@@ -61,8 +62,9 @@ public final class UserGroupInfo {
      * @return a {@link java.lang.String} object.
      */
     public static String getGroupName(String groupId) {
-        // If value is in cached /etc/passwd return, else do getent group gid
-        return GROUPS_ID_MAP.get().getOrDefault(groupId, getentGroup(groupId));
+        // If value is in cached /etc/group return, else do getent group gid
+        String name = GROUPS_ID_MAP.get().get(groupId);
+        return name == null ? getentGroup(groupId) : name;
     }
 
     private static Map<String, String> getUserMap() {
