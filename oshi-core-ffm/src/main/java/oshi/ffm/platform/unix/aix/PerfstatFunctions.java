@@ -184,6 +184,16 @@ public final class PerfstatFunctions extends ForeignFunctions {
         return seg.get(JAVA_LONG, 184);
     }
 
+    /** {@code lbolt}: clock ticks since boot ({@code time_t}). */
+    public static long cpuTotalLbolt(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 192);
+    }
+
+    /** {@code tb_last}: timebase counter. */
+    public static long cpuTotalTbLast(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 672);
+    }
+
     /** {@code loadavg[i]}: 1/5/15-minute load averages (scaled by 1&lt;&lt;SBITS). */
     public static long cpuTotalLoadavg(MemorySegment seg, int i) {
         return seg.get(JAVA_LONG, 200L + i * 8L);
@@ -228,24 +238,14 @@ public final class PerfstatFunctions extends ForeignFunctions {
         return seg.get(JAVA_LONG, elementOffset + 88);
     }
 
-    /** {@code devintrs}: device interrupts (this CPU). Offset within JNA layout: 384. */
-    public static long cpuDevintrs(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 384);
-    }
-
-    /** {@code softintrs}: software interrupts (this CPU). Offset within JNA layout: 392. */
-    public static long cpuSoftintrs(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 392);
-    }
-
-    /** {@code idle_stolen_purr}: idle cycles stolen (this CPU). Offset within JNA layout: 432. */
+    /** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor (this CPU). */
     public static long cpuIdleStolenPurr(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 432);
+        return seg.get(JAVA_LONG, elementOffset + 480);
     }
 
-    /** {@code busy_stolen_purr}: busy cycles stolen (this CPU). Offset within JNA layout: 448. */
+    /** {@code busy_stolen_purr}: busy cycles stolen by the hypervisor (this CPU). */
     public static long cpuBusyStolenPurr(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 448);
+        return seg.get(JAVA_LONG, elementOffset + 496);
     }
 
     // ===========================================================================================

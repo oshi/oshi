@@ -15,6 +15,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.hardware.CentralProcessor.TickType;
 import oshi.util.Constants;
 import oshi.util.tuples.Quartet;
 
@@ -106,5 +107,56 @@ class AixCentralProcessorTest {
         assertThat(l3.getCacheSize(), is((4 * 10) << 20));
         // unknown version yields no caches
         assertThat(AixCentralProcessor.cachesForPowerVersion(99, 4), is(empty()));
+    }
+
+    @Test
+    void testTicksFromRow() {
+        AixCentralProcessor.CpuTotalRow row = new AixCentralProcessor.CpuTotalRow();
+        row.user = 400;
+        row.sys = 200;
+        row.idle = 300;
+        row.wait = 100;
+        // Event counts, not time: must not appear as ticks
+        row.devintrs = 1_000_000;
+        row.softintrs = 2_000_000;
+        // 1.5 s of stolen timebase cycles at 512 MHz
+        row.idle_stolen_purr = 512_000_000L;
+        row.busy_stolen_purr = 256_000_000L;
+
+        long[] ticks = AixCentralProcessor.ticksFromRow(row, 512_000_000L);
+        long hz = AixCentralProcessor.USER_HZ;
+        assertThat(ticks[TickType.USER.getIndex()], is(400 * 1000L / hz));
+        assertThat(ticks[TickType.SYSTEM.getIndex()], is(200 * 1000L / hz));
+        assertThat(ticks[TickType.IDLE.getIndex()], is(300 * 1000L / hz));
+        assertThat(ticks[TickType.IOWAIT.getIndex()], is(100 * 1000L / hz));
+        assertThat(ticks[TickType.IRQ.getIndex()], is(0L));
+        assertThat(ticks[TickType.SOFTIRQ.getIndex()], is(0L));
+        assertThat(ticks[TickType.STEAL.getIndex()], is(1500L));
+    }
+
+    @Test
+    void testStealDoesNotDecrease() {
+        // A later sample with more clock ticks and the same stolen cycles must not lose stolen time
+        AixCentralProcessor.CpuTickRow first = new AixCentralProcessor.CpuTickRow();
+        first.user = 1000;
+        first.busy_stolen_purr = 100_000_000L;
+        AixCentralProcessor.CpuTickRow second = new AixCentralProcessor.CpuTickRow();
+        second.user = 1100;
+        second.busy_stolen_purr = 100_000_000L;
+        long tbHz = 512_000_000L;
+        assertThat(AixCentralProcessor.ticksFromRow(second, tbHz)[TickType.STEAL.getIndex()],
+                is(AixCentralProcessor.ticksFromRow(first, tbHz)[TickType.STEAL.getIndex()]));
+    }
+
+    @Test
+    void testTimebaseHz() {
+        AixCentralProcessor.CpuTotalRow total = new AixCentralProcessor.CpuTotalRow();
+        // Live AIX 7.3 values: tb_last * HZ / lbolt is about 512 MHz at HZ = 100
+        total.lbolt = 2_351_892_736L;
+        total.tb_last = 12_042_635_013_133_711L;
+        long expected = (long) (total.tb_last * (double) AixCentralProcessor.USER_HZ / total.lbolt);
+        assertThat(AixCentralProcessor.timebaseHz(total), is(expected));
+
+        assertThat(AixCentralProcessor.timebaseHz(new AixCentralProcessor.CpuTotalRow()), is(512_000_000L));
     }
 }

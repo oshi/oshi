@@ -8,21 +8,21 @@ import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_CPU_TOTAL_T_
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_CPU_T_SIZE;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.PERFSTAT_ID_T_SIZE;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuBusyStolenPurr;
-import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuDevintrs;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuIdle;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuIdleStolenPurr;
-import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuSoftintrs;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuSys;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalBusyStolenPurr;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalDevintrs;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalIdle;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalIdleStolenPurr;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalLbolt;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalLoadavg;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalNcpus;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalProcessorHZ;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalPswitch;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalSoftintrs;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalSys;
+import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalTbLast;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalUser;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuTotalWait;
 import static oshi.ffm.platform.unix.aix.PerfstatFunctions.cpuUser;
@@ -62,6 +62,8 @@ public final class PerfstatCpuFFM {
         public long pswitch;
         public long devintrs;
         public long softintrs;
+        public long lbolt;
+        public long tb_last;
         public long[] loadavg = new long[3];
         public long idle_stolen_purr;
         public long busy_stolen_purr;
@@ -73,8 +75,6 @@ public final class PerfstatCpuFFM {
         public long sys;
         public long idle;
         public long wait;
-        public long devintrs;
-        public long softintrs;
         public long idle_stolen_purr;
         public long busy_stolen_purr;
     }
@@ -99,6 +99,8 @@ public final class PerfstatCpuFFM {
                 result.pswitch = cpuTotalPswitch(buf);
                 result.devintrs = cpuTotalDevintrs(buf);
                 result.softintrs = cpuTotalSoftintrs(buf);
+                result.lbolt = cpuTotalLbolt(buf);
+                result.tb_last = cpuTotalTbLast(buf);
                 for (int i = 0; i < 3; i++) {
                     result.loadavg[i] = cpuTotalLoadavg(buf, i);
                 }
@@ -136,8 +138,6 @@ public final class PerfstatCpuFFM {
                 c.sys = cpuSys(buf, off);
                 c.idle = cpuIdle(buf, off);
                 c.wait = cpuWait(buf, off);
-                c.devintrs = cpuDevintrs(buf, off);
-                c.softintrs = cpuSoftintrs(buf, off);
                 c.idle_stolen_purr = cpuIdleStolenPurr(buf, off);
                 c.busy_stolen_purr = cpuBusyStolenPurr(buf, off);
                 result[i] = c;

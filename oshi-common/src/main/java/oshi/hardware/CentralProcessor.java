@@ -210,8 +210,8 @@ public interface CentralProcessor {
      * 16 milliseconds) and Linux ticks are distribution and configuration dependent but usually 1/100 of a second (10
      * milliseconds).
      * <p>
-     * Nice and IOWait information is not available on Windows, and IOwait and IRQ information is not available on
-     * macOS, so these ticks will always be zero.
+     * Nice and IOWait information is not available on Windows, IOwait and IRQ information is not available on macOS,
+     * and Nice, IRQ and SoftIRQ information is not available on AIX, so these ticks will always be zero.
      * <p>
      * To calculate overall Idle time using this method, include both Idle and IOWait ticks. Similarly, IRQ, SoftIRQ,
      * and Steal ticks should be added to the System value to get the total. System ticks also include time executing
@@ -350,8 +350,9 @@ public interface CentralProcessor {
      * 16 milliseconds) and Linux ticks are distribution and configuration dependent but usually 1/100 of a second (10
      * milliseconds).
      * <p>
-     * Nice and IOwait per processor information is not available on Windows, and IOwait and IRQ information is not
-     * available on macOS, so these ticks will always be zero.
+     * Nice and IOwait per processor information is not available on Windows, IOwait and IRQ information is not
+     * available on macOS, and Nice, IRQ and SoftIRQ information is not available on AIX, so these ticks will always be
+     * zero.
      * <p>
      * To calculate overall Idle time using this method, include both Idle and IOWait ticks. Similarly, IRQ, SoftIRQ and
      * Steal ticks should be added to the System value to get the total. System ticks also include time executing other

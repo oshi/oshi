@@ -13,6 +13,7 @@
   [#3861](https://github.com/oshi/oshi/pull/3861): On native-free Linux, `getDiskStores()` matches the JNA and FFM implementations: it lists device-mapper (LVM, LUKS, multipath), md RAID and other virtual block devices, a partition's identification is its device path such as `/dev/sda1`, and a model or serial that sysfs does not provide is `unknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3858](https://github.com/oshi/oshi/pull/3858): On macOS, `HWDiskStore.getDiskType()` reports `Virtual` for an APFS container and a disk image, which previously reported `Unknown` and `Removable` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3885](https://github.com/oshi/oshi/pull/3885): On macOS, `OperatingSystem.getServices()` lists launchd jobs by label, including those in `/Library` and the user's `~/Library/LaunchAgents`, instead of every child process of launchd by process name - [@dbwiddis](https://github.com/dbwiddis).
+* [#3890](https://github.com/oshi/oshi/pull/3890): On Solaris, `OperatingSystem.getServices()` reports each online SMF service as running, with the process ID of its first process, instead of as stopped alongside a separate entry for each of its processes - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
@@ -30,6 +31,7 @@
 * [#3886](https://github.com/oshi/oshi/pull/3886): Fixed Windows `getPowerSources()`, which reported a placeholder battery on a desktop and only the first of several batteries; `NetworkIF` packet counts, which counted only unicast; `getDnsServers()`, which listed only IPv4 servers; and `getHostName()`, which returned the 15-character NetBIOS name - [@dbwiddis](https://github.com/dbwiddis).
 * [#3887](https://github.com/oshi/oshi/pull/3887): Fixed Windows `getCpuTemperature()` from Open or Libre Hardware Monitor, which averaged in the summary and distance-to-TjMax sensors, and `getFanSpeeds()` from either monitor, which looked for fans on the processor instead of the motherboard - [@dbwiddis](https://github.com/dbwiddis).
 * [#3888](https://github.com/oshi/oshi/pull/3888): Fixed OpenBSD `VirtualMemory.getSwapPagesIn()` and `getSwapPagesOut()`, which reported bytes rather than pages, and `OSProcess.getAffinityMask()`, which reported no processors - [@dbwiddis](https://github.com/dbwiddis).
+* [#3890](https://github.com/oshi/oshi/pull/3890): Fixed `CentralProcessor` IRQ, SoftIRQ and Steal ticks and `OSProcess.getBitness()` on AIX, `OSProcess.getCurrentWorkingDirectory()` on Solaris, and `OSProcess.getGroup()` on DragonFly BSD - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

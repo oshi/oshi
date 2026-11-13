@@ -87,6 +87,11 @@ public abstract class AixOSProcess extends AbstractProcOSProcess {
     protected abstract long queryRlimitNofile(boolean soft);
 
     @Override
+    protected String processFlagsCommand() {
+        return "procflags ";
+    }
+
+    @Override
     protected OSThread createThread(int lwpid) {
         return new AixOSThread(getProcessID(), lwpid);
     }

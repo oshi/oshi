@@ -35,8 +35,9 @@ import oshi.util.tuples.Pair;
 /**
  * Abstract base for the {@code /proc}-filesystem Unix OSProcess implementations (Solaris and AIX). Both read process
  * info from {@code /proc}, enumerate threads from {@code /proc/<pid>/lwp}, count open files from
- * {@code /proc/<pid>/fd}, determine bitness from {@code pflags}, and fall back to a truncated command line. Subclasses
- * supply their native argument/environment read, their {@link OSThread} factory, and their platform-specific
+ * {@code /proc/<pid>/fd}, determine bitness from the {@code data model} line of a process-flags command
+ * ({@code pflags}, or {@code procflags} on AIX), and fall back to a truncated command line. Subclasses supply their
+ * native argument/environment read, their {@link OSThread} factory, and their platform-specific
  * {@code updateAttributes()}.
  */
 @ThreadSafe
@@ -86,10 +87,20 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
         return cmdEnv.get().getB();
     }
 
+    /**
+     * Gets the name of the {@code /proc/<pid>} entry that links to the process's working directory. AIX publishes it as
+     * {@code cwd}; on Solaris {@code cwd} does not resolve to a path, and {@code path/cwd} does.
+     *
+     * @return the entry name relative to {@code /proc/<pid>/}
+     */
+    protected String cwdLinkName() {
+        return "cwd";
+    }
+
     @Override
     public String getCurrentWorkingDirectory() {
         try {
-            String cwdLink = "/proc/" + getProcessID() + "/cwd";
+            String cwdLink = "/proc/" + getProcessID() + "/" + cwdLinkName();
             String cwd = new File(cwdLink).getCanonicalPath();
             if (!cwd.equals(cwdLink)) {
                 return cwd;
@@ -144,8 +155,18 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
         return this.bitness.get();
     }
 
+    /**
+     * Gets the command that prints a process's {@code data model} line, followed by a space. Solaris names it
+     * {@code pflags}; AIX names it {@code procflags}.
+     *
+     * @return the command prefix to which the process ID is appended
+     */
+    protected String processFlagsCommand() {
+        return "pflags ";
+    }
+
     private int queryBitness() {
-        List<String> pflags = ExecutingCommand.runNative("pflags " + getProcessID());
+        List<String> pflags = ExecutingCommand.runNative(processFlagsCommand() + getProcessID());
         for (String line : pflags) {
             if (line.contains("data model")) {
                 if (line.contains("LP32")) {

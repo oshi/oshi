@@ -167,6 +167,10 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
 
     /**
      * Parses the output of {@code svcs -p} to build a list of OS services.
+     * <p>
+     * Each {@code online} service is {@link OSService.State#RUNNING}, with the process ID of the first process listed
+     * beneath it, or 0 when it has none (as for a transient service). Each {@code legacy_run} script that matches a
+     * name in {@code legacySvcs} is {@link OSService.State#STOPPED}, since SMF does not track its processes.
      *
      * @param svcs       the lines emitted by {@code svcs -p}
      * @param legacySvcs the list of legacy service names from {@code /etc/init.d}
@@ -176,29 +180,35 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
         List<OSService> services = new ArrayList<>();
         /*-
          Output:
-         STATE          STIME    FRMI
+         STATE          STIME    FMRI
          legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
-         legacy_run     23:56:49 lrc:/etc/rc2_d/S81dodatadm_udaplt
-         legacy_run     23:56:49 lrc:/etc/rc2_d/S89PRESERVE
          online         23:56:25 svc:/system/early-manifest-import:default
          online         23:56:25 svc:/system/svc/restarter:default
                         23:56:24       13 svc.startd
                         ...
          */
+        String online = null;
+        int pid = 0;
         for (String line : svcs) {
+            if (line.startsWith(" ")) {
+                // A process of the preceding service; keep the first
+                // STIME, PID, then the process name, which may contain spaces
+                String[] split = ParseUtil.whitespaces.split(line.trim(), 3);
+                if (online != null && pid == 0 && split.length == 3) {
+                    pid = ParseUtil.parseIntOrDefault(split[1], 0);
+                }
+                continue;
+            }
+            if (online != null) {
+                services.add(new OSService(online, pid, RUNNING));
+                online = null;
+                pid = 0;
+            }
             if (line.startsWith("online")) {
                 int delim = line.lastIndexOf(":/");
                 if (delim > 0) {
                     String name = line.substring(delim + 1);
-                    if (name.endsWith(":default")) {
-                        name = name.substring(0, name.length() - 8);
-                    }
-                    services.add(new OSService(name, 0, STOPPED));
-                }
-            } else if (line.startsWith(" ")) {
-                String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
-                if (split.length == 3) {
-                    services.add(new OSService(split[2], ParseUtil.parseIntOrDefault(split[1], 0), RUNNING));
+                    online = name.endsWith(":default") ? name.substring(0, name.length() - 8) : name;
                 }
             } else if (line.startsWith("legacy_run")) {
                 for (String svc : legacySvcs) {
@@ -208,6 +218,9 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
                     }
                 }
             }
+        }
+        if (online != null) {
+            services.add(new OSService(online, pid, RUNNING));
         }
         return services;
     }
