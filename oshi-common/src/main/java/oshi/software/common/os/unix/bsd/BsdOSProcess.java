@@ -20,6 +20,7 @@ import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOSProcess;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.UserGroupInfo;
 import oshi.util.driver.unix.ProcLimits;
 
 /**
@@ -188,14 +189,14 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         this.parentProcessID = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PPID), 0);
         this.user = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.USER));
         this.userID = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.UID));
-        // Most platforms report a group name and gid. DragonFly's ps has no group column, so fall
-        // back to the user name and the real group id.
+        // Most platforms report a group name and gid. DragonFly's ps has no group name column, so
+        // look up the name of the real group id.
         if (psMap.containsKey(BsdPsKeyword.GROUP)) {
             this.group = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.GROUP));
             this.groupID = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.GID));
         } else {
-            this.group = this.user;
             this.groupID = ParseUtil.getStringValueOrEmpty(psMap.get(BsdPsKeyword.RGID));
+            this.group = this.groupID.isEmpty() ? "" : UserGroupInfo.getGroupName(this.groupID);
         }
         this.priority = ParseUtil.parseIntOrDefault(psMap.get(BsdPsKeyword.PRI), 0);
         // These are in KB, multiply
