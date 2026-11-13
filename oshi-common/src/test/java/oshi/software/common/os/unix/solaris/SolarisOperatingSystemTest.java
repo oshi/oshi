@@ -21,37 +21,52 @@ class SolarisOperatingSystemTest {
 
     @Test
     void testParseSvcsTypical() {
+        // Solaris 11.4 format; illumos and older releases print a bare HH:mm:ss STIME
         List<String> svcs = """
-                online         23:56:25 svc:/system/svc/restarter:default
-                                        23:56:24       13 svc.startd
-                legacy_run     23:56:49 lrc:/etc/rc2_d/S47pppd
-                online         23:56:25 svc:/network/loopback:default
+                STATE          STIME               FMRI
+                legacy_run     2026-10-20T23:59:58 lrc:/etc/rc2_d/S47pppd
+                online         2026-10-20T23:59:04 svc:/system/svc/restarter:default
+                               2026-10-20T23:59:04        14 svc.startd
+                online         2026-10-20T23:59:05 svc:/network/loopback:default
+                online         2026-10-20T23:59:11 svc:/network/ssh:default
+                               2026-10-20T23:59:11       812 sshd
+                               2026-11-05T21:31:58     23051 sshd
                 """.lines().toList();
         List<String> legacySvcs = List.of("S47pppd", "S89PRESERVE");
 
         List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, legacySvcs);
-
-        // "online" lines produce STOPPED services (named from svc path)
-        // lines starting with space produce RUNNING services (with PID)
-        // "legacy_run" lines matching legacySvcs produce STOPPED services
         assertThat(services, hasSize(4));
 
-        // First: online svc:/system/svc/restarter:default -> name "/system/svc/restarter", state STOPPED
-        assertThat(services.get(0).getName(), is("/system/svc/restarter"));
+        assertThat(services.get(0).getName(), is("S47pppd"));
+        assertThat(services.get(0).getProcessID(), is(0));
         assertThat(services.get(0).getState(), is(State.STOPPED));
 
-        // Second: space-prefixed line with pid 13
-        assertThat(services.get(1).getName(), is("svc.startd"));
-        assertThat(services.get(1).getProcessID(), is(13));
+        // An online service takes the PID of its process
+        assertThat(services.get(1).getName(), is("/system/svc/restarter"));
+        assertThat(services.get(1).getProcessID(), is(14));
         assertThat(services.get(1).getState(), is(State.RUNNING));
 
-        // Third: legacy_run matching S47pppd
-        assertThat(services.get(2).getName(), is("S47pppd"));
-        assertThat(services.get(2).getState(), is(State.STOPPED));
+        // An online transient service has no process but is still running
+        assertThat(services.get(2).getName(), is("/network/loopback"));
+        assertThat(services.get(2).getProcessID(), is(0));
+        assertThat(services.get(2).getState(), is(State.RUNNING));
 
-        // Fourth: online svc:/network/loopback:default -> name "/network/loopback"
-        assertThat(services.get(3).getName(), is("/network/loopback"));
-        assertThat(services.get(3).getState(), is(State.STOPPED));
+        // With several processes, the first is reported
+        assertThat(services.get(3).getName(), is("/network/ssh"));
+        assertThat(services.get(3).getProcessID(), is(812));
+        assertThat(services.get(3).getState(), is(State.RUNNING));
+    }
+
+    @Test
+    void testParseSvcsBareTime() {
+        List<String> svcs = """
+                online         23:56:25 svc:/system/svc/restarter:default
+                                        23:56:24       13 svc.startd
+                """.lines().toList();
+        List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, Collections.emptyList());
+        assertThat(services, hasSize(1));
+        assertThat(services.get(0).getProcessID(), is(13));
+        assertThat(services.get(0).getState(), is(State.RUNNING));
     }
 
     @Test
