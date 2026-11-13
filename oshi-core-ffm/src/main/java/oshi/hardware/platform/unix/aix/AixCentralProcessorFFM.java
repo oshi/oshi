@@ -48,10 +48,8 @@ final class AixCentralProcessorFFM extends AixCentralProcessor {
         row.pswitch = p.pswitch;
         row.devintrs = p.devintrs;
         row.softintrs = p.softintrs;
-        row.puser = p.puser;
-        row.psys = p.psys;
-        row.pidle = p.pidle;
-        row.pwait = p.pwait;
+        row.lbolt = p.lbolt;
+        row.tb_last = p.tb_last;
         row.idle_stolen_purr = p.idle_stolen_purr;
         row.busy_stolen_purr = p.busy_stolen_purr;
         row.loadavg[0] = p.loadavg[0];
@@ -70,10 +68,6 @@ final class AixCentralProcessorFFM extends AixCentralProcessor {
             row.sys = cpus[i].sys;
             row.idle = cpus[i].idle;
             row.wait = cpus[i].wait;
-            row.puser = cpus[i].puser;
-            row.psys = cpus[i].psys;
-            row.pidle = cpus[i].pidle;
-            row.pwait = cpus[i].pwait;
             row.idle_stolen_purr = cpus[i].idle_stolen_purr;
             row.busy_stolen_purr = cpus[i].busy_stolen_purr;
             rows[i] = row;

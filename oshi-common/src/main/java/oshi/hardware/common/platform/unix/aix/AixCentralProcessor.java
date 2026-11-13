@@ -4,11 +4,14 @@
  */
 package oshi.hardware.common.platform.unix.aix;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 
@@ -36,16 +39,18 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
 
     private static final int SBITS = querySbits();
 
+    /** Timebase frequency of POWER6 and later, used when perfstat cannot measure it. */
+    private static final long DEFAULT_TIMEBASE_HZ = 512_000_000L;
+
+    // Fixed for the life of the system; measured once so STEAL never decreases between samples
+    private final Supplier<Long> timebaseHz = memoize(() -> timebaseHz(queryCpuTotal()));
+
     /** Tick values OSHI consumes from {@code perfstat_cpu_total_t} and {@code perfstat_cpu_t}. */
     public static class CpuTickRow {
         public long user;
         public long sys;
         public long idle;
         public long wait;
-        public long puser;
-        public long psys;
-        public long pidle;
-        public long pwait;
         public long idle_stolen_purr;
         public long busy_stolen_purr;
     }
@@ -57,6 +62,8 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         public long pswitch;
         public long devintrs;
         public long softintrs;
+        public long lbolt;
+        public long tb_last;
         public long[] loadavg = new long[3];
     }
 
@@ -210,7 +217,7 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[] querySystemCpuLoadTicks() {
         CpuTotalRow row = queryCpuTotal();
-        return ticksFromRow(row);
+        return ticksFromRow(row, timebaseHz.get());
     }
 
     @Override
@@ -263,9 +270,10 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
     @Override
     public long[][] queryProcessorCpuLoadTicks() {
         CpuTickRow[] cpu = queryPerCpuTicks();
+        long tbHz = timebaseHz.get();
         long[][] ticks = new long[getLogicalProcessorCount()][TickType.values().length];
         for (int i = 0; i < cpu.length && i < ticks.length; i++) {
-            ticks[i] = ticksFromRow(cpu[i]);
+            ticks[i] = ticksFromRow(cpu[i], tbHz);
         }
         return ticks;
     }
@@ -285,26 +293,37 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
      * Converts a perfstat tick row to OSHI's tick array in milliseconds.
      * <p>
      * perfstat counts no time spent servicing interrupts ({@code devintrs} and {@code softintrs} are event counts), so
-     * IRQ and SOFTIRQ stay 0. Stolen time is reported only as processor (PURR) cycles, which are converted to clock
-     * ticks using the ratio of this row's clock ticks to its PURR cycles.
+     * IRQ and SOFTIRQ stay 0. Stolen time is reported only as processor utilization (PURR) cycles, which count in
+     * timebase units, so it is converted using the timebase frequency.
      *
-     * @param row the perfstat values
+     * @param row        the perfstat values
+     * @param timebaseHz the timebase frequency, from {@link #timebaseHz(CpuTotalRow)}
      * @return the ticks, indexed by {@link TickType}
      */
-    static long[] ticksFromRow(CpuTickRow row) {
+    static long[] ticksFromRow(CpuTickRow row, long timebaseHz) {
         long[] ticks = new long[TickType.values().length];
         ticks[TickType.USER.getIndex()] = row.user * 1000L / USER_HZ;
         // Skip NICE
         ticks[TickType.SYSTEM.getIndex()] = row.sys * 1000L / USER_HZ;
         ticks[TickType.IDLE.getIndex()] = row.idle * 1000L / USER_HZ;
         ticks[TickType.IOWAIT.getIndex()] = row.wait * 1000L / USER_HZ;
-        long clockTicks = row.user + row.sys + row.idle + row.wait;
-        long purrCycles = row.puser + row.psys + row.pidle + row.pwait;
-        if (purrCycles > 0) {
-            double stolenTicks = (row.idle_stolen_purr + row.busy_stolen_purr) * (double) clockTicks / purrCycles;
-            ticks[TickType.STEAL.getIndex()] = (long) (stolenTicks * 1000d / USER_HZ);
-        }
+        ticks[TickType.STEAL.getIndex()] = (row.idle_stolen_purr + row.busy_stolen_purr) / (timebaseHz / 1000L);
         return ticks;
+    }
+
+    /**
+     * Measures the timebase frequency from the timebase counter and the clock ticks since boot, falling back to the
+     * POWER6 and later frequency when either counter is unavailable.
+     *
+     * @param total the perfstat totals
+     * @return the timebase frequency in Hz
+     */
+    static long timebaseHz(CpuTotalRow total) {
+        if (total.lbolt <= 0 || total.tb_last <= 0) {
+            return DEFAULT_TIMEBASE_HZ;
+        }
+        long hz = (long) (total.tb_last * (double) USER_HZ / total.lbolt);
+        return hz >= 1000L ? hz : DEFAULT_TIMEBASE_HZ;
     }
 
     private static int querySbits() {

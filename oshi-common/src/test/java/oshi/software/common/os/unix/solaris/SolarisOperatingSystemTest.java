@@ -70,6 +70,17 @@ class SolarisOperatingSystemTest {
     }
 
     @Test
+    void testParseSvcsProcessNameWithSpaces() {
+        List<String> svcs = """
+                online         23:56:25 svc:/network/smtp:sendmail
+                                        23:56:24       13 my mail daemon
+                """.lines().toList();
+        List<OSService> services = SolarisOperatingSystem.parseSvcs(svcs, Collections.emptyList());
+        assertThat(services, hasSize(1));
+        assertThat(services.get(0).getProcessID(), is(13));
+    }
+
+    @Test
     void testParseSvcsEmpty() {
         List<OSService> services = SolarisOperatingSystem.parseSvcs(Collections.emptyList(), Collections.emptyList());
         assertThat(services, is(empty()));

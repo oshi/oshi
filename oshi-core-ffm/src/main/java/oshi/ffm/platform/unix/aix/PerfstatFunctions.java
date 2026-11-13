@@ -184,29 +184,19 @@ public final class PerfstatFunctions extends ForeignFunctions {
         return seg.get(JAVA_LONG, 184);
     }
 
+    /** {@code lbolt}: clock ticks since boot ({@code time_t}). */
+    public static long cpuTotalLbolt(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 192);
+    }
+
+    /** {@code tb_last}: timebase counter. */
+    public static long cpuTotalTbLast(MemorySegment seg) {
+        return seg.get(JAVA_LONG, 672);
+    }
+
     /** {@code loadavg[i]}: 1/5/15-minute load averages (scaled by 1&lt;&lt;SBITS). */
     public static long cpuTotalLoadavg(MemorySegment seg, int i) {
         return seg.get(JAVA_LONG, 200L + i * 8L);
-    }
-
-    /** {@code puser}: physical processor (PURR) cycles in user mode (total). */
-    public static long cpuTotalPuser(MemorySegment seg) {
-        return seg.get(JAVA_LONG, 464);
-    }
-
-    /** {@code psys}: physical processor (PURR) cycles in system mode (total). */
-    public static long cpuTotalPsys(MemorySegment seg) {
-        return seg.get(JAVA_LONG, 472);
-    }
-
-    /** {@code pidle}: physical processor (PURR) cycles idle (total). */
-    public static long cpuTotalPidle(MemorySegment seg) {
-        return seg.get(JAVA_LONG, 480);
-    }
-
-    /** {@code pwait}: physical processor (PURR) cycles waiting for I/O (total). */
-    public static long cpuTotalPwait(MemorySegment seg) {
-        return seg.get(JAVA_LONG, 488);
     }
 
     /** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor. */
@@ -246,26 +236,6 @@ public final class PerfstatFunctions extends ForeignFunctions {
     /** {@code wait}: raw clock ticks waiting for I/O (this CPU). */
     public static long cpuWait(MemorySegment seg, long elementOffset) {
         return seg.get(JAVA_LONG, elementOffset + 88);
-    }
-
-    /** {@code puser}: physical processor (PURR) cycles in user mode (this CPU). */
-    public static long cpuPuser(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 264);
-    }
-
-    /** {@code psys}: physical processor (PURR) cycles in system mode (this CPU). */
-    public static long cpuPsys(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 272);
-    }
-
-    /** {@code pidle}: physical processor (PURR) cycles idle (this CPU). */
-    public static long cpuPidle(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 280);
-    }
-
-    /** {@code pwait}: physical processor (PURR) cycles waiting for I/O (this CPU). */
-    public static long cpuPwait(MemorySegment seg, long elementOffset) {
-        return seg.get(JAVA_LONG, elementOffset + 288);
     }
 
     /** {@code idle_stolen_purr}: idle cycles stolen by the hypervisor (this CPU). */

@@ -192,7 +192,8 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
         for (String line : svcs) {
             if (line.startsWith(" ")) {
                 // A process of the preceding service; keep the first
-                String[] split = ParseUtil.whitespaces.split(line.trim(), -1);
+                // STIME, PID, then the process name, which may contain spaces
+                String[] split = ParseUtil.whitespaces.split(line.trim(), 3);
                 if (online != null && pid == 0 && split.length == 3) {
                     pid = ParseUtil.parseIntOrDefault(split[1], 0);
                 }
