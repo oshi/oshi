@@ -54,7 +54,7 @@ final class AixCentralProcessorJNA extends AixCentralProcessor {
         row.devintrs = p.devintrs;
         row.softintrs = p.softintrs;
         row.lbolt = p.lbolt.longValue();
-        row.tb_last = p.tb_last;
+        row.tbLast = p.tb_last;
         row.idle_stolen_purr = p.idle_stolen_purr;
         row.busy_stolen_purr = p.busy_stolen_purr;
         row.loadavg[0] = p.loadavg[0];

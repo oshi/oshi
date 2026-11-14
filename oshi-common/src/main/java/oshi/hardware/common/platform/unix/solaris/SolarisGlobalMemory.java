@@ -108,47 +108,8 @@ public abstract class SolarisGlobalMemory extends AbstractGlobalMemory {
             if (line.contains("SMB_TYPE_MEMDEVICE")) {
                 addIfInstalled(modules, device);
                 device = new SmbiosMemoryDevice();
-                continue;
-            }
-            if (device == null) {
-                continue;
-            }
-            String[] split = line.trim().split(":", 2);
-            if (split.length < 2) {
-                continue;
-            }
-            String value = split[1].trim();
-            switch (split[0]) {
-                case "Manufacturer":
-                    device.manufacturer = value;
-                    break;
-                case "Device Locator":
-                    device.locator = value;
-                    break;
-                case "Bank Locator":
-                    device.bank = value;
-                    break;
-                case "Size":
-                    // "6442450944 bytes"
-                    device.capacity = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(value, 2)[0], 0L);
-                    break;
-                case "Memory Type":
-                    // "26 (DDR4)": the name is in parentheses
-                    int open = value.indexOf('(');
-                    int close = value.lastIndexOf(')');
-                    device.memoryType = open >= 0 && close > open ? value.substring(open + 1, close) : value;
-                    break;
-                case "Speed":
-                    device.speed = ParseUtil.parseSpeed(value);
-                    break;
-                case "Part Number":
-                    device.partNumber = value;
-                    break;
-                case "Serial Number":
-                    device.serialNumber = value;
-                    break;
-                default:
-                    break;
+            } else if (device != null) {
+                device.parse(line);
             }
         }
         addIfInstalled(modules, device);
@@ -175,5 +136,50 @@ public abstract class SolarisGlobalMemory extends AbstractGlobalMemory {
         private long speed = -1L;
         private String partNumber = Constants.UNKNOWN;
         private String serialNumber = Constants.UNKNOWN;
+
+        /**
+         * Reads one {@code Key: value} line of the record into this device.
+         *
+         * @param line a line of the record
+         */
+        private void parse(String line) {
+            String[] split = line.trim().split(":", 2);
+            if (split.length < 2) {
+                return;
+            }
+            String value = split[1].trim();
+            switch (split[0]) {
+                case "Manufacturer":
+                    this.manufacturer = value;
+                    break;
+                case "Device Locator":
+                    this.locator = value;
+                    break;
+                case "Bank Locator":
+                    this.bank = value;
+                    break;
+                case "Size":
+                    // "6442450944 bytes"
+                    this.capacity = ParseUtil.parseLongOrDefault(ParseUtil.whitespaces.split(value, 2)[0], 0L);
+                    break;
+                case "Memory Type":
+                    // "26 (DDR4)": the name is in parentheses
+                    int open = value.indexOf('(');
+                    int close = value.lastIndexOf(')');
+                    this.memoryType = open >= 0 && close > open ? value.substring(open + 1, close) : value;
+                    break;
+                case "Speed":
+                    this.speed = ParseUtil.parseSpeed(value);
+                    break;
+                case "Part Number":
+                    this.partNumber = value;
+                    break;
+                case "Serial Number":
+                    this.serialNumber = value;
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

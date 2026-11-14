@@ -144,26 +144,26 @@ public final class LinuxInstalledApps {
      */
     static List<ApplicationInfo> parseApkInstalled(List<String> lines) {
         List<ApplicationInfo> apps = new ArrayList<>();
-        Map<Character, String> record = new HashMap<>();
+        Map<Character, String> fields = new HashMap<>();
         for (String line : lines) {
             if (line.isEmpty()) {
-                addApkRecord(apps, record);
+                addApkRecord(apps, fields);
             } else if (line.length() > 2 && line.charAt(1) == ':') {
                 // Repeated keys (files, checksums) are not used, so keeping the last is harmless
-                record.put(line.charAt(0), line.substring(2));
+                fields.put(line.charAt(0), line.substring(2));
             }
         }
-        addApkRecord(apps, record);
+        addApkRecord(apps, fields);
         return apps;
     }
 
-    private static void addApkRecord(List<ApplicationInfo> apps, Map<Character, String> record) {
-        String name = record.get('P');
+    private static void addApkRecord(List<ApplicationInfo> apps, Map<Character, String> fields) {
+        String name = fields.get('P');
         if (name != null) {
-            apps.add(toAppInfo(name, record.get('V'), record.get('A'), record.get('I'), 0L, record.get('m'),
-                    record.get('o'), record.get('U')));
+            apps.add(toAppInfo(name, fields.get('V'), fields.get('A'), fields.get('I'), 0L, fields.get('m'),
+                    fields.get('o'), fields.get('U')));
         }
-        record.clear();
+        fields.clear();
     }
 
     /**

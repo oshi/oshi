@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +26,7 @@ class FreeBsdSoundCardTest {
      * Answers each {@code sysctl -i} call from a fixed tree, as the real command does: it prints the names it knows and
      * skips the rest. Records each call so a test can count them.
      */
-    private static Function<List<String>, List<String>> sysctl(Map<String, String> tree, List<List<String>> calls) {
+    private static UnaryOperator<List<String>> sysctl(Map<String, String> tree, List<List<String>> calls) {
         return oids -> {
             calls.add(oids);
             List<String> out = new ArrayList<>();

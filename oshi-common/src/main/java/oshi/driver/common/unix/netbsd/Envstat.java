@@ -223,7 +223,13 @@ public final class Envstat {
                     break;
             }
         }
-        double temp = cpuTempCount > 0 ? cpuTempSum / cpuTempCount : allTempCount > 0 ? allTempSum / allTempCount : 0d;
+        // Prefer the CPU sensors; failing those, the average of every temperature sensor
+        double temp = 0d;
+        if (cpuTempCount > 0) {
+            temp = cpuTempSum / cpuTempCount;
+        } else if (allTempCount > 0) {
+            temp = allTempSum / allTempCount;
+        }
         int[] fanSpeeds = fans.stream().mapToInt(Integer::intValue).toArray();
         return new Triplet<>(temp, fanSpeeds, volts);
     }

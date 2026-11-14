@@ -63,7 +63,7 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
         public long devintrs;
         public long softintrs;
         public long lbolt;
-        public long tb_last;
+        public long tbLast;
         public long[] loadavg = new long[3];
     }
 
@@ -319,10 +319,10 @@ public abstract class AixCentralProcessor extends AbstractCentralProcessor {
      * @return the timebase frequency in Hz
      */
     static long timebaseHz(CpuTotalRow total) {
-        if (total.lbolt <= 0 || total.tb_last <= 0) {
+        if (total.lbolt <= 0 || total.tbLast <= 0) {
             return DEFAULT_TIMEBASE_HZ;
         }
-        long hz = (long) (total.tb_last * (double) USER_HZ / total.lbolt);
+        long hz = (long) (total.tbLast * (double) USER_HZ / total.lbolt);
         return hz >= 1000L ? hz : DEFAULT_TIMEBASE_HZ;
     }
 

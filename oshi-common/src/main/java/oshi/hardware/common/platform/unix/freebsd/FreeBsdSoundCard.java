@@ -12,7 +12,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -77,7 +77,7 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
      *               the rest
      * @return the sound cards, in {@code pcm} unit order
      */
-    static List<SoundCard> parseSoundCards(Function<List<String>, List<String>> sysctl) {
+    static List<SoundCard> parseSoundCards(UnaryOperator<List<String>> sysctl) {
         List<String> first = sysctl.apply(Arrays.asList(OSRELEASE, "dev.pcm"));
         Map<String, Map<String, String>> devices = parseDevices(first);
         Map<String, Map<String, String>> pcms = devices.entrySet().stream()

@@ -70,7 +70,7 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
     protected int queryAdapterDnsServers(int bufferSize, int[] requiredSize, List<byte[]> addresses) {
         try (Memory buffer = new Memory(bufferSize);
                 CloseableIntByReference sizeRef = new CloseableIntByReference(bufferSize)) {
-            int ret = IPHlpAPI.INSTANCE.GetAdaptersAddresses(IPHlpAPI.AF_UNSPEC, GAA_FLAGS, null, buffer, sizeRef);
+            int ret = IPHlpAPI.INSTANCE.GetAdaptersAddresses(AF_UNSPEC, GAA_FLAGS, null, buffer, sizeRef);
             requiredSize[0] = sizeRef.getValue();
             if (ret == WinError.NO_ERROR) {
                 Pointer p = buffer;
@@ -93,9 +93,9 @@ final class WindowsNetworkParamsJNA extends WindowsNetworkParams {
             Pointer sockaddr = dns.lpSockaddr;
             if (sockaddr != null) {
                 short family = sockaddr.getShort(0);
-                if (family == IPHlpAPI.AF_INET) {
+                if (family == AF_INET) {
                     addresses.add(sockaddr.getByteArray(4, 4));
-                } else if (family == IPHlpAPI.AF_INET6) {
+                } else if (family == AF_INET6) {
                     addresses.add(sockaddr.getByteArray(8, 16));
                 }
             }
