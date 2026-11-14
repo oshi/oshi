@@ -335,4 +335,18 @@ class FreeBsdCentralProcessorTest {
     void testParseTopologySpecEmpty() {
         assertThat(FreeBsdCentralProcessor.parseTopologySpec("").isEmpty(), is(true));
     }
+
+    @Test
+    void testAssignNumaNodes() {
+        List<LogicalProcessor> lps = List.of(new LogicalProcessor(0, 0, 0), new LogicalProcessor(1, 1, 0),
+                new LogicalProcessor(2, 0, 1), new LogicalProcessor(3, 1, 1));
+        // A single domain, as on cfarm430, keeps node 0 without reading any CPU's domain
+        assertThat(FreeBsdCentralProcessor.assignNumaNodes(lps, 1, cpu -> {
+            throw new AssertionError("read the domain of cpu " + cpu);
+        }), is(lps));
+        List<LogicalProcessor> numa = FreeBsdCentralProcessor.assignNumaNodes(lps, 2, cpu -> cpu / 2);
+        assertThat(numa.stream().map(LogicalProcessor::getNumaNode).toList(), is(List.of(0, 0, 1, 1)));
+        assertThat(numa.stream().map(LogicalProcessor::getPhysicalPackageNumber).toList(), is(List.of(0, 0, 1, 1)));
+        assertThat(numa.stream().map(LogicalProcessor::getPhysicalProcessorNumber).toList(), is(List.of(0, 1, 0, 1)));
+    }
 }

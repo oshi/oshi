@@ -552,7 +552,8 @@ public interface CentralProcessor {
 
         /**
          * The NUMA node. If the operating system supports Non-Uniform Memory Access this identifies the node number.
-         * Set to 0 if the operating system does not support NUMA. Not supported on macOS or FreeBSD.
+         * Set to 0 if the operating system does not support NUMA. Not supported on macOS, OpenBSD or DragonFly BSD, and
+         * on NetBSD reported only on x86.
          *
          * @return the NUMA Node number
          */

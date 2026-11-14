@@ -16,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.IntUnaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -297,7 +298,8 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
 
     @Override
     protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
-        List<LogicalProcessor> logProcs = parseTopology();
+        List<LogicalProcessor> logProcs = assignNumaNodes(parseTopology(), sysctlInt("vm.ndomains", 1),
+                cpu -> sysctlInt("dev.cpu." + cpu + ".%domain", 0));
         // Force at least one processor
         if (logProcs.isEmpty()) {
             logProcs.add(new LogicalProcessor(0, 0, 0));
@@ -385,6 +387,29 @@ public abstract class FreeBsdCentralProcessor extends AbstractCentralProcessor {
             }
         }
         return orderedProcCaches(caches);
+    }
+
+    /**
+     * Sets each processor's NUMA node from {@code dev.cpu.N.%domain}, which FreeBSD publishes for every CPU. The
+     * per-CPU reads are skipped on a single-domain system, where every node is 0, and on DragonFly BSD, which has no
+     * {@code vm.ndomains}. Package-private for testing.
+     *
+     * @param logProcs the logical processors, with NUMA node 0
+     * @param ndomains the value of {@code vm.ndomains}
+     * @param domainOf the value of {@code dev.cpu.N.%domain} for processor N
+     * @return the logical processors with their NUMA nodes
+     */
+    static List<LogicalProcessor> assignNumaNodes(List<LogicalProcessor> logProcs, int ndomains,
+            IntUnaryOperator domainOf) {
+        if (ndomains <= 1) {
+            return logProcs;
+        }
+        List<LogicalProcessor> withNodes = new ArrayList<>(logProcs.size());
+        for (LogicalProcessor lp : logProcs) {
+            withNodes.add(new LogicalProcessor(lp.getProcessorNumber(), lp.getPhysicalProcessorNumber(),
+                    lp.getPhysicalPackageNumber(), domainOf.applyAsInt(lp.getProcessorNumber())));
+        }
+        return withNodes;
     }
 
     private List<LogicalProcessor> parseTopology() {
