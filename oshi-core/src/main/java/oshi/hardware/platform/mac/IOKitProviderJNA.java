@@ -77,27 +77,27 @@ final class IOKitProviderJNA implements IOKitProvider {
         }
 
         @Override
-        public String getName() {
+        public @Nullable String getName() {
             return entry.getName();
         }
 
         @Override
-        public byte[] getByteArrayProperty(String key) {
+        public byte @Nullable [] getByteArrayProperty(String key) {
             return entry.getByteArrayProperty(key);
         }
 
         @Override
-        public String getStringProperty(String key) {
+        public @Nullable String getStringProperty(String key) {
             return entry.getStringProperty(key);
         }
 
         @Override
-        public Integer getIntegerProperty(String key) {
+        public @Nullable Integer getIntegerProperty(String key) {
             return entry.getIntegerProperty(key);
         }
 
         @Override
-        public Boolean getBooleanProperty(String key) {
+        public @Nullable Boolean getBooleanProperty(String key) {
             return entry.getBooleanProperty(key);
         }
     }
