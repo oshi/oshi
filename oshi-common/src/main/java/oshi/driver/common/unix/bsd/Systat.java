@@ -16,8 +16,7 @@ import oshi.util.ParseUtil;
 import oshi.util.tuples.Triplet;
 
 /**
- * Utility class parsing output from the BSD {@code systat -ab sensors} command, shared by OpenBSD and NetBSD which
- * produce the same output format.
+ * Utility class parsing output from the OpenBSD {@code systat -ab sensors} command.
  */
 @ThreadSafe
 public final class Systat {

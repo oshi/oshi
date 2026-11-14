@@ -23,7 +23,6 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.BsdGraphicsCard;
 import oshi.hardware.common.platform.unix.BsdNetworkIF;
 import oshi.hardware.common.platform.unix.BsdPowerSource;
-import oshi.hardware.common.platform.unix.BsdSensors;
 import oshi.hardware.common.platform.unix.BsdSoundCard;
 import oshi.hardware.common.platform.unix.BsdUsbDevice;
 import oshi.hardware.common.platform.unix.LpstatPrinter;
@@ -52,7 +51,7 @@ public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionL
 
     @Override
     public Sensors createSensors() {
-        return new BsdSensors();
+        return new NetBsdSensors();
     }
 
     @Override

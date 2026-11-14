@@ -15,8 +15,7 @@ import oshi.hardware.common.AbstractSensors;
 import oshi.util.tuples.Triplet;
 
 /**
- * Shared sensors implementation for BSDs that use {@code systat} for temperature, fan speed, and voltage (NetBSD,
- * OpenBSD).
+ * Sensors implementation for BSDs that use {@code systat} for temperature, fan speed, and voltage (OpenBSD).
  */
 @ThreadSafe
 public final class BsdSensors extends AbstractSensors {
