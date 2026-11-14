@@ -283,7 +283,7 @@ public abstract class WindowsSensors extends AbstractSensors {
     }
 
     private static double getVoltsFromLhmJar() {
-        return getAverageValueFromLhmJar("SuperIO", VOLTAGE,
+        return getAverageValueFromLhmJar(SUPER_IO, VOLTAGE,
                 (name, value) -> name.toLowerCase(Locale.ROOT).contains("vcore") && value > 0);
     }
 
