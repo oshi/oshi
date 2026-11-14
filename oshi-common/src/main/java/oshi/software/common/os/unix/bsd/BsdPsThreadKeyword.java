@@ -11,6 +11,6 @@ package oshi.software.common.os.unix.bsd;
  * constant order here is not significant; only the per-platform subset order is.
  */
 public enum BsdPsThreadKeyword {
-    TDNAME, LWP, TID, LID, STATE, ETIME, ETIMES, CPUTIME, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI,
-    ARGS;
+    TDNAME, LWP, TID, LID, STATE, ETIME, ETIMES, CPUTIME, LTIME, SYSTIME, TIME, TDADDR, NIVCSW, NVCSW, MAJFLT, MINFLT,
+    PRI, ARGS;
 }

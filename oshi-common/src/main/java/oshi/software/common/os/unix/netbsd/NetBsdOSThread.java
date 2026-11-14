@@ -5,13 +5,9 @@
 package oshi.software.common.os.unix.netbsd;
 
 import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.ARGS;
-import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.CPUTIME;
 import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.ETIME;
 import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.LID;
-import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.MAJFLT;
-import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.MINFLT;
-import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.NIVCSW;
-import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.NVCSW;
+import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.LTIME;
 import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.PRI;
 import static oshi.software.common.os.unix.bsd.BsdPsThreadKeyword.STATE;
 
@@ -35,9 +31,13 @@ public class NetBsdOSThread extends BsdOSThread {
     /**
      * Ordered {@code ps} thread columns. Shared with NetBsdOSProcess's thread enumeration so the column list and
      * parsing stay in lockstep. {@code ARGS} must remain last (the row-complete sentinel).
+     * <p>
+     * NetBSD's {@code ps} reads {@code cputime}, {@code majflt}, {@code minflt}, {@code nvcsw} and {@code nivcsw} from
+     * the process, so on an LWP row they repeat the process's totals ({@code bin/ps/keyword.c}). {@code ltime} is the
+     * LWP's own CPU time; the kernel keeps no per-LWP faults or context switches, so those are not asked for.
      */
     public static final List<BsdPsThreadKeyword> PS_THREAD_KEYWORDS = Collections
-            .unmodifiableList(Arrays.asList(LID, STATE, ETIME, CPUTIME, NIVCSW, NVCSW, MAJFLT, MINFLT, PRI, ARGS));
+            .unmodifiableList(Arrays.asList(LID, STATE, ETIME, LTIME, PRI, ARGS));
 
     public static final String PS_THREAD_COLUMNS = PS_THREAD_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));

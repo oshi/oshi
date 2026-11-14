@@ -83,6 +83,11 @@ public abstract class BsdOSThread extends AbstractOSThread {
             this.kernelTime = BsdOSProcess.monotonic(this.kernelTime, sysTime);
             this.userTime = BsdOSProcess.monotonic(this.userTime,
                     ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.TIME), 0L) - sysTime);
+        } else if (threadMap.containsKey(BsdPsThreadKeyword.LTIME)) {
+            // NetBSD: the LWP's own CPU time, with no user/system split
+            this.kernelTime = 0L;
+            this.userTime = BsdOSProcess.monotonic(this.userTime,
+                    ParseUtil.parseDHMSOrDefault(threadMap.get(BsdPsThreadKeyword.LTIME), 0L));
         } else if (threadMap.containsKey(BsdPsThreadKeyword.CPUTIME)) {
             this.kernelTime = 0L;
             this.userTime = BsdOSProcess.monotonic(this.userTime,
