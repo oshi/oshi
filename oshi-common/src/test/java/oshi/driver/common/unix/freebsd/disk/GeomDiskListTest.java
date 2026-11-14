@@ -16,7 +16,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import oshi.util.Constants;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 class GeomDiskListTest {
 
@@ -44,26 +44,29 @@ class GeomDiskListTest {
                    rotationrate: unknown
                 """.lines().toList();
 
-        Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(geom);
+        Map<String, Quartet<String, String, Long, String>> result = GeomDiskList.parseGeomDiskList(geom);
 
         assertThat(result.size(), is(2));
 
-        Triplet<String, String, Long> ada0 = result.get("ada0");
+        Quartet<String, String, Long, String> ada0 = result.get("ada0");
         assertNotNull(ada0, "ada0 missing");
         assertThat(ada0.getA(), is("Samsung SSD 860 EVO 500GB"));
         assertThat(ada0.getB(), is("S3Z2NB0K123456X"));
         assertThat(ada0.getC(), is(500107862016L));
+        assertThat(ada0.getD(), is("SSD"));
 
-        Triplet<String, String, Long> da0 = result.get("da0");
+        Quartet<String, String, Long, String> da0 = result.get("da0");
         assertNotNull(da0, "da0 missing");
         assertThat(da0.getA(), is("USB Flash Drive"));
         assertThat(da0.getB(), is(""));
         assertThat(da0.getC(), is(8053063680L));
+        assertThat(da0.getD(), is("Unknown"));
     }
 
     @Test
     void testParseGeomDiskListEmptyInput() {
-        Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(Collections.emptyList());
+        Map<String, Quartet<String, String, Long, String>> result = GeomDiskList
+                .parseGeomDiskList(Collections.emptyList());
         assertThat(result, is(anEmptyMap()));
     }
 
@@ -71,10 +74,10 @@ class GeomDiskListTest {
     void testParseGeomDiskListNoMediasizeDefaultsToZero() {
         List<String> geom = List.of("Geom name: vtbd0", "   descr: VirtIO Block Device", "   ident: serial123");
 
-        Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(geom);
+        Map<String, Quartet<String, String, Long, String>> result = GeomDiskList.parseGeomDiskList(geom);
 
         assertThat(result.size(), is(1));
-        Triplet<String, String, Long> vtbd0 = result.get("vtbd0");
+        Quartet<String, String, Long, String> vtbd0 = result.get("vtbd0");
         assertNotNull(vtbd0, "vtbd0 missing");
         assertThat(vtbd0.getA(), is("VirtIO Block Device"));
         assertThat(vtbd0.getB(), is("serial123"));
@@ -85,13 +88,24 @@ class GeomDiskListTest {
     void testParseGeomDiskListMissingFieldsDefaultToUnknown() {
         List<String> geom = List.of("Geom name: nvd0", "   Mediasize: 1024000000000 (953G)");
 
-        Map<String, Triplet<String, String, Long>> result = GeomDiskList.parseGeomDiskList(geom);
+        Map<String, Quartet<String, String, Long, String>> result = GeomDiskList.parseGeomDiskList(geom);
 
         assertThat(result.size(), is(1));
-        Triplet<String, String, Long> nvd0 = result.get("nvd0");
+        Quartet<String, String, Long, String> nvd0 = result.get("nvd0");
         assertNotNull(nvd0, "nvd0 missing");
         assertThat(nvd0.getA(), is(Constants.UNKNOWN));
         assertThat(nvd0.getB(), is(Constants.UNKNOWN));
         assertThat(nvd0.getC(), is(1024000000000L));
+        assertThat(nvd0.getD(), is("Unknown"));
+    }
+
+    @Test
+    void testParseRotationRate() {
+        // The forms sys/geom/geom_disk.c prints; cfarm430's QEMU disks report 0
+        assertThat(GeomDiskList.parseRotationRate("0"), is("SSD"));
+        assertThat(GeomDiskList.parseRotationRate("7200"), is("HDD"));
+        assertThat(GeomDiskList.parseRotationRate("unknown"), is("Unknown"));
+        assertThat(GeomDiskList.parseRotationRate("invalid"), is("Unknown"));
+        assertThat(GeomDiskList.parseRotationRate(""), is("Unknown"));
     }
 }

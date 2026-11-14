@@ -243,6 +243,13 @@ public final class WindowsHWDiskStoreFFM extends WindowsHWDiskStore {
             String deviceID = WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DEVICEID, i);
             List<Pair<String, Long>> logicalDrives = maps.getPartitionToLogicalDriveMap().get(deviceID);
             if (logicalDrives == null) {
+                mapUnmountedPartition(maps, deviceID,
+                        WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.NAME, i),
+                        WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.TYPE, i),
+                        WmiUtil.getString(hwPartitionQueryMap, DiskPartitionProperty.DESCRIPTION, i),
+                        WmiUtil.getUint64(hwPartitionQueryMap, DiskPartitionProperty.SIZE, i),
+                        WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.DISKINDEX, i),
+                        WmiUtil.getUint32(hwPartitionQueryMap, DiskPartitionProperty.INDEX, i));
                 continue;
             }
             for (int j = 0; j < logicalDrives.size(); j++) {

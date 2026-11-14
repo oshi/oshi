@@ -17,8 +17,8 @@ import oshi.hardware.common.platform.unix.freebsd.FreeBsdHWDiskStore;
 @ThreadSafe
 public final class FreeBsdHWDiskStoreFFM extends FreeBsdHWDiskStore {
 
-    private FreeBsdHWDiskStoreFFM(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
+    private FreeBsdHWDiskStoreFFM(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
     }
 
     /**
