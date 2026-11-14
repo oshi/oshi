@@ -41,10 +41,12 @@ public final class AixLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
      * Reads the active volume groups through the given command runner. Package-private for testing.
      * <p>
      * {@code lsvg -o} names the volume groups that are varied on, and {@code lsvg -p} and {@code lsvg -l}, given all of
-     * them at once, list each one's physical and logical volumes. Neither says which physical volumes hold a logical
-     * volume, so in a volume group of more than one, {@code lspv -l} lists the logical volumes on each physical volume;
-     * in a volume group of one, every logical volume is on it. Physical volumes are named as {@code getDiskStores()}
-     * names them, as in {@code hdisk0}.
+     * them at once, list each one's physical and logical volumes. {@code -L} keeps those from waiting on a volume
+     * group's lock, which another LVM command may hold for as long as it runs, at the cost of a listing that may be
+     * incomplete while that volume group is being changed. Neither says which physical volumes hold a logical volume,
+     * so in a volume group of more than one, {@code lspv -l} lists the logical volumes on each physical volume; in a
+     * volume group of one, every logical volume is on it. Physical volumes are named as {@code getDiskStores()} names
+     * them, as in {@code hdisk0}.
      *
      * @param run runs a command and returns the lines it prints
      * @return the volume groups that are varied on
@@ -61,8 +63,8 @@ public final class AixLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
             return new ArrayList<>();
         }
         String vgList = String.join(" ", vgs);
-        Map<String, Set<String>> pvsByVg = parseSections(run.apply("lsvg -p " + vgList), "PV_NAME");
-        Map<String, Set<String>> lvsByVg = parseSections(run.apply("lsvg -l " + vgList), "LV NAME");
+        Map<String, Set<String>> pvsByVg = parseSections(run.apply("lsvg -L -p " + vgList), "PV_NAME");
+        Map<String, Set<String>> lvsByVg = parseSections(run.apply("lsvg -L -l " + vgList), "LV NAME");
         List<LogicalVolumeGroup> groups = new ArrayList<>();
         for (String vg : vgs) {
             Set<String> pvs = pvsByVg.getOrDefault(vg, new LinkedHashSet<>());

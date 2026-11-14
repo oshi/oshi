@@ -73,8 +73,8 @@ class AixLogicalVolumeGroupTest {
     void testQueryLogicalVolumeGroups() {
         Map<String, String> outputs = new HashMap<>();
         outputs.put("lsvg -o", "vgHome\nvgScratch\nrootvg\n");
-        outputs.put("lsvg -p vgHome vgScratch rootvg", LSVG_P);
-        outputs.put("lsvg -l vgHome vgScratch rootvg", LSVG_L);
+        outputs.put("lsvg -L -p vgHome vgScratch rootvg", LSVG_P);
+        outputs.put("lsvg -L -l vgHome vgScratch rootvg", LSVG_L);
         outputs.put("lspv -l hdisk2", LSPV_HDISK2);
         for (int disk = 3; disk <= 9; disk++) {
             outputs.put("lspv -l hdisk" + disk, lspvOther(disk));
