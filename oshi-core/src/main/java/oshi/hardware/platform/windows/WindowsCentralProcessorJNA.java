@@ -73,6 +73,7 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
         String cpuModel = "";
         String cpuStepping = "";
         long cpuVendorFreq = 0L;
+        long midr = 0L;
         String processorID;
         boolean cpu64bit = false;
 
@@ -84,11 +85,12 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
             cpuName = registryGetString(cpuRegistryPath, "ProcessorNameString");
             cpuIdentifier = registryGetString(cpuRegistryPath, "Identifier");
             cpuVendorFreq = registryGetDword(cpuRegistryPath, "~MHz") * 1_000_000L;
+            midr = registryGetQword(cpuRegistryPath, ARM64_MIDR_VALUE);
         }
         if (!cpuIdentifier.isEmpty()) {
             cpuFamily = parseIdentifier(cpuIdentifier, "Family");
             cpuModel = parseIdentifier(cpuIdentifier, "Model");
-            cpuStepping = parseIdentifier(cpuIdentifier, "Stepping");
+            cpuStepping = parseStepping(cpuIdentifier, midr);
         }
         try (CloseableSystemInfo sysinfo = new CloseableSystemInfo()) {
             Kernel32.INSTANCE.GetNativeSystemInfo(sysinfo);
@@ -100,12 +102,15 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
             }
         }
         WmiResult<ProcessorIdProperty> processorId = Win32ProcessorJNA.queryProcessorId();
-        if (processorId.getResultCount() > 0) {
-            processorID = WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0);
-        } else {
-            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,
-                    cpu64bit ? new String[] { "ia64" } : new String[0]);
-        }
+        String wmiProcessorId = processorId.getResultCount() > 0
+                ? WmiUtil.getString(processorId, ProcessorIdProperty.PROCESSORID, 0)
+                : "";
+        String stepping = cpuStepping;
+        String model = cpuModel;
+        String family = cpuFamily;
+        boolean is64 = cpu64bit;
+        processorID = chooseProcessorId(wmiProcessorId, midr,
+                () -> createProcessorID(stepping, model, family, is64 ? new String[] { "ia64" } : new String[0]));
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuVendorFreq);
     }
@@ -265,6 +270,22 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
         } catch (Win32Exception e) {
             LOG.debug("Failed to read registry string {} in {}", valueName, path, e);
             return "";
+        }
+    }
+
+    /**
+     * Reads a registry QWORD, yielding zero rather than throwing if it is absent.
+     *
+     * @param path      the key under {@code HKEY_LOCAL_MACHINE}
+     * @param valueName the value to read
+     * @return the value, or 0 if it cannot be read
+     */
+    private static long registryGetQword(String path, String valueName) {
+        try {
+            return Advapi32Util.registryGetLongValue(WinReg.HKEY_LOCAL_MACHINE, path, valueName);
+        } catch (Win32Exception e) {
+            LOG.debug("Failed to read registry QWORD {} in {}", valueName, path, e);
+            return 0L;
         }
     }
 

@@ -77,6 +77,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
         String cpuModel = "";
         String cpuStepping = "";
         long cpuVendorFreq = 0L;
+        long midr = 0L;
         String processorID;
         boolean cpu64bit = false;
 
@@ -98,6 +99,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
                         cpuName = registryGetString(arena, cpuRegistryPath, "ProcessorNameString");
                         cpuIdentifier = registryGetString(arena, cpuRegistryPath, "Identifier");
                         cpuVendorFreq = registryGetDword(arena, cpuRegistryPath, "~MHz") * 1_000_000L;
+                        midr = registryGetQword(arena, cpuRegistryPath, ARM64_MIDR_VALUE);
                     }
                 }
             }
@@ -108,7 +110,7 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
         if (!cpuIdentifier.isEmpty()) {
             cpuFamily = parseIdentifier(cpuIdentifier, "Family");
             cpuModel = parseIdentifier(cpuIdentifier, "Model");
-            cpuStepping = parseIdentifier(cpuIdentifier, "Stepping");
+            cpuStepping = parseStepping(cpuIdentifier, midr);
         }
 
         // GetNativeSystemInfo to determine 64-bit
@@ -125,12 +127,15 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
         }
 
         var processorIdResult = Win32ProcessorFFM.queryProcessorId();
-        if (processorIdResult.getResultCount() > 0) {
-            processorID = WmiUtil.getString(processorIdResult, ProcessorIdProperty.PROCESSORID, 0);
-        } else {
-            processorID = createProcessorID(cpuStepping, cpuModel, cpuFamily,
-                    cpu64bit ? new String[] { "ia64" } : new String[0]);
-        }
+        String wmiProcessorId = processorIdResult.getResultCount() > 0
+                ? WmiUtil.getString(processorIdResult, ProcessorIdProperty.PROCESSORID, 0)
+                : "";
+        String stepping = cpuStepping;
+        String model = cpuModel;
+        String family = cpuFamily;
+        boolean is64 = cpu64bit;
+        processorID = chooseProcessorId(wmiProcessorId, midr,
+                () -> createProcessorID(stepping, model, family, is64 ? new String[] { "ia64" } : new String[0]));
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
                 cpuVendorFreq);
     }
@@ -270,6 +275,25 @@ class WindowsCentralProcessorFFM extends WindowsCentralProcessor {
             }
             return "";
         }, "", LOG, "Failed to read registry string {}/{}", path, valueName);
+    }
+
+    private static long registryGetQword(Arena arena, String path, String valueName) {
+        return getLongOrDefault(() -> {
+            MemorySegment hKey = arena.allocate(ValueLayout.ADDRESS);
+            MemorySegment subKey = WindowsForeignFunctions.toWideString(arena, path);
+            if (Advapi32FFM.RegOpenKeyEx(HKLM, subKey, 0, WinNTFFM.KEY_READ, hKey) == 0) {
+                try (NativeHandle key = NativeHandle.of(hKey.get(ValueLayout.ADDRESS, 0), Advapi32FFM::RegCloseKey)) {
+                    MemorySegment valueNameSeg = WindowsForeignFunctions.toWideString(arena, valueName);
+                    MemorySegment dataSize = arena.allocate(ValueLayout.JAVA_INT);
+                    dataSize.set(ValueLayout.JAVA_INT, 0, 8);
+                    MemorySegment data = arena.allocate(8);
+                    if (Advapi32FFM.RegQueryValueEx(key.get(), valueNameSeg, MemorySegment.NULL, data, dataSize) == 0) {
+                        return data.get(ValueLayout.JAVA_LONG_UNALIGNED, 0);
+                    }
+                }
+            }
+            return 0L;
+        }, 0L, LOG, "Failed to read registry QWORD {}/{}", path, valueName);
     }
 
     private static long registryGetDword(Arena arena, String path, String valueName) {

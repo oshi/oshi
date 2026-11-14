@@ -158,6 +158,51 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
+     * The registry value under each processor's key holding its {@code MIDR_EL1} on ARM64, the ARM register that
+     * identifies the implementer, part, variant and revision. Absent on x86.
+     */
+    protected static final String ARM64_MIDR_VALUE = "CP 4000";
+
+    /**
+     * Parses the stepping from the registry {@code Identifier}. An x86 identifier names it, as in
+     * {@code Intel64 Family 6 Model 158 Stepping 10}. An ARM64 identifier has a {@code Revision} instead, as in
+     * {@code ARMv8 (64-bit) Family 8 Model D49 Revision 0}, so the stepping is the {@code r<variant>p<revision>} form
+     * Linux reports, from the {@code MIDR_EL1} when it was read.
+     *
+     * @param identifier the registry {@code Identifier}
+     * @param midr       the {@code MIDR_EL1}, or 0 if not read
+     * @return the stepping, or an empty string if the identifier has none
+     */
+    protected static String parseStepping(String identifier, long midr) {
+        String stepping = parseIdentifier(identifier, "Stepping");
+        if (!stepping.isEmpty()) {
+            return stepping;
+        }
+        if (midr != 0L) {
+            return String.format(Locale.ROOT, "r%dp%d", (midr >> 20) & 0xF, midr & 0xF);
+        }
+        return parseIdentifier(identifier, "Revision");
+    }
+
+    /**
+     * Chooses the processor ID. {@code Win32_Processor.ProcessorId} is the CPUID signature on x86, but all zeros on
+     * ARM64, where the {@code MIDR_EL1} identifies the processor instead; it is formatted as Linux formats it on ARM,
+     * the register in hex followed by eight zeros.
+     *
+     * @param wmiProcessorId the {@code Win32_Processor.ProcessorId}, or an empty string if WMI returned none
+     * @param midr           the {@code MIDR_EL1}, or 0 if not read
+     * @param fallback       the ID to encode from the identifier's fields when neither is available
+     * @return the processor ID
+     */
+    protected static String chooseProcessorId(String wmiProcessorId, long midr, Supplier<String> fallback) {
+        boolean wmiBlank = wmiProcessorId.isEmpty() || wmiProcessorId.chars().allMatch(c -> c == '0');
+        if (wmiBlank && midr != 0L) {
+            return String.format(Locale.ROOT, "%08X00000000", midr & 0xFFFF_FFFFL);
+        }
+        return wmiProcessorId.isEmpty() ? fallback.get() : wmiProcessorId;
+    }
+
+    /**
      * Parses identifier string
      *
      * @param identifier the full identifier string
