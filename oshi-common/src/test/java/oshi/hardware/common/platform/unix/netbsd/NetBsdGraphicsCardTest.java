@@ -57,6 +57,37 @@ class NetBsdGraphicsCardTest {
     }
 
     @Test
+    void testVirtioGpu() {
+        // virtio attaches to PCI with no description and names its device type on the next line
+        List<String> dmesg = """
+                virtio0 at pci0 dev 2 function 0
+                virtio0: GPU device (id 16, rev. 0x01)
+                viogpu0 at virtio0: features: 0x110000000<V1,INDIRECT_DESC>
+                wsdisplay0 at viogpu0 kbdmux 1: console (default, vt100 emulation), using wskbd0
+                virtio1 at pci0 dev 3 function 0
+                virtio1: network device (id 1, rev. 0x01)
+                """.lines().toList();
+        List<GraphicsCard> cards = NetBsdGraphicsCard.parseDmesg(dmesg);
+        assertThat(cards, hasSize(1));
+        assertThat(cards.get(0).getName(), is("Virtio GPU device"));
+        assertThat(cards.get(0).getVendor(), is(Constants.UNKNOWN));
+        assertThat(cards.get(0).getDeviceId(), is(Constants.UNKNOWN));
+        assertThat(cards.get(0).getVersionInfo(), is("Revision: 0x01"));
+    }
+
+    @Test
+    void testBarePciAttachment() {
+        List<String> dmesg = """
+                genfb0 at pci0 dev 1 function 0
+                wsdisplay0 at genfb0 kbdmux 1: console (default, vt100 emulation)
+                """.lines().toList();
+        List<GraphicsCard> cards = NetBsdGraphicsCard.parseDmesg(dmesg);
+        assertThat(cards, hasSize(1));
+        assertThat(cards.get(0).getName(), is(Constants.UNKNOWN));
+        assertThat(cards.get(0).getVersionInfo(), is(Constants.UNKNOWN));
+    }
+
+    @Test
     void testNoDisplay() {
         List<String> dmesg = """
                 ehci0 at pci0 dev 1 function 0: vendor 8086 product 24cd (rev. 0x10)

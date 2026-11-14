@@ -77,4 +77,14 @@ class NetBsdPowerSourceTest {
                 new Object[] { "acpitz0", sensor("temperature", "Temperature", "313150000", "valid") });
         assertThat(NetBsdPowerSource.parsePowerSources(Envstat.parseSensors(lines)), is(empty()));
     }
+
+    @Test
+    void testFailedPresenceCheck() {
+        // A failed _STA evaluation marks every sensor invalid but leaves the previous values behind
+        List<String> lines = envstatX(new Object[] { "acpibat0", sensor("present", "Indicator", "1", "invalid"),
+                sensor("design cap", "Watt hour", "57000000", "invalid"),
+                sensor("last full cap", "Watt hour", "50000000", "invalid"),
+                sensor("charge", "Watt hour", "25000000", "invalid") });
+        assertThat(NetBsdPowerSource.parsePowerSources(Envstat.parseSensors(lines)), is(empty()));
+    }
 }

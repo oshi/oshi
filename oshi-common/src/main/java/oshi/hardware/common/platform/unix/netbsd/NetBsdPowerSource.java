@@ -53,7 +53,7 @@ final class NetBsdPowerSource extends AbstractPowerSource {
 
     /**
      * Builds power sources from {@code envstat} sensors. A battery is a device reporting {@code present} and
-     * {@code charge}; a slot whose {@code present} indicator is false is skipped.
+     * {@code charge}; a slot whose {@code present} indicator is false or invalid is skipped.
      *
      * @param sensors the parsed sensors
      * @return a power source for each battery present
@@ -73,7 +73,8 @@ final class NetBsdPowerSource extends AbstractPowerSource {
             Map<String, Sensor> bat = e.getValue();
             Sensor present = bat.get("present");
             Sensor charge = bat.get("charge");
-            if (present == null || charge == null || present.getValue() == 0) {
+            // A failed presence check leaves the previous value in place but marks every sensor invalid
+            if (present == null || charge == null || !present.isValid() || present.getValue() == 0) {
                 continue;
             }
             batteries.add(toPowerSource(e.getKey(), bat, charge, acConnected));
