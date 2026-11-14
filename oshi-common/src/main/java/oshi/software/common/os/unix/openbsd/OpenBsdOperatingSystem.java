@@ -11,6 +11,8 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.common.os.unix.bsd.PkgInfoInstalledApps;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSThread;
@@ -121,4 +123,9 @@ public abstract class OpenBsdOperatingSystem extends BsdOperatingSystem {
      * @return a new OSProcess
      */
     protected abstract OSProcess createProcess(int pid, Map<BsdPsKeyword, String> psMap);
+
+    @Override
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return PkgInfoInstalledApps.queryInstalledApps(PkgInfoInstalledApps.OPENBSD_PKG_DB, true);
+    }
 }
