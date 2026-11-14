@@ -58,7 +58,8 @@ public interface HWDiskStore {
      * Determined on Linux from the device's {@code removable} and {@code queue/rotational} sysfs attributes, on macOS
      * from the IOKit registry's {@code Removable} property and {@code Medium Type}, and on Windows from the storage
      * driver's removable-media flag, bus type and seek penalty, falling back to {@code MSFT_PhysicalDisk}'s
-     * {@code MediaType} and {@code SpindleSpeed}. Other platforms always report {@code Unknown}.
+     * {@code MediaType} and {@code SpindleSpeed}, and on FreeBSD from the {@code rotationrate} the drive reports to
+     * {@code geom}. Other platforms always report {@code Unknown}.
      * <p>
      * {@code Virtual} is reported only for a Linux device-mapper device, a macOS APFS container or disk image, and a
      * Windows file-backed virtual or Storage Spaces disk. A hypervisor's disk that the guest sees as an ordinary device

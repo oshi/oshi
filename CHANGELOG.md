@@ -37,6 +37,7 @@
 * [#3893](https://github.com/oshi/oshi/pull/3893): `NetworkIF.getIfOperStatus()` and `getIfAlias()` now report link state and the interface description on FreeBSD, DragonFly BSD, NetBSD and OpenBSD, and `getIfType()` reports the interface type on AIX - [@dbwiddis](https://github.com/dbwiddis).
 * [#3894](https://github.com/oshi/oshi/pull/3894): `HardwareAbstractionLayer.getSoundCards()` now reports sound cards on FreeBSD and DragonFly BSD from the kernel's device tree, where it relied on `lshal`, which is no longer available - [@dbwiddis](https://github.com/dbwiddis).
 * [#3895](https://github.com/oshi/oshi/pull/3895): `OperatingSystem.getInstalledApplications()` now lists installed packages on FreeBSD, DragonFly BSD, OpenBSD, NetBSD, Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
+* [#3896](https://github.com/oshi/oshi/pull/3896): `HWDiskStore.getDiskType()` now reports `SSD` or `HDD` on FreeBSD, and Windows `HWDiskStore.getPartitions()` includes partitions without a drive letter, such as the EFI system and recovery partitions, with an empty mount point - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

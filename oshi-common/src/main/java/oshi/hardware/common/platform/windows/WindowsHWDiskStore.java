@@ -352,6 +352,25 @@ public abstract class WindowsHWDiskStore extends AbstractHWDiskStore {
     }
 
     /**
+     * Adds a partition that no logical drive is mounted on, such as an EFI system, Microsoft reserved or recovery
+     * partition. With no volume to ask, it has no UUID, label or mount point.
+     *
+     * @param maps        The PartitionMaps to populate
+     * @param deviceID    The partition's {@code Win32_DiskPartition.DeviceID}
+     * @param name        The partition name
+     * @param type        The partition type
+     * @param description The partition description
+     * @param size        The partition size in bytes
+     * @param diskIndex   The index of the disk holding the partition
+     * @param index       The index of the partition on its disk
+     */
+    protected static void mapUnmountedPartition(PartitionMaps maps, String deviceID, String name, String type,
+            String description, long size, int diskIndex, int index) {
+        maps.getPartitionMap().computeIfAbsent(deviceID, x -> new ArrayList<>())
+                .add(new HWPartition(name, type, description, "", "", size, diskIndex, index, ""));
+    }
+
+    /**
      * Builds an unmodifiable sorted partition list from the maps.
      *
      * @param maps     The partition maps

@@ -17,8 +17,8 @@ import oshi.util.platform.unix.freebsd.BsdSysctlUtil;
 @ThreadSafe
 public final class FreeBsdHWDiskStoreJNA extends FreeBsdHWDiskStore {
 
-    private FreeBsdHWDiskStoreJNA(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
+    private FreeBsdHWDiskStoreJNA(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
     }
 
     /**
