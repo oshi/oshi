@@ -35,6 +35,7 @@
 * [#3891](https://github.com/oshi/oshi/pull/3891): NetBSD now reports `Sensors` and `getPowerSources()` through `envstat`, and `getGraphicsCards()` from the boot messages, where it previously ran OpenBSD-only commands and reported nothing - [@dbwiddis](https://github.com/dbwiddis).
 * [#3892](https://github.com/oshi/oshi/pull/3892): `LogicalProcessor.getNumaNode()` now reports the NUMA node on FreeBSD and NetBSD, and `CentralProcessor.getFeatureFlags()` on Solaris no longer depends on the boot messages remaining in `dmesg` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3893](https://github.com/oshi/oshi/pull/3893): `NetworkIF.getIfOperStatus()` and `getIfAlias()` now report link state and the interface description on FreeBSD, DragonFly BSD, NetBSD and OpenBSD, and `getIfType()` reports the interface type on AIX - [@dbwiddis](https://github.com/dbwiddis).
+* [#3895](https://github.com/oshi/oshi/pull/3895): `OperatingSystem.getInstalledApplications()` now lists installed packages on FreeBSD, DragonFly BSD, OpenBSD, NetBSD, Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
