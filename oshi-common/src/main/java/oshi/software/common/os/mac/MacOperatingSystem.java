@@ -6,7 +6,6 @@ package oshi.software.common.os.mac;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
@@ -34,7 +32,6 @@ import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileUtil;
-import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
@@ -67,9 +64,6 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     /** Minor version number. */
     protected final int minor;
     // CHECKSTYLE:ON VisibilityModifier
-
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-            .memoize(MacInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     /**
      * Creates a MacOperatingSystem.
@@ -276,7 +270,7 @@ public abstract class MacOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedAppsSupplier.get();
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return MacInstalledApps.queryInstalledApps();
     }
 }

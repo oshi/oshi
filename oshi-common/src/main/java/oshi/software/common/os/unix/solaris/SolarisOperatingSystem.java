@@ -7,15 +7,11 @@ package oshi.software.common.os.unix.solaris;
 import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.installedAppsExpiration;
-import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
@@ -42,9 +38,6 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
-
-    private final Supplier<List<ApplicationInfo>> installedApps = memoize(
-            () -> Collections.unmodifiableList(SolarisInstalledApps.queryInstalledApps()), installedAppsExpiration());
 
     private static final String VERSION;
     private static final String BUILD_NUMBER;
@@ -242,7 +235,7 @@ public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
     protected abstract OSProcess createProcess(int pid);
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedApps.get();
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return SolarisInstalledApps.queryInstalledApps();
     }
 }

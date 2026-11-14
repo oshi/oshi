@@ -7,22 +7,28 @@ package oshi.software.common;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -44,7 +50,17 @@ class AbstractOperatingSystemTest {
     }
 
     private static AbstractOperatingSystem createOS(List<OSProcess> allProcesses) {
+        return createOS(allProcesses, null);
+    }
+
+    private static AbstractOperatingSystem createOS(List<OSProcess> allProcesses,
+            @Nullable Supplier<List<ApplicationInfo>> installedApps) {
         return new AbstractOperatingSystem() {
+            @Override
+            protected List<ApplicationInfo> queryInstalledApps() {
+                return installedApps == null ? super.queryInstalledApps() : installedApps.get();
+            }
+
             @Override
             protected String queryManufacturer() {
                 return "TestMfg";
@@ -368,5 +384,25 @@ class AbstractOperatingSystemTest {
         public List<OSThread> getThreadDetails() {
             return Collections.emptyList();
         }
+    }
+
+    @Test
+    void testInstalledApplicationsDefaultEmpty() {
+        assertThat(createOS(Collections.emptyList()).getInstalledApplications(), is(empty()));
+    }
+
+    @Test
+    void testInstalledApplicationsCachedAndUnmodifiable() {
+        AtomicInteger queries = new AtomicInteger();
+        AbstractOperatingSystem os = createOS(Collections.emptyList(), () -> {
+            queries.incrementAndGet();
+            // A platform's query returns a list it built, which callers must not be able to change
+            return new ArrayList<>(List.of(new ApplicationInfo("pkg", "1.0", "vendor", 0L, null)));
+        });
+        List<ApplicationInfo> apps = os.getInstalledApplications();
+        assertThat(apps, hasSize(1));
+        assertThrows(UnsupportedOperationException.class, apps::clear);
+        assertThat(os.getInstalledApplications(), sameInstance(apps));
+        assertThat(queries.get(), is(1));
     }
 }

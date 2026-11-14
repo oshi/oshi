@@ -15,7 +15,6 @@ import static oshi.ffm.platform.windows.WindowsForeignFunctions.readWideString;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.setupTokenPrivileges;
 import static oshi.ffm.platform.windows.WindowsForeignFunctions.succeededOrLog;
 import static oshi.util.LogLevel.ERROR;
-import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.lang.foreign.Arena;
 import java.lang.foreign.MemoryLayout;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -67,7 +65,6 @@ import oshi.software.os.OSService;
 import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
-import oshi.util.Memoizer;
 
 @ThreadSafe
 public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
@@ -75,9 +72,6 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsOperatingSystemFFM.class);
 
     private static final long BOOTTIME = Advapi32UtilFFM.querySystemBootTime();
-
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-            .memoize(WindowsInstalledAppsFFM::queryInstalledApps, installedAppsExpiration());
 
     static {
         enableDebugPrivilege();
@@ -186,8 +180,8 @@ public class WindowsOperatingSystemFFM extends WindowsOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedAppsSupplier.get();
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return WindowsInstalledAppsFFM.queryInstalledApps();
     }
 
     @Override
