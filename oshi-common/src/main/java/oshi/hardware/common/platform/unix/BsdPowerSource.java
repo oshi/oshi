@@ -20,8 +20,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 
 /**
- * Shared power-source implementation for BSDs that use {@code apm} and {@code systat -ab sensors} for battery state
- * (NetBSD, OpenBSD).
+ * Power-source implementation for BSDs that use {@code apm} and {@code systat -ab sensors} for battery state (OpenBSD).
  */
 @ThreadSafe
 public final class BsdPowerSource extends AbstractPowerSource {

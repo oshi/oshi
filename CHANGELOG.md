@@ -32,6 +32,7 @@
 * [#3887](https://github.com/oshi/oshi/pull/3887): Fixed Windows `getCpuTemperature()` from Open or Libre Hardware Monitor, which averaged in the summary and distance-to-TjMax sensors, and `getFanSpeeds()` from either monitor, which looked for fans on the processor instead of the motherboard - [@dbwiddis](https://github.com/dbwiddis).
 * [#3888](https://github.com/oshi/oshi/pull/3888): Fixed OpenBSD `VirtualMemory.getSwapPagesIn()` and `getSwapPagesOut()`, which reported bytes rather than pages, and `OSProcess.getAffinityMask()`, which reported no processors - [@dbwiddis](https://github.com/dbwiddis).
 * [#3890](https://github.com/oshi/oshi/pull/3890): Fixed `CentralProcessor` IRQ, SoftIRQ and Steal ticks and `OSProcess.getBitness()` on AIX, `OSProcess.getCurrentWorkingDirectory()` on Solaris, and `OSProcess.getGroup()` on DragonFly BSD - [@dbwiddis](https://github.com/dbwiddis).
+* [#3891](https://github.com/oshi/oshi/pull/3891): NetBSD now reports `Sensors` and `getPowerSources()` through `envstat`, and `getGraphicsCards()` from the boot messages, where it previously ran OpenBSD-only commands and reported nothing - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

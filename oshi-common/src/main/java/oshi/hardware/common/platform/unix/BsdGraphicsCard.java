@@ -17,7 +17,7 @@ import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 
 /**
- * Shared graphics card implementation for BSDs that use {@code pcidump -v} to enumerate PCI devices (NetBSD, OpenBSD).
+ * Shared graphics card implementation for BSDs that use {@code pcidump -v} to enumerate PCI devices (OpenBSD).
  */
 @Immutable
 public final class BsdGraphicsCard extends AbstractGraphicsCard {
