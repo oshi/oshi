@@ -21,6 +21,7 @@ import oshi.hardware.Display;
 import oshi.hardware.GlobalMemory;
 import oshi.hardware.GraphicsCard;
 import oshi.hardware.HWDiskStore;
+import oshi.hardware.LogicalVolumeGroup;
 import oshi.hardware.NetworkIF;
 import oshi.hardware.PowerSource;
 import oshi.hardware.Printer;
@@ -31,6 +32,7 @@ import oshi.hardware.common.AbstractHardwareAbstractionLayer;
 import oshi.hardware.common.platform.unix.UnixDisplay;
 import oshi.hardware.common.platform.unix.aix.AixComputerSystem;
 import oshi.hardware.common.platform.unix.aix.AixGraphicsCard;
+import oshi.hardware.common.platform.unix.aix.AixLogicalVolumeGroup;
 import oshi.hardware.common.platform.unix.aix.AixPowerSource;
 import oshi.hardware.common.platform.unix.aix.AixSensors;
 import oshi.hardware.common.platform.unix.aix.AixSoundCard;
@@ -69,6 +71,11 @@ public final class AixHardwareAbstractionLayerJNA extends AbstractHardwareAbstra
     @Override
     public List<PowerSource> getPowerSources() {
         return AixPowerSource.getPowerSources();
+    }
+
+    @Override
+    public List<LogicalVolumeGroup> getLogicalVolumeGroups() {
+        return AixLogicalVolumeGroup.getLogicalVolumeGroups();
     }
 
     @Override
