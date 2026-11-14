@@ -146,9 +146,9 @@ public interface NetworkIF {
     Short[] getPrefixLengths();
 
     /**
-     * (Windows, macOS) The NDIS Interface Type. NDIS interface types are registered with the Internet Assigned Numbers
-     * Authority (IANA), which publishes a list of interface types periodically in the Assigned Numbers RFC, or in a
-     * derivative of it that is specific to Internet network management number assignments.
+     * (Windows, macOS, AIX) The NDIS Interface Type. NDIS interface types are registered with the Internet Assigned
+     * Numbers Authority (IANA), which publishes a list of interface types periodically in the Assigned Numbers RFC, or
+     * in a derivative of it that is specific to Internet network management number assignments.
      * <p>
      * (Linux) ARP Protocol hardware identifiers defined in {@code include/uapi/linux/if_arp.h}
      *

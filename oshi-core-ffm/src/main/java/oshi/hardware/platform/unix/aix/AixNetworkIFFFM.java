@@ -59,6 +59,8 @@ public final class AixNetworkIFFFM extends AixNetworkIF {
                 out.collisions = stat.collisions;
                 out.inDrops = stat.if_iqdrops;
                 out.speed = stat.bitrate;
+                // An IANA ifType from <net/if_types.h>, an unsigned char
+                out.ifType = Byte.toUnsignedInt(stat.type);
                 return out;
             }
         }
