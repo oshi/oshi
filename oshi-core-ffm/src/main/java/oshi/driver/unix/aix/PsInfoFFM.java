@@ -38,6 +38,9 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class PsInfoFFM {
 
+    /** The most environment entries read, a guard against a table whose terminator was not found. */
+    private static final int MAX_ENV = 500;
+
     private static final Logger LOG = LoggerFactory.getLogger(PsInfoFFM.class);
 
     private static final long PAGE_SIZE = 4096L;
@@ -100,18 +103,17 @@ public final class PsInfoFFM {
                 // Also read the pointers to the env strings; stop at first null.
                 bufStart = conditionallyReadPage(fd, buffer, bufStart, envp);
                 List<Long> envPtrList = new ArrayList<>();
-                long addr = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, envp - bufStart, increment);
-                int limit = 500;
-                long offset = addr;
-                while (addr != 0 && --limit > 0) {
+                // As with argv, envp points to the pointer table, so dereference once; the table is
+                // null-terminated, and is read for at most MAX_ENV entries
+                long envTable = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, envp - bufStart, increment);
+                for (int i = 0; envTable != 0 && i < MAX_ENV; i++) {
+                    long offset = envTable + i * increment;
                     bufStart = conditionallyReadPage(fd, buffer, bufStart, offset);
                     long envPtr = bufStart == 0 ? 0 : readPointerFromBuffer(buffer, offset - bufStart, increment);
-                    if (envPtr != 0) {
-                        envPtrList.add(envPtr);
-                    } else {
+                    if (envPtr == 0) {
                         break;
                     }
-                    offset += increment;
+                    envPtrList.add(envPtr);
                 }
 
                 // Now read the arg strings from the buffer
