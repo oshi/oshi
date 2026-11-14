@@ -64,7 +64,7 @@ public interface HardwareAbstractionLayer {
      * <p>
      * If not yet implemented or if logical volume groups do not exist, returns an empty list.
      * <p>
-     * Currently implemented for Linux (LVM2), macOS (Core Storage), and Windows (Storage Spaces).
+     * Currently implemented for Linux (LVM2), macOS (Core Storage), Windows (Storage Spaces), and AIX (LVM).
      *
      * @return A list of {@link LogicalVolumeGroup} objects or an empty list if none are present.
      */

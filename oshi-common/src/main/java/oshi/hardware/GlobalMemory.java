@@ -63,7 +63,8 @@ public interface GlobalMemory {
     /**
      * Physical memory, such as banks of memory.
      * <p>
-     * On Linux, requires elevated permissions. On FreeBSD and Solaris, requires installation of dmidecode.
+     * On Linux, requires elevated permissions. On FreeBSD, requires installation of dmidecode. On Solaris, read from
+     * the SMBIOS table with {@code smbios}, which x86 systems have and SPARC systems do not.
      *
      * @return A list of PhysicalMemory objects.
      */
