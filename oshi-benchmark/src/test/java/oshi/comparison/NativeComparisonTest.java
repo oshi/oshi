@@ -1081,6 +1081,9 @@ class NativeComparisonTest {
             jnaThreads = jna.getThreadDetails();
             ffmThreads = ffm.getThreadDetails();
         }
+        // Two empty lists would compare equal without comparing anything
+        assertThat(jnaThreads).as("JNA threadDetails").isNotEmpty();
+        assertThat(ffmThreads).as("FFM threadDetails").isNotEmpty();
         // Thread count can change between the reads, by a large fraction of a small count
         assertWithinRatio(ffmThreads.size(), jnaThreads.size(), 0.20, "threadDetails.size");
     }
