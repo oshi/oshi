@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -100,6 +101,23 @@ class AixLogicalVolumeGroupTest {
         assertThat(scratch.getLogicalVolumes().get("lvscratch"), contains("hdisk1"));
         assertThat(groups.get(2).getLogicalVolumes().keySet(), containsInAnyOrder("hd5", "hd6", "hd4", "livedump"));
         assertThat(commands.stream().filter(c -> c.startsWith("lspv")).count(), is(8L));
+    }
+
+    @Test
+    void testParseSectionsKeepsEachGroupsOwnVolumes() {
+        // Constructed: two groups, one with a disk whose name begins with the heading's first word
+        List<String> lsvg = """
+                vgA:
+                PV_NAME           PV STATE          TOTAL PPs   FREE PPs    FREE DISTRIBUTION
+                hdisk0            active            991         629         198..35..00..198..198
+                PV_NAMEdata       active            100         0           00..00..00..00..00
+                vgB:
+                PV_NAME           PV STATE          TOTAL PPs   FREE PPs    FREE DISTRIBUTION
+                hdisk1            active            1022        0           00..00..00..00..00
+                """.lines().toList();
+        Map<String, Set<String>> sections = AixLogicalVolumeGroup.parseSections(lsvg, "PV_NAME");
+        assertThat(sections.get("vgA"), contains("hdisk0", "PV_NAMEdata"));
+        assertThat(sections.get("vgB"), contains("hdisk1"));
     }
 
     @Test

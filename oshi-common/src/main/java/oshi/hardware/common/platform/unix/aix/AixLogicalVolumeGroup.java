@@ -103,16 +103,29 @@ public final class AixLogicalVolumeGroup extends AbstractLogicalVolumeGroup {
         Set<String> current = null;
         for (String line : lines) {
             String trimmed = line.trim();
-            if (trimmed.isEmpty() || trimmed.startsWith(heading)) {
+            if (trimmed.isEmpty()) {
                 continue;
             }
             if (trimmed.endsWith(":") && !trimmed.contains(" ")) {
                 current = sections.computeIfAbsent(trimmed.substring(0, trimmed.length() - 1),
                         k -> new LinkedHashSet<>());
-            } else if (current != null) {
+            } else if (current != null && !isHeading(trimmed, heading)) {
                 current.add(ParseUtil.whitespaces.split(trimmed, 2)[0]);
             }
         }
         return sections;
+    }
+
+    /**
+     * Whether a row is the column heading: one that starts with the heading's words followed by whitespace, so a volume
+     * whose name merely begins with them, such as {@code PV_NAMEdata}, is not mistaken for it.
+     *
+     * @param row     a trimmed row
+     * @param heading the heading's first words
+     * @return whether the row is the heading
+     */
+    private static boolean isHeading(String row, String heading) {
+        return row.startsWith(heading)
+                && (row.length() == heading.length() || Character.isWhitespace(row.charAt(heading.length())));
     }
 }
