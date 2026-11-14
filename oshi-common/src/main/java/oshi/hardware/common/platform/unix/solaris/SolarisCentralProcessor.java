@@ -5,7 +5,6 @@
 package oshi.hardware.common.platform.unix.solaris;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -44,12 +43,11 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
             logProcs.add(new LogicalProcessor(0, 0, 0));
         }
         List<ProcessorCache> caches = parsePiclCaches(ExecutingCommand.runNative("/usr/sbin/prtpicl -v -c cpu"));
-        Map<Integer, String> dmesg = parseDmesgCpuInfo(ExecutingCommand.runNative("dmesg"));
-        if (dmesg.isEmpty()) {
-            return new Quartet<>(logProcs, null, caches, Collections.emptyList());
-        }
+        // The flags come from isainfo, so they do not depend on the boot messages still being in dmesg
         List<String> featureFlags = ExecutingCommand.runNative("isainfo -x");
-        return new Quartet<>(logProcs, createProcListFromDmesg(logProcs, dmesg), caches, featureFlags);
+        Map<Integer, String> dmesg = parseDmesgCpuInfo(ExecutingCommand.runNative("dmesg"));
+        List<PhysicalProcessor> physProcs = dmesg.isEmpty() ? null : createProcListFromDmesg(logProcs, dmesg);
+        return new Quartet<>(logProcs, physProcs, caches, featureFlags);
     }
 
     @Override

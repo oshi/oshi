@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import oshi.hardware.CentralProcessor.ProcessorCache;
 import oshi.hardware.common.platform.unix.BsdCentralProcessor.DmesgStrings;
-import oshi.util.tuples.Pair;
+import oshi.util.tuples.Triplet;
 
 class BsdCentralProcessorTest {
 
@@ -32,7 +32,8 @@ class BsdCentralProcessorTest {
 
     @Test
     void testParseTopology() {
-        Pair<Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor.parseTopology(DMESG_TOPOLOGY);
+        Triplet<Map<Integer, Integer>, Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor
+                .parseTopology(DMESG_TOPOLOGY);
         Map<Integer, Integer> coreMap = result.getA();
         Map<Integer, Integer> packageMap = result.getB();
         assertThat(coreMap.size(), is(4));
@@ -52,9 +53,27 @@ class BsdCentralProcessorTest {
                 cpu15: package 0, core 15, smt 0
                 cpu2: node 0, package 1, core 2, smt 0
                 """.lines().toList();
-        Pair<Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor.parseTopology(dmesg);
+        Triplet<Map<Integer, Integer>, Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor
+                .parseTopology(dmesg);
         assertThat(result.getA(), is(Map.of(0, 0, 15, 15, 2, 2)));
         assertThat(result.getB(), is(Map.of(0, 0, 15, 0, 2, 1)));
+        // Only the amd64 line names a NUMA node
+        assertThat(result.getC(), is(Map.of(2, 0)));
+    }
+
+    @Test
+    void testParseTopologyNetBsdNumaNodes() {
+        List<String> dmesg = """
+                cpu0: node 0, package 0, core 0, smt 0
+                cpu1: node 0, package 0, core 1, smt 0
+                cpu2: node 1, package 1, core 0, smt 0
+                cpu3: node 1, package 1, core 1, smt 0
+                """.lines().toList();
+        Triplet<Map<Integer, Integer>, Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor
+                .parseTopology(dmesg);
+        assertThat(result.getA(), is(Map.of(0, 0, 1, 1, 2, 0, 3, 1)));
+        assertThat(result.getB(), is(Map.of(0, 0, 1, 0, 2, 1, 3, 1)));
+        assertThat(result.getC(), is(Map.of(0, 0, 1, 0, 2, 1, 3, 1)));
     }
 
     @Test
@@ -67,10 +86,11 @@ class BsdCentralProcessorTest {
 
     @Test
     void testParseTopologyEmpty() {
-        Pair<Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor
+        Triplet<Map<Integer, Integer>, Map<Integer, Integer>, Map<Integer, Integer>> result = BsdCentralProcessor
                 .parseTopology(Collections.emptyList());
         assertThat(result.getA().isEmpty(), is(true));
         assertThat(result.getB().isEmpty(), is(true));
+        assertThat(result.getC().isEmpty(), is(true));
     }
 
     @Test
