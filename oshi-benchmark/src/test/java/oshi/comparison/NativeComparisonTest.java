@@ -1074,6 +1074,13 @@ class NativeComparisonTest {
         OSProcess ffm = ffmOs.getProcess(pid);
         List<OSThread> jnaThreads = jna.getThreadDetails();
         List<OSThread> ffmThreads = ffm.getThreadDetails();
+        // A ps taken while the JVM is inside posix_spawn sees every LWP as the kernel's zombie view (see
+        // isDegradedOnNetBsd), and the invalid-thread filter then leaves none; a live JVM always has threads
+        for (int attempt = 0; attempt < 10 && isNetBsd() && (jnaThreads.isEmpty() || ffmThreads.isEmpty()); attempt++) {
+            Util.sleep(50);
+            jnaThreads = jna.getThreadDetails();
+            ffmThreads = ffm.getThreadDetails();
+        }
         // Thread count can change between the reads, by a large fraction of a small count
         assertWithinRatio(ffmThreads.size(), jnaThreads.size(), 0.20, "threadDetails.size");
     }
