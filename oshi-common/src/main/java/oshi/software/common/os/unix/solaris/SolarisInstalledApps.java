@@ -48,9 +48,9 @@ public final class SolarisInstalledApps {
     /**
      * Parses the output of {@code pkg list -Hv}. Package-private for testing.
      * <p>
-     * The publisher, such as {@code solaris} or {@code openindiana.org}, is the vendor. IPS records no install time
-     * that a listing can show, so the timestamp is the one in the FMRI, which is when that version of the package was
-     * published.
+     * The publisher, such as {@code solaris} or {@code openindiana.org}, is the vendor. {@code pkg list} does not show
+     * when a package was installed, and {@code pkg info}, which does, would cost a further command for every package,
+     * so the timestamp is the one in the FMRI, which is when that version of the package was published.
      *
      * @param lines the lines emitted by {@code pkg list -Hv}
      * @return the installed applications

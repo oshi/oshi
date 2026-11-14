@@ -12,6 +12,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -42,8 +43,8 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public abstract class SolarisOperatingSystem extends AbstractOperatingSystem {
 
-    private final Supplier<List<ApplicationInfo>> installedApps = memoize(SolarisInstalledApps::queryInstalledApps,
-            installedAppsExpiration());
+    private final Supplier<List<ApplicationInfo>> installedApps = memoize(
+            () -> Collections.unmodifiableList(SolarisInstalledApps.queryInstalledApps()), installedAppsExpiration());
 
     private static final String VERSION;
     private static final String BUILD_NUMBER;

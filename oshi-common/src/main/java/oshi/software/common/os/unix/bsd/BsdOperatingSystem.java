@@ -11,6 +11,7 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -45,8 +46,8 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(BsdOperatingSystem.class);
 
     private final Supplier<Long> bootTime = memoize(this::queryBootTime);
-    private final Supplier<List<ApplicationInfo>> installedApps = memoize(this::queryInstalledApps,
-            installedAppsExpiration());
+    private final Supplier<List<ApplicationInfo>> installedApps = memoize(
+            () -> Collections.unmodifiableList(queryInstalledApps()), installedAppsExpiration());
 
     @Override
     public String queryManufacturer() {

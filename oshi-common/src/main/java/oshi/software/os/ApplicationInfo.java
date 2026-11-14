@@ -93,7 +93,7 @@ public class ApplicationInfo {
      * installation or last modified time. - On macOS, it reflects the last modification timestamp of the application
      * bundle. - On FreeBSD and DragonFly BSD, it is the package's install time, and on OpenBSD and NetBSD the
      * modification time of its package database entry. - On Solaris and illumos, it is when the installed version of
-     * the package was published, as IPS records no install time.
+     * the package was published, as {@code pkg list} does not show when it was installed.
      * </p>
      *
      * @return The last modified time in epoch milliseconds, or {@code 0} if unavailable.
