@@ -20,7 +20,6 @@ import oshi.hardware.Sensors;
 import oshi.hardware.SoundCard;
 import oshi.hardware.UsbDevice;
 import oshi.hardware.common.AbstractHardwareAbstractionLayer;
-import oshi.hardware.common.platform.unix.BsdGraphicsCard;
 import oshi.hardware.common.platform.unix.BsdNetworkIF;
 import oshi.hardware.common.platform.unix.BsdSoundCard;
 import oshi.hardware.common.platform.unix.BsdUsbDevice;
@@ -85,7 +84,7 @@ public class NetBsdHardwareAbstractionLayer extends AbstractHardwareAbstractionL
 
     @Override
     protected List<GraphicsCard> createGraphicsCards() {
-        return BsdGraphicsCard.getGraphicsCards();
+        return NetBsdGraphicsCard.getGraphicsCards();
     }
 
     @Override
