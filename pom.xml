@@ -708,6 +708,11 @@
             </plugins>
         </pluginManagement>
         <plugins>
+            <!-- Loads config/sonar-project.properties so its issue-ignore rules reach the Sonar analysis -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>properties-maven-plugin</artifactId>
+            </plugin>
             <!-- Build Plugins -->
             <plugin>
                 <groupId>io.github.git-commit-id</groupId>
