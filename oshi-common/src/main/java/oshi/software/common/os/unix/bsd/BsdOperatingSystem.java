@@ -6,12 +6,10 @@ package oshi.software.common.os.unix.bsd;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -25,7 +23,6 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.AbstractOperatingSystem;
-import oshi.software.os.ApplicationInfo;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.util.ExecutingCommand;
@@ -46,8 +43,6 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
     private static final Logger LOG = LoggerFactory.getLogger(BsdOperatingSystem.class);
 
     private final Supplier<Long> bootTime = memoize(this::queryBootTime);
-    private final Supplier<List<ApplicationInfo>> installedApps = memoize(
-            () -> Collections.unmodifiableList(queryInstalledApps()), installedAppsExpiration());
 
     @Override
     public String queryManufacturer() {
@@ -210,16 +205,4 @@ public abstract class BsdOperatingSystem extends AbstractOperatingSystem {
      * @return the boot time in seconds
      */
     protected abstract long queryBootTime();
-
-    @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedApps.get();
-    }
-
-    /**
-     * Queries the installed packages from this system's package manager.
-     *
-     * @return the installed applications, or an empty list if the package manager is not available
-     */
-    protected abstract List<ApplicationInfo> queryInstalledApps();
 }

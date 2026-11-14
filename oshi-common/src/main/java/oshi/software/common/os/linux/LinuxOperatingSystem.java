@@ -6,7 +6,6 @@ package oshi.software.common.os.linux;
 
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.installedAppsExpiration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -64,9 +63,6 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     private static final String RELEASE_DELIM = " release ";
     private static final Pattern DOUBLE_QUOTES = Pattern.compile("(?:^\"|\"$)");
     private static final String FILENAME_PROPERTIES = "oshi.linux.filename.properties";
-
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-            .memoize(LinuxInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     private final Supplier<CgroupInfo> cgroupInfoSupplier = Memoizer.memoize(LinuxCgroupInfo::new);
 
@@ -234,8 +230,8 @@ public abstract class LinuxOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedAppsSupplier.get();
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return LinuxInstalledApps.queryInstalledApps();
     }
 
     @Override

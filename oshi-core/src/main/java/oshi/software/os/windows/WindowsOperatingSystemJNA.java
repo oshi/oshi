@@ -7,7 +7,6 @@ package oshi.software.os.windows;
 import static oshi.software.os.OSService.State.OTHER;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
-import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
@@ -76,7 +75,6 @@ import oshi.software.os.OSService.State;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
 import oshi.util.GlobalConfig;
-import oshi.util.Memoizer;
 
 /**
  * Microsoft Windows, commonly referred to as Windows, is a group of several proprietary graphical operating system
@@ -106,9 +104,6 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
      */
     private static final boolean X86 = isCurrentX86();
     private static final boolean WOW = isCurrentWow();
-
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-            .memoize(WindowsInstalledAppsJNA::queryInstalledApps, installedAppsExpiration());
 
     @Override
     protected @Nullable Map<Integer, ProcessPerfCounterBlock> buildProcessMapFromRegistry(
@@ -405,8 +400,8 @@ public class WindowsOperatingSystemJNA extends WindowsOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedAppsSupplier.get();
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return WindowsInstalledAppsJNA.queryInstalledApps();
     }
 
     /*

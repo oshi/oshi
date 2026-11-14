@@ -6,10 +6,12 @@ package oshi.software.common;
 
 import static oshi.software.os.OperatingSystem.ProcessFiltering.ALL_PROCESSES;
 import static oshi.software.os.OperatingSystem.ProcessSorting.NO_SORTING;
+import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayDeque;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.OSDesktopWindow;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
@@ -51,6 +54,8 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
     private final Supplier<String> manufacturer = memoize(this::queryManufacturer);
     private final Supplier<Pair<String, OSVersionInfo>> familyVersionInfo = memoize(this::queryFamilyVersionInfo);
     private final Supplier<Integer> bitness = memoize(this::queryPlatformBitness);
+    private final Supplier<List<ApplicationInfo>> installedApps = memoize(
+            () -> Collections.unmodifiableList(queryInstalledApps()), installedAppsExpiration());
 
     @Override
     public String getManufacturer() {
@@ -240,5 +245,26 @@ public abstract class AbstractOperatingSystem implements OperatingSystem {
         StringBuilder sb = new StringBuilder();
         sb.append(getManufacturer()).append(' ').append(getFamily()).append(' ').append(getVersionInfo());
         return sb.toString();
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The list is read through {@link #queryInstalledApps()} and cached briefly, since listing packages is slow. Every
+     * caller shares the cached list, so it is unmodifiable.
+     */
+    @Override
+    public final List<ApplicationInfo> getInstalledApplications() {
+        return installedApps.get();
+    }
+
+    /**
+     * Queries the installed applications from this operating system's package manager or application registry.
+     * {@link #getInstalledApplications()} caches the result.
+     *
+     * @return the installed applications, or an empty list if this operating system does not support listing them
+     */
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return Collections.emptyList();
     }
 }

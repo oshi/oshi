@@ -8,7 +8,6 @@ import static oshi.software.os.OSProcess.State.INVALID;
 import static oshi.software.os.OSService.State.RUNNING;
 import static oshi.software.os.OSService.State.STOPPED;
 import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.installedAppsExpiration;
 import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
@@ -35,7 +34,6 @@ import oshi.software.os.OSProcess;
 import oshi.software.os.OSService;
 import oshi.software.os.OSThread;
 import oshi.util.ExecutingCommand;
-import oshi.util.Memoizer;
 import oshi.util.ParseUtil;
 import oshi.util.Util;
 import oshi.util.tuples.Pair;
@@ -51,8 +49,6 @@ import oshi.util.tuples.Quartet;
 public abstract class AixOperatingSystem extends AbstractOperatingSystem {
 
     private final Supplier<AixPerfstatProcess[]> procCpu = memoize(this::queryPerfstatProcesses, defaultExpiration());
-    private final Supplier<List<ApplicationInfo>> installedAppsSupplier = Memoizer
-            .memoize(AixInstalledApps::queryInstalledApps, installedAppsExpiration());
 
     // Boot time is constant, but the commands it is read from can fail transiently on a busy system. Caching only a
     // successful reading means such a failure is retried on the next call, rather than pinning the boot time to the
@@ -275,8 +271,8 @@ public abstract class AixOperatingSystem extends AbstractOperatingSystem {
     }
 
     @Override
-    public List<ApplicationInfo> getInstalledApplications() {
-        return installedAppsSupplier.get();
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return AixInstalledApps.queryInstalledApps();
     }
 
     /**
