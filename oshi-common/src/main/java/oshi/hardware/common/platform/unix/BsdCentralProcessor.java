@@ -26,6 +26,7 @@ import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 import oshi.util.tuples.Quartet;
+import oshi.util.tuples.Triplet;
 
 /**
  * Shared CentralProcessor logic for the {@code dmesg}-parsing BSDs (OpenBSD and NetBSD). Both enumerate processors,
@@ -43,7 +44,7 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
      * NetBSD's topology line, which x86 prefixes with a NUMA node: {@code "cpu0: node 0, package 0, core 0, smt 0"}.
      */
     private static final Pattern DMESG_CPU_NETBSD = Pattern
-            .compile("cpu(\\d+): (?:node \\d+, )?package (\\d+), core (\\d+), smt \\d+");
+            .compile("cpu(\\d+): (?:node (\\d+), )?package (\\d+), core (\\d+), smt \\d+");
     /** The model line, {@code "cpu0: AMD EPYC 7763 64-Core Processor"} or {@code "cpu0 at acpi0: Arm Neoverse N1"}. */
     private static final Pattern DMESG_MODEL = Pattern.compile("cpu(\\d+).*: ((?:ARM|Arm|AMD|Intel|Apple).+)");
     /**
@@ -79,9 +80,10 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
     @Override
     protected Quartet<List<LogicalProcessor>, @Nullable List<PhysicalProcessor>, @Nullable List<ProcessorCache>, List<String>> initProcessorCounts() {
         List<String> dmesg = queryDmesg();
-        Pair<Map<Integer, Integer>, Map<Integer, Integer>> topology = parseTopology(dmesg);
+        Triplet<Map<Integer, Integer>, Map<Integer, Integer>, Map<Integer, Integer>> topology = parseTopology(dmesg);
         Map<Integer, Integer> coreMap = topology.getA();
         Map<Integer, Integer> packageMap = topology.getB();
+        Map<Integer, Integer> numaMap = topology.getC();
 
         // native call seems to fail here, use fallback
         int logicalProcessorCount = sysctl("hw.ncpuonline", 1);
@@ -91,7 +93,8 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
         }
         List<LogicalProcessor> logProcs = new ArrayList<>(logicalProcessorCount);
         for (int i = 0; i < logicalProcessorCount; i++) {
-            logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0)));
+            logProcs.add(new LogicalProcessor(i, coreMap.getOrDefault(i, 0), packageMap.getOrDefault(i, 0),
+                    numaMap.getOrDefault(i, 0)));
         }
 
         DmesgStrings parsed = parseDmesgModelsAndCaches(dmesg);
@@ -131,14 +134,17 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
     }
 
     /**
-     * Parses topology lines from {@code dmesg} to extract per-CPU core and package mappings.
+     * Parses topology lines from {@code dmesg} to extract per-CPU core, package and NUMA node mappings. Only NetBSD on
+     * x86 reports a NUMA node; a CPU without one is absent from the node map.
      *
      * @param dmesg the lines emitted by {@code dmesg}
-     * @return a {@link Pair} of (cpu-to-core map, cpu-to-package map)
+     * @return a {@link Triplet} of (cpu-to-core map, cpu-to-package map, cpu-to-NUMA-node map)
      */
-    static Pair<Map<Integer, Integer>, Map<Integer, Integer>> parseTopology(List<String> dmesg) {
+    static Triplet<Map<Integer, Integer>, Map<Integer, Integer>, Map<Integer, Integer>> parseTopology(
+            List<String> dmesg) {
         Map<Integer, Integer> coreMap = new HashMap<>();
         Map<Integer, Integer> packageMap = new HashMap<>();
+        Map<Integer, Integer> numaMap = new HashMap<>();
         for (String line : dmesg) {
             Matcher m = DMESG_CPU.matcher(line);
             Matcher n = DMESG_CPU_NETBSD.matcher(line);
@@ -148,11 +154,15 @@ public abstract class BsdCentralProcessor extends AbstractCentralProcessor {
                 packageMap.put(cpu, ParseUtil.parseIntOrDefault(m.group(4), 0));
             } else if (n.matches()) {
                 int cpu = ParseUtil.parseIntOrDefault(n.group(1), 0);
-                coreMap.put(cpu, ParseUtil.parseIntOrDefault(n.group(3), 0));
-                packageMap.put(cpu, ParseUtil.parseIntOrDefault(n.group(2), 0));
+                coreMap.put(cpu, ParseUtil.parseIntOrDefault(n.group(4), 0));
+                packageMap.put(cpu, ParseUtil.parseIntOrDefault(n.group(3), 0));
+                String node = n.group(2);
+                if (node != null) {
+                    numaMap.put(cpu, ParseUtil.parseIntOrDefault(node, 0));
+                }
             }
         }
-        return new Pair<>(coreMap, packageMap);
+        return new Triplet<>(coreMap, packageMap, numaMap);
     }
 
     /**
