@@ -238,6 +238,17 @@ class BsdNetworkIFTest {
                 BsdNetworkIF.parseOperStatus(
                         List.of("wlan0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500", "\tstatus: associated")),
                 is(IfOperStatus.UP));
+        assertThat(statusOf("down"), is(IfOperStatus.DOWN));
+        assertThat(statusOf("no network"), is(IfOperStatus.DOWN));
+        assertThat(statusOf("master"), is(IfOperStatus.UP));
+        assertThat(statusOf("backup"), is(IfOperStatus.DORMANT));
+        assertThat(statusOf("unknown"), is(IfOperStatus.UNKNOWN));
+        assertThat(statusOf("invalid"), is(IfOperStatus.UNKNOWN));
         assertThat(BsdNetworkIF.parseOperStatus(Collections.emptyList()), is(IfOperStatus.UNKNOWN));
+    }
+
+    private static IfOperStatus statusOf(String status) {
+        return BsdNetworkIF.parseOperStatus(
+                List.of("gif0: flags=0x8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1280", "\tstatus: " + status));
     }
 }

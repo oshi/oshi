@@ -122,8 +122,10 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
      * <p>
      * An interface without {@code UP} in its flags is down, whatever its {@code status:} line says: NetBSD prints
      * {@code status: active} on a loopback that is administratively down, and OpenBSD on an {@code enc0} with no flags
-     * at all. Otherwise a {@code status:} line of {@code no carrier}, or {@code no network} for a wireless interface,
-     * means the link is down, and any other ({@code active}, {@code associated}) that it is up. An interface that
+     * at all. Otherwise the {@code status:} line decides: {@code active}, {@code associated} on a wireless interface,
+     * and {@code master} on a CARP interface mean the link is up; {@code no carrier}, {@code no network} and NetBSD's
+     * {@code down}, for a tunnel without endpoints, that it is down; a CARP {@code backup} is dormant; and NetBSD's
+     * {@code unknown} and OpenBSD's {@code invalid} are unknown, as is any word not listed here. An interface that
      * reports no media, such as a loopback on FreeBSD, has no {@code status:} line, and is up when it is
      * {@code RUNNING}.
      *
@@ -147,10 +149,35 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
         for (String line : ifconfig) {
             String trimmed = line.trim();
             if (trimmed.startsWith(STATUS)) {
-                return trimmed.startsWith(STATUS + "no ") ? IfOperStatus.DOWN : IfOperStatus.UP;
+                return linkStatus(trimmed.substring(STATUS.length()).trim());
             }
         }
         return flags.contains("RUNNING") ? IfOperStatus.UP : IfOperStatus.DOWN;
+    }
+
+    private static IfOperStatus linkStatus(String status) {
+        if (status.startsWith("no ")) {
+            // "no carrier", "no network" on wireless, "no ring" on FDDI
+            return IfOperStatus.DOWN;
+        }
+        switch (status) {
+            case "active":
+            case "associated":
+            case "running":
+            case "inserted":
+            case "master":
+            case "half-duplex":
+            case "full-duplex":
+                return IfOperStatus.UP;
+            case "down":
+                return IfOperStatus.DOWN;
+            case "backup":
+                // A CARP interface standing by for the master
+                return IfOperStatus.DORMANT;
+            default:
+                // "unknown" on NetBSD, "invalid" on OpenBSD, or a word this list does not know
+                return IfOperStatus.UNKNOWN;
+        }
     }
 
     /**
