@@ -120,7 +120,7 @@ public interface OSThread {
 
     /**
      * The number of minor (soft) faults the thread has made which have not required loading a memory page from disk.
-     * Sometimes called reclaims. Linux only.
+     * Sometimes called reclaims. Reported on Linux, FreeBSD, DragonFly BSD, NetBSD, OpenBSD and Solaris.
      *
      * @return minor faults.
      */
@@ -129,8 +129,8 @@ public interface OSThread {
     }
 
     /**
-     * The number of major (hard) faults the thread has made which have required loading a memory page from disk. Linux
-     * only.
+     * The number of major (hard) faults the thread has made which have required loading a memory page from disk.
+     * Reported on Linux, FreeBSD, DragonFly BSD, NetBSD, OpenBSD and Solaris.
      *
      * @return major faults.
      */
