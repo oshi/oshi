@@ -4,6 +4,7 @@
  */
 package oshi.software.common.os.unix.netbsd;
 
+import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +13,8 @@ import java.util.Map;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.common.os.unix.bsd.PkgInfoInstalledApps;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.FileSystem;
 import oshi.software.os.InternetProtocolStats;
 import oshi.software.os.NetworkParams;
@@ -128,5 +131,13 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
         return ParseUtil.parseLongOrDefault(
                 ExecutingCommand.getFirstAnswer("sysctl -n kern.boottime").split(",", -1)[0].replaceAll("\\D", ""),
                 System.currentTimeMillis() / 1000);
+    }
+
+    @Override
+    protected List<ApplicationInfo> queryInstalledApps() {
+        // Before NetBSD 9 the package database was in /var/db/pkg, as on OpenBSD
+        String pkgDb = new File(PkgInfoInstalledApps.NETBSD_PKG_DB).isDirectory() ? PkgInfoInstalledApps.NETBSD_PKG_DB
+                : PkgInfoInstalledApps.OPENBSD_PKG_DB;
+        return PkgInfoInstalledApps.queryInstalledApps(pkgDb, false);
     }
 }

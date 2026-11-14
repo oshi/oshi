@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.software.common.os.unix.bsd.BsdOperatingSystem;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
+import oshi.software.os.ApplicationInfo;
 import oshi.software.os.OSProcess;
 import oshi.software.os.OSSession;
 import oshi.software.os.OSThread;
@@ -104,4 +105,9 @@ public abstract class FreeBsdOperatingSystem extends BsdOperatingSystem {
      * @return the boot time in seconds, or {@code 0} if the sysctl is unavailable
      */
     protected abstract long queryKernBoottimeSeconds();
+
+    @Override
+    protected List<ApplicationInfo> queryInstalledApps() {
+        return FreeBsdInstalledApps.queryInstalledApps();
+    }
 }
