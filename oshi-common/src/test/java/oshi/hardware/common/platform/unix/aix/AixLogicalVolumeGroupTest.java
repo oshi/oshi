@@ -118,6 +118,19 @@ class AixLogicalVolumeGroupTest {
         Map<String, Set<String>> sections = AixLogicalVolumeGroup.parseSections(lsvg, "PV_NAME");
         assertThat(sections.get("vgA"), contains("hdisk0", "PV_NAMEdata"));
         assertThat(sections.get("vgB"), contains("hdisk1"));
+
+        // A volume group whose name begins with the heading's first word is still a section of its own
+        List<String> named = """
+                rootvg:
+                PV_NAME           PV STATE          TOTAL PPs   FREE PPs    FREE DISTRIBUTION
+                hdisk0            active            991         629         198..35..00..198..198
+                PV_NAMEdata:
+                PV_NAME           PV STATE          TOTAL PPs   FREE PPs    FREE DISTRIBUTION
+                hdisk1            active            1022        0           00..00..00..00..00
+                """.lines().toList();
+        Map<String, Set<String>> namedSections = AixLogicalVolumeGroup.parseSections(named, "PV_NAME");
+        assertThat(namedSections.get("rootvg"), contains("hdisk0"));
+        assertThat(namedSections.get("PV_NAMEdata"), contains("hdisk1"));
     }
 
     @Test
