@@ -104,6 +104,25 @@ class NetBsdOSProcessTest {
         assertThat(new NetBsdOSThread(42, refused).getName(), is("java"));
     }
 
+    @Test
+    void testThreadReadsItsOwnCpuTime() {
+        // ltime is the LWP's own CPU time; NetBSD's ps has no per-LWP faults or context switches to read
+        Map<BsdPsThreadKeyword, String> row = new EnumMap<>(BsdPsThreadKeyword.class);
+        row.put(BsdPsThreadKeyword.LID, "3");
+        row.put(BsdPsThreadKeyword.STATE, "S");
+        row.put(BsdPsThreadKeyword.ETIME, "01:00");
+        row.put(BsdPsThreadKeyword.LTIME, "0:02.50");
+        row.put(BsdPsThreadKeyword.PRI, "43");
+        row.put(BsdPsThreadKeyword.ARGS, "java");
+        NetBsdOSThread thread = new NetBsdOSThread(42, row);
+        assertThat(thread.getUserTime(), is(2500L));
+        assertThat(thread.getKernelTime(), is(0L));
+        assertThat(thread.getMinorFaults(), is(0L));
+        assertThat(thread.getMajorFaults(), is(0L));
+        assertThat(thread.getContextSwitches(), is(0L));
+        assertThat(NetBsdOSThread.PS_THREAD_COLUMNS, is("lid,state,etime,ltime,pri,args"));
+    }
+
     // A process whose kernel answers come from a map keyed by kern.proc_args subtype, absent meaning no answer
     private static NetBsdOSProcess stubProcess(String args, Map<Integer, String> kernelPaths) {
         Map<BsdPsKeyword, String> psMap = new EnumMap<>(BsdPsKeyword.class);

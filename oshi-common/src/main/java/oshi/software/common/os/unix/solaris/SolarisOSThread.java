@@ -61,16 +61,15 @@ public abstract class SolarisOSThread extends AbstractOSThread {
         // Avoid divide by zero for processes up less than a millisecond
         long elapsedTime = now - this.startTime;
         this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
-        this.kernelTime = 0L;
-        this.userTime = info.pr_time.toMillis();
         this.startMemoryAddress = info.pr_addr;
         this.priority = info.pr_pri;
-        this.contextSwitches = 0L;
-        if (usage != null) {
-            this.userTime = usage.pr_utime.toMillis();
-            this.kernelTime = usage.pr_stime.toMillis();
-            this.contextSwitches = usage.pr_ictx + usage.pr_vctx;
-        }
+        // Each field is written once, so a reader never sees a transient zero; without the usage file, lwpsinfo gives
+        // only the total CPU time
+        this.kernelTime = usage == null ? 0L : usage.pr_stime.toMillis();
+        this.userTime = usage == null ? info.pr_time.toMillis() : usage.pr_utime.toMillis();
+        this.contextSwitches = usage == null ? 0L : usage.pr_ictx + usage.pr_vctx;
+        this.minorFaults = usage == null ? 0L : usage.pr_minf;
+        this.majorFaults = usage == null ? 0L : usage.pr_majf;
         this.name = PsInfo.bytesToString(info.pr_name);
         if (Util.isBlank(name)) {
             this.name = PsInfo.bytesToString(info.pr_oldname);

@@ -97,14 +97,15 @@ public final class PsInfo {
     }
 
     /**
-     * Reads {@code /proc/<pid>/lwp/<tid>/usage}.
+     * Reads {@code /proc/<pid>/lwp/<tid>/lwpusage}, the LWP's {@code prusage_t}.
      *
      * @param pid the process ID
      * @param tid the thread ID
      * @return populated {@link SolarisPrUsage}, or {@code null} if not readable
      */
     public static @Nullable SolarisPrUsage queryPrUsage(int pid, int tid) {
-        ByteBuffer buff = FileUtil.readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/usage", pid, tid));
+        ByteBuffer buff = FileUtil
+                .readAllBytesAsBuffer(String.format(Locale.ROOT, "/proc/%d/lwp/%d/lwpusage", pid, tid));
         if (buff.remaining() == 0) {
             return null;
         }
