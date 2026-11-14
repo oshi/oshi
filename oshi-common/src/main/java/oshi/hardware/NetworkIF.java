@@ -64,7 +64,8 @@ public interface NetworkIF {
      * of any interface-stack relationship. Further, the ifAlias name is non-volatile, and thus an interface must retain
      * its assigned ifAlias value across reboots, even if an agent chooses a new ifIndex value for the interface.
      * <p>
-     * Only implemented for Windows (Vista and newer) and Linux.
+     * Only implemented for Windows (Vista and newer), Linux, FreeBSD, DragonFly BSD, NetBSD and OpenBSD. On the BSDs,
+     * this is the description set with {@code ifconfig <interface> description}.
      *
      * @return The {@code ifAlias} of the interface if available, otherwise the empty string.
      */
@@ -75,7 +76,7 @@ public interface NetworkIF {
     /**
      * The {@code ifOperStatus} as described in RFC 2863.
      * <p>
-     * Only implemented for Windows (Vista and newer), Linux and macOS.
+     * Only implemented for Windows (Vista and newer), Linux, macOS, FreeBSD, DragonFly BSD, NetBSD and OpenBSD.
      *
      * @return The current operational state of the interface.
      */

@@ -28,7 +28,12 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
     // The lookbehind stops find() from retrying inside a number, so the scan stays linear
     private static final String MEDIA_RATE = "(?i)(?<!\\d)(\\d++(?:\\.\\d++)?+)";
     private static final String MEDIA_UNIT = "([GM]?+)(?:base|bps)";
+    private static final String DESCRIPTION = "description:";
+    private static final String STATUS = "status: ";
     private static final Pattern MEDIA_SPEED = Pattern.compile(MEDIA_RATE + MEDIA_UNIT); // NOSONAR java:S8786 - linear
+
+    private volatile String ifAlias = "";
+    private volatile IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
     /**
      * Constructs a new {@code BsdNetworkIF}.
@@ -52,6 +57,16 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
     }
 
     @Override
+    public String getIfAlias() {
+        return this.ifAlias;
+    }
+
+    @Override
+    public IfOperStatus getIfOperStatus() {
+        return this.ifOperStatus;
+    }
+
+    @Override
     public synchronized boolean updateAttributes() {
         Map<String, Long> stats = parseNetstat(ExecutingCommand.runNative("netstat -bnI " + getName()));
         this.timeStamp = System.currentTimeMillis();
@@ -72,8 +87,70 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
         this.outErrors = stats.getOrDefault("Oerrs", stats.getOrDefault("Ofail", 0L));
         this.collisions = stats.getOrDefault("Coll", stats.getOrDefault("Colls", 0L));
         this.inDrops = stats.getOrDefault("Idrop", 0L);
-        this.speed = parseMediaSpeed(ExecutingCommand.runNative("/sbin/ifconfig " + getName()));
+        List<String> ifconfig = ExecutingCommand.runNative("/sbin/ifconfig " + getName());
+        this.speed = parseMediaSpeed(ifconfig);
+        this.ifAlias = parseDescription(ifconfig);
+        this.ifOperStatus = parseOperStatus(ifconfig);
         return true;
+    }
+
+    /**
+     * Parses the description an administrator set with {@code ifconfig <interface> description <text>}. Package-private
+     * for testing.
+     * <p>
+     * FreeBSD, DragonFly BSD and OpenBSD print {@code description: uplink}, and NetBSD {@code description: "uplink"}.
+     *
+     * @param ifconfig the lines emitted by {@code ifconfig <interface>}
+     * @return the description, or an empty string if none is set
+     */
+    static String parseDescription(List<String> ifconfig) {
+        for (String line : ifconfig) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith(DESCRIPTION)) {
+                String descr = trimmed.substring(DESCRIPTION.length()).trim();
+                if (descr.length() >= 2 && descr.charAt(0) == '"' && descr.charAt(descr.length() - 1) == '"') {
+                    descr = descr.substring(1, descr.length() - 1);
+                }
+                return descr;
+            }
+        }
+        return "";
+    }
+
+    /**
+     * Parses the operational status from {@code ifconfig <interface>}. Package-private for testing.
+     * <p>
+     * An interface without {@code UP} in its flags is down, whatever its {@code status:} line says: NetBSD prints
+     * {@code status: active} on a loopback that is administratively down, and OpenBSD on an {@code enc0} with no flags
+     * at all. Otherwise a {@code status:} line of {@code no carrier}, or {@code no network} for a wireless interface,
+     * means the link is down, and any other ({@code active}, {@code associated}) that it is up. An interface that
+     * reports no media, such as a loopback on FreeBSD, has no {@code status:} line, and is up when it is
+     * {@code RUNNING}.
+     *
+     * @param ifconfig the lines emitted by {@code ifconfig <interface>}
+     * @return the operational status, or {@link IfOperStatus#UNKNOWN} if there is no output
+     */
+    static IfOperStatus parseOperStatus(List<String> ifconfig) {
+        if (ifconfig.isEmpty()) {
+            return IfOperStatus.UNKNOWN;
+        }
+        String first = ifconfig.get(0);
+        int open = first.indexOf('<');
+        int close = first.indexOf('>', open + 1);
+        if (open < 0 || close < 0) {
+            return IfOperStatus.UNKNOWN;
+        }
+        List<String> flags = Arrays.asList(first.substring(open + 1, close).split(",", -1));
+        if (!flags.contains("UP")) {
+            return IfOperStatus.DOWN;
+        }
+        for (String line : ifconfig) {
+            String trimmed = line.trim();
+            if (trimmed.startsWith(STATUS)) {
+                return trimmed.startsWith(STATUS + "no ") ? IfOperStatus.DOWN : IfOperStatus.UP;
+            }
+        }
+        return flags.contains("RUNNING") ? IfOperStatus.UP : IfOperStatus.DOWN;
     }
 
     /**

@@ -18,6 +18,8 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
+import oshi.hardware.NetworkIF.IfOperStatus;
+
 class BsdNetworkIFTest {
 
     @Test
@@ -182,5 +184,60 @@ class BsdNetworkIFTest {
         assertThat(BsdNetworkIF.parseMediaSpeed(List.of("vioif0: flags=0x8843<UP,BROADCAST,RUNNING> mtu 1500")),
                 is(0L));
         assertThat(BsdNetworkIF.parseMediaSpeed(Collections.emptyList()), is(0L));
+    }
+
+    // Captured from vmactions VMs after "ifconfig <if> description ...", "ifconfig lo1 create" and "ifconfig lo1 down"
+    private static final List<String> FREEBSD_VTNET = """
+            vtnet0: flags=1008843<UP,BROADCAST,RUNNING,SIMPLEX,MULTICAST,LOWER_UP> metric 0 mtu 1500
+            \tdescription: uplink
+            \tmedia: Ethernet autoselect (10Gbase-T <full-duplex>)
+            \tstatus: active
+            """.lines().toList();
+    private static final List<String> FREEBSD_LO0 = """
+            lo0: flags=1008049<UP,LOOPBACK,RUNNING,MULTICAST,LOWER_UP> metric 0 mtu 16384
+            \tdescription: my loop back
+            """.lines().toList();
+    private static final List<String> FREEBSD_LO1_DOWN = List
+            .of("lo1: flags=8008<LOOPBACK,MULTICAST> metric 0 mtu 16384");
+    private static final List<String> NETBSD_LO0 = """
+            lo0: flags=0x8049<UP,LOOPBACK,RUNNING,MULTICAST> mtu 33624
+            \tdescription: "my loop back"
+            \tstatus: active
+            """.lines().toList();
+    private static final List<String> NETBSD_LO1_DOWN = """
+            lo1: flags=0x8048<LOOPBACK,RUNNING,MULTICAST> mtu 33624
+            \tstatus: active
+            """.lines().toList();
+    private static final List<String> OPENBSD_ENC0 = """
+            enc0: flags=0<>
+            \tstatus: active
+            """.lines().toList();
+
+    @Test
+    void testParseDescription() {
+        assertThat(BsdNetworkIF.parseDescription(FREEBSD_VTNET), is("uplink"));
+        assertThat(BsdNetworkIF.parseDescription(FREEBSD_LO0), is("my loop back"));
+        assertThat(BsdNetworkIF.parseDescription(NETBSD_LO0), is("my loop back"));
+        assertThat(BsdNetworkIF.parseDescription(FREEBSD_LO1_DOWN), is(""));
+        assertThat(BsdNetworkIF.parseDescription(Collections.emptyList()), is(""));
+    }
+
+    @Test
+    void testParseOperStatus() {
+        assertThat(BsdNetworkIF.parseOperStatus(FREEBSD_VTNET), is(IfOperStatus.UP));
+        // No media, so no status line: RUNNING decides
+        assertThat(BsdNetworkIF.parseOperStatus(FREEBSD_LO0), is(IfOperStatus.UP));
+        assertThat(BsdNetworkIF.parseOperStatus(FREEBSD_LO1_DOWN), is(IfOperStatus.DOWN));
+        assertThat(BsdNetworkIF.parseOperStatus(NETBSD_LO0), is(IfOperStatus.UP));
+        // The status line says active, but the interface is not UP
+        assertThat(BsdNetworkIF.parseOperStatus(NETBSD_LO1_DOWN), is(IfOperStatus.DOWN));
+        assertThat(BsdNetworkIF.parseOperStatus(OPENBSD_ENC0), is(IfOperStatus.DOWN));
+        assertThat(BsdNetworkIF.parseOperStatus(List.of("em0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500",
+                "\tmedia: Ethernet autoselect (none)", "\tstatus: no carrier")), is(IfOperStatus.DOWN));
+        assertThat(
+                BsdNetworkIF.parseOperStatus(
+                        List.of("wlan0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500", "\tstatus: associated")),
+                is(IfOperStatus.UP));
+        assertThat(BsdNetworkIF.parseOperStatus(Collections.emptyList()), is(IfOperStatus.UNKNOWN));
     }
 }
