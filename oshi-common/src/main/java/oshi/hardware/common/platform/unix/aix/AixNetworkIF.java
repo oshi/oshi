@@ -29,7 +29,10 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
         public long collisions;
         public long inDrops;
         public long speed;
+        public int ifType;
     }
+
+    private volatile int ifType;
 
     /**
      * Constructs a new {@code AixNetworkIF}.
@@ -39,6 +42,11 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
      */
     protected AixNetworkIF(NetworkInterface netint) throws InstantiationException {
         super(netint);
+    }
+
+    @Override
+    public int getIfType() {
+        return this.ifType;
     }
 
     @Override
@@ -56,6 +64,7 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
         this.collisions = stats.collisions;
         this.inDrops = stats.inDrops;
         this.speed = stats.speed;
+        this.ifType = stats.ifType;
         this.timeStamp = System.currentTimeMillis();
         return true;
     }
