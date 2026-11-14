@@ -23,7 +23,7 @@ import oshi.hardware.SoundCard;
 class FreeBsdSoundCardTest {
 
     /**
-     * Answers each {@code sysctl} call from a fixed tree, as the real command does: it prints the names it knows and
+     * Answers each {@code sysctl -i} call from a fixed tree, as the real command does: it prints the names it knows and
      * skips the rest. Records each call so a test can count them.
      */
     private static Function<List<String>, List<String>> sysctl(Map<String, String> tree, List<List<String>> calls) {
@@ -107,6 +107,20 @@ class FreeBsdSoundCardTest {
         assertThat(cards.get(0).getName(), is("Some Audio"));
         assertThat(cards.get(0).getDriverVersion(), is("unknown"));
         assertThat(calls, hasSize(2));
+    }
+
+    @Test
+    void testParseSoundCardsVanishedParent() {
+        // uaudio0 is gone by the time its level is read, but the hdaa0 asked for alongside it still answers
+        Map<String, String> tree = Map.of("dev.pcm.0.%desc", "USB audio", "dev.pcm.0.%parent", "uaudio0",
+                "dev.pcm.1.%desc", "Realtek ALC892 (Rear Analog)", "dev.pcm.1.%parent", "hdaa0", "dev.hdaa.0.%desc",
+                "Realtek ALC892 Audio Function Group", "dev.hdaa.0.%parent", "pci0");
+        List<List<String>> calls = new ArrayList<>();
+        List<SoundCard> cards = FreeBsdSoundCard.parseSoundCards(sysctl(tree, calls));
+        assertThat(cards.stream().map(SoundCard::getName).toList(),
+                contains("USB audio", "Realtek ALC892 Audio Function Group"));
+        assertThat(calls.get(1),
+                contains("dev.uaudio.0.%desc", "dev.uaudio.0.%parent", "dev.hdaa.0.%desc", "dev.hdaa.0.%parent"));
     }
 
     @Test

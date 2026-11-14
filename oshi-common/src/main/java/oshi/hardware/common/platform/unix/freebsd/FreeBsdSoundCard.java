@@ -58,7 +58,8 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
      * @return a {@link java.util.List} object.
      */
     public static List<SoundCard> getSoundCards() {
-        return parseSoundCards(oids -> ExecutingCommand.runNative("sysctl " + String.join(" ", oids)));
+        // -i skips a name sysctl does not know: without it DragonFly BSD stops there and prints nothing further
+        return parseSoundCards(oids -> ExecutingCommand.runNative("sysctl -i " + String.join(" ", oids)));
     }
 
     /**
@@ -72,7 +73,8 @@ public class FreeBsdSoundCard extends AbstractSoundCard {
      * needs no privilege, where {@code /dev/sndstat} may not be readable, and {@code lshal}, the previous source, is no
      * longer packaged.
      *
-     * @param sysctl runs {@code sysctl} on the given names and returns the lines it prints
+     * @param sysctl runs {@code sysctl} on the given names and returns the lines it prints for those it knows, skipping
+     *               the rest
      * @return the sound cards, in {@code pcm} unit order
      */
     static List<SoundCard> parseSoundCards(Function<List<String>, List<String>> sysctl) {
