@@ -21,7 +21,7 @@ import oshi.hardware.common.AbstractHWDiskStore;
 import oshi.util.Constants;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 /**
  * Shared FreeBSD HWDiskStore logic. Subclasses provide the sysctl backend (JNA or FFM).
@@ -32,13 +32,14 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
     /**
      * Constructs a new {@code FreeBsdHWDiskStore}.
      *
-     * @param name   the disk name
-     * @param model  the model
-     * @param serial the serial number
-     * @param size   the size in bytes
+     * @param name     the disk name
+     * @param model    the model
+     * @param serial   the serial number
+     * @param size     the size in bytes
+     * @param diskType the disk type
      */
-    protected FreeBsdHWDiskStore(String name, String model, String serial, long size) {
-        super(name, model, serial, size);
+    protected FreeBsdHWDiskStore(String name, String model, String serial, long size, String diskType) {
+        super(name, model, serial, size, diskType);
     }
 
     @Override
@@ -76,7 +77,7 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
         List<HWDiskStore> diskList = new ArrayList<>();
 
         Map<String, List<HWPartition>> partitionMap = GeomPartList.queryPartitions();
-        Map<String, Triplet<String, String, Long>> diskInfoMap = GeomDiskList.queryDisks();
+        Map<String, Quartet<String, String, Long, String>> diskInfoMap = GeomDiskList.queryDisks();
 
         String kernDisks = sysctlStr.apply("kern.disks", "");
         if (kernDisks.isEmpty()) {
@@ -89,9 +90,11 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
         for (String line : iostat) {
             String[] split = ParseUtil.whitespaces.split(line, -1);
             if (split.length > 6 && devices.contains(split[0])) {
-                Triplet<String, String, Long> storeInfo = diskInfoMap.get(split[0]);
-                T store = (storeInfo == null) ? factory.create(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L)
-                        : factory.create(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC());
+                Quartet<String, String, Long, String> storeInfo = diskInfoMap.get(split[0]);
+                T store = (storeInfo == null)
+                        ? factory.create(split[0], Constants.UNKNOWN, Constants.UNKNOWN, 0L, "Unknown")
+                        : factory.create(split[0], storeInfo.getA(), storeInfo.getB(), storeInfo.getC(),
+                                storeInfo.getD());
                 store.reads = (long) ParseUtil.parseDoubleOrDefault(split[1], 0d);
                 store.writes = (long) ParseUtil.parseDoubleOrDefault(split[2], 0d);
                 store.readBytes = (long) (ParseUtil.parseDoubleOrDefault(split[3], 0d) * 1024);
@@ -119,12 +122,13 @@ public abstract class FreeBsdHWDiskStore extends AbstractHWDiskStore {
         /**
          * Creates a platform-specific instance.
          *
-         * @param name   the disk name
-         * @param model  the model
-         * @param serial the serial number
-         * @param size   the size in bytes
+         * @param name     the disk name
+         * @param model    the model
+         * @param serial   the serial number
+         * @param size     the size in bytes
+         * @param diskType the disk type
          * @return the new instance
          */
-        T create(String name, String model, String serial, long size);
+        T create(String name, String model, String serial, long size, String diskType);
     }
 }

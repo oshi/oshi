@@ -20,13 +20,13 @@ import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
 import oshi.hardware.HWPartition;
-import oshi.util.tuples.Triplet;
+import oshi.util.tuples.Quartet;
 
 @EnabledOnOs(OS.FREEBSD)
 class DiskDriversTest {
     @Test
     void testDiskDrivers() {
-        Map<String, Triplet<String, String, Long>> diskStringMap = GeomDiskList.queryDisks();
+        Map<String, Quartet<String, String, Long, String>> diskStringMap = GeomDiskList.queryDisks();
         assertThat("Disk string map should not be empty", diskStringMap, not(anEmptyMap()));
 
         Map<String, List<HWPartition>> partMap = GeomPartList.queryPartitions();
