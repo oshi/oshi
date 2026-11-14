@@ -35,6 +35,9 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
 
+    /** A DRM card's underlying device, and a PCI device's ID, both under the name {@code device}. */
+    private static final String DEVICE = "/device";
+
     private static final String DRM_PATH = "/sys/class/drm/";
 
     // sysfs path for this card's device directory, e.g. /sys/class/drm/card0/device
@@ -250,7 +253,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         Arrays.sort(cards, Comparator.comparingInt(f -> ParseUtil.getFirstIntValue(f.getName())));
         for (File card : cards) {
-            String devicePath = card.getAbsolutePath() + "/device";
+            String devicePath = card.getAbsolutePath() + DEVICE;
             String driver = readDriverName(devicePath + "/driver");
             // simpledrm only drives the framebuffer the firmware left behind
             if (driver.isEmpty() || "simple-framebuffer".equals(driver) || "simpledrm".equals(driver)) {
@@ -265,7 +268,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
             if (!slot.isEmpty()) {
                 Map<String, String> udev = UdevData.queryDevice(udevDataDir, "pci", slot);
                 String vendorId = FileUtil.getStringFromFile(devicePath + "/vendor").trim();
-                deviceId = ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(devicePath + "/device").trim());
+                deviceId = ParseUtil.getStringValueOrUnknown(FileUtil.getStringFromFile(devicePath + DEVICE).trim());
                 name = ParseUtil.getStringValueOrUnknown(udev.get("ID_MODEL_FROM_DATABASE"));
                 String vendorName = ParseUtil.getStringValueOrEmpty(udev.get("ID_VENDOR_FROM_DATABASE")).trim();
                 if (!vendorName.isEmpty()) {
@@ -506,7 +509,7 @@ public abstract class LinuxGraphicsCard extends AbstractGraphicsCard {
         }
         Triplet<String, String, String> firstWithDriver = null;
         for (File card : cards) {
-            String devicePath = card.getAbsolutePath() + "/device";
+            String devicePath = card.getAbsolutePath() + DEVICE;
             String driver = readDriverName(devicePath + "/driver");
             if (driver.isEmpty()) {
                 continue;

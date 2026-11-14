@@ -30,6 +30,9 @@ import oshi.util.tuples.Triplet;
 @ThreadSafe
 public final class PsInfoJNA {
 
+    /** The most environment entries read, a guard against a table whose terminator was not found. */
+    private static final int MAX_ENV = 500;
+
     private static final AixLibc LIBC = AixLibc.INSTANCE;
 
     // AIX has multiple page size units, but for purposes of "pages" in perfstat,
@@ -82,19 +85,16 @@ public final class PsInfoJNA {
                     }
                 }
 
-                // Also read the pointers to the env strings; the envp table is null-terminated,
-                // so stop at the first null entry (with a 500-entry safety cap).
+                // Also read the pointers to the env strings. As with argv, envp points to the pointer table, so
+                // dereference once; the table is null-terminated, and is read for at most MAX_ENV entries.
                 List<Long> envPtrList = new ArrayList<>();
-                long addr = reader.readPointer(envp, increment);
-                int limit = 500;
-                long offset = addr;
-                while (addr != 0 && --limit > 0) {
-                    long envPtr = reader.readPointer(offset, increment);
+                long envTable = reader.readPointer(envp, increment);
+                for (int i = 0; envTable != 0 && i < MAX_ENV; i++) {
+                    long envPtr = reader.readPointer(envTable + i * increment, increment);
                     if (envPtr == 0) {
                         break;
                     }
                     envPtrList.add(envPtr);
-                    offset += increment;
                 }
 
                 // Now read the arg strings

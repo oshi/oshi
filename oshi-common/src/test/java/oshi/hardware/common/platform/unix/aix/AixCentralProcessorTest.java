@@ -153,8 +153,8 @@ class AixCentralProcessorTest {
         AixCentralProcessor.CpuTotalRow total = new AixCentralProcessor.CpuTotalRow();
         // Live AIX 7.3 values: tb_last * HZ / lbolt is about 512 MHz at HZ = 100
         total.lbolt = 2_351_892_736L;
-        total.tb_last = 12_042_635_013_133_711L;
-        long expected = (long) (total.tb_last * (double) AixCentralProcessor.USER_HZ / total.lbolt);
+        total.tbLast = 12_042_635_013_133_711L;
+        long expected = (long) (total.tbLast * (double) AixCentralProcessor.USER_HZ / total.lbolt);
         assertThat(AixCentralProcessor.timebaseHz(total), is(expected));
 
         assertThat(AixCentralProcessor.timebaseHz(new AixCentralProcessor.CpuTotalRow()), is(512_000_000L));

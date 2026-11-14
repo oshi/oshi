@@ -223,7 +223,7 @@ public class LinuxPowerSource extends AbstractPowerSource {
         File[] supplies = new File(powerSupplyPath).listFiles();
         if (supplies != null) {
             for (File supply : supplies) {
-                String path = powerSupplyPath + "/" + supply.getName() + "/";
+                String path = supply.getPath() + File.separator;
                 String type = FileUtil.getStringFromFile(path + "type");
                 if (("Mains".equals(type) || "USB".equals(type) || "Wireless".equals(type))
                         && FileUtil.getIntFromFile(path + "online") > 0) {

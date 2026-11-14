@@ -9,7 +9,6 @@ import java.util.Map;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.mac.IFdata;
-import oshi.hardware.NetworkIF.IfOperStatus;
 import oshi.hardware.common.AbstractNetworkIF;
 
 /**
@@ -110,8 +109,8 @@ public abstract class MacNetworkIF extends AbstractNetworkIF {
             return IfOperStatus.DOWN;
         }
         if (mediaStatus >= 0 && (mediaStatus & IFM_AVALID) != 0) {
-            return (mediaStatus & IFM_ACTIVE) != 0 ? IfOperStatus.UP : IfOperStatus.DOWN;
+            return (mediaStatus & IFM_ACTIVE) == 0 ? IfOperStatus.DOWN : IfOperStatus.UP;
         }
-        return (flags & IFF_RUNNING) != 0 ? IfOperStatus.UP : IfOperStatus.DOWN;
+        return (flags & IFF_RUNNING) == 0 ? IfOperStatus.DOWN : IfOperStatus.UP;
     }
 }

@@ -31,12 +31,12 @@ public final class PkgInfoInstalledApps {
     public static final String NETBSD_PKG_DB = "/usr/pkg/pkgdb";
 
     /** A {@code pkg_info} line: the full package name, then its comment after one or more spaces. */
-    private static final Pattern PKG_INFO_LINE = Pattern.compile("(\\S+)\\s+(.*)");
+    private static final Pattern PKG_INFO_LINE = Pattern.compile("(\\S++)\\s++(.*+)");
     /**
      * OpenBSD's rule from packages-specs(7): the version starts at the first dash followed by a digit, and may carry a
      * flavor after it, as in {@code vim-9.1.1-no_x11}.
      */
-    private static final Pattern OPENBSD_NAME = Pattern.compile("(.+?)-(\\d.*)");
+    private static final Pattern OPENBSD_NAME = Pattern.compile("([^-]++(?:-(?!\\d)[^-]*+)*+)-(\\d.*+)");
 
     private PkgInfoInstalledApps() {
     }

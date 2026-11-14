@@ -138,7 +138,7 @@ public abstract class SolarisCentralProcessor extends AbstractCentralProcessor {
      */
     static List<ProcessorCache> parsePiclCaches(List<String> prtpicl) {
         Set<ProcessorCache> caches = new HashSet<>();
-        // Per CPU node: cache key (level + type letter) to {size, line size, associativity}
+        // Per CPU node, each cache's size, line size and associativity, keyed by its level and type letter
         Map<String, long[]> nodeCaches = new HashMap<>();
         for (String line : prtpicl) {
             Matcher m = PICL_CACHE_PROPERTY.matcher(line);

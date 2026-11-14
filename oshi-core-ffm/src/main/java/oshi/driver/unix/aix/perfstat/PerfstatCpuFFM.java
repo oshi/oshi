@@ -63,7 +63,7 @@ public final class PerfstatCpuFFM {
         public long devintrs;
         public long softintrs;
         public long lbolt;
-        public long tb_last;
+        public long tbLast;
         public long[] loadavg = new long[3];
         public long idle_stolen_purr;
         public long busy_stolen_purr;
@@ -100,7 +100,7 @@ public final class PerfstatCpuFFM {
                 result.devintrs = cpuTotalDevintrs(buf);
                 result.softintrs = cpuTotalSoftintrs(buf);
                 result.lbolt = cpuTotalLbolt(buf);
-                result.tb_last = cpuTotalTbLast(buf);
+                result.tbLast = cpuTotalTbLast(buf);
                 for (int i = 0; i < 3; i++) {
                     result.loadavg[i] = cpuTotalLoadavg(buf, i);
                 }

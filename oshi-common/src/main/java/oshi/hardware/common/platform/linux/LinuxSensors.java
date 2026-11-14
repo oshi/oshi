@@ -223,7 +223,7 @@ class LinuxSensors extends AbstractSensors {
     @Override
     public double queryCpuTemperature() {
         double temperature = queryCpuTemperatureFromSysfs();
-        if (temperature <= 0 && hasVcgencmd.get()) {
+        if (temperature <= 0 && Boolean.TRUE.equals(hasVcgencmd.get())) {
             return queryCpuTemperatureFromVcGenCmd();
         }
         return temperature;
@@ -318,7 +318,7 @@ class LinuxSensors extends AbstractSensors {
             }
         }
         // A Raspberry Pi has no core voltage in hwmon; its firmware reports one
-        return hasVcgencmd.get() ? queryCpuVoltageFromVcGenCmd() : 0d;
+        return Boolean.TRUE.equals(hasVcgencmd.get()) ? queryCpuVoltageFromVcGenCmd() : 0d;
     }
 
     /**

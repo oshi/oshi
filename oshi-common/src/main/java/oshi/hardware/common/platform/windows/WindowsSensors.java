@@ -201,7 +201,7 @@ public abstract class WindowsSensors extends AbstractSensors {
     }
 
     private static int[] getFansFromLhmJar() {
-        List<?> sensors = queryLhmJarSensors("SuperIO", FAN);
+        List<?> sensors = queryLhmJarSensors(SUPER_IO, FAN);
         if (sensors == null || sensors.isEmpty()) {
             return new int[0];
         }

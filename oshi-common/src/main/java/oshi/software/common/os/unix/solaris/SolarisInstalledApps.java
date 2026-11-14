@@ -29,7 +29,8 @@ public final class SolarisInstalledApps {
      * A {@code pkg list -Hv} line: the FMRI {@code pkg://publisher/name@version:timestamp}, then the state flags, as in
      * {@code pkg://solaris/archiver/gnu-tar@1.35-11.4.95.0.1.227.0:20260810T173115Z       i--}.
      */
-    private static final Pattern FMRI = Pattern.compile("pkg://([^/]+)/(\\S+)@([^:\\s]+):(\\d{8}T\\d{6}Z)\\s+(\\S+)");
+    private static final Pattern FMRI = Pattern
+            .compile("pkg://([^/]++)/([^@\\s]++)@([^:\\s]++):(\\d{8}T\\d{6}Z)\\s++(\\S++)");
     /** The FMRI's timestamp, in ISO 8601 basic format and UTC. */
     private static final DateTimeFormatter FMRI_TIME = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX", Locale.ROOT);
 
