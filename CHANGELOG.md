@@ -1,5 +1,7 @@
 # 7.8.0 (in progress)
 
+OSHI no longer recommends the optional `jLibreHardwareMonitor` dependency for Windows sensors. Recommending it was a mistake. With it on the class path, a JVM does not exit after `main` returns. The DLL it bundles uses a kernel driver that Microsoft Defender flags as a hacking tool. On some hosts it returns no data ([#3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to any of these reports. Run [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) as Administrator instead, and OSHI reads its sensors through WMI. OSHI still reads the dependency if it is present, but support for it may be removed in a future release. See the [FAQ](FAQ.md#the-optional-jlibrehardwaremonitor-dependency).
+
 ##### New Features
 
 * [#3855](https://github.com/oshi/oshi/pull/3855),
@@ -40,6 +42,7 @@
 * [#3896](https://github.com/oshi/oshi/pull/3896): `HWDiskStore.getDiskType()` now reports `SSD` or `HDD` on FreeBSD, and Windows `HWDiskStore.getPartitions()` includes partitions without a drive letter, such as the EFI system and recovery partitions, with an empty mount point - [@dbwiddis](https://github.com/dbwiddis).
 * [#3897](https://github.com/oshi/oshi/pull/3897): Fixed `OSThread` on Solaris, where page faults were not reported and CPU times and context switches never read the thread's own usage, and on NetBSD, where CPU time, page faults and context switches were the process's totals - [@dbwiddis](https://github.com/dbwiddis).
 * [#3899](https://github.com/oshi/oshi/pull/3899): `HardwareAbstractionLayer.getLogicalVolumeGroups()` now reports volume groups on AIX, and `GlobalMemory.getPhysicalMemory()` reports memory modules on Solaris and illumos x86 without `dmidecode` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3902](https://github.com/oshi/oshi/pull/3902): `CentralProcessor` reports the stepping and processor ID on ARM64 Windows - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 
