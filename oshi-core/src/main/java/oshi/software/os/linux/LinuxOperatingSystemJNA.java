@@ -8,6 +8,7 @@ import java.io.File;
 import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -63,8 +64,8 @@ public class LinuxOperatingSystemJNA extends LinuxOperatingSystem {
             pageSz = Auxv.pageSize(auxv);
             if (GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_ALLOWUDEV, true)) {
                 try {
-                    @SuppressWarnings("unused")
-                    Udev lib = Udev.INSTANCE;
+                    // Reading the instance loads the library, which throws if it is missing
+                    Objects.requireNonNull(Udev.INSTANCE);
                     hasUdev = true;
                 } catch (UnsatisfiedLinkError e) {
                     LOG.warn("Did not find udev library in operating system. Some features may not work.");
