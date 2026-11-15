@@ -112,59 +112,76 @@
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>                 is(Optional.of(<span class="jxr_string">"Microsoft Hyper-V"</span>)));
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Parallels Software International Inc."</span>,
 <a class="jxr_linenumber" name="L106" href="#L106">106</a>                 <span class="jxr_string">"Parallels Virtual"</span> + <span class="jxr_string">" Platform"</span>, table), is(Optional.of(<span class="jxr_string">"Parallels"</span>)));
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <em class="jxr_comment">// Physical hardware matches nothing</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Dell Inc."</span>, <span class="jxr_string">"PowerEdge R740"</span>, table), is(Optional.empty()));
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"MacBookPro18,3"</span>, table), is(Optional.empty()));
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Macmini6,2"</span>, table), is(Optional.empty()));
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, table), is(Optional.empty()));
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>     }
-<a class="jxr_linenumber" name="L113" href="#L113">113</a> 
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     @Test
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>     <strong class="jxr_keyword">void</strong> testMatchSystemPrefersTheLongerSignature() {
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         Properties props = <strong class="jxr_keyword">new</strong> Properties();
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         props.setProperty(<span class="jxr_string">"model.Xen"</span>, <span class="jxr_string">"Xen"</span>);
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         props.setProperty(<span class="jxr_string">"model.Xen HVM domU"</span>, <span class="jxr_string">"Xen HVM"</span>);
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Xen"</span>, <span class="jxr_string">"HVM domU"</span>, VirtualizationDetector.buildModelTable(props)),
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 is(Optional.of(<span class="jxr_string">"Xen HVM"</span>)));
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> 
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <em class="jxr_comment">// Insertion order must not matter, since Properties iteration is unordered</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         Properties reversed = <strong class="jxr_keyword">new</strong> Properties();
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>         reversed.setProperty(<span class="jxr_string">"model.Xen HVM domU"</span>, <span class="jxr_string">"Xen HVM"</span>);
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         reversed.setProperty(<span class="jxr_string">"model.Xen"</span>, <span class="jxr_string">"Xen"</span>);
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertThat(
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 VirtualizationDetector.matchSystem(<span class="jxr_string">"Xen"</span>, <span class="jxr_string">"HVM domU"</span>, VirtualizationDetector.buildModelTable(reversed)),
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 is(Optional.of(<span class="jxr_string">"Xen HVM"</span>)));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         <em class="jxr_comment">// AWS Nitro guest, as reported by some GitHub-hosted Ubuntu runners</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Amazon EC2"</span>, <span class="jxr_string">"m8id.xlarge"</span>, table),
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>                 is(Optional.of(<span class="jxr_string">"Amazon EC2"</span>)));
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         <em class="jxr_comment">// Physical hardware matches nothing, including an EC2 bare-metal instance</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Amazon EC2"</span>, <span class="jxr_string">"m5.metal"</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Amazon EC2"</span>, <span class="jxr_string">"m8id.metal-48xl"</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Dell Inc."</span>, <span class="jxr_string">"PowerEdge R740"</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"MacBookPro18,3"</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Macmini6,2"</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">""</span>, <span class="jxr_string">""</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>     }
+<a class="jxr_linenumber" name="L118" href="#L118">118</a> 
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>     @Test
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <strong class="jxr_keyword">void</strong> testMatchSystemEc2BareMetalSkipsOnlyTheEc2Signature() {
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         Properties props = <strong class="jxr_keyword">new</strong> Properties();
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         props.setProperty(<span class="jxr_string">"model.Amazon EC2"</span>, <span class="jxr_string">"Amazon EC2"</span>);
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         props.setProperty(<span class="jxr_string">"model.m5.metal"</span>, <span class="jxr_string">"My Platform"</span>);
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>         List&lt;Pair&lt;String, String&gt;&gt; table = VirtualizationDetector.buildModelTable(props);
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Amazon EC2"</span>, <span class="jxr_string">"m5.metal"</span>, table), is(Optional.of(<span class="jxr_string">"My Platform"</span>)));
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Amazon EC2"</span>, <span class="jxr_string">"m8id.metal-48xl"</span>, table), is(Optional.empty()));
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Amazon EC2"</span>, <span class="jxr_string">"m8id.xlarge"</span>, table),
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 is(Optional.of(<span class="jxr_string">"Amazon EC2"</span>)));
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> 
 <a class="jxr_linenumber" name="L131" href="#L131">131</a>     @Test
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">void</strong> testExtractOui() {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"08:00:27:aa:bb:cc"</span>), is(<span class="jxr_string">"08:00:27"</span>));
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"08-00-27-AA-BB-CC"</span>), is(<span class="jxr_string">"08:00:27"</span>));
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"080027aabbcc"</span>), is(<span class="jxr_string">"08:00:27"</span>));
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"00:50:56"</span>), is(<span class="jxr_string">"00:50:56"</span>));
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>         <em class="jxr_comment">// Constants.UNKNOWN and other unparseable values yield no OUI rather than throwing</em>
-<a class="jxr_linenumber" name="L138" href="#L138">138</a>         assertThat(VirtualizationDetector.extractOui(Constants.UNKNOWN), is(emptyString()));
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">""</span>), is(emptyString()));
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"00:50"</span>), is(emptyString()));
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"zz:zz:zz:zz:zz:zz"</span>), is(emptyString()));
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>     }
-<a class="jxr_linenumber" name="L143" href="#L143">143</a> 
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>     @Test
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>     <strong class="jxr_keyword">void</strong> testMatchMac() {
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>         Properties props = shippedMacProps();
-<a class="jxr_linenumber" name="L147" href="#L147">147</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"08:00:27:12:34:56"</span>), props), is(Optional.of(<span class="jxr_string">"VirtualBox"</span>)));
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>         <em class="jxr_comment">// The library formats MAC addresses in lowercase; the table is keyed uppercase</em>
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"00:15:5d:aa:bb:cc"</span>), props),
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>                 is(Optional.of(<span class="jxr_string">"Microsoft Hyper-V"</span>)));
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"42:01:0a:80:00:01"</span>), props),
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>                 is(Optional.of(<span class="jxr_string">"Google Cloud Platform"</span>)));
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <em class="jxr_comment">// The first matching address wins, and unparseable entries are skipped rather than throwing</em>
-<a class="jxr_linenumber" name="L154" href="#L154">154</a>         assertThat(VirtualizationDetector.matchMac(List.of(Constants.UNKNOWN, <span class="jxr_string">"3c:22:fb:11:22:33"</span>, <span class="jxr_string">"08:00:27:12:34:56"</span>),
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>                 props), is(Optional.of(<span class="jxr_string">"VirtualBox"</span>)));
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"3c:22:fb:11:22:33"</span>), props), is(Optional.empty()));
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(VirtualizationDetector.matchMac(Collections.&lt;String&gt;emptyList(), props), is(Optional.empty()));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>     }
-<a class="jxr_linenumber" name="L159" href="#L159">159</a> }
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">void</strong> testMatchSystemPrefersTheLongerSignature() {
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         Properties props = <strong class="jxr_keyword">new</strong> Properties();
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>         props.setProperty(<span class="jxr_string">"model.Xen"</span>, <span class="jxr_string">"Xen"</span>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>         props.setProperty(<span class="jxr_string">"model.Xen HVM domU"</span>, <span class="jxr_string">"Xen HVM"</span>);
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         assertThat(VirtualizationDetector.matchSystem(<span class="jxr_string">"Xen"</span>, <span class="jxr_string">"HVM domU"</span>, VirtualizationDetector.buildModelTable(props)),
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>                 is(Optional.of(<span class="jxr_string">"Xen HVM"</span>)));
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>         <em class="jxr_comment">// Insertion order must not matter, since Properties iteration is unordered</em>
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         Properties reversed = <strong class="jxr_keyword">new</strong> Properties();
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         reversed.setProperty(<span class="jxr_string">"model.Xen HVM domU"</span>, <span class="jxr_string">"Xen HVM"</span>);
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         reversed.setProperty(<span class="jxr_string">"model.Xen"</span>, <span class="jxr_string">"Xen"</span>);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>                 VirtualizationDetector.matchSystem(<span class="jxr_string">"Xen"</span>, <span class="jxr_string">"HVM domU"</span>, VirtualizationDetector.buildModelTable(reversed)),
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>                 is(Optional.of(<span class="jxr_string">"Xen HVM"</span>)));
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
+<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>     @Test
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">void</strong> testExtractOui() {
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"08:00:27:aa:bb:cc"</span>), is(<span class="jxr_string">"08:00:27"</span>));
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"08-00-27-AA-BB-CC"</span>), is(<span class="jxr_string">"08:00:27"</span>));
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"080027aabbcc"</span>), is(<span class="jxr_string">"08:00:27"</span>));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"00:50:56"</span>), is(<span class="jxr_string">"00:50:56"</span>));
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         <em class="jxr_comment">// Constants.UNKNOWN and other unparseable values yield no OUI rather than throwing</em>
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         assertThat(VirtualizationDetector.extractOui(Constants.UNKNOWN), is(emptyString()));
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">""</span>), is(emptyString()));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"00:50"</span>), is(emptyString()));
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>         assertThat(VirtualizationDetector.extractOui(<span class="jxr_string">"zz:zz:zz:zz:zz:zz"</span>), is(emptyString()));
+<a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
+<a class="jxr_linenumber" name="L160" href="#L160">160</a> 
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     @Test
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>     <strong class="jxr_keyword">void</strong> testMatchMac() {
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         Properties props = shippedMacProps();
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"08:00:27:12:34:56"</span>), props), is(Optional.of(<span class="jxr_string">"VirtualBox"</span>)));
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         <em class="jxr_comment">// The library formats MAC addresses in lowercase; the table is keyed uppercase</em>
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"00:15:5d:aa:bb:cc"</span>), props),
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>                 is(Optional.of(<span class="jxr_string">"Microsoft Hyper-V"</span>)));
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"42:01:0a:80:00:01"</span>), props),
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>                 is(Optional.of(<span class="jxr_string">"Google Cloud Platform"</span>)));
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>         <em class="jxr_comment">// The first matching address wins, and unparseable entries are skipped rather than throwing</em>
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         assertThat(VirtualizationDetector.matchMac(List.of(Constants.UNKNOWN, <span class="jxr_string">"3c:22:fb:11:22:33"</span>, <span class="jxr_string">"08:00:27:12:34:56"</span>),
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                 props), is(Optional.of(<span class="jxr_string">"VirtualBox"</span>)));
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         assertThat(VirtualizationDetector.matchMac(List.of(<span class="jxr_string">"3c:22:fb:11:22:33"</span>), props), is(Optional.empty()));
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>         assertThat(VirtualizationDetector.matchMac(Collections.&lt;String&gt;emptyList(), props), is(Optional.empty()));
+<a class="jxr_linenumber" name="L175" href="#L175">175</a>     }
+<a class="jxr_linenumber" name="L176" href="#L176">176</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

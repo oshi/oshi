@@ -70,12 +70,14 @@
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>                  out.collisions = stat.collisions;
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>                  out.inDrops = stat.<strong class="jxr_keyword">if</strong>_iqdrops;
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>                  out.speed = stat.bitrate;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <strong class="jxr_keyword">return</strong> out;
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>              }
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          }
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>      }
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>  }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  <em class="jxr_comment">// An IANA ifType from &lt;net/if_types.h&gt;, an unsigned char</em>
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  out.ifType = Byte.toUnsignedInt(stat.type);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  <strong class="jxr_keyword">return</strong> out;
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          }
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      }
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

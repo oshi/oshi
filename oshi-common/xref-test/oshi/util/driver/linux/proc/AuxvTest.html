@@ -13,33 +13,86 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.driver.linux.proc;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.greaterThan;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.junit.jupiter.api.Assertions.assertNotNull;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.util.FileUtil;
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> oshi.util.Util;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.anEmptyMap;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.greaterThan;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.nio.ByteBuffer;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.nio.ByteOrder;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.EnabledOnOs;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>  @EnabledOnOs(OS.LINUX)
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">class</strong> <a name="AuxvTest" href="../../../../../oshi/util/driver/linux/proc/AuxvTest.html#AuxvTest">AuxvTest</a> {
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <em class="jxr_comment">// A native long is the JVM's word size, which the os.arch name alone does not reliably tell (s390x is 64-bit)</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Auxv.NativeLongReader READER = Util.is64Bit() ? FileUtil::readLongFromBuffer
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>              : FileUtil::readIntFromBuffer;
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>  
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>      @Test
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">class</strong> <a name="AuxvTest" href="../../../../../oshi/util/driver/linux/proc/AuxvTest.html#AuxvTest">AuxvTest</a> {
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <em class="jxr_comment">// The leading entries of a real s390x /proc/self/auxv: HWCAP, PAGESZ, CLKTCK, then the terminating AT_NULL</em>
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">long</strong>[] VECTOR = { Auxv.AT_HWCAP, 0x5fffffL, Auxv.AT_PAGESZ, 4096L, Auxv.AT_CLKTCK, 100L,
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>              Auxv.AT_NULL, 0L };
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>  
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>      @Test
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>      @EnabledOnOs(OS.LINUX)
 <a class="jxr_linenumber" name="L28" href="#L28">28</a>      <strong class="jxr_keyword">void</strong> testQueryAuxv() {
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          Map&lt;Integer, Long&gt; auxv = Auxv.queryAuxv(READER);
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertNotNull(auxv, <span class="jxr_string">"Aux vector should not be null"</span>);
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(<span class="jxr_string">"Clock Ticks should be positive"</span>, auxv.getOrDefault(Auxv.AT_CLKTCK, 0L), greaterThan(0L));
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          assertThat(<span class="jxr_string">"Page Size should be positive"</span>, auxv.getOrDefault(Auxv.AT_PAGESZ, 0L), greaterThan(0L));
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>      }
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>  }
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          Map&lt;Integer, Long&gt; auxv = Auxv.queryAuxv();
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(<span class="jxr_string">"Clock Ticks should be positive"</span>, auxv.getOrDefault(Auxv.AT_CLKTCK, 0L), greaterThan(0L));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(<span class="jxr_string">"Page Size should be positive"</span>, auxv.getOrDefault(Auxv.AT_PAGESZ, 0L), greaterThan(0L));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          assertThat(Auxv.userHz(auxv), is(auxv.get(Auxv.AT_CLKTCK)));
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThat(Auxv.pageSize(auxv), is(auxv.get(Auxv.AT_PAGESZ)));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      @Test
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>      <strong class="jxr_keyword">void</strong> testParseAuxv64BitBigEndian() {
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          assertParsesVector(<strong class="jxr_keyword">true</strong>, ByteOrder.BIG_ENDIAN);
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>      }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>  
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      @Test
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      <strong class="jxr_keyword">void</strong> testParseAuxv64BitLittleEndian() {
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertParsesVector(<strong class="jxr_keyword">true</strong>, ByteOrder.LITTLE_ENDIAN);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      }
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>  
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      @Test
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>      <strong class="jxr_keyword">void</strong> testParseAuxv32BitBigEndian() {
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertParsesVector(false, ByteOrder.BIG_ENDIAN);
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      }
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>  
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      @Test
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>      <strong class="jxr_keyword">void</strong> testParseAuxv32BitLittleEndian() {
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertParsesVector(false, ByteOrder.LITTLE_ENDIAN);
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>      }
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>  
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> assertParsesVector(<strong class="jxr_keyword">boolean</strong> is64Bit, ByteOrder order) {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          ByteBuffer buff = ByteBuffer.allocate(VECTOR.length * (is64Bit ? 8 : 4)).order(order);
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>          <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">long</strong> v : VECTOR) {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>              <strong class="jxr_keyword">if</strong> (is64Bit) {
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  buff.putLong(v);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>              } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                  buff.putInt((<strong class="jxr_keyword">int</strong>) v);
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>              }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          buff.flip();
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          Map&lt;Integer, Long&gt; auxv = Auxv.parseAuxv(buff, is64Bit);
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(auxv, is(Map.of(Auxv.AT_HWCAP, 0x5fffffL, Auxv.AT_PAGESZ, 4096L, Auxv.AT_CLKTCK, 100L)));
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          assertThat(Auxv.userHz(auxv), is(100L));
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          assertThat(Auxv.pageSize(auxv), is(4096L));
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      }
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>  
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>      @Test
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>      <strong class="jxr_keyword">void</strong> testParseAuxvEmpty() {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <em class="jxr_comment">// An unreadable /proc/self/auxv reads as no bytes, and the parse stops at once</em>
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(Auxv.parseAuxv(ByteBuffer.allocate(0), <strong class="jxr_keyword">true</strong>), is(anEmptyMap()));
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      @Test
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">void</strong> testFallbacksArePositive() {
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          <em class="jxr_comment">// A missing or nonpositive entry falls back to getconf, and to a default if that gives nothing usable</em>
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          Map&lt;Integer, Long&gt; auxv = Map.of(Auxv.AT_CLKTCK, 0L, Auxv.AT_PAGESZ, -1L);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(Auxv.userHz(auxv), greaterThan(0L));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(Auxv.pageSize(auxv), greaterThan(0L));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(Auxv.userHz(Map.of()), greaterThan(0L));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertThat(Auxv.pageSize(Map.of()), greaterThan(0L));
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

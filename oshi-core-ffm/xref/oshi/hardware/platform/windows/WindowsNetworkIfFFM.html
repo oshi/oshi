@@ -72,33 +72,36 @@
 <a class="jxr_linenumber" name="L64" href="#L64">64</a>              stats.connectorPresent = (flags &amp; CONNECTOR_PRESENT_BIT) &gt; 0;
 <a class="jxr_linenumber" name="L65" href="#L65">65</a>              stats.speed = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_RECEIVE_LINK_SPEED);
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>              stats.bytesRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_OCTETS);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>              stats.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS);
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>              stats.inErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS);
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>              stats.inDrops = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS);
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              stats.bytesSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS);
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              stats.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              stats.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>              stats.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>              <em class="jxr_comment">// Alias is WCHAR[257] at OFFSET_ALIAS</em>
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>              MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              stats.ifAlias = readWideString(aliasSlice);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <strong class="jxr_keyword">int</strong> operStatus = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_OPER_STATUS);
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>              stats.ifOperStatus = IfOperStatus.byValue(operStatus);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">return</strong> stats;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }, LOG, ERROR, <span class="jxr_string">"Failed to retrieve data for interface "</span> + queryNetworkInterface().getIndex() + <span class="jxr_string">", "</span> + getName(),
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readWideString(MemorySegment seg) {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          <strong class="jxr_keyword">int</strong> len = 0;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">while</strong> (len &lt; seg.byteSize() / 2 &amp;&amp; seg.get(ValueLayout.JAVA_SHORT, len * 2L) != 0) {
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              len++;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          }
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          byte[] bytes = <strong class="jxr_keyword">new</strong> byte[len * 2];
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          MemorySegment.copy(seg, ValueLayout.JAVA_BYTE, 0, bytes, 0, bytes.length);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(bytes, StandardCharsets.UTF_16LE);
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>              <em class="jxr_comment">// Unicast plus non-unicast (multicast and broadcast), the total other platforms count</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>              stats.packetsRecv = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_UCAST_PKTS)
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                      + ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_NUCAST_PKTS);
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>              stats.inErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_ERRORS);
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>              stats.inDrops = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_IN_DISCARDS);
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              stats.bytesSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_OCTETS);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>              stats.packetsSent = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_UCAST_PKTS)
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                      + ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_NUCAST_PKTS);
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              stats.outErrors = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_ERRORS);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>              stats.collisions = ifRow.get(ValueLayout.JAVA_LONG, IPHlpAPIFFM.OFFSET_OUT_DISCARDS);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>              <em class="jxr_comment">// Alias is WCHAR[257] at OFFSET_ALIAS</em>
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>              MemorySegment aliasSlice = ifRow.asSlice(IPHlpAPIFFM.OFFSET_ALIAS, 257 * 2L);
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>              stats.ifAlias = readWideString(aliasSlice);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>              <strong class="jxr_keyword">int</strong> operStatus = ifRow.get(ValueLayout.JAVA_INT, IPHlpAPIFFM.OFFSET_OPER_STATUS);
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              stats.ifOperStatus = IfOperStatus.byValue(operStatus);
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          }, LOG, ERROR, <span class="jxr_string">"Failed to retrieve data for interface "</span> + queryNetworkInterface().getIndex() + <span class="jxr_string">", "</span> + getName(),
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String readWideString(MemorySegment seg) {
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">int</strong> len = 0;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          <strong class="jxr_keyword">while</strong> (len &lt; seg.byteSize() / 2 &amp;&amp; seg.get(ValueLayout.JAVA_SHORT, len * 2L) != 0) {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              len++;
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          byte[] bytes = <strong class="jxr_keyword">new</strong> byte[len * 2];
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          MemorySegment.copy(seg, ValueLayout.JAVA_BYTE, 0, bytes, 0, bytes.length);
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> String(bytes, StandardCharsets.UTF_16LE);
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>      }
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

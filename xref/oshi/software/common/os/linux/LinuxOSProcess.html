@@ -287,226 +287,247 @@
 <a class="jxr_linenumber" name="L279" href="#L279">279</a> 
 <a class="jxr_linenumber" name="L280" href="#L280">280</a>     @Override
 <a class="jxr_linenumber" name="L281" href="#L281">281</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">long</strong> getAffinityMask() {
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <em class="jxr_comment">// Would prefer to use native sched_getaffinity call but variable sizing is</em>
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <em class="jxr_comment">// kernel-dependent and requires C macros, so we use command line instead.</em>
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>         <strong class="jxr_keyword">return</strong> parseAffinityMask(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"taskset -p "</span> + getProcessID()));
-<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
-<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L288" href="#L288">288</a> <em class="jxr_javadoccomment">     * Parse the affinity mask from taskset output.</em>
-<a class="jxr_linenumber" name="L289" href="#L289">289</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L290" href="#L290">290</a> <em class="jxr_javadoccomment">     * @param tasksetOutput output of {@code taskset -p &lt;pid&gt;}</em>
-<a class="jxr_linenumber" name="L291" href="#L291">291</a> <em class="jxr_javadoccomment">     * @return the affinity mask as a long, or 0 if unparseable</em>
-<a class="jxr_linenumber" name="L292" href="#L292">292</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseAffinityMask(String tasksetOutput) {
-<a class="jxr_linenumber" name="L294" href="#L294">294</a>         <em class="jxr_comment">// Output:</em>
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         <em class="jxr_comment">// pid 3283's current affinity mask: 3</em>
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         <em class="jxr_comment">// pid 9726's current affinity mask: f</em>
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>         String[] split = ParseUtil.whitespaces.split(tasksetOutput.trim(), -1);
-<a class="jxr_linenumber" name="L298" href="#L298">298</a>         <strong class="jxr_keyword">if</strong> (split.length == 0) {
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>             <strong class="jxr_keyword">return</strong> 0;
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>         }
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         <strong class="jxr_keyword">return</strong> ExceptionUtil.getLongOrDefault(() -&gt; <strong class="jxr_keyword">new</strong> BigInteger(split[split.length - 1], 16).longValue(), 0);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>     }
-<a class="jxr_linenumber" name="L303" href="#L303">303</a> 
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>     @Override
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
-<a class="jxr_linenumber" name="L306" href="#L306">306</a>         <strong class="jxr_keyword">boolean</strong> result = updateAttributesFromProc();
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         <em class="jxr_comment">// getrusage reports more accurate context-switch counts than /proc, but only for the current process and only</em>
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         <em class="jxr_comment">// when its /proc attributes were read successfully</em>
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         <strong class="jxr_keyword">if</strong> (result &amp;&amp; getProcessID() == getOs().getProcessId()) {
-<a class="jxr_linenumber" name="L310" href="#L310">310</a>             <strong class="jxr_keyword">long</strong>[] contextSwitches = queryContextSwitches();
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>             <strong class="jxr_keyword">if</strong> (contextSwitches != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>                 <strong class="jxr_keyword">this</strong>.cachedVoluntaryContextSwitches = contextSwitches[0];
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>                 <strong class="jxr_keyword">this</strong>.cachedInvoluntaryContextSwitches = contextSwitches[1];
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>                 <strong class="jxr_keyword">this</strong>.rusagePopulated = <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>             } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>                 <strong class="jxr_keyword">this</strong>.rusagePopulated = false;
-<a class="jxr_linenumber" name="L317" href="#L317">317</a>             }
-<a class="jxr_linenumber" name="L318" href="#L318">318</a>         }
-<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
-<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
-<a class="jxr_linenumber" name="L322" href="#L322">322</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L323" href="#L323">323</a> <em class="jxr_javadoccomment">     * Reads this (current) process's voluntary and involuntary context-switch counts via native {@code getrusage}. The</em>
-<a class="jxr_linenumber" name="L324" href="#L324">324</a> <em class="jxr_javadoccomment">     * default returns {@code null} (the native-free build has no {@code getrusage}); the JNA and FFM subclasses</em>
-<a class="jxr_linenumber" name="L325" href="#L325">325</a> <em class="jxr_javadoccomment">     * override it.</em>
-<a class="jxr_linenumber" name="L326" href="#L326">326</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L327" href="#L327">327</a> <em class="jxr_javadoccomment">     * @return a two-element array {@code {voluntary, involuntary}}, or {@code null} if unavailable</em>
-<a class="jxr_linenumber" name="L328" href="#L328">328</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L329" href="#L329">329</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> @Nullable [] queryContextSwitches() {
-<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L331" href="#L331">331</a>     }
-<a class="jxr_linenumber" name="L332" href="#L332">332</a> 
-<a class="jxr_linenumber" name="L333" href="#L333">333</a>     <em class="jxr_comment">// ProcPidStat.ordinal() only indexes statArray, built from ProcPidStat.values() itself via PROC_PID_STAT_ORDERS</em>
-<a class="jxr_linenumber" name="L334" href="#L334">334</a>     @SuppressWarnings(<span class="jxr_string">"EnumOrdinal"</span>)
-<a class="jxr_linenumber" name="L335" href="#L335">335</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateAttributesFromProc() {
-<a class="jxr_linenumber" name="L336" href="#L336">336</a>         String procPidExe = String.format(Locale.ROOT, ProcPath.PID_EXE, getProcessID());
-<a class="jxr_linenumber" name="L337" href="#L337">337</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L338" href="#L338">338</a>             Path link = Paths.get(procPidExe);
-<a class="jxr_linenumber" name="L339" href="#L339">339</a>             String exePath = Files.readSymbolicLink(link).toString();
-<a class="jxr_linenumber" name="L340" href="#L340">340</a>             <em class="jxr_comment">// For some services the symbolic link process has terminated</em>
-<a class="jxr_linenumber" name="L341" href="#L341">341</a>             <strong class="jxr_keyword">int</strong> index = exePath.indexOf(<span class="jxr_string">" (deleted)"</span>);
-<a class="jxr_linenumber" name="L342" href="#L342">342</a>             <strong class="jxr_keyword">if</strong> (index != -1) {
-<a class="jxr_linenumber" name="L343" href="#L343">343</a>                 exePath = exePath.substring(0, index);
-<a class="jxr_linenumber" name="L344" href="#L344">344</a>             }
-<a class="jxr_linenumber" name="L345" href="#L345">345</a>             <em class="jxr_comment">// Assign the volatile field once, after the value is fully computed</em>
-<a class="jxr_linenumber" name="L346" href="#L346">346</a>             <strong class="jxr_keyword">this</strong>.path = exePath;
-<a class="jxr_linenumber" name="L347" href="#L347">347</a>         } <strong class="jxr_keyword">catch</strong> (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
-<a class="jxr_linenumber" name="L348" href="#L348">348</a>             LOG.debug(<span class="jxr_string">"Unable to open symbolic link {}"</span>, procPidExe);
-<a class="jxr_linenumber" name="L349" href="#L349">349</a>         }
-<a class="jxr_linenumber" name="L350" href="#L350">350</a>         <em class="jxr_comment">// Fetch all the values here</em>
-<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <em class="jxr_comment">// check for terminated process race condition after last one.</em>
-<a class="jxr_linenumber" name="L352" href="#L352">352</a>         Map&lt;String, String&gt; io = <a name="PrivilegedUtil" href="../../../../../oshi/util/PrivilegedUtil.html#PrivilegedUtil">PrivilegedUtil</a>
-<a class="jxr_linenumber" name="L353" href="#L353">353</a>                 .getKeyValueMapFromFilePrivileged(String.format(Locale.ROOT, ProcPath.PID_IO, getProcessID()), <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L354" href="#L354">354</a>         Map&lt;String, String&gt; status = <a name="FileUtil" href="../../../../../oshi/util/FileUtil.html#FileUtil">FileUtil</a>
-<a class="jxr_linenumber" name="L355" href="#L355">355</a>                 .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), <span class="jxr_string">":"</span>);
-<a class="jxr_linenumber" name="L356" href="#L356">356</a>         String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, getProcessID()));
-<a class="jxr_linenumber" name="L357" href="#L357">357</a>         String statm = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STATM, getProcessID()));
-<a class="jxr_linenumber" name="L358" href="#L358">358</a>         <strong class="jxr_keyword">if</strong> (stat.isEmpty()) {
-<a class="jxr_linenumber" name="L359" href="#L359">359</a>             <strong class="jxr_keyword">this</strong>.state = INVALID;
-<a class="jxr_linenumber" name="L360" href="#L360">360</a>             <strong class="jxr_keyword">return</strong> false;
-<a class="jxr_linenumber" name="L361" href="#L361">361</a>         }
-<a class="jxr_linenumber" name="L362" href="#L362">362</a>         <em class="jxr_comment">// If some details couldn't be read from ProcPath.PID_STATUS try reading it from</em>
-<a class="jxr_linenumber" name="L363" href="#L363">363</a>         <em class="jxr_comment">// ProcPath.PID_STAT</em>
-<a class="jxr_linenumber" name="L364" href="#L364">364</a>         getMissingDetails(status, stat);
-<a class="jxr_linenumber" name="L365" href="#L365">365</a> 
-<a class="jxr_linenumber" name="L366" href="#L366">366</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
-<a class="jxr_linenumber" name="L367" href="#L367">367</a> 
-<a class="jxr_linenumber" name="L368" href="#L368">368</a>         <em class="jxr_comment">// We can get name and status more easily from /proc/pid/status which we</em>
-<a class="jxr_linenumber" name="L369" href="#L369">369</a>         <em class="jxr_comment">// call later, so just get the numeric bits here</em>
-<a class="jxr_linenumber" name="L370" href="#L370">370</a>         <em class="jxr_comment">// See man proc for how to parse /proc/[pid]/stat</em>
-<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <strong class="jxr_keyword">long</strong>[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS,
-<a class="jxr_linenumber" name="L372" href="#L372">372</a>                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
-<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
-<a class="jxr_linenumber" name="L374" href="#L374">374</a>         <em class="jxr_comment">// BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.</em>
-<a class="jxr_linenumber" name="L375" href="#L375">375</a>         <em class="jxr_comment">// Combine units to jiffies and convert to millijiffies before hz division to</em>
-<a class="jxr_linenumber" name="L376" href="#L376">376</a>         <em class="jxr_comment">// avoid precision loss without having to cast</em>
-<a class="jxr_linenumber" name="L377" href="#L377">377</a>         <strong class="jxr_keyword">this</strong>.startTime = (LinuxOperatingSystem.getBootTime() * getOs().getHz()
-<a class="jxr_linenumber" name="L378" href="#L378">378</a>                 + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / getOs().getHz();
-<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <em class="jxr_comment">// BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process</em>
-<a class="jxr_linenumber" name="L380" href="#L380">380</a>         <em class="jxr_comment">// that has started within last 505ms could produce a future start time/negative</em>
-<a class="jxr_linenumber" name="L381" href="#L381">381</a>         <em class="jxr_comment">// up time, so insert a sanity check.</em>
-<a class="jxr_linenumber" name="L382" href="#L382">382</a>         <strong class="jxr_keyword">if</strong> (startTime &gt;= now) {
-<a class="jxr_linenumber" name="L383" href="#L383">383</a>             startTime = now - 1;
-<a class="jxr_linenumber" name="L384" href="#L384">384</a>         }
-<a class="jxr_linenumber" name="L385" href="#L385">385</a>         <strong class="jxr_keyword">this</strong>.parentProcessID = (<strong class="jxr_keyword">int</strong>) statArray[ProcPidStat.PPID.ordinal()];
-<a class="jxr_linenumber" name="L386" href="#L386">386</a>         <strong class="jxr_keyword">this</strong>.threadCount = (<strong class="jxr_keyword">int</strong>) statArray[ProcPidStat.THREAD_COUNT.ordinal()];
-<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">this</strong>.priority = (<strong class="jxr_keyword">int</strong>) statArray[ProcPidStat.PRIORITY.ordinal()];
-<a class="jxr_linenumber" name="L388" href="#L388">388</a>         <strong class="jxr_keyword">this</strong>.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];
-<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <em class="jxr_comment">// Parse /proc/[pid]/statm for resident and shared pages (all in pages)</em>
-<a class="jxr_linenumber" name="L390" href="#L390">390</a>         <em class="jxr_comment">// Fields: size resident shared text lib data dt</em>
-<a class="jxr_linenumber" name="L391" href="#L391">391</a>         String[] statmFields = ParseUtil.whitespaces.split(statm, -1);
-<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">if</strong> (statmFields.length &gt; 2) {
-<a class="jxr_linenumber" name="L393" href="#L393">393</a>             <strong class="jxr_keyword">long</strong> resident = ParseUtil.parseLongOrDefault(statmFields[1], 0L);
-<a class="jxr_linenumber" name="L394" href="#L394">394</a>             <strong class="jxr_keyword">long</strong> shared = ParseUtil.parseLongOrDefault(statmFields[2], 0L);
-<a class="jxr_linenumber" name="L395" href="#L395">395</a>             <strong class="jxr_keyword">long</strong> pageSize = getOs().getPageSize();
-<a class="jxr_linenumber" name="L396" href="#L396">396</a>             <strong class="jxr_keyword">this</strong>.residentSetSize = resident * pageSize;
-<a class="jxr_linenumber" name="L397" href="#L397">397</a>             <strong class="jxr_keyword">this</strong>.privateResidentMemory = (resident - shared) * pageSize;
-<a class="jxr_linenumber" name="L398" href="#L398">398</a>         } <strong class="jxr_keyword">else</strong> {
-<a class="jxr_linenumber" name="L399" href="#L399">399</a>             <strong class="jxr_keyword">this</strong>.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * getOs().getPageSize();
-<a class="jxr_linenumber" name="L400" href="#L400">400</a>             <strong class="jxr_keyword">this</strong>.privateResidentMemory = <strong class="jxr_keyword">this</strong>.residentSetSize;
-<a class="jxr_linenumber" name="L401" href="#L401">401</a>         }
-<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <strong class="jxr_keyword">this</strong>.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / getOs().getHz();
-<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">this</strong>.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / getOs().getHz();
-<a class="jxr_linenumber" name="L404" href="#L404">404</a>         <strong class="jxr_keyword">this</strong>.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
-<a class="jxr_linenumber" name="L405" href="#L405">405</a>         <strong class="jxr_keyword">this</strong>.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
-<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(<span class="jxr_string">"voluntary_ctxt_switches"</span>), 0L);
-<a class="jxr_linenumber" name="L407" href="#L407">407</a>         <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(<span class="jxr_string">"nonvoluntary_ctxt_switches"</span>), 0L);
-<a class="jxr_linenumber" name="L408" href="#L408">408</a> 
-<a class="jxr_linenumber" name="L409" href="#L409">409</a>         <strong class="jxr_keyword">this</strong>.upTime = now - startTime;
-<a class="jxr_linenumber" name="L410" href="#L410">410</a> 
-<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <em class="jxr_comment">// See man proc for how to parse /proc/[pid]/io</em>
-<a class="jxr_linenumber" name="L412" href="#L412">412</a>         <strong class="jxr_keyword">this</strong>.bytesRead = ParseUtil.parseLongOrDefault(io.getOrDefault(<span class="jxr_string">"read_bytes"</span>, <span class="jxr_string">""</span>), 0L);
-<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">this</strong>.bytesWritten = ParseUtil.parseLongOrDefault(io.getOrDefault(<span class="jxr_string">"write_bytes"</span>, <span class="jxr_string">""</span>), 0L);
-<a class="jxr_linenumber" name="L414" href="#L414">414</a> 
-<a class="jxr_linenumber" name="L415" href="#L415">415</a>         <em class="jxr_comment">// Don't set open files or bitness or currentWorkingDirectory; fetch on demand.</em>
-<a class="jxr_linenumber" name="L416" href="#L416">416</a> 
-<a class="jxr_linenumber" name="L417" href="#L417">417</a>         <strong class="jxr_keyword">this</strong>.userID = ParseUtil.whitespaces.split(status.getOrDefault(<span class="jxr_string">"Uid"</span>, <span class="jxr_string">""</span>), -1)[0];
-<a class="jxr_linenumber" name="L418" href="#L418">418</a>         <em class="jxr_comment">// defer user lookup until asked</em>
-<a class="jxr_linenumber" name="L419" href="#L419">419</a>         <strong class="jxr_keyword">this</strong>.groupID = ParseUtil.whitespaces.split(status.getOrDefault(<span class="jxr_string">"Gid"</span>, <span class="jxr_string">""</span>), -1)[0];
-<a class="jxr_linenumber" name="L420" href="#L420">420</a>         <em class="jxr_comment">// defer group lookup until asked</em>
-<a class="jxr_linenumber" name="L421" href="#L421">421</a>         <strong class="jxr_keyword">this</strong>.name = status.getOrDefault(<span class="jxr_string">"Name"</span>, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L422" href="#L422">422</a>         <strong class="jxr_keyword">this</strong>.state = ProcessStat.getState(status.getOrDefault(<span class="jxr_string">"State"</span>, <span class="jxr_string">"U"</span>).charAt(0));
-<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L424" href="#L424">424</a>     }
-<a class="jxr_linenumber" name="L425" href="#L425">425</a> 
-<a class="jxr_linenumber" name="L426" href="#L426">426</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L427" href="#L427">427</a> <em class="jxr_javadoccomment">     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from ProcPath.PID_STAT</em>
-<a class="jxr_linenumber" name="L428" href="#L428">428</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L429" href="#L429">429</a> <em class="jxr_javadoccomment">     * @param status status map to fill.</em>
-<a class="jxr_linenumber" name="L430" href="#L430">430</a> <em class="jxr_javadoccomment">     * @param stat   string to read from.</em>
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> getMissingDetails(@Nullable Map&lt;String, String&gt; status, @Nullable String stat) {
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">if</strong> (status == <strong class="jxr_keyword">null</strong> || stat == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             <strong class="jxr_keyword">return</strong>;
-<a class="jxr_linenumber" name="L435" href="#L435">435</a>         }
-<a class="jxr_linenumber" name="L436" href="#L436">436</a> 
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         <strong class="jxr_keyword">int</strong> nameStart = stat.indexOf('(');
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">int</strong> nameEnd = stat.lastIndexOf(')');
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <strong class="jxr_keyword">if</strong> (Util.isBlank(status.get(<span class="jxr_string">"Name"</span>)) &amp;&amp; nameStart &gt; 0 &amp;&amp; nameStart &lt; nameEnd) {
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>             <em class="jxr_comment">// remove leading and trailing parentheses</em>
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>             String statName = stat.substring(nameStart + 1, nameEnd);
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>             status.put(<span class="jxr_string">"Name"</span>, statName);
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>         }
-<a class="jxr_linenumber" name="L444" href="#L444">444</a> 
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>         <em class="jxr_comment">// As per man, the next item after the name is the state</em>
-<a class="jxr_linenumber" name="L446" href="#L446">446</a>         <strong class="jxr_keyword">if</strong> (Util.isBlank(status.get(<span class="jxr_string">"State"</span>)) &amp;&amp; nameEnd &gt; 0 &amp;&amp; stat.length() &gt; nameEnd + 2) {
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>             String statState = String.valueOf(stat.charAt(nameEnd + 2));
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>             status.put(<span class="jxr_string">"State"</span>, statState);
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         }
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>     }
-<a class="jxr_linenumber" name="L451" href="#L451">451</a> 
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L453" href="#L453">453</a> <em class="jxr_javadoccomment">     * Enum used to update attributes. The order field represents the 1-indexed numeric order of the stat in</em>
-<a class="jxr_linenumber" name="L454" href="#L454">454</a> <em class="jxr_javadoccomment">     * /proc/pid/stat per the man file.</em>
-<a class="jxr_linenumber" name="L455" href="#L455">455</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>     <strong class="jxr_keyword">private</strong> enum ProcPidStat {
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         <em class="jxr_comment">// The parsing implementation in ParseUtil requires these to be declared</em>
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <em class="jxr_comment">// in increasing order</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <em class="jxr_javadoccomment">/** PPID property. */</em>
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>         PPID(4),
-<a class="jxr_linenumber" name="L461" href="#L461">461</a>         <em class="jxr_javadoccomment">/** MINOR_FAULTS property. */</em>
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>         MINOR_FAULTS(10),
-<a class="jxr_linenumber" name="L463" href="#L463">463</a>         <em class="jxr_javadoccomment">/** MAJOR_FAULTS property. */</em>
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>         MAJOR_FAULTS(12),
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>         <em class="jxr_javadoccomment">/** USER_TIME property. */</em>
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         USER_TIME(14),
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <em class="jxr_javadoccomment">/** KERNEL_TIME property. */</em>
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         KERNEL_TIME(15),
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>         <em class="jxr_javadoccomment">/** PRIORITY property. */</em>
-<a class="jxr_linenumber" name="L470" href="#L470">470</a>         PRIORITY(18),
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <em class="jxr_javadoccomment">/** THREAD_COUNT property. */</em>
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>         THREAD_COUNT(20),
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>         <em class="jxr_javadoccomment">/** START_TIME property. */</em>
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>         START_TIME(22),
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <em class="jxr_javadoccomment">/** VSZ property. */</em>
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>         VSZ(23),
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>         <em class="jxr_javadoccomment">/** RSS property. */</em>
-<a class="jxr_linenumber" name="L478" href="#L478">478</a>         RSS(24);
-<a class="jxr_linenumber" name="L479" href="#L479">479</a> 
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order;
-<a class="jxr_linenumber" name="L481" href="#L481">481</a> 
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>         <strong class="jxr_keyword">int</strong> getOrder() {
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.order;
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>         }
-<a class="jxr_linenumber" name="L485" href="#L485">485</a> 
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>         ProcPidStat(<strong class="jxr_keyword">int</strong> order) {
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>             <strong class="jxr_keyword">this</strong>.order = order;
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>         }
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>     }
-<a class="jxr_linenumber" name="L490" href="#L490">490</a> 
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a> <em class="jxr_javadoccomment">     * Gets the open file limit for a process.</em>
-<a class="jxr_linenumber" name="L493" href="#L493">493</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L494" href="#L494">494</a> <em class="jxr_javadoccomment">     * @param processId the process ID</em>
-<a class="jxr_linenumber" name="L495" href="#L495">495</a> <em class="jxr_javadoccomment">     * @param index     {@code 1} for the soft limit, {@code 2} for the hard limit</em>
-<a class="jxr_linenumber" name="L496" href="#L496">496</a> <em class="jxr_javadoccomment">     * @return the file limit, or {@code -1} if unavailable</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> getProcessOpenFileLimit(<strong class="jxr_keyword">long</strong> processId, <strong class="jxr_keyword">int</strong> index) {
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>         <strong class="jxr_keyword">return</strong> ProcLimits.queryOpenFileLimit(processId, index);
-<a class="jxr_linenumber" name="L500" href="#L500">500</a>     }
-<a class="jxr_linenumber" name="L501" href="#L501">501</a> }
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         <em class="jxr_comment">// The kernel prints the same mask sched_getaffinity returns in /proc/&lt;pid&gt;/status, which avoids both the native</em>
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>         <em class="jxr_comment">// call's kernel-dependent mask size and spawning taskset, absent on minimal images</em>
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         String cpusAllowed = <a name="FileUtil" href="../../../../../oshi/util/FileUtil.html#FileUtil">FileUtil</a>
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), <span class="jxr_string">":"</span>)
+<a class="jxr_linenumber" name="L286" href="#L286">286</a>                 .get(<span class="jxr_string">"Cpus_allowed"</span>);
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>         <strong class="jxr_keyword">if</strong> (cpusAllowed != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>             <strong class="jxr_keyword">return</strong> parseCpusAllowed(cpusAllowed);
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         }
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         <strong class="jxr_keyword">return</strong> parseAffinityMask(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"taskset -p "</span> + getProcessID()));
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>     }
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L294" href="#L294">294</a> <em class="jxr_javadoccomment">     * Parses the {@code Cpus_allowed} field of {@code /proc/&lt;pid&gt;/status}: a hexadecimal mask written as</em>
+<a class="jxr_linenumber" name="L295" href="#L295">295</a> <em class="jxr_javadoccomment">     * comma-separated 32-bit words, most significant first, so a 72-CPU host prints {@code ff,ffffffff,ffffffff}.</em>
+<a class="jxr_linenumber" name="L296" href="#L296">296</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L297" href="#L297">297</a> <em class="jxr_javadoccomment">     * @param cpusAllowed the field value</em>
+<a class="jxr_linenumber" name="L298" href="#L298">298</a> <em class="jxr_javadoccomment">     * @return the low 64 bits of the mask, or 0 if unparseable</em>
+<a class="jxr_linenumber" name="L299" href="#L299">299</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseCpusAllowed(String cpusAllowed) {
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         String hex = cpusAllowed.replace(<span class="jxr_string">","</span>, <span class="jxr_string">""</span>).trim();
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         <strong class="jxr_keyword">if</strong> (hex.isEmpty()) {
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         }
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         <strong class="jxr_keyword">return</strong> ExceptionUtil.getLongOrDefault(() -&gt; <strong class="jxr_keyword">new</strong> BigInteger(hex, 16).longValue(), 0);
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>     }
+<a class="jxr_linenumber" name="L307" href="#L307">307</a> 
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> <em class="jxr_javadoccomment">     * Parse the affinity mask from taskset output.</em>
+<a class="jxr_linenumber" name="L310" href="#L310">310</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L311" href="#L311">311</a> <em class="jxr_javadoccomment">     * @param tasksetOutput output of {@code taskset -p &lt;pid&gt;}</em>
+<a class="jxr_linenumber" name="L312" href="#L312">312</a> <em class="jxr_javadoccomment">     * @return the affinity mask as a long, or 0 if unparseable</em>
+<a class="jxr_linenumber" name="L313" href="#L313">313</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong> parseAffinityMask(String tasksetOutput) {
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>         <em class="jxr_comment">// Output:</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>         <em class="jxr_comment">// pid 3283's current affinity mask: 3</em>
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>         <em class="jxr_comment">// pid 9726's current affinity mask: f</em>
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         String[] split = ParseUtil.whitespaces.split(tasksetOutput.trim(), -1);
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         <strong class="jxr_keyword">if</strong> (split.length == 0) {
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>             <strong class="jxr_keyword">return</strong> 0;
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         }
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">return</strong> ExceptionUtil.getLongOrDefault(() -&gt; <strong class="jxr_keyword">new</strong> BigInteger(split[split.length - 1], 16).longValue(), 0);
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     }
+<a class="jxr_linenumber" name="L324" href="#L324">324</a> 
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>     @Override
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>     <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">synchronized</strong> <strong class="jxr_keyword">boolean</strong> updateAttributes() {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         <strong class="jxr_keyword">boolean</strong> result = updateAttributesFromProc();
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         <em class="jxr_comment">// getrusage reports more accurate context-switch counts than /proc, but only for the current process and only</em>
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>         <em class="jxr_comment">// when its /proc attributes were read successfully</em>
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>         <strong class="jxr_keyword">if</strong> (result &amp;&amp; getProcessID() == getOs().getProcessId()) {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>             <strong class="jxr_keyword">long</strong>[] contextSwitches = queryContextSwitches();
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>             <strong class="jxr_keyword">if</strong> (contextSwitches != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>                 <strong class="jxr_keyword">this</strong>.cachedVoluntaryContextSwitches = contextSwitches[0];
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>                 <strong class="jxr_keyword">this</strong>.cachedInvoluntaryContextSwitches = contextSwitches[1];
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>                 <strong class="jxr_keyword">this</strong>.rusagePopulated = <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>             } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 <strong class="jxr_keyword">this</strong>.rusagePopulated = false;
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>             }
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>         }
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>     }
+<a class="jxr_linenumber" name="L342" href="#L342">342</a> 
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L344" href="#L344">344</a> <em class="jxr_javadoccomment">     * Reads this (current) process's voluntary and involuntary context-switch counts via native {@code getrusage}. The</em>
+<a class="jxr_linenumber" name="L345" href="#L345">345</a> <em class="jxr_javadoccomment">     * default returns {@code null} (the native-free build has no {@code getrusage}); the JNA and FFM subclasses</em>
+<a class="jxr_linenumber" name="L346" href="#L346">346</a> <em class="jxr_javadoccomment">     * override it.</em>
+<a class="jxr_linenumber" name="L347" href="#L347">347</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L348" href="#L348">348</a> <em class="jxr_javadoccomment">     * @return a two-element array {@code {voluntary, involuntary}}, or {@code null} if unavailable</em>
+<a class="jxr_linenumber" name="L349" href="#L349">349</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> @Nullable [] queryContextSwitches() {
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L352" href="#L352">352</a>     }
+<a class="jxr_linenumber" name="L353" href="#L353">353</a> 
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>     <em class="jxr_comment">// ProcPidStat.ordinal() only indexes statArray, built from ProcPidStat.values() itself via PROC_PID_STAT_ORDERS</em>
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>     @SuppressWarnings(<span class="jxr_string">"EnumOrdinal"</span>)
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">boolean</strong> updateAttributesFromProc() {
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         String procPidExe = String.format(Locale.ROOT, ProcPath.PID_EXE, getProcessID());
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>             Path link = Paths.get(procPidExe);
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>             String exePath = Files.readSymbolicLink(link).toString();
+<a class="jxr_linenumber" name="L361" href="#L361">361</a>             <em class="jxr_comment">// For some services the symbolic link process has terminated</em>
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>             <strong class="jxr_keyword">int</strong> index = exePath.indexOf(<span class="jxr_string">" (deleted)"</span>);
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>             <strong class="jxr_keyword">if</strong> (index != -1) {
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>                 exePath = exePath.substring(0, index);
+<a class="jxr_linenumber" name="L365" href="#L365">365</a>             }
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>             <em class="jxr_comment">// Assign the volatile field once, after the value is fully computed</em>
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>             <strong class="jxr_keyword">this</strong>.path = exePath;
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         } <strong class="jxr_keyword">catch</strong> (InvalidPathException | IOException | UnsupportedOperationException | SecurityException e) {
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>             LOG.debug(<span class="jxr_string">"Unable to open symbolic link {}"</span>, procPidExe);
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         }
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>         <em class="jxr_comment">// Fetch all the values here</em>
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         <em class="jxr_comment">// check for terminated process race condition after last one.</em>
+<a class="jxr_linenumber" name="L373" href="#L373">373</a>         Map&lt;String, String&gt; io = <a name="PrivilegedUtil" href="../../../../../oshi/util/PrivilegedUtil.html#PrivilegedUtil">PrivilegedUtil</a>
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>                 .getKeyValueMapFromFilePrivileged(String.format(Locale.ROOT, ProcPath.PID_IO, getProcessID()), <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         Map&lt;String, String&gt; status = <a name="FileUtil" href="../../../../../oshi/util/FileUtil.html#FileUtil">FileUtil</a>
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>                 .getKeyValueMapFromFile(String.format(Locale.ROOT, ProcPath.PID_STATUS, getProcessID()), <span class="jxr_string">":"</span>);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a>         String stat = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STAT, getProcessID()));
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         String statm = FileUtil.getStringFromFile(String.format(Locale.ROOT, ProcPath.PID_STATM, getProcessID()));
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <strong class="jxr_keyword">if</strong> (stat.isEmpty()) {
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>             <strong class="jxr_keyword">this</strong>.state = INVALID;
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>             <strong class="jxr_keyword">return</strong> false;
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         }
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>         <em class="jxr_comment">// If some details couldn't be read from ProcPath.PID_STATUS try reading it from</em>
+<a class="jxr_linenumber" name="L384" href="#L384">384</a>         <em class="jxr_comment">// ProcPath.PID_STAT</em>
+<a class="jxr_linenumber" name="L385" href="#L385">385</a>         getMissingDetails(status, stat);
+<a class="jxr_linenumber" name="L386" href="#L386">386</a> 
+<a class="jxr_linenumber" name="L387" href="#L387">387</a>         <strong class="jxr_keyword">long</strong> now = System.currentTimeMillis();
+<a class="jxr_linenumber" name="L388" href="#L388">388</a> 
+<a class="jxr_linenumber" name="L389" href="#L389">389</a>         <em class="jxr_comment">// We can get name and status more easily from /proc/pid/status which we</em>
+<a class="jxr_linenumber" name="L390" href="#L390">390</a>         <em class="jxr_comment">// call later, so just get the numeric bits here</em>
+<a class="jxr_linenumber" name="L391" href="#L391">391</a>         <em class="jxr_comment">// See man proc for how to parse /proc/[pid]/stat</em>
+<a class="jxr_linenumber" name="L392" href="#L392">392</a>         <strong class="jxr_keyword">long</strong>[] statArray = ParseUtil.parseStringToLongArray(stat, PROC_PID_STAT_ORDERS,
+<a class="jxr_linenumber" name="L393" href="#L393">393</a>                 ProcessStat.PROC_PID_STAT_LENGTH, ' ');
+<a class="jxr_linenumber" name="L394" href="#L394">394</a> 
+<a class="jxr_linenumber" name="L395" href="#L395">395</a>         <em class="jxr_comment">// BOOTTIME is in seconds and start time from proc/pid/stat is in jiffies.</em>
+<a class="jxr_linenumber" name="L396" href="#L396">396</a>         <em class="jxr_comment">// Combine units to jiffies and convert to millijiffies before hz division to</em>
+<a class="jxr_linenumber" name="L397" href="#L397">397</a>         <em class="jxr_comment">// avoid precision loss without having to cast</em>
+<a class="jxr_linenumber" name="L398" href="#L398">398</a>         <strong class="jxr_keyword">this</strong>.startTime = (LinuxOperatingSystem.getBootTime() * getOs().getHz()
+<a class="jxr_linenumber" name="L399" href="#L399">399</a>                 + statArray[ProcPidStat.START_TIME.ordinal()]) * 1000L / getOs().getHz();
+<a class="jxr_linenumber" name="L400" href="#L400">400</a>         <em class="jxr_comment">// BOOT_TIME could be up to 500ms off and start time up to 5ms off. A process</em>
+<a class="jxr_linenumber" name="L401" href="#L401">401</a>         <em class="jxr_comment">// that has started within last 505ms could produce a future start time/negative</em>
+<a class="jxr_linenumber" name="L402" href="#L402">402</a>         <em class="jxr_comment">// up time, so insert a sanity check.</em>
+<a class="jxr_linenumber" name="L403" href="#L403">403</a>         <strong class="jxr_keyword">if</strong> (startTime &gt;= now) {
+<a class="jxr_linenumber" name="L404" href="#L404">404</a>             startTime = now - 1;
+<a class="jxr_linenumber" name="L405" href="#L405">405</a>         }
+<a class="jxr_linenumber" name="L406" href="#L406">406</a>         <strong class="jxr_keyword">this</strong>.parentProcessID = (<strong class="jxr_keyword">int</strong>) statArray[ProcPidStat.PPID.ordinal()];
+<a class="jxr_linenumber" name="L407" href="#L407">407</a>         <strong class="jxr_keyword">this</strong>.threadCount = (<strong class="jxr_keyword">int</strong>) statArray[ProcPidStat.THREAD_COUNT.ordinal()];
+<a class="jxr_linenumber" name="L408" href="#L408">408</a>         <strong class="jxr_keyword">this</strong>.priority = (<strong class="jxr_keyword">int</strong>) statArray[ProcPidStat.PRIORITY.ordinal()];
+<a class="jxr_linenumber" name="L409" href="#L409">409</a>         <strong class="jxr_keyword">this</strong>.virtualSize = statArray[ProcPidStat.VSZ.ordinal()];
+<a class="jxr_linenumber" name="L410" href="#L410">410</a>         <em class="jxr_comment">// Parse /proc/[pid]/statm for resident and shared pages (all in pages)</em>
+<a class="jxr_linenumber" name="L411" href="#L411">411</a>         <em class="jxr_comment">// Fields: size resident shared text lib data dt</em>
+<a class="jxr_linenumber" name="L412" href="#L412">412</a>         String[] statmFields = ParseUtil.whitespaces.split(statm, -1);
+<a class="jxr_linenumber" name="L413" href="#L413">413</a>         <strong class="jxr_keyword">if</strong> (statmFields.length &gt; 2) {
+<a class="jxr_linenumber" name="L414" href="#L414">414</a>             <strong class="jxr_keyword">long</strong> resident = ParseUtil.parseLongOrDefault(statmFields[1], 0L);
+<a class="jxr_linenumber" name="L415" href="#L415">415</a>             <strong class="jxr_keyword">long</strong> shared = ParseUtil.parseLongOrDefault(statmFields[2], 0L);
+<a class="jxr_linenumber" name="L416" href="#L416">416</a>             <strong class="jxr_keyword">long</strong> pageSize = getOs().getPageSize();
+<a class="jxr_linenumber" name="L417" href="#L417">417</a>             <strong class="jxr_keyword">this</strong>.residentSetSize = resident * pageSize;
+<a class="jxr_linenumber" name="L418" href="#L418">418</a>             <strong class="jxr_keyword">this</strong>.privateResidentMemory = (resident - shared) * pageSize;
+<a class="jxr_linenumber" name="L419" href="#L419">419</a>         } <strong class="jxr_keyword">else</strong> {
+<a class="jxr_linenumber" name="L420" href="#L420">420</a>             <strong class="jxr_keyword">this</strong>.residentSetSize = statArray[ProcPidStat.RSS.ordinal()] * getOs().getPageSize();
+<a class="jxr_linenumber" name="L421" href="#L421">421</a>             <strong class="jxr_keyword">this</strong>.privateResidentMemory = <strong class="jxr_keyword">this</strong>.residentSetSize;
+<a class="jxr_linenumber" name="L422" href="#L422">422</a>         }
+<a class="jxr_linenumber" name="L423" href="#L423">423</a>         <strong class="jxr_keyword">this</strong>.kernelTime = statArray[ProcPidStat.KERNEL_TIME.ordinal()] * 1000L / getOs().getHz();
+<a class="jxr_linenumber" name="L424" href="#L424">424</a>         <strong class="jxr_keyword">this</strong>.userTime = statArray[ProcPidStat.USER_TIME.ordinal()] * 1000L / getOs().getHz();
+<a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">this</strong>.minorFaults = statArray[ProcPidStat.MINOR_FAULTS.ordinal()];
+<a class="jxr_linenumber" name="L426" href="#L426">426</a>         <strong class="jxr_keyword">this</strong>.majorFaults = statArray[ProcPidStat.MAJOR_FAULTS.ordinal()];
+<a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">this</strong>.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(<span class="jxr_string">"voluntary_ctxt_switches"</span>), 0L);
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>         <strong class="jxr_keyword">this</strong>.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(status.get(<span class="jxr_string">"nonvoluntary_ctxt_switches"</span>), 0L);
+<a class="jxr_linenumber" name="L429" href="#L429">429</a> 
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>         <strong class="jxr_keyword">this</strong>.upTime = now - startTime;
+<a class="jxr_linenumber" name="L431" href="#L431">431</a> 
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>         <em class="jxr_comment">// See man proc for how to parse /proc/[pid]/io</em>
+<a class="jxr_linenumber" name="L433" href="#L433">433</a>         <strong class="jxr_keyword">this</strong>.bytesRead = ParseUtil.parseLongOrDefault(io.getOrDefault(<span class="jxr_string">"read_bytes"</span>, <span class="jxr_string">""</span>), 0L);
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>         <strong class="jxr_keyword">this</strong>.bytesWritten = ParseUtil.parseLongOrDefault(io.getOrDefault(<span class="jxr_string">"write_bytes"</span>, <span class="jxr_string">""</span>), 0L);
+<a class="jxr_linenumber" name="L435" href="#L435">435</a> 
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>         <em class="jxr_comment">// Don't set open files or bitness or currentWorkingDirectory; fetch on demand.</em>
+<a class="jxr_linenumber" name="L437" href="#L437">437</a> 
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>         <strong class="jxr_keyword">this</strong>.userID = ParseUtil.whitespaces.split(status.getOrDefault(<span class="jxr_string">"Uid"</span>, <span class="jxr_string">""</span>), -1)[0];
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         <em class="jxr_comment">// defer user lookup until asked</em>
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>         <strong class="jxr_keyword">this</strong>.groupID = ParseUtil.whitespaces.split(status.getOrDefault(<span class="jxr_string">"Gid"</span>, <span class="jxr_string">""</span>), -1)[0];
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>         <em class="jxr_comment">// defer group lookup until asked</em>
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>         <strong class="jxr_keyword">this</strong>.name = status.getOrDefault(<span class="jxr_string">"Name"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>         <strong class="jxr_keyword">this</strong>.state = ProcessStat.getState(status.getOrDefault(<span class="jxr_string">"State"</span>, <span class="jxr_string">"U"</span>).charAt(0));
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> <em class="jxr_javadoccomment">     * If some details couldn't be read from ProcPath.PID_STATUS try reading it from ProcPath.PID_STAT</em>
+<a class="jxr_linenumber" name="L449" href="#L449">449</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L450" href="#L450">450</a> <em class="jxr_javadoccomment">     * @param status status map to fill.</em>
+<a class="jxr_linenumber" name="L451" href="#L451">451</a> <em class="jxr_javadoccomment">     * @param stat   string to read from.</em>
+<a class="jxr_linenumber" name="L452" href="#L452">452</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">void</strong> getMissingDetails(@Nullable Map&lt;String, String&gt; status, @Nullable String stat) {
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>         <strong class="jxr_keyword">if</strong> (status == <strong class="jxr_keyword">null</strong> || stat == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L455" href="#L455">455</a>             <strong class="jxr_keyword">return</strong>;
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>         }
+<a class="jxr_linenumber" name="L457" href="#L457">457</a> 
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <strong class="jxr_keyword">int</strong> nameStart = stat.indexOf('(');
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         <strong class="jxr_keyword">int</strong> nameEnd = stat.lastIndexOf(')');
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         <strong class="jxr_keyword">if</strong> (Util.isBlank(status.get(<span class="jxr_string">"Name"</span>)) &amp;&amp; nameStart &gt; 0 &amp;&amp; nameStart &lt; nameEnd) {
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>             <em class="jxr_comment">// remove leading and trailing parentheses</em>
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>             String statName = stat.substring(nameStart + 1, nameEnd);
+<a class="jxr_linenumber" name="L463" href="#L463">463</a>             status.put(<span class="jxr_string">"Name"</span>, statName);
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>         }
+<a class="jxr_linenumber" name="L465" href="#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>         <em class="jxr_comment">// As per man, the next item after the name is the state</em>
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>         <strong class="jxr_keyword">if</strong> (Util.isBlank(status.get(<span class="jxr_string">"State"</span>)) &amp;&amp; nameEnd &gt; 0 &amp;&amp; stat.length() &gt; nameEnd + 2) {
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>             String statState = String.valueOf(stat.charAt(nameEnd + 2));
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>             status.put(<span class="jxr_string">"State"</span>, statState);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         }
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>     }
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L474" href="#L474">474</a> <em class="jxr_javadoccomment">     * Enum used to update attributes. The order field represents the 1-indexed numeric order of the stat in</em>
+<a class="jxr_linenumber" name="L475" href="#L475">475</a> <em class="jxr_javadoccomment">     * /proc/pid/stat per the man file.</em>
+<a class="jxr_linenumber" name="L476" href="#L476">476</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>     <strong class="jxr_keyword">private</strong> enum ProcPidStat {
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>         <em class="jxr_comment">// The parsing implementation in ParseUtil requires these to be declared</em>
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>         <em class="jxr_comment">// in increasing order</em>
+<a class="jxr_linenumber" name="L480" href="#L480">480</a>         <em class="jxr_javadoccomment">/** PPID property. */</em>
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>         PPID(4),
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>         <em class="jxr_javadoccomment">/** MINOR_FAULTS property. */</em>
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>         MINOR_FAULTS(10),
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>         <em class="jxr_javadoccomment">/** MAJOR_FAULTS property. */</em>
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>         MAJOR_FAULTS(12),
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>         <em class="jxr_javadoccomment">/** USER_TIME property. */</em>
+<a class="jxr_linenumber" name="L487" href="#L487">487</a>         USER_TIME(14),
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>         <em class="jxr_javadoccomment">/** KERNEL_TIME property. */</em>
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>         KERNEL_TIME(15),
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>         <em class="jxr_javadoccomment">/** PRIORITY property. */</em>
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>         PRIORITY(18),
+<a class="jxr_linenumber" name="L492" href="#L492">492</a>         <em class="jxr_javadoccomment">/** THREAD_COUNT property. */</em>
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>         THREAD_COUNT(20),
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>         <em class="jxr_javadoccomment">/** START_TIME property. */</em>
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>         START_TIME(22),
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>         <em class="jxr_javadoccomment">/** VSZ property. */</em>
+<a class="jxr_linenumber" name="L497" href="#L497">497</a>         VSZ(23),
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>         <em class="jxr_javadoccomment">/** RSS property. */</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>         RSS(24);
+<a class="jxr_linenumber" name="L500" href="#L500">500</a> 
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>         <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> order;
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> 
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>         <strong class="jxr_keyword">int</strong> getOrder() {
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>             <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">this</strong>.order;
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>         }
+<a class="jxr_linenumber" name="L506" href="#L506">506</a> 
+<a class="jxr_linenumber" name="L507" href="#L507">507</a>         ProcPidStat(<strong class="jxr_keyword">int</strong> order) {
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <strong class="jxr_keyword">this</strong>.order = order;
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>         }
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>     }
+<a class="jxr_linenumber" name="L511" href="#L511">511</a> 
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L513" href="#L513">513</a> <em class="jxr_javadoccomment">     * Gets the open file limit for a process.</em>
+<a class="jxr_linenumber" name="L514" href="#L514">514</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L515" href="#L515">515</a> <em class="jxr_javadoccomment">     * @param processId the process ID</em>
+<a class="jxr_linenumber" name="L516" href="#L516">516</a> <em class="jxr_javadoccomment">     * @param index     {@code 1} for the soft limit, {@code 2} for the hard limit</em>
+<a class="jxr_linenumber" name="L517" href="#L517">517</a> <em class="jxr_javadoccomment">     * @return the file limit, or {@code -1} if unavailable</em>
+<a class="jxr_linenumber" name="L518" href="#L518">518</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">long</strong> getProcessOpenFileLimit(<strong class="jxr_keyword">long</strong> processId, <strong class="jxr_keyword">int</strong> index) {
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>         <strong class="jxr_keyword">return</strong> ProcLimits.queryOpenFileLimit(processId, index);
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>     }
+<a class="jxr_linenumber" name="L522" href="#L522">522</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

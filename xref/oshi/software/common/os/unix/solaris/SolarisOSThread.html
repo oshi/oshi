@@ -69,23 +69,22 @@
 <a class="jxr_linenumber" name="L61" href="#L61">61</a>          <em class="jxr_comment">// Avoid divide by zero for processes up less than a millisecond</em>
 <a class="jxr_linenumber" name="L62" href="#L62">62</a>          <strong class="jxr_keyword">long</strong> elapsedTime = now - <strong class="jxr_keyword">this</strong>.startTime;
 <a class="jxr_linenumber" name="L63" href="#L63">63</a>          <strong class="jxr_keyword">this</strong>.upTime = elapsedTime &lt; 1L ? 1L : elapsedTime;
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.kernelTime = 0L;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.userTime = info.pr_time.toMillis();
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <strong class="jxr_keyword">this</strong>.startMemoryAddress = info.pr_addr;
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <strong class="jxr_keyword">this</strong>.priority = info.pr_pri;
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>.contextSwitches = 0L;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">if</strong> (usage != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">this</strong>.userTime = usage.pr_utime.toMillis();
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>              <strong class="jxr_keyword">this</strong>.kernelTime = usage.pr_stime.toMillis();
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">this</strong>.contextSwitches = usage.pr_ictx + usage.pr_vctx;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">this</strong>.name = PsInfo.bytesToString(info.pr_name);
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>          <strong class="jxr_keyword">if</strong> (Util.isBlank(name)) {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>              <strong class="jxr_keyword">this</strong>.name = PsInfo.bytesToString(info.pr_oldname);
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>  }
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <strong class="jxr_keyword">this</strong>.startMemoryAddress = info.pr_addr;
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          <strong class="jxr_keyword">this</strong>.priority = info.pr_pri;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          <em class="jxr_comment">// Each field is written once, so a reader never sees a transient zero; without the usage file, lwpsinfo gives</em>
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          <em class="jxr_comment">// only the total CPU time</em>
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>          <strong class="jxr_keyword">this</strong>.kernelTime = usage == <strong class="jxr_keyword">null</strong> ? 0L : usage.pr_stime.toMillis();
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">this</strong>.userTime = usage == <strong class="jxr_keyword">null</strong> ? info.pr_time.toMillis() : usage.pr_utime.toMillis();
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">this</strong>.contextSwitches = usage == <strong class="jxr_keyword">null</strong> ? 0L : usage.pr_ictx + usage.pr_vctx;
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>          <strong class="jxr_keyword">this</strong>.minorFaults = usage == <strong class="jxr_keyword">null</strong> ? 0L : usage.pr_minf;
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">this</strong>.majorFaults = usage == <strong class="jxr_keyword">null</strong> ? 0L : usage.pr_majf;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          <strong class="jxr_keyword">this</strong>.name = PsInfo.bytesToString(info.pr_name);
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">if</strong> (Util.isBlank(name)) {
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>              <strong class="jxr_keyword">this</strong>.name = PsInfo.bytesToString(info.pr_oldname);
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>          }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">true</strong>;
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>      }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

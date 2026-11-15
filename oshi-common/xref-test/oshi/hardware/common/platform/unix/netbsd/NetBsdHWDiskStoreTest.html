@@ -204,7 +204,20 @@
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>                 .parseWedges(List.of(<span class="jxr_string">"boot device: dk1"</span>), List.of(<span class="jxr_string">"dk1"</span>), Map.of(), (disk, part) -&gt; <strong class="jxr_keyword">new</strong> Pair&lt;&gt;(0, 0))
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>                 .isEmpty(), is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>     }
-<a class="jxr_linenumber" name="L199" href="#L199">199</a> }
+<a class="jxr_linenumber" name="L199" href="#L199">199</a> 
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>     @Test
+<a class="jxr_linenumber" name="L201" href="#L201">201</a>     <strong class="jxr_keyword">void</strong> testWithMountPoints() {
+<a class="jxr_linenumber" name="L202" href="#L202">202</a>         List&lt;HWPartition&gt; parts = List.of(<strong class="jxr_keyword">new</strong> HWPartition(<span class="jxr_string">"vnd0a"</span>, <span class="jxr_string">"a"</span>, <span class="jxr_string">"4.2BSD"</span>, <span class="jxr_string">""</span>, 1024L, 0, 0, <span class="jxr_string">""</span>),
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>                 <strong class="jxr_keyword">new</strong> HWPartition(<span class="jxr_string">"vnd0e"</span>, <span class="jxr_string">"e"</span>, <span class="jxr_string">"4.2BSD"</span>, <span class="jxr_string">""</span>, 1024L, 0, 0, <span class="jxr_string">""</span>),
+<a class="jxr_linenumber" name="L204" href="#L204">204</a>                 <strong class="jxr_keyword">new</strong> HWPartition(<span class="jxr_string">"ld0a"</span>, <span class="jxr_string">"a"</span>, <span class="jxr_string">"4.2BSD"</span>, <span class="jxr_string">""</span>, 1024L, 0, 0, <span class="jxr_string">"/kept"</span>));
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         List&lt;HWPartition&gt; filled = NetBsdHWDiskStore.withMountPoints(parts,
+<a class="jxr_linenumber" name="L206" href="#L206">206</a>                 Map.of(<span class="jxr_string">"vnd0a"</span>, <span class="jxr_string">"/mnt/data"</span>, <span class="jxr_string">"ld0a"</span>, <span class="jxr_string">"/other"</span>));
+<a class="jxr_linenumber" name="L207" href="#L207">207</a>         assertThat(filled.get(0).getMountPoint(), is(<span class="jxr_string">"/mnt/data"</span>));
+<a class="jxr_linenumber" name="L208" href="#L208">208</a>         assertThat(filled.get(0).getSize(), is(1024L));
+<a class="jxr_linenumber" name="L209" href="#L209">209</a>         assertThat(<span class="jxr_string">"Not mounted"</span>, filled.get(1).getMountPoint(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L210" href="#L210">210</a>         assertThat(<span class="jxr_string">"An existing mount point is kept"</span>, filled.get(2).getMountPoint(), is(<span class="jxr_string">"/kept"</span>));
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     }
+<a class="jxr_linenumber" name="L212" href="#L212">212</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

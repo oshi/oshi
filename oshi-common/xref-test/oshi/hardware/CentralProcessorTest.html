@@ -82,96 +82,117 @@
 <a class="jxr_linenumber" name="L74" href="#L74">74</a>      }
 <a class="jxr_linenumber" name="L75" href="#L75">75</a>  
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      @Test
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheEqualsAndHashCode() {
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>          ProcessorCache a = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>          ProcessorCache b = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          ProcessorCache c = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.INSTRUCTION);
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertThat(a, is(b));
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(a.hashCode(), is(b.hashCode()));
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>          assertThat(a, is(not(c)));
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(a, is(not((Object) <strong class="jxr_keyword">null</strong>)));
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertThat(a, is(a));
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheAssociativityIsUnsigned() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          <em class="jxr_comment">// The shared L3 of an IBM z16 is 180-way, which does not fit a signed byte</em>
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          ProcessorCache l3 = <strong class="jxr_keyword">new</strong> ProcessorCache(3, 180, 256, 377_487_360L, ProcessorCache.Type.UNIFIED);
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(Byte.toUnsignedInt(l3.getAssociativity()), is(180));
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>          assertThat(l3.toString(), containsString(<span class="jxr_string">"180-way associativity"</span>));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(<strong class="jxr_keyword">new</strong> ProcessorCache(1, 0xFF, 64, 32768, ProcessorCache.Type.DATA).toString(),
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                  containsString(<span class="jxr_string">"full associativity"</span>));
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(<strong class="jxr_keyword">new</strong> ProcessorCache(1, 0, 64, 32768, ProcessorCache.Type.DATA).toString(),
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  containsString(<span class="jxr_string">"unknown associativity"</span>));
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>      }
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>  
 <a class="jxr_linenumber" name="L88" href="#L88">88</a>      @Test
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheTypeToString() {
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          assertThat(ProcessorCache.Type.UNIFIED.toString(), is(<span class="jxr_string">"Unified"</span>));
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertThat(ProcessorCache.Type.INSTRUCTION.toString(), is(<span class="jxr_string">"Instruction"</span>));
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertThat(ProcessorCache.Type.DATA.toString(), is(<span class="jxr_string">"Data"</span>));
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(ProcessorCache.Type.TRACE.toString(), is(<span class="jxr_string">"Trace"</span>));
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>      @Test
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>      <strong class="jxr_keyword">void</strong> testProcessorIdentifier() {
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"GenuineIntel"</span>, <span class="jxr_string">"Intel(R) Core(TM) i7 @ 3.60GHz"</span>, <span class="jxr_string">"6"</span>, <span class="jxr_string">"158"</span>,
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  <span class="jxr_string">"10"</span>, <span class="jxr_string">"BFEBFBFF000906EA"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>         assertThat(id.getVendor(), is(<span class="jxr_string">"GenuineIntel"</span>));
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>         assertThat(id.getName(), containsString(<span class="jxr_string">"Intel"</span>));
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertThat(id.getFamily(), is(<span class="jxr_string">"6"</span>));
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(id.getModel(), is(<span class="jxr_string">"158"</span>));
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(id.getStepping(), is(<span class="jxr_string">"10"</span>));
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(id.getProcessorID(), is(<span class="jxr_string">"BFEBFBFF000906EA"</span>));
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertThat(id.isCpu64bit(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertThat(id.getVendorFreq(), is(3_600_000_000L));
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(id.getIdentifier(), containsString(<span class="jxr_string">"Intel64"</span>));
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertThat(id.getMicroarchitecture(), is(notNullValue()));
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         assertThat(id.toString(), containsString(<span class="jxr_string">"Intel64"</span>));
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>     }
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> 
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     @Test
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>     <strong class="jxr_keyword">void</strong> testProcessorIdentifierWithExplicitFreq() {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"AuthenticAMD"</span>, <span class="jxr_string">"AMD Ryzen 9"</span>, <span class="jxr_string">"25"</span>, <span class="jxr_string">"80"</span>, <span class="jxr_string">"0"</span>,
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <span class="jxr_string">"AABBCCDD11223344"</span>, <strong class="jxr_keyword">true</strong>, 4_000_000_000L);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertThat(id.getVendorFreq(), is(4_000_000_000L));
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L121" href="#L121">121</a> <em class="jxr_javadoccomment">     * A platform-derived microarchitecture only fills a gap. An entry in the architecture table always wins, because it</em>
-<a class="jxr_linenumber" name="L122" href="#L122">122</a> <em class="jxr_javadoccomment">     * may carry a curated name that a derivation cannot reproduce, such as the M3 Pro's.</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>     @Test
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>     <strong class="jxr_keyword">void</strong> testArchitectureTableWinsOverDerivedMicroarchitecture() {
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M2 Max"</span>, <span class="jxr_string">"0xda33d83d"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>                 <span class="jxr_string">"0100000cda33d83d"</span>, <strong class="jxr_keyword">true</strong>, -1L, <span class="jxr_string">"ARM64 SoC: Derived + Value"</span>);
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>         assertThat(id.getMicroarchitecture(), is(<span class="jxr_string">"ARM64 SoC: Avalanche + Blizzard"</span>));
-<a class="jxr_linenumber" name="L129" href="#L129">129</a>     }
-<a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     @Test
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <strong class="jxr_keyword">void</strong> testDerivedMicroarchitectureFillsTableGap() {
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M99"</span>, <span class="jxr_string">"0x00000000"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <span class="jxr_string">"0100000c00000000"</span>, <strong class="jxr_keyword">true</strong>, -1L, <span class="jxr_string">"ARM64 SoC: Hydra + Coyote"</span>);
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>         assertThat(<span class="jxr_string">"An unlisted chip is described rather than reported unknown"</span>, id.getMicroarchitecture(),
-<a class="jxr_linenumber" name="L136" href="#L136">136</a>                 is(<span class="jxr_string">"ARM64 SoC: Hydra + Coyote"</span>));
-<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
-<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
-<a class="jxr_linenumber" name="L139" href="#L139">139</a>     @Test
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">void</strong> testArmMicroarchitectureFromPartNumber() {
-<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <em class="jxr_comment">// The fields as /proc/cpuinfo gives them on a Neoverse N1: implementer, architecture, part, variant+revision</em>
-<a class="jxr_linenumber" name="L142" href="#L142">142</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"8"</span>, <span class="jxr_string">"0xd0c"</span>, <span class="jxr_string">"r3p1"</span>, <span class="jxr_string">"413FD0C100000000"</span>, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         assertThat(id.getVendor(), is(<span class="jxr_string">"ARM"</span>));
-<a class="jxr_linenumber" name="L144" href="#L144">144</a>         assertThat(id.getIdentifier(), is(<span class="jxr_string">"ARM Family 8 Model 0xd0c Stepping r3p1"</span>));
-<a class="jxr_linenumber" name="L145" href="#L145">145</a>         assertThat(id.getMicroarchitecture(), is(<span class="jxr_string">"Neoverse-N1"</span>));
-<a class="jxr_linenumber" name="L146" href="#L146">146</a>     }
-<a class="jxr_linenumber" name="L147" href="#L147">147</a> 
-<a class="jxr_linenumber" name="L148" href="#L148">148</a>     @Test
-<a class="jxr_linenumber" name="L149" href="#L149">149</a>     <strong class="jxr_keyword">void</strong> testMicroarchitectureUnknownWhenTableMissesAndNothingDerived() {
-<a class="jxr_linenumber" name="L150" href="#L150">150</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M99"</span>, <span class="jxr_string">"0x00000000"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
-<a class="jxr_linenumber" name="L151" href="#L151">151</a>                 <span class="jxr_string">"0100000c00000000"</span>, <strong class="jxr_keyword">true</strong>, -1L, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertThat(id.getMicroarchitecture(), is(Constants.UNKNOWN));
-<a class="jxr_linenumber" name="L153" href="#L153">153</a>     }
-<a class="jxr_linenumber" name="L154" href="#L154">154</a> 
-<a class="jxr_linenumber" name="L155" href="#L155">155</a>     @Test
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>     <strong class="jxr_keyword">void</strong> testTickTypeIndex() {
-<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(TickType.USER.getIndex(), is(0));
-<a class="jxr_linenumber" name="L158" href="#L158">158</a>         assertThat(TickType.NICE.getIndex(), is(1));
-<a class="jxr_linenumber" name="L159" href="#L159">159</a>         assertThat(TickType.SYSTEM.getIndex(), is(2));
-<a class="jxr_linenumber" name="L160" href="#L160">160</a>         assertThat(TickType.IDLE.getIndex(), is(3));
-<a class="jxr_linenumber" name="L161" href="#L161">161</a>         assertThat(TickType.IOWAIT.getIndex(), is(4));
-<a class="jxr_linenumber" name="L162" href="#L162">162</a>         assertThat(TickType.IRQ.getIndex(), is(5));
-<a class="jxr_linenumber" name="L163" href="#L163">163</a>         assertThat(TickType.SOFTIRQ.getIndex(), is(6));
-<a class="jxr_linenumber" name="L164" href="#L164">164</a>         assertThat(TickType.STEAL.getIndex(), is(7));
-<a class="jxr_linenumber" name="L165" href="#L165">165</a>     }
-<a class="jxr_linenumber" name="L166" href="#L166">166</a> }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <strong class="jxr_keyword">void</strong> testProcessorCacheEqualsAndHashCode() {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>          ProcessorCache a = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          ProcessorCache b = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.DATA);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          ProcessorCache c = <strong class="jxr_keyword">new</strong> ProcessorCache(1, 4, 64, 32768, ProcessorCache.Type.INSTRUCTION);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          assertThat(a, is(b));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(a.hashCode(), is(b.hashCode()));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(a, is(not(c)));
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertThat(a, is(not((Object) <strong class="jxr_keyword">null</strong>)));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertThat(a, is(a));
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     @Test
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">void</strong> testProcessorCacheTypeToString() {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         assertThat(ProcessorCache.Type.UNIFIED.toString(), is(<span class="jxr_string">"Unified"</span>));
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         assertThat(ProcessorCache.Type.INSTRUCTION.toString(), is(<span class="jxr_string">"Instruction"</span>));
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(ProcessorCache.Type.DATA.toString(), is(<span class="jxr_string">"Data"</span>));
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         assertThat(ProcessorCache.Type.TRACE.toString(), is(<span class="jxr_string">"Trace"</span>));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     @Test
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>     <strong class="jxr_keyword">void</strong> testProcessorIdentifier() {
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"GenuineIntel"</span>, <span class="jxr_string">"Intel(R) Core(TM) i7 @ 3.60GHz"</span>, <span class="jxr_string">"6"</span>, <span class="jxr_string">"158"</span>,
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                 <span class="jxr_string">"10"</span>, <span class="jxr_string">"BFEBFBFF000906EA"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         assertThat(id.getVendor(), is(<span class="jxr_string">"GenuineIntel"</span>));
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         assertThat(id.getName(), containsString(<span class="jxr_string">"Intel"</span>));
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertThat(id.getFamily(), is(<span class="jxr_string">"6"</span>));
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(id.getModel(), is(<span class="jxr_string">"158"</span>));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         assertThat(id.getStepping(), is(<span class="jxr_string">"10"</span>));
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         assertThat(id.getProcessorID(), is(<span class="jxr_string">"BFEBFBFF000906EA"</span>));
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertThat(id.isCpu64bit(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertThat(id.getVendorFreq(), is(3_600_000_000L));
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(id.getIdentifier(), containsString(<span class="jxr_string">"Intel64"</span>));
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertThat(id.getMicroarchitecture(), is(notNullValue()));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertThat(id.toString(), containsString(<span class="jxr_string">"Intel64"</span>));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>     }
+<a class="jxr_linenumber" name="L124" href="#L124">124</a> 
+<a class="jxr_linenumber" name="L125" href="#L125">125</a>     @Test
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <strong class="jxr_keyword">void</strong> testProcessorIdentifierWithExplicitFreq() {
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"AuthenticAMD"</span>, <span class="jxr_string">"AMD Ryzen 9"</span>, <span class="jxr_string">"25"</span>, <span class="jxr_string">"80"</span>, <span class="jxr_string">"0"</span>,
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>                 <span class="jxr_string">"AABBCCDD11223344"</span>, <strong class="jxr_keyword">true</strong>, 4_000_000_000L);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         assertThat(id.getVendorFreq(), is(4_000_000_000L));
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>     }
+<a class="jxr_linenumber" name="L131" href="#L131">131</a> 
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L133" href="#L133">133</a> <em class="jxr_javadoccomment">     * A platform-derived microarchitecture only fills a gap. An entry in the architecture table always wins, because it</em>
+<a class="jxr_linenumber" name="L134" href="#L134">134</a> <em class="jxr_javadoccomment">     * may carry a curated name that a derivation cannot reproduce, such as the M3 Pro's.</em>
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>     @Test
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     <strong class="jxr_keyword">void</strong> testArchitectureTableWinsOverDerivedMicroarchitecture() {
+<a class="jxr_linenumber" name="L138" href="#L138">138</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M2 Max"</span>, <span class="jxr_string">"0xda33d83d"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>                 <span class="jxr_string">"0100000cda33d83d"</span>, <strong class="jxr_keyword">true</strong>, -1L, <span class="jxr_string">"ARM64 SoC: Derived + Value"</span>);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>         assertThat(id.getMicroarchitecture(), is(<span class="jxr_string">"ARM64 SoC: Avalanche + Blizzard"</span>));
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
+<a class="jxr_linenumber" name="L142" href="#L142">142</a> 
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>     @Test
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>     <strong class="jxr_keyword">void</strong> testDerivedMicroarchitectureFillsTableGap() {
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M99"</span>, <span class="jxr_string">"0x00000000"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>                 <span class="jxr_string">"0100000c00000000"</span>, <strong class="jxr_keyword">true</strong>, -1L, <span class="jxr_string">"ARM64 SoC: Hydra + Coyote"</span>);
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>         assertThat(<span class="jxr_string">"An unlisted chip is described rather than reported unknown"</span>, id.getMicroarchitecture(),
+<a class="jxr_linenumber" name="L148" href="#L148">148</a>                 is(<span class="jxr_string">"ARM64 SoC: Hydra + Coyote"</span>));
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     }
+<a class="jxr_linenumber" name="L150" href="#L150">150</a> 
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>     @Test
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>     <strong class="jxr_keyword">void</strong> testArmMicroarchitectureFromPartNumber() {
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         <em class="jxr_comment">// The fields as /proc/cpuinfo gives them on a Neoverse N1: implementer, architecture, part, variant+revision</em>
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"0x41"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"8"</span>, <span class="jxr_string">"0xd0c"</span>, <span class="jxr_string">"r3p1"</span>, <span class="jxr_string">"413FD0C100000000"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L155" href="#L155">155</a>         assertThat(id.getVendor(), is(<span class="jxr_string">"ARM"</span>));
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         assertThat(id.getIdentifier(), is(<span class="jxr_string">"ARM Family 8 Model 0xd0c Stepping r3p1"</span>));
+<a class="jxr_linenumber" name="L157" href="#L157">157</a>         assertThat(id.getMicroarchitecture(), is(<span class="jxr_string">"Neoverse-N1"</span>));
+<a class="jxr_linenumber" name="L158" href="#L158">158</a>     }
+<a class="jxr_linenumber" name="L159" href="#L159">159</a> 
+<a class="jxr_linenumber" name="L160" href="#L160">160</a>     @Test
+<a class="jxr_linenumber" name="L161" href="#L161">161</a>     <strong class="jxr_keyword">void</strong> testS390MicroarchitectureFromMachineType() {
+<a class="jxr_linenumber" name="L162" href="#L162">162</a>         <em class="jxr_comment">// The fields LinuxCentralProcessor builds from /proc/cpuinfo on a z16 KVM guest</em>
+<a class="jxr_linenumber" name="L163" href="#L163">163</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"IBM/S390"</span>, <span class="jxr_string">"IBM z16"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"3932"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"FF12DFD83932"</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L164" href="#L164">164</a>         assertThat(id.getMicroarchitecture(), is(<span class="jxr_string">"z16"</span>));
+<a class="jxr_linenumber" name="L165" href="#L165">165</a>         ProcessorIdentifier unknown = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"IBM/S390"</span>, <span class="jxr_string">"IBM/S390 1234"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">"1234"</span>, <span class="jxr_string">""</span>, <span class="jxr_string">""</span>, <strong class="jxr_keyword">true</strong>);
+<a class="jxr_linenumber" name="L166" href="#L166">166</a>         assertThat(unknown.getMicroarchitecture(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L167" href="#L167">167</a>     }
+<a class="jxr_linenumber" name="L168" href="#L168">168</a> 
+<a class="jxr_linenumber" name="L169" href="#L169">169</a>     @Test
+<a class="jxr_linenumber" name="L170" href="#L170">170</a>     <strong class="jxr_keyword">void</strong> testMicroarchitectureUnknownWhenTableMissesAndNothingDerived() {
+<a class="jxr_linenumber" name="L171" href="#L171">171</a>         ProcessorIdentifier id = <strong class="jxr_keyword">new</strong> ProcessorIdentifier(<span class="jxr_string">"Apple Inc."</span>, <span class="jxr_string">"Apple M99"</span>, <span class="jxr_string">"0x00000000"</span>, <span class="jxr_string">"0"</span>, <span class="jxr_string">"0"</span>,
+<a class="jxr_linenumber" name="L172" href="#L172">172</a>                 <span class="jxr_string">"0100000c00000000"</span>, <strong class="jxr_keyword">true</strong>, -1L, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L173" href="#L173">173</a>         assertThat(id.getMicroarchitecture(), is(Constants.UNKNOWN));
+<a class="jxr_linenumber" name="L174" href="#L174">174</a>     }
+<a class="jxr_linenumber" name="L175" href="#L175">175</a> 
+<a class="jxr_linenumber" name="L176" href="#L176">176</a>     @Test
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>     <strong class="jxr_keyword">void</strong> testTickTypeIndex() {
+<a class="jxr_linenumber" name="L178" href="#L178">178</a>         assertThat(TickType.USER.getIndex(), is(0));
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>         assertThat(TickType.NICE.getIndex(), is(1));
+<a class="jxr_linenumber" name="L180" href="#L180">180</a>         assertThat(TickType.SYSTEM.getIndex(), is(2));
+<a class="jxr_linenumber" name="L181" href="#L181">181</a>         assertThat(TickType.IDLE.getIndex(), is(3));
+<a class="jxr_linenumber" name="L182" href="#L182">182</a>         assertThat(TickType.IOWAIT.getIndex(), is(4));
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         assertThat(TickType.IRQ.getIndex(), is(5));
+<a class="jxr_linenumber" name="L184" href="#L184">184</a>         assertThat(TickType.SOFTIRQ.getIndex(), is(6));
+<a class="jxr_linenumber" name="L185" href="#L185">185</a>         assertThat(TickType.STEAL.getIndex(), is(7));
+<a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
+<a class="jxr_linenumber" name="L187" href="#L187">187</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

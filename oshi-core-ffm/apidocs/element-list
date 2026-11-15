@@ -16,6 +16,7 @@ oshi.driver.common.windows.wmi
 oshi.hardware
 oshi.hardware.common
 oshi.hardware.common.platform.linux
+oshi.hardware.common.platform.linux.nativefree
 oshi.hardware.common.platform.mac
 oshi.hardware.common.platform.unix
 oshi.hardware.common.platform.unix.aix

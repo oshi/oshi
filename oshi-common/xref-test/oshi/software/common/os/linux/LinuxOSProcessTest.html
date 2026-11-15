@@ -93,7 +93,19 @@
 <a class="jxr_linenumber" name="L85" href="#L85">85</a>          assertThat(status.get(<span class="jxr_string">"Name"</span>), is(<span class="jxr_string">"Web Content (pid 42)"</span>));
 <a class="jxr_linenumber" name="L86" href="#L86">86</a>          assertThat(status.get(<span class="jxr_string">"State"</span>), is(<span class="jxr_string">"S"</span>));
 <a class="jxr_linenumber" name="L87" href="#L87">87</a>      }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>  }
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>  
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>      @Test
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">void</strong> testParseCpusAllowed() {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          assertThat(LinuxOSProcess.parseCpusAllowed(<span class="jxr_string">"ff"</span>), is(255L));
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          assertThat(LinuxOSProcess.parseCpusAllowed(<span class="jxr_string">"\t00000003 "</span>), is(3L));
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <em class="jxr_comment">// More than 32 CPUs: 32-bit words separated by commas, most significant first</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(LinuxOSProcess.parseCpusAllowed(<span class="jxr_string">"00000001,00000000"</span>), is(1L &lt;&lt; 32));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <em class="jxr_comment">// More than 64 CPUs: the low 64 bits, as from taskset</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>          assertThat(LinuxOSProcess.parseCpusAllowed(<span class="jxr_string">"ff,ffffffff,ffffffff"</span>), is(-1L));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertThat(LinuxOSProcess.parseCpusAllowed(<span class="jxr_string">""</span>), is(0L));
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          assertThat(LinuxOSProcess.parseCpusAllowed(<span class="jxr_string">"zz"</span>), is(0L));
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      }
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

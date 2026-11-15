@@ -52,7 +52,7 @@
 <a class="jxr_linenumber" name="L44" href="#L44">44</a>  
 <a class="jxr_linenumber" name="L45" href="#L45">45</a>      @Test
 <a class="jxr_linenumber" name="L46" href="#L46">46</a>      <strong class="jxr_keyword">void</strong> testParseDiskParamsExtractsHeaderAndPartitions() {
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// Representative output of `disklabel -n sd0` on OpenBSD/NetBSD.</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          <em class="jxr_comment">// Representative output of `disklabel -n sd0` on OpenBSD.</em>
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>          List&lt;String&gt; disklabelOut = <span class="jxr_string">""</span><span class="jxr_string">"
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>                  # /dev/rsd0c:
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>                  type: SCSI
@@ -249,44 +249,115 @@
 <a class="jxr_linenumber" name="L241" href="#L241">241</a>         assertThat(result.getD(), is(empty()));
 <a class="jxr_linenumber" name="L242" href="#L242">242</a>     }
 <a class="jxr_linenumber" name="L243" href="#L243">243</a> 
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <em class="jxr_comment">// ---- Live-system smoke tests gated to OpenBSD and NetBSD ----</em>
-<a class="jxr_linenumber" name="L245" href="#L245">245</a> 
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>     @Test
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     @EnabledOnOs(OS.OPENBSD)
-<a class="jxr_linenumber" name="L248" href="#L248">248</a>     <strong class="jxr_keyword">void</strong> testGetDiskParamsLiveOpenBsd() {
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>         String disknames = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n hw.disknames"</span>);
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>         String[] devices = disknames.isEmpty() ? <strong class="jxr_keyword">new</strong> String[0] : disknames.split(<span class="jxr_string">","</span>);
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         <strong class="jxr_keyword">boolean</strong> elevated = <span class="jxr_string">"0"</span>.equals(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"id -u"</span>));
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         <strong class="jxr_keyword">for</strong> (String device : devices) {
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>             String diskName = device.split(<span class="jxr_string">":"</span>, -1)[0];
-<a class="jxr_linenumber" name="L254" href="#L254">254</a>             Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; diskdata = Disklabel.getDiskParams(diskName);
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>             <strong class="jxr_keyword">if</strong> (elevated) {
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>                 assertThat(<span class="jxr_string">"Disk label is not null"</span>, diskdata.getA(), is(not(nullValue())));
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>                 assertThat(<span class="jxr_string">"Disk duid is not null"</span>, diskdata.getB(), is(not(nullValue())));
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>                 assertThat(<span class="jxr_string">"Disk size is nonnegative"</span>, diskdata.getC(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>                 <strong class="jxr_keyword">for</strong> (HWPartition part : diskdata.getD()) {
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>                     assertTrue(part.getIdentification().startsWith(diskName), <span class="jxr_string">"Partition ID starts with disk"</span>);
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>                 }
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>             }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a>         }
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     }
-<a class="jxr_linenumber" name="L265" href="#L265">265</a> 
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>     @Test
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>     @EnabledIfSystemProperty(named = <span class="jxr_string">"os.name"</span>, matches = <span class="jxr_string">"(?i)netbsd"</span>)
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>     <strong class="jxr_keyword">void</strong> testGetDiskParamsLiveNetBsd() {
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>         String disknames = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n hw.disknames"</span>);
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>         String[] devices = disknames.isEmpty() ? <strong class="jxr_keyword">new</strong> String[0] : disknames.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>);
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>         <strong class="jxr_keyword">boolean</strong> elevated = <span class="jxr_string">"0"</span>.equals(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"id -u"</span>));
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>         <strong class="jxr_keyword">for</strong> (String device : devices) {
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>             Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; diskdata = Disklabel.getDiskParams(device);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a>             <strong class="jxr_keyword">if</strong> (elevated) {
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 assertThat(<span class="jxr_string">"Disk label is not null"</span>, diskdata.getA(), is(not(nullValue())));
-<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 assertThat(<span class="jxr_string">"Disk duid is not null"</span>, diskdata.getB(), is(not(nullValue())));
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 assertThat(<span class="jxr_string">"Disk size is nonnegative"</span>, diskdata.getC(), is(greaterThanOrEqualTo(0L)));
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>             }
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         }
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>     }
-<a class="jxr_linenumber" name="L281" href="#L281">281</a> }
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>     @Test
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>     <strong class="jxr_keyword">void</strong> testParseDiskParamsOpenBsdPartitionNotInFstab() {
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>         <em class="jxr_comment">// Captured from `disklabel -n sd0` on OpenBSD 7.9 after removing `k` from /etc/fstab: a row whose partition</em>
+<a class="jxr_linenumber" name="L247" href="#L247">247</a>         <em class="jxr_comment">// fstab does not list ends at the cpg column, with no comment</em>
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>         List&lt;String&gt; disklabelOut = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>                 duid: f7fe0d0e5dd3df78
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>                 bytes/sector: 512
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>                 total sectors: 419430400
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>                 #                size           offset  fstype [fsize bsize   cpg]
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>                   a:          2097152               64  4.2BSD   2048 16384 12960 # /
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>                   k:        244860192        174570208  4.2BSD   2048 16384 12960
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L256" href="#L256">256</a> 
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         List&lt;HWPartition&gt; parts = Disklabel.parseDiskParams(<span class="jxr_string">"sd0"</span>, disklabelOut, ZERO_MAJOR_MINOR).getD();
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>         assertThat(parts, hasSize(2));
+<a class="jxr_linenumber" name="L259" href="#L259">259</a>         assertThat(parts.get(0).getMountPoint(), is(<span class="jxr_string">"/"</span>));
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>         assertThat(<span class="jxr_string">"The cpg column is not a mount point"</span>, parts.get(1).getMountPoint(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>         assertThat(parts.get(1).getUuid(), is(<span class="jxr_string">"f7fe0d0e5dd3df78.k"</span>));
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
+<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>     @Test
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">void</strong> testParseDiskParamsNetBsd() {
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         <em class="jxr_comment">// Captured from `disklabel vnd0` on NetBSD 10.1. NetBSD has no DUID, and its row comment is the cylinder range</em>
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         List&lt;String&gt; disklabelOut = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>                 # /dev/rvnd0:
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 type: vnd
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 disk: vnd
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 label: fictitious
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 flags:
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>                 bytes/sector: 512
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>                 sectors/track: 32
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>                 tracks/cylinder: 64
+<a class="jxr_linenumber" name="L276" href="#L276">276</a>                 sectors/cylinder: 2048
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>                 cylinders: 64
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>                 total sectors: 131072
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>                 rpm: 3600
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>                 interleave: 1
+<a class="jxr_linenumber" name="L281" href="#L281">281</a>                 trackskew: 0
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>                 cylinderskew: 0
+<a class="jxr_linenumber" name="L283" href="#L283">283</a>                 headswitch: 0\t\t# microseconds
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>                 track-to-track seek: 0\t# microseconds
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>                 drivedata: 0
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>                 4 partitions:
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>                 #        size    offset     fstype [fsize bsize cpg/sgs]
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>                  a:    131072         0     4.2BSD      0     0     0  # (Cyl.      0 -     63)
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>                  d:    131072         0     unused      0     0        # (Cyl.      0 -     63)
+<a class="jxr_linenumber" name="L291" href="#L291">291</a>                 <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
+<a class="jxr_linenumber" name="L292" href="#L292">292</a> 
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; result = Disklabel.parseDiskParams(<span class="jxr_string">"vnd0"</span>, disklabelOut,
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>                 ZERO_MAJOR_MINOR);
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         assertThat(result.getA(), is(<span class="jxr_string">"fictitious"</span>));
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         assertThat(result.getB(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         assertThat(result.getC(), is(131072L * 512L));
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         assertThat(result.getD(), hasSize(2));
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         <strong class="jxr_keyword">for</strong> (HWPartition part : result.getD()) {
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>             assertThat(<span class="jxr_string">"A cylinder range is not a mount point"</span>, part.getMountPoint(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>             assertThat(<span class="jxr_string">"No DUID, so no UUID"</span>, part.getUuid(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         }
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         assertThat(result.getD().get(0).getIdentification(), is(<span class="jxr_string">"vnd0a"</span>));
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         assertThat(result.getD().get(0).getType(), is(<span class="jxr_string">"4.2BSD"</span>));
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>     }
+<a class="jxr_linenumber" name="L306" href="#L306">306</a> 
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>     @Test
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     <strong class="jxr_keyword">void</strong> testParseMountPoint() {
+<a class="jxr_linenumber" name="L309" href="#L309">309</a>         assertThat(Disklabel.parseMountPoint(<span class="jxr_string">"  a: 2097152 64 4.2BSD 2048 16384 12960 # /usr/X11R6"</span>), is(<span class="jxr_string">"/usr/X11R6"</span>));
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>         assertThat(Disklabel.parseMountPoint(<span class="jxr_string">"  i: 960 64 MSDOS # /mnt/my disk"</span>), is(<span class="jxr_string">"/mnt/my disk"</span>));
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>         assertThat(Disklabel.parseMountPoint(<span class="jxr_string">"  c: 419430400 0 unused"</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         assertThat(Disklabel.parseMountPoint(<span class="jxr_string">" a: 131072 0 4.2BSD 0 0 0  # (Cyl.      0 -     63)"</span>), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>     }
+<a class="jxr_linenumber" name="L314" href="#L314">314</a> 
+<a class="jxr_linenumber" name="L315" href="#L315">315</a>     <em class="jxr_comment">// ---- Live-system smoke tests gated to OpenBSD and NetBSD ----</em>
+<a class="jxr_linenumber" name="L316" href="#L316">316</a> 
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     @Test
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>     @EnabledOnOs(OS.OPENBSD)
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>     <strong class="jxr_keyword">void</strong> testGetDiskParamsLiveOpenBsd() {
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>         String disknames = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n hw.disknames"</span>);
+<a class="jxr_linenumber" name="L321" href="#L321">321</a>         String[] devices = disknames.isEmpty() ? <strong class="jxr_keyword">new</strong> String[0] : disknames.split(<span class="jxr_string">","</span>);
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>         <strong class="jxr_keyword">boolean</strong> elevated = <span class="jxr_string">"0"</span>.equals(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"id -u"</span>));
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>         <strong class="jxr_keyword">for</strong> (String device : devices) {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>             String diskName = device.split(<span class="jxr_string">":"</span>, -1)[0];
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>             Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; diskdata = Disklabel.getDiskParams(diskName);
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>             <strong class="jxr_keyword">if</strong> (elevated) {
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>                 assertThat(<span class="jxr_string">"Disk label is not null"</span>, diskdata.getA(), is(not(nullValue())));
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>                 assertThat(<span class="jxr_string">"Disk duid is not null"</span>, diskdata.getB(), is(not(nullValue())));
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>                 assertThat(<span class="jxr_string">"Disk size is nonnegative"</span>, diskdata.getC(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L330" href="#L330">330</a>                 <strong class="jxr_keyword">for</strong> (HWPartition part : diskdata.getD()) {
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>                     assertTrue(part.getIdentification().startsWith(diskName), <span class="jxr_string">"Partition ID starts with disk"</span>);
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>                 }
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>             }
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         }
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>     }
+<a class="jxr_linenumber" name="L336" href="#L336">336</a> 
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>     @Test
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>     @EnabledIfSystemProperty(named = <span class="jxr_string">"os.name"</span>, matches = <span class="jxr_string">"(?i)netbsd"</span>)
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>     <strong class="jxr_keyword">void</strong> testGetDiskParamsLiveNetBsd() {
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         String disknames = ExecutingCommand.getFirstAnswer(<span class="jxr_string">"sysctl -n hw.disknames"</span>);
+<a class="jxr_linenumber" name="L341" href="#L341">341</a>         String[] devices = disknames.isEmpty() ? <strong class="jxr_keyword">new</strong> String[0] : disknames.trim().split(<span class="jxr_string">"&#92;&#92;s+"</span>);
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         <strong class="jxr_keyword">boolean</strong> elevated = <span class="jxr_string">"0"</span>.equals(ExecutingCommand.getFirstAnswer(<span class="jxr_string">"id -u"</span>));
+<a class="jxr_linenumber" name="L343" href="#L343">343</a>         <strong class="jxr_keyword">for</strong> (String device : devices) {
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>             Quartet&lt;String, String, Long, List&lt;HWPartition&gt;&gt; diskdata = Disklabel.getDiskParams(device);
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>             <strong class="jxr_keyword">if</strong> (elevated) {
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>                 assertThat(<span class="jxr_string">"Disk label is not null"</span>, diskdata.getA(), is(not(nullValue())));
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>                 assertThat(<span class="jxr_string">"Disk duid is not null"</span>, diskdata.getB(), is(not(nullValue())));
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>                 assertThat(<span class="jxr_string">"Disk size is nonnegative"</span>, diskdata.getC(), is(greaterThanOrEqualTo(0L)));
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>             }
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         }
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

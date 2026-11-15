@@ -56,49 +56,50 @@
 <a class="jxr_linenumber" name="L48" href="#L48">48</a>              <strong class="jxr_keyword">return</strong> LinuxPowerSource.getPowerSources();
 <a class="jxr_linenumber" name="L49" href="#L49">49</a>          }
 <a class="jxr_linenumber" name="L50" href="#L50">50</a>          List&lt;PowerSource&gt; psList = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>          UdevContext udev = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <strong class="jxr_keyword">if</strong> (udev == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>              <strong class="jxr_keyword">return</strong> LinuxPowerSource.getPowerSources();
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          }
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>              UdevEnumerate enumerate = udev.enumerateNew();
-<a class="jxr_linenumber" name="L57" href="#L57">57</a>              <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  enumerate.addMatchSubsystem(<span class="jxr_string">"power_supply"</span>);
-<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  enumerate.scanDevices();
-<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  <strong class="jxr_keyword">for</strong> (UdevListEntry entry = enumerate.getListEntry(); entry != <strong class="jxr_keyword">null</strong>; entry = entry.getNext()) {
-<a class="jxr_linenumber" name="L61" href="#L61">61</a>                      String syspath = entry.getName();
-<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);
-<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      <strong class="jxr_keyword">if</strong> (name.startsWith(<span class="jxr_string">"ADP"</span>) || name.startsWith(<span class="jxr_string">"AC"</span>) || name.contains(<span class="jxr_string">"USBC"</span>)) {
-<a class="jxr_linenumber" name="L64" href="#L64">64</a>                          <strong class="jxr_keyword">continue</strong>;
-<a class="jxr_linenumber" name="L65" href="#L65">65</a>                      }
-<a class="jxr_linenumber" name="L66" href="#L66">66</a>                      UdevDevice device = udev.deviceNewFromSyspath(syspath);
-<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      <strong class="jxr_keyword">if</strong> (device != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L68" href="#L68">68</a>                          <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>                              <strong class="jxr_keyword">if</strong> (ParseUtil.parseIntOrDefault(device.getPropertyValue(Prop.POWER_SUPPLY_PRESENT.name()),
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>                                      1) &gt; 0) {
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>                                  Map&lt;Prop, String&gt; props = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>                                  <strong class="jxr_keyword">for</strong> (Prop p : Prop.values()) {
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>                                      String val = device.getPropertyValue(p.name());
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>                                      <strong class="jxr_keyword">if</strong> (val != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>                                          props.put(p, val);
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>                                      }
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>                                  }
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                                  psList.add(<strong class="jxr_keyword">new</strong> <a name="LinuxPowerSourceJNA" href="../../../../oshi/hardware/platform/linux/LinuxPowerSourceJNA.html#LinuxPowerSourceJNA">LinuxPowerSourceJNA</a>(buildPowerSource(name, props)));
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>                              }
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>                          } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>                              device.unref();
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>                          }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>                      }
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>                  }
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>                  enumerate.unref();
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              }
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>          } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              udev.unref();
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          }
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>          <strong class="jxr_keyword">return</strong> psList;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  }
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          <strong class="jxr_keyword">boolean</strong> externalOnLine = queryExternalPowerOnLine();
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          UdevContext udev = Udev.INSTANCE.udev_<strong class="jxr_keyword">new</strong>();
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          <strong class="jxr_keyword">if</strong> (udev == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>              <strong class="jxr_keyword">return</strong> LinuxPowerSource.getPowerSources();
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          }
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>              UdevEnumerate enumerate = udev.enumerateNew();
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>              <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>                  enumerate.addMatchSubsystem(<span class="jxr_string">"power_supply"</span>);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>                  enumerate.scanDevices();
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>                  <strong class="jxr_keyword">for</strong> (UdevListEntry entry = enumerate.getListEntry(); entry != <strong class="jxr_keyword">null</strong>; entry = entry.getNext()) {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>                      String syspath = entry.getName();
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>                      String name = syspath.substring(syspath.lastIndexOf(File.separatorChar) + 1);
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>                      <strong class="jxr_keyword">if</strong> (name.startsWith(<span class="jxr_string">"ADP"</span>) || name.startsWith(<span class="jxr_string">"AC"</span>) || name.contains(<span class="jxr_string">"USBC"</span>)) {
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                          <strong class="jxr_keyword">continue</strong>;
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                      }
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                      UdevDevice device = udev.deviceNewFromSyspath(syspath);
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                      <strong class="jxr_keyword">if</strong> (device != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                          <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                              <strong class="jxr_keyword">if</strong> (ParseUtil.parseIntOrDefault(device.getPropertyValue(Prop.POWER_SUPPLY_PRESENT.name()),
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                                      1) &gt; 0) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                                  Map&lt;Prop, String&gt; props = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(Prop.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                                  <strong class="jxr_keyword">for</strong> (Prop p : Prop.values()) {
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                                      String val = device.getPropertyValue(p.name());
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                                      <strong class="jxr_keyword">if</strong> (val != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                                          props.put(p, val);
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                                      }
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>                                  }
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>                                  psList.add(<strong class="jxr_keyword">new</strong> <a name="LinuxPowerSourceJNA" href="../../../../oshi/hardware/platform/linux/LinuxPowerSourceJNA.html#LinuxPowerSourceJNA">LinuxPowerSourceJNA</a>(buildPowerSource(name, props, externalOnLine)));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                              }
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>                              device.unref();
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>                          }
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>                      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>                  }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  enumerate.unref();
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              }
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              udev.unref();
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>          }
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          <strong class="jxr_keyword">return</strong> psList;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

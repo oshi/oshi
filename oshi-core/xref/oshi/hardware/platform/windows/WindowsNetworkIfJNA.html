@@ -87,44 +87,47 @@
 <a class="jxr_linenumber" name="L79" href="#L79">79</a>              stats.connectorPresent = (ifRow.InterfaceAndOperStatusFlags &amp; CONNECTOR_PRESENT_BIT) &gt; 0;
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>              stats.bytesSent = ifRow.OutOctets;
 <a class="jxr_linenumber" name="L81" href="#L81">81</a>              stats.bytesRecv = ifRow.InOctets;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>              stats.packetsSent = ifRow.OutUcastPkts;
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>              stats.packetsRecv = ifRow.InUcastPkts;
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>              stats.outErrors = ifRow.OutErrors;
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>              stats.inErrors = ifRow.InErrors;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>              stats.collisions = ifRow.OutDiscards;
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>              stats.inDrops = ifRow.InDiscards;
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              stats.speed = ifRow.ReceiveLinkSpeed;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>              stats.ifAlias = Native.toString(ifRow.Alias);
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>              stats.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">return</strong> stats;
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          }
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      }
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>      <strong class="jxr_keyword">private</strong> @Nullable IfStats queryStatsLegacy() {
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>          <em class="jxr_comment">// Pre-Vista MIB_IFROW: a narrower field set with unsigned 32-bit counters widened to long. Physical medium</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <em class="jxr_comment">// type, connector-present, alias, and oper-status are not available and keep their IfStats defaults.</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">try</strong> (CloseableMibIfRow ifRow = <strong class="jxr_keyword">new</strong> CloseableMibIfRow()) {
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>              ifRow.dwIndex = queryNetworkInterface().getIndex();
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>                 LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, queryNetworkInterface().getIndex(),
-<a class="jxr_linenumber" name="L102" href="#L102">102</a>                         getName());
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>             }
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>             IfStats stats = <strong class="jxr_keyword">new</strong> IfStats();
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>             stats.ifType = ifRow.dwType;
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>             stats.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>             stats.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>             stats.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>             stats.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>             stats.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>             stats.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             stats.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards);
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             stats.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards);
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>             stats.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             <strong class="jxr_keyword">return</strong> stats;
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         }
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> }
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>              <em class="jxr_comment">// Unicast plus non-unicast (multicast and broadcast), the total other platforms count</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>              stats.packetsSent = ifRow.OutUcastPkts + ifRow.OutNUcastPkts;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>              stats.packetsRecv = ifRow.InUcastPkts + ifRow.InNUcastPkts;
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>              stats.outErrors = ifRow.OutErrors;
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>              stats.inErrors = ifRow.InErrors;
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>              stats.collisions = ifRow.OutDiscards;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>              stats.inDrops = ifRow.InDiscards;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>              stats.speed = ifRow.ReceiveLinkSpeed;
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>              stats.ifAlias = Native.toString(ifRow.Alias);
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              stats.ifOperStatus = IfOperStatus.byValue(ifRow.OperStatus);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>              <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          }
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">private</strong> @Nullable IfStats queryStatsLegacy() {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          <em class="jxr_comment">// Pre-Vista MIB_IFROW: a narrower field set with unsigned 32-bit counters widened to long. Physical medium</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <em class="jxr_comment">// type, connector-present, alias, and oper-status are not available and keep their IfStats defaults.</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">try</strong> (CloseableMibIfRow ifRow = <strong class="jxr_keyword">new</strong> CloseableMibIfRow()) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             ifRow.dwIndex = queryNetworkInterface().getIndex();
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>             <strong class="jxr_keyword">if</strong> (0 != IPHlpAPI.INSTANCE.GetIfEntry(ifRow)) {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>                 LOG.error(<span class="jxr_string">"Failed to retrieve data for interface {}, {}"</span>, queryNetworkInterface().getIndex(),
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>                         getName());
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>                 <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>             }
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>             IfStats stats = <strong class="jxr_keyword">new</strong> IfStats();
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>             stats.ifType = ifRow.dwType;
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>             stats.bytesSent = ParseUtil.unsignedIntToLong(ifRow.dwOutOctets);
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>             stats.bytesRecv = ParseUtil.unsignedIntToLong(ifRow.dwInOctets);
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>             stats.packetsSent = ParseUtil.unsignedIntToLong(ifRow.dwOutUcastPkts)
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>                     + ParseUtil.unsignedIntToLong(ifRow.dwOutNUcastPkts);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>             stats.packetsRecv = ParseUtil.unsignedIntToLong(ifRow.dwInUcastPkts)
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>                     + ParseUtil.unsignedIntToLong(ifRow.dwInNUcastPkts);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>             stats.outErrors = ParseUtil.unsignedIntToLong(ifRow.dwOutErrors);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>             stats.inErrors = ParseUtil.unsignedIntToLong(ifRow.dwInErrors);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>             stats.collisions = ParseUtil.unsignedIntToLong(ifRow.dwOutDiscards);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>             stats.inDrops = ParseUtil.unsignedIntToLong(ifRow.dwInDiscards);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             stats.speed = ParseUtil.unsignedIntToLong(ifRow.dwSpeed);
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">return</strong> stats;
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         }
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>     }
+<a class="jxr_linenumber" name="L122" href="#L122">122</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

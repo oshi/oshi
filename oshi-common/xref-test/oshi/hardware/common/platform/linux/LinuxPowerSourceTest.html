@@ -59,7 +59,7 @@
 <a class="jxr_linenumber" name="L51" href="#L51">51</a>  
 <a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test
 <a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">void</strong> testSampleUeventDischarging() {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, sampleProps());
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, sampleProps(), false);
 <a class="jxr_linenumber" name="L55" href="#L55">55</a>  
 <a class="jxr_linenumber" name="L56" href="#L56">56</a>          assertThat(ps.getName(), is(<span class="jxr_string">"BAT0"</span>));
 <a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(ps.getDeviceName(), is(<span class="jxr_string">"UX32-65"</span>));
@@ -97,7 +97,7 @@
 <a class="jxr_linenumber" name="L89" href="#L89">89</a>          Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
 <a class="jxr_linenumber" name="L90" href="#L90">90</a>          props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, <span class="jxr_string">"Charging"</span>);
 <a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>          LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L93" href="#L93">93</a>  
 <a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(ps.isCharging(), is(<strong class="jxr_keyword">true</strong>));
 <a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(ps.isDischarging(), is(false));
@@ -117,7 +117,7 @@
 <a class="jxr_linenumber" name="L109" href="#L109">109</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_VOLTAGE_NOW, <span class="jxr_string">"7400000"</span>);
 <a class="jxr_linenumber" name="L110" href="#L110">110</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CURRENT_NOW, <span class="jxr_string">"1500000"</span>);
 <a class="jxr_linenumber" name="L111" href="#L111">111</a> 
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L113" href="#L113">113</a> 
 <a class="jxr_linenumber" name="L114" href="#L114">114</a>         assertThat(ps.getCapacityUnits(), is(CapacityUnits.MAH));
 <a class="jxr_linenumber" name="L115" href="#L115">115</a>         assertThat(ps.getCurrentCapacity(), is(3000));
@@ -136,7 +136,7 @@
 <a class="jxr_linenumber" name="L128" href="#L128">128</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
 <a class="jxr_linenumber" name="L129" href="#L129">129</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CURRENT_NOW, <span class="jxr_string">"1200000"</span>);
 <a class="jxr_linenumber" name="L130" href="#L130">130</a> 
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L132" href="#L132">132</a> 
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(ps.getPowerUsageRate(), closeTo(-9361.0, EPS));
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(ps.getAmperage(), closeTo(-1200.0, EPS));
@@ -148,7 +148,7 @@
 <a class="jxr_linenumber" name="L140" href="#L140">140</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_ENERGY_NOW, <span class="jxr_string">"corrupt"</span>);
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> 
-<a class="jxr_linenumber" name="L143" href="#L143">143</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L144" href="#L144">144</a> 
 <a class="jxr_linenumber" name="L145" href="#L145">145</a>         <em class="jxr_comment">// ENERGY_NOW fails to parse → falls back to CHARGE_NOW (absent) → -1</em>
 <a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(ps.getCurrentCapacity(), is(-1));
@@ -161,7 +161,7 @@
 <a class="jxr_linenumber" name="L153" href="#L153">153</a>         <em class="jxr_comment">// TEMP is in tenths of degrees Celsius: 293 → 29.3°C</em>
 <a class="jxr_linenumber" name="L154" href="#L154">154</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TEMP, <span class="jxr_string">"293"</span>);
 <a class="jxr_linenumber" name="L155" href="#L155">155</a> 
-<a class="jxr_linenumber" name="L156" href="#L156">156</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L156" href="#L156">156</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L157" href="#L157">157</a> 
 <a class="jxr_linenumber" name="L158" href="#L158">158</a>         assertThat(ps.getTemperature(), closeTo(29.3, EPS));
 <a class="jxr_linenumber" name="L159" href="#L159">159</a>     }
@@ -173,7 +173,7 @@
 <a class="jxr_linenumber" name="L165" href="#L165">165</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_MANUFACTURE_MONTH, <span class="jxr_string">"6"</span>);
 <a class="jxr_linenumber" name="L166" href="#L166">166</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_MANUFACTURE_DAY, <span class="jxr_string">"15"</span>);
 <a class="jxr_linenumber" name="L167" href="#L167">167</a> 
-<a class="jxr_linenumber" name="L168" href="#L168">168</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L168" href="#L168">168</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L169" href="#L169">169</a> 
 <a class="jxr_linenumber" name="L170" href="#L170">170</a>         LocalDate manufactureDate = ps.getManufactureDate();
 <a class="jxr_linenumber" name="L171" href="#L171">171</a>         assertNotNull(manufactureDate);
@@ -188,7 +188,7 @@
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_MANUFACTURE_YEAR, <span class="jxr_string">"2021"</span>);
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>         <em class="jxr_comment">// month and day absent → date should be null</em>
 <a class="jxr_linenumber" name="L182" href="#L182">182</a> 
-<a class="jxr_linenumber" name="L183" href="#L183">183</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L183" href="#L183">183</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L184" href="#L184">184</a> 
 <a class="jxr_linenumber" name="L185" href="#L185">185</a>         assertThat(ps.getManufactureDate(), is(nullValue()));
 <a class="jxr_linenumber" name="L186" href="#L186">186</a>     }
@@ -199,7 +199,7 @@
 <a class="jxr_linenumber" name="L191" href="#L191">191</a>         <em class="jxr_comment">// TIME_TO_EMPTY_NOW in seconds</em>
 <a class="jxr_linenumber" name="L192" href="#L192">192</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_EMPTY_NOW, <span class="jxr_string">"3600"</span>);
 <a class="jxr_linenumber" name="L193" href="#L193">193</a> 
-<a class="jxr_linenumber" name="L194" href="#L194">194</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L194" href="#L194">194</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L195" href="#L195">195</a> 
 <a class="jxr_linenumber" name="L196" href="#L196">196</a>         assertThat(ps.getTimeRemainingInstant(), closeTo(3600.0, EPS));
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>     }
@@ -210,119 +210,186 @@
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, <span class="jxr_string">"Charging"</span>);
 <a class="jxr_linenumber" name="L203" href="#L203">203</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_FULL_NOW, <span class="jxr_string">"1800"</span>);
 <a class="jxr_linenumber" name="L204" href="#L204">204</a> 
-<a class="jxr_linenumber" name="L205" href="#L205">205</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
+<a class="jxr_linenumber" name="L205" href="#L205">205</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
 <a class="jxr_linenumber" name="L206" href="#L206">206</a> 
 <a class="jxr_linenumber" name="L207" href="#L207">207</a>         assertThat(ps.getTimeRemainingInstant(), closeTo(1800.0, EPS));
 <a class="jxr_linenumber" name="L208" href="#L208">208</a>     }
 <a class="jxr_linenumber" name="L209" href="#L209">209</a> 
 <a class="jxr_linenumber" name="L210" href="#L210">210</a>     @Test
-<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">void</strong> testFallbackNameWhenNameKeyAbsent() {
-<a class="jxr_linenumber" name="L212" href="#L212">212</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
-<a class="jxr_linenumber" name="L213" href="#L213">213</a>         props.remove(LinuxPowerSource.Prop.POWER_SUPPLY_NAME);
-<a class="jxr_linenumber" name="L214" href="#L214">214</a> 
-<a class="jxr_linenumber" name="L215" href="#L215">215</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props);
-<a class="jxr_linenumber" name="L216" href="#L216">216</a> 
-<a class="jxr_linenumber" name="L217" href="#L217">217</a>         assertThat(ps.getName(), is(<span class="jxr_string">"BAT0"</span>));
+<a class="jxr_linenumber" name="L211" href="#L211">211</a>     <strong class="jxr_keyword">void</strong> testTimeRemainingComputedFromEnergyAndPower() {
+<a class="jxr_linenumber" name="L212" href="#L212">212</a>         <em class="jxr_comment">// The ACPI battery driver gives no TIME_TO_* keys: 20712 mWh left at 9361 mW is 7965 s</em>
+<a class="jxr_linenumber" name="L213" href="#L213">213</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, sampleProps(), false);
+<a class="jxr_linenumber" name="L214" href="#L214">214</a>         assertThat(ps.getTimeRemainingInstant(), closeTo(3600d * 20712 / 9361, EPS));
+<a class="jxr_linenumber" name="L215" href="#L215">215</a>         assertThat(<span class="jxr_string">"Without an average the estimate is the instant value"</span>, ps.getTimeRemainingEstimated(),
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>                 closeTo(ps.getTimeRemainingInstant(), EPS));
+<a class="jxr_linenumber" name="L217" href="#L217">217</a>         assertThat(ps.isPowerOnLine(), is(false));
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>     }
 <a class="jxr_linenumber" name="L219" href="#L219">219</a> 
 <a class="jxr_linenumber" name="L220" href="#L220">220</a>     @Test
-<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">void</strong> testCopyConstructor() {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>         LinuxPowerSource original = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, sampleProps());
-<a class="jxr_linenumber" name="L223" href="#L223">223</a>         LinuxPowerSource copy = <strong class="jxr_keyword">new</strong> LinuxPowerSource(original);
-<a class="jxr_linenumber" name="L224" href="#L224">224</a> 
-<a class="jxr_linenumber" name="L225" href="#L225">225</a>         assertThat(copy.getName(), is(original.getName()));
-<a class="jxr_linenumber" name="L226" href="#L226">226</a>         assertThat(copy.getDeviceName(), is(original.getDeviceName()));
-<a class="jxr_linenumber" name="L227" href="#L227">227</a>         assertThat(copy.getRemainingCapacityPercent(), closeTo(original.getRemainingCapacityPercent(), EPS));
-<a class="jxr_linenumber" name="L228" href="#L228">228</a>         assertThat(copy.getPowerUsageRate(), closeTo(original.getPowerUsageRate(), EPS));
-<a class="jxr_linenumber" name="L229" href="#L229">229</a>         assertThat(copy.getVoltage(), closeTo(original.getVoltage(), EPS));
-<a class="jxr_linenumber" name="L230" href="#L230">230</a>         assertThat(copy.getAmperage(), closeTo(original.getAmperage(), EPS));
-<a class="jxr_linenumber" name="L231" href="#L231">231</a>         assertThat(copy.isCharging(), is(original.isCharging()));
-<a class="jxr_linenumber" name="L232" href="#L232">232</a>         assertThat(copy.isDischarging(), is(original.isDischarging()));
-<a class="jxr_linenumber" name="L233" href="#L233">233</a>         assertThat(copy.getCapacityUnits(), is(original.getCapacityUnits()));
-<a class="jxr_linenumber" name="L234" href="#L234">234</a>         assertThat(copy.getCurrentCapacity(), is(original.getCurrentCapacity()));
-<a class="jxr_linenumber" name="L235" href="#L235">235</a>         assertThat(copy.getMaxCapacity(), is(original.getMaxCapacity()));
-<a class="jxr_linenumber" name="L236" href="#L236">236</a>         assertThat(copy.getDesignCapacity(), is(original.getDesignCapacity()));
-<a class="jxr_linenumber" name="L237" href="#L237">237</a>         assertThat(copy.getCycleCount(), is(original.getCycleCount()));
-<a class="jxr_linenumber" name="L238" href="#L238">238</a>         assertThat(copy.getChemistry(), is(original.getChemistry()));
-<a class="jxr_linenumber" name="L239" href="#L239">239</a>         assertThat(copy.getManufacturer(), is(original.getManufacturer()));
-<a class="jxr_linenumber" name="L240" href="#L240">240</a>         assertThat(copy.getSerialNumber(), is(original.getSerialNumber()));
-<a class="jxr_linenumber" name="L241" href="#L241">241</a>     }
-<a class="jxr_linenumber" name="L242" href="#L242">242</a> 
-<a class="jxr_linenumber" name="L243" href="#L243">243</a>     @Test
-<a class="jxr_linenumber" name="L244" href="#L244">244</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesNonexistentPath(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L245" href="#L245">245</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.resolve(<span class="jxr_string">"power_supply_missing"</span>).toString());
-<a class="jxr_linenumber" name="L246" href="#L246">246</a>         assertThat(result, hasSize(0));
-<a class="jxr_linenumber" name="L247" href="#L247">247</a>     }
-<a class="jxr_linenumber" name="L248" href="#L248">248</a> 
-<a class="jxr_linenumber" name="L249" href="#L249">249</a>     @Test
-<a class="jxr_linenumber" name="L250" href="#L250">250</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesEmptyDir(@TempDir Path tempDir) {
-<a class="jxr_linenumber" name="L251" href="#L251">251</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
-<a class="jxr_linenumber" name="L252" href="#L252">252</a>         assertThat(result, hasSize(0));
-<a class="jxr_linenumber" name="L253" href="#L253">253</a>     }
-<a class="jxr_linenumber" name="L254" href="#L254">254</a> 
-<a class="jxr_linenumber" name="L255" href="#L255">255</a>     @Test
-<a class="jxr_linenumber" name="L256" href="#L256">256</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesFiltersAdapters(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L257" href="#L257">257</a>         <strong class="jxr_keyword">for</strong> (String name : <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"ADP1"</span>, <span class="jxr_string">"AC0"</span>, <span class="jxr_string">"USBC-charger"</span> }) {
-<a class="jxr_linenumber" name="L258" href="#L258">258</a>             Files.createDirectories(tempDir.resolve(name));
-<a class="jxr_linenumber" name="L259" href="#L259">259</a>         }
-<a class="jxr_linenumber" name="L260" href="#L260">260</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
-<a class="jxr_linenumber" name="L261" href="#L261">261</a>         assertThat(result, hasSize(0));
-<a class="jxr_linenumber" name="L262" href="#L262">262</a>     }
-<a class="jxr_linenumber" name="L263" href="#L263">263</a> 
-<a class="jxr_linenumber" name="L264" href="#L264">264</a>     @Test
-<a class="jxr_linenumber" name="L265" href="#L265">265</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesUeventParsing(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L266" href="#L266">266</a>         Path bat = tempDir.resolve(<span class="jxr_string">"BAT0"</span>);
-<a class="jxr_linenumber" name="L267" href="#L267">267</a>         Files.createDirectories(bat);
-<a class="jxr_linenumber" name="L268" href="#L268">268</a>         String uevent = <span class="jxr_string">"POWER_SUPPLY_NAME=BAT0\n"</span> + <span class="jxr_string">"POWER_SUPPLY_STATUS=Discharging\n"</span> + <span class="jxr_string">"POWER_SUPPLY_PRESENT=1\n"</span>
-<a class="jxr_linenumber" name="L269" href="#L269">269</a>                 + <span class="jxr_string">"POWER_SUPPLY_TECHNOLOGY=Li-ion\n"</span> + <span class="jxr_string">"POWER_SUPPLY_VOLTAGE_NOW=7400000\n"</span>
-<a class="jxr_linenumber" name="L270" href="#L270">270</a>                 + <span class="jxr_string">"POWER_SUPPLY_ENERGY_NOW=20712000\n"</span> + <span class="jxr_string">"POWER_SUPPLY_ENERGY_FULL=40877000\n"</span>
-<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 + <span class="jxr_string">"POWER_SUPPLY_ENERGY_FULL_DESIGN=48248000\n"</span> + <span class="jxr_string">"POWER_SUPPLY_POWER_NOW=9361000\n"</span>
-<a class="jxr_linenumber" name="L272" href="#L272">272</a>                 + <span class="jxr_string">"POWER_SUPPLY_CAPACITY=50\n"</span> + <span class="jxr_string">"IGNORED_KEY=should_be_skipped\n"</span> + <span class="jxr_string">"MALFORMED_LINE\n"</span>;
-<a class="jxr_linenumber" name="L273" href="#L273">273</a>         Files.writeString(bat.resolve(<span class="jxr_string">"uevent"</span>), uevent);
-<a class="jxr_linenumber" name="L274" href="#L274">274</a> 
-<a class="jxr_linenumber" name="L275" href="#L275">275</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
+<a class="jxr_linenumber" name="L221" href="#L221">221</a>     <strong class="jxr_keyword">void</strong> testTimeRemainingComputedFromChargeAndCurrent() {
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(LinuxPowerSource.Prop.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L223" href="#L223">223</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, <span class="jxr_string">"Charging"</span>);
+<a class="jxr_linenumber" name="L224" href="#L224">224</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_VOLTAGE_NOW, <span class="jxr_string">"12000000"</span>);
+<a class="jxr_linenumber" name="L225" href="#L225">225</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CHARGE_NOW, <span class="jxr_string">"2000000"</span>);
+<a class="jxr_linenumber" name="L226" href="#L226">226</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CHARGE_FULL, <span class="jxr_string">"5000000"</span>);
+<a class="jxr_linenumber" name="L227" href="#L227">227</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_CURRENT_NOW, <span class="jxr_string">"1500000"</span>);
+<a class="jxr_linenumber" name="L228" href="#L228">228</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
+<a class="jxr_linenumber" name="L229" href="#L229">229</a>         <em class="jxr_comment">// 3000 mAh to go at 1500 mA</em>
+<a class="jxr_linenumber" name="L230" href="#L230">230</a>         assertThat(ps.getTimeRemainingInstant(), closeTo(7200d, EPS));
+<a class="jxr_linenumber" name="L231" href="#L231">231</a>         assertThat(<span class="jxr_string">"Charging means plugged in"</span>, ps.isPowerOnLine(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L232" href="#L232">232</a>         assertThat(<span class="jxr_string">"Unlimited on external power"</span>, ps.getTimeRemainingEstimated(), closeTo(-2d, EPS));
+<a class="jxr_linenumber" name="L233" href="#L233">233</a>     }
+<a class="jxr_linenumber" name="L234" href="#L234">234</a> 
+<a class="jxr_linenumber" name="L235" href="#L235">235</a>     @Test
+<a class="jxr_linenumber" name="L236" href="#L236">236</a>     <strong class="jxr_keyword">void</strong> testTimeRemainingAverageAndUnknownRate() {
+<a class="jxr_linenumber" name="L237" href="#L237">237</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
+<a class="jxr_linenumber" name="L238" href="#L238">238</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_EMPTY_AVG, <span class="jxr_string">"7000"</span>);
+<a class="jxr_linenumber" name="L239" href="#L239">239</a>         assertThat(LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false).getTimeRemainingEstimated(),
+<a class="jxr_linenumber" name="L240" href="#L240">240</a>                 closeTo(7000d, EPS));
+<a class="jxr_linenumber" name="L241" href="#L241">241</a>         props.remove(LinuxPowerSource.Prop.POWER_SUPPLY_TIME_TO_EMPTY_AVG);
+<a class="jxr_linenumber" name="L242" href="#L242">242</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_POWER_NOW, <span class="jxr_string">"0"</span>);
+<a class="jxr_linenumber" name="L243" href="#L243">243</a>         LinuxPowerSource idle = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
+<a class="jxr_linenumber" name="L244" href="#L244">244</a>         assertThat(<span class="jxr_string">"No rate, no time"</span>, idle.getTimeRemainingInstant(), closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L245" href="#L245">245</a>         assertThat(idle.getTimeRemainingEstimated(), closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L246" href="#L246">246</a>     }
+<a class="jxr_linenumber" name="L247" href="#L247">247</a> 
+<a class="jxr_linenumber" name="L248" href="#L248">248</a>     @Test
+<a class="jxr_linenumber" name="L249" href="#L249">249</a>     <strong class="jxr_keyword">void</strong> testPowerOnLineFromStatus() {
+<a class="jxr_linenumber" name="L250" href="#L250">250</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
+<a class="jxr_linenumber" name="L251" href="#L251">251</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, <span class="jxr_string">"Not charging"</span>);
+<a class="jxr_linenumber" name="L252" href="#L252">252</a>         LinuxPowerSource held = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
+<a class="jxr_linenumber" name="L253" href="#L253">253</a>         assertThat(<span class="jxr_string">"Held at a charge limit means plugged in"</span>, held.isPowerOnLine(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L254" href="#L254">254</a>         assertThat(held.getTimeRemainingInstant(), closeTo(-1d, EPS));
+<a class="jxr_linenumber" name="L255" href="#L255">255</a>         props.put(LinuxPowerSource.Prop.POWER_SUPPLY_STATUS, <span class="jxr_string">"Full"</span>);
+<a class="jxr_linenumber" name="L256" href="#L256">256</a>         assertThat(LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, <strong class="jxr_keyword">true</strong>).isPowerOnLine(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L257" href="#L257">257</a>         assertThat(LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false).isPowerOnLine(), is(false));
+<a class="jxr_linenumber" name="L258" href="#L258">258</a>     }
+<a class="jxr_linenumber" name="L259" href="#L259">259</a> 
+<a class="jxr_linenumber" name="L260" href="#L260">260</a>     @Test
+<a class="jxr_linenumber" name="L261" href="#L261">261</a>     <strong class="jxr_keyword">void</strong> testQueryExternalPowerOnLine(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L262" href="#L262">262</a>         Path bat = Files.createDirectories(tempDir.resolve(<span class="jxr_string">"BAT0"</span>));
+<a class="jxr_linenumber" name="L263" href="#L263">263</a>         Files.writeString(bat.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Battery\n"</span>);
+<a class="jxr_linenumber" name="L264" href="#L264">264</a>         Path ac = Files.createDirectories(tempDir.resolve(<span class="jxr_string">"AC"</span>));
+<a class="jxr_linenumber" name="L265" href="#L265">265</a>         Files.writeString(ac.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"Mains\n"</span>);
+<a class="jxr_linenumber" name="L266" href="#L266">266</a>         Files.writeString(ac.resolve(<span class="jxr_string">"online"</span>), <span class="jxr_string">"0\n"</span>);
+<a class="jxr_linenumber" name="L267" href="#L267">267</a>         Path usb = Files.createDirectories(tempDir.resolve(<span class="jxr_string">"ucsi-source-psy-USBC000-001"</span>));
+<a class="jxr_linenumber" name="L268" href="#L268">268</a>         Files.writeString(usb.resolve(<span class="jxr_string">"type"</span>), <span class="jxr_string">"USB\n"</span>);
+<a class="jxr_linenumber" name="L269" href="#L269">269</a>         Files.writeString(usb.resolve(<span class="jxr_string">"online"</span>), <span class="jxr_string">"0\n"</span>);
+<a class="jxr_linenumber" name="L270" href="#L270">270</a>         assertThat(<span class="jxr_string">"Adapters present but unplugged"</span>, LinuxPowerSource.queryExternalPowerOnLine(tempDir.toString()),
+<a class="jxr_linenumber" name="L271" href="#L271">271</a>                 is(false));
+<a class="jxr_linenumber" name="L272" href="#L272">272</a>         Files.writeString(usb.resolve(<span class="jxr_string">"online"</span>), <span class="jxr_string">"1\n"</span>);
+<a class="jxr_linenumber" name="L273" href="#L273">273</a>         assertThat(LinuxPowerSource.queryExternalPowerOnLine(tempDir.toString()), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L274" href="#L274">274</a>         assertThat(LinuxPowerSource.queryExternalPowerOnLine(tempDir.resolve(<span class="jxr_string">"absent"</span>).toString()), is(false));
+<a class="jxr_linenumber" name="L275" href="#L275">275</a>     }
 <a class="jxr_linenumber" name="L276" href="#L276">276</a> 
-<a class="jxr_linenumber" name="L277" href="#L277">277</a>         assertThat(result, hasSize(1));
-<a class="jxr_linenumber" name="L278" href="#L278">278</a>         PowerSource ps = result.get(0);
-<a class="jxr_linenumber" name="L279" href="#L279">279</a>         assertThat(ps.getName(), is(<span class="jxr_string">"BAT0"</span>));
-<a class="jxr_linenumber" name="L280" href="#L280">280</a>         assertThat(ps.isDischarging(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L281" href="#L281">281</a>         assertThat(ps.getChemistry(), is(<span class="jxr_string">"Li-ion"</span>));
-<a class="jxr_linenumber" name="L282" href="#L282">282</a>         assertThat(ps.getCurrentCapacity(), is(20712));
-<a class="jxr_linenumber" name="L283" href="#L283">283</a>         assertThat(ps.getMaxCapacity(), is(40877));
-<a class="jxr_linenumber" name="L284" href="#L284">284</a>     }
-<a class="jxr_linenumber" name="L285" href="#L285">285</a> 
-<a class="jxr_linenumber" name="L286" href="#L286">286</a>     @Test
-<a class="jxr_linenumber" name="L287" href="#L287">287</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesSkipsPresentZero(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L288" href="#L288">288</a>         Path bat = tempDir.resolve(<span class="jxr_string">"BAT0"</span>);
-<a class="jxr_linenumber" name="L289" href="#L289">289</a>         Files.createDirectories(bat);
-<a class="jxr_linenumber" name="L290" href="#L290">290</a>         Files.writeString(bat.resolve(<span class="jxr_string">"uevent"</span>), <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L291" href="#L291">291</a>                 POWER_SUPPLY_NAME=BAT0
-<a class="jxr_linenumber" name="L292" href="#L292">292</a>                 POWER_SUPPLY_PRESENT=0
-<a class="jxr_linenumber" name="L293" href="#L293">293</a>                 <span class="jxr_string">""</span><span class="jxr_string">");
-<a class="jxr_linenumber" name="L294" href="#L294">294</a> 
-<a class="jxr_linenumber" name="L295" href="#L295">295</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
-<a class="jxr_linenumber" name="L296" href="#L296">296</a>         assertThat(result, hasSize(0));
-<a class="jxr_linenumber" name="L297" href="#L297">297</a>     }
-<a class="jxr_linenumber" name="L298" href="#L298">298</a> 
-<a class="jxr_linenumber" name="L299" href="#L299">299</a>     @Test
-<a class="jxr_linenumber" name="L300" href="#L300">300</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesCopyRoundTrip(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
-<a class="jxr_linenumber" name="L301" href="#L301">301</a>         Path bat = tempDir.resolve(<span class="jxr_string">"BAT0"</span>);
-<a class="jxr_linenumber" name="L302" href="#L302">302</a>         Files.createDirectories(bat);
-<a class="jxr_linenumber" name="L303" href="#L303">303</a>         String uevent = <span class="jxr_string">"POWER_SUPPLY_NAME=BAT0\nPOWER_SUPPLY_STATUS=Charging\n"</span>
-<a class="jxr_linenumber" name="L304" href="#L304">304</a>                 + <span class="jxr_string">"POWER_SUPPLY_ENERGY_NOW=20000000\nPOWER_SUPPLY_ENERGY_FULL=40000000\n"</span>;
-<a class="jxr_linenumber" name="L305" href="#L305">305</a>         Files.writeString(bat.resolve(<span class="jxr_string">"uevent"</span>), uevent);
-<a class="jxr_linenumber" name="L306" href="#L306">306</a> 
-<a class="jxr_linenumber" name="L307" href="#L307">307</a>         List&lt;PowerSource&gt; sources = LinuxPowerSource.getPowerSources(tempDir.toString());
-<a class="jxr_linenumber" name="L308" href="#L308">308</a>         assertThat(sources, hasSize(1));
-<a class="jxr_linenumber" name="L309" href="#L309">309</a>         LinuxPowerSource ps = (LinuxPowerSource) sources.get(0);
-<a class="jxr_linenumber" name="L310" href="#L310">310</a> 
-<a class="jxr_linenumber" name="L311" href="#L311">311</a>         <em class="jxr_comment">// queryPowerSources() delegates to getPowerSources(SysPath.POWER_SUPPLY) on real</em>
-<a class="jxr_linenumber" name="L312" href="#L312">312</a>         <em class="jxr_comment">// systems; here we verify the copy constructor round-trip used by that path</em>
-<a class="jxr_linenumber" name="L313" href="#L313">313</a>         LinuxPowerSource copy = <strong class="jxr_keyword">new</strong> LinuxPowerSource(ps);
-<a class="jxr_linenumber" name="L314" href="#L314">314</a>         assertThat(copy.getName(), is(ps.getName()));
-<a class="jxr_linenumber" name="L315" href="#L315">315</a>         assertThat(copy.isCharging(), is(<strong class="jxr_keyword">true</strong>));
-<a class="jxr_linenumber" name="L316" href="#L316">316</a>     }
-<a class="jxr_linenumber" name="L317" href="#L317">317</a> }
+<a class="jxr_linenumber" name="L277" href="#L277">277</a>     @Test
+<a class="jxr_linenumber" name="L278" href="#L278">278</a>     <strong class="jxr_keyword">void</strong> testFallbackNameWhenNameKeyAbsent() {
+<a class="jxr_linenumber" name="L279" href="#L279">279</a>         Map&lt;LinuxPowerSource.Prop, String&gt; props = sampleProps();
+<a class="jxr_linenumber" name="L280" href="#L280">280</a>         props.remove(LinuxPowerSource.Prop.POWER_SUPPLY_NAME);
+<a class="jxr_linenumber" name="L281" href="#L281">281</a> 
+<a class="jxr_linenumber" name="L282" href="#L282">282</a>         LinuxPowerSource ps = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, props, false);
+<a class="jxr_linenumber" name="L283" href="#L283">283</a> 
+<a class="jxr_linenumber" name="L284" href="#L284">284</a>         assertThat(ps.getName(), is(<span class="jxr_string">"BAT0"</span>));
+<a class="jxr_linenumber" name="L285" href="#L285">285</a>     }
+<a class="jxr_linenumber" name="L286" href="#L286">286</a> 
+<a class="jxr_linenumber" name="L287" href="#L287">287</a>     @Test
+<a class="jxr_linenumber" name="L288" href="#L288">288</a>     <strong class="jxr_keyword">void</strong> testCopyConstructor() {
+<a class="jxr_linenumber" name="L289" href="#L289">289</a>         LinuxPowerSource original = LinuxPowerSource.buildPowerSource(<span class="jxr_string">"BAT0"</span>, sampleProps(), false);
+<a class="jxr_linenumber" name="L290" href="#L290">290</a>         LinuxPowerSource copy = <strong class="jxr_keyword">new</strong> LinuxPowerSource(original);
+<a class="jxr_linenumber" name="L291" href="#L291">291</a> 
+<a class="jxr_linenumber" name="L292" href="#L292">292</a>         assertThat(copy.getName(), is(original.getName()));
+<a class="jxr_linenumber" name="L293" href="#L293">293</a>         assertThat(copy.getDeviceName(), is(original.getDeviceName()));
+<a class="jxr_linenumber" name="L294" href="#L294">294</a>         assertThat(copy.getRemainingCapacityPercent(), closeTo(original.getRemainingCapacityPercent(), EPS));
+<a class="jxr_linenumber" name="L295" href="#L295">295</a>         assertThat(copy.getPowerUsageRate(), closeTo(original.getPowerUsageRate(), EPS));
+<a class="jxr_linenumber" name="L296" href="#L296">296</a>         assertThat(copy.getVoltage(), closeTo(original.getVoltage(), EPS));
+<a class="jxr_linenumber" name="L297" href="#L297">297</a>         assertThat(copy.getAmperage(), closeTo(original.getAmperage(), EPS));
+<a class="jxr_linenumber" name="L298" href="#L298">298</a>         assertThat(copy.isCharging(), is(original.isCharging()));
+<a class="jxr_linenumber" name="L299" href="#L299">299</a>         assertThat(copy.isDischarging(), is(original.isDischarging()));
+<a class="jxr_linenumber" name="L300" href="#L300">300</a>         assertThat(copy.getCapacityUnits(), is(original.getCapacityUnits()));
+<a class="jxr_linenumber" name="L301" href="#L301">301</a>         assertThat(copy.getCurrentCapacity(), is(original.getCurrentCapacity()));
+<a class="jxr_linenumber" name="L302" href="#L302">302</a>         assertThat(copy.getMaxCapacity(), is(original.getMaxCapacity()));
+<a class="jxr_linenumber" name="L303" href="#L303">303</a>         assertThat(copy.getDesignCapacity(), is(original.getDesignCapacity()));
+<a class="jxr_linenumber" name="L304" href="#L304">304</a>         assertThat(copy.getCycleCount(), is(original.getCycleCount()));
+<a class="jxr_linenumber" name="L305" href="#L305">305</a>         assertThat(copy.getChemistry(), is(original.getChemistry()));
+<a class="jxr_linenumber" name="L306" href="#L306">306</a>         assertThat(copy.getManufacturer(), is(original.getManufacturer()));
+<a class="jxr_linenumber" name="L307" href="#L307">307</a>         assertThat(copy.getSerialNumber(), is(original.getSerialNumber()));
+<a class="jxr_linenumber" name="L308" href="#L308">308</a>     }
+<a class="jxr_linenumber" name="L309" href="#L309">309</a> 
+<a class="jxr_linenumber" name="L310" href="#L310">310</a>     @Test
+<a class="jxr_linenumber" name="L311" href="#L311">311</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesNonexistentPath(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L312" href="#L312">312</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.resolve(<span class="jxr_string">"power_supply_missing"</span>).toString());
+<a class="jxr_linenumber" name="L313" href="#L313">313</a>         assertThat(result, hasSize(0));
+<a class="jxr_linenumber" name="L314" href="#L314">314</a>     }
+<a class="jxr_linenumber" name="L315" href="#L315">315</a> 
+<a class="jxr_linenumber" name="L316" href="#L316">316</a>     @Test
+<a class="jxr_linenumber" name="L317" href="#L317">317</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesEmptyDir(@TempDir Path tempDir) {
+<a class="jxr_linenumber" name="L318" href="#L318">318</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
+<a class="jxr_linenumber" name="L319" href="#L319">319</a>         assertThat(result, hasSize(0));
+<a class="jxr_linenumber" name="L320" href="#L320">320</a>     }
+<a class="jxr_linenumber" name="L321" href="#L321">321</a> 
+<a class="jxr_linenumber" name="L322" href="#L322">322</a>     @Test
+<a class="jxr_linenumber" name="L323" href="#L323">323</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesFiltersAdapters(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L324" href="#L324">324</a>         <strong class="jxr_keyword">for</strong> (String name : <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"ADP1"</span>, <span class="jxr_string">"AC0"</span>, <span class="jxr_string">"USBC-charger"</span> }) {
+<a class="jxr_linenumber" name="L325" href="#L325">325</a>             Files.createDirectories(tempDir.resolve(name));
+<a class="jxr_linenumber" name="L326" href="#L326">326</a>         }
+<a class="jxr_linenumber" name="L327" href="#L327">327</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
+<a class="jxr_linenumber" name="L328" href="#L328">328</a>         assertThat(result, hasSize(0));
+<a class="jxr_linenumber" name="L329" href="#L329">329</a>     }
+<a class="jxr_linenumber" name="L330" href="#L330">330</a> 
+<a class="jxr_linenumber" name="L331" href="#L331">331</a>     @Test
+<a class="jxr_linenumber" name="L332" href="#L332">332</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesUeventParsing(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L333" href="#L333">333</a>         Path bat = tempDir.resolve(<span class="jxr_string">"BAT0"</span>);
+<a class="jxr_linenumber" name="L334" href="#L334">334</a>         Files.createDirectories(bat);
+<a class="jxr_linenumber" name="L335" href="#L335">335</a>         String uevent = <span class="jxr_string">"POWER_SUPPLY_NAME=BAT0\n"</span> + <span class="jxr_string">"POWER_SUPPLY_STATUS=Discharging\n"</span> + <span class="jxr_string">"POWER_SUPPLY_PRESENT=1\n"</span>
+<a class="jxr_linenumber" name="L336" href="#L336">336</a>                 + <span class="jxr_string">"POWER_SUPPLY_TECHNOLOGY=Li-ion\n"</span> + <span class="jxr_string">"POWER_SUPPLY_VOLTAGE_NOW=7400000\n"</span>
+<a class="jxr_linenumber" name="L337" href="#L337">337</a>                 + <span class="jxr_string">"POWER_SUPPLY_ENERGY_NOW=20712000\n"</span> + <span class="jxr_string">"POWER_SUPPLY_ENERGY_FULL=40877000\n"</span>
+<a class="jxr_linenumber" name="L338" href="#L338">338</a>                 + <span class="jxr_string">"POWER_SUPPLY_ENERGY_FULL_DESIGN=48248000\n"</span> + <span class="jxr_string">"POWER_SUPPLY_POWER_NOW=9361000\n"</span>
+<a class="jxr_linenumber" name="L339" href="#L339">339</a>                 + <span class="jxr_string">"POWER_SUPPLY_CAPACITY=50\n"</span> + <span class="jxr_string">"IGNORED_KEY=should_be_skipped\n"</span> + <span class="jxr_string">"MALFORMED_LINE\n"</span>;
+<a class="jxr_linenumber" name="L340" href="#L340">340</a>         Files.writeString(bat.resolve(<span class="jxr_string">"uevent"</span>), uevent);
+<a class="jxr_linenumber" name="L341" href="#L341">341</a> 
+<a class="jxr_linenumber" name="L342" href="#L342">342</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
+<a class="jxr_linenumber" name="L343" href="#L343">343</a> 
+<a class="jxr_linenumber" name="L344" href="#L344">344</a>         assertThat(result, hasSize(1));
+<a class="jxr_linenumber" name="L345" href="#L345">345</a>         PowerSource ps = result.get(0);
+<a class="jxr_linenumber" name="L346" href="#L346">346</a>         assertThat(ps.getName(), is(<span class="jxr_string">"BAT0"</span>));
+<a class="jxr_linenumber" name="L347" href="#L347">347</a>         assertThat(ps.isDischarging(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L348" href="#L348">348</a>         assertThat(ps.getChemistry(), is(<span class="jxr_string">"Li-ion"</span>));
+<a class="jxr_linenumber" name="L349" href="#L349">349</a>         assertThat(ps.getCurrentCapacity(), is(20712));
+<a class="jxr_linenumber" name="L350" href="#L350">350</a>         assertThat(ps.getMaxCapacity(), is(40877));
+<a class="jxr_linenumber" name="L351" href="#L351">351</a>     }
+<a class="jxr_linenumber" name="L352" href="#L352">352</a> 
+<a class="jxr_linenumber" name="L353" href="#L353">353</a>     @Test
+<a class="jxr_linenumber" name="L354" href="#L354">354</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesSkipsPresentZero(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L355" href="#L355">355</a>         Path bat = tempDir.resolve(<span class="jxr_string">"BAT0"</span>);
+<a class="jxr_linenumber" name="L356" href="#L356">356</a>         Files.createDirectories(bat);
+<a class="jxr_linenumber" name="L357" href="#L357">357</a>         Files.writeString(bat.resolve(<span class="jxr_string">"uevent"</span>), <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L358" href="#L358">358</a>                 POWER_SUPPLY_NAME=BAT0
+<a class="jxr_linenumber" name="L359" href="#L359">359</a>                 POWER_SUPPLY_PRESENT=0
+<a class="jxr_linenumber" name="L360" href="#L360">360</a>                 <span class="jxr_string">""</span><span class="jxr_string">");
+<a class="jxr_linenumber" name="L361" href="#L361">361</a> 
+<a class="jxr_linenumber" name="L362" href="#L362">362</a>         List&lt;PowerSource&gt; result = LinuxPowerSource.getPowerSources(tempDir.toString());
+<a class="jxr_linenumber" name="L363" href="#L363">363</a>         assertThat(result, hasSize(0));
+<a class="jxr_linenumber" name="L364" href="#L364">364</a>     }
+<a class="jxr_linenumber" name="L365" href="#L365">365</a> 
+<a class="jxr_linenumber" name="L366" href="#L366">366</a>     @Test
+<a class="jxr_linenumber" name="L367" href="#L367">367</a>     <strong class="jxr_keyword">void</strong> testGetPowerSourcesCopyRoundTrip(@TempDir Path tempDir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L368" href="#L368">368</a>         Path bat = tempDir.resolve(<span class="jxr_string">"BAT0"</span>);
+<a class="jxr_linenumber" name="L369" href="#L369">369</a>         Files.createDirectories(bat);
+<a class="jxr_linenumber" name="L370" href="#L370">370</a>         String uevent = <span class="jxr_string">"POWER_SUPPLY_NAME=BAT0\nPOWER_SUPPLY_STATUS=Charging\n"</span>
+<a class="jxr_linenumber" name="L371" href="#L371">371</a>                 + <span class="jxr_string">"POWER_SUPPLY_ENERGY_NOW=20000000\nPOWER_SUPPLY_ENERGY_FULL=40000000\n"</span>;
+<a class="jxr_linenumber" name="L372" href="#L372">372</a>         Files.writeString(bat.resolve(<span class="jxr_string">"uevent"</span>), uevent);
+<a class="jxr_linenumber" name="L373" href="#L373">373</a> 
+<a class="jxr_linenumber" name="L374" href="#L374">374</a>         List&lt;PowerSource&gt; sources = LinuxPowerSource.getPowerSources(tempDir.toString());
+<a class="jxr_linenumber" name="L375" href="#L375">375</a>         assertThat(sources, hasSize(1));
+<a class="jxr_linenumber" name="L376" href="#L376">376</a>         LinuxPowerSource ps = (LinuxPowerSource) sources.get(0);
+<a class="jxr_linenumber" name="L377" href="#L377">377</a> 
+<a class="jxr_linenumber" name="L378" href="#L378">378</a>         <em class="jxr_comment">// queryPowerSources() delegates to getPowerSources(SysPath.POWER_SUPPLY) on real</em>
+<a class="jxr_linenumber" name="L379" href="#L379">379</a>         <em class="jxr_comment">// systems; here we verify the copy constructor round-trip used by that path</em>
+<a class="jxr_linenumber" name="L380" href="#L380">380</a>         LinuxPowerSource copy = <strong class="jxr_keyword">new</strong> LinuxPowerSource(ps);
+<a class="jxr_linenumber" name="L381" href="#L381">381</a>         assertThat(copy.getName(), is(ps.getName()));
+<a class="jxr_linenumber" name="L382" href="#L382">382</a>         assertThat(copy.isCharging(), is(<strong class="jxr_keyword">true</strong>));
+<a class="jxr_linenumber" name="L383" href="#L383">383</a>     }
+<a class="jxr_linenumber" name="L384" href="#L384">384</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

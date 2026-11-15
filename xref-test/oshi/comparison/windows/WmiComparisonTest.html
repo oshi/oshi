@@ -433,154 +433,156 @@
 <a class="jxr_linenumber" name="L425" href="#L425">425</a>         <strong class="jxr_keyword">boolean</strong> jnaComInit = jnaHandler.initCOM();
 <a class="jxr_linenumber" name="L426" href="#L426">426</a>         <strong class="jxr_keyword">boolean</strong> ffmComInit = ffmHandler.initCOM();
 <a class="jxr_linenumber" name="L427" href="#L427">427</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L428" href="#L428">428</a>             WmiResult&lt;ValueProperty&gt; jna = OhmSensor.querySensorValue(jnaHandler, OhmSensor.OHM_NAMESPACE, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L429" href="#L429">429</a>             WmiResult&lt;ValueProperty&gt; ffm = OhmSensor.querySensorValue(ffmHandler, OhmSensor.OHM_NAMESPACE, <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L430" href="#L430">430</a>             assertThat(ffm.getResultCount()).as(<span class="jxr_string">"OhmSensor count"</span>).isEqualTo(jna.getResultCount());
-<a class="jxr_linenumber" name="L431" href="#L431">431</a> 
-<a class="jxr_linenumber" name="L432" href="#L432">432</a>             WmiResult&lt;IdentifierProperty&gt; jnaHw = OhmHardware.queryHwIdentifier(jnaHandler, OhmHardware.OHM_NAMESPACE,
-<a class="jxr_linenumber" name="L433" href="#L433">433</a>                     <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L434" href="#L434">434</a>             WmiResult&lt;IdentifierProperty&gt; ffmHw = OhmHardware.queryHwIdentifier(ffmHandler, OhmHardware.OHM_NAMESPACE,
+<a class="jxr_linenumber" name="L428" href="#L428">428</a>             WmiResult&lt;ValueProperty&gt; jna = OhmSensor.querySensorValue(jnaHandler, OhmSensor.OHM_NAMESPACE,
+<a class="jxr_linenumber" name="L429" href="#L429">429</a>                     (String) <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L430" href="#L430">430</a>             WmiResult&lt;ValueProperty&gt; ffm = OhmSensor.querySensorValue(ffmHandler, OhmSensor.OHM_NAMESPACE,
+<a class="jxr_linenumber" name="L431" href="#L431">431</a>                     (String) <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L432" href="#L432">432</a>             assertThat(ffm.getResultCount()).as(<span class="jxr_string">"OhmSensor count"</span>).isEqualTo(jna.getResultCount());
+<a class="jxr_linenumber" name="L433" href="#L433">433</a> 
+<a class="jxr_linenumber" name="L434" href="#L434">434</a>             WmiResult&lt;IdentifierProperty&gt; jnaHw = OhmHardware.queryHwIdentifier(jnaHandler, OhmHardware.OHM_NAMESPACE,
 <a class="jxr_linenumber" name="L435" href="#L435">435</a>                     <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
-<a class="jxr_linenumber" name="L436" href="#L436">436</a>             assertThat(ffmHw.getResultCount()).as(<span class="jxr_string">"OhmHardware count"</span>).isEqualTo(jnaHw.getResultCount());
-<a class="jxr_linenumber" name="L437" href="#L437">437</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L438" href="#L438">438</a>             <strong class="jxr_keyword">if</strong> (ffmComInit) {
-<a class="jxr_linenumber" name="L439" href="#L439">439</a>                 ffmHandler.unInitCOM();
-<a class="jxr_linenumber" name="L440" href="#L440">440</a>             }
-<a class="jxr_linenumber" name="L441" href="#L441">441</a>             <strong class="jxr_keyword">if</strong> (jnaComInit) {
-<a class="jxr_linenumber" name="L442" href="#L442">442</a>                 jnaHandler.unInitCOM();
-<a class="jxr_linenumber" name="L443" href="#L443">443</a>             }
-<a class="jxr_linenumber" name="L444" href="#L444">444</a>         }
-<a class="jxr_linenumber" name="L445" href="#L445">445</a>     }
-<a class="jxr_linenumber" name="L446" href="#L446">446</a> 
-<a class="jxr_linenumber" name="L447" href="#L447">447</a>     @Test
-<a class="jxr_linenumber" name="L448" href="#L448">448</a>     <strong class="jxr_keyword">void</strong> testFanSpeed() {
-<a class="jxr_linenumber" name="L449" href="#L449">449</a>         WmiResult&lt;SpeedProperty&gt; jna = Win32FanJNA.querySpeed();
-<a class="jxr_linenumber" name="L450" href="#L450">450</a>         WmiResult&lt;SpeedProperty&gt; ffm = Win32FanFFM.querySpeed();
-<a class="jxr_linenumber" name="L451" href="#L451">451</a>         assertThat(ffm.getResultCount()).as(<span class="jxr_string">"Fan count"</span>).isEqualTo(jna.getResultCount());
-<a class="jxr_linenumber" name="L452" href="#L452">452</a>     }
-<a class="jxr_linenumber" name="L453" href="#L453">453</a> 
-<a class="jxr_linenumber" name="L454" href="#L454">454</a>     @Test
-<a class="jxr_linenumber" name="L455" href="#L455">455</a>     <strong class="jxr_keyword">void</strong> testMSAcpiTemperature() {
-<a class="jxr_linenumber" name="L456" href="#L456">456</a>         WmiResult&lt;TemperatureProperty&gt; jna = MSAcpiThermalZoneTemperatureJNA.queryCurrentTemperature();
-<a class="jxr_linenumber" name="L457" href="#L457">457</a>         WmiResult&lt;TemperatureProperty&gt; ffm = MSAcpiThermalZoneTemperatureFFM.queryCurrentTemperature();
-<a class="jxr_linenumber" name="L458" href="#L458">458</a>         <em class="jxr_comment">// Both should succeed or both fail (may require admin privileges)</em>
-<a class="jxr_linenumber" name="L459" href="#L459">459</a>         assertThat(ffm.getResultCount() &gt; 0).as(<span class="jxr_string">"MSAcpi temperature parity"</span>).isEqualTo(jna.getResultCount() &gt; 0);
-<a class="jxr_linenumber" name="L460" href="#L460">460</a>     }
-<a class="jxr_linenumber" name="L461" href="#L461">461</a> 
-<a class="jxr_linenumber" name="L462" href="#L462">462</a>     <em class="jxr_comment">// --- initCom=false drivers: manage COM ourselves ---</em>
+<a class="jxr_linenumber" name="L436" href="#L436">436</a>             WmiResult&lt;IdentifierProperty&gt; ffmHw = OhmHardware.queryHwIdentifier(ffmHandler, OhmHardware.OHM_NAMESPACE,
+<a class="jxr_linenumber" name="L437" href="#L437">437</a>                     <strong class="jxr_keyword">null</strong>, <strong class="jxr_keyword">null</strong>);
+<a class="jxr_linenumber" name="L438" href="#L438">438</a>             assertThat(ffmHw.getResultCount()).as(<span class="jxr_string">"OhmHardware count"</span>).isEqualTo(jnaHw.getResultCount());
+<a class="jxr_linenumber" name="L439" href="#L439">439</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L440" href="#L440">440</a>             <strong class="jxr_keyword">if</strong> (ffmComInit) {
+<a class="jxr_linenumber" name="L441" href="#L441">441</a>                 ffmHandler.unInitCOM();
+<a class="jxr_linenumber" name="L442" href="#L442">442</a>             }
+<a class="jxr_linenumber" name="L443" href="#L443">443</a>             <strong class="jxr_keyword">if</strong> (jnaComInit) {
+<a class="jxr_linenumber" name="L444" href="#L444">444</a>                 jnaHandler.unInitCOM();
+<a class="jxr_linenumber" name="L445" href="#L445">445</a>             }
+<a class="jxr_linenumber" name="L446" href="#L446">446</a>         }
+<a class="jxr_linenumber" name="L447" href="#L447">447</a>     }
+<a class="jxr_linenumber" name="L448" href="#L448">448</a> 
+<a class="jxr_linenumber" name="L449" href="#L449">449</a>     @Test
+<a class="jxr_linenumber" name="L450" href="#L450">450</a>     <strong class="jxr_keyword">void</strong> testFanSpeed() {
+<a class="jxr_linenumber" name="L451" href="#L451">451</a>         WmiResult&lt;SpeedProperty&gt; jna = Win32FanJNA.querySpeed();
+<a class="jxr_linenumber" name="L452" href="#L452">452</a>         WmiResult&lt;SpeedProperty&gt; ffm = Win32FanFFM.querySpeed();
+<a class="jxr_linenumber" name="L453" href="#L453">453</a>         assertThat(ffm.getResultCount()).as(<span class="jxr_string">"Fan count"</span>).isEqualTo(jna.getResultCount());
+<a class="jxr_linenumber" name="L454" href="#L454">454</a>     }
+<a class="jxr_linenumber" name="L455" href="#L455">455</a> 
+<a class="jxr_linenumber" name="L456" href="#L456">456</a>     @Test
+<a class="jxr_linenumber" name="L457" href="#L457">457</a>     <strong class="jxr_keyword">void</strong> testMSAcpiTemperature() {
+<a class="jxr_linenumber" name="L458" href="#L458">458</a>         WmiResult&lt;TemperatureProperty&gt; jna = MSAcpiThermalZoneTemperatureJNA.queryCurrentTemperature();
+<a class="jxr_linenumber" name="L459" href="#L459">459</a>         WmiResult&lt;TemperatureProperty&gt; ffm = MSAcpiThermalZoneTemperatureFFM.queryCurrentTemperature();
+<a class="jxr_linenumber" name="L460" href="#L460">460</a>         <em class="jxr_comment">// Both should succeed or both fail (may require admin privileges)</em>
+<a class="jxr_linenumber" name="L461" href="#L461">461</a>         assertThat(ffm.getResultCount() &gt; 0).as(<span class="jxr_string">"MSAcpi temperature parity"</span>).isEqualTo(jna.getResultCount() &gt; 0);
+<a class="jxr_linenumber" name="L462" href="#L462">462</a>     }
 <a class="jxr_linenumber" name="L463" href="#L463">463</a> 
-<a class="jxr_linenumber" name="L464" href="#L464">464</a>     @Test
-<a class="jxr_linenumber" name="L465" href="#L465">465</a>     <strong class="jxr_keyword">void</strong> testDiskDrivers() {
-<a class="jxr_linenumber" name="L466" href="#L466">466</a>         WmiQueryHandler jnaHandler = WmiQueryHandler.createInstance();
-<a class="jxr_linenumber" name="L467" href="#L467">467</a>         Assumptions.assumeTrue(jnaHandler != <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"JNA WmiQueryHandler unavailable"</span>);
-<a class="jxr_linenumber" name="L468" href="#L468">468</a>         WmiQueryHandlerFFM ffmHandler = WmiQueryHandlerFFM.createInstance();
-<a class="jxr_linenumber" name="L469" href="#L469">469</a>         Assumptions.assumeTrue(ffmHandler != <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"FFM WmiQueryHandlerFFM unavailable"</span>);
-<a class="jxr_linenumber" name="L470" href="#L470">470</a> 
-<a class="jxr_linenumber" name="L471" href="#L471">471</a>         <strong class="jxr_keyword">boolean</strong> jnaComInit = jnaHandler.initCOM();
-<a class="jxr_linenumber" name="L472" href="#L472">472</a>         <strong class="jxr_keyword">boolean</strong> ffmComInit = ffmHandler.initCOM();
-<a class="jxr_linenumber" name="L473" href="#L473">473</a>         <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L474" href="#L474">474</a>             <em class="jxr_comment">// DiskDrive</em>
-<a class="jxr_linenumber" name="L475" href="#L475">475</a>             WmiResult&lt;DiskDriveProperty&gt; jnaDd = Win32DiskDrive.queryDiskDrive(jnaHandler);
-<a class="jxr_linenumber" name="L476" href="#L476">476</a>             WmiResult&lt;DiskDriveProperty&gt; ffmDd = Win32DiskDrive.queryDiskDrive(ffmHandler);
-<a class="jxr_linenumber" name="L477" href="#L477">477</a>             assertThat(ffmDd.getResultCount()).as(<span class="jxr_string">"DiskDrive count"</span>).isEqualTo(jnaDd.getResultCount());
-<a class="jxr_linenumber" name="L478" href="#L478">478</a> 
-<a class="jxr_linenumber" name="L479" href="#L479">479</a>             <em class="jxr_comment">// DiskDriveToDiskPartition</em>
-<a class="jxr_linenumber" name="L480" href="#L480">480</a>             WmiResult&lt;DriveToPartitionProperty&gt; jnaDtp = Win32DiskDriveToDiskPartition
-<a class="jxr_linenumber" name="L481" href="#L481">481</a>                     .queryDriveToPartition(jnaHandler);
-<a class="jxr_linenumber" name="L482" href="#L482">482</a>             WmiResult&lt;DriveToPartitionProperty&gt; ffmDtp = Win32DiskDriveToDiskPartition
-<a class="jxr_linenumber" name="L483" href="#L483">483</a>                     .queryDriveToPartition(ffmHandler);
-<a class="jxr_linenumber" name="L484" href="#L484">484</a>             assertThat(ffmDtp.getResultCount()).as(<span class="jxr_string">"DriveToPartition count"</span>).isEqualTo(jnaDtp.getResultCount());
-<a class="jxr_linenumber" name="L485" href="#L485">485</a> 
-<a class="jxr_linenumber" name="L486" href="#L486">486</a>             <em class="jxr_comment">// DiskPartition</em>
-<a class="jxr_linenumber" name="L487" href="#L487">487</a>             WmiResult&lt;DiskPartitionProperty&gt; jnaDp = Win32DiskPartition.queryPartition(jnaHandler);
-<a class="jxr_linenumber" name="L488" href="#L488">488</a>             WmiResult&lt;DiskPartitionProperty&gt; ffmDp = Win32DiskPartition.queryPartition(ffmHandler);
-<a class="jxr_linenumber" name="L489" href="#L489">489</a>             assertThat(ffmDp.getResultCount()).as(<span class="jxr_string">"DiskPartition count"</span>).isEqualTo(jnaDp.getResultCount());
-<a class="jxr_linenumber" name="L490" href="#L490">490</a> 
-<a class="jxr_linenumber" name="L491" href="#L491">491</a>             <em class="jxr_comment">// LogicalDiskToPartition</em>
-<a class="jxr_linenumber" name="L492" href="#L492">492</a>             WmiResult&lt;DiskToPartitionProperty&gt; jnaLtp = Win32LogicalDiskToPartition.queryDiskToPartition(jnaHandler);
-<a class="jxr_linenumber" name="L493" href="#L493">493</a>             WmiResult&lt;DiskToPartitionProperty&gt; ffmLtp = Win32LogicalDiskToPartition.queryDiskToPartition(ffmHandler);
-<a class="jxr_linenumber" name="L494" href="#L494">494</a>             assertThat(ffmLtp.getResultCount()).as(<span class="jxr_string">"LogicalDiskToPartition count"</span>).isEqualTo(jnaLtp.getResultCount());
-<a class="jxr_linenumber" name="L495" href="#L495">495</a> 
-<a class="jxr_linenumber" name="L496" href="#L496">496</a>             <em class="jxr_comment">// MSFTStorage: StoragePools</em>
-<a class="jxr_linenumber" name="L497" href="#L497">497</a>             WmiResult&lt;StoragePoolProperty&gt; jnaSp = MSFTStorage.queryStoragePools(jnaHandler);
-<a class="jxr_linenumber" name="L498" href="#L498">498</a>             WmiResult&lt;StoragePoolProperty&gt; ffmSp = MSFTStorage.queryStoragePools(ffmHandler);
-<a class="jxr_linenumber" name="L499" href="#L499">499</a>             assertThat(ffmSp.getResultCount()).as(<span class="jxr_string">"StoragePool count"</span>).isEqualTo(jnaSp.getResultCount());
-<a class="jxr_linenumber" name="L500" href="#L500">500</a> 
-<a class="jxr_linenumber" name="L501" href="#L501">501</a>             <em class="jxr_comment">// MSFTStorage: PhysicalDisks</em>
-<a class="jxr_linenumber" name="L502" href="#L502">502</a>             WmiResult&lt;PhysicalDiskProperty&gt; jnaPd = MSFTStorage.queryPhysicalDisks(jnaHandler);
-<a class="jxr_linenumber" name="L503" href="#L503">503</a>             WmiResult&lt;PhysicalDiskProperty&gt; ffmPd = MSFTStorage.queryPhysicalDisks(ffmHandler);
-<a class="jxr_linenumber" name="L504" href="#L504">504</a>             assertThat(ffmPd.getResultCount()).as(<span class="jxr_string">"MSFT PhysicalDisk count"</span>).isEqualTo(jnaPd.getResultCount());
-<a class="jxr_linenumber" name="L505" href="#L505">505</a> 
-<a class="jxr_linenumber" name="L506" href="#L506">506</a>             <em class="jxr_comment">// MSFTStorage: PhysicalDisk media types. Compares values, not just the row count: MediaType is</em>
-<a class="jxr_linenumber" name="L507" href="#L507">507</a>             <em class="jxr_comment">// a uint16 and SpindleSpeed a uint32, and WmiUtil's accessors throw on a CIM type mismatch, so</em>
-<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <em class="jxr_comment">// a binding disagreeing on either would break the disk type fallback rather than return wrong data.</em>
-<a class="jxr_linenumber" name="L509" href="#L509">509</a>             WmiResult&lt;PhysicalDiskMediaTypeProperty&gt; jnaMt = MSFTStorage.queryPhysicalDiskMediaTypes(jnaHandler);
-<a class="jxr_linenumber" name="L510" href="#L510">510</a>             WmiResult&lt;PhysicalDiskMediaTypeProperty&gt; ffmMt = MSFTStorage.queryPhysicalDiskMediaTypes(ffmHandler);
-<a class="jxr_linenumber" name="L511" href="#L511">511</a>             assertThat(ffmMt.getResultCount()).as(<span class="jxr_string">"PhysicalDisk media type count"</span>).isEqualTo(jnaMt.getResultCount());
-<a class="jxr_linenumber" name="L512" href="#L512">512</a>             Map&lt;String, List&lt;Integer&gt;&gt; jnaMtRows = buildJnaStringMap(jnaMt, PhysicalDiskMediaTypeProperty.DEVICEID);
-<a class="jxr_linenumber" name="L513" href="#L513">513</a>             Map&lt;String, List&lt;Integer&gt;&gt; ffmMtRows = buildFfmStringMap(ffmMt, PhysicalDiskMediaTypeProperty.DEVICEID);
-<a class="jxr_linenumber" name="L514" href="#L514">514</a>             assertThat(ffmMtRows.keySet()).as(<span class="jxr_string">"PhysicalDisk DeviceIds"</span>).isEqualTo(jnaMtRows.keySet());
-<a class="jxr_linenumber" name="L515" href="#L515">515</a>             <strong class="jxr_keyword">for</strong> (Map.Entry&lt;String, List&lt;Integer&gt;&gt; entry : jnaMtRows.entrySet()) {
-<a class="jxr_linenumber" name="L516" href="#L516">516</a>                 <strong class="jxr_keyword">int</strong> jnaRow = entry.getValue().get(0);
-<a class="jxr_linenumber" name="L517" href="#L517">517</a>                 <strong class="jxr_keyword">int</strong> ffmRow = ffmMtRows.get(entry.getKey()).get(0);
-<a class="jxr_linenumber" name="L518" href="#L518">518</a>                 assertThat(WmiUtil.getUint16(ffmMt, PhysicalDiskMediaTypeProperty.MEDIATYPE, ffmRow))
-<a class="jxr_linenumber" name="L519" href="#L519">519</a>                         .as(<span class="jxr_string">"MediaType(%s)"</span>, entry.getKey())
-<a class="jxr_linenumber" name="L520" href="#L520">520</a>                         .isEqualTo(WmiUtil.getUint16(jnaMt, PhysicalDiskMediaTypeProperty.MEDIATYPE, jnaRow));
-<a class="jxr_linenumber" name="L521" href="#L521">521</a>                 assertThat(WmiUtil.getUint32asLong(ffmMt, PhysicalDiskMediaTypeProperty.SPINDLESPEED, ffmRow))
-<a class="jxr_linenumber" name="L522" href="#L522">522</a>                         .as(<span class="jxr_string">"SpindleSpeed(%s)"</span>, entry.getKey())
-<a class="jxr_linenumber" name="L523" href="#L523">523</a>                         .isEqualTo(WmiUtil.getUint32asLong(jnaMt, PhysicalDiskMediaTypeProperty.SPINDLESPEED, jnaRow));
-<a class="jxr_linenumber" name="L524" href="#L524">524</a>             }
-<a class="jxr_linenumber" name="L525" href="#L525">525</a> 
-<a class="jxr_linenumber" name="L526" href="#L526">526</a>             <em class="jxr_comment">// MSFTStorage: VirtualDisks</em>
-<a class="jxr_linenumber" name="L527" href="#L527">527</a>             WmiResult&lt;VirtualDiskProperty&gt; jnaVd = MSFTStorage.queryVirtualDisks(jnaHandler);
-<a class="jxr_linenumber" name="L528" href="#L528">528</a>             WmiResult&lt;VirtualDiskProperty&gt; ffmVd = MSFTStorage.queryVirtualDisks(ffmHandler);
-<a class="jxr_linenumber" name="L529" href="#L529">529</a>             assertThat(ffmVd.getResultCount()).as(<span class="jxr_string">"VirtualDisk count"</span>).isEqualTo(jnaVd.getResultCount());
-<a class="jxr_linenumber" name="L530" href="#L530">530</a> 
-<a class="jxr_linenumber" name="L531" href="#L531">531</a>             <em class="jxr_comment">// MSFTStorage: StoragePoolToPhysicalDisk</em>
-<a class="jxr_linenumber" name="L532" href="#L532">532</a>             WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; jnaSpPd = MSFTStorage
-<a class="jxr_linenumber" name="L533" href="#L533">533</a>                     .queryStoragePoolPhysicalDisks(jnaHandler);
-<a class="jxr_linenumber" name="L534" href="#L534">534</a>             WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; ffmSpPd = MSFTStorage
-<a class="jxr_linenumber" name="L535" href="#L535">535</a>                     .queryStoragePoolPhysicalDisks(ffmHandler);
-<a class="jxr_linenumber" name="L536" href="#L536">536</a>             assertThat(ffmSpPd.getResultCount()).as(<span class="jxr_string">"StoragePoolToPhysicalDisk count"</span>)
-<a class="jxr_linenumber" name="L537" href="#L537">537</a>                     .isEqualTo(jnaSpPd.getResultCount());
-<a class="jxr_linenumber" name="L538" href="#L538">538</a>         } <strong class="jxr_keyword">finally</strong> {
-<a class="jxr_linenumber" name="L539" href="#L539">539</a>             <strong class="jxr_keyword">if</strong> (ffmComInit) {
-<a class="jxr_linenumber" name="L540" href="#L540">540</a>                 ffmHandler.unInitCOM();
-<a class="jxr_linenumber" name="L541" href="#L541">541</a>             }
-<a class="jxr_linenumber" name="L542" href="#L542">542</a>             <strong class="jxr_keyword">if</strong> (jnaComInit) {
-<a class="jxr_linenumber" name="L543" href="#L543">543</a>                 jnaHandler.unInitCOM();
-<a class="jxr_linenumber" name="L544" href="#L544">544</a>             }
-<a class="jxr_linenumber" name="L545" href="#L545">545</a>         }
-<a class="jxr_linenumber" name="L546" href="#L546">546</a>     }
-<a class="jxr_linenumber" name="L547" href="#L547">547</a> 
-<a class="jxr_linenumber" name="L548" href="#L548">548</a>     <em class="jxr_comment">// --- Generic map builders ---</em>
+<a class="jxr_linenumber" name="L464" href="#L464">464</a>     <em class="jxr_comment">// --- initCom=false drivers: manage COM ourselves ---</em>
+<a class="jxr_linenumber" name="L465" href="#L465">465</a> 
+<a class="jxr_linenumber" name="L466" href="#L466">466</a>     @Test
+<a class="jxr_linenumber" name="L467" href="#L467">467</a>     <strong class="jxr_keyword">void</strong> testDiskDrivers() {
+<a class="jxr_linenumber" name="L468" href="#L468">468</a>         WmiQueryHandler jnaHandler = WmiQueryHandler.createInstance();
+<a class="jxr_linenumber" name="L469" href="#L469">469</a>         Assumptions.assumeTrue(jnaHandler != <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"JNA WmiQueryHandler unavailable"</span>);
+<a class="jxr_linenumber" name="L470" href="#L470">470</a>         WmiQueryHandlerFFM ffmHandler = WmiQueryHandlerFFM.createInstance();
+<a class="jxr_linenumber" name="L471" href="#L471">471</a>         Assumptions.assumeTrue(ffmHandler != <strong class="jxr_keyword">null</strong>, <span class="jxr_string">"FFM WmiQueryHandlerFFM unavailable"</span>);
+<a class="jxr_linenumber" name="L472" href="#L472">472</a> 
+<a class="jxr_linenumber" name="L473" href="#L473">473</a>         <strong class="jxr_keyword">boolean</strong> jnaComInit = jnaHandler.initCOM();
+<a class="jxr_linenumber" name="L474" href="#L474">474</a>         <strong class="jxr_keyword">boolean</strong> ffmComInit = ffmHandler.initCOM();
+<a class="jxr_linenumber" name="L475" href="#L475">475</a>         <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L476" href="#L476">476</a>             <em class="jxr_comment">// DiskDrive</em>
+<a class="jxr_linenumber" name="L477" href="#L477">477</a>             WmiResult&lt;DiskDriveProperty&gt; jnaDd = Win32DiskDrive.queryDiskDrive(jnaHandler);
+<a class="jxr_linenumber" name="L478" href="#L478">478</a>             WmiResult&lt;DiskDriveProperty&gt; ffmDd = Win32DiskDrive.queryDiskDrive(ffmHandler);
+<a class="jxr_linenumber" name="L479" href="#L479">479</a>             assertThat(ffmDd.getResultCount()).as(<span class="jxr_string">"DiskDrive count"</span>).isEqualTo(jnaDd.getResultCount());
+<a class="jxr_linenumber" name="L480" href="#L480">480</a> 
+<a class="jxr_linenumber" name="L481" href="#L481">481</a>             <em class="jxr_comment">// DiskDriveToDiskPartition</em>
+<a class="jxr_linenumber" name="L482" href="#L482">482</a>             WmiResult&lt;DriveToPartitionProperty&gt; jnaDtp = Win32DiskDriveToDiskPartition
+<a class="jxr_linenumber" name="L483" href="#L483">483</a>                     .queryDriveToPartition(jnaHandler);
+<a class="jxr_linenumber" name="L484" href="#L484">484</a>             WmiResult&lt;DriveToPartitionProperty&gt; ffmDtp = Win32DiskDriveToDiskPartition
+<a class="jxr_linenumber" name="L485" href="#L485">485</a>                     .queryDriveToPartition(ffmHandler);
+<a class="jxr_linenumber" name="L486" href="#L486">486</a>             assertThat(ffmDtp.getResultCount()).as(<span class="jxr_string">"DriveToPartition count"</span>).isEqualTo(jnaDtp.getResultCount());
+<a class="jxr_linenumber" name="L487" href="#L487">487</a> 
+<a class="jxr_linenumber" name="L488" href="#L488">488</a>             <em class="jxr_comment">// DiskPartition</em>
+<a class="jxr_linenumber" name="L489" href="#L489">489</a>             WmiResult&lt;DiskPartitionProperty&gt; jnaDp = Win32DiskPartition.queryPartition(jnaHandler);
+<a class="jxr_linenumber" name="L490" href="#L490">490</a>             WmiResult&lt;DiskPartitionProperty&gt; ffmDp = Win32DiskPartition.queryPartition(ffmHandler);
+<a class="jxr_linenumber" name="L491" href="#L491">491</a>             assertThat(ffmDp.getResultCount()).as(<span class="jxr_string">"DiskPartition count"</span>).isEqualTo(jnaDp.getResultCount());
+<a class="jxr_linenumber" name="L492" href="#L492">492</a> 
+<a class="jxr_linenumber" name="L493" href="#L493">493</a>             <em class="jxr_comment">// LogicalDiskToPartition</em>
+<a class="jxr_linenumber" name="L494" href="#L494">494</a>             WmiResult&lt;DiskToPartitionProperty&gt; jnaLtp = Win32LogicalDiskToPartition.queryDiskToPartition(jnaHandler);
+<a class="jxr_linenumber" name="L495" href="#L495">495</a>             WmiResult&lt;DiskToPartitionProperty&gt; ffmLtp = Win32LogicalDiskToPartition.queryDiskToPartition(ffmHandler);
+<a class="jxr_linenumber" name="L496" href="#L496">496</a>             assertThat(ffmLtp.getResultCount()).as(<span class="jxr_string">"LogicalDiskToPartition count"</span>).isEqualTo(jnaLtp.getResultCount());
+<a class="jxr_linenumber" name="L497" href="#L497">497</a> 
+<a class="jxr_linenumber" name="L498" href="#L498">498</a>             <em class="jxr_comment">// MSFTStorage: StoragePools</em>
+<a class="jxr_linenumber" name="L499" href="#L499">499</a>             WmiResult&lt;StoragePoolProperty&gt; jnaSp = MSFTStorage.queryStoragePools(jnaHandler);
+<a class="jxr_linenumber" name="L500" href="#L500">500</a>             WmiResult&lt;StoragePoolProperty&gt; ffmSp = MSFTStorage.queryStoragePools(ffmHandler);
+<a class="jxr_linenumber" name="L501" href="#L501">501</a>             assertThat(ffmSp.getResultCount()).as(<span class="jxr_string">"StoragePool count"</span>).isEqualTo(jnaSp.getResultCount());
+<a class="jxr_linenumber" name="L502" href="#L502">502</a> 
+<a class="jxr_linenumber" name="L503" href="#L503">503</a>             <em class="jxr_comment">// MSFTStorage: PhysicalDisks</em>
+<a class="jxr_linenumber" name="L504" href="#L504">504</a>             WmiResult&lt;PhysicalDiskProperty&gt; jnaPd = MSFTStorage.queryPhysicalDisks(jnaHandler);
+<a class="jxr_linenumber" name="L505" href="#L505">505</a>             WmiResult&lt;PhysicalDiskProperty&gt; ffmPd = MSFTStorage.queryPhysicalDisks(ffmHandler);
+<a class="jxr_linenumber" name="L506" href="#L506">506</a>             assertThat(ffmPd.getResultCount()).as(<span class="jxr_string">"MSFT PhysicalDisk count"</span>).isEqualTo(jnaPd.getResultCount());
+<a class="jxr_linenumber" name="L507" href="#L507">507</a> 
+<a class="jxr_linenumber" name="L508" href="#L508">508</a>             <em class="jxr_comment">// MSFTStorage: PhysicalDisk media types. Compares values, not just the row count: MediaType is</em>
+<a class="jxr_linenumber" name="L509" href="#L509">509</a>             <em class="jxr_comment">// a uint16 and SpindleSpeed a uint32, and WmiUtil's accessors throw on a CIM type mismatch, so</em>
+<a class="jxr_linenumber" name="L510" href="#L510">510</a>             <em class="jxr_comment">// a binding disagreeing on either would break the disk type fallback rather than return wrong data.</em>
+<a class="jxr_linenumber" name="L511" href="#L511">511</a>             WmiResult&lt;PhysicalDiskMediaTypeProperty&gt; jnaMt = MSFTStorage.queryPhysicalDiskMediaTypes(jnaHandler);
+<a class="jxr_linenumber" name="L512" href="#L512">512</a>             WmiResult&lt;PhysicalDiskMediaTypeProperty&gt; ffmMt = MSFTStorage.queryPhysicalDiskMediaTypes(ffmHandler);
+<a class="jxr_linenumber" name="L513" href="#L513">513</a>             assertThat(ffmMt.getResultCount()).as(<span class="jxr_string">"PhysicalDisk media type count"</span>).isEqualTo(jnaMt.getResultCount());
+<a class="jxr_linenumber" name="L514" href="#L514">514</a>             Map&lt;String, List&lt;Integer&gt;&gt; jnaMtRows = buildJnaStringMap(jnaMt, PhysicalDiskMediaTypeProperty.DEVICEID);
+<a class="jxr_linenumber" name="L515" href="#L515">515</a>             Map&lt;String, List&lt;Integer&gt;&gt; ffmMtRows = buildFfmStringMap(ffmMt, PhysicalDiskMediaTypeProperty.DEVICEID);
+<a class="jxr_linenumber" name="L516" href="#L516">516</a>             assertThat(ffmMtRows.keySet()).as(<span class="jxr_string">"PhysicalDisk DeviceIds"</span>).isEqualTo(jnaMtRows.keySet());
+<a class="jxr_linenumber" name="L517" href="#L517">517</a>             <strong class="jxr_keyword">for</strong> (Map.Entry&lt;String, List&lt;Integer&gt;&gt; entry : jnaMtRows.entrySet()) {
+<a class="jxr_linenumber" name="L518" href="#L518">518</a>                 <strong class="jxr_keyword">int</strong> jnaRow = entry.getValue().get(0);
+<a class="jxr_linenumber" name="L519" href="#L519">519</a>                 <strong class="jxr_keyword">int</strong> ffmRow = ffmMtRows.get(entry.getKey()).get(0);
+<a class="jxr_linenumber" name="L520" href="#L520">520</a>                 assertThat(WmiUtil.getUint16(ffmMt, PhysicalDiskMediaTypeProperty.MEDIATYPE, ffmRow))
+<a class="jxr_linenumber" name="L521" href="#L521">521</a>                         .as(<span class="jxr_string">"MediaType(%s)"</span>, entry.getKey())
+<a class="jxr_linenumber" name="L522" href="#L522">522</a>                         .isEqualTo(WmiUtil.getUint16(jnaMt, PhysicalDiskMediaTypeProperty.MEDIATYPE, jnaRow));
+<a class="jxr_linenumber" name="L523" href="#L523">523</a>                 assertThat(WmiUtil.getUint32asLong(ffmMt, PhysicalDiskMediaTypeProperty.SPINDLESPEED, ffmRow))
+<a class="jxr_linenumber" name="L524" href="#L524">524</a>                         .as(<span class="jxr_string">"SpindleSpeed(%s)"</span>, entry.getKey())
+<a class="jxr_linenumber" name="L525" href="#L525">525</a>                         .isEqualTo(WmiUtil.getUint32asLong(jnaMt, PhysicalDiskMediaTypeProperty.SPINDLESPEED, jnaRow));
+<a class="jxr_linenumber" name="L526" href="#L526">526</a>             }
+<a class="jxr_linenumber" name="L527" href="#L527">527</a> 
+<a class="jxr_linenumber" name="L528" href="#L528">528</a>             <em class="jxr_comment">// MSFTStorage: VirtualDisks</em>
+<a class="jxr_linenumber" name="L529" href="#L529">529</a>             WmiResult&lt;VirtualDiskProperty&gt; jnaVd = MSFTStorage.queryVirtualDisks(jnaHandler);
+<a class="jxr_linenumber" name="L530" href="#L530">530</a>             WmiResult&lt;VirtualDiskProperty&gt; ffmVd = MSFTStorage.queryVirtualDisks(ffmHandler);
+<a class="jxr_linenumber" name="L531" href="#L531">531</a>             assertThat(ffmVd.getResultCount()).as(<span class="jxr_string">"VirtualDisk count"</span>).isEqualTo(jnaVd.getResultCount());
+<a class="jxr_linenumber" name="L532" href="#L532">532</a> 
+<a class="jxr_linenumber" name="L533" href="#L533">533</a>             <em class="jxr_comment">// MSFTStorage: StoragePoolToPhysicalDisk</em>
+<a class="jxr_linenumber" name="L534" href="#L534">534</a>             WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; jnaSpPd = MSFTStorage
+<a class="jxr_linenumber" name="L535" href="#L535">535</a>                     .queryStoragePoolPhysicalDisks(jnaHandler);
+<a class="jxr_linenumber" name="L536" href="#L536">536</a>             WmiResult&lt;StoragePoolToPhysicalDiskProperty&gt; ffmSpPd = MSFTStorage
+<a class="jxr_linenumber" name="L537" href="#L537">537</a>                     .queryStoragePoolPhysicalDisks(ffmHandler);
+<a class="jxr_linenumber" name="L538" href="#L538">538</a>             assertThat(ffmSpPd.getResultCount()).as(<span class="jxr_string">"StoragePoolToPhysicalDisk count"</span>)
+<a class="jxr_linenumber" name="L539" href="#L539">539</a>                     .isEqualTo(jnaSpPd.getResultCount());
+<a class="jxr_linenumber" name="L540" href="#L540">540</a>         } <strong class="jxr_keyword">finally</strong> {
+<a class="jxr_linenumber" name="L541" href="#L541">541</a>             <strong class="jxr_keyword">if</strong> (ffmComInit) {
+<a class="jxr_linenumber" name="L542" href="#L542">542</a>                 ffmHandler.unInitCOM();
+<a class="jxr_linenumber" name="L543" href="#L543">543</a>             }
+<a class="jxr_linenumber" name="L544" href="#L544">544</a>             <strong class="jxr_keyword">if</strong> (jnaComInit) {
+<a class="jxr_linenumber" name="L545" href="#L545">545</a>                 jnaHandler.unInitCOM();
+<a class="jxr_linenumber" name="L546" href="#L546">546</a>             }
+<a class="jxr_linenumber" name="L547" href="#L547">547</a>         }
+<a class="jxr_linenumber" name="L548" href="#L548">548</a>     }
 <a class="jxr_linenumber" name="L549" href="#L549">549</a> 
-<a class="jxr_linenumber" name="L550" href="#L550">550</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; Map&lt;String, List&lt;Integer&gt;&gt; buildJnaStringMap(WmiResult&lt;T&gt; result, T keyProp) {
-<a class="jxr_linenumber" name="L551" href="#L551">551</a>         Map&lt;String, List&lt;Integer&gt;&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L552" href="#L552">552</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L553" href="#L553">553</a>             map.computeIfAbsent(WmiUtil.getString(result, keyProp, i), k -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(i);
-<a class="jxr_linenumber" name="L554" href="#L554">554</a>         }
-<a class="jxr_linenumber" name="L555" href="#L555">555</a>         <strong class="jxr_keyword">return</strong> map;
-<a class="jxr_linenumber" name="L556" href="#L556">556</a>     }
-<a class="jxr_linenumber" name="L557" href="#L557">557</a> 
-<a class="jxr_linenumber" name="L558" href="#L558">558</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; Map&lt;String, List&lt;Integer&gt;&gt; buildFfmStringMap(WmiResult&lt;T&gt; result, T keyProp) {
-<a class="jxr_linenumber" name="L559" href="#L559">559</a>         Map&lt;String, List&lt;Integer&gt;&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L560" href="#L560">560</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
-<a class="jxr_linenumber" name="L561" href="#L561">561</a>             map.computeIfAbsent(WmiUtil.getString(result, keyProp, i), k -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(i);
-<a class="jxr_linenumber" name="L562" href="#L562">562</a>         }
-<a class="jxr_linenumber" name="L563" href="#L563">563</a>         <strong class="jxr_keyword">return</strong> map;
-<a class="jxr_linenumber" name="L564" href="#L564">564</a>     }
-<a class="jxr_linenumber" name="L565" href="#L565">565</a> 
-<a class="jxr_linenumber" name="L566" href="#L566">566</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;Integer&gt; currentPidFilter() {
-<a class="jxr_linenumber" name="L567" href="#L567">567</a>         <strong class="jxr_keyword">long</strong> pid = ProcessHandle.current().pid();
-<a class="jxr_linenumber" name="L568" href="#L568">568</a>         Assumptions.assumeTrue(pid &lt;= Integer.MAX_VALUE, <span class="jxr_string">"PID too large to fit in int"</span>);
-<a class="jxr_linenumber" name="L569" href="#L569">569</a>         <strong class="jxr_keyword">return</strong> Collections.singleton((<strong class="jxr_keyword">int</strong>) pid);
-<a class="jxr_linenumber" name="L570" href="#L570">570</a>     }
-<a class="jxr_linenumber" name="L571" href="#L571">571</a> 
-<a class="jxr_linenumber" name="L572" href="#L572">572</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isNotWindows() {
-<a class="jxr_linenumber" name="L573" href="#L573">573</a>         <strong class="jxr_keyword">return</strong> PlatformEnum.getCurrentPlatform() != PlatformEnum.WINDOWS;
-<a class="jxr_linenumber" name="L574" href="#L574">574</a>     }
-<a class="jxr_linenumber" name="L575" href="#L575">575</a> }
+<a class="jxr_linenumber" name="L550" href="#L550">550</a>     <em class="jxr_comment">// --- Generic map builders ---</em>
+<a class="jxr_linenumber" name="L551" href="#L551">551</a> 
+<a class="jxr_linenumber" name="L552" href="#L552">552</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; Map&lt;String, List&lt;Integer&gt;&gt; buildJnaStringMap(WmiResult&lt;T&gt; result, T keyProp) {
+<a class="jxr_linenumber" name="L553" href="#L553">553</a>         Map&lt;String, List&lt;Integer&gt;&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L554" href="#L554">554</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L555" href="#L555">555</a>             map.computeIfAbsent(WmiUtil.getString(result, keyProp, i), k -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(i);
+<a class="jxr_linenumber" name="L556" href="#L556">556</a>         }
+<a class="jxr_linenumber" name="L557" href="#L557">557</a>         <strong class="jxr_keyword">return</strong> map;
+<a class="jxr_linenumber" name="L558" href="#L558">558</a>     }
+<a class="jxr_linenumber" name="L559" href="#L559">559</a> 
+<a class="jxr_linenumber" name="L560" href="#L560">560</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> &lt;T <strong class="jxr_keyword">extends</strong> Enum&lt;T&gt;&gt; Map&lt;String, List&lt;Integer&gt;&gt; buildFfmStringMap(WmiResult&lt;T&gt; result, T keyProp) {
+<a class="jxr_linenumber" name="L561" href="#L561">561</a>         Map&lt;String, List&lt;Integer&gt;&gt; map = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L562" href="#L562">562</a>         <strong class="jxr_keyword">for</strong> (<strong class="jxr_keyword">int</strong> i = 0; i &lt; result.getResultCount(); i++) {
+<a class="jxr_linenumber" name="L563" href="#L563">563</a>             map.computeIfAbsent(WmiUtil.getString(result, keyProp, i), k -&gt; <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()).add(i);
+<a class="jxr_linenumber" name="L564" href="#L564">564</a>         }
+<a class="jxr_linenumber" name="L565" href="#L565">565</a>         <strong class="jxr_keyword">return</strong> map;
+<a class="jxr_linenumber" name="L566" href="#L566">566</a>     }
+<a class="jxr_linenumber" name="L567" href="#L567">567</a> 
+<a class="jxr_linenumber" name="L568" href="#L568">568</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> Set&lt;Integer&gt; currentPidFilter() {
+<a class="jxr_linenumber" name="L569" href="#L569">569</a>         <strong class="jxr_keyword">long</strong> pid = ProcessHandle.current().pid();
+<a class="jxr_linenumber" name="L570" href="#L570">570</a>         Assumptions.assumeTrue(pid &lt;= Integer.MAX_VALUE, <span class="jxr_string">"PID too large to fit in int"</span>);
+<a class="jxr_linenumber" name="L571" href="#L571">571</a>         <strong class="jxr_keyword">return</strong> Collections.singleton((<strong class="jxr_keyword">int</strong>) pid);
+<a class="jxr_linenumber" name="L572" href="#L572">572</a>     }
+<a class="jxr_linenumber" name="L573" href="#L573">573</a> 
+<a class="jxr_linenumber" name="L574" href="#L574">574</a>     <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">boolean</strong> isNotWindows() {
+<a class="jxr_linenumber" name="L575" href="#L575">575</a>         <strong class="jxr_keyword">return</strong> PlatformEnum.getCurrentPlatform() != PlatformEnum.WINDOWS;
+<a class="jxr_linenumber" name="L576" href="#L576">576</a>     }
+<a class="jxr_linenumber" name="L577" href="#L577">577</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

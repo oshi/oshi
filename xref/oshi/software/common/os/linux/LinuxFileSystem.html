@@ -84,49 +84,49 @@
 <a class="jxr_linenumber" name="L76" href="#L76">76</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> List&lt;PathMatcher&gt; FS_VOLUME_INCLUDES = <a name="FileSystemUtil" href="../../../../../oshi/util/FileSystemUtil.html#FileSystemUtil">FileSystemUtil</a>
 <a class="jxr_linenumber" name="L77" href="#L77">77</a>              .loadAndParseFileSystemConfig(OSHI_LINUX_FS_VOLUME_INCLUDES);
 <a class="jxr_linenumber" name="L78" href="#L78">78</a>  
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String UNICODE_SPACE = <span class="jxr_string">"&#92;&#92;040"</span>;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> CHECK_NFS = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_FILESYSTEM_CHECKNFS, <strong class="jxr_keyword">true</strong>);
 <a class="jxr_linenumber" name="L80" href="#L80">80</a>  
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">boolean</strong> CHECK_NFS = GlobalConfig.get(GlobalConfig.OSHI_OS_LINUX_FILESYSTEM_CHECKNFS, <strong class="jxr_keyword">true</strong>);
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>  
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <em class="jxr_comment">// Matches addr= or mountaddr= in NFS mount options; captures up to the next comma</em>
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <em class="jxr_comment">// so IPv6 addresses (e.g. addr=2001:db8::1) are not truncated at the first colon.</em>
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern NFS_ADDR_PATTERN = Pattern.compile(<span class="jxr_string">"(?:^|,)(?:mount)?addr=([^,]+)"</span>);
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">// Maximum number of concurrent NFS reachability-probe threads. Hardcoded: probes are</em>
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <em class="jxr_comment">// short-lived blocking I/O waits, not CPU work, so this only bounds the pathological</em>
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>      <em class="jxr_comment">// many-stale-mounts case rather than acting as a throughput throttle.</em>
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> NFS_PROBE_MAX_THREADS = 64;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>  
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>      <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     * Queries filesystem statistics for the given mount path.</em>
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     * Returns an array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure</em>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * (the caller will fall back to {@link java.io.File} methods for space values).</em>
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     * @param path the mount path to query</em>
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>  <em class="jxr_javadoccomment">     * @return array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure</em>
-<a class="jxr_linenumber" name="L100" href="#L100">100</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> @Nullable [] queryStatvfs(String path);
-<a class="jxr_linenumber" name="L102" href="#L102">102</a> 
-<a class="jxr_linenumber" name="L103" href="#L103">103</a>     @Override
-<a class="jxr_linenumber" name="L104" href="#L104">104</a>     <strong class="jxr_keyword">public</strong> List&lt;OSFileStore&gt; getFileStores(<strong class="jxr_keyword">boolean</strong> localOnly) {
-<a class="jxr_linenumber" name="L105" href="#L105">105</a>         <strong class="jxr_keyword">return</strong> getFileStoreMatching(<strong class="jxr_keyword">null</strong>, buildUuidMap(), localOnly);
-<a class="jxr_linenumber" name="L106" href="#L106">106</a>     }
-<a class="jxr_linenumber" name="L107" href="#L107">107</a> 
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <em class="jxr_javadoccomment">/**</em>
-<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     * Builds a map of filesystem UUIDs to device paths.</em>
-<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     *</em>
-<a class="jxr_linenumber" name="L111" href="#L111">111</a> <em class="jxr_javadoccomment">     * @return the UUID map</em>
-<a class="jxr_linenumber" name="L112" href="#L112">112</a> <em class="jxr_javadoccomment">     */</em>
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; buildUuidMap() {
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// Map of volume with device path as key</em>
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>         Map&lt;String, String&gt; volumeDeviceMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>         File devMapper = <strong class="jxr_keyword">new</strong> File(DevPath.MAPPER);
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         File[] volumes = devMapper.listFiles();
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>         <strong class="jxr_keyword">if</strong> (volumes != <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L119" href="#L119">119</a>             <strong class="jxr_keyword">for</strong> (File volume : volumes) {
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>                 <strong class="jxr_keyword">try</strong> {
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>                     volumeDeviceMap.put(volume.getCanonicalPath(), volume.getAbsolutePath());
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>      <em class="jxr_comment">// Matches addr= or mountaddr= in NFS mount options; captures up to the next comma</em>
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>      <em class="jxr_comment">// so IPv6 addresses (e.g. addr=2001:db8::1) are not truncated at the first colon.</em>
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> Pattern NFS_ADDR_PATTERN = Pattern.compile(<span class="jxr_string">"(?:^|,)(?:mount)?addr=([^,]+)"</span>);
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>  
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      <em class="jxr_comment">// Maximum number of concurrent NFS reachability-probe threads. Hardcoded: probes are</em>
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <em class="jxr_comment">// short-lived blocking I/O waits, not CPU work, so this only bounds the pathological</em>
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      <em class="jxr_comment">// many-stale-mounts case rather than acting as a throughput throttle.</em>
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">int</strong> NFS_PROBE_MAX_THREADS = 64;
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>  
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>  <em class="jxr_javadoccomment">     * Queries filesystem statistics for the given mount path.</em>
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>  <em class="jxr_javadoccomment">     * &lt;p&gt;</em>
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>  <em class="jxr_javadoccomment">     * Returns an array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure</em>
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>  <em class="jxr_javadoccomment">     * (the caller will fall back to {@link java.io.File} methods for space values).</em>
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>  <em class="jxr_javadoccomment">     * @param path the mount path to query</em>
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>  <em class="jxr_javadoccomment">     * @return array of [totalInodes, freeInodes, totalSpace, usableSpace, freeSpace], or {@code null} on failure</em>
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>      <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">abstract</strong> <strong class="jxr_keyword">long</strong> @Nullable [] queryStatvfs(String path);
+<a class="jxr_linenumber" name="L100" href="#L100">100</a> 
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     @Override
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>     <strong class="jxr_keyword">public</strong> List&lt;OSFileStore&gt; getFileStores(<strong class="jxr_keyword">boolean</strong> localOnly) {
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         <strong class="jxr_keyword">return</strong> getFileStoreMatching(<strong class="jxr_keyword">null</strong>, buildUuidMap(), localOnly);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>     }
+<a class="jxr_linenumber" name="L105" href="#L105">105</a> 
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>     <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L107" href="#L107">107</a> <em class="jxr_javadoccomment">     * Builds a map of filesystem UUIDs to device paths.</em>
+<a class="jxr_linenumber" name="L108" href="#L108">108</a> <em class="jxr_javadoccomment">     *</em>
+<a class="jxr_linenumber" name="L109" href="#L109">109</a> <em class="jxr_javadoccomment">     * @return the UUID map</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a> <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>     <strong class="jxr_keyword">protected</strong> <strong class="jxr_keyword">static</strong> Map&lt;String, String&gt; buildUuidMap() {
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <em class="jxr_comment">// Map of volume with device path as key</em>
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         Map&lt;String, String&gt; volumeDeviceMap = <strong class="jxr_keyword">new</strong> HashMap&lt;&gt;();
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// Read below the configured device root, but key by device names, which is how /proc/mounts names volumes</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         File devMapper = <strong class="jxr_keyword">new</strong> File(DevPath.toFilePath(DevPath.MAPPER));
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         File[] volumes = devMapper.listFiles();
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         <strong class="jxr_keyword">if</strong> (volumes != <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>             <strong class="jxr_keyword">for</strong> (File volume : volumes) {
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>                 <strong class="jxr_keyword">try</strong> {
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>                     volumeDeviceMap.put(DevPath.toNodeName(volume.getCanonicalPath()),
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                             DevPath.toNodeName(volume.getAbsolutePath()));
 <a class="jxr_linenumber" name="L122" href="#L122">122</a>                 } <strong class="jxr_keyword">catch</strong> (IOException e) {
 <a class="jxr_linenumber" name="L123" href="#L123">123</a>                     LOG.debug(<span class="jxr_string">"Couldn't get canonical path for {}"</span>, volume.getName(), e);
 <a class="jxr_linenumber" name="L124" href="#L124">124</a>                 }
@@ -140,7 +140,7 @@
 <a class="jxr_linenumber" name="L132" href="#L132">132</a>             <strong class="jxr_keyword">for</strong> (File uuid : uuids) {
 <a class="jxr_linenumber" name="L133" href="#L133">133</a>                 <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L134" href="#L134">134</a>                     <em class="jxr_comment">// Store UUID as value with path (e.g., /dev/sda1) and volumes as key</em>
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>                     String canonicalPath = uuid.getCanonicalPath();
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>                     String canonicalPath = DevPath.toNodeName(uuid.getCanonicalPath());
 <a class="jxr_linenumber" name="L136" href="#L136">136</a>                     uuidMap.put(canonicalPath, uuid.getName().toLowerCase(Locale.ROOT));
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>                     <strong class="jxr_keyword">if</strong> (volumeDeviceMap.containsKey(canonicalPath)) {
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>                         uuidMap.put(volumeDeviceMap.get(canonicalPath), uuid.getName().toLowerCase(Locale.ROOT));
@@ -182,9 +182,9 @@
 <a class="jxr_linenumber" name="L174" href="#L174">174</a>             }
 <a class="jxr_linenumber" name="L175" href="#L175">175</a> 
 <a class="jxr_linenumber" name="L176" href="#L176">176</a>             <em class="jxr_comment">// Exclude pseudo file systems</em>
-<a class="jxr_linenumber" name="L177" href="#L177">177</a>             String volume = split[0].replace(UNICODE_SPACE, <span class="jxr_string">" "</span>);
+<a class="jxr_linenumber" name="L177" href="#L177">177</a>             String volume = ParseUtil.unescapeOctal(split[0]);
 <a class="jxr_linenumber" name="L178" href="#L178">178</a>             String name = volume;
-<a class="jxr_linenumber" name="L179" href="#L179">179</a>             String path = split[1].replace(UNICODE_SPACE, <span class="jxr_string">" "</span>);
+<a class="jxr_linenumber" name="L179" href="#L179">179</a>             String path = ParseUtil.unescapeOctal(split[1]);
 <a class="jxr_linenumber" name="L180" href="#L180">180</a>             <strong class="jxr_keyword">if</strong> (path.equals(<span class="jxr_string">"/"</span>)) {
 <a class="jxr_linenumber" name="L181" href="#L181">181</a>                 name = <span class="jxr_string">"/"</span>;
 <a class="jxr_linenumber" name="L182" href="#L182">182</a>             }
@@ -205,10 +205,10 @@
 <a class="jxr_linenumber" name="L197" href="#L197">197</a>                 <strong class="jxr_keyword">continue</strong>;
 <a class="jxr_linenumber" name="L198" href="#L198">198</a>             }
 <a class="jxr_linenumber" name="L199" href="#L199">199</a> 
-<a class="jxr_linenumber" name="L200" href="#L200">200</a>             String uuid = uuidMap != <strong class="jxr_keyword">null</strong> ? uuidMap.getOrDefault(split[0], <span class="jxr_string">""</span>) : <span class="jxr_string">""</span>;
+<a class="jxr_linenumber" name="L200" href="#L200">200</a>             String uuid = uuidMap != <strong class="jxr_keyword">null</strong> ? uuidMap.getOrDefault(volume, <span class="jxr_string">""</span>) : <span class="jxr_string">""</span>;
 <a class="jxr_linenumber" name="L201" href="#L201">201</a> 
 <a class="jxr_linenumber" name="L202" href="#L202">202</a>             String description;
-<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">if</strong> (volume.startsWith(DevPath.DEV)) {
+<a class="jxr_linenumber" name="L203" href="#L203">203</a>             <strong class="jxr_keyword">if</strong> (volume.startsWith(DevPath.NODE_ROOT)) {
 <a class="jxr_linenumber" name="L204" href="#L204">204</a>                 description = <span class="jxr_string">"Local Disk"</span>;
 <a class="jxr_linenumber" name="L205" href="#L205">205</a>             } <strong class="jxr_keyword">else</strong> <strong class="jxr_keyword">if</strong> (volume.equals(<span class="jxr_string">"tmpfs"</span>)) {
 <a class="jxr_linenumber" name="L206" href="#L206">206</a>                 description = <span class="jxr_string">"Ram Disk"</span>;
@@ -221,13 +221,13 @@
 <a class="jxr_linenumber" name="L213" href="#L213">213</a>             <em class="jxr_comment">// Add in logical volume found at /dev/mapper, useful when linking</em>
 <a class="jxr_linenumber" name="L214" href="#L214">214</a>             <em class="jxr_comment">// file system with drive.</em>
 <a class="jxr_linenumber" name="L215" href="#L215">215</a>             String logicalVolume = <span class="jxr_string">""</span>;
-<a class="jxr_linenumber" name="L216" href="#L216">216</a>             Path link = Paths.get(volume);
+<a class="jxr_linenumber" name="L216" href="#L216">216</a>             Path link = Paths.get(DevPath.toFilePath(volume));
 <a class="jxr_linenumber" name="L217" href="#L217">217</a>             <strong class="jxr_keyword">if</strong> (link.toFile().exists() &amp;&amp; Files.isSymbolicLink(link)) {
 <a class="jxr_linenumber" name="L218" href="#L218">218</a>                 <strong class="jxr_keyword">try</strong> {
 <a class="jxr_linenumber" name="L219" href="#L219">219</a>                     Path slink = Files.readSymbolicLink(link);
-<a class="jxr_linenumber" name="L220" href="#L220">220</a>                     Path full = Paths.get(DevPath.MAPPER + slink.toString());
+<a class="jxr_linenumber" name="L220" href="#L220">220</a>                     Path full = Paths.get(DevPath.toFilePath(DevPath.MAPPER) + slink.toString()).normalize();
 <a class="jxr_linenumber" name="L221" href="#L221">221</a>                     <strong class="jxr_keyword">if</strong> (full.toFile().exists()) {
-<a class="jxr_linenumber" name="L222" href="#L222">222</a>                         logicalVolume = full.normalize().toString();
+<a class="jxr_linenumber" name="L222" href="#L222">222</a>                         logicalVolume = DevPath.toNodeName(full.toString());
 <a class="jxr_linenumber" name="L223" href="#L223">223</a>                     }
 <a class="jxr_linenumber" name="L224" href="#L224">224</a>                 } <strong class="jxr_keyword">catch</strong> (IOException e) {
 <a class="jxr_linenumber" name="L225" href="#L225">225</a>                     LOG.debug(<span class="jxr_string">"Couldn't access symbolic path {}"</span>, link, e);

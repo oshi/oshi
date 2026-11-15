@@ -74,39 +74,42 @@
 <a class="jxr_linenumber" name="L66" href="#L66">66</a>  
 <a class="jxr_linenumber" name="L67" href="#L67">67</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryManufacturer() {
 <a class="jxr_linenumber" name="L68" href="#L68">68</a>          String result = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.querySystemVendor()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = CpuInfo.queryCpuManufacturer()) == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L70" href="#L70">70</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L71" href="#L71">71</a>          }
-<a class="jxr_linenumber" name="L72" href="#L72">72</a>          <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L73" href="#L73">73</a>      }
-<a class="jxr_linenumber" name="L74" href="#L74">74</a>  
-<a class="jxr_linenumber" name="L75" href="#L75">75</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryModel() {
-<a class="jxr_linenumber" name="L76" href="#L76">76</a>          String result = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L77" href="#L77">77</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.queryProductModel()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Devicetree.queryModel()) == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L78" href="#L78">78</a>                  &amp;&amp; (result = Lshw.queryModel()) == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L79" href="#L79">79</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L80" href="#L80">80</a>          }
-<a class="jxr_linenumber" name="L81" href="#L81">81</a>          <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L82" href="#L82">82</a>      }
-<a class="jxr_linenumber" name="L83" href="#L83">83</a>  
-<a class="jxr_linenumber" name="L84" href="#L84">84</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySerialNumber() {
-<a class="jxr_linenumber" name="L85" href="#L85">85</a>          String result = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L86" href="#L86">86</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.queryProductSerial()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Dmidecode.querySerialNumber()) == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L87" href="#L87">87</a>                  &amp;&amp; (result = Lshal.querySerialNumber()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Lshw.querySerialNumber()) == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L88" href="#L88">88</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L89" href="#L89">89</a>          }
-<a class="jxr_linenumber" name="L90" href="#L90">90</a>          <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L91" href="#L91">91</a>      }
-<a class="jxr_linenumber" name="L92" href="#L92">92</a>  
-<a class="jxr_linenumber" name="L93" href="#L93">93</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryUUID() {
-<a class="jxr_linenumber" name="L94" href="#L94">94</a>          String result = <strong class="jxr_keyword">null</strong>;
-<a class="jxr_linenumber" name="L95" href="#L95">95</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.queryUUID()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Dmidecode.queryUUID()) == <strong class="jxr_keyword">null</strong>
-<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  &amp;&amp; (result = Lshal.queryUUID()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Lshw.queryUUID()) == <strong class="jxr_keyword">null</strong>) {
-<a class="jxr_linenumber" name="L97" href="#L97">97</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
-<a class="jxr_linenumber" name="L98" href="#L98">98</a>          }
-<a class="jxr_linenumber" name="L99" href="#L99">99</a>          <strong class="jxr_keyword">return</strong> result;
-<a class="jxr_linenumber" name="L100" href="#L100">100</a>     }
-<a class="jxr_linenumber" name="L101" href="#L101">101</a> }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>          <em class="jxr_comment">// Boards without DMI describe themselves in the devicetree; the processor's implementer is a last resort</em>
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.querySystemVendor()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Devicetree.queryManufacturer()) == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  &amp;&amp; (result = CpuInfo.queryCpuManufacturer()) == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          }
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>      }
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>  
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryModel() {
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          String result = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.queryProductModel()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Devicetree.queryModel()) == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>                  &amp;&amp; (result = Lshw.queryModel()) == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          }
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>      }
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>  
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String querySerialNumber() {
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>          String result = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.queryProductSerial()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Devicetree.querySerialNumber()) == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>                  &amp;&amp; (result = Dmidecode.querySerialNumber()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Lshal.querySerialNumber()) == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  &amp;&amp; (result = Lshw.querySerialNumber()) == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>              <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>          }
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>      }
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>  
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> String queryUUID() {
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          String result = <strong class="jxr_keyword">null</strong>;
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>          <strong class="jxr_keyword">if</strong> ((result = Sysfs.queryUUID()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Dmidecode.queryUUID()) == <strong class="jxr_keyword">null</strong>
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>                  &amp;&amp; (result = Lshal.queryUUID()) == <strong class="jxr_keyword">null</strong> &amp;&amp; (result = Lshw.queryUUID()) == <strong class="jxr_keyword">null</strong>) {
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>             <strong class="jxr_keyword">return</strong> Constants.UNKNOWN;
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>         }
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <strong class="jxr_keyword">return</strong> result;
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>     }
+<a class="jxr_linenumber" name="L104" href="#L104">104</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

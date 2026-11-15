@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="">
+<head><meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>UdevDataTest xref</title>
+<link type="text/css" rel="stylesheet" href="../../../stylesheet.css" />
+</head>
+<body>
+<div id="overview"><a href="../../../../testapidocs/oshi/util/linux/UdevDataTest.html">View Javadoc</a></div><pre>
+<a class="jxr_linenumber" name="L1" href="#L1">1</a>   <em class="jxr_comment">/*</em>
+<a class="jxr_linenumber" name="L2" href="#L2">2</a>   <em class="jxr_comment"> * Copyright 2026 The OSHI Project Contributors</em>
+<a class="jxr_linenumber" name="L3" href="#L3">3</a>   <em class="jxr_comment"> * SPDX-License-Identifier: MIT</em>
+<a class="jxr_linenumber" name="L4" href="#L4">4</a>   <em class="jxr_comment"> */</em>
+<a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.util.linux;
+<a class="jxr_linenumber" name="L6" href="#L6">6</a>   
+<a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.aMapWithSize;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.anEmptyMap;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.hasEntry;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.io.IOException;
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Files;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.nio.file.Path;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.DisabledOnOs;
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.condition.OS;
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.io.TempDir;
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  <strong class="jxr_keyword">class</strong> <a name="UdevDataTest" href="../../../oshi/util/linux/UdevDataTest.html#UdevDataTest">UdevDataTest</a> {
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>      <em class="jxr_comment">// Shape of /run/udev/data/b8:1 on an Ubuntu host: symlinks, tags and timestamps around the E: properties</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">final</strong> String PARTITION_RECORD = <span class="jxr_string">""</span><span class="jxr_string">"
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>              S:disk/by-uuid/ABCD-1234
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>              S:disk/by-partuuid/0f1e2d3c-01
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>              W:12
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>              I:1731000000000000
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>              E:ID_FS_TYPE=vfat
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              E:ID_FS_UUID=ABCD-1234
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              E:ID_FS_LABEL=EFI
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>              E:ID_PART_ENTRY_NAME=EFI System Partition
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>              E:ID_MODEL=Samsung SSD 980 PRO=2TB
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>              G:systemd
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>              Q:systemd
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>              V:1
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>              <span class="jxr_string">""</span><span class="jxr_string">";
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>  
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>      @Test
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>      <strong class="jxr_keyword">void</strong> testParseProperties() {
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          <strong class="jxr_keyword">var</strong> properties = UdevData.parseProperties(PARTITION_RECORD.lines().toList());
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          assertThat(properties, aMapWithSize(5));
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          assertThat(properties, hasEntry(<span class="jxr_string">"ID_FS_TYPE"</span>, <span class="jxr_string">"vfat"</span>));
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          assertThat(<span class="jxr_string">"A value keeps spaces"</span>, properties, hasEntry(<span class="jxr_string">"ID_PART_ENTRY_NAME"</span>, <span class="jxr_string">"EFI System Partition"</span>));
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          assertThat(<span class="jxr_string">"Only the first = separates key and value"</span>, properties,
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>                  hasEntry(<span class="jxr_string">"ID_MODEL"</span>, <span class="jxr_string">"Samsung SSD 980 PRO=2TB"</span>));
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      }
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>  
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>      @Test
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>      <strong class="jxr_keyword">void</strong> testParsePropertiesIgnoresMalformed() {
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(UdevData.parseProperties(List.of(<span class="jxr_string">"E:"</span>, <span class="jxr_string">"E:=value"</span>, <span class="jxr_string">"E:NOEQUALS"</span>, <span class="jxr_string">"S:link"</span>, <span class="jxr_string">""</span>)), anEmptyMap());
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>      }
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>  
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>      @Test
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>      <em class="jxr_comment">// A block device's record is named major:minor, and Windows does not allow a colon in a file name</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>      @DisabledOnOs(OS.WINDOWS)
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      <strong class="jxr_keyword">void</strong> testQueryByDeviceNumberAndIfindex(@TempDir Path dir) <strong class="jxr_keyword">throws</strong> IOException {
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          Files.writeString(dir.resolve(<span class="jxr_string">"b8:1"</span>), PARTITION_RECORD);
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          Files.writeString(dir.resolve(<span class="jxr_string">"n2"</span>), <span class="jxr_string">"E:ID_MODEL_FROM_DATABASE=I225-V\n"</span>);
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          String data = dir + <span class="jxr_string">"/"</span>;
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(UdevData.queryBlockDevice(data, 8, 1), hasEntry(<span class="jxr_string">"ID_FS_UUID"</span>, <span class="jxr_string">"ABCD-1234"</span>));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(UdevData.queryNetworkInterface(data, 2), hasEntry(<span class="jxr_string">"ID_MODEL_FROM_DATABASE"</span>, <span class="jxr_string">"I225-V"</span>));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          <em class="jxr_comment">// No record, and the numbers a failed sysfs read yields, never touch a file</em>
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>          assertThat(UdevData.queryBlockDevice(data, 8, 2), anEmptyMap());
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>          assertThat(UdevData.queryBlockDevice(data, 0, 0), anEmptyMap());
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>          assertThat(UdevData.queryNetworkInterface(data, 0), anEmptyMap());
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>      }
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>  
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>      @Test
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>      <strong class="jxr_keyword">void</strong> testDefaultDatabaseRejectsUnsetNumbers() {
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>          assertThat(UdevData.queryBlockDevice(0, 0), anEmptyMap());
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>          assertThat(UdevData.queryNetworkInterface(0), anEmptyMap());
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>          assertThat(UdevData.queryDevice(<span class="jxr_string">"pci"</span>, <span class="jxr_string">""</span>), anEmptyMap());
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>          assertThat(UdevData.queryDevice(<span class="jxr_string">""</span>, <span class="jxr_string">"0000:01:00.0"</span>), anEmptyMap());
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>      }
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>  }
+</pre>
+<hr/>
+<div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
+</body>
+</html>

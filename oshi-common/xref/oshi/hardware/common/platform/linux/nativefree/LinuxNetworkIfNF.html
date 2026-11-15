@@ -26,7 +26,7 @@
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  <strong class="jxr_keyword">public</strong> <strong class="jxr_keyword">final</strong> <strong class="jxr_keyword">class</strong> <a name="LinuxNetworkIfNF" href="../../../../../../oshi/hardware/common/platform/linux/nativefree/LinuxNetworkIfNF.html#LinuxNetworkIfNF">LinuxNetworkIfNF</a> <strong class="jxr_keyword">extends</strong> <a name="LinuxNetworkIF" href="../../../../../../oshi/hardware/common/platform/linux/LinuxNetworkIF.html#LinuxNetworkIF">LinuxNetworkIF</a> {
 <a class="jxr_linenumber" name="L19" href="#L19">19</a>  
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>      <a name="LinuxNetworkIfNF" href="../../../../../../oshi/hardware/common/platform/linux/nativefree/LinuxNetworkIfNF.html#LinuxNetworkIfNF">LinuxNetworkIfNF</a>(NetworkInterface netint) <strong class="jxr_keyword">throws</strong> InstantiationException {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">super</strong>(netint, queryIfModelFromSysfs(netint.getName()));
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <strong class="jxr_keyword">super</strong>(netint, queryIfModelFromUdevData(netint.getName()));
 <a class="jxr_linenumber" name="L22" href="#L22">22</a>      }
 <a class="jxr_linenumber" name="L23" href="#L23">23</a>  
 <a class="jxr_linenumber" name="L24" href="#L24">24</a>      <em class="jxr_javadoccomment">/**</em>

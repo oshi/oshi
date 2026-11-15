@@ -13,55 +13,134 @@
 <a class="jxr_linenumber" name="L5" href="#L5">5</a>   <strong class="jxr_keyword">package</strong> oshi.hardware.common.platform.unix.freebsd;
 <a class="jxr_linenumber" name="L6" href="#L6">6</a>   
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
-<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
-<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.hasSize;
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.List;
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.SoundCard;
+<a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.contains;
+<a class="jxr_linenumber" name="L9" href="#L9">9</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.empty;
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.hasSize;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> java.util.ArrayList;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  <strong class="jxr_keyword">import</strong> java.util.Collections;
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">import</strong> java.util.List;
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  <strong class="jxr_keyword">import</strong> java.util.Map;
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>  <strong class="jxr_keyword">import</strong> java.util.function.UnaryOperator;
 <a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">class</strong> <a name="FreeBsdSoundCardTest" href="../../../../../../oshi/hardware/common/platform/unix/freebsd/FreeBsdSoundCardTest.html#FreeBsdSoundCardTest">FreeBsdSoundCardTest</a> {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
 <a class="jxr_linenumber" name="L20" href="#L20">20</a>  
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>      @Test
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>      <strong class="jxr_keyword">void</strong> testParseSoundCards() {
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <em class="jxr_comment">// A pcm-driven node carries the product/vendor; other nodes (e.g. the parent hdac) are ignored.</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          List&lt;String&gt; lshal = <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>                  udi = '/org/freedesktop/Hal/devices/pci_8086_a348'
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>                    info.product = 'Cannon Lake PCH cAVS'  (string)
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>                  udi = '/org/freedesktop/Hal/devices/pcm0'
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>                    info.product = 'Realtek ALC892 (Analog)'  (string)
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>                    info.vendor = 'Realtek'  (string)
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>                    freebsd.driver = 'pcm'  (string)
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>          List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(lshal);
-<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThat(cards, hasSize(1));
-<a class="jxr_linenumber" name="L34" href="#L34">34</a>          SoundCard card = cards.get(0);
-<a class="jxr_linenumber" name="L35" href="#L35">35</a>          assertThat(card.getName(), is(<span class="jxr_string">"Realtek Realtek ALC892 (Analog)"</span>));
-<a class="jxr_linenumber" name="L36" href="#L36">36</a>          assertThat(card.getCodec(), is(<span class="jxr_string">"Realtek ALC892 (Analog)"</span>));
-<a class="jxr_linenumber" name="L37" href="#L37">37</a>      }
-<a class="jxr_linenumber" name="L38" href="#L38">38</a>  
-<a class="jxr_linenumber" name="L39" href="#L39">39</a>      @Test
-<a class="jxr_linenumber" name="L40" href="#L40">40</a>      <strong class="jxr_keyword">void</strong> testParseSoundCardsMissingVendor() {
-<a class="jxr_linenumber" name="L41" href="#L41">41</a>          <em class="jxr_comment">// With no info.vendor, the name is just the product (leading space from the "vendor product" join).</em>
-<a class="jxr_linenumber" name="L42" href="#L42">42</a>          List&lt;String&gt; lshal = <span class="jxr_string">""</span><span class="jxr_string">"
-<a class="jxr_linenumber" name="L43" href="#L43">43</a>                  udi = '/org/freedesktop/Hal/devices/pcm0'
-<a class="jxr_linenumber" name="L44" href="#L44">44</a>                    info.product = 'HDA Generic'  (string)
-<a class="jxr_linenumber" name="L45" href="#L45">45</a>                    freebsd.driver = 'pcm'  (string)
-<a class="jxr_linenumber" name="L46" href="#L46">46</a>                  <span class="jxr_string">""</span><span class="jxr_string">".lines().toList();
-<a class="jxr_linenumber" name="L47" href="#L47">47</a>          List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(lshal);
-<a class="jxr_linenumber" name="L48" href="#L48">48</a>          assertThat(cards, hasSize(1));
-<a class="jxr_linenumber" name="L49" href="#L49">49</a>          assertThat(cards.get(0).getCodec(), is(<span class="jxr_string">"HDA Generic"</span>));
-<a class="jxr_linenumber" name="L50" href="#L50">50</a>      }
-<a class="jxr_linenumber" name="L51" href="#L51">51</a>  
-<a class="jxr_linenumber" name="L52" href="#L52">52</a>      @Test
-<a class="jxr_linenumber" name="L53" href="#L53">53</a>      <strong class="jxr_keyword">void</strong> testParseSoundCardsEmpty() {
-<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(FreeBsdSoundCard.parseSoundCards(Collections.emptyList()), is(empty()));
-<a class="jxr_linenumber" name="L55" href="#L55">55</a>      }
-<a class="jxr_linenumber" name="L56" href="#L56">56</a>  }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  <strong class="jxr_keyword">import</strong> oshi.hardware.SoundCard;
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>  
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>  <strong class="jxr_keyword">class</strong> <a name="FreeBsdSoundCardTest" href="../../../../../../oshi/hardware/common/platform/unix/freebsd/FreeBsdSoundCardTest.html#FreeBsdSoundCardTest">FreeBsdSoundCardTest</a> {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>  
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>      <em class="jxr_javadoccomment">/**</em>
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>  <em class="jxr_javadoccomment">     * Answers each {@code sysctl -i} call from a fixed tree, as the real command does: it prints the names it knows and</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>  <em class="jxr_javadoccomment">     * skips the rest. Records each call so a test can count them.</em>
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>  <em class="jxr_javadoccomment">     */</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> UnaryOperator&lt;List&lt;String&gt;&gt; sysctl(Map&lt;String, String&gt; tree, List&lt;List&lt;String&gt;&gt; calls) {
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          <strong class="jxr_keyword">return</strong> oids -&gt; {
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>              calls.add(oids);
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>              List&lt;String&gt; out = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>              <strong class="jxr_keyword">for</strong> (String oid : oids) {
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>                  tree.forEach((name, value) -&gt; {
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>                      <strong class="jxr_keyword">if</strong> (name.equals(oid) || name.startsWith(oid + <span class="jxr_string">"."</span>)) {
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>                          out.add(name + <span class="jxr_string">": "</span> + value);
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>                      }
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>                  });
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>              }
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>              <strong class="jxr_keyword">return</strong> out;
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          };
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>      }
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>  
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>      @Test
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>      <strong class="jxr_keyword">void</strong> testParseSoundCardsDummy() {
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>          <em class="jxr_comment">// Captured on a vmactions FreeBSD 15.1 VM after "kldload snd_dummy": a pcm device attached to nexus0</em>
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>          Map&lt;String, String&gt; tree = Map.of(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">"15.1-RELEASE"</span>, <span class="jxr_string">"dev.pcm.0.mode"</span>, <span class="jxr_string">"7"</span>,
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>                  <span class="jxr_string">"dev.pcm.0.play.vchans"</span>, <span class="jxr_string">"1"</span>, <span class="jxr_string">"dev.pcm.0.%parent"</span>, <span class="jxr_string">"nexus0"</span>, <span class="jxr_string">"dev.pcm.0.%driver"</span>, <span class="jxr_string">"pcm"</span>,
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>                  <span class="jxr_string">"dev.pcm.0.%desc"</span>, <span class="jxr_string">"Dummy Audio Device"</span>, <span class="jxr_string">"dev.pcm.%parent"</span>, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          List&lt;List&lt;String&gt;&gt; calls = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>          List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(sysctl(tree, calls));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          assertThat(cards, hasSize(1));
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(cards.get(0).getName(), is(<span class="jxr_string">"Dummy Audio Device"</span>));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          assertThat(cards.get(0).getCodec(), is(<span class="jxr_string">"Dummy Audio Device"</span>));
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(cards.get(0).getDriverVersion(), is(<span class="jxr_string">"15.1-RELEASE"</span>));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// nexus0 is a bus, so nothing beyond the first call</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(calls, hasSize(1));
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>      }
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>  
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>      @Test
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>      <strong class="jxr_keyword">void</strong> testParseSoundCardsHda() {
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          <em class="jxr_comment">// The tree snd_hda builds: two endpoints on two function groups of one codec on one controller. The controller</em>
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          <em class="jxr_comment">// line is from cfarm430 (FreeBSD 16.0-CURRENT, a QEMU intel-hda with no codec attached)</em>
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>          Map&lt;String, String&gt; tree = Map.ofEntries(Map.entry(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">"14.3-RELEASE"</span>),
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>                  Map.entry(<span class="jxr_string">"dev.pcm.0.%desc"</span>, <span class="jxr_string">"Realtek ALC892 (Rear Analog)"</span>), Map.entry(<span class="jxr_string">"dev.pcm.0.%parent"</span>, <span class="jxr_string">"hdaa0"</span>),
+<a class="jxr_linenumber" name="L66" href="#L66">66</a>                  Map.entry(<span class="jxr_string">"dev.pcm.1.%desc"</span>, <span class="jxr_string">"Realtek ALC892 (Front Analog Headphones)"</span>),
+<a class="jxr_linenumber" name="L67" href="#L67">67</a>                  Map.entry(<span class="jxr_string">"dev.pcm.1.%parent"</span>, <span class="jxr_string">"hdaa0"</span>),
+<a class="jxr_linenumber" name="L68" href="#L68">68</a>                  Map.entry(<span class="jxr_string">"dev.pcm.10.%desc"</span>, <span class="jxr_string">"Intel Cougar Point (HDMI/DP 8ch)"</span>),
+<a class="jxr_linenumber" name="L69" href="#L69">69</a>                  Map.entry(<span class="jxr_string">"dev.pcm.10.%parent"</span>, <span class="jxr_string">"hdaa1"</span>),
+<a class="jxr_linenumber" name="L70" href="#L70">70</a>                  Map.entry(<span class="jxr_string">"dev.hdaa.0.%desc"</span>, <span class="jxr_string">"Realtek ALC892 Audio Function Group"</span>),
+<a class="jxr_linenumber" name="L71" href="#L71">71</a>                  Map.entry(<span class="jxr_string">"dev.hdaa.0.%parent"</span>, <span class="jxr_string">"hdacc0"</span>),
+<a class="jxr_linenumber" name="L72" href="#L72">72</a>                  Map.entry(<span class="jxr_string">"dev.hdaa.1.%desc"</span>, <span class="jxr_string">"Intel Cougar Point Audio Function Group"</span>),
+<a class="jxr_linenumber" name="L73" href="#L73">73</a>                  Map.entry(<span class="jxr_string">"dev.hdaa.1.%parent"</span>, <span class="jxr_string">"hdacc1"</span>), Map.entry(<span class="jxr_string">"dev.hdacc.0.%desc"</span>, <span class="jxr_string">"Realtek ALC892 HDA CODEC"</span>),
+<a class="jxr_linenumber" name="L74" href="#L74">74</a>                  Map.entry(<span class="jxr_string">"dev.hdacc.0.%parent"</span>, <span class="jxr_string">"hdac0"</span>),
+<a class="jxr_linenumber" name="L75" href="#L75">75</a>                  Map.entry(<span class="jxr_string">"dev.hdacc.1.%desc"</span>, <span class="jxr_string">"Intel Cougar Point HDA CODEC"</span>),
+<a class="jxr_linenumber" name="L76" href="#L76">76</a>                  Map.entry(<span class="jxr_string">"dev.hdacc.1.%parent"</span>, <span class="jxr_string">"hdac0"</span>), Map.entry(<span class="jxr_string">"dev.hdac.0.%desc"</span>, <span class="jxr_string">"Intel 82801I HDA Controller"</span>),
+<a class="jxr_linenumber" name="L77" href="#L77">77</a>                  Map.entry(<span class="jxr_string">"dev.hdac.0.%parent"</span>, <span class="jxr_string">"pci0"</span>));
+<a class="jxr_linenumber" name="L78" href="#L78">78</a>          List&lt;List&lt;String&gt;&gt; calls = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L79" href="#L79">79</a>          List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(sysctl(tree, calls));
+<a class="jxr_linenumber" name="L80" href="#L80">80</a>          assertThat(cards.stream().map(SoundCard::getCodec).toList(), contains(<span class="jxr_string">"Realtek ALC892 (Rear Analog)"</span>,
+<a class="jxr_linenumber" name="L81" href="#L81">81</a>                  <span class="jxr_string">"Realtek ALC892 (Front Analog Headphones)"</span>, <span class="jxr_string">"Intel Cougar Point (HDMI/DP 8ch)"</span>));
+<a class="jxr_linenumber" name="L82" href="#L82">82</a>          assertThat(cards.stream().map(SoundCard::getName).distinct().toList(), contains(<span class="jxr_string">"Intel 82801I HDA Controller"</span>));
+<a class="jxr_linenumber" name="L83" href="#L83">83</a>          <em class="jxr_comment">// One call for the pcm devices, then one for each of hdaa, hdacc and hdac</em>
+<a class="jxr_linenumber" name="L84" href="#L84">84</a>          assertThat(calls, hasSize(4));
+<a class="jxr_linenumber" name="L85" href="#L85">85</a>      }
+<a class="jxr_linenumber" name="L86" href="#L86">86</a>  
+<a class="jxr_linenumber" name="L87" href="#L87">87</a>      @Test
+<a class="jxr_linenumber" name="L88" href="#L88">88</a>      <strong class="jxr_keyword">void</strong> testParseSoundCardsUsb() {
+<a class="jxr_linenumber" name="L89" href="#L89">89</a>          Map&lt;String, String&gt; tree = Map.of(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">"14.3-RELEASE"</span>, <span class="jxr_string">"dev.pcm.2.%desc"</span>, <span class="jxr_string">"USB audio"</span>,
+<a class="jxr_linenumber" name="L90" href="#L90">90</a>                  <span class="jxr_string">"dev.pcm.2.%parent"</span>, <span class="jxr_string">"uaudio0"</span>, <span class="jxr_string">"dev.uaudio.0.%desc"</span>,
+<a class="jxr_linenumber" name="L91" href="#L91">91</a>                  <span class="jxr_string">"C-Media Electronics Inc. USB Audio Device, class 0/0, rev 1.10/0.10, addr 3"</span>, <span class="jxr_string">"dev.uaudio.0.%parent"</span>,
+<a class="jxr_linenumber" name="L92" href="#L92">92</a>                  <span class="jxr_string">"uhub2"</span>);
+<a class="jxr_linenumber" name="L93" href="#L93">93</a>          List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(sysctl(tree, <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;()));
+<a class="jxr_linenumber" name="L94" href="#L94">94</a>          assertThat(cards, hasSize(1));
+<a class="jxr_linenumber" name="L95" href="#L95">95</a>          assertThat(cards.get(0).getName(),
+<a class="jxr_linenumber" name="L96" href="#L96">96</a>                  is(<span class="jxr_string">"C-Media Electronics Inc. USB Audio Device, class 0/0, rev 1.10/0.10, addr 3"</span>));
+<a class="jxr_linenumber" name="L97" href="#L97">97</a>          assertThat(cards.get(0).getCodec(), is(<span class="jxr_string">"USB audio"</span>));
+<a class="jxr_linenumber" name="L98" href="#L98">98</a>      }
+<a class="jxr_linenumber" name="L99" href="#L99">99</a>  
+<a class="jxr_linenumber" name="L100" href="#L100">100</a>     @Test
+<a class="jxr_linenumber" name="L101" href="#L101">101</a>     <strong class="jxr_keyword">void</strong> testParseSoundCardsMissingParent() {
+<a class="jxr_linenumber" name="L102" href="#L102">102</a>         <em class="jxr_comment">// A parent sysctl does not know is asked for once, and the endpoint names the card</em>
+<a class="jxr_linenumber" name="L103" href="#L103">103</a>         Map&lt;String, String&gt; tree = Map.of(<span class="jxr_string">"dev.pcm.0.%desc"</span>, <span class="jxr_string">"Some Audio"</span>, <span class="jxr_string">"dev.pcm.0.%parent"</span>, <span class="jxr_string">"gone0"</span>);
+<a class="jxr_linenumber" name="L104" href="#L104">104</a>         List&lt;List&lt;String&gt;&gt; calls = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L105" href="#L105">105</a>         List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(sysctl(tree, calls));
+<a class="jxr_linenumber" name="L106" href="#L106">106</a>         assertThat(cards, hasSize(1));
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>         assertThat(cards.get(0).getName(), is(<span class="jxr_string">"Some Audio"</span>));
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>         assertThat(cards.get(0).getDriverVersion(), is(<span class="jxr_string">"unknown"</span>));
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         assertThat(calls, hasSize(2));
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>     }
+<a class="jxr_linenumber" name="L111" href="#L111">111</a> 
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>     @Test
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>     <strong class="jxr_keyword">void</strong> testParseSoundCardsVanishedParent() {
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         <em class="jxr_comment">// uaudio0 is gone by the time its level is read, but the hdaa0 asked for alongside it still answers</em>
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         Map&lt;String, String&gt; tree = Map.of(<span class="jxr_string">"dev.pcm.0.%desc"</span>, <span class="jxr_string">"USB audio"</span>, <span class="jxr_string">"dev.pcm.0.%parent"</span>, <span class="jxr_string">"uaudio0"</span>,
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>                 <span class="jxr_string">"dev.pcm.1.%desc"</span>, <span class="jxr_string">"Realtek ALC892 (Rear Analog)"</span>, <span class="jxr_string">"dev.pcm.1.%parent"</span>, <span class="jxr_string">"hdaa0"</span>, <span class="jxr_string">"dev.hdaa.0.%desc"</span>,
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>                 <span class="jxr_string">"Realtek ALC892 Audio Function Group"</span>, <span class="jxr_string">"dev.hdaa.0.%parent"</span>, <span class="jxr_string">"pci0"</span>);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         List&lt;List&lt;String&gt;&gt; calls = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         List&lt;SoundCard&gt; cards = FreeBsdSoundCard.parseSoundCards(sysctl(tree, calls));
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(cards.stream().map(SoundCard::getName).toList(),
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>                 contains(<span class="jxr_string">"USB audio"</span>, <span class="jxr_string">"Realtek ALC892 Audio Function Group"</span>));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertThat(calls.get(1),
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>                 contains(<span class="jxr_string">"dev.uaudio.0.%desc"</span>, <span class="jxr_string">"dev.uaudio.0.%parent"</span>, <span class="jxr_string">"dev.hdaa.0.%desc"</span>, <span class="jxr_string">"dev.hdaa.0.%parent"</span>));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     @Test
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">void</strong> testParseSoundCardsNone() {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         <em class="jxr_comment">// cfarm430 and DragonFly BSD: sysctl knows no dev.pcm</em>
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         List&lt;List&lt;String&gt;&gt; calls = <strong class="jxr_keyword">new</strong> ArrayList&lt;&gt;();
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         assertThat(FreeBsdSoundCard.parseSoundCards(sysctl(Map.of(<span class="jxr_string">"kern.osrelease"</span>, <span class="jxr_string">"6.4-RELEASE"</span>), calls)),
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>                 is(empty()));
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>         assertThat(FreeBsdSoundCard.parseSoundCards(oids -&gt; Collections.emptyList()), is(empty()));
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(calls, hasSize(1));
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>     }
+<a class="jxr_linenumber" name="L135" href="#L135">135</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>

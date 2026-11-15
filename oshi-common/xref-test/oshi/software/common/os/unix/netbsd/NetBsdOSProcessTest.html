@@ -112,36 +112,55 @@
 <a class="jxr_linenumber" name="L104" href="#L104">104</a>         assertThat(<strong class="jxr_keyword">new</strong> NetBsdOSThread(42, refused).getName(), is(<span class="jxr_string">"java"</span>));
 <a class="jxr_linenumber" name="L105" href="#L105">105</a>     }
 <a class="jxr_linenumber" name="L106" href="#L106">106</a> 
-<a class="jxr_linenumber" name="L107" href="#L107">107</a>     <em class="jxr_comment">// A process whose kernel answers come from a map keyed by kern.proc_args subtype, absent meaning no answer</em>
-<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> NetBsdOSProcess stubProcess(String args, Map&lt;Integer, String&gt; kernelPaths) {
-<a class="jxr_linenumber" name="L109" href="#L109">109</a>         Map&lt;BsdPsKeyword, String&gt; psMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(BsdPsKeyword.<strong class="jxr_keyword">class</strong>);
-<a class="jxr_linenumber" name="L110" href="#L110">110</a>         psMap.put(BsdPsKeyword.PID, <span class="jxr_string">"42"</span>);
-<a class="jxr_linenumber" name="L111" href="#L111">111</a>         psMap.put(BsdPsKeyword.ARGS, args);
-<a class="jxr_linenumber" name="L112" href="#L112">112</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> NetBsdOSProcess(42, psMap, <strong class="jxr_keyword">new</strong> NetBsdOperatingSystem()) {
-<a class="jxr_linenumber" name="L113" href="#L113">113</a>             @Override
-<a class="jxr_linenumber" name="L114" href="#L114">114</a>             <strong class="jxr_keyword">protected</strong> String queryProcArgsPath(<strong class="jxr_keyword">int</strong> subtype) {
-<a class="jxr_linenumber" name="L115" href="#L115">115</a>                 <strong class="jxr_keyword">return</strong> kernelPaths.getOrDefault(subtype, <span class="jxr_string">""</span>);
-<a class="jxr_linenumber" name="L116" href="#L116">116</a>             }
-<a class="jxr_linenumber" name="L117" href="#L117">117</a>         };
-<a class="jxr_linenumber" name="L118" href="#L118">118</a>     }
-<a class="jxr_linenumber" name="L119" href="#L119">119</a> 
-<a class="jxr_linenumber" name="L120" href="#L120">120</a>     @Test
-<a class="jxr_linenumber" name="L121" href="#L121">121</a>     <strong class="jxr_keyword">void</strong> testPathAndCwdFromKernel() {
-<a class="jxr_linenumber" name="L122" href="#L122">122</a>         <em class="jxr_comment">// sshd rewrites its arguments, so argv[0] is no path; the name still comes from argv[0], as its threads' does</em>
-<a class="jxr_linenumber" name="L123" href="#L123">123</a>         NetBsdOSProcess proc = stubProcess(<span class="jxr_string">"sshd: oshi@pts/0"</span>, Map.of(NetBsdOSProcess.KERN_PROC_PATHNAME,
-<a class="jxr_linenumber" name="L124" href="#L124">124</a>                 <span class="jxr_string">"/usr/sbin/sshd"</span>, NetBsdOSProcess.KERN_PROC_CWD, <span class="jxr_string">"/var/chroot/sshd"</span>));
-<a class="jxr_linenumber" name="L125" href="#L125">125</a>         assertThat(proc.getPath(), is(<span class="jxr_string">"/usr/sbin/sshd"</span>));
-<a class="jxr_linenumber" name="L126" href="#L126">126</a>         assertThat(proc.getName(), is(<span class="jxr_string">"sshd:"</span>));
-<a class="jxr_linenumber" name="L127" href="#L127">127</a>         assertThat(proc.getCurrentWorkingDirectory(), is(<span class="jxr_string">"/var/chroot/sshd"</span>));
-<a class="jxr_linenumber" name="L128" href="#L128">128</a>     }
-<a class="jxr_linenumber" name="L129" href="#L129">129</a> 
-<a class="jxr_linenumber" name="L130" href="#L130">130</a>     @Test
-<a class="jxr_linenumber" name="L131" href="#L131">131</a>     <strong class="jxr_keyword">void</strong> testPathFallsBackToArgv0() {
-<a class="jxr_linenumber" name="L132" href="#L132">132</a>         <em class="jxr_comment">// With no answer from the kernel, as for the kernel itself, the path is argv[0], unless that is the placeholder</em>
-<a class="jxr_linenumber" name="L133" href="#L133">133</a>         assertThat(stubProcess(<span class="jxr_string">"/usr/sbin/cron"</span>, Map.of()).getPath(), is(<span class="jxr_string">"/usr/sbin/cron"</span>));
-<a class="jxr_linenumber" name="L134" href="#L134">134</a>         assertThat(stubProcess(<span class="jxr_string">"(java)"</span>, Map.of()).getPath(), is(<span class="jxr_string">""</span>));
-<a class="jxr_linenumber" name="L135" href="#L135">135</a>     }
-<a class="jxr_linenumber" name="L136" href="#L136">136</a> }
+<a class="jxr_linenumber" name="L107" href="#L107">107</a>     @Test
+<a class="jxr_linenumber" name="L108" href="#L108">108</a>     <strong class="jxr_keyword">void</strong> testThreadReadsItsOwnCpuTime() {
+<a class="jxr_linenumber" name="L109" href="#L109">109</a>         <em class="jxr_comment">// ltime is the LWP's own CPU time; NetBSD's ps has no per-LWP faults or context switches to read</em>
+<a class="jxr_linenumber" name="L110" href="#L110">110</a>         Map&lt;BsdPsThreadKeyword, String&gt; row = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(BsdPsThreadKeyword.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L111" href="#L111">111</a>         row.put(BsdPsThreadKeyword.LID, <span class="jxr_string">"3"</span>);
+<a class="jxr_linenumber" name="L112" href="#L112">112</a>         row.put(BsdPsThreadKeyword.STATE, <span class="jxr_string">"S"</span>);
+<a class="jxr_linenumber" name="L113" href="#L113">113</a>         row.put(BsdPsThreadKeyword.ETIME, <span class="jxr_string">"01:00"</span>);
+<a class="jxr_linenumber" name="L114" href="#L114">114</a>         row.put(BsdPsThreadKeyword.LTIME, <span class="jxr_string">"0:02.50"</span>);
+<a class="jxr_linenumber" name="L115" href="#L115">115</a>         row.put(BsdPsThreadKeyword.PRI, <span class="jxr_string">"43"</span>);
+<a class="jxr_linenumber" name="L116" href="#L116">116</a>         row.put(BsdPsThreadKeyword.ARGS, <span class="jxr_string">"java"</span>);
+<a class="jxr_linenumber" name="L117" href="#L117">117</a>         NetBsdOSThread thread = <strong class="jxr_keyword">new</strong> NetBsdOSThread(42, row);
+<a class="jxr_linenumber" name="L118" href="#L118">118</a>         assertThat(thread.getUserTime(), is(2500L));
+<a class="jxr_linenumber" name="L119" href="#L119">119</a>         assertThat(thread.getKernelTime(), is(0L));
+<a class="jxr_linenumber" name="L120" href="#L120">120</a>         assertThat(thread.getMinorFaults(), is(0L));
+<a class="jxr_linenumber" name="L121" href="#L121">121</a>         assertThat(thread.getMajorFaults(), is(0L));
+<a class="jxr_linenumber" name="L122" href="#L122">122</a>         assertThat(thread.getContextSwitches(), is(0L));
+<a class="jxr_linenumber" name="L123" href="#L123">123</a>         assertThat(NetBsdOSThread.PS_THREAD_COLUMNS, is(<span class="jxr_string">"lid,state,etime,ltime,pri,args"</span>));
+<a class="jxr_linenumber" name="L124" href="#L124">124</a>     }
+<a class="jxr_linenumber" name="L125" href="#L125">125</a> 
+<a class="jxr_linenumber" name="L126" href="#L126">126</a>     <em class="jxr_comment">// A process whose kernel answers come from a map keyed by kern.proc_args subtype, absent meaning no answer</em>
+<a class="jxr_linenumber" name="L127" href="#L127">127</a>     <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> NetBsdOSProcess stubProcess(String args, Map&lt;Integer, String&gt; kernelPaths) {
+<a class="jxr_linenumber" name="L128" href="#L128">128</a>         Map&lt;BsdPsKeyword, String&gt; psMap = <strong class="jxr_keyword">new</strong> EnumMap&lt;&gt;(BsdPsKeyword.<strong class="jxr_keyword">class</strong>);
+<a class="jxr_linenumber" name="L129" href="#L129">129</a>         psMap.put(BsdPsKeyword.PID, <span class="jxr_string">"42"</span>);
+<a class="jxr_linenumber" name="L130" href="#L130">130</a>         psMap.put(BsdPsKeyword.ARGS, args);
+<a class="jxr_linenumber" name="L131" href="#L131">131</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> NetBsdOSProcess(42, psMap, <strong class="jxr_keyword">new</strong> NetBsdOperatingSystem()) {
+<a class="jxr_linenumber" name="L132" href="#L132">132</a>             @Override
+<a class="jxr_linenumber" name="L133" href="#L133">133</a>             <strong class="jxr_keyword">protected</strong> String queryProcArgsPath(<strong class="jxr_keyword">int</strong> subtype) {
+<a class="jxr_linenumber" name="L134" href="#L134">134</a>                 <strong class="jxr_keyword">return</strong> kernelPaths.getOrDefault(subtype, <span class="jxr_string">""</span>);
+<a class="jxr_linenumber" name="L135" href="#L135">135</a>             }
+<a class="jxr_linenumber" name="L136" href="#L136">136</a>         };
+<a class="jxr_linenumber" name="L137" href="#L137">137</a>     }
+<a class="jxr_linenumber" name="L138" href="#L138">138</a> 
+<a class="jxr_linenumber" name="L139" href="#L139">139</a>     @Test
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>     <strong class="jxr_keyword">void</strong> testPathAndCwdFromKernel() {
+<a class="jxr_linenumber" name="L141" href="#L141">141</a>         <em class="jxr_comment">// sshd rewrites its arguments, so argv[0] is no path; the name still comes from argv[0], as its threads' does</em>
+<a class="jxr_linenumber" name="L142" href="#L142">142</a>         NetBsdOSProcess proc = stubProcess(<span class="jxr_string">"sshd: oshi@pts/0"</span>, Map.of(NetBsdOSProcess.KERN_PROC_PATHNAME,
+<a class="jxr_linenumber" name="L143" href="#L143">143</a>                 <span class="jxr_string">"/usr/sbin/sshd"</span>, NetBsdOSProcess.KERN_PROC_CWD, <span class="jxr_string">"/var/chroot/sshd"</span>));
+<a class="jxr_linenumber" name="L144" href="#L144">144</a>         assertThat(proc.getPath(), is(<span class="jxr_string">"/usr/sbin/sshd"</span>));
+<a class="jxr_linenumber" name="L145" href="#L145">145</a>         assertThat(proc.getName(), is(<span class="jxr_string">"sshd:"</span>));
+<a class="jxr_linenumber" name="L146" href="#L146">146</a>         assertThat(proc.getCurrentWorkingDirectory(), is(<span class="jxr_string">"/var/chroot/sshd"</span>));
+<a class="jxr_linenumber" name="L147" href="#L147">147</a>     }
+<a class="jxr_linenumber" name="L148" href="#L148">148</a> 
+<a class="jxr_linenumber" name="L149" href="#L149">149</a>     @Test
+<a class="jxr_linenumber" name="L150" href="#L150">150</a>     <strong class="jxr_keyword">void</strong> testPathFallsBackToArgv0() {
+<a class="jxr_linenumber" name="L151" href="#L151">151</a>         <em class="jxr_comment">// With no answer from the kernel, as for the kernel itself, the path is argv[0], unless that is the placeholder</em>
+<a class="jxr_linenumber" name="L152" href="#L152">152</a>         assertThat(stubProcess(<span class="jxr_string">"/usr/sbin/cron"</span>, Map.of()).getPath(), is(<span class="jxr_string">"/usr/sbin/cron"</span>));
+<a class="jxr_linenumber" name="L153" href="#L153">153</a>         assertThat(stubProcess(<span class="jxr_string">"(java)"</span>, Map.of()).getPath(), is(<span class="jxr_string">""</span>));
+<a class="jxr_linenumber" name="L154" href="#L154">154</a>     }
+<a class="jxr_linenumber" name="L155" href="#L155">155</a> }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
