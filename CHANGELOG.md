@@ -16,7 +16,7 @@ OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Wind
 * [#3858](https://github.com/oshi/oshi/pull/3858): On macOS, `HWDiskStore.getDiskType()` reports `Virtual` for an APFS container and a disk image, which previously reported `Unknown` and `Removable` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3885](https://github.com/oshi/oshi/pull/3885): On macOS, `OperatingSystem.getServices()` lists launchd jobs by label, including those in `/Library` and the user's `~/Library/LaunchAgents`, instead of every child process of launchd by process name - [@dbwiddis](https://github.com/dbwiddis).
 * [#3890](https://github.com/oshi/oshi/pull/3890): On Solaris, `OperatingSystem.getServices()` reports each online SMF service as running, with the process ID of its first process, instead of as stopped alongside a separate entry for each of its processes - [@dbwiddis](https://github.com/dbwiddis).
-* [#3903](https://github.com/oshi/oshi/pull/3903): Windows `Sensors` reads LibreHardwareMonitor 0.9.5 and later through the application's web server when `oshi.os.windows.lhm.url` is set, since those versions no longer publish to WMI, and no longer reads the `jLibreHardwareMonitor` dependency - [@dbwiddis](https://github.com/dbwiddis).
+* [#3905](https://github.com/oshi/oshi/pull/3905): Windows `Sensors` reads LibreHardwareMonitor 0.9.5 and later through the application's web server when `oshi.os.windows.lhm.url` is set, since those versions no longer publish to WMI, and no longer reads the `jLibreHardwareMonitor` dependency - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
