@@ -66,21 +66,21 @@ public abstract class WindowsSensors extends AbstractSensors {
     // One request to the Libre Hardware Monitor web server serves all three sensor reads of a refresh. The cache
     // lifetime starts when the request completes rather than when it starts, as Memoizer's does, so that a request
     // slower than the lifetime is not repeated by the next read.
+    // Null until the first request
     @GuardedBy("this")
-    private List<Reading> lhmReadings = Collections.emptyList();
+    private @Nullable List<Reading> lhmReadings;
     @GuardedBy("this")
     private long lhmExpiration;
-    @GuardedBy("this")
-    private boolean lhmQueried;
 
     private synchronized List<Reading> getLhmMetrics() {
         long ttl = defaultExpiration();
-        if (!lhmQueried || (ttl >= 0 && System.nanoTime() - lhmExpiration >= 0)) {
-            lhmReadings = queryLhmMetrics();
+        List<Reading> readings = lhmReadings;
+        if (readings == null || (ttl >= 0 && System.nanoTime() - lhmExpiration >= 0)) {
+            readings = queryLhmMetrics();
+            lhmReadings = readings;
             lhmExpiration = System.nanoTime() + ttl;
-            lhmQueried = true;
         }
-        return lhmReadings;
+        return readings;
     }
 
     /**
