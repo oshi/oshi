@@ -391,7 +391,7 @@ jobs:
           persist-credentials: false
       - name: Test on DragonFly BSD with aggregate coverage
         id: test-dragonflybsd
-        uses: vmactions/dragonflybsd-vm@4ab776fa9f914fbea72f13715b451e77e7ef5c41 # v1
+        uses: vmactions/dragonflybsd-vm@84881684c8771163f1dd37820a358aa3cd8bc2f2 # v1
         with:
           disable-cache: true
           release: "6.4.2"
