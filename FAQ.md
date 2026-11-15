@@ -272,7 +272,7 @@ However, some specific features require elevated permissions to access. Rather t
 
 **Windows:**
 - Environment variables of processes owned by other users, which are otherwise empty (requires `SeDebugPrivilege` or Administrator). Their command lines are read directly with the same privilege; without it, OSHI asks WMI instead.
-- Sensor data (temperature, fan speeds) via a hardware monitoring application or the optional [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) dependency
+- Sensor data (temperature, fan speeds) via a hardware monitoring application
 
 **macOS:**
 - Sockets of processes owned by other users, which `getConnections()` otherwise leaves out
@@ -470,9 +470,9 @@ few can be switched off explicitly, which [configuration](#how-do-i-configure-os
 
 | Install | What it adds |
 |---|---|
-| **LibreHardwareMonitor**, or the older **OpenHardwareMonitor**, running as Administrator with WMI publishing enabled | CPU temperature, fan speeds and voltage. LibreHardwareMonitor is the maintained one and also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
-| The optional **jLibreHardwareMonitor** dependency | The same sensors with no monitoring application running — it ships the monitoring libraries itself. See the details and caveats below. |
-| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if it is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
+| **LibreHardwareMonitor** 0.9.4 or earlier, or the older **OpenHardwareMonitor**, running as Administrator | CPU temperature, fan speeds and voltage. LibreHardwareMonitor also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Both load the WinRing0 driver, which Microsoft Defender flags as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later replaced that driver but no longer publish to WMI, so OSHI does not read them. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
+| The optional **jLibreHardwareMonitor** dependency | The same sensors with no monitoring application running — it ships the monitoring libraries itself. **No longer recommended**; see the known problems below. |
+| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if a version that publishes to WMI is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
 
 #### macOS
 
@@ -541,13 +541,20 @@ capability bits. The two better sources are listed under
 whichever answers, so nothing needs configuring to prefer one. When neither answers, OSHI still asks those Windows
 classes.
 
-The monitoring applications need no dependency at all. The second source does, and it comes with caveats worth reading
-before you adopt it.
+The monitoring applications need no dependency at all, but only OpenHardwareMonitor and LibreHardwareMonitor 0.9.4 and
+earlier publish to WMI, and both load the driver Defender flags. LibreHardwareMonitor 0.9.5 and later replaced that
+driver and stopped publishing to WMI, so OSHI does not read them. The jLibreHardwareMonitor dependency is still read
+when it is on the class path, but OSHI no longer recommends adding it.
 
 #### The optional jLibreHardwareMonitor dependency
 
 [jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) ships the monitoring libraries itself, so no
-application has to be running. It is not included transitively, due to its single-OS relevance and MPL 2.0-licensed
+application has to be running. **OSHI no longer recommends it**, for the problems listed below. It has had no release
+since August 2025 and no response to reported issues, so none of them is expected to be fixed upstream. If you already
+use it, the instructions remain here; OSHI keeps reading it when present, but support for it may be removed in a
+future release.
+
+It is not included transitively, due to its single-OS relevance and MPL 2.0-licensed
 binary DLLs. To include it, define the dependency in your own project **with an explicit version** — OSHI publishes no
 BOM and manages only the JNA artifacts, so a version-less declaration will not resolve. Using Maven:
 
@@ -567,11 +574,18 @@ implementation("io.github.pandalxb:jLibreHardwareMonitor:1.0.6")
 
 Your JVM must run **as Administrator**, as the underlying library loads a kernel driver for most sensors.
 
-Note one known limitation: this dependency reaches the monitoring libraries through a PowerShell session, and on
-Windows Server 2019 / Windows 10 1809-era hosts whose console handle is not a real screen buffer — a CI build agent,
-for example — PowerShell writes an error banner into the output being parsed, so no sensor data is returned and the
-dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
-[issue #3707](https://github.com/oshi/oshi/issues/3707) for the details and current status.
+Known problems, none of which OSHI can work around:
+
+- **Your JVM will not exit on its own.** The dependency opens a PowerShell session the first time OSHI reads a sensor and
+  never closes it; the session holds two non-daemon threads, so a program whose `main` method returns keeps running.
+  End it with `System.exit()`.
+- **Microsoft Defender may flag it.** Version 1.0.6 bundles LibreHardwareMonitorLib 0.9.4, whose kernel driver is
+  WinRing0, which Defender reports as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later use a different
+  driver, but no longer publish the WMI data OSHI reads.
+- **It returns nothing on some hosts.** On Windows Server 2019 / Windows 10 1809-era hosts whose console handle is not a
+  real screen buffer — a CI build agent, for example — PowerShell writes an error banner into the output being parsed, so
+  no sensor data is returned and the dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
+  [issue #3707](https://github.com/oshi/oshi/issues/3707).
 
 #### Turning off the sources you do not use
 
@@ -585,8 +599,8 @@ them, say so up front and OSHI will not attempt the query:
 | `oshi.os.windows.lhm.disabled` | The `ROOT\LibreHardwareMonitor` namespace, for GPU metrics as well as sensors |
 
 Both default to `false`. The jLibreHardwareMonitor dependency needs no such switch: it is not transitive, so declaring
-it is itself the decision to use it, and OSHI checks once whether it is on the class path. If the PowerShell limitation
-above affects you, remove the dependency.
+it is itself the decision to use it, and OSHI checks once whether it is on the class path. If any of the problems above
+affects you, remove the dependency.
 
 ## Troubleshooting and Unexpected Values
 

@@ -53,6 +53,7 @@ public interface IOKitProvider {
          *
          * @return the entry name, or {@code null} if unavailable
          */
+        @Nullable
         String getName();
 
         /**
@@ -61,7 +62,7 @@ public interface IOKitProvider {
          * @param key the property key
          * @return the property value as a byte array, or {@code null} if not found
          */
-        byte[] getByteArrayProperty(String key);
+        byte @Nullable [] getByteArrayProperty(String key);
 
         /**
          * Gets a string property from this registry entry.
@@ -69,6 +70,7 @@ public interface IOKitProvider {
          * @param key the property key
          * @return the property value as a string, or {@code null} if not found
          */
+        @Nullable
         String getStringProperty(String key);
 
         /**
@@ -77,6 +79,7 @@ public interface IOKitProvider {
          * @param key the property key
          * @return the property value as an {@link Integer}, or {@code null} if not found
          */
+        @Nullable
         Integer getIntegerProperty(String key);
 
         /**
@@ -85,6 +88,7 @@ public interface IOKitProvider {
          * @param key the property key
          * @return the property value as a {@link Boolean}, or {@code null} if not found
          */
+        @Nullable
         Boolean getBooleanProperty(String key);
     }
 }

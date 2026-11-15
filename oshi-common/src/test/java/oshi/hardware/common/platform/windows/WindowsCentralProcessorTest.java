@@ -75,4 +75,33 @@ class WindowsCentralProcessorTest {
         }
         assertEquals(expected, queried);
     }
+
+    @Test
+    void testParseSteppingArm64() {
+        // Captured on a GitHub windows-11-arm runner (Azure Cobalt 100, Neoverse N2): Identifier and CP 4000
+        String arm = "ARMv8 (64-bit) Family 8 Model D49 Revision   0";
+        long midr = 0x410fd490L;
+        assertThat(WindowsCentralProcessor.parseIdentifier(arm, "Model"), is("D49"));
+        assertThat(WindowsCentralProcessor.parseStepping(arm, midr), is("r0p0"));
+        assertThat(WindowsCentralProcessor.parseStepping(arm, 0x412fd491L), is("r2p1"));
+        // Without the MIDR, the identifier's revision
+        assertThat(WindowsCentralProcessor.parseStepping(arm, 0L), is("0"));
+        // x86 names its stepping, whatever the MIDR
+        assertThat(WindowsCentralProcessor.parseStepping("Intel64 Family 6 Model 142 Stepping 12", 0L), is("12"));
+    }
+
+    @Test
+    void testChooseProcessorId() {
+        // WMI's ProcessorId on the same runner is all zeros; the MIDR is formatted as Linux formats it on ARM
+        assertThat(WindowsCentralProcessor.chooseProcessorId("0000000000000000", 0x410fd490L, () -> "fallback"),
+                is("410FD49000000000"));
+        assertThat(WindowsCentralProcessor.chooseProcessorId("", 0x410fd490L, () -> "fallback"),
+                is("410FD49000000000"));
+        // x86: the CPUID signature from WMI, or the encoded fallback when WMI has none
+        assertThat(WindowsCentralProcessor.chooseProcessorId("BFEBFBFF000806EC", 0L, () -> "fallback"),
+                is("BFEBFBFF000806EC"));
+        assertThat(WindowsCentralProcessor.chooseProcessorId("", 0L, () -> "fallback"), is("fallback"));
+        assertThat(WindowsCentralProcessor.chooseProcessorId("0000000000000000", 0L, () -> "fallback"),
+                is("0000000000000000"));
+    }
 }
