@@ -41,6 +41,9 @@
     <!--java.base -->
     <allow class="java.net.InetAddress" />
     <allow class="java.net.NetworkInterface" />
+    <!-- A loopback HTTP responder for the LibreHardwareMonitor web server client -->
+    <allow class="java.net.ServerSocket" />
+    <allow class="java.net.Socket" />
     <allow pkg="java.io" />
     <allow pkg="java.lang" />
     <allow pkg="java.math" />

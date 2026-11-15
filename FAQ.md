@@ -41,7 +41,8 @@
     + [AIX](#aix)
   * [Does OSHI work in containers (Docker, Kubernetes)?](#does-oshi-work-in-containers-docker-kubernetes)
   * [How can I get reliable sensor information on Windows?](#how-can-i-get-reliable-sensor-information-on-windows)
-    + [The optional jLibreHardwareMonitor dependency](#the-optional-jlibrehardwaremonitor-dependency)
+    + [Reading LibreHardwareMonitor 0.9.5 and later](#reading-librehardwaremonitor-095-and-later)
+    + [The jLibreHardwareMonitor dependency](#the-jlibrehardwaremonitor-dependency)
     + [Turning off the sources you do not use](#turning-off-the-sources-you-do-not-use)
 * [Troubleshooting and Unexpected Values](#troubleshooting-and-unexpected-values)
   * [How do I resolve JNA `NoClassDefFoundError` or `NoSuchMethodError` issues?](#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues)
@@ -471,7 +472,7 @@ few can be switched off explicitly, which [configuration](#how-do-i-configure-os
 | Install | What it adds |
 |---|---|
 | **LibreHardwareMonitor** 0.9.4 or earlier, or the older **OpenHardwareMonitor**, running as Administrator | CPU temperature, fan speeds and voltage. LibreHardwareMonitor also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Both load the WinRing0 driver, which Microsoft Defender flags as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later replaced that driver but no longer publish to WMI, so OSHI does not read them. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
-| The optional **jLibreHardwareMonitor** dependency | The same sensors with no monitoring application running — it ships the monitoring libraries itself. **No longer recommended**; see the known problems below. |
+| **LibreHardwareMonitor** 0.9.5 or later, running as Administrator with its web server on | CPU temperature, fan speeds and voltage, read over HTTP once `oshi.os.windows.lhm.url` names the server; see [below](#reading-librehardwaremonitor-095-and-later). It uses the PawnIO driver, which Defender does not flag. GPU metrics are not read this way yet. |
 | **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if a version that publishes to WMI is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
 
 #### macOS
@@ -541,51 +542,34 @@ capability bits. The two better sources are listed under
 whichever answers, so nothing needs configuring to prefer one. When neither answers, OSHI still asks those Windows
 classes.
 
-The monitoring applications need no dependency at all, but only OpenHardwareMonitor and LibreHardwareMonitor 0.9.4 and
-earlier publish to WMI, and both load the driver Defender flags. LibreHardwareMonitor 0.9.5 and later replaced that
-driver and stopped publishing to WMI, so OSHI does not read them. The jLibreHardwareMonitor dependency is still read
-when it is on the class path, but OSHI no longer recommends adding it.
+The monitoring applications need no dependency at all. OpenHardwareMonitor and LibreHardwareMonitor 0.9.4 and earlier
+publish to WMI, which OSHI reads with no configuration, but both load the WinRing0 driver that Defender flags.
+LibreHardwareMonitor 0.9.5 and later replaced that driver and stopped publishing to WMI; OSHI reads them through their
+web server instead, which takes two settings.
 
-#### The optional jLibreHardwareMonitor dependency
+#### Reading LibreHardwareMonitor 0.9.5 and later
 
-[jLibreHardwareMonitor](https://github.com/pandalxb/jLibreHardwareMonitor) ships the monitoring libraries itself, so no
-application has to be running. **OSHI no longer recommends it**, for the problems listed below. It has had no release
-since August 2025 and no response to reported issues, so none of them is expected to be fixed upstream. If you already
-use it, the instructions remain here; OSHI keeps reading it when present, but support for it may be removed in a
-future release.
+1. In LibreHardwareMonitor, open **Options**, then **Remote Web Server**, and select **Run**. Under **Interface / Port**,
+   choose `127.0.0.1` unless other machines should read it: without a configured interface the server accepts
+   connections on every network interface. The default port is 8085.
+2. Tell OSHI the address, in `oshi.properties` or as a system property:
 
-It is not included transitively, due to its single-OS relevance and MPL 2.0-licensed
-binary DLLs. To include it, define the dependency in your own project **with an explicit version** — OSHI publishes no
-BOM and manages only the JNA artifacts, so a version-less declaration will not resolve. Using Maven:
+   ```properties
+   oshi.os.windows.lhm.url=http://127.0.0.1:8085
+   ```
 
-```xml
-<dependency>
-    <groupId>io.github.pandalxb</groupId>
-    <artifactId>jLibreHardwareMonitor</artifactId>
-    <version>1.0.6</version>
-</dependency>
-```
+OSHI reads the server's `/metrics` endpoint once per sensor refresh. The setting is empty by default, and then OSHI makes
+no request. While the server is configured but not running, each refresh waits up to half a second for the connection
+to be refused. Password protection on the server is not supported yet.
 
-Or Gradle:
+#### The jLibreHardwareMonitor dependency
 
-```groovy
-implementation("io.github.pandalxb:jLibreHardwareMonitor:1.0.6")
-```
-
-Your JVM must run **as Administrator**, as the underlying library loads a kernel driver for most sensors.
-
-Known problems, none of which OSHI can work around:
-
-- **Your JVM will not exit on its own.** The dependency opens a PowerShell session the first time OSHI reads a sensor and
-  never closes it; the session holds two non-daemon threads, so a program whose `main` method returns keeps running.
-  End it with `System.exit()`.
-- **Microsoft Defender may flag it.** Version 1.0.6 bundles LibreHardwareMonitorLib 0.9.4, whose kernel driver is
-  WinRing0, which Defender reports as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later use a different
-  driver, but no longer publish the WMI data OSHI reads.
-- **It returns nothing on some hosts.** On Windows Server 2019 / Windows 10 1809-era hosts whose console handle is not a
-  real screen buffer — a CI build agent, for example — PowerShell writes an error banner into the output being parsed, so
-  no sensor data is returned and the dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
-  [issue #3707](https://github.com/oshi/oshi/issues/3707).
+Earlier releases recommended the optional `io.github.pandalxb:jLibreHardwareMonitor` dependency, which shipped the
+monitoring libraries itself so that no application had to run. That was a mistake, and OSHI 7.8.0 removed its support.
+With the dependency on the class path a JVM does not exit after `main` returns, the LibreHardwareMonitorLib 0.9.4 it
+bundles loads the WinRing0 driver that Defender flags, and on some hosts it returns nothing
+([issue #3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to reports of any of these.
+Remove it from your build, and run LibreHardwareMonitor with its web server on as described above.
 
 #### Turning off the sources you do not use
 
@@ -598,9 +582,8 @@ them, say so up front and OSHI will not attempt the query:
 | `oshi.os.windows.ohm.disabled` | The `ROOT\OpenHardwareMonitor` namespace |
 | `oshi.os.windows.lhm.disabled` | The `ROOT\LibreHardwareMonitor` namespace, for GPU metrics as well as sensors |
 
-Both default to `false`. The jLibreHardwareMonitor dependency needs no such switch: it is not transitive, so declaring
-it is itself the decision to use it, and OSHI checks once whether it is on the class path. If any of the problems above
-affects you, remove the dependency.
+Both default to `false`. The web server of LibreHardwareMonitor 0.9.5 and later needs no such switch: OSHI asks it only
+when `oshi.os.windows.lhm.url` is set.
 
 ## Troubleshooting and Unexpected Values
 

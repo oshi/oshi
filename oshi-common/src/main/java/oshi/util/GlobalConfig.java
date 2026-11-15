@@ -288,6 +288,13 @@ public final class GlobalConfig {
      * @see #OSHI_OS_WINDOWS_OHM_DISABLED
      */
     public static final String OSHI_OS_WINDOWS_LHM_DISABLED = "oshi.os.windows.lhm.disabled";
+    /**
+     * The address of a LibreHardwareMonitor web server to read sensor data from, such as {@code http://127.0.0.1:8085}.
+     * LibreHardwareMonitor 0.9.5 and later no longer publish the WMI namespace that
+     * {@link #OSHI_OS_WINDOWS_LHM_DISABLED} controls; this server replaces it, and is off in the application until
+     * turned on. Default is empty, which disables these requests.
+     */
+    public static final String OSHI_OS_WINDOWS_LHM_URL = "oshi.os.windows.lhm.url";
 
     /**
      * Whether to use the Posix-standard {@code who} command for session information instead of native code. The native
