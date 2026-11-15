@@ -15,6 +15,7 @@ import java.util.List;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import oshi.driver.common.windows.LhmMetrics.Reading;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
 import oshi.driver.common.windows.wmi.OhmHardware;
 import oshi.driver.common.windows.wmi.OhmHardware.IdentifierProperty;
@@ -92,6 +93,11 @@ class WindowsSensorsQueryTest {
                 String typeName, String sensorType) {
             queries.add(typeToQuery + '/' + typeName + '/' + sensorType);
             return null;
+        }
+
+        @Override
+        protected List<Reading> queryLhmMetrics() {
+            return List.of();
         }
 
         @Override

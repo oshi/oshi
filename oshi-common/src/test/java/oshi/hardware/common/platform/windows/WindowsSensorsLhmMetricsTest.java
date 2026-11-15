@@ -11,7 +11,9 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Isolated;
 
 import oshi.driver.common.windows.LhmMetrics;
 import oshi.driver.common.windows.LhmMetrics.Reading;
@@ -20,11 +22,23 @@ import oshi.driver.common.windows.wmi.OhmSensor.ValueProperty;
 import oshi.driver.common.windows.wmi.Win32Fan.SpeedProperty;
 import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
+import oshi.util.GlobalConfig;
+import oshi.util.Memoizer;
 
 /**
- * Tests the sensor values taken from the web server of LibreHardwareMonitor 0.9.5 and later.
+ * Tests the sensor values taken from the web server of LibreHardwareMonitor 0.9.5 and later. One test clears the server
+ * address, which is global state, so these tests must not run alongside any other test which reads or writes the
+ * configuration.
  */
+@Isolated
 class WindowsSensorsLhmMetricsTest {
+
+    private final @Nullable String urlConfig = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LHM_URL);
+
+    @AfterEach
+    void restoreConfig() {
+        GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_LHM_URL, urlConfig);
+    }
 
     private static final List<Reading> READINGS = List.of(
             new Reading("lhm_cpu_load_percent", "/intelcpu/0", "CPU Total", 15.2),
@@ -75,7 +89,28 @@ class WindowsSensorsLhmMetricsTest {
     }
 
     @Test
+    void testASlowRequestIsNotRepeatedByTheNextRead() {
+        long slowerThanTheCache = Memoizer.defaultExpiration() / 1_000_000L + 100L;
+        StubSensors sensors = new StubSensors(READINGS) {
+            @Override
+            protected List<Reading> queryLhmMetrics() {
+                try {
+                    Thread.sleep(slowerThanTheCache);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+                return super.queryLhmMetrics();
+            }
+        };
+        sensors.queryCpuTemperature();
+        sensors.queryFanSpeeds();
+        sensors.queryCpuVoltage();
+        assertThat("The cache lifetime starts when the request completes", sensors.requests, is(1));
+    }
+
+    @Test
     void testNoServerConfiguredMakesNoRequest() {
+        GlobalConfig.set(GlobalConfig.OSHI_OS_WINDOWS_LHM_URL, "");
         StubSensors sensors = new StubSensors(READINGS) {
             @Override
             protected List<Reading> queryLhmMetrics() {

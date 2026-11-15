@@ -5,18 +5,17 @@
 package oshi.hardware.common.platform.windows;
 
 import static oshi.util.Memoizer.defaultExpiration;
-import static oshi.util.Memoizer.memoize;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.Supplier;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.driver.common.windows.LhmMetrics;
 import oshi.driver.common.windows.LhmMetrics.Reading;
@@ -64,8 +63,25 @@ public abstract class WindowsSensors extends AbstractSensors {
     private static final String FAN = "Fan";
     private static final String VOLTAGE = "Voltage";
 
-    /** One request to the Libre Hardware Monitor web server serves all three sensor reads of a refresh. */
-    private final Supplier<List<Reading>> lhmMetrics = memoize(this::queryLhmMetrics, defaultExpiration());
+    // One request to the Libre Hardware Monitor web server serves all three sensor reads of a refresh. The cache
+    // lifetime starts when the request completes rather than when it starts, as Memoizer's does, so that a request
+    // slower than the lifetime is not repeated by the next read.
+    @GuardedBy("this")
+    private List<Reading> lhmReadings = Collections.emptyList();
+    @GuardedBy("this")
+    private long lhmExpiration;
+    @GuardedBy("this")
+    private boolean lhmQueried;
+
+    private synchronized List<Reading> getLhmMetrics() {
+        long ttl = defaultExpiration();
+        if (!lhmQueried || (ttl >= 0 && System.nanoTime() - lhmExpiration >= 0)) {
+            lhmReadings = queryLhmMetrics();
+            lhmExpiration = System.nanoTime() + ttl;
+            lhmQueried = true;
+        }
+        return lhmReadings;
+    }
 
     /**
      * Queries the Libre Hardware Monitor web server named by {@link GlobalConfig#OSHI_OS_WINDOWS_LHM_URL}.
@@ -148,7 +164,7 @@ public abstract class WindowsSensors extends AbstractSensors {
             return tempC;
         }
         // Then Libre Hardware Monitor 0.9.5 and later, which replaced WMI with a web server
-        tempC = getCpuTemperature(lhmMetrics.get());
+        tempC = getCpuTemperature(getLhmMetrics());
         if (tempC > 0d) {
             return tempC;
         }
@@ -219,7 +235,7 @@ public abstract class WindowsSensors extends AbstractSensors {
             return fanSpeeds;
         }
         // Then Libre Hardware Monitor 0.9.5 and later, which replaced WMI with a web server
-        fanSpeeds = getFanSpeeds(lhmMetrics.get());
+        fanSpeeds = getFanSpeeds(getLhmMetrics());
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
@@ -274,7 +290,7 @@ public abstract class WindowsSensors extends AbstractSensors {
             return volts;
         }
         // Then Libre Hardware Monitor 0.9.5 and later, which replaced WMI with a web server
-        volts = getCpuVoltage(lhmMetrics.get());
+        volts = getCpuVoltage(getLhmMetrics());
         if (volts > 0d) {
             return volts;
         }

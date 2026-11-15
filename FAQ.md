@@ -471,7 +471,7 @@ few can be switched off explicitly, which [configuration](#how-do-i-configure-os
 
 | Install | What it adds |
 |---|---|
-| **LibreHardwareMonitor** 0.9.4 or earlier, or the older **OpenHardwareMonitor**, running as Administrator | CPU temperature, fan speeds and voltage. LibreHardwareMonitor also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Both load the WinRing0 driver, which Microsoft Defender flags as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later replaced that driver but no longer publish to WMI, so OSHI does not read them. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
+| **LibreHardwareMonitor** 0.9.4 or earlier, or the older **OpenHardwareMonitor**, running as Administrator | CPU temperature, fan speeds and voltage. LibreHardwareMonitor also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Both load the WinRing0 driver, which Microsoft Defender flags as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later replaced that driver but no longer publish to WMI, so OSHI cannot read them through WMI. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
 | **LibreHardwareMonitor** 0.9.5 or later, running as Administrator with its web server on | CPU temperature, fan speeds and voltage, read over HTTP once `oshi.os.windows.lhm.url` names the server; see [below](#reading-librehardwaremonitor-095-and-later). It uses the PawnIO driver, which Defender does not flag. GPU metrics are not read this way yet. |
 | **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if a version that publishes to WMI is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
 
@@ -549,9 +549,11 @@ web server instead, which takes two settings.
 
 #### Reading LibreHardwareMonitor 0.9.5 and later
 
-1. In LibreHardwareMonitor, open **Options**, then **Remote Web Server**, and select **Run**. Under **Interface / Port**,
-   choose `127.0.0.1` unless other machines should read it: without a configured interface the server accepts
-   connections on every network interface. The default port is 8085.
+1. In LibreHardwareMonitor, open **Options**, then **Remote Web Server**, and select **Run**. The default port is 8085.
+   The server needs no password by default, and in 0.9.5 and 0.9.6 it listens on every network interface unless the
+   interface chosen under **Interface / Port** is an address the computer's host name resolves to, which the loopback
+   address `127.0.0.1` usually is not. Windows Firewall blocks connections from other machines unless a rule allows
+   the port; leave it that way unless they should read it.
 2. Tell OSHI the address, in `oshi.properties` or as a system property:
 
    ```properties

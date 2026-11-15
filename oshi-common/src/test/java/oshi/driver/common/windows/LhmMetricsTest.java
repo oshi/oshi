@@ -11,11 +11,13 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.nullValue;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -80,6 +82,34 @@ class LhmMetricsTest {
     }
 
     @Test
+    void testParseKeepsTheLatestSampleOfEachSensor() {
+        // 0.9.5 lists up to five samples per sensor, newest first, each with a timestamp in milliseconds
+        List<String> history = List.of(
+                "lhm_motherboard_fan_rpm {\"sensorName\"=\"Fan 1\", \"sensorId\"=\"/fan/0\", \"hardwareId\"=\"/lpc/nct6798d\"}"
+                        + " 1100 1763170763000",
+                "lhm_motherboard_fan_rpm {\"sensorName\"=\"Fan 1\", \"sensorId\"=\"/fan/0\", \"hardwareId\"=\"/lpc/nct6798d\"}"
+                        + " 1200 1763170762000",
+                "lhm_motherboard_fan_rpm {\"sensorName\"=\"Fan 2\", \"sensorId\"=\"/fan/1\", \"hardwareId\"=\"/lpc/nct6798d\"}"
+                        + " 800 1763170761000",
+                "lhm_motherboard_fan_rpm {\"sensorName\"=\"Fan 2\", \"sensorId\"=\"/fan/1\", \"hardwareId\"=\"/lpc/nct6798d\"}"
+                        + " 850 1763170763000");
+        List<Reading> readings = LhmMetrics.parse(history);
+        assertThat("One reading per sensor", readings, hasSize(2));
+        assertThat(readings.get(0).getSensorName(), is("Fan 1"));
+        assertThat("The newest sample, listed first", readings.get(0).getValue(), closeTo(1100, 1e-9));
+        assertThat("The newest sample, listed last", readings.get(1).getValue(), closeTo(850, 1e-9));
+    }
+
+    @Test
+    void testReadBounded() throws IOException {
+        long later = System.nanoTime() + 60_000_000_000L;
+        assertThat(LhmMetrics.readBounded(new StringReader("a\nb\n"), 100, later), is("a\nb\n"));
+        assertThat("Too large", LhmMetrics.readBounded(new StringReader("x".repeat(101)), 100, later), is(nullValue()));
+        assertThat("Too slow", LhmMetrics.readBounded(new StringReader("a"), 100, System.nanoTime() - 1L),
+                is(nullValue()));
+    }
+
+    @Test
     void testMetricsUrl() {
         assertThat(LhmMetrics.metricsUrl("http://127.0.0.1:8085"), is("http://127.0.0.1:8085/metrics"));
         assertThat(LhmMetrics.metricsUrl(" http://127.0.0.1:8085/ "), is("http://127.0.0.1:8085/metrics"));
@@ -88,7 +118,8 @@ class LhmMetricsTest {
 
     @Test
     void testQueryReadsTheServer() throws IOException, InterruptedException {
-        try (ServerSocket server = new ServerSocket(0, 2, InetAddress.getLoopbackAddress())) {
+        // Bound to the IPv4 address the client names; the JVM's loopback address may be ::1
+        try (ServerSocket server = new ServerSocket(0, 2, InetAddress.getByAddress(new byte[] { 127, 0, 0, 1 }))) {
             Thread responder = new Thread(() -> respond(server, 2));
             responder.setDaemon(true);
             responder.start();
@@ -135,5 +166,7 @@ class LhmMetricsTest {
         assertThat("The connect timeout bounds a refused connection", (System.nanoTime() - start) / 1_000_000L,
                 is(lessThan(5000L)));
         assertThat(LhmMetrics.query("not a url"), is(empty()));
+        assertThat("Only http and https are requested", LhmMetrics.query("file:///C:/lhm"), is(empty()));
+        assertThat(LhmMetrics.query("ftp://127.0.0.1:8085"), is(empty()));
     }
 }

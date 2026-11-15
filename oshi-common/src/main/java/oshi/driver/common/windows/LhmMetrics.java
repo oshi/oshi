@@ -6,18 +6,24 @@ package oshi.driver.common.windows;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,11 +64,15 @@ public final class LhmMetrics {
 
     // Short, because a refused connection to a closed port on Windows retries for two seconds before failing
     private static final int CONNECT_TIMEOUT_MS = 500;
+    // Bounds each read, and the whole body: a server that trickles bytes is abandoned after this long in total
     private static final int READ_TIMEOUT_MS = 2000;
+    // A real response is tens of kilobytes; anything far larger is not a LibreHardwareMonitor server
+    private static final int MAX_BODY_CHARS = 1 << 20;
 
     // lhm_cpu_temperature_celsius {"sensorName"="CPU Package", ..., "hardwareId"="/intelcpu/0", ...} 45.5
-    // An optional trailing timestamp follows the value when the request asks for one.
-    private static final Pattern SAMPLE = Pattern.compile("^(lhm_\\w++)\\s*+\\{(.*)\\}\\s++(\\S++)(?:\\s++\\d++)?$");
+    // A timestamp in milliseconds follows the value in 0.9.5, which lists up to five samples per sensor, and in
+    // later versions when the request asks for one.
+    private static final Pattern SAMPLE = Pattern.compile("^(lhm_\\w++)\\s*+\\{(.*)\\}\\s++(\\S++)(?:\\s++(\\d++))?$");
     private static final Pattern LABEL = Pattern.compile("\"(\\w++)\"=\"([^\"]*+)\"");
 
     private LhmMetrics() {
@@ -73,14 +83,21 @@ public final class LhmMetrics {
      *
      * @param baseUrl the server's address, such as {@code http://127.0.0.1:8085}; a URL already ending in
      *                {@code /metrics} is used as given
-     * @return the readings, empty if the server could not be reached or returned none
+     * @return the readings, empty if the server could not be reached, is not an {@code http} or {@code https} address,
+     *         or returned none
      */
     public static List<Reading> query(String baseUrl) {
         String url = metricsUrl(baseUrl);
         HttpURLConnection conn = null;
         try {
+            URI uri = URI.create(url);
+            String scheme = uri.getScheme();
+            if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
+                LOG.debug("Not an http or https address for LibreHardwareMonitor: {}", url);
+                return Collections.emptyList();
+            }
             // The server is local, or on a host the user named; a proxy configured for the JVM is not meant for it
-            conn = (HttpURLConnection) URI.create(url).toURL().openConnection(Proxy.NO_PROXY);
+            conn = (HttpURLConnection) uri.toURL().openConnection(Proxy.NO_PROXY);
             conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
             conn.setReadTimeout(READ_TIMEOUT_MS);
             conn.setUseCaches(false);
@@ -89,14 +106,16 @@ public final class LhmMetrics {
                 LOG.debug("LibreHardwareMonitor at {} returned HTTP {}", url, status);
                 return Collections.emptyList();
             }
-            List<String> lines = new ArrayList<>();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream(), UTF_8))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    lines.add(line);
+            try (Reader reader = new InputStreamReader(conn.getInputStream(), UTF_8)) {
+                String body = readBounded(reader, MAX_BODY_CHARS,
+                        System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(READ_TIMEOUT_MS));
+                if (body == null) {
+                    LOG.debug("LibreHardwareMonitor at {} sent more than {} characters or took too long", url,
+                            MAX_BODY_CHARS);
+                    return Collections.emptyList();
                 }
+                return parse(Arrays.asList(body.split("\n", -1)));
             }
-            return parse(lines);
         } catch (IOException | IllegalArgumentException e) {
             LOG.debug("Unable to read LibreHardwareMonitor at {}", url, e);
             return Collections.emptyList();
@@ -105,6 +124,28 @@ public final class LhmMetrics {
                 conn.disconnect();
             }
         }
+    }
+
+    /**
+     * Reads a response body, giving up once it exceeds a size or a deadline.
+     *
+     * @param reader        the body
+     * @param maxChars      the largest body to accept
+     * @param deadlineNanos the {@link System#nanoTime()} by which the body must be complete
+     * @return the body, or {@code null} if it was too large or too slow
+     * @throws IOException if reading fails
+     */
+    static @Nullable String readBounded(Reader reader, int maxChars, long deadlineNanos) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        char[] buf = new char[8192];
+        int n;
+        while ((n = reader.read(buf)) != -1) {
+            sb.append(buf, 0, n);
+            if (sb.length() > maxChars || System.nanoTime() - deadlineNanos > 0) {
+                return null;
+            }
+        }
+        return sb.toString();
     }
 
     /**
@@ -125,13 +166,16 @@ public final class LhmMetrics {
     }
 
     /**
-     * Parses the {@code /metrics} response. Comment lines and samples whose value is not a number are skipped.
+     * Parses the {@code /metrics} response. Comment lines and samples whose value is not a number are skipped. Where a
+     * sensor appears more than once, as in 0.9.5, which lists its recent history, only the sample with the latest
+     * timestamp is kept.
      *
      * @param lines the response body, one sample per line
-     * @return the readings, in response order
+     * @return one reading per sensor, in the order each sensor first appears
      */
     public static List<Reading> parse(List<String> lines) {
-        List<Reading> readings = new ArrayList<>();
+        Map<String, Reading> readings = new LinkedHashMap<>();
+        Map<String, Long> timestamps = new HashMap<>();
         for (String line : lines) {
             Matcher sample = SAMPLE.matcher(line.trim());
             if (!sample.matches()) {
@@ -142,18 +186,33 @@ public final class LhmMetrics {
                 continue;
             }
             String hardwareId = "";
+            String sensorId = "";
             String sensorName = "";
             Matcher label = LABEL.matcher(sample.group(2));
             while (label.find()) {
-                if ("hardwareId".equals(label.group(1))) {
-                    hardwareId = label.group(2);
-                } else if ("sensorName".equals(label.group(1))) {
-                    sensorName = label.group(2);
+                switch (label.group(1)) {
+                    case "hardwareId":
+                        hardwareId = label.group(2);
+                        break;
+                    case "sensorId":
+                        sensorId = label.group(2);
+                        break;
+                    case "sensorName":
+                        sensorName = label.group(2);
+                        break;
+                    default:
+                        break;
                 }
             }
-            readings.add(new Reading(sample.group(1), hardwareId, sensorName, value));
+            String key = sample.group(1) + ' ' + hardwareId + ' ' + sensorId + ' ' + sensorName;
+            long timestamp = ParseUtil.parseLongOrDefault(sample.group(4), -1L);
+            Long previous = timestamps.get(key);
+            if (previous == null || timestamp > previous) {
+                readings.put(key, new Reading(sample.group(1), hardwareId, sensorName, value));
+                timestamps.put(key, timestamp);
+            }
         }
-        return Collections.unmodifiableList(readings);
+        return Collections.unmodifiableList(new ArrayList<>(readings.values()));
     }
 
     /**
