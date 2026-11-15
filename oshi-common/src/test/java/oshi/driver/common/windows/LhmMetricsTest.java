@@ -107,6 +107,8 @@ class LhmMetricsTest {
         assertThat("Too large", LhmMetrics.readBounded(new StringReader("x".repeat(101)), 100, later), is(nullValue()));
         assertThat("Too slow", LhmMetrics.readBounded(new StringReader("a"), 100, System.nanoTime() - 1L),
                 is(nullValue()));
+        assertThat("Too slow, checked at the end of the body too",
+                LhmMetrics.readBounded(new StringReader(""), 100, System.nanoTime() - 1L), is(nullValue()));
     }
 
     @Test

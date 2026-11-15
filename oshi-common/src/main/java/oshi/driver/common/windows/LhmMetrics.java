@@ -64,8 +64,10 @@ public final class LhmMetrics {
 
     // Short, because a refused connection to a closed port on Windows retries for two seconds before failing
     private static final int CONNECT_TIMEOUT_MS = 500;
-    // Bounds each read, and the whole body: a server that trickles bytes is abandoned after this long in total
-    private static final int READ_TIMEOUT_MS = 2000;
+    // The body must be complete within BODY_DEADLINE_MS. The deadline is checked between reads, and a blocked read
+    // gives up after READ_TIMEOUT_MS of silence, so a slow server is abandoned within the sum of the two.
+    private static final int READ_TIMEOUT_MS = 500;
+    private static final int BODY_DEADLINE_MS = 2000;
     // A real response is tens of kilobytes; anything far larger is not a LibreHardwareMonitor server
     private static final int MAX_BODY_CHARS = 1 << 20;
 
@@ -108,7 +110,7 @@ public final class LhmMetrics {
             }
             try (Reader reader = new InputStreamReader(conn.getInputStream(), UTF_8)) {
                 String body = readBounded(reader, MAX_BODY_CHARS,
-                        System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(READ_TIMEOUT_MS));
+                        System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(BODY_DEADLINE_MS));
                 if (body == null) {
                     LOG.debug("LibreHardwareMonitor at {} sent more than {} characters or took too long", url,
                             MAX_BODY_CHARS);
@@ -145,7 +147,7 @@ public final class LhmMetrics {
                 return null;
             }
         }
-        return sb.toString();
+        return System.nanoTime() - deadlineNanos > 0 ? null : sb.toString();
     }
 
     /**
