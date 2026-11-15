@@ -18,10 +18,11 @@ import oshi.annotation.concurrent.ThreadSafe;
  * Windows information is generally retrieved via Windows Management Instrumentation (WMI). Unfortunately, most hardware
  * providers do not publish sensor values to WMI. OSHI attempts to retrieve values from
  * <a href="https://openhardwaremonitor.org/">Open Hardware Monitor</a> or
- * <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> if either is running,
- * then from the optional jLibreHardwareMonitor dependency if it is on the class path. Otherwise, OSHI retrieves via the
- * Microsoft API, which may require elevated permissions and still may provide no results or unchanging results
- * depending on the motherboard manufacturer.
+ * <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> if either is running
+ * and publishing to WMI, which LibreHardwareMonitor stopped doing in version 0.9.5, then from the optional
+ * jLibreHardwareMonitor dependency if it is on the class path. Otherwise, OSHI retrieves via the Microsoft API, which
+ * may require elevated permissions and still may provide no results or unchanging results depending on the motherboard
+ * manufacturer.
  */
 @PublicApi
 @ThreadSafe
@@ -31,10 +32,10 @@ public interface Sensors {
      *
      * @return CPU Temperature in degrees Celsius if available, 0 otherwise.
      *         <p>
-     *         On Windows, requires a hardware monitor such as
-     *         <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> running
-     *         for reliable values. Without it, results may be zero or unchanging depending on the motherboard
-     *         manufacturer.
+     *         On Windows, requires a hardware monitor that publishes to WMI, such as
+     *         <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> 0.9.4 or
+     *         earlier, running for reliable values. Without it, results may be zero or unchanging depending on the
+     *         motherboard manufacturer.
      *         <p>
      *         On Linux, values are read from hwmon sensors or thermal zones. The sensor names and priority can be
      *         configured via {@code oshi.os.linux.sensors.hwmon.names} and
@@ -48,9 +49,9 @@ public interface Sensors {
      * @return Speed in rpm for all fans. May return empty array if no fans detected or 0 fan speed if unable to measure
      *         fan speed.
      *         <p>
-     *         On Windows, requires a hardware monitor such as
-     *         <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> running
-     *         for reliable values.
+     *         On Windows, requires a hardware monitor that publishes to WMI, such as
+     *         <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> 0.9.4 or
+     *         earlier, running for reliable values.
      */
     int[] getFanSpeeds();
 
@@ -59,9 +60,9 @@ public interface Sensors {
      *
      * @return CPU Voltage in Volts if available, 0 otherwise.
      *         <p>
-     *         On Windows, requires a hardware monitor such as
-     *         <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> running
-     *         for reliable values.
+     *         On Windows, requires a hardware monitor that publishes to WMI, such as
+     *         <a href="https://github.com/LibreHardwareMonitor/LibreHardwareMonitor">LibreHardwareMonitor</a> 0.9.4 or
+     *         earlier, running for reliable values.
      */
     double getCpuVoltage();
 }

@@ -470,9 +470,9 @@ few can be switched off explicitly, which [configuration](#how-do-i-configure-os
 
 | Install | What it adds |
 |---|---|
-| **LibreHardwareMonitor**, or the older **OpenHardwareMonitor**, running as Administrator with WMI publishing enabled | CPU temperature, fan speeds and voltage. LibreHardwareMonitor is the maintained one and also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
+| **LibreHardwareMonitor** 0.9.4 or earlier, or the older **OpenHardwareMonitor**, running as Administrator | CPU temperature, fan speeds and voltage. LibreHardwareMonitor also publishes GPU temperature, power, clocks, fan, utilization and memory. Nothing extra to add to your build. Both load the WinRing0 driver, which Microsoft Defender flags as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later replaced that driver but no longer publish to WMI, so OSHI does not read them. Without either, OSHI still asks Windows' own WMI classes (`MSAcpi_ThermalZoneTemperature`, `Win32_Fan`, `Win32_Processor`), which many motherboards leave empty or unchanging. |
 | The optional **jLibreHardwareMonitor** dependency | The same sensors with no monitoring application running — it ships the monitoring libraries itself. **No longer recommended**; see the known problems below. |
-| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if it is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
+| **Vendor GPU drivers** (NVIDIA NVML, AMD ADL) | GPU utilization, temperature, power, clocks and fan speed. Normally already present with the driver. Without them, OSHI uses LibreHardwareMonitor if a version that publishes to WMI is running, and utilization and dedicated and shared memory also come from Windows performance counters. |
 
 #### macOS
 
@@ -541,8 +541,10 @@ capability bits. The two better sources are listed under
 whichever answers, so nothing needs configuring to prefer one. When neither answers, OSHI still asks those Windows
 classes.
 
-The monitoring applications need no dependency at all, and are the recommended source. The jLibreHardwareMonitor
-dependency is still read when it is on the class path, but OSHI no longer recommends adding it.
+The monitoring applications need no dependency at all, but only OpenHardwareMonitor and LibreHardwareMonitor 0.9.4 and
+earlier publish to WMI, and both load the driver Defender flags. LibreHardwareMonitor 0.9.5 and later replaced that
+driver and stopped publishing to WMI, so OSHI does not read them. The jLibreHardwareMonitor dependency is still read
+when it is on the class path, but OSHI no longer recommends adding it.
 
 #### The optional jLibreHardwareMonitor dependency
 
@@ -578,8 +580,8 @@ Known problems, none of which OSHI can work around:
   never closes it; the session holds two non-daemon threads, so a program whose `main` method returns keeps running.
   End it with `System.exit()`.
 - **Microsoft Defender may flag it.** Version 1.0.6 bundles LibreHardwareMonitorLib 0.9.4, whose kernel driver is
-  WinRing0, which Defender reports as `HackTool:Win32/Winring0`. Current LibreHardwareMonitor releases use a different
-  driver; running the application instead avoids the problem.
+  WinRing0, which Defender reports as `HackTool:Win32/Winring0`. LibreHardwareMonitor 0.9.5 and later use a different
+  driver, but no longer publish the WMI data OSHI reads.
 - **It returns nothing on some hosts.** On Windows Server 2019 / Windows 10 1809-era hosts whose console handle is not a
   real screen buffer — a CI build agent, for example — PowerShell writes an error banner into the output being parsed, so
   no sensor data is returned and the dependency logs at ERROR. OSHI falls back to plain WMI in that case. See
