@@ -4,18 +4,21 @@
  */
 package oshi.hardware.common.platform.windows;
 
-import java.lang.reflect.Method;
+import static oshi.util.Memoizer.defaultExpiration;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.function.BiPredicate;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import oshi.annotation.concurrent.GuardedBy;
 import oshi.annotation.concurrent.ThreadSafe;
+import oshi.driver.common.windows.LhmMetrics;
+import oshi.driver.common.windows.LhmMetrics.Reading;
 import oshi.driver.common.windows.wmi.HardwareMonitorDisabled;
 import oshi.driver.common.windows.wmi.LhmSensor;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
@@ -27,13 +30,14 @@ import oshi.driver.common.windows.wmi.Win32Processor.VoltProperty;
 import oshi.driver.common.windows.wmi.WmiResult;
 import oshi.driver.common.windows.wmi.WmiUtil;
 import oshi.hardware.common.AbstractSensors;
+import oshi.util.GlobalConfig;
 
 /**
  * Abstract base shared by the Windows Sensors implementations (JNA and FFM). Holds the orchestration of the sensor
  * sources, which are tried in order: the Open Hardware Monitor and Libre Hardware Monitor WMI namespaces, published by
- * either application while it runs; the optional {@code jLibreHardwareMonitor} dependency, which reads the monitoring
- * libraries itself through reflection and needs no application running; and finally plain WMI. The reflection and
- * result processing are backend-agnostic; the native driver queries are provided by the subclasses.
+ * either application while it runs (Libre Hardware Monitor only up to version 0.9.4); the web server of Libre Hardware
+ * Monitor 0.9.5 and later, if {@link GlobalConfig#OSHI_OS_WINDOWS_LHM_URL} names one; and finally plain WMI. The source
+ * order and result processing are backend-agnostic; the native driver queries are provided by the subclasses.
  */
 @ThreadSafe
 public abstract class WindowsSensors extends AbstractSensors {
@@ -41,10 +45,6 @@ public abstract class WindowsSensors extends AbstractSensors {
     private static final Logger LOG = LoggerFactory.getLogger(WindowsSensors.class);
 
     protected static final String COM_EXCEPTION_MSG = "COM exception";
-
-    private static final String REFLECT_EXCEPTION_MSG = "Reflect exception";
-
-    private static final String JLIBREHARDWAREMONITOR_PACKAGE = "io.github.pandalxb.jlibrehardwaremonitor";
 
     /** Open Hardware Monitor's {@code HardwareType} value for a processor. */
     private static final String OHM_CPU = "CPU";
@@ -58,28 +58,96 @@ public abstract class WindowsSensors extends AbstractSensors {
      */
     private static final String SUPER_IO = "SuperIO";
 
-    /** {@code SensorType} values. Both monitors publish the same names, in WMI and through the jar alike. */
+    /** {@code SensorType} values. Both monitors publish the same names in WMI. */
     private static final String TEMPERATURE = "Temperature";
     private static final String FAN = "Fan";
     private static final String VOLTAGE = "Voltage";
 
-    /**
-     * Whether the optional {@code jLibreHardwareMonitor} dependency is on the class path. Declaring that dependency is
-     * how a user opts in to it, and the class path does not change while OSHI is running, so it is tested once here
-     * rather than on every sensor read.
-     */
-    private static final boolean LHM_JAR_PRESENT = isLhmJarPresent();
+    // One request to the Libre Hardware Monitor web server serves all three sensor reads of a refresh. The cache
+    // lifetime starts when the request completes rather than when it starts, as Memoizer's does, so that a request
+    // slower than the lifetime is not repeated by the next read.
+    @GuardedBy("this")
+    private List<Reading> lhmReadings = Collections.emptyList();
+    @GuardedBy("this")
+    private long lhmExpiration;
+    @GuardedBy("this")
+    private boolean lhmQueried;
 
-    private static boolean isLhmJarPresent() {
-        try {
-            // Test for the class without initializing it; the reflection below initializes it when first used
-            Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".config.ComputerConfig", false,
-                    WindowsSensors.class.getClassLoader());
-            return true;
-        } catch (ClassNotFoundException e) {
-            LOG.debug("jLibreHardwareMonitor is not on the class path. Sensor data will come from other sources.");
-            return false;
+    private synchronized List<Reading> getLhmMetrics() {
+        long ttl = defaultExpiration();
+        if (!lhmQueried || (ttl >= 0 && System.nanoTime() - lhmExpiration >= 0)) {
+            lhmReadings = queryLhmMetrics();
+            lhmExpiration = System.nanoTime() + ttl;
+            lhmQueried = true;
         }
+        return lhmReadings;
+    }
+
+    /**
+     * Queries the Libre Hardware Monitor web server named by {@link GlobalConfig#OSHI_OS_WINDOWS_LHM_URL}.
+     *
+     * @return the readings, empty if no server is configured or it could not be reached
+     */
+    protected List<Reading> queryLhmMetrics() {
+        String url = GlobalConfig.get(GlobalConfig.OSHI_OS_WINDOWS_LHM_URL, "");
+        return url.trim().isEmpty() ? Collections.emptyList() : LhmMetrics.query(url);
+    }
+
+    /**
+     * Averages the temperature readings of the first processor, using the same rule as the WMI namespaces.
+     *
+     * @param readings the web server's readings
+     * @return the average temperature in degrees Celsius, or 0 if there is none
+     */
+    static double getCpuTemperature(List<Reading> readings) {
+        String cpu = null;
+        double sum = 0;
+        int count = 0;
+        for (Reading r : readings) {
+            if (LhmMetrics.CPU_TEMPERATURE.equals(r.getMetric())) {
+                if (cpu == null) {
+                    cpu = r.getHardwareId();
+                }
+                if (cpu.equals(r.getHardwareId()) && isCpuTemperatureReading(r.getSensorName(), r.getValue())) {
+                    sum += r.getValue();
+                    count++;
+                }
+            }
+        }
+        return count > 0 ? sum / count : 0;
+    }
+
+    /**
+     * Collects the motherboard's fan readings, from every Super I/O chip, as the WMI namespaces do.
+     *
+     * @param readings the web server's readings
+     * @return the fan speeds in RPM, empty if there are none
+     */
+    static int[] getFanSpeeds(List<Reading> readings) {
+        return readings.stream().filter(r -> LhmMetrics.MOTHERBOARD_FAN.equals(r.getMetric()))
+                .mapToInt(r -> (int) r.getValue()).toArray();
+    }
+
+    /**
+     * Finds the processor's voltage: its own first voltage sensor if it has one, as the WMI namespaces read, otherwise
+     * the Super I/O chip's {@code Vcore}.
+     *
+     * @param readings the web server's readings
+     * @return the voltage in volts, or 0 if there is none
+     */
+    static double getCpuVoltage(List<Reading> readings) {
+        for (Reading r : readings) {
+            if (LhmMetrics.CPU_VOLTAGE.equals(r.getMetric()) && r.getValue() > 0) {
+                return r.getValue();
+            }
+        }
+        for (Reading r : readings) {
+            if (LhmMetrics.MOTHERBOARD_VOLTAGE.equals(r.getMetric()) && r.getValue() > 0
+                    && r.getSensorName().toLowerCase(Locale.ROOT).contains("vcore")) {
+                return r.getValue();
+            }
+        }
+        return 0d;
     }
 
     @Override
@@ -95,8 +163,8 @@ public abstract class WindowsSensors extends AbstractSensors {
         if (tempC > 0d) {
             return tempC;
         }
-        // Fetch value from LibreHardwareMonitorLib.dll / OpenHardwareMonitorLib.dll without applications running
-        tempC = getTempFromLhmJar();
+        // Then Libre Hardware Monitor 0.9.5 and later, which replaced WMI with a web server
+        tempC = getCpuTemperature(getLhmMetrics());
         if (tempC > 0d) {
             return tempC;
         }
@@ -123,10 +191,6 @@ public abstract class WindowsSensors extends AbstractSensors {
             return count > 0 ? sum / count : 0;
         }
         return 0;
-    }
-
-    private static double getTempFromLhmJar() {
-        return getAverageValueFromLhmJar("CPU", TEMPERATURE, WindowsSensors::isCpuTemperatureReading);
     }
 
     /**
@@ -170,8 +234,8 @@ public abstract class WindowsSensors extends AbstractSensors {
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
-        // Fetch value from LibreHardwareMonitorLib.dll / OpenHardwareMonitorLib.dll without applications running
-        fanSpeeds = getFansFromLhmJar();
+        // Then Libre Hardware Monitor 0.9.5 and later, which replaced WMI with a web server
+        fanSpeeds = getFanSpeeds(getLhmMetrics());
         if (fanSpeeds.length > 0) {
             return fanSpeeds;
         }
@@ -196,39 +260,6 @@ public abstract class WindowsSensors extends AbstractSensors {
                 fanSpeeds[i] = (int) WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, i);
             }
             return fanSpeeds;
-        }
-        return new int[0];
-    }
-
-    private static int[] getFansFromLhmJar() {
-        List<?> sensors = queryLhmJarSensors(SUPER_IO, FAN);
-        if (sensors == null || sensors.isEmpty()) {
-            return new int[0];
-        }
-
-        try {
-            // The sensor object is confirmed to contain the getValue method.
-            Class<?> sensorClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".model.Sensor");
-            Method getValueMethod = sensorClass.getMethod("getValue");
-
-            return sensors.stream().filter(sensor -> {
-                try {
-                    double value = (double) getValueMethod.invoke(sensor);
-                    return value > 0;
-                } catch (Exception e) {
-                    LOG.warn(REFLECT_EXCEPTION_MSG, e);
-                    return false;
-                }
-            }).mapToInt(sensor -> {
-                try {
-                    return (int) (double) getValueMethod.invoke(sensor);
-                } catch (Exception e) {
-                    LOG.warn(REFLECT_EXCEPTION_MSG, e);
-                    return 0;
-                }
-            }).toArray();
-        } catch (Exception e) {
-            LOG.warn(REFLECT_EXCEPTION_MSG, e);
         }
         return new int[0];
     }
@@ -258,8 +289,8 @@ public abstract class WindowsSensors extends AbstractSensors {
         if (volts > 0d) {
             return volts;
         }
-        // Fetch value from LibreHardwareMonitorLib.dll / OpenHardwareMonitorLib.dll without applications running
-        volts = getVoltsFromLhmJar();
+        // Then Libre Hardware Monitor 0.9.5 and later, which replaced WMI with a web server
+        volts = getCpuVoltage(getLhmMetrics());
         if (volts > 0d) {
             return volts;
         }
@@ -273,18 +304,13 @@ public abstract class WindowsSensors extends AbstractSensors {
         }
         // The processor's voltage sensors, reached the same way as its temperature and fan sensors. This asked the
         // Hardware class for SensorType="Voltage" until 2026-09; that class has no SensorType property, so the query
-        // could never match and this tier always fell through to the jar or to plain WMI.
+        // could never match and this tier always fell through to plain WMI.
         WmiResult<ValueProperty> ohmSensors = queryHardwareMonitorSensor(namespace, OhmHardware.HARDWARE, cpuTypeName,
                 VOLTAGE);
         if (ohmSensors != null && ohmSensors.getResultCount() > 0) {
             return WmiUtil.getFloat(ohmSensors, ValueProperty.VALUE, 0);
         }
         return 0d;
-    }
-
-    private static double getVoltsFromLhmJar() {
-        return getAverageValueFromLhmJar(SUPER_IO, VOLTAGE,
-                (name, value) -> name.toLowerCase(Locale.ROOT).contains("vcore") && value > 0);
     }
 
     private double getVoltsFromWMI() {
@@ -333,68 +359,6 @@ public abstract class WindowsSensors extends AbstractSensors {
             }
         }
         return identifiers;
-    }
-
-    private static double getAverageValueFromLhmJar(String hardwareType, String sensorType,
-            BiPredicate<String, Double> sensorValidFunction) {
-        List<?> sensors = queryLhmJarSensors(hardwareType, sensorType);
-        if (sensors == null || sensors.isEmpty()) {
-            return 0;
-        }
-
-        try {
-            // The sensor object is confirmed to contain the getName and getValue methods.
-            Class<?> sensorClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".model.Sensor");
-            Method getNameMethod = sensorClass.getMethod("getName");
-            Method getValueMethod = sensorClass.getMethod("getValue");
-
-            double sum = 0;
-            int validCount = 0;
-            for (Object sensor : sensors) {
-                String name = (String) getNameMethod.invoke(sensor);
-                double value = (double) getValueMethod.invoke(sensor);
-                if (sensorValidFunction.test(name, value)) {
-                    sum += value;
-                    validCount++;
-                }
-            }
-            return validCount > 0 ? sum / validCount : 0;
-        } catch (Exception e) {
-            LOG.warn(REFLECT_EXCEPTION_MSG, e);
-        }
-        return 0;
-    }
-
-    private static List<?> queryLhmJarSensors(String hardwareType, String sensorType) {
-        if (!LHM_JAR_PRESENT) {
-            return Collections.emptyList();
-        }
-        try {
-            Class<?> computerConfigClass = Class.forName(JLIBREHARDWAREMONITOR_PACKAGE + ".config.ComputerConfig");
-            Class<?> libreHardwareManagerClass = Class
-                    .forName(JLIBREHARDWAREMONITOR_PACKAGE + ".manager.LibreHardwareManager");
-
-            Method computerConfigGetInstanceMethod = computerConfigClass.getMethod("getInstance");
-            Object computerConfigInstance = computerConfigGetInstanceMethod.invoke(null);
-
-            Method setEnabledMethod = computerConfigClass.getMethod("setCpuEnabled", boolean.class);
-            setEnabledMethod.invoke(computerConfigInstance, true);
-            setEnabledMethod = computerConfigClass.getMethod("setMotherboardEnabled", boolean.class);
-            setEnabledMethod.invoke(computerConfigInstance, true);
-
-            Method libreHardwareManagerGetInstanceMethod = libreHardwareManagerClass.getMethod("getInstance",
-                    computerConfigClass);
-
-            Object instance = libreHardwareManagerGetInstanceMethod.invoke(null, computerConfigInstance);
-
-            Method querySensorsMethod = libreHardwareManagerClass.getMethod("querySensors", String.class, String.class);
-            return (List<?>) querySensorsMethod.invoke(instance, hardwareType, sensorType);
-        } catch (ClassNotFoundException e) {
-            LOG.trace("jLibreHardwareMonitor not available", e);
-        } catch (Exception e) {
-            LOG.warn(REFLECT_EXCEPTION_MSG, e);
-        }
-        return Collections.emptyList();
     }
 
     /**

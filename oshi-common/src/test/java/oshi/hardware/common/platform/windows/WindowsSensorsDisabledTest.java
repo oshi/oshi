@@ -17,6 +17,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.parallel.Isolated;
 
+import oshi.driver.common.windows.LhmMetrics.Reading;
 import oshi.driver.common.windows.wmi.LhmSensor;
 import oshi.driver.common.windows.wmi.MSAcpiThermalZoneTemperature.TemperatureProperty;
 import oshi.driver.common.windows.wmi.OhmHardware;
@@ -100,6 +101,11 @@ class WindowsSensorsDisabledTest {
                 String typeName, String sensorType) {
             namespaces.add(namespace);
             return null;
+        }
+
+        @Override
+        protected List<Reading> queryLhmMetrics() {
+            return List.of();
         }
 
         @Override

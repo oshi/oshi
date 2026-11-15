@@ -1,6 +1,6 @@
 # 7.8.0 (in progress)
 
-OSHI no longer recommends the optional `jLibreHardwareMonitor` dependency for Windows sensors. Recommending it was a mistake. With it on the class path, a JVM does not exit after `main` returns. The DLL it bundles uses a kernel driver that Microsoft Defender flags as a hacking tool. On some hosts it returns no data ([#3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to any of these reports. OpenHardwareMonitor and [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) 0.9.4 and earlier still supply sensors through WMI, though they load the same flagged driver; LibreHardwareMonitor 0.9.5 and later no longer publish to WMI. OSHI still reads the dependency if it is present, but support for it may be removed in a future release. See the [FAQ](FAQ.md#the-optional-jlibrehardwaremonitor-dependency).
+OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Windows sensors. Recommending it was a mistake. With it on the class path, a JVM does not exit after `main` returns. The DLL it bundles uses a kernel driver that Microsoft Defender flags as a hacking tool. On some hosts it returns no data ([#3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to any of these reports. Remove it from your build and run [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) with its web server on instead; see the [FAQ](FAQ.md#reading-librehardwaremonitor-095-and-later).
 
 ##### New Features
 
@@ -16,6 +16,7 @@ OSHI no longer recommends the optional `jLibreHardwareMonitor` dependency for Wi
 * [#3858](https://github.com/oshi/oshi/pull/3858): On macOS, `HWDiskStore.getDiskType()` reports `Virtual` for an APFS container and a disk image, which previously reported `Unknown` and `Removable` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3885](https://github.com/oshi/oshi/pull/3885): On macOS, `OperatingSystem.getServices()` lists launchd jobs by label, including those in `/Library` and the user's `~/Library/LaunchAgents`, instead of every child process of launchd by process name - [@dbwiddis](https://github.com/dbwiddis).
 * [#3890](https://github.com/oshi/oshi/pull/3890): On Solaris, `OperatingSystem.getServices()` reports each online SMF service as running, with the process ID of its first process, instead of as stopped alongside a separate entry for each of its processes - [@dbwiddis](https://github.com/dbwiddis).
+* [#3905](https://github.com/oshi/oshi/pull/3905): Windows `Sensors` reads LibreHardwareMonitor 0.9.5 and later through the application's web server when `oshi.os.windows.lhm.url` is set, since those versions no longer publish to WMI, and no longer reads the `jLibreHardwareMonitor` dependency - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 

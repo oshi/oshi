@@ -51,6 +51,12 @@
     <allow pkg="java.time" />
     <allow pkg="java.util" />
 
+    <!-- One test serves HTTP on the loopback interface, to exercise the LibreHardwareMonitor web server client -->
+    <file name="LhmMetricsTest">
+        <allow class="java.net.ServerSocket" />
+        <allow class="java.net.Socket" />
+    </file>
+
     <!-- Micrometer imports for metrics module tests -->
     <subpackage name="metrics">
         <allow pkg="io.micrometer.core.instrument" />
