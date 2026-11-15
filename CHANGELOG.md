@@ -1,4 +1,8 @@
-# 7.8.0 (in progress)
+# 7.8.1 (in progress)
+
+* Your contribution here!
+
+# 7.8.0 (2026-11-15)
 
 OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Windows sensors. Recommending it was a mistake. With it on the class path, a JVM does not exit after `main` returns. The DLL it bundles uses a kernel driver that Microsoft Defender flags as a hacking tool. On some hosts it returns no data ([#3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to any of these reports. Remove it from your build and run [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) with its web server on instead; see the [FAQ](FAQ.md#reading-librehardwaremonitor-095-and-later).
 
@@ -8,42 +12,56 @@ OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Wind
   [#3856](https://github.com/oshi/oshi/pull/3856),
   [#3858](https://github.com/oshi/oshi/pull/3858),
   [#3859](https://github.com/oshi/oshi/pull/3859): `HWDiskStore.getBackingStores()` lists the disks, partitions or file stores a layered disk is built on, so a caller can tell which entries in `getDiskStores()` duplicate the capacity and I/O of others. Reported on Linux, macOS and Windows - [@dbwiddis](https://github.com/dbwiddis).
+* [#3880](https://github.com/oshi/oshi/pull/3880),
+  [#3895](https://github.com/oshi/oshi/pull/3895): `OperatingSystem.getInstalledApplications()` now lists installed packages on Alpine and Arch Linux, FreeBSD, DragonFly BSD, OpenBSD, NetBSD, Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Behavior Changes
 
 * [#3856](https://github.com/oshi/oshi/pull/3856),
   [#3861](https://github.com/oshi/oshi/pull/3861): On native-free Linux, `getDiskStores()` matches the JNA and FFM implementations: it lists device-mapper (LVM, LUKS, multipath), md RAID and other virtual block devices, a partition's identification is its device path such as `/dev/sda1`, and a model or serial that sysfs does not provide is `unknown` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3858](https://github.com/oshi/oshi/pull/3858): On macOS, `HWDiskStore.getDiskType()` reports `Virtual` for an APFS container and a disk image, which previously reported `Unknown` and `Removable` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3885](https://github.com/oshi/oshi/pull/3885): On macOS, `OperatingSystem.getServices()` lists launchd jobs by label, including those in `/Library` and the user's `~/Library/LaunchAgents`, instead of every child process of launchd by process name - [@dbwiddis](https://github.com/dbwiddis).
-* [#3890](https://github.com/oshi/oshi/pull/3890): On Solaris, `OperatingSystem.getServices()` reports each online SMF service as running, with the process ID of its first process, instead of as stopped alongside a separate entry for each of its processes - [@dbwiddis](https://github.com/dbwiddis).
+* [#3885](https://github.com/oshi/oshi/pull/3885),
+  [#3890](https://github.com/oshi/oshi/pull/3890): `OperatingSystem.getServices()` lists launchd jobs by label on macOS, including those in `/Library` and `~/Library/LaunchAgents`, instead of every child process of launchd; and on Solaris reports each online SMF service as running with the process ID of its first process, instead of as stopped alongside an entry for each process - [@dbwiddis](https://github.com/dbwiddis).
+* [#3896](https://github.com/oshi/oshi/pull/3896): On Windows, `HWDiskStore.getPartitions()` includes partitions without a drive letter, such as the EFI system and recovery partitions, with an empty mount point - [@dbwiddis](https://github.com/dbwiddis).
+* [#3898](https://github.com/oshi/oshi/pull/3898): `OperatingSystem.getInstalledApplications()` returns an unmodifiable list on every platform, as it already did on macOS - [@dbwiddis](https://github.com/dbwiddis).
 * [#3905](https://github.com/oshi/oshi/pull/3905): Windows `Sensors` reads LibreHardwareMonitor 0.9.5 and later through the application's web server when `oshi.os.windows.lhm.url` is set, since those versions no longer publish to WMI, and no longer reads the `jLibreHardwareMonitor` dependency - [@dbwiddis](https://github.com/dbwiddis).
 
 ##### Bug Fixes and Improvements
 
-* [#3857](https://github.com/oshi/oshi/pull/3857): `HardwareAbstractionLayer.getVirtualization()` now identifies an Amazon EC2 Nitro virtual machine, and not an EC2 bare-metal instance - [@dbwiddis](https://github.com/dbwiddis).
-* [#3862](https://github.com/oshi/oshi/pull/3862): Improved Linux processor identification and cache reporting on IBM Z (s390x) - [@dbwiddis](https://github.com/dbwiddis).
-* [#3863](https://github.com/oshi/oshi/pull/3863): On native-free Linux, `getProcessorID()` matches the JNA and FFM implementations - [@dbwiddis](https://github.com/dbwiddis).
-* [#3873](https://github.com/oshi/oshi/pull/3873): Fixed Linux disk and file store reporting with a custom `oshi.util.dev.path`: device names are the `/dev/` names the kernel reports in every implementation, and loop, RAM and device-mapper devices, partition mount points, physical volumes and file store UUIDs are recognized - [@dbwiddis](https://github.com/dbwiddis).
-* [#3874](https://github.com/oshi/oshi/pull/3874): Fixed Linux `HWPartition.getMountPoint()` for a mount point containing a space, and for a device that is also bind-mounted elsewhere; `OSFileStore` mount points containing a tab, newline or backslash; and `LogicalVolumeGroup` physical volume names containing a slash - [@dbwiddis](https://github.com/dbwiddis).
-* [#3876](https://github.com/oshi/oshi/pull/3876): Fixed `HWPartition.getMountPoint()` for disklabel partitions on NetBSD, which reported part of the cylinder range and now reports the mounted file system, and on OpenBSD for a partition not listed in `fstab`. NetBSD disklabel partitions no longer report a `.a`-style UUID - [@dbwiddis](https://github.com/dbwiddis).
-* [#3879](https://github.com/oshi/oshi/pull/3879): `CentralProcessor.getProcessorCaches()` now reports processor caches on Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
-* [#3880](https://github.com/oshi/oshi/pull/3880): Linux reports disks, USB devices and volume groups without libudev (Alpine, distroless), reads udev properties for native-free disks, partitions and network adapters, lists installed applications on Alpine and Arch with millisecond timestamps, lists OpenRC services, and reads affinity from `/proc` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3881](https://github.com/oshi/oshi/pull/3881): Linux reports 64-bit processors on ARM, RISC-V and POWER, P-core and E-core efficiency on Intel hybrid processors, external power and battery time remaining, board manufacturer and serial number from the devicetree, Raspberry Pi fans, and graphics cards without `lspci` or `lshw` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3884](https://github.com/oshi/oshi/pull/3884): Fixed macOS on Apple Silicon: battery capacity in mAh, battery serial number, firmware version, baseboard model, disk serial numbers and sound cards; and `getProcessCount()` on every Mac - [@dbwiddis](https://github.com/dbwiddis).
-* [#3885](https://github.com/oshi/oshi/pull/3885): `NetworkIF.getIfOperStatus()` now reports link state on macOS, and macOS `GraphicsCard.getVersionInfo()` includes Metal support - [@dbwiddis](https://github.com/dbwiddis).
-* [#3886](https://github.com/oshi/oshi/pull/3886): Fixed Windows `getPowerSources()`, which reported a placeholder battery on a desktop and only the first of several batteries; `NetworkIF` packet counts, which counted only unicast; `getDnsServers()`, which listed only IPv4 servers; and `getHostName()`, which returned the 15-character NetBIOS name - [@dbwiddis](https://github.com/dbwiddis).
-* [#3887](https://github.com/oshi/oshi/pull/3887): Fixed Windows `getCpuTemperature()` from Open or Libre Hardware Monitor, which averaged in the summary and distance-to-TjMax sensors, and `getFanSpeeds()` from either monitor, which looked for fans on the processor instead of the motherboard - [@dbwiddis](https://github.com/dbwiddis).
-* [#3888](https://github.com/oshi/oshi/pull/3888): Fixed OpenBSD `VirtualMemory.getSwapPagesIn()` and `getSwapPagesOut()`, which reported bytes rather than pages, and `OSProcess.getAffinityMask()`, which reported no processors - [@dbwiddis](https://github.com/dbwiddis).
-* [#3890](https://github.com/oshi/oshi/pull/3890): Fixed `CentralProcessor` IRQ, SoftIRQ and Steal ticks and `OSProcess.getBitness()` on AIX, `OSProcess.getCurrentWorkingDirectory()` on Solaris, and `OSProcess.getGroup()` on DragonFly BSD - [@dbwiddis](https://github.com/dbwiddis).
-* [#3891](https://github.com/oshi/oshi/pull/3891): NetBSD now reports `Sensors` and `getPowerSources()` through `envstat`, and `getGraphicsCards()` from the boot messages, where it previously ran OpenBSD-only commands and reported nothing - [@dbwiddis](https://github.com/dbwiddis).
-* [#3892](https://github.com/oshi/oshi/pull/3892): `LogicalProcessor.getNumaNode()` now reports the NUMA node on FreeBSD and NetBSD, and `CentralProcessor.getFeatureFlags()` on Solaris no longer depends on the boot messages remaining in `dmesg` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3893](https://github.com/oshi/oshi/pull/3893): `NetworkIF.getIfOperStatus()` and `getIfAlias()` now report link state and the interface description on FreeBSD, DragonFly BSD, NetBSD and OpenBSD, and `getIfType()` reports the interface type on AIX - [@dbwiddis](https://github.com/dbwiddis).
-* [#3894](https://github.com/oshi/oshi/pull/3894): `HardwareAbstractionLayer.getSoundCards()` now reports sound cards on FreeBSD and DragonFly BSD from the kernel's device tree, where it relied on `lshal`, which is no longer available - [@dbwiddis](https://github.com/dbwiddis).
-* [#3895](https://github.com/oshi/oshi/pull/3895): `OperatingSystem.getInstalledApplications()` now lists installed packages on FreeBSD, DragonFly BSD, OpenBSD, NetBSD, Solaris and illumos - [@dbwiddis](https://github.com/dbwiddis).
-* [#3896](https://github.com/oshi/oshi/pull/3896): `HWDiskStore.getDiskType()` now reports `SSD` or `HDD` on FreeBSD, and Windows `HWDiskStore.getPartitions()` includes partitions without a drive letter, such as the EFI system and recovery partitions, with an empty mount point - [@dbwiddis](https://github.com/dbwiddis).
-* [#3897](https://github.com/oshi/oshi/pull/3897): Fixed `OSThread` on Solaris, where page faults were not reported and CPU times and context switches never read the thread's own usage, and on NetBSD, where CPU time, page faults and context switches were the process's totals - [@dbwiddis](https://github.com/dbwiddis).
-* [#3899](https://github.com/oshi/oshi/pull/3899): `HardwareAbstractionLayer.getLogicalVolumeGroups()` now reports volume groups on AIX, and `GlobalMemory.getPhysicalMemory()` reports memory modules on Solaris and illumos x86 without `dmidecode` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3902](https://github.com/oshi/oshi/pull/3902): `CentralProcessor` reports the stepping and processor ID on ARM64 Windows - [@dbwiddis](https://github.com/dbwiddis).
+* [#3873](https://github.com/oshi/oshi/pull/3873),
+  [#3874](https://github.com/oshi/oshi/pull/3874),
+  [#3876](https://github.com/oshi/oshi/pull/3876),
+  [#3880](https://github.com/oshi/oshi/pull/3880),
+  [#3896](https://github.com/oshi/oshi/pull/3896),
+  [#3899](https://github.com/oshi/oshi/pull/3899): Fixed disk, partition and volume group reporting: Linux with a custom `oshi.util.dev.path`, mount points containing spaces or bind mounts, and disks, USB devices and volume groups without libudev (Alpine, distroless); disklabel partition mount points on NetBSD and OpenBSD; `getDiskType()` on FreeBSD; and `getLogicalVolumeGroups()` on AIX, which reported none - [@dbwiddis](https://github.com/dbwiddis).
+* [#3862](https://github.com/oshi/oshi/pull/3862),
+  [#3863](https://github.com/oshi/oshi/pull/3863),
+  [#3879](https://github.com/oshi/oshi/pull/3879),
+  [#3881](https://github.com/oshi/oshi/pull/3881),
+  [#3890](https://github.com/oshi/oshi/pull/3890),
+  [#3892](https://github.com/oshi/oshi/pull/3892),
+  [#3902](https://github.com/oshi/oshi/pull/3902): Improved `CentralProcessor`: identification and caches on IBM Z (s390x), processor caches on Solaris and illumos, 64-bit detection on ARM, RISC-V and POWER, P-core and E-core efficiency on Intel hybrid processors, IRQ, SoftIRQ and Steal ticks on AIX, NUMA nodes on FreeBSD and NetBSD, feature flags on Solaris without `dmesg`, and stepping and processor ID on ARM64 Windows - [@dbwiddis](https://github.com/dbwiddis).
+* [#3881](https://github.com/oshi/oshi/pull/3881),
+  [#3884](https://github.com/oshi/oshi/pull/3884),
+  [#3886](https://github.com/oshi/oshi/pull/3886),
+  [#3887](https://github.com/oshi/oshi/pull/3887),
+  [#3891](https://github.com/oshi/oshi/pull/3891): Fixed `getPowerSources()` and `Sensors`: external power and battery time remaining on Linux, battery capacity in mAh on Apple Silicon, Windows desktops reporting a placeholder battery and multi-battery systems only the first, Windows CPU temperature and fan speeds from Open or Libre Hardware Monitor, Raspberry Pi fans, and NetBSD, which reported nothing - [@dbwiddis](https://github.com/dbwiddis).
+* [#3857](https://github.com/oshi/oshi/pull/3857),
+  [#3881](https://github.com/oshi/oshi/pull/3881),
+  [#3884](https://github.com/oshi/oshi/pull/3884),
+  [#3885](https://github.com/oshi/oshi/pull/3885),
+  [#3891](https://github.com/oshi/oshi/pull/3891),
+  [#3894](https://github.com/oshi/oshi/pull/3894),
+  [#3899](https://github.com/oshi/oshi/pull/3899): Improved hardware identification: Amazon EC2 Nitro virtual machines; board identity and graphics cards on Linux from the devicetree and DRM; firmware, baseboard, disk serial numbers and sound cards on Apple Silicon; Metal support in macOS `GraphicsCard.getVersionInfo()`; graphics cards on NetBSD; sound cards on FreeBSD and DragonFly BSD; and memory modules on Solaris and illumos x86 without `dmidecode` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3885](https://github.com/oshi/oshi/pull/3885),
+  [#3886](https://github.com/oshi/oshi/pull/3886),
+  [#3893](https://github.com/oshi/oshi/pull/3893): Improved `NetworkIF` and `NetworkParams`: link state from `getIfOperStatus()` on macOS and the BSDs, the interface description from `getIfAlias()` on the BSDs, the interface type on AIX, and on Windows packet counts that include multicast and broadcast, IPv6 DNS servers, and the full DNS host name - [@dbwiddis](https://github.com/dbwiddis).
+* [#3880](https://github.com/oshi/oshi/pull/3880),
+  [#3884](https://github.com/oshi/oshi/pull/3884),
+  [#3888](https://github.com/oshi/oshi/pull/3888),
+  [#3890](https://github.com/oshi/oshi/pull/3890),
+  [#3897](https://github.com/oshi/oshi/pull/3897): Fixed processes and threads: `getProcessCount()` on macOS, affinity on Linux without native access and on OpenBSD, bitness on AIX, the working directory on Solaris, the group on DragonFly BSD, thread CPU times, context switches and page faults on Solaris, and NetBSD threads, which reported their process's totals. OpenBSD `getSwapPagesIn()` and `getSwapPagesOut()` count pages rather than bytes - [@dbwiddis](https://github.com/dbwiddis).
+* [#3880](https://github.com/oshi/oshi/pull/3880): Linux lists OpenRC services, and native-free Linux reads udev properties for disks, partitions and network adapters - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

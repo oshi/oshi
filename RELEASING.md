@@ -86,13 +86,13 @@ grep '^\[WARNING\]' /tmp/lint.log | sed -E 's/.*\[([a-z-]+)\].*/\1/' | sort | un
 * Use a JDK 25+ toolchain, or `oshi-core-ffm`, `oshi-benchmark`, and `oshi-dist` are silently skipped.
   Findings are *not* OS-dependent — javac compiles every platform's sources on every host — so a
   single sweep on any one machine covers all supported platforms.
-* **The value is the delta, not the total.** As of 7.7.0 the expected result is 539 findings in
+* **The value is the delta, not the total.** As of 7.8.0 the expected result is 549 findings in
   exactly four categories, all structural and all deliberate:
 
   | Category | Count | Why it is expected |
   |---|---|---|
-  | `restricted` | 300 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
-  | `this-escape` | 157 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
+  | `restricted` | 305 | FFM downcall and `reinterpret` calls, which are the entire point of `oshi-core-ffm`; the runtime side is declared by the native-access flag |
+  | `this-escape` | 162 | Memoized `this::method` suppliers, invoked only after construction, plus abstract accessors whose implementations return stateless singletons |
   | `exports` | 80 | Public `oshi.ffm` methods returning types from non-exported packages, which [AGENTS.md](AGENTS.md) already declares off-limits to dependents |
   | `missing-explicit-ctor` | 2 | The two `SystemInfoTest` report classes. JUnit constructs them reflectively, so a private constructor would break the build, and neither is published |
 
@@ -109,7 +109,9 @@ grep '^\[WARNING\]' /tmp/lint.log | sed -E 's/.*\[([a-z-]+)\].*/\1/' | sort | un
   with the NetBSD FFM port and the macOS CoreGraphics display calls, and `exports` by one more
   `@Nullable` in a public `oshi.ffm` signature. The 7.7.2 sweep found nothing new either:
   `this-escape` grew with memoized suppliers in new BSD classes, `restricted` by one DragonFly
-  downcall, and `exports` fell when a `SystemInfoTest` class changed its JUnit annotations.
+  downcall, and `exports` fell when a `SystemInfoTest` class changed its JUnit annotations. The 7.8.0 sweep found nothing new:
+  `restricted` grew with macOS downcalls and Windows DNS server reads, and `this-escape` with
+  memoized suppliers and the pointer constructors of two new JNA structures.
 
 ### Release
 

@@ -51,9 +51,9 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.7.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.7.3)
-  * FFM: [oshi-core-ffm-7.7.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.7.3)
-  * Common: [oshi-common-7.7.3](https://central.sonatype.com/artifact/com.github.oshi/oshi-common/7.7.3)
+  * JNA: [oshi-core-7.8.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.8.0)
+  * FFM: [oshi-core-ffm-7.8.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.8.0)
+  * Common: [oshi-common-7.8.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-common/7.8.0)
 
 Snapshot builds of the next version are published to `https://central.sonatype.com/repository/maven-snapshots/`, which your build must be configured to use.
 
@@ -66,7 +66,7 @@ Usage
 1. Include OSHI and its dependencies on your classpath.
    - We strongly recommend you add `oshi-core` (and/or `oshi-core-ffm`) as a dependency to your project dependency manager such as Maven or Gradle. Transitive dependencies (including `oshi-common` and JNA) are resolved automatically.
    - If you manage JAR files manually, download all needed JARs from the `oshi-dist` zip file attached to each [GitHub release](https://github.com/oshi/oshi/releases). It contains `oshi-common`, `oshi-core`, and `oshi-core-ffm` plus their runtime dependencies; the `oshi-demo` examples and their dependencies are not included. See [UPGRADING.md](https://github.com/oshi/oshi/blob/master/UPGRADING.md#project-dependencies) for details.
-   - For Windows, consider the optional `jLibreHardwareMonitor` dependency if you need sensor information. Note the binary DLLs in this dependency are licensed under MPL 2.0.
+   - For Windows sensor information, run [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) as Administrator. OSHI reads versions 0.9.5 and later through their web server once `oshi.os.windows.lhm.url` names it, and earlier versions and OpenHardwareMonitor through WMI. See the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md#how-can-i-get-reliable-sensor-information-on-windows).
    - For Android, you'll need to add the [AAR artifact for JNA](https://github.com/java-native-access/jna/blob/master/www/FrequentlyAskedQuestions.md#jna-on-android) and exclude OSHI's transitive (JAR) dependency.
    - See the [FAQ](https://github.com/oshi/oshi/blob/master/FAQ.md#how-do-i-resolve-jna-noclassdeffounderror-or-nosuchmethoderror-issues) if you encounter `NoClassDefFoundError` or `NoSuchMethodError` problems.
 
