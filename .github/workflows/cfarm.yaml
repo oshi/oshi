@@ -29,11 +29,12 @@ permissions: {}
 #   * reaps stale JVMs left by a previously killed run (their open handles can
 #     block git clean / mvn clean on the shared, possibly NFS-backed workspace),
 #   * git clean -xffd to drop any leftover build output, and
-#   * bounds the build wall-clock below the 25-minute ssh limit with `timeout`
-#     so a hung/cancelled run tears down its own process tree instead of
-#     orphaning a JVM for the next run to trip over.
+#   * bounds the whole run, setup included, below the 25-minute ssh limit with
+#     `timeout` so a hung/cancelled run tears down its own process tree instead
+#     of orphaning a JVM for the next run to trip over.
 # Those steps live in the per-host scripts in .github/cfarm/, which
-# .github/cfarm/remote.sh runs over ssh.
+# .github/cfarm/remote.sh runs over ssh; the time budget and the build's single
+# retry are in .github/cfarm/build.sh.
 
 # Host availability: cfarm machines go down for days at a time, and some drop
 # ssh connections before authentication at random. remote.sh retries every

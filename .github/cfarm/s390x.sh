@@ -6,7 +6,7 @@ set -e
 for pid in $(ps -u oshi -o pid=,etime=,comm= 2>/dev/null | awk '$3 ~ /java/ {
       et=$2; n=split(et,a,/[-:]/);
       m=(et ~ /-/)?999:(n==3?a[1]*60+a[2]:a[1]);
-      if (m>=20) print $1 }'); do
+      if (m>=24) print $1 }'); do
   kill -9 "$pid" 2>/dev/null || true
 done
 [ -d ~/oshi ] || git clone -q "$REPO_URL" ~/oshi
@@ -22,12 +22,11 @@ export JAVA_HOME=/usr/lib/jvm/java-25-openjdk-s390x
 # shielding this shell so the build's real exit code is preserved.
 trap 'ec=$?; trap "" TERM; kill 0 2>/dev/null; exit $ec' EXIT
 set +e
-# One wall-clock budget for both attempts, kept under the 25-minute ssh limit
-# so the box self-terminates first and leaves no orphan.
 # aggregate-coverage turns on the oshi.comparison tests, which check that the JNA,
 # FFM and native-free implementations agree on a big-endian machine.
-BUILD='./mvnw clean test -Paggregate-coverage -B || { sleep 15; ./mvnw clean test -Paggregate-coverage -B; }'
-timeout --kill-after=30s 20m sh -c "$BUILD"
+# Retries once on failure, within one time budget for the whole script; see build.sh
+. .github/cfarm/build.sh
+cfarm_build ./mvnw clean test -Paggregate-coverage -B
 rc=$?
 # The next run's git clean wipes any crash report, so print it now
 [ "$rc" -eq 0 ] || sh .github/dump-crash-reports.sh
