@@ -204,6 +204,26 @@ jobs:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: oshi-benchmark/target/site/jacoco-aggregate/jacoco.xml
           flags: ${{ matrix.coverage-flag }}
+      # Codecov Test Analytics: a failed test's name and stack trace land in the PR comment. Every
+      # matrix row uploads, not just the coverage rows. The junit-platform plugin writes one legacy
+      # JUnit XML per module; they are listed rather than searched for because Codecov's default
+      # search does not match the file name. A module that did not build on this JDK, or that the
+      # run never reached, has no file, and that is only a warning.
+      - name: Upload Test Results
+        if: ${{ !cancelled() }}
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          report_type: test_results
+          disable_search: true
+          # The action splits this on commas alone, so no whitespace may survive between entries:
+          # each trailing backslash joins the next line on with nothing in between.
+          files: "oshi-common/target/junit-platform/TEST-junit-jupiter.xml,\
+            oshi-core/target/junit-platform/TEST-junit-jupiter.xml,\
+            oshi-core-ffm/target/junit-platform/TEST-junit-jupiter.xml,\
+            oshi-metrics/target/junit-platform/TEST-junit-jupiter.xml,\
+            oshi-benchmark/target/junit-platform/TEST-junit-jupiter.xml"
+          flags: ${{ matrix.coverage-flag }}
 
   # FreeBSD VM, JDK 25. Separate from the main matrix because vmactions/freebsd-vm
   # runs inside a nested VM on ubuntu-latest. Aggregate coverage is uploaded to
