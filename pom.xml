@@ -173,7 +173,7 @@
         <properties-maven-plugin.version>1.4.0</properties-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
         <sortpom-plugin.version>4.0.0</sortpom-plugin.version>
-        <spotless-plugin.version>3.11.0</spotless-plugin.version>
+        <spotless-plugin.version>3.12.0</spotless-plugin.version>
         <!-- JSpecify nullability annotations (@NullMarked/@Nullable). Compile-time metadata only: declared
         optional so it stays off consumers' transitive classpath, and imported optionally by OSGi. Four
         annotation classes, no transitive dependencies, Java 8 bytecode, Apache 2.0. -->
