@@ -209,13 +209,19 @@ jobs:
       # JUnit XML per module; they are listed rather than searched for because Codecov's default
       # search does not match the file name. A module that did not build on this JDK, or that the
       # run never reached, has no file, and that is only a warning.
-      - name: PROBE strip failure message attributes
+      - name: PROBE turn CDATA failure bodies into escaped text
         if: ${{ !cancelled() }}
         shell: bash
         run: |
-          for f in */target/junit-platform/TEST-junit-jupiter.xml; do
-            [ -f "$f" ] && sed -i.bak -E 's/<(failure|error) message="[^"]*"/<\1/' "$f"
-          done
+          PY=$(command -v python3 || command -v python)
+          "$PY" - <<'PYEOF'
+          import glob, html, re
+          for f in glob.glob('*/target/junit-platform/TEST-junit-jupiter.xml'):
+              s = open(f, encoding='utf-8', newline='').read()
+              s = re.sub(r'(<(failure|error)\b[^>]*>)<!\[CDATA\[(.*?)\]\]>(</\2>)',
+                         lambda m: m[1] + html.escape(m[3], quote=False) + m[4], s, flags=re.S)
+              open(f, 'w', encoding='utf-8', newline='').write(s)
+          PYEOF
           grep -h -A3 '<failure' */target/junit-platform/TEST-junit-jupiter.xml || true
       - name: Upload Test Results
         if: ${{ !cancelled() }}
