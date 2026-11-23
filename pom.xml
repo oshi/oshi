@@ -184,7 +184,7 @@
         <maven-project-info-reports-plugin.version>3.9.0</maven-project-info-reports-plugin.version>
         <maven-surefire-report-plugin.version>3.6.1</maven-surefire-report-plugin.version>
         <taglist-maven-plugin.version>3.3.0</taglist-maven-plugin.version>
-        <versions-maven-plugin.version>2.25.2</versions-maven-plugin.version>
+        <versions-maven-plugin.version>2.25.3</versions-maven-plugin.version>
         <!-- Misc. -->
         <sonar-maven-plugin.version>5.9.0.7382</sonar-maven-plugin.version>
         <dependency-check-maven.version>13.0.0</dependency-check-maven.version>
