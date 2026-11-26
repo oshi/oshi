@@ -4,15 +4,12 @@
  */
 package oshi.software.common.os.unix.aix;
 
-import static oshi.util.Memoizer.memoize;
-
 import java.io.File;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
@@ -32,9 +29,9 @@ import oshi.util.tuples.Pair;
 @ThreadSafe
 public class AixFileSystem extends AbstractFileSystem {
 
-    // A kernel constant (65534 on AIX 7.3); getconf reports it whatever the process's resource limits are
-    private static final Supplier<Long> OPEN_MAX = memoize(
-            () -> ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf OPEN_MAX"), 0L));
+    // A kernel constant (65534 on AIX 7.3); getconf reports it whatever the process's resource limits are. Only a
+    // successful read is kept, so a getconf that failed to start is retried on the next call.
+    private static volatile long openMax;
 
     public static final String OSHI_AIX_FS_PATH_EXCLUDES = "oshi.os.aix.filesystem.path.excludes";
     public static final String OSHI_AIX_FS_PATH_INCLUDES = "oshi.os.aix.filesystem.path.includes";
@@ -222,6 +219,17 @@ public class AixFileSystem extends AbstractFileSystem {
      */
     @Override
     public long getMaxFileDescriptorsPerProcess() {
-        return OPEN_MAX.get();
+        return queryOpenMax();
+    }
+
+    private static long queryOpenMax() {
+        long max = openMax;
+        if (max <= 0L) {
+            max = ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf OPEN_MAX"), 0L);
+            if (max > 0L) {
+                openMax = max;
+            }
+        }
+        return max;
     }
 }
