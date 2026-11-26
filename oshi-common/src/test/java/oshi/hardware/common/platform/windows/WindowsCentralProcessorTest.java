@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.windows;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -103,5 +104,14 @@ class WindowsCentralProcessorTest {
         assertThat(WindowsCentralProcessor.chooseProcessorId("", 0L, () -> "fallback"), is("fallback"));
         assertThat(WindowsCentralProcessor.chooseProcessorId("0000000000000000", 0L, () -> "fallback"),
                 is("0000000000000000"));
+    }
+
+    @Test
+    void testArmMicroarchitectureFromMidr() {
+        // Azure Cobalt 100: implementer 0x41 (ARM), part 0xd49
+        assertThat(WindowsCentralProcessor.armMicroarchitecture(0x410FD490L), is("Neoverse-N2"));
+        // Not read (x86), and an implementer whose parts the table does not key (Qualcomm)
+        assertThat(WindowsCentralProcessor.armMicroarchitecture(0L), is(nullValue()));
+        assertThat(WindowsCentralProcessor.armMicroarchitecture(0x511F0010L), is(nullValue()));
     }
 }

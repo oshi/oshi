@@ -112,7 +112,7 @@ class WindowsCentralProcessorJNA extends WindowsCentralProcessor {
         processorID = chooseProcessorId(wmiProcessorId, midr,
                 () -> createProcessorID(stepping, model, family, is64 ? new String[] { "ia64" } : new String[0]));
         return new ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-                cpuVendorFreq);
+                cpuVendorFreq, armMicroarchitecture(midr));
     }
 
     @Override
