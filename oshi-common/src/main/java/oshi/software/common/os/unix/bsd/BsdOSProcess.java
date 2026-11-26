@@ -216,9 +216,15 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         // against a decrease; see monotonic(long, long).
         long[] cpuTimes = queryKernelUserTime();
         if (cpuTimes.length == 2) {
-            this.kernelTime = monotonic(this.kernelTime, cpuTimes[0]);
-            this.userTime = monotonic(this.userTime, cpuTimes[1]);
-            this.splitCpuTimes = true;
+            if (this.splitCpuTimes) {
+                this.kernelTime = monotonic(this.kernelTime, cpuTimes[0]);
+                this.userTime = monotonic(this.userTime, cpuTimes[1]);
+            } else {
+                // The first split replaces a ps sum that counted kernel time as user time
+                this.kernelTime = cpuTimes[0];
+                this.userTime = cpuTimes[1];
+                this.splitCpuTimes = true;
+            }
         } else if (psMap.containsKey(BsdPsKeyword.SYSTIME)) {
             long sysTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.SYSTIME), 0L);
             this.kernelTime = monotonic(this.kernelTime, sysTime);

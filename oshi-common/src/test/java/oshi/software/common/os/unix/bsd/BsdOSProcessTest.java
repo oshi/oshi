@@ -176,6 +176,20 @@ class BsdOSProcessTest {
     }
 
     @Test
+    void testFirstProcSplitReplacesPsSum() {
+        // /proc unreadable on the first update, then readable: ps's sum was all user time until the split arrived
+        long[][] reads = { {}, { 4000L, 5000L } };
+        int[] call = { 0 };
+        BsdOSProcess proc = stubProcess(42, 42, "", () -> reads[Math.min(call[0]++, reads.length - 1)]);
+        proc.updateAttributes(psRow("0:08.00"));
+        assertThat(proc.getKernelTime(), is(0L));
+        assertThat(proc.getUserTime(), is(8000L));
+        proc.updateAttributes(psRow("0:09.00"));
+        assertThat(proc.getKernelTime(), is(4000L));
+        assertThat(proc.getUserTime(), is(5000L));
+    }
+
+    @Test
     void testKernelTimeKeptWhenProcBecomesUnavailable() {
         // NetBSD and DragonFly split the times from /proc; ps has only their sum
         long[][] reads = { { 3000L, 5000L }, {}, { 4000L, 5000L } };
