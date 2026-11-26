@@ -152,4 +152,20 @@ class NetBsdOSProcessTest {
         assertThat(stubProcess("/usr/sbin/cron", Map.of()).getPath(), is("/usr/sbin/cron"));
         assertThat(stubProcess("(java)", Map.of()).getPath(), is(""));
     }
+
+    @Test
+    void testParseKernelUserTime() {
+        // cfarm428 (NetBSD 10.1): init, with 3 ticks of user and 61 of system time
+        String init = "1 (init) S 0 1 1 0 -1 16517 197 2054930146 64 1217734 3 61 117112575 9651110 85 0 1 0 1 2";
+        assertThat(NetBsdOSProcess.parseKernelUserTime(init), is(new long[] { 610L, 30L }));
+        // A busy shell loop on cfarm428 read 403 ticks of user time, the 4.02 s that ps showed; other fields filler
+        String busy = "6130 (sh) R 1 6130 6130 0 -1 16516 0 0 0 0 403 0 0 0 85 0 1 0 1 2";
+        assertThat(NetBsdOSProcess.parseKernelUserTime(busy), is(new long[] { 0L, 4030L }));
+        // Fields are counted from the last closing parenthesis, whatever the command name holds
+        String odd = "42 (a) b (c)) S 1 42 42 0 -1 0 0 0 0 0 7 5 0 0 85 0 1 0 1 2";
+        assertThat(NetBsdOSProcess.parseKernelUserTime(odd), is(new long[] { 50L, 70L }));
+        // procfs not mounted, or the process exited
+        assertThat(NetBsdOSProcess.parseKernelUserTime("").length, is(0));
+        assertThat(NetBsdOSProcess.parseKernelUserTime("42 (short) S 1 2 3").length, is(0));
+    }
 }
