@@ -5,6 +5,7 @@
 package oshi.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -12,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
@@ -21,6 +24,12 @@ import oshi.annotation.concurrent.ThreadSafe;
 
 /**
  * A class for executing on the command line and returning the result of execution.
+ * <p>
+ * A command named without a path that cannot be started from the {@code PATH} is looked for in the {@code sbin}
+ * directories, where many of the system tools OSHI runs live. A non-login shell, a cron job or a service manager may
+ * leave those directories off the {@code PATH} that OSHI inherits; NetBSD's {@code sshd}, for one, gives a non-login
+ * session only {@code /usr/bin:/bin:/usr/pkg/bin:/usr/local/bin}, without the {@code /sbin/sysctl} that most of its
+ * values come from.
  */
 @ThreadSafe
 public final class ExecutingCommand {
@@ -28,6 +37,18 @@ public final class ExecutingCommand {
     private static final Logger LOG = LoggerFactory.getLogger(ExecutingCommand.class);
 
     private static final String[] DEFAULT_ENV = getDefaultEnv();
+
+    /**
+     * Where to look, in order, for a command that cannot be started from the {@code PATH}.
+     */
+    private static final List<String> SBIN_DIRS = Collections
+            .unmodifiableList(Arrays.asList("/sbin", "/usr/sbin", "/usr/local/sbin", "/usr/pkg/sbin"));
+
+    /**
+     * Commands found in {@link #SBIN_DIRS} after failing to start by name, keyed by that name, so that a later run
+     * starts them by path without failing first.
+     */
+    private static final Map<String, String> SBIN_PATHS = new ConcurrentHashMap<>();
 
     private ExecutingCommand() {
     }
@@ -82,7 +103,7 @@ public final class ExecutingCommand {
     public static List<String> runNative(String[] cmdToRunWithArgs, String @Nullable [] envp) {
         Process p = null;
         try {
-            p = Runtime.getRuntime().exec(cmdToRunWithArgs, envp);
+            p = exec(cmdToRunWithArgs, envp, SBIN_DIRS);
             return getProcessOutput(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}", Arrays.toString(cmdToRunWithArgs), e);
@@ -93,6 +114,68 @@ public final class ExecutingCommand {
             }
         }
         return Collections.emptyList();
+    }
+
+    /**
+     * Starts a command, looking for one named without a path in the given directories if it cannot be started by name.
+     * A path found that way is remembered once the command has started from it, and forgotten if it later fails to.
+     *
+     * @param cmd  the command and its arguments
+     * @param envp the environment, or {@code null} to inherit this process's
+     * @param dirs the directories to search, in order
+     * @return the started process
+     * @throws IOException if the command cannot be started
+     */
+    static Process exec(String[] cmd, String @Nullable [] envp, List<String> dirs) throws IOException {
+        String name = cmd.length > 0 ? cmd[0] : "";
+        String known = SBIN_PATHS.get(name);
+        if (known != null) {
+            try {
+                return Runtime.getRuntime().exec(withExecutable(cmd, known), envp);
+            } catch (IOException e) {
+                // Moved or removed since it was found: look for it again
+                SBIN_PATHS.remove(name, known);
+            }
+        }
+        try {
+            return Runtime.getRuntime().exec(cmd, envp);
+        } catch (IOException e) {
+            String found = PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS ? null
+                    : findExecutable(dirs, name);
+            if (found == null) {
+                throw e;
+            }
+            Process p = Runtime.getRuntime().exec(withExecutable(cmd, found), envp);
+            SBIN_PATHS.put(name, found);
+            return p;
+        }
+    }
+
+    /**
+     * Finds an executable file of the given name in the given directories.
+     *
+     * @param dirs the directories to search, in order
+     * @param name the command name, which must not contain a path separator
+     * @return the path of the first executable file found, or {@code null} if the name contains a separator or no
+     *         directory holds one
+     */
+    static @Nullable String findExecutable(List<String> dirs, String name) {
+        if (name.isEmpty() || name.indexOf('/') >= 0) {
+            return null;
+        }
+        for (String dir : dirs) {
+            File file = new File(dir, name);
+            if (file.isFile() && file.canExecute()) {
+                return file.getPath();
+            }
+        }
+        return null;
+    }
+
+    private static String[] withExecutable(String[] cmd, String path) {
+        String[] resolved = cmd.clone();
+        resolved[0] = path;
+        return resolved;
     }
 
     private static List<String> getProcessOutput(Process p, String[] cmd) {
