@@ -168,4 +168,29 @@ class NetBsdOSProcessTest {
         assertThat(NetBsdOSProcess.parseKernelUserTime("").length, is(0));
         assertThat(NetBsdOSProcess.parseKernelUserTime("42 (short) S 1 2 3").length, is(0));
     }
+
+    @Test
+    void testIsTornRow() {
+        Map<BsdPsKeyword, String> row = new EnumMap<>(BsdPsKeyword.class);
+        row.put(BsdPsKeyword.STATE, "Sl");
+        row.put(BsdPsKeyword.CPUTIME, "0:00.00");
+        row.put(BsdPsKeyword.MINFLT, "0");
+        row.put(BsdPsKeyword.NVCSW, "0");
+        row.put(BsdPsKeyword.NIVCSW, "0");
+        // A JVM read while one of its threads was inside posix_spawn
+        assertTrue(NetBsdOSProcess.isTornRow(row));
+        // Any one counter the kernel filled in marks a real row, even one that has used no measurable CPU
+        row.put(BsdPsKeyword.MINFLT, "197");
+        assertFalse(NetBsdOSProcess.isTornRow(row));
+        row.put(BsdPsKeyword.MINFLT, "0");
+        row.put(BsdPsKeyword.NVCSW, "4");
+        assertFalse(NetBsdOSProcess.isTornRow(row));
+        row.put(BsdPsKeyword.NVCSW, "0");
+        row.put(BsdPsKeyword.CPUTIME, "0:00.01");
+        assertFalse(NetBsdOSProcess.isTornRow(row));
+        // A zombie has no counters to report
+        row.put(BsdPsKeyword.CPUTIME, "0:00.00");
+        row.put(BsdPsKeyword.STATE, "Z");
+        assertFalse(NetBsdOSProcess.isTornRow(row));
+    }
 }
