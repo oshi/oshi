@@ -12,6 +12,7 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -153,18 +154,9 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        List<BsdPsKeyword> cols = psKeywords();
-        // No -a: FreeBSD 15 and later list every process matching -a OR -p, and the first row is then the kernel
-        String psCommand = "ps -wwxo " + psCommandArgs() + " -p " + getProcessID();
-        List<String> procList = ExecutingCommand.runNative(psCommand);
-        if (procList.size() > 1) {
-            // Skip the header row and parse the first data row against this platform's columns
-            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class, cols,
-                    procList.get(1).trim(), ' ');
-            // Check if the last (thus all) value populated
-            if (psMap.containsKey(cols.get(cols.size() - 1))) {
-                return updateAttributes(psMap);
-            }
+        Map<BsdPsKeyword, String> psMap = queryPsRow();
+        if (!psMap.isEmpty()) {
+            return updateAttributes(psMap);
         }
         this.state = State.INVALID;
         return false;
@@ -257,6 +249,28 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NVCSW), 0L);
         this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NIVCSW), 0L);
         return true;
+    }
+
+    /**
+     * Runs {@code ps} for this process alone and parses its row.
+     *
+     * @return the parsed {@code ps} columns, or an empty map if the process is not listed or its row is incomplete
+     */
+    protected Map<BsdPsKeyword, String> queryPsRow() {
+        List<BsdPsKeyword> cols = psKeywords();
+        // No -a: FreeBSD 15 and later list every process matching -a OR -p, and the first row is then the kernel
+        String psCommand = "ps -wwxo " + psCommandArgs() + " -p " + getProcessID();
+        List<String> procList = ExecutingCommand.runNative(psCommand);
+        if (procList.size() > 1) {
+            // Skip the header row and parse the first data row against this platform's columns
+            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class, cols,
+                    procList.get(1).trim(), ' ');
+            // Check if the last (thus all) value populated
+            if (psMap.containsKey(cols.get(cols.size() - 1))) {
+                return psMap;
+            }
+        }
+        return Collections.emptyMap();
     }
 
     /**
