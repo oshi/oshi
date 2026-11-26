@@ -26,6 +26,7 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorPerforma
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
+import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
@@ -163,6 +164,8 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     protected static final String ARM64_MIDR_VALUE = "CP 4000";
 
+    private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+
     /**
      * Parses the stepping from the registry {@code Identifier}. An x86 identifier names it, as in
      * {@code Intel64 Family 6 Model 158 Stepping 10}. An ARM64 identifier has a {@code Revision} instead, as in
@@ -200,6 +203,24 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
             return String.format(Locale.ROOT, "%08X00000000", midr & 0xFFFF_FFFFL);
         }
         return wmiProcessorId.isEmpty() ? fallback.get() : wmiProcessorId;
+    }
+
+    /**
+     * Looks up an ARM64 processor's microarchitecture from its {@code MIDR_EL1}, by the implementer and part number
+     * that key {@code oshi.architecture.properties} as Linux's {@code /proc/cpuinfo} reports them. The registry names
+     * the vendor of the system, such as {@code MICROSOFT CORPORATION} for an Azure Cobalt 100, not the implementer of
+     * the core, and its model ({@code D49}) is not in the table's form, so the table lookup misses without this.
+     *
+     * @param midr the {@code MIDR_EL1}, or 0 if not read
+     * @return the microarchitecture, or {@code null} if the register was not read or its part is not in the table
+     */
+    protected static @Nullable String armMicroarchitecture(long midr) {
+        // Only cores of ARM's own design (implementer 0x41) have part numbers in the table
+        if (midr == 0L || ((midr >>> 24) & 0xFF) != 0x41) {
+            return null;
+        }
+        String key = String.format(Locale.ROOT, "arm.0x%03x", (midr >>> 4) & 0xFFF);
+        return FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES).getProperty(key);
     }
 
     /**

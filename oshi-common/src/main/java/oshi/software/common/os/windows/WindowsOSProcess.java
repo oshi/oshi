@@ -185,6 +185,44 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
+        Pair<Map<Integer, ThreadPerfCounterBlock>, String> threads = threadBlocks();
+        String procName = threads.getB();
+        return threads.getA().entrySet().stream().parallel()
+                .filter(entry -> entry.getValue().getOwningProcessID() == this.getProcessID())
+                .map(entry -> createOSThread(getProcessID(), entry.getKey(), procName, entry.getValue()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Windows counts context switches per thread, so this sums them over the process's threads, querying their
+     * performance counters as {@link #getThreadDetails()} does unless they were queried with the process.
+     */
+    @Override
+    public long getContextSwitches() {
+        return sumContextSwitches(threadBlocks().getA(), getProcessID());
+    }
+
+    /**
+     * Sums the context switches of the threads a process owns.
+     *
+     * @param threads thread performance counter blocks, keyed by thread ID, which may include other processes'
+     * @param pid     the process ID
+     * @return the total context switches of the process's threads
+     */
+    static long sumContextSwitches(Map<Integer, ThreadPerfCounterBlock> threads, int pid) {
+        return threads.values().stream().filter(t -> t.getOwningProcessID() == pid)
+                .mapToLong(ThreadPerfCounterBlock::getContextSwitches).sum();
+    }
+
+    /**
+     * Returns this process's thread performance counter blocks and the name to label them with, querying the blocks if
+     * the last refresh did not.
+     *
+     * @return the thread blocks, possibly including other processes', and the process name
+     */
+    private Pair<Map<Integer, ThreadPerfCounterBlock>, String> threadBlocks() {
         // Take both fields in one lock hold so the map and the name labelling it come from the same refresh.
         // Reading them separately would let a concurrent update place a snapshot boundary between them.
         Map<Integer, ThreadPerfCounterBlock> threads;
@@ -196,13 +234,7 @@ public abstract class WindowsOSProcess extends AbstractOSProcess {
         if (threads == null) {
             threads = queryMatchingThreads(Collections.singleton(this.getProcessID()), procName);
         }
-        if (threads == null) {
-            threads = Collections.emptyMap();
-        }
-        return threads.entrySet().stream().parallel()
-                .filter(entry -> entry.getValue().getOwningProcessID() == this.getProcessID())
-                .map(entry -> createOSThread(getProcessID(), entry.getKey(), procName, entry.getValue()))
-                .collect(Collectors.toList());
+        return new Pair<>(threads == null ? Collections.emptyMap() : threads, procName);
     }
 
     /**

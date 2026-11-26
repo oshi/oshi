@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.jspecify.annotations.Nullable;
 
@@ -42,44 +41,6 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
     private static final int BUFSIZE = 255;
 
     private static final int SEM_FAILCRITICALERRORS = 0x0001;
-
-    private static final int FILE_CASE_SENSITIVE_SEARCH = 0x00000001;
-    private static final int FILE_CASE_PRESERVED_NAMES = 0x00000002;
-    private static final int FILE_FILE_COMPRESSION = 0x00000010;
-    private static final int FILE_DAX_VOLUME = 0x20000000;
-    private static final int FILE_NAMED_STREAMS = 0x00040000;
-    private static final int FILE_PERSISTENT_ACLS = 0x00000008;
-    private static final int FILE_READ_ONLY_VOLUME = 0x00080000;
-    private static final int FILE_SEQUENTIAL_WRITE_ONCE = 0x00100000;
-    private static final int FILE_SUPPORTS_ENCRYPTION = 0x00020000;
-    private static final int FILE_SUPPORTS_OBJECT_IDS = 0x00010000;
-    private static final int FILE_SUPPORTS_REPARSE_POINTS = 0x00000080;
-    private static final int FILE_SUPPORTS_SPARSE_FILES = 0x00000040;
-    private static final int FILE_SUPPORTS_TRANSACTIONS = 0x00200000;
-    private static final int FILE_SUPPORTS_USN_JOURNAL = 0x02000000;
-    private static final int FILE_UNICODE_ON_DISK = 0x00000004;
-    private static final int FILE_VOLUME_IS_COMPRESSED = 0x00008000;
-    private static final int FILE_VOLUME_QUOTAS = 0x00000020;
-
-    private static final Map<Integer, String> OPTIONS_MAP = new HashMap<>();
-    static {
-        OPTIONS_MAP.put(FILE_CASE_PRESERVED_NAMES, "casepn");
-        OPTIONS_MAP.put(FILE_CASE_SENSITIVE_SEARCH, "casess");
-        OPTIONS_MAP.put(FILE_FILE_COMPRESSION, "fcomp");
-        OPTIONS_MAP.put(FILE_DAX_VOLUME, "dax");
-        OPTIONS_MAP.put(FILE_NAMED_STREAMS, "streams");
-        OPTIONS_MAP.put(FILE_PERSISTENT_ACLS, "acls");
-        OPTIONS_MAP.put(FILE_SEQUENTIAL_WRITE_ONCE, "wronce");
-        OPTIONS_MAP.put(FILE_SUPPORTS_ENCRYPTION, "efs");
-        OPTIONS_MAP.put(FILE_SUPPORTS_OBJECT_IDS, "oids");
-        OPTIONS_MAP.put(FILE_SUPPORTS_REPARSE_POINTS, "reparse");
-        OPTIONS_MAP.put(FILE_SUPPORTS_SPARSE_FILES, "sparse");
-        OPTIONS_MAP.put(FILE_SUPPORTS_TRANSACTIONS, "trans");
-        OPTIONS_MAP.put(FILE_SUPPORTS_USN_JOURNAL, "journaled");
-        OPTIONS_MAP.put(FILE_UNICODE_ON_DISK, "unicode");
-        OPTIONS_MAP.put(FILE_VOLUME_IS_COMPRESSED, "vcomp");
-        OPTIONS_MAP.put(FILE_VOLUME_QUOTAS, "quota");
-    }
 
     /**
      * Constructor for WindowsFileSystemJNA. Sets the Windows error mode via
@@ -188,12 +149,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
                     strName = Native.toString(name);
                     strFsType = Native.toString(fstype);
 
-                    StringBuilder options = new StringBuilder((FILE_READ_ONLY_VOLUME & flags) == 0 ? "rw" : "ro");
-                    String moreOptions = OPTIONS_MAP.entrySet().stream().filter(e -> (e.getKey() & flags) > 0)
-                            .map(Map.Entry::getValue).collect(Collectors.joining(","));
-                    if (!moreOptions.isEmpty()) {
-                        options.append(',').append(moreOptions);
-                    }
+                    String options = volumeOptions(flags);
                     if (!Kernel32.INSTANCE.GetDiskFreeSpaceEx(volume, userFreeBytes, totalBytes, systemFreeBytes)) {
                         continue;
                     }
@@ -201,7 +157,7 @@ public class WindowsFileSystemJNA extends WindowsFileSystem {
                     String uuid = ParseUtil.parseUuidOrDefault(volume, "");
 
                     fs.add(new WindowsOSFileStoreJNA(String.format(Locale.ROOT, "%s (%s)", strName, strMount), volume,
-                            strName, strMount, options.toString(), uuid, true, "", getDriveType(strMount), strFsType,
+                            strName, strMount, options, uuid, true, "", getDriveType(strMount), strFsType,
                             systemFreeBytes.getValue(), userFreeBytes.getValue(), totalBytes.getValue(), 0, 0));
                 }
             } while (Kernel32.INSTANCE.FindNextVolume(hVol, aVolume, BUFSIZE));

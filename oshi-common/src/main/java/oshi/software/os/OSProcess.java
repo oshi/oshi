@@ -436,8 +436,9 @@ public interface OSProcess {
     /**
      * A snapshot of the context switches the process has done, equal to the sum of
      * {@link #getVoluntaryContextSwitches()} and {@link #getInvoluntaryContextSwitches()} on platforms that provide the
-     * split. On Windows, this returns the total from performance counters but the split is unavailable (returns 0). On
-     * macOS for non-current processes, this returns the combined total from the kernel but the split is unavailable.
+     * split. On Windows, this sums the performance counters of the process's threads, a query as costly as
+     * {@link #getThreadDetails()}, and the split is unavailable (returns 0). On macOS for non-current processes, this
+     * returns the combined total from the kernel but the split is unavailable.
      * <p>
      * For the current process on supported POSIX platforms, this aggregates across all threads via
      * {@code getrusage(RUSAGE_SELF)}. For other processes, platform-specific sources are used.
