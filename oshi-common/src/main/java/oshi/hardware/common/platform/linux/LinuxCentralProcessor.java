@@ -101,6 +101,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             cpuModel = lscpu.getB();
             cpuName = lscpu.getC();
         }
+        // An ARM or s390 host that neither cpuinfo, the device tree nor lscpu names
+        cpuName = ParseUtil.getStringValueOrUnknown(cpuName);
         // A 64-bit JVM can only run on a 64-bit processor, which covers POWER and any architecture whose cpuinfo
         // carries no marker; the markers still matter for a 32-bit JVM or userland on 64-bit hardware
         return new ProcessorIdentifier(cpuVendor, cpuName, id.family(), cpuModel, id.stepping(), processorID,
@@ -270,6 +272,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 case "cpu mhz":
                     freq = ParseUtil.parseHertz(splitLine[1]);
                     break;
+                case "cpu mhz static":
+                    // s390 prints its rated frequency, in MHz without a unit, beside the "dynamic" one it can vary to
+                    freq = ParseUtil.parseHertz(splitLine[1].trim() + " MHz");
+                    break;
                 default:
                     // Do nothing
             }
@@ -342,6 +348,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 vendor = line.replace("Vendor ID:", "").trim();
             } else if (line.startsWith("Model name:")) {
                 String modelName = line.replace("Model name:", "").trim();
+                // lscpu prints "-" for a model it has no name for, as on ARM and s390 hosts
+                if ("-".equals(modelName)) {
+                    continue;
+                }
                 model = model.isEmpty() ? modelName : model;
                 name = name.isEmpty() ? modelName : name;
             }
@@ -797,8 +807,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         // carries one of its own; otherwise it passes /proc/cpuinfo's live "cpu MHz" value straight through, and the
         // identifier reports that. Gating on the same condition queryProcessorId uses keeps the value name-derived,
         // and leaves it unknown on a CPU whose name has no frequency in it.
+        // s390 is the exception: its cpuinfo states a rated, static frequency, and it has no turbo above it.
         ProcessorIdentifier identifier = getProcessorIdentifier();
-        long vendorFreq = identifier.getName().contains("Hz") ? identifier.getVendorFreq() : -1L;
+        boolean ratedFreq = identifier.getName().contains("Hz") || identifier.getVendor().startsWith("IBM/S390");
+        long vendorFreq = ratedFreq ? identifier.getVendorFreq() : -1L;
         long maxFreq = LongStream.of(policyMax, lshwMax, vendorFreq).max().orElse(-1L);
         // A cpufreq policy that reads back as zero is no more known than a missing one
         return maxFreq > 0L ? maxFreq : -1L;

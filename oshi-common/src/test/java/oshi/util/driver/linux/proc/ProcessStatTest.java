@@ -93,6 +93,13 @@ class ProcessStatTest {
     }
 
     @Test
+    void testThreadIdsIncludeTheMainThread() {
+        // The main thread's ID is the process ID, and it is one of the process's threads
+        int pid = (int) ProcessHandle.current().pid();
+        assertThat("Thread IDs should include the main thread", ProcessStat.getThreadIds(pid).contains(pid), is(true));
+    }
+
+    @Test
     void testQuerySocketToPidMap() {
         // May be empty in containers with restricted /proc access
         assertThat("Socket to pid map shouldn't be null.", ProcessStat.querySocketToPidMap(), is(notNullValue()));

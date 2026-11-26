@@ -728,6 +728,7 @@ class LinuxCentralProcessorTest {
         assertThat(id.stepping(), is(""));
         assertThat(id.processorId(), is("FF12DFD83932"));
         assertThat("zarch marks the 64-bit z/Architecture", id.cpu64bit(), is(true));
+        assertThat("cpu MHz static is the rated frequency", id.freq(), is(5_508_000_000L));
     }
 
     @Test
@@ -803,6 +804,19 @@ class LinuxCentralProcessorTest {
         assertThat(id.getA(), is("ARM"));
         assertThat(id.getB(), is("Cortex-A72"));
         assertThat(id.getC(), is("Cortex-A72"));
+    }
+
+    @Test
+    void testParseLscpuIdentityIgnoresPlaceholderModelName() {
+        // lscpu on an ARM or s390 host with no name for its model, as on Docker Desktop and cfarm191
+        List<String> lscpu = """
+                Architecture:                    s390x
+                Vendor ID:                       IBM/S390
+                Model name:                      -
+                """.lines().toList();
+        Triplet<String, String, String> id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, "IBM/S390", "", "");
+        assertThat(id.getB(), is(""));
+        assertThat(id.getC(), is(""));
     }
 
     @Test
