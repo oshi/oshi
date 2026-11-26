@@ -139,7 +139,7 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
 
     @Override
     protected void updateThreadCount() {
-        List<String> threadList = ExecutingCommand.runNative("ps -axHo tid -p " + getProcessID());
+        List<String> threadList = ExecutingCommand.runNative("ps -xHo tid -p " + getProcessID());
         int count = this.threadCount;
         if (!threadList.isEmpty()) {
             // Subtract 1 for header
@@ -151,7 +151,7 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -aHwwxo " + OpenBsdOSThread.PS_THREAD_COLUMNS;
+        String psCommand = "ps -Hwwxo " + OpenBsdOSThread.PS_THREAD_COLUMNS;
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }

@@ -74,6 +74,6 @@ public class FreeBsdOSThread extends BsdOSThread {
 
     @Override
     protected String psThreadCommand() {
-        return "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
+        return "ps -wwxo " + PS_THREAD_COLUMNS + " -H";
     }
 }

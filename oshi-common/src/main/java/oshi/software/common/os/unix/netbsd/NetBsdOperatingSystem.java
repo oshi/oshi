@@ -67,10 +67,9 @@ public class NetBsdOperatingSystem extends BsdOperatingSystem {
         List<OSProcess> procs = new ArrayList<>();
         // https://man.netbsd.org/ps#KEYWORDS
         // missing are threadCount and kernelTime which is included in cputime
-        String psCommand = "ps -awwxo " + NetBsdOSProcess.PS_COMMAND_ARGS;
-        if (pid >= 0) {
-            psCommand += " -p " + pid;
-        }
+        // Select one process by -p alone: FreeBSD 15 and later list every process matching -a OR -p
+        String psCommand = pid < 0 ? "ps -awwxo " + NetBsdOSProcess.PS_COMMAND_ARGS
+                : "ps -wwxo " + NetBsdOSProcess.PS_COMMAND_ARGS + " -p " + pid;
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.isEmpty() || procList.size() < 2) {
             return procs;

@@ -25,7 +25,7 @@ public final class FstatUtil {
      * @return the current working directory for that process.
      */
     public static String getCwd(int pid) {
-        List<String> ps = ExecutingCommand.runNative("ps -axwwo cwd -p " + pid);
+        List<String> ps = ExecutingCommand.runNative("ps -xwwo cwd -p " + pid);
         if (ps.size() > 1) {
             return ps.get(1);
         }

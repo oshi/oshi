@@ -46,7 +46,7 @@ public class NetBsdOSThread extends BsdOSThread {
      * The {@code ps} command listing every LWP. Without {@code -s}, NetBSD prints one row per process, which carries
      * only its first LWP.
      */
-    public static final String PS_THREAD_COMMAND = "ps -s -awwxo " + PS_THREAD_COLUMNS;
+    public static final String PS_THREAD_COMMAND = "ps -s -wwxo " + PS_THREAD_COLUMNS;
 
     /**
      * Constructs a new {@code NetBsdOSThread}.

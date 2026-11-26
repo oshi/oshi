@@ -39,10 +39,9 @@ public abstract class DragonFlyBsdOperatingSystem extends BsdOperatingSystem {
 
     @Override
     protected List<OSProcess> getProcessListFromPS(int pid) {
-        String psCommand = "ps -awwxo " + DragonFlyBsdOSProcess.PS_COMMAND_ARGS;
-        if (pid >= 0) {
-            psCommand += " -p " + pid;
-        }
+        // Select one process by -p alone: FreeBSD 15 and later list every process matching -a OR -p
+        String psCommand = pid < 0 ? "ps -awwxo " + DragonFlyBsdOSProcess.PS_COMMAND_ARGS
+                : "ps -wwxo " + DragonFlyBsdOSProcess.PS_COMMAND_ARGS + " -p " + pid;
 
         Predicate<Map<BsdPsKeyword, String>> hasKeywordCommand = psMap -> psMap.containsKey(BsdPsKeyword.COMMAND);
         return ExecutingCommand.runNative(psCommand).stream().skip(1).parallel()

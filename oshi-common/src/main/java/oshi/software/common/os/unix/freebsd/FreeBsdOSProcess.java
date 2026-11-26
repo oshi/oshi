@@ -133,7 +133,7 @@ public abstract class FreeBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -awwxo " + FreeBsdOSThread.PS_THREAD_COLUMNS + " -H";
+        String psCommand = "ps -wwxo " + FreeBsdOSThread.PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }

@@ -153,7 +153,8 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     @Override
     public boolean updateAttributes() {
         List<BsdPsKeyword> cols = psKeywords();
-        String psCommand = "ps -awwxo " + psCommandArgs() + " -p " + getProcessID();
+        // No -a: FreeBSD 15 and later list every process matching -a OR -p, and the first row is then the kernel
+        String psCommand = "ps -wwxo " + psCommandArgs() + " -p " + getProcessID();
         List<String> procList = ExecutingCommand.runNative(psCommand);
         if (procList.size() > 1) {
             // Skip the header row and parse the first data row against this platform's columns

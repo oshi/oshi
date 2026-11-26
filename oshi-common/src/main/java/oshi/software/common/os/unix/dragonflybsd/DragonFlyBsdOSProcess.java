@@ -201,7 +201,7 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -awwxo " + DragonFlyBsdOSThread.PS_THREAD_COLUMNS + " -H";
+        String psCommand = "ps -wwxo " + DragonFlyBsdOSThread.PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }
