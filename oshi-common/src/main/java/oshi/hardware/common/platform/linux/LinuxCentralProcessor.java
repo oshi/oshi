@@ -76,7 +76,12 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         CpuInfoIdentity id = parseProcessorIdFromCpuinfo(FileUtil.readFile(CPUINFO));
         String cpuName = id.name();
         if (cpuName.isEmpty()) {
-            cpuName = FileUtil.getStringFromFile(MODEL).trim();
+            // arm64 cpuinfo has no model name. Name the core by its part, as lscpu does; the device tree names the
+            // board,
+            // which ComputerSystem and Baseboard already report, so it is only the fallback for a part not in the
+            // table.
+            String armCore = armCoreName(id.vendor(), id.model());
+            cpuName = armCore == null ? FileUtil.getStringFromFile(MODEL).trim() : armCore;
         }
         long cpuFreq = id.freq();
         if (cpuName.contains("Hz")) {
@@ -88,6 +93,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             if (cpuCapacity > cpuFreq) {
                 cpuFreq = cpuCapacity;
             }
+        }
+        // ARM cpuinfo carries no frequency. Not on x86, whose cpuinfo_max_freq includes turbo.
+        if (cpuFreq <= 0L && isArmImplementer(id.vendor())) {
+            cpuFreq = queryCpuinfoMaxFreq(SysPath.CPU + "cpu0/cpufreq/cpuinfo_max_freq");
         }
         String processorID = id.processorId().isEmpty()
                 ? getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(), queryHwcap())
@@ -107,6 +116,43 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         // carries no marker; the markers still matter for a 32-bit JVM or userland on 64-bit hardware
         return new ProcessorIdentifier(cpuVendor, cpuName, id.family(), cpuModel, id.stepping(), processorID,
                 id.cpu64bit() || Util.is64Bit(), cpuFreq);
+    }
+
+    /**
+     * Whether the vendor read from {@code /proc/cpuinfo} is an ARM {@code CPU implementer} code rather than a vendor
+     * string. Package-private for testing.
+     *
+     * @param vendor the vendor as parsed
+     * @return true for an implementer code such as {@code 0x41}
+     */
+    static boolean isArmImplementer(String vendor) {
+        return vendor.startsWith("0x");
+    }
+
+    /**
+     * Names an ARM core by the implementer and part read from {@code /proc/cpuinfo}. Package-private for testing.
+     *
+     * @param vendor the vendor as parsed, an implementer code on ARM
+     * @param model  the model as parsed, the part number on ARM
+     * @return the core, such as {@code Cortex-A72}, or {@code null} if this is not ARM or the part is not in the table
+     */
+    static @Nullable String armCoreName(String vendor, String model) {
+        if (!isArmImplementer(vendor)) {
+            return null;
+        }
+        return armCoreName(ParseUtil.hexStringToInt(vendor, -1), ParseUtil.hexStringToInt(model, -1));
+    }
+
+    /**
+     * Reads the hardware maximum frequency of a cpufreq policy, which on ARM stands in for the vendor frequency.
+     * Package-private for testing.
+     *
+     * @param cpuinfoMaxFreqFile the {@code cpuinfo_max_freq} file, in kHz
+     * @return the frequency in Hz, or -1 if the file is missing or zero
+     */
+    static long queryCpuinfoMaxFreq(String cpuinfoMaxFreqFile) {
+        long khz = FileUtil.getLongFromFile(cpuinfoMaxFreqFile);
+        return khz > 0L ? khz * 1000L : -1L;
     }
 
     /** Immutable holder for the identifier fields parsed from {@code /proc/cpuinfo}. Package-private for testing. */

@@ -1,5 +1,9 @@
 # 7.8.1 (in progress)
 
+##### Behavior Changes
+
+* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM without a `model name` in `/proc/cpuinfo`, `ProcessorIdentifier.getName()` names the core from its implementer and part, such as `Cortex-A72`, as `lscpu` does, instead of the board from the device tree; the board is still reported by `ComputerSystem` and `Baseboard` - [@huber-and](https://github.com/huber-and).
+
 ##### Bug Fixes and Improvements
 
 * [#3919](https://github.com/oshi/oshi/pull/3919): Fixed `getProcess(pid)`, `getCurrentProcess()`, `OSProcess.updateAttributes()` and `getThreadDetails()` on FreeBSD 15 and later, which read the kernel's process and every thread on the system; and on DragonFly BSD, `getArguments()` and `getCommandLine()` for command lines longer than 256 bytes and `getVirtualSize()` and `getResidentMemory()` for processes over 1 GB - [@dbwiddis](https://github.com/dbwiddis).
@@ -7,7 +11,7 @@
 * [#3921](https://github.com/oshi/oshi/pull/3921): Fixed `OSProcess.getOpenFiles()` on AIX, which was always 0, and `getPowerSources()` on Solaris, which reported a battery on machines without one - [@dbwiddis](https://github.com/dbwiddis).
 * [#3922](https://github.com/oshi/oshi/pull/3922): On Linux, `getThreadDetails()` includes the main thread, `getVendorFreq()` and `getMaxFreq()` report the rated frequency on IBM Z (s390x), and a processor with no model name is `unknown` rather than `-` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3923](https://github.com/oshi/oshi/pull/3923): On Windows, `OSProcess.getContextSwitches()` reports the total of the process's threads instead of 0, `getMicroarchitecture()` identifies ARM64 cores such as Azure Cobalt 100's Neoverse N2, and `OSFileStore.getOptions()` lists flags in the same order on both backends - [@dbwiddis](https://github.com/dbwiddis).
-* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux, `getModel()` and `getMicroarchitecture()` report the ARM core on a Raspberry Pi instead of the board name the kernel appends to `/proc/cpuinfo` - [@huber-and](https://github.com/huber-and).
+* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM, `getModel()` and `getMicroarchitecture()` report the core on a Raspberry Pi instead of the board name the kernel appends to `/proc/cpuinfo`, and `getVendorFreq()` falls back to the cpufreq hardware maximum when cpuinfo and `lshw` state none - [@huber-and](https://github.com/huber-and).
 
 # 7.8.0 (2026-11-15)
 

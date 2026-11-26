@@ -605,10 +605,38 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testParseProcessorIdFromCpuinfoRaspberryPiBoardLines() {
-        // A Compute Module 4: the Raspberry Pi kernel appends the board after the cores, and its "Model" line must not
-        // replace the part, or the microarchitecture lookup fails
+        // A Compute Module 4 on a Yocto image (Serial removed): the Raspberry Pi kernel appends the board after the
+        // cores,
+        // and its "Model" line must not replace the part, or the microarchitecture lookup fails
         List<String> cpuinfo = """
                 processor\t: 0
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                processor\t: 1
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                processor\t: 2
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                processor\t: 3
                 BogoMIPS\t: 108.00
                 Features\t: fp asimd evtstrm crc32 cpuid
                 CPU implementer\t: 0x41
@@ -627,6 +655,26 @@ class LinuxCentralProcessorTest {
         ProcessorIdentifier identifier = new ProcessorIdentifier(id.vendor(), "", id.family(), id.model(),
                 id.stepping(), "", true);
         assertThat(identifier.getMicroarchitecture(), is("Cortex-A72"));
+    }
+
+    @Test
+    void testArmCoreName() {
+        assertThat(LinuxCentralProcessor.armCoreName("0x41", "0xd08"), is("Cortex-A72"));
+        assertThat("a part not in the table", LinuxCentralProcessor.armCoreName("0x41", "0xfff"), is(nullValue()));
+        assertThat("not ARM's own design", LinuxCentralProcessor.armCoreName("0x51", "0xd08"), is(nullValue()));
+        assertThat("x86", LinuxCentralProcessor.armCoreName("GenuineIntel", "158"), is(nullValue()));
+    }
+
+    @Test
+    void testQueryCpuinfoMaxFreq(@TempDir Path tempDir) throws IOException {
+        Path maxFreq = tempDir.resolve("cpuinfo_max_freq");
+        writeFile(maxFreq, "1500000\n");
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(maxFreq.toString()), is(1_500_000_000L));
+        writeFile(maxFreq, "0\n");
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(maxFreq.toString()), is(-1L));
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(tempDir.resolve("missing").toString()), is(-1L));
+        assertThat(LinuxCentralProcessor.isArmImplementer("0x41"), is(true));
+        assertThat(LinuxCentralProcessor.isArmImplementer("GenuineIntel"), is(false));
     }
 
     @Test

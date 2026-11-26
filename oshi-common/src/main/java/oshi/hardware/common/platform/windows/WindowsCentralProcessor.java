@@ -26,7 +26,6 @@ import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorPerforma
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorTickCountProperty;
 import oshi.driver.common.windows.perfmon.ProcessorInformation.ProcessorUtilityTickCountProperty;
 import oshi.hardware.common.AbstractCentralProcessor;
-import oshi.util.FileUtil;
 import oshi.util.GlobalConfig;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
@@ -164,8 +163,6 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      */
     protected static final String ARM64_MIDR_VALUE = "CP 4000";
 
-    private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
-
     /**
      * Parses the stepping from the registry {@code Identifier}. An x86 identifier names it, as in
      * {@code Intel64 Family 6 Model 158 Stepping 10}. An ARM64 identifier has a {@code Revision} instead, as in
@@ -215,12 +212,10 @@ public abstract class WindowsCentralProcessor extends AbstractCentralProcessor {
      * @return the microarchitecture, or {@code null} if the register was not read or its part is not in the table
      */
     protected static @Nullable String armMicroarchitecture(long midr) {
-        // Only cores of ARM's own design (implementer 0x41) have part numbers in the table
-        if (midr == 0L || ((midr >>> 24) & 0xFF) != 0x41) {
+        if (midr == 0L) {
             return null;
         }
-        String key = String.format(Locale.ROOT, "arm.0x%03x", (midr >>> 4) & 0xFFF);
-        return FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES).getProperty(key);
+        return armCoreName((int) ((midr >>> 24) & 0xFF), (int) ((midr >>> 4) & 0xFFF));
     }
 
     /**
