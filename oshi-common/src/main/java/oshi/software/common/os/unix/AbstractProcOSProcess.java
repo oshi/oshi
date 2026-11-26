@@ -9,9 +9,6 @@ import static oshi.util.Memoizer.memoize;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +16,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -143,11 +139,9 @@ public abstract class AbstractProcOSProcess extends AbstractOSProcess {
 
     @Override
     public long getOpenFiles() {
-        try (Stream<Path> fd = Files.list(Paths.get("/proc/" + getProcessID() + "/fd"))) {
-            return fd.count();
-        } catch (IOException e) {
-            return 0L;
-        }
+        // Not Files.list: on AIX the JDK's directory stream reads no entries from /proc, where File.list reads them all
+        String[] fd = new File("/proc/" + getProcessID() + "/fd").list();
+        return fd == null ? 0L : fd.length;
     }
 
     @Override

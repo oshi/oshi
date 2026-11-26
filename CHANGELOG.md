@@ -4,6 +4,7 @@
 
 * [#3919](https://github.com/oshi/oshi/pull/3919): Fixed `getProcess(pid)`, `getCurrentProcess()`, `OSProcess.updateAttributes()` and `getThreadDetails()` on FreeBSD 15 and later, which read the kernel's process and every thread on the system; and on DragonFly BSD, `getArguments()` and `getCommandLine()` for command lines longer than 256 bytes and `getVirtualSize()` and `getResidentMemory()` for processes over 1 GB - [@dbwiddis](https://github.com/dbwiddis).
 * [#3920](https://github.com/oshi/oshi/pull/3920): Commands OSHI runs are found in the `sbin` directories when the `PATH` it inherits leaves them out, as NetBSD's `sshd` and many cron jobs do; on NetBSD most values were empty there - [@dbwiddis](https://github.com/dbwiddis).
+* [#3921](https://github.com/oshi/oshi/pull/3921): Fixed `OSProcess.getOpenFiles()` on AIX, which was always 0, and `getPowerSources()` on Solaris, which reported a battery on machines without one - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.8.0 (2026-11-15)
 

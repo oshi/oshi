@@ -6,6 +6,7 @@ package oshi.hardware.common.platform.unix.solaris;
 
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
@@ -128,10 +129,14 @@ public abstract class SolarisPowerSource extends AbstractPowerSource {
      * @param name     the power source name
      * @param readings the raw battery kstat values
      * @param factory  creates the platform-specific instance
-     * @return a single-element list with the battery power source
+     * @return a single-element list with the battery power source, or an empty list if neither battery kstat was read,
+     *         as on a machine with no battery
      */
     protected static List<PowerSource> buildPowerSources(String name, BatteryReadings readings,
             PowerSourceFactory factory) {
+        if (!readings.bifValid && !readings.bstValid) {
+            return Collections.emptyList();
+        }
         String psName = name;
         String psDeviceName = Constants.UNKNOWN;
         double psRemainingCapacityPercent = 1d;

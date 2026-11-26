@@ -233,8 +233,8 @@ class OperatingSystemTest {
         assertThat("Process bitness can't exceed OS bitness", proc.getBitness(),
                 is(lessThanOrEqualTo(os.getBitness())));
         assertThat("Bitness must be 0, 32 or 64", proc.getBitness(), is(oneOf(0, 32, 64)));
-        assertThat("Current process open file handles should be -1 or higher", proc.getOpenFiles(),
-                is(greaterThanOrEqualTo(0L)));
+        // The JVM holds its standard streams and its class path open, so a count of 0 means the count failed
+        assertThat("Current process open file handles should be positive", proc.getOpenFiles(), is(greaterThan(0L)));
         if (!Platform.isSolaris()) {
             long softOpenFileLimit = proc.getSoftOpenFileLimit();
             long hardOpenFileLimit = proc.getHardOpenFileLimit();
