@@ -15,6 +15,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -142,10 +144,22 @@ class DragonFlyBsdOSProcessTest {
         // Another process past kern.ps_arg_cache_limit: the file holds the 16-byte p_comm buffer, stale bytes and all
         byte[] comm = "java\0er\0\0\0\0\0\0\0\0\0".getBytes(StandardCharsets.UTF_8);
         assertThat(comm.length, is(16));
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp .:a.jar:b.jar S arg1"),
-                is(List.of("/usr/local/bin/java", "-cp", ".:a.jar:b.jar", "S", "arg1")));
+        // The kernel drops the cache only past kern.ps_arg_cache_limit (256 bytes), so ps prints a long command line
+        String classpath = IntStream.rangeClosed(1, 12).mapToObj(i -> "/home/oshi/some/long/path/lib" + i + ".jar")
+                .collect(Collectors.joining(":"));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp " + classpath + " S arg1"),
+                is(List.of("/usr/local/bin/java", "-cp", classpath, "S", "arg1")));
         // When ps cannot read the arguments either, it prints "(ucomm)", and neither source has them
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "(java)"), is(empty()));
+    }
+
+    @Test
+    void testSixteenByteArgumentsThatPsEscapesKeepTheFile() {
+        // A complete argument list can be MAXCOMLEN bytes too; ps prints the tab escaped, so the two disagree
+        byte[] args = cmdline("sh", "-c", "\tread foo");
+        assertThat(args.length, is(16));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(args, "sh -c \\tread foo"),
+                is(List.of("sh", "-c", "\tread foo")));
     }
 
     @Test

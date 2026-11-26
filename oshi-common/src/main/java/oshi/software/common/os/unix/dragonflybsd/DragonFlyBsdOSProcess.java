@@ -83,6 +83,12 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      */
     private static final int MAXCOMLEN = 16;
 
+    /**
+     * The longest {@code ps} command column that {@code MAXCOMLEN} bytes of arguments can print as: every byte escaped
+     * as {@code \ooo}, followed by a {@code " (ucomm)"} suffix.
+     */
+    private static final int MAX_PRINTED_COMLEN = 4 * MAXCOMLEN + MAXCOMLEN + 3;
+
     private final OperatingSystem os;
 
     /**
@@ -215,7 +221,10 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
         if (!joined.isEmpty() && psCommand.startsWith(joined + " (") && psCommand.endsWith(")")) {
             return args;
         }
-        if (cmdline.length == MAXCOMLEN || psCommand.startsWith(joined)) {
+        // The kernel drops its argument cache only past kern.ps_arg_cache_limit (256 by default), so the file holds the
+        // name buffer only when ps prints more than any MAXCOMLEN bytes of arguments could
+        boolean nameBuffer = cmdline.length == MAXCOMLEN && psCommand.length() > MAX_PRINTED_COMLEN;
+        if (nameBuffer || psCommand.startsWith(joined)) {
             return Arrays.asList(ParseUtil.whitespaces.split(psCommand.trim(), -1));
         }
         return args;
