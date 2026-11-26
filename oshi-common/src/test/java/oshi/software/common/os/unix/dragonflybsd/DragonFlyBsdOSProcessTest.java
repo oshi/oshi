@@ -177,6 +177,11 @@ class DragonFlyBsdOSProcessTest {
         // setproctitle(): ps follows the title with "(ucomm)"
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("dhclient: vtnet0"), "dhclient: vtnet0 (dhclient)",
                 "dhclient"), is(List.of("dhclient: vtnet0")));
+        // Sixteen bytes of real arguments that ps prints exactly, parentheses and all
+        byte[] parenthesized = cmdline("(sd-pam-worker)");
+        assertThat(parenthesized.length, is(16));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(parenthesized, "(sd-pam-worker)", "sd-pam-worker"),
+                is(List.of("(sd-pam-worker)")));
         // A kernel thread has no arguments, and ps prints its name in parentheses
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "(idle_5)", "idle_5"), is(empty()));
     }
@@ -194,5 +199,26 @@ class DragonFlyBsdOSProcessTest {
         // ps appends " (ucomm)" to a line that does not start with the command name; it is never an argument
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("worker", "-q"), "worker -q --long (svc)", "svc"),
                 is(List.of("worker", "-q", "--long")));
+    }
+
+    @Test
+    void testTrailingCommandNameArgumentIsKept() {
+        // argv[0] names the command, so ps adds no suffix and a trailing "(java)" is a real argument
+        assertThat(
+                DragonFlyBsdOSProcess.reconcileArguments(cmdline("/usr/local/bin/java", "-cp"),
+                        "/usr/local/bin/java -cp a.jar Main (java)", "java"),
+                is(List.of("/usr/local/bin/java", "-cp", "a.jar", "Main", "(java)")));
+        // A name longer than MAXCOMLEN still names the command it was cut to
+        assertThat(
+                DragonFlyBsdOSProcess.reconcileArguments(cmdline("/opt/a_very_long_program_name", "5"),
+                        "/opt/a_very_long_program_name 5", "a_very_long_prog"),
+                is(List.of("/opt/a_very_long_program_name", "5")));
+    }
+
+    @Test
+    void testEscapedCharacterIsNotTruncation() {
+        // ps prints a backslash doubled, so the file's line is a prefix of ps's without being cut short
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("echo", "\\"), "echo \\\\", "echo"),
+                is(List.of("echo", "\\")));
     }
 }

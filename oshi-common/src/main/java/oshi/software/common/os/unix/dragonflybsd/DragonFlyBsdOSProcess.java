@@ -193,7 +193,9 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      * DragonFly's {@code /proc/<pid>/cmdline} holds the kernel's argument cache, which is dropped for a command line
      * longer than {@code kern.ps_arg_cache_limit}. The file then holds another process's {@code MAXCOMLEN} command name
      * buffer, and the current process loses its arguments past the limit. {@code ps} reads the arguments from the
-     * process's memory instead, so where the two disagree its command column is used, split on whitespace.
+     * process's memory instead, so where the two disagree its command column is used, split on whitespace. That split
+     * cannot keep an argument containing a space whole, and keeps the escapes {@code ps} prints for unprintable
+     * characters.
      */
     @Override
     protected List<String> queryArguments() {
@@ -220,29 +222,37 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     static List<String> reconcileArguments(byte[] cmdline, String psCommand, String ucomm) {
         List<String> args = ParseUtil.parseByteArrayToStrings(cmdline);
         // Without the file, a process title cannot be told from arguments; the command line falls back to ps's
-        if (args.isEmpty() || psCommand.isEmpty()) {
+        String joined = String.join(" ", args);
+        if (args.isEmpty() || psCommand.isEmpty() || psCommand.equals(joined)) {
             return args;
         }
         // ps prints "(ucomm)" for a process whose arguments it cannot read, so the file holds the name buffer too
         if (psCommand.startsWith("(") && psCommand.endsWith(")")) {
             return cmdline.length == MAXCOMLEN ? Collections.emptyList() : args;
         }
-        // ps follows a line that does not start with the command name, such as a setproctitle() title, with "(ucomm)"
+        // ps follows the arguments with " (ucomm)" when the last element of argv[0] does not name the command in its
+        // first MAXCOMLEN characters, as with a setproctitle() title; otherwise a trailing "(ucomm)" is an argument
         String suffix = " (" + ucomm + ")";
-        String printed = !ucomm.isEmpty() && psCommand.endsWith(suffix)
-                ? psCommand.substring(0, psCommand.length() - suffix.length())
-                : psCommand;
-        String joined = String.join(" ", args);
+        String argv0 = args.get(0);
+        boolean decorated = !ucomm.isEmpty() && psCommand.endsWith(suffix)
+                && !firstComlen(argv0.substring(argv0.lastIndexOf('/') + 1)).equals(firstComlen(ucomm));
+        String printed = decorated ? psCommand.substring(0, psCommand.length() - suffix.length()) : psCommand;
         if (printed.equals(joined)) {
             return args;
         }
         // The kernel drops its argument cache only past kern.ps_arg_cache_limit (256 by default), so the file holds the
         // name buffer only when ps prints more than any MAXCOMLEN bytes of arguments could
         boolean nameBuffer = cmdline.length == MAXCOMLEN && printed.length() > MAX_PRINTED_COMLEN;
-        if (nameBuffer || printed.startsWith(joined)) {
+        // The current process's file stops at an argument boundary; ps escaping a character only looks like a prefix
+        boolean truncated = printed.startsWith(joined + " ");
+        if (nameBuffer || truncated) {
             return Arrays.asList(ParseUtil.whitespaces.split(printed.trim(), -1));
         }
         return args;
+    }
+
+    private static String firstComlen(String name) {
+        return name.length() > MAXCOMLEN ? name.substring(0, MAXCOMLEN) : name;
     }
 
     @Override
