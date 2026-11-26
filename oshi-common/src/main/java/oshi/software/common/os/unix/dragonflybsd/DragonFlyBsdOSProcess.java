@@ -55,8 +55,18 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     public static final List<BsdPsKeyword> PS_KEYWORDS = Collections.unmodifiableList(Arrays.asList(STATE, PID, PPID,
             USER, UID, RGID, NLWP, PRI, VSZ, RSS, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, UCOMM, COMMAND));
 
-    public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
+    /**
+     * The {@code ps -o} column list for {@link #PS_KEYWORDS}. DragonFly's {@code ps} prints a size wider than its
+     * column scaled, as {@code 5.65G}, and a column is as wide as its header, so {@code vsz} and {@code rss} get
+     * headers wide enough for any count of KiB.
+     */
+    public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(DragonFlyBsdOSProcess::psColumn)
+            .collect(Collectors.joining(","));
+
+    private static String psColumn(BsdPsKeyword keyword) {
+        String column = keyword.name().toLowerCase(Locale.ROOT);
+        return keyword == VSZ || keyword == RSS ? column + "=" + keyword.name() + "_IN_KIB_UNSCALED" : column;
+    }
 
     /**
      * The {@code KERN_PROC} sysctl subtype that returns a process's executable path (12 on FreeBSD).
