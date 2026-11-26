@@ -75,7 +75,11 @@ public interface CentralProcessor {
     ProcessorIdentifier getProcessorIdentifier();
 
     /**
-     * Maximum frequeny (in Hz), of the logical processors on this CPU.
+     * Maximum frequency (in Hz), of the logical processors on this CPU.
+     * <p>
+     * On Windows, this is the processor's rated frequency as reported by {@code CallNtPowerInformation}, not the
+     * frequency it reaches under boost technologies such as Intel Turbo Boost or AMD Precision Boost. The current
+     * frequencies from {@link #getCurrentFreq()} are a percentage of it, so they can exceed it.
      *
      * @return The max frequency or -1 if unknown.
      */
