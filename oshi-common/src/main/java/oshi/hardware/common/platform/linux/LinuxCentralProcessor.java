@@ -195,6 +195,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         String s390Ident = "";
         String s390Machine = "";
         String armArchitecture = "";
+        // The Raspberry Pi kernel appends the board as "Model" after the cores, so it must not replace the part
+        String armPart = "";
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, -1);
             if (splitLine.length < 2) {
@@ -263,8 +265,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                     }
                     break;
                 case "model":
-                case "cpu part":
                     model = splitLine[1];
+                    break;
+                case "cpu part":
+                    armPart = splitLine[1];
                     break;
                 case "cpu family":
                     family = splitLine[1];
@@ -282,6 +286,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         if (stepping.isEmpty()) {
             stepping = armStepping.toString();
+        }
+        if (!armPart.isEmpty()) {
+            model = armPart;
         }
         if (!armArchitecture.isEmpty() && isArm64bit(armArchitecture, vendor, model)) {
             cpu64bit = true;

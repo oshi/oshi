@@ -31,6 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
@@ -600,6 +601,32 @@ class LinuxCentralProcessorTest {
         assertThat(id.stepping(), is("r0p3"));
         assertThat(id.name(), is(""));
         assertThat("ARMv8 is 64-bit", id.cpu64bit(), is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoRaspberryPiBoardLines() {
+        // A Compute Module 4: the Raspberry Pi kernel appends the board after the cores, and its "Model" line must not
+        // replace the part, or the microarchitecture lookup fails
+        List<String> cpuinfo = """
+                processor\t: 0
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                Revision\t: a03140
+                Model\t\t: Raspberry Pi Compute Module 4 Rev 1.0
+                """.lines().toList();
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+        assertThat(id.vendor(), is("0x41"));
+        assertThat(id.model(), is("0xd08"));
+        assertThat(id.stepping(), is("r0p3"));
+        ProcessorIdentifier identifier = new ProcessorIdentifier(id.vendor(), "", id.family(), id.model(),
+                id.stepping(), "", true);
+        assertThat(identifier.getMicroarchitecture(), is("Cortex-A72"));
     }
 
     @Test
