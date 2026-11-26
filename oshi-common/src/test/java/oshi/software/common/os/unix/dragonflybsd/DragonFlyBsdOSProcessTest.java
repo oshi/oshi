@@ -135,8 +135,9 @@ class DragonFlyBsdOSProcessTest {
     @Test
     void testArgumentsAgreeingWithPsKeepTheirBoundaries() {
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("/opt/java tools/java", "-version"),
-                "/opt/java tools/java -version"), is(List.of("/opt/java tools/java", "-version")));
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("sshd", "-D"), ""), is(List.of("sshd", "-D")));
+                "/opt/java tools/java -version", "java"), is(List.of("/opt/java tools/java", "-version")));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("sshd", "-D"), "", "sshd"),
+                is(List.of("sshd", "-D")));
     }
 
     @Test
@@ -147,10 +148,10 @@ class DragonFlyBsdOSProcessTest {
         // The kernel drops the cache only past kern.ps_arg_cache_limit (256 bytes), so ps prints a long command line
         String classpath = IntStream.rangeClosed(1, 12).mapToObj(i -> "/home/oshi/some/long/path/lib" + i + ".jar")
                 .collect(Collectors.joining(":"));
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp " + classpath + " S arg1"),
-                is(List.of("/usr/local/bin/java", "-cp", classpath, "S", "arg1")));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp " + classpath + " S arg1",
+                "java"), is(List.of("/usr/local/bin/java", "-cp", classpath, "S", "arg1")));
         // When ps cannot read the arguments either, it prints "(ucomm)", and neither source has them
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "(java)"), is(empty()));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "(java)", "java"), is(empty()));
     }
 
     @Test
@@ -158,7 +159,7 @@ class DragonFlyBsdOSProcessTest {
         // A complete argument list can be MAXCOMLEN bytes too; ps prints the tab escaped, so the two disagree
         byte[] args = cmdline("sh", "-c", "\tread foo");
         assertThat(args.length, is(16));
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(args, "sh -c \\tread foo"),
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(args, "sh -c \\tread foo", "sh"),
                 is(List.of("sh", "-c", "\tread foo")));
     }
 
@@ -167,16 +168,31 @@ class DragonFlyBsdOSProcessTest {
         // The current process reads its own arguments up to the limit, losing the long classpath and what follows
         assertThat(
                 DragonFlyBsdOSProcess.reconcileArguments(cmdline("/usr/local/bin/java", "-Dfoo=bar", "-cp"),
-                        "/usr/local/bin/java -Dfoo=bar -cp .:a.jar:b.jar S"),
+                        "/usr/local/bin/java -Dfoo=bar -cp .:a.jar:b.jar S", "java"),
                 is(List.of("/usr/local/bin/java", "-Dfoo=bar", "-cp", ".:a.jar:b.jar", "S")));
     }
 
     @Test
     void testProcessTitleAndKernelThreadKeepTheFile() {
         // setproctitle(): ps follows the title with "(ucomm)"
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("dhclient: vtnet0"), "dhclient: vtnet0 (dhclient)"),
-                is(List.of("dhclient: vtnet0")));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("dhclient: vtnet0"), "dhclient: vtnet0 (dhclient)",
+                "dhclient"), is(List.of("dhclient: vtnet0")));
         // A kernel thread has no arguments, and ps prints its name in parentheses
-        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "(idle_5)"), is(empty()));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "(idle_5)", "idle_5"), is(empty()));
+    }
+
+    @Test
+    void testEmptyFileKeepsNoArguments() {
+        // Without the file a title cannot be told from arguments, so neither is split into them
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "dhclient: vtnet0 (dhclient)", "dhclient"),
+                is(empty()));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "/sbin/init --", "init"), is(empty()));
+    }
+
+    @Test
+    void testCommandNameSuffixIsNotAnArgument() {
+        // ps appends " (ucomm)" to a line that does not start with the command name; it is never an argument
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("worker", "-q"), "worker -q --long (svc)", "svc"),
+                is(List.of("worker", "-q", "--long")));
     }
 }

@@ -91,6 +91,8 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
 
     private final OperatingSystem os;
 
+    private volatile String ucomm = "";
+
     /**
      * Constructs a new {@code DragonFlyBsdOSProcess}.
      *
@@ -196,7 +198,13 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     @Override
     protected List<String> queryArguments() {
         byte[] cmdline = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        return Collections.unmodifiableList(reconcileArguments(cmdline, this.commandLineBackup));
+        return Collections.unmodifiableList(reconcileArguments(cmdline, this.commandLineBackup, this.ucomm));
+    }
+
+    @Override
+    protected String queryCommandLineBackup(Map<BsdPsKeyword, String> psMap) {
+        this.ucomm = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
+        return super.queryCommandLineBackup(psMap);
     }
 
     /**
@@ -204,28 +212,35 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      *
      * @param cmdline   the bytes of {@code /proc/<pid>/cmdline}
      * @param psCommand the {@code ps} command column, or an empty string if unknown
-     * @return the arguments: the file's when they agree with {@code ps}, since only the file keeps an argument that
-     *         contains a space whole; otherwise those {@code ps} printed, or none if it could read none either
+     * @param ucomm     the {@code ps} command name, or an empty string if unknown
+     * @return the arguments: the file's when it has none or they agree with {@code ps}, since only the file keeps an
+     *         argument that contains a space whole; otherwise those {@code ps} printed, or none if it could read none
+     *         either
      */
-    static List<String> reconcileArguments(byte[] cmdline, String psCommand) {
+    static List<String> reconcileArguments(byte[] cmdline, String psCommand, String ucomm) {
         List<String> args = ParseUtil.parseByteArrayToStrings(cmdline);
-        String joined = String.join(" ", args);
-        if (psCommand.isEmpty() || psCommand.equals(joined)) {
+        // Without the file, a process title cannot be told from arguments; the command line falls back to ps's
+        if (args.isEmpty() || psCommand.isEmpty()) {
             return args;
         }
         // ps prints "(ucomm)" for a process whose arguments it cannot read, so the file holds the name buffer too
         if (psCommand.startsWith("(") && psCommand.endsWith(")")) {
             return cmdline.length == MAXCOMLEN ? Collections.emptyList() : args;
         }
-        // A setproctitle() title, which ps follows with "(ucomm)"
-        if (!joined.isEmpty() && psCommand.startsWith(joined + " (") && psCommand.endsWith(")")) {
+        // ps follows a line that does not start with the command name, such as a setproctitle() title, with "(ucomm)"
+        String suffix = " (" + ucomm + ")";
+        String printed = !ucomm.isEmpty() && psCommand.endsWith(suffix)
+                ? psCommand.substring(0, psCommand.length() - suffix.length())
+                : psCommand;
+        String joined = String.join(" ", args);
+        if (printed.equals(joined)) {
             return args;
         }
         // The kernel drops its argument cache only past kern.ps_arg_cache_limit (256 by default), so the file holds the
         // name buffer only when ps prints more than any MAXCOMLEN bytes of arguments could
-        boolean nameBuffer = cmdline.length == MAXCOMLEN && psCommand.length() > MAX_PRINTED_COMLEN;
-        if (nameBuffer || psCommand.startsWith(joined)) {
-            return Arrays.asList(ParseUtil.whitespaces.split(psCommand.trim(), -1));
+        boolean nameBuffer = cmdline.length == MAXCOMLEN && printed.length() > MAX_PRINTED_COMLEN;
+        if (nameBuffer || printed.startsWith(joined)) {
+            return Arrays.asList(ParseUtil.whitespaces.split(printed.trim(), -1));
         }
         return args;
     }
