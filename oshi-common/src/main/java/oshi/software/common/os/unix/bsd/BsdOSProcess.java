@@ -47,6 +47,7 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     protected volatile long majorFaults;
     protected volatile long voluntaryContextSwitches;
     protected volatile long involuntaryContextSwitches;
+    private volatile boolean splitCpuTimes;
     protected volatile String commandLineBackup = "";
 
     /**
@@ -217,16 +218,17 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         if (cpuTimes.length == 2) {
             this.kernelTime = monotonic(this.kernelTime, cpuTimes[0]);
             this.userTime = monotonic(this.userTime, cpuTimes[1]);
+            this.splitCpuTimes = true;
         } else if (psMap.containsKey(BsdPsKeyword.SYSTIME)) {
             long sysTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.SYSTIME), 0L);
             this.kernelTime = monotonic(this.kernelTime, sysTime);
             this.userTime = monotonic(this.userTime,
                     ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L) - sysTime);
-        } else {
+        } else if (!this.splitCpuTimes) {
+            // Once /proc has split the times, ps's sum cannot be divided without counting kernel time as user time,
+            // so the last split stands until /proc answers again
             BsdPsKeyword totalKey = psMap.containsKey(BsdPsKeyword.CPUTIME) ? BsdPsKeyword.CPUTIME : BsdPsKeyword.TIME;
-            long total = ParseUtil.parseDHMSOrDefault(psMap.get(totalKey), 0L);
-            // The total is all user time unless /proc split it on an earlier update, whose kernel time stands
-            this.userTime = monotonic(this.userTime, total - this.kernelTime);
+            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(totalKey), 0L));
         }
         // Start/up time: DragonFly resolves an absolute start time from /proc; the others derive it
         // from the ps elapsed-time column.

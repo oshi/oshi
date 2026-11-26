@@ -178,16 +178,21 @@ class BsdOSProcessTest {
     @Test
     void testKernelTimeKeptWhenProcBecomesUnavailable() {
         // NetBSD and DragonFly split the times from /proc; ps has only their sum
-        long[][] reads = { { 3000L, 5000L }, {} };
+        long[][] reads = { { 3000L, 5000L }, {}, { 4000L, 5000L } };
         int[] call = { 0 };
         BsdOSProcess proc = stubProcess(42, 42, "", () -> reads[Math.min(call[0]++, reads.length - 1)]);
         proc.updateAttributes(psRow("0:08.00"));
         assertThat(proc.getKernelTime(), is(3000L));
         assertThat(proc.getUserTime(), is(5000L));
-        // /proc is gone on the next update: the kernel time stands, and the ps total less it is user time
+        // /proc is gone on the next update, and the ps total has grown by kernel time ps cannot attribute: keep the
+        // last split rather than count it as user time
         proc.updateAttributes(psRow("0:09.00"));
         assertThat(proc.getKernelTime(), is(3000L));
-        assertThat(proc.getUserTime(), is(6000L));
+        assertThat(proc.getUserTime(), is(5000L));
+        // /proc answers again, and the 1000 ms counts once, as kernel time
+        proc.updateAttributes(psRow("0:09.00"));
+        assertThat(proc.getKernelTime(), is(4000L));
+        assertThat(proc.getUserTime(), is(5000L));
     }
 
     /**
