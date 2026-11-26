@@ -237,13 +237,14 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             this.upTime = elapsedTime < 1L ? 1L : elapsedTime;
             this.startTime = now - this.upTime;
         }
+        // Before the path, which DragonFly takes from the arguments it checks against this column
+        this.commandLineBackup = queryCommandLineBackup(psMap);
         this.path = queryPath(psMap);
         this.name = queryName(psMap, this.path);
         this.minorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MINFLT), 0L);
         this.majorFaults = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.MAJFLT), 0L);
         this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NVCSW), 0L);
         this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NIVCSW), 0L);
-        this.commandLineBackup = queryCommandLineBackup(psMap);
         return true;
     }
 

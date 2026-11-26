@@ -179,6 +179,48 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
                 && argv0Name.substring(MAXCOMLEN).chars().noneMatch(c -> c == ':' || Character.isWhitespace(c));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * DragonFly's {@code /proc/<pid>/cmdline} holds the kernel's argument cache, which is dropped for a command line
+     * longer than {@code kern.ps_arg_cache_limit}. The file then holds another process's {@code MAXCOMLEN} command name
+     * buffer, and the current process loses its arguments past the limit. {@code ps} reads the arguments from the
+     * process's memory instead, so where the two disagree its command column is used, split on whitespace.
+     */
+    @Override
+    protected List<String> queryArguments() {
+        byte[] cmdline = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
+        return Collections.unmodifiableList(reconcileArguments(cmdline, this.commandLineBackup));
+    }
+
+    /**
+     * Chooses between the arguments in {@code /proc/<pid>/cmdline} and the {@code ps} command column.
+     *
+     * @param cmdline   the bytes of {@code /proc/<pid>/cmdline}
+     * @param psCommand the {@code ps} command column, or an empty string if unknown
+     * @return the arguments: the file's when they agree with {@code ps}, since only the file keeps an argument that
+     *         contains a space whole; otherwise those {@code ps} printed, or none if it could read none either
+     */
+    static List<String> reconcileArguments(byte[] cmdline, String psCommand) {
+        List<String> args = ParseUtil.parseByteArrayToStrings(cmdline);
+        String joined = String.join(" ", args);
+        if (psCommand.isEmpty() || psCommand.equals(joined)) {
+            return args;
+        }
+        // ps prints "(ucomm)" for a process whose arguments it cannot read, so the file holds the name buffer too
+        if (psCommand.startsWith("(") && psCommand.endsWith(")")) {
+            return cmdline.length == MAXCOMLEN ? Collections.emptyList() : args;
+        }
+        // A setproctitle() title, which ps follows with "(ucomm)"
+        if (!joined.isEmpty() && psCommand.startsWith(joined + " (") && psCommand.endsWith(")")) {
+            return args;
+        }
+        if (cmdline.length == MAXCOMLEN || psCommand.startsWith(joined)) {
+            return Arrays.asList(ParseUtil.whitespaces.split(psCommand.trim(), -1));
+        }
+        return args;
+    }
+
     @Override
     protected int queryBitness() {
         // DragonFly BSD has no KERN_PROC_SV_NAME (its KERN_PROC subtype 9 is the executable's path) and no ABI

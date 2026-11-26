@@ -5,9 +5,11 @@
 package oshi.software.common.os.unix.dragonflybsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
@@ -122,5 +124,45 @@ class DragonFlyBsdOSProcessTest {
     @Test
     void testOtherProcessPathWithoutProcfs() {
         assertThat(otherProcessPath("dhclient"), is("dhclient"));
+    }
+
+    private static byte[] cmdline(String... args) {
+        return (String.join("\0", args) + "\0").getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    void testArgumentsAgreeingWithPsKeepTheirBoundaries() {
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("/opt/java tools/java", "-version"),
+                "/opt/java tools/java -version"), is(List.of("/opt/java tools/java", "-version")));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("sshd", "-D"), ""), is(List.of("sshd", "-D")));
+    }
+
+    @Test
+    void testCommandNameBufferFallsBackToPs() {
+        // Another process past kern.ps_arg_cache_limit: the file holds the 16-byte p_comm buffer, stale bytes and all
+        byte[] comm = "java\0er\0\0\0\0\0\0\0\0\0".getBytes(StandardCharsets.UTF_8);
+        assertThat(comm.length, is(16));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp .:a.jar:b.jar S arg1"),
+                is(List.of("/usr/local/bin/java", "-cp", ".:a.jar:b.jar", "S", "arg1")));
+        // When ps cannot read the arguments either, it prints "(ucomm)", and neither source has them
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "(java)"), is(empty()));
+    }
+
+    @Test
+    void testCurrentProcessTruncatedAtLimitFallsBackToPs() {
+        // The current process reads its own arguments up to the limit, losing the long classpath and what follows
+        assertThat(
+                DragonFlyBsdOSProcess.reconcileArguments(cmdline("/usr/local/bin/java", "-Dfoo=bar", "-cp"),
+                        "/usr/local/bin/java -Dfoo=bar -cp .:a.jar:b.jar S"),
+                is(List.of("/usr/local/bin/java", "-Dfoo=bar", "-cp", ".:a.jar:b.jar", "S")));
+    }
+
+    @Test
+    void testProcessTitleAndKernelThreadKeepTheFile() {
+        // setproctitle(): ps follows the title with "(ucomm)"
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("dhclient: vtnet0"), "dhclient: vtnet0 (dhclient)"),
+                is(List.of("dhclient: vtnet0")));
+        // A kernel thread has no arguments, and ps prints its name in parentheses
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "(idle_5)"), is(empty()));
     }
 }
