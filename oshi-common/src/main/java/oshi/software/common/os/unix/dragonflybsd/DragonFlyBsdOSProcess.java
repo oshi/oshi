@@ -221,8 +221,8 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      */
     static List<String> reconcileArguments(byte[] cmdline, String psCommand, String ucomm) {
         List<String> args = ParseUtil.parseByteArrayToStrings(cmdline);
-        // Without the file, a process title cannot be told from arguments; the command line falls back to ps's
         String joined = String.join(" ", args);
+        // Without the file, a process title cannot be told from arguments; the command line falls back to ps's
         if (args.isEmpty() || psCommand.isEmpty() || psCommand.equals(joined)) {
             return args;
         }
@@ -230,19 +230,20 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
         if (psCommand.startsWith("(") && psCommand.endsWith(")")) {
             return cmdline.length == MAXCOMLEN ? Collections.emptyList() : args;
         }
+        // The kernel drops its argument cache only past kern.ps_arg_cache_limit (256 by default), so the file holds the
+        // name buffer only when ps prints more than any MAXCOMLEN bytes of arguments could. That buffer holds ucomm,
+        // not argv[0], so argv[0] then comes from ps
+        boolean nameBuffer = cmdline.length == MAXCOMLEN && psCommand.length() > MAX_PRINTED_COMLEN;
+        String argv0 = nameBuffer ? ParseUtil.whitespaces.split(psCommand.trim(), 2)[0] : args.get(0);
         // ps follows the arguments with " (ucomm)" when the last element of argv[0] does not name the command in its
         // first MAXCOMLEN characters, as with a setproctitle() title; otherwise a trailing "(ucomm)" is an argument
         String suffix = " (" + ucomm + ")";
-        String argv0 = args.get(0);
         boolean decorated = !ucomm.isEmpty() && psCommand.endsWith(suffix)
                 && !firstComlen(argv0.substring(argv0.lastIndexOf('/') + 1)).equals(firstComlen(ucomm));
         String printed = decorated ? psCommand.substring(0, psCommand.length() - suffix.length()) : psCommand;
         if (printed.equals(joined)) {
             return args;
         }
-        // The kernel drops its argument cache only past kern.ps_arg_cache_limit (256 by default), so the file holds the
-        // name buffer only when ps prints more than any MAXCOMLEN bytes of arguments could
-        boolean nameBuffer = cmdline.length == MAXCOMLEN && printed.length() > MAX_PRINTED_COMLEN;
         // The current process's file stops at an argument boundary; ps escaping a character only looks like a prefix
         boolean truncated = printed.startsWith(joined + " ");
         if (nameBuffer || truncated) {

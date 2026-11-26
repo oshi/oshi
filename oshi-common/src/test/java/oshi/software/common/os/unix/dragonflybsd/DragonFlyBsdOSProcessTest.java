@@ -150,6 +150,9 @@ class DragonFlyBsdOSProcessTest {
                 .collect(Collectors.joining(":"));
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp " + classpath + " S arg1",
                 "java"), is(List.of("/usr/local/bin/java", "-cp", classpath, "S", "arg1")));
+        // The buffer holds ucomm, not argv[0]: started as "worker", ps follows the line with " (java)", not an argument
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "worker -cp " + classpath + " S (java)", "java"),
+                is(List.of("worker", "-cp", classpath, "S")));
         // When ps cannot read the arguments either, it prints "(ucomm)", and neither source has them
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "(java)", "java"), is(empty()));
     }
