@@ -142,12 +142,14 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
      * not separate. Package-private for testing.
      * <p>
      * {@code fill_kproc()} fills {@code p_uutime} and {@code p_ustime} from the whole process's accumulated usage, and
-     * leaves them zero for a process that is exiting, as {@code p_uvalid} records. The entry's {@code p_pid} is checked
-     * against the process asked for, which also confirms the offsets.
+     * leaves them zero for a process that is exiting; {@code p_uvalid} is clear only once it is a zombie. So an entry
+     * without {@code p_uvalid}, or with both times zero, is not used. The entry's {@code p_pid} is checked against the
+     * process asked for, which also confirms the offsets.
      *
      * @param kinfo the leading bytes of the entry, in the platform's byte order
      * @param pid   the process ID the entry was requested for
-     * @return the kernel and user time in milliseconds, in that order, or an empty array if they could not be read
+     * @return the kernel and user time in milliseconds, in that order, or an empty array if they could not be read or
+     *         are both zero
      */
     static long[] parseKernelUserTime(byte[] kinfo, int pid) {
         if (kinfo.length < KINFO_PROC_PREFIX_SIZE) {
@@ -159,6 +161,13 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
         }
         long system = timevalMillis(entry, KINFO_PROC_USTIME_SEC, KINFO_PROC_USTIME_USEC);
         long user = timevalMillis(entry, KINFO_PROC_UUTIME_SEC, KINFO_PROC_UUTIME_USEC);
+        // An exiting process keeps p_uvalid until it is a zombie, but its times are left zero. Its PS_EXITING flag is
+        // in
+        // p_psflags, past fields whose offsets depend on the architecture's alignment, so zero is treated as unknown:
+        // the ps total stands in, which for a live process that has used no CPU time is zero too
+        if (system == 0L && user == 0L) {
+            return new long[0];
+        }
         return new long[] { system, user };
     }
 

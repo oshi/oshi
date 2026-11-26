@@ -51,7 +51,12 @@ class OpenBsdOSProcessTest {
                 is(new long[] { 1250L, 3977L }));
         // u_int32_t seconds past Integer.MAX_VALUE stay positive
         assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, -1, 0, 0, 0), 42)[1], is(4_294_967_295_000L));
-        // An exiting process, an entry for another process, or a short or empty read
+        // A process exiting but not yet a zombie keeps p_uvalid with its times left zero
+        assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, 0, 0, 0, 0), 42).length, is(0));
+        // Any time at all is a real split
+        assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, 0, 0, 0, 1000), 42),
+                is(new long[] { 1L, 0L }));
+        // A zombie, an entry for another process, or a short or empty read
         assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 0L, 3, 0, 1, 0), 42).length, is(0));
         assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(43, 1L, 3, 0, 1, 0), 42).length, is(0));
         assertThat(OpenBsdOSProcess.parseKernelUserTime(new byte[400], 42).length, is(0));
