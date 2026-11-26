@@ -355,4 +355,39 @@ public class NetBsdOSProcess extends BsdOSProcess {
             this.threadCount = 1;
         }
     }
+
+    @Override
+    protected long[] queryKernelUserTime() {
+        return parseKernelUserTime(FileUtil.getStringFromFile("/proc/" + getProcessID() + "/stat"));
+    }
+
+    /**
+     * Parses the kernel and user time from NetBSD's Linux-format {@code /proc/<pid>/stat}, which ps does not separate.
+     * Package-private for testing.
+     * <p>
+     * Fields 14 and 15 are the {@code p_uutime} and {@code p_ustime} of the process's {@code kinfo_proc2}, in a fixed
+     * 100 ticks per second whatever the kernel's {@code hz} ({@code UTIME2TICKS} in {@code procfs_linux.c}). The
+     * command name is parenthesized and may itself contain spaces or parentheses, so fields are counted from the last
+     * closing parenthesis, after which field 3, the state, comes first.
+     *
+     * @param stat the contents of {@code /proc/<pid>/stat}, empty if procfs is not mounted or the process has exited
+     * @return the kernel and user time in milliseconds, in that order, or an empty array if they could not be read
+     */
+    static long[] parseKernelUserTime(String stat) {
+        int nameEnd = stat.lastIndexOf(')');
+        if (nameEnd < 0) {
+            return new long[0];
+        }
+        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 1).trim(), -1);
+        // Field n of the Linux format is at index n - 3
+        if (split.length < 13) {
+            return new long[0];
+        }
+        long utime = ParseUtil.parseLongOrDefault(split[11], -1L);
+        long stime = ParseUtil.parseLongOrDefault(split[12], -1L);
+        if (utime < 0L || stime < 0L) {
+            return new long[0];
+        }
+        return new long[] { stime * 10L, utime * 10L };
+    }
 }

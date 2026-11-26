@@ -224,4 +224,21 @@ class DragonFlyBsdOSProcessTest {
         assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("echo", "\\"), "echo \\\\", "echo"),
                 is(List.of("echo", "\\")));
     }
+
+    @Test
+    void testParseKernelUserTime() {
+        // cfarm152 (DragonFly 6.4): a busy shell loop, all user time, which ps showed as 3.98 s
+        List<String> busy = List
+                .of("sh 670132 670131 670131 670131 -1,-1 noflags 1795723507,844877 3,977795 0,0 nochan "
+                        + "61873 61873 61873,61873 -");
+        assertThat(DragonFlyBsdOSProcess.parseKernelUserTime(busy), is(new long[] { 0L, 3977L }));
+        // init, mostly system time
+        List<String> init = List.of("init 1 0 1 1 -1,-1 sldr 1793146831,270 0,629556 4,149102 wait 0 0 0,0 -");
+        assertThat(DragonFlyBsdOSProcess.parseKernelUserTime(init), is(new long[] { 4149L, 629L }));
+        // The process exited, or a malformed time field
+        assertThat(DragonFlyBsdOSProcess.parseKernelUserTime(Collections.emptyList()).length, is(0));
+        assertThat(
+                DragonFlyBsdOSProcess.parseKernelUserTime(List.of("sh 1 0 1 1 -1,-1 noflags 1,0 3 0,0 nochan")).length,
+                is(0));
+    }
 }

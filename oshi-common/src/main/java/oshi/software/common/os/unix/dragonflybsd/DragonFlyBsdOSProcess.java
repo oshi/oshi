@@ -269,6 +269,47 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
         return queryStartTimeFromProc(getProcessID());
     }
 
+    @Override
+    protected long[] queryKernelUserTime() {
+        return parseKernelUserTime(FileUtil.readFile("/proc/" + getProcessID() + "/status", false));
+    }
+
+    /**
+     * Parses the kernel and user time from DragonFly's {@code /proc/<pid>/status}, which ps does not separate.
+     * Package-private for testing.
+     * <p>
+     * The ninth and tenth fields are the user and system time as {@code seconds,microseconds}. The command name, the
+     * first field, has its spaces escaped, so whitespace separates every field.
+     *
+     * @param status the lines of {@code /proc/<pid>/status}, empty if the process has exited
+     * @return the kernel and user time in milliseconds, in that order, or an empty array if they could not be read
+     */
+    static long[] parseKernelUserTime(List<String> status) {
+        if (status.isEmpty()) {
+            return new long[0];
+        }
+        String[] split = ParseUtil.whitespaces.split(status.get(0).trim(), -1);
+        if (split.length < 10) {
+            return new long[0];
+        }
+        long user = secUsecToMillis(split[8]);
+        long system = secUsecToMillis(split[9]);
+        if (user < 0L || system < 0L) {
+            return new long[0];
+        }
+        return new long[] { system, user };
+    }
+
+    private static long secUsecToMillis(String secUsec) {
+        String[] parts = secUsec.split(",", -1);
+        if (parts.length != 2) {
+            return -1L;
+        }
+        long seconds = ParseUtil.parseLongOrDefault(parts[0], -1L);
+        long micros = ParseUtil.parseLongOrDefault(parts[1], -1L);
+        return seconds < 0L || micros < 0L ? -1L : seconds * 1000L + micros / 1000L;
+    }
+
     private static long queryStartTimeFromProc(int pid) {
         List<String> status = FileUtil.readFile("/proc/" + pid + "/status", false);
         if (!status.isEmpty()) {
