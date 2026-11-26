@@ -24,6 +24,8 @@ import static oshi.software.common.os.unix.bsd.BsdPsKeyword.USER;
 import static oshi.software.common.os.unix.bsd.BsdPsKeyword.VSZ;
 import static oshi.software.os.OSThread.ThreadFiltering.VALID_THREAD;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +58,22 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
 
     /** The {@code cs_flags} bit of {@code struct cpustats} marking a processor the scheduler may use. */
     private static final long CPUSTATS_ONLINE = 0x1L;
+
+    /** The {@code sysctl} node of process entries, {@code KERN_PROC} in {@code <sys/sysctl.h>}. */
+    protected static final int KERN_PROC = 66;
+    /** The {@code KERN_PROC} operation selecting one process by id, {@code KERN_PROC_PID}. */
+    protected static final int KERN_PROC_PID = 1;
+
+    // struct kinfo_proc in <sys/sysctl.h>: fixed-width fields, laid out the same on every architecture up to the time
+    // fields. The kernel copies as many bytes as the caller asks for, so only this leading part is requested.
+    private static final int KINFO_PROC_PID = 108;
+    private static final int KINFO_PROC_UVALID = 400;
+    private static final int KINFO_PROC_UUTIME_SEC = 420;
+    private static final int KINFO_PROC_UUTIME_USEC = 424;
+    private static final int KINFO_PROC_USTIME_SEC = 428;
+    private static final int KINFO_PROC_USTIME_USEC = 432;
+    /** The number of leading bytes of {@code struct kinfo_proc} to request, through {@code p_ustime_usec}. */
+    protected static final int KINFO_PROC_PREFIX_SIZE = 436;
 
     public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
             .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
@@ -104,6 +122,50 @@ public abstract class OpenBsdOSProcess extends BsdOSProcess {
             }
         }
         return mask;
+    }
+
+    @Override
+    protected long[] queryKernelUserTime() {
+        return parseKernelUserTime(queryKinfoProcPrefix(), getProcessID());
+    }
+
+    /**
+     * Queries the leading {@link #KINFO_PROC_PREFIX_SIZE} bytes of this process's {@code struct kinfo_proc}, through
+     * {@code sysctl} with the name {@code CTL_KERN, KERN_PROC, KERN_PROC_PID, pid, KINFO_PROC_PREFIX_SIZE, 1}.
+     *
+     * @return the bytes, or an empty array if the process is not listed or the call failed
+     */
+    protected abstract byte[] queryKinfoProcPrefix();
+
+    /**
+     * Parses the user and system time from the leading bytes of a {@code struct kinfo_proc}, which OpenBSD's ps does
+     * not separate. Package-private for testing.
+     * <p>
+     * {@code fill_kproc()} fills {@code p_uutime} and {@code p_ustime} from the whole process's accumulated usage, and
+     * leaves them zero for a process that is exiting, as {@code p_uvalid} records. The entry's {@code p_pid} is checked
+     * against the process asked for, which also confirms the offsets.
+     *
+     * @param kinfo the leading bytes of the entry, in the platform's byte order
+     * @param pid   the process ID the entry was requested for
+     * @return the kernel and user time in milliseconds, in that order, or an empty array if they could not be read
+     */
+    static long[] parseKernelUserTime(byte[] kinfo, int pid) {
+        if (kinfo.length < KINFO_PROC_PREFIX_SIZE) {
+            return new long[0];
+        }
+        ByteBuffer entry = ByteBuffer.wrap(kinfo).order(ByteOrder.nativeOrder());
+        if (entry.getInt(KINFO_PROC_PID) != pid || entry.getLong(KINFO_PROC_UVALID) == 0L) {
+            return new long[0];
+        }
+        long system = timevalMillis(entry, KINFO_PROC_USTIME_SEC, KINFO_PROC_USTIME_USEC);
+        long user = timevalMillis(entry, KINFO_PROC_UUTIME_SEC, KINFO_PROC_UUTIME_USEC);
+        return new long[] { system, user };
+    }
+
+    private static long timevalMillis(ByteBuffer entry, int secOffset, int usecOffset) {
+        // Both halves are u_int32_t
+        return Integer.toUnsignedLong(entry.getInt(secOffset)) * 1000L
+                + Integer.toUnsignedLong(entry.getInt(usecOffset)) / 1000L;
     }
 
     /**

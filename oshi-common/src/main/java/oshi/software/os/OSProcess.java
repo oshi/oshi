@@ -243,8 +243,8 @@ public interface OSProcess {
     /**
      * Gets kernel/system (privileged) time used by the process.
      * <p>
-     * On OpenBSD, and on NetBSD without a mounted {@code procfs}, the operating system's tools do not separate kernel
-     * from user time: this is 0, and {@link #getUserTime()} includes it.
+     * On NetBSD without a mounted {@code procfs}, the operating system's tools do not separate kernel from user time:
+     * this is 0, and {@link #getUserTime()} includes it.
      *
      * @return the number of milliseconds the process has executed in kernel/system mode.
      */
@@ -253,8 +253,7 @@ public interface OSProcess {
     /**
      * Gets user time used by the process.
      * <p>
-     * On OpenBSD, and on NetBSD without a mounted {@code procfs}, this includes kernel time; see
-     * {@link #getKernelTime()}.
+     * On NetBSD without a mounted {@code procfs}, this includes kernel time; see {@link #getKernelTime()}.
      *
      * @return the number of milliseconds the process has executed in user mode.
      */

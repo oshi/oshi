@@ -211,9 +211,9 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         } else {
             updateThreadCount();
         }
-        // Kernel/user time: NetBSD and DragonFly read the split from /proc, FreeBSD's ps reports systime
-        // separately (time is user+sys), and OpenBSD folds kernel time into a single cputime column. Clamp both
-        // against a decrease; see monotonic(long, long).
+        // Kernel/user time: NetBSD and DragonFly read the split from /proc and OpenBSD from its kinfo_proc, since their
+        // ps has only the sum; FreeBSD's ps reports systime separately (time is user+sys). Clamp both against a
+        // decrease; see monotonic(long, long).
         long[] cpuTimes = queryKernelUserTime();
         if (cpuTimes.length == 2) {
             if (this.splitCpuTimes) {
@@ -457,7 +457,8 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
 
     /**
      * Returns this process's kernel and user time from a source that keeps them apart, for platforms whose {@code ps}
-     * reports only their sum. The default has none; NetBSD and DragonFly override this to read {@code /proc}.
+     * reports only their sum. The default has none; NetBSD and DragonFly override this to read {@code /proc}, and
+     * OpenBSD its {@code kinfo_proc}.
      *
      * @return the kernel and user time in milliseconds, in that order, or an empty array to take them from the
      *         {@code ps} columns
