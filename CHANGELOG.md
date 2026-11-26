@@ -6,6 +6,7 @@
 * [#3920](https://github.com/oshi/oshi/pull/3920): Commands OSHI runs are found in the `sbin` directories when the `PATH` it inherits leaves them out, as NetBSD's `sshd` and many cron jobs do; on NetBSD most values were empty there - [@dbwiddis](https://github.com/dbwiddis).
 * [#3921](https://github.com/oshi/oshi/pull/3921): Fixed `OSProcess.getOpenFiles()` on AIX, which was always 0, and `getPowerSources()` on Solaris, which reported a battery on machines without one - [@dbwiddis](https://github.com/dbwiddis).
 * [#3922](https://github.com/oshi/oshi/pull/3922): On Linux, `getThreadDetails()` includes the main thread, `getVendorFreq()` and `getMaxFreq()` report the rated frequency on IBM Z (s390x), and a processor with no model name is `unknown` rather than `-` - [@dbwiddis](https://github.com/dbwiddis).
+* [#3923](https://github.com/oshi/oshi/pull/3923): On Windows, `OSProcess.getContextSwitches()` reports the total of the process's threads instead of 0, `getMicroarchitecture()` identifies ARM64 cores such as Azure Cobalt 100's Neoverse N2, and `OSFileStore.getOptions()` lists flags in the same order on both backends - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.8.0 (2026-11-15)
 
