@@ -103,7 +103,7 @@ public final class ExecutingCommand {
     public static List<String> runNative(String[] cmdToRunWithArgs, String @Nullable [] envp) {
         Process p = null;
         try {
-            p = exec(cmdToRunWithArgs, envp);
+            p = exec(cmdToRunWithArgs, envp, SBIN_DIRS);
             return getProcessOutput(p, cmdToRunWithArgs);
         } catch (SecurityException | IOException e) {
             LOG.trace("Couldn't run command {}", Arrays.toString(cmdToRunWithArgs), e);
@@ -116,24 +116,38 @@ public final class ExecutingCommand {
         return Collections.emptyList();
     }
 
-    private static Process exec(String[] cmd, String @Nullable [] envp) throws IOException {
-        if (cmd.length == 0) {
-            return Runtime.getRuntime().exec(cmd, envp);
-        }
-        String known = SBIN_PATHS.get(cmd[0]);
+    /**
+     * Starts a command, looking for one named without a path in the given directories if it cannot be started by name.
+     * A path found that way is remembered once the command has started from it, and forgotten if it later fails to.
+     *
+     * @param cmd  the command and its arguments
+     * @param envp the environment, or {@code null} to inherit this process's
+     * @param dirs the directories to search, in order
+     * @return the started process
+     * @throws IOException if the command cannot be started
+     */
+    static Process exec(String[] cmd, String @Nullable [] envp, List<String> dirs) throws IOException {
+        String name = cmd.length > 0 ? cmd[0] : "";
+        String known = SBIN_PATHS.get(name);
         if (known != null) {
-            return Runtime.getRuntime().exec(withExecutable(cmd, known), envp);
+            try {
+                return Runtime.getRuntime().exec(withExecutable(cmd, known), envp);
+            } catch (IOException e) {
+                // Moved or removed since it was found: look for it again
+                SBIN_PATHS.remove(name, known);
+            }
         }
         try {
             return Runtime.getRuntime().exec(cmd, envp);
         } catch (IOException e) {
             String found = PlatformEnum.getCurrentPlatform() == PlatformEnum.WINDOWS ? null
-                    : findExecutable(SBIN_DIRS, cmd[0]);
+                    : findExecutable(dirs, name);
             if (found == null) {
                 throw e;
             }
-            SBIN_PATHS.put(cmd[0], found);
-            return Runtime.getRuntime().exec(withExecutable(cmd, found), envp);
+            Process p = Runtime.getRuntime().exec(withExecutable(cmd, found), envp);
+            SBIN_PATHS.put(name, found);
+            return p;
         }
     }
 

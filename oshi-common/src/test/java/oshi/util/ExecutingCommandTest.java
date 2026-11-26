@@ -10,11 +10,18 @@ import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.junit.jupiter.api.parallel.ExecutionMode.SAME_THREAD;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -135,10 +142,51 @@ class ExecutingCommandTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void testFindExecutableSkipsFilesThatCannotRun(@TempDir Path tmp) throws IOException {
+        Files.createDirectory(tmp.resolve("route"));
+        assertThat(ExecutingCommand.findExecutable(List.of(tmp.toString()), "route"), is(nullValue()));
+        // access(X_OK) lets root execute a file with no execute bit, so only an unprivileged run can see it skipped
+        assumeFalse(UserGroupInfo.isElevated(), "root may execute any file");
         Path tool = Files.createFile(tmp.resolve("sysctl"));
         assertThat(tool.toFile().setExecutable(false, false), is(true));
         assertThat(ExecutingCommand.findExecutable(List.of(tmp.toString()), "sysctl"), is(nullValue()));
-        Files.createDirectory(tmp.resolve("route"));
-        assertThat(ExecutingCommand.findExecutable(List.of(tmp.toString()), "route"), is(nullValue()));
+    }
+
+    private static String firstLine(Process p) throws IOException, InterruptedException {
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+            String line = reader.readLine();
+            p.waitFor();
+            return line == null ? "" : line;
+        }
+    }
+
+    private static boolean isRunnable(Path script) throws InterruptedException {
+        try {
+            return "found".equals(firstLine(Runtime.getRuntime().exec(new String[] { script.toString() })));
+        } catch (IOException e) {
+            return false;
+        }
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void testExecFindsAndRefindsACommandOffThePath(@TempDir Path tmp) throws IOException, InterruptedException {
+        // A name unique to this test, so that no other test shares its remembered path
+        String name = "oshi-exec-test-" + System.nanoTime();
+        Path first = Files.createDirectory(tmp.resolve("first"));
+        Path second = Files.createDirectory(tmp.resolve("second"));
+        Path tool = first.resolve(name);
+        Files.writeString(tool, "#!/bin/sh\necho found\n");
+        assertThat(tool.toFile().setExecutable(true), is(true));
+        // A temporary directory on a noexec mount cannot run the script at all
+        assumeTrue(isRunnable(tool), "temporary directory does not allow execution");
+        List<String> dirs = List.of(first.toString(), second.toString());
+        assertThat(firstLine(ExecutingCommand.exec(new String[] { name }, null, dirs)), is("found"));
+        // Moved after it was remembered: the stale path is dropped and the command found again
+        Files.move(tool, second.resolve(name), StandardCopyOption.ATOMIC_MOVE);
+        assertThat(firstLine(ExecutingCommand.exec(new String[] { name }, null, dirs)), is("found"));
+        // Gone entirely: starting it fails as it would have without the search
+        Files.delete(second.resolve(name));
+        assertThrows(IOException.class, () -> ExecutingCommand.exec(new String[] { name }, null, dirs));
     }
 }
