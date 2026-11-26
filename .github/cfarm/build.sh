@@ -41,6 +41,9 @@ cfarm_build() {
       echo "::error title=Build timed out::The build used up the ${CFARM_BUDGET}s budget after $(cfarm_elapsed)s; not retrying."
       return 124
       ;;
+    *)
+      # Any other failure is retried below, if the budget allows
+      ;;
   esac
   if [ $((CFARM_BUDGET - $(cfarm_elapsed) - 15)) -lt "$CFARM_MIN_BUILD" ]; then
     echo "Build failed with exit code $rc after $(cfarm_elapsed)s; too little of the budget is left to retry."

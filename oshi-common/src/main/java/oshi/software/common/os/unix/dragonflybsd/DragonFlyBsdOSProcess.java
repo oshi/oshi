@@ -164,11 +164,12 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
         if (!path.isEmpty()) {
             return path;
         }
-        String ucomm = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
+        String command = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
         // The NUL-separated arguments keep a path with spaces whole, which ps's space-separated column does not
         List<String> args = queryArguments();
         String argv0 = args.isEmpty() ? "" : args.get(0);
-        return !ucomm.isEmpty() && namesProgram(argv0.substring(argv0.lastIndexOf('/') + 1), ucomm) ? argv0 : ucomm;
+        String argv0Name = argv0.substring(argv0.lastIndexOf('/') + 1);
+        return !command.isEmpty() && namesProgram(argv0Name, command) ? argv0 : command;
     }
 
     /**

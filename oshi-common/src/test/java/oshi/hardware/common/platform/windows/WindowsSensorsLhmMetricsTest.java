@@ -95,7 +95,7 @@ class WindowsSensorsLhmMetricsTest {
             @Override
             protected List<Reading> queryLhmMetrics() {
                 try {
-                    Thread.sleep(slowerThanTheCache);
+                    Thread.sleep(slowerThanTheCache); // NOSONAR java:S2925 - must outlast the cache lifetime
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
