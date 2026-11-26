@@ -101,6 +101,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             cpuModel = lscpu.getB();
             cpuName = lscpu.getC();
         }
+        // An ARM or s390 host that neither cpuinfo, the device tree nor lscpu names
+        cpuName = ParseUtil.getStringValueOrUnknown(cpuName);
         // A 64-bit JVM can only run on a 64-bit processor, which covers POWER and any architecture whose cpuinfo
         // carries no marker; the markers still matter for a 32-bit JVM or userland on 64-bit hardware
         return new ProcessorIdentifier(cpuVendor, cpuName, id.family(), cpuModel, id.stepping(), processorID,
@@ -346,6 +348,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 vendor = line.replace("Vendor ID:", "").trim();
             } else if (line.startsWith("Model name:")) {
                 String modelName = line.replace("Model name:", "").trim();
+                // lscpu prints "-" for a model it has no name for, as on ARM and s390 hosts
+                if ("-".equals(modelName)) {
+                    continue;
+                }
                 model = model.isEmpty() ? modelName : model;
                 name = name.isEmpty() ? modelName : name;
             }

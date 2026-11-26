@@ -807,6 +807,19 @@ class LinuxCentralProcessorTest {
     }
 
     @Test
+    void testParseLscpuIdentityIgnoresPlaceholderModelName() {
+        // lscpu on an ARM or s390 host with no name for its model, as on Docker Desktop and cfarm191
+        List<String> lscpu = """
+                Architecture:                    s390x
+                Vendor ID:                       IBM/S390
+                Model name:                      -
+                """.lines().toList();
+        Triplet<String, String, String> id = LinuxCentralProcessor.parseLscpuIdentity(lscpu, "IBM/S390", "", "");
+        assertThat(id.getB(), is(""));
+        assertThat(id.getC(), is(""));
+    }
+
+    @Test
     void testParseLscpuIdentityArchitectureOnlyOverridesHexVendor() {
         List<String> lscpu = List.of("Architecture:                    x86_64");
         // Non-hex vendor is left alone by the Architecture line
