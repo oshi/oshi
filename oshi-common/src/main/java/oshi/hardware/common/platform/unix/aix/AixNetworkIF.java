@@ -10,6 +10,8 @@ import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
+import oshi.util.ExecutingCommand;
+import oshi.util.driver.unix.Ifconfig;
 
 /**
  * Abstract base for AIX NetworkIF. {@link #updateAttributes()} populates fields from a per-interface stats POJO that
@@ -33,6 +35,7 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
     }
 
     private volatile int ifType;
+    private volatile IfOperStatus ifOperStatus = IfOperStatus.UNKNOWN;
 
     /**
      * Constructs a new {@code AixNetworkIF}.
@@ -47,6 +50,11 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
     @Override
     public int getIfType() {
         return this.ifType;
+    }
+
+    @Override
+    public IfOperStatus getIfOperStatus() {
+        return this.ifOperStatus;
     }
 
     @Override
@@ -65,6 +73,8 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
         this.inDrops = stats.inDrops;
         this.speed = stats.speed;
         this.ifType = stats.ifType;
+        // perfstat has no interface flags; ifconfig prints them as the BSDs do, with no status line
+        this.ifOperStatus = Ifconfig.parseOperStatus(ExecutingCommand.runNative("/usr/sbin/ifconfig " + getName()));
         this.timeStamp = System.currentTimeMillis();
         return true;
     }

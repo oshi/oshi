@@ -4,12 +4,15 @@
  */
 package oshi.software.common.os.unix.aix;
 
+import static oshi.util.Memoizer.memoize;
+
 import java.io.File;
 import java.nio.file.PathMatcher;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import org.jspecify.annotations.Nullable;
@@ -19,7 +22,6 @@ import oshi.software.common.AbstractFileSystem;
 import oshi.software.os.OSFileStore;
 import oshi.util.ExecutingCommand;
 import oshi.util.FileSystemUtil;
-import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Pair;
 
@@ -29,6 +31,10 @@ import oshi.util.tuples.Pair;
  */
 @ThreadSafe
 public class AixFileSystem extends AbstractFileSystem {
+
+    // A kernel constant (65534 on AIX 7.3); getconf reports it whatever the process's resource limits are
+    private static final Supplier<Long> OPEN_MAX = memoize(
+            () -> ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("getconf OPEN_MAX"), 0L));
 
     public static final String OSHI_AIX_FS_PATH_EXCLUDES = "oshi.os.aix.filesystem.path.excludes";
     public static final String OSHI_AIX_FS_PATH_INCLUDES = "oshi.os.aix.filesystem.path.includes";
@@ -198,28 +204,24 @@ public class AixFileSystem extends AbstractFileSystem {
         return openfiles;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * AIX allocates its file table dynamically and has no system-wide limit to report, so this is always 0.
+     */
     @Override
     public long getMaxFileDescriptors() {
-        return ParseUtil.parseLongOrDefault(ExecutingCommand.getFirstAnswer("ulimit -n"), 0L);
-    }
-
-    @Override
-    public long getMaxFileDescriptorsPerProcess() {
-        return parseMaxFileDescriptorsPerProcess(FileUtil.readFile("/etc/security/limits"));
+        return 0L;
     }
 
     /**
-     * Parses {@code /etc/security/limits} for the default per-process {@code nofiles} descriptor limit.
-     *
-     * @param limits the lines of {@code /etc/security/limits}
-     * @return the {@code nofiles} value, or {@link Long#MAX_VALUE} if not present
+     * {@inheritDoc}
+     * <p>
+     * On AIX this is {@code OPEN_MAX}, the kernel's ceiling on descriptors per process, which holds even when the
+     * {@code nofiles_hard} limit is unlimited.
      */
-    static long parseMaxFileDescriptorsPerProcess(List<String> limits) {
-        for (final String line : limits) {
-            if (line.trim().startsWith("nofiles")) {
-                return ParseUtil.parseLastLong(line, Long.MAX_VALUE);
-            }
-        }
-        return Long.MAX_VALUE;
+    @Override
+    public long getMaxFileDescriptorsPerProcess() {
+        return OPEN_MAX.get();
     }
 }
