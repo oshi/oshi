@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +30,16 @@ class BsdOSProcessTest {
     }
 
     private static BsdOSProcess stubProcess(int pid, int ownPid, String executablePath) {
+        return stubProcess(pid, ownPid, executablePath, () -> new long[0]);
+    }
+
+    private static BsdOSProcess stubProcess(int pid, int ownPid, String executablePath, Supplier<long[]> cpuTimes) {
         return new BsdOSProcess(pid) {
+            @Override
+            protected long[] queryKernelUserTime() {
+                return cpuTimes.get();
+            }
+
             @Override
             protected List<BsdPsKeyword> psKeywords() {
                 return Collections.emptyList();
@@ -162,6 +172,21 @@ class BsdOSProcessTest {
         second.put(BsdPsKeyword.SYSTIME, "0:03.50");
         proc.updateAttributes(second);
         assertThat(proc.getKernelTime(), is(4000L));
+        assertThat(proc.getUserTime(), is(6000L));
+    }
+
+    @Test
+    void testKernelTimeKeptWhenProcBecomesUnavailable() {
+        // NetBSD and DragonFly split the times from /proc; ps has only their sum
+        long[][] reads = { { 3000L, 5000L }, {} };
+        int[] call = { 0 };
+        BsdOSProcess proc = stubProcess(42, 42, "", () -> reads[Math.min(call[0]++, reads.length - 1)]);
+        proc.updateAttributes(psRow("0:08.00"));
+        assertThat(proc.getKernelTime(), is(3000L));
+        assertThat(proc.getUserTime(), is(5000L));
+        // /proc is gone on the next update: the kernel time stands, and the ps total less it is user time
+        proc.updateAttributes(psRow("0:09.00"));
+        assertThat(proc.getKernelTime(), is(3000L));
         assertThat(proc.getUserTime(), is(6000L));
     }
 

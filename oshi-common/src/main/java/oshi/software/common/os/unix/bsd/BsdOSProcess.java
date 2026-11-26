@@ -222,12 +222,11 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
             this.kernelTime = monotonic(this.kernelTime, sysTime);
             this.userTime = monotonic(this.userTime,
                     ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L) - sysTime);
-        } else if (psMap.containsKey(BsdPsKeyword.CPUTIME)) {
-            this.kernelTime = 0L;
-            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.CPUTIME), 0L));
         } else {
-            this.kernelTime = 0L;
-            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L));
+            BsdPsKeyword totalKey = psMap.containsKey(BsdPsKeyword.CPUTIME) ? BsdPsKeyword.CPUTIME : BsdPsKeyword.TIME;
+            long total = ParseUtil.parseDHMSOrDefault(psMap.get(totalKey), 0L);
+            // The total is all user time unless /proc split it on an earlier update, whose kernel time stands
+            this.userTime = monotonic(this.userTime, total - this.kernelTime);
         }
         // Start/up time: DragonFly resolves an absolute start time from /proc; the others derive it
         // from the ps elapsed-time column.
