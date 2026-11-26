@@ -13,6 +13,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
 
@@ -132,6 +133,12 @@ class NetBsdOSProcessTest {
             @Override
             protected String queryProcArgsPath(int subtype) {
                 return kernelPaths.getOrDefault(subtype, "");
+            }
+
+            @Override
+            protected Map<BsdPsKeyword, String> queryPsRow() {
+                // The fixture row has no counters, so it reads as torn; never re-read it from the host's ps
+                return Collections.emptyMap();
             }
         };
     }
