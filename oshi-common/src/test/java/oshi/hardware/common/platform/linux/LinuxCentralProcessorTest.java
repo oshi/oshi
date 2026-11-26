@@ -728,6 +728,7 @@ class LinuxCentralProcessorTest {
         assertThat(id.stepping(), is(""));
         assertThat(id.processorId(), is("FF12DFD83932"));
         assertThat("zarch marks the 64-bit z/Architecture", id.cpu64bit(), is(true));
+        assertThat("cpu MHz static is the rated frequency", id.freq(), is(5_508_000_000L));
     }
 
     @Test
