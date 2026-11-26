@@ -76,10 +76,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         CpuInfoIdentity id = parseProcessorIdFromCpuinfo(FileUtil.readFile(CPUINFO));
         String cpuName = id.name();
         if (cpuName.isEmpty()) {
-            // arm64 cpuinfo has no model name. Name the core by its part, as lscpu does; the device tree names the
-            // board,
-            // which ComputerSystem and Baseboard already report, so it is only the fallback for a part not in the
-            // table.
+            // arm64 cpuinfo has no model name. Name the core by its part, as lscpu does. The device tree names the
+            // board, which ComputerSystem and Baseboard already report, so it is only the fallback for an unknown part.
             String armCore = armCoreName(id.vendor(), id.model());
             cpuName = armCore == null ? FileUtil.getStringFromFile(MODEL).trim() : armCore;
         }
@@ -94,10 +92,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq = cpuCapacity;
             }
         }
-        // ARM cpuinfo carries no frequency. Not on x86, whose cpuinfo_max_freq includes turbo.
-        if (cpuFreq <= 0L && isArmImplementer(id.vendor())) {
-            cpuFreq = queryCpuinfoMaxFreq(SysPath.CPU + "cpu0/cpufreq/cpuinfo_max_freq");
-        }
+        cpuFreq = armVendorFreq(cpuFreq, cpuName, id.vendor(), SysPath.CPU + "cpu0/cpufreq/cpuinfo_max_freq");
         String processorID = id.processorId().isEmpty()
                 ? getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(), queryHwcap())
                 : id.processorId();
@@ -141,6 +136,24 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
             return null;
         }
         return armCoreName(ParseUtil.hexStringToInt(vendor, -1), ParseUtil.hexStringToInt(model, -1));
+    }
+
+    /**
+     * Falls back to the cpufreq hardware maximum for the vendor frequency of an ARM core, whose cpuinfo states none.
+     * Not on x86, whose {@code cpuinfo_max_freq} includes turbo, and not when the name carries a frequency, which
+     * {@link ProcessorIdentifier} parses from it. Package-private for testing.
+     *
+     * @param cpuFreq            the frequency from cpuinfo or {@code lshw}, or -1 when the name carries one
+     * @param cpuName            the processor name
+     * @param vendor             the vendor as parsed, an implementer code on ARM
+     * @param cpuinfoMaxFreqFile the {@code cpuinfo_max_freq} file, in kHz
+     * @return the vendor frequency in Hz, or {@code cpuFreq} if it is known or the fallback does not apply
+     */
+    static long armVendorFreq(long cpuFreq, String cpuName, String vendor, String cpuinfoMaxFreqFile) {
+        if (cpuFreq > 0L || cpuName.contains("Hz") || !isArmImplementer(vendor)) {
+            return cpuFreq;
+        }
+        return queryCpuinfoMaxFreq(cpuinfoMaxFreqFile);
     }
 
     /**

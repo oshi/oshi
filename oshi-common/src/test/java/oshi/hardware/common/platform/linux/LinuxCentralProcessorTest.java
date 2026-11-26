@@ -678,6 +678,20 @@ class LinuxCentralProcessorTest {
     }
 
     @Test
+    void testArmVendorFreq(@TempDir Path tempDir) throws IOException {
+        Path maxFreq = tempDir.resolve("cpuinfo_max_freq");
+        writeFile(maxFreq, "1800000\n");
+        String file = maxFreq.toString();
+        assertThat(LinuxCentralProcessor.armVendorFreq(-1L, "Cortex-A72", "0x41", file), is(1_800_000_000L));
+        assertThat("cpuinfo or lshw gave one",
+                LinuxCentralProcessor.armVendorFreq(2_000_000_000L, "Cortex-A72", "0x41", file), is(2_000_000_000L));
+        assertThat("the name carries one", LinuxCentralProcessor.armVendorFreq(-1L, "Some SoC @ 1.50GHz", "0x41", file),
+                is(-1L));
+        assertThat("x86 includes turbo", LinuxCentralProcessor.armVendorFreq(0L, "Some CPU", "GenuineIntel", file),
+                is(0L));
+    }
+
+    @Test
     void testParseProcessorIdFromCpuinfoArm32() {
         // A Raspberry Pi 2 (Cortex-A7, ARMv7) and a Cortex-A32, the one 32-bit-only ARMv8 core
         List<String> armv7 = List.of("processor\t: 0", "model name\t: ARMv7 Processor rev 5 (v7l)",
