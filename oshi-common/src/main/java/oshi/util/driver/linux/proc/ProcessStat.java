@@ -464,8 +464,9 @@ public final class ProcessStat {
      */
     public static List<Integer> getThreadIds(int pid) {
         File[] threads = listNumericFiles(String.format(Locale.ROOT, ProcPath.TASK_PATH, pid));
+        // The main thread's ID is the process ID; it is a thread like the others, so it is listed with them
         return Arrays.stream(threads).map(thread -> ParseUtil.parseIntOrDefault(thread.getName(), 0))
-                .filter(threadId -> threadId != pid).collect(Collectors.toList());
+                .collect(Collectors.toList());
     }
 
     private static File[] listNumericFiles(String path) {
