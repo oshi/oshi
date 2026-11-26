@@ -5,14 +5,18 @@
 package oshi.software.common.os.unix.dragonflybsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
 import java.lang.reflect.Proxy;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Test;
 
@@ -122,5 +126,102 @@ class DragonFlyBsdOSProcessTest {
     @Test
     void testOtherProcessPathWithoutProcfs() {
         assertThat(otherProcessPath("dhclient"), is("dhclient"));
+    }
+
+    private static byte[] cmdline(String... args) {
+        return (String.join("\0", args) + "\0").getBytes(StandardCharsets.UTF_8);
+    }
+
+    @Test
+    void testArgumentsAgreeingWithPsKeepTheirBoundaries() {
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("/opt/java tools/java", "-version"),
+                "/opt/java tools/java -version", "java"), is(List.of("/opt/java tools/java", "-version")));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("sshd", "-D"), "", "sshd"),
+                is(List.of("sshd", "-D")));
+    }
+
+    @Test
+    void testCommandNameBufferFallsBackToPs() {
+        // Another process past kern.ps_arg_cache_limit: the file holds the 16-byte p_comm buffer, stale bytes and all
+        byte[] comm = "java\0er\0\0\0\0\0\0\0\0\0".getBytes(StandardCharsets.UTF_8);
+        assertThat(comm.length, is(16));
+        // The kernel drops the cache only past kern.ps_arg_cache_limit (256 bytes), so ps prints a long command line
+        String classpath = IntStream.rangeClosed(1, 12).mapToObj(i -> "/home/oshi/some/long/path/lib" + i + ".jar")
+                .collect(Collectors.joining(":"));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "/usr/local/bin/java -cp " + classpath + " S arg1",
+                "java"), is(List.of("/usr/local/bin/java", "-cp", classpath, "S", "arg1")));
+        // The buffer holds ucomm, not argv[0]: started as "worker", ps follows the line with " (java)", not an argument
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "worker -cp " + classpath + " S (java)", "java"),
+                is(List.of("worker", "-cp", classpath, "S")));
+        // When ps cannot read the arguments either, it prints "(ucomm)", and neither source has them
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(comm, "(java)", "java"), is(empty()));
+    }
+
+    @Test
+    void testSixteenByteArgumentsThatPsEscapesKeepTheFile() {
+        // A complete argument list can be MAXCOMLEN bytes too; ps prints the tab escaped, so the two disagree
+        byte[] args = cmdline("sh", "-c", "\tread foo");
+        assertThat(args.length, is(16));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(args, "sh -c \\tread foo", "sh"),
+                is(List.of("sh", "-c", "\tread foo")));
+    }
+
+    @Test
+    void testCurrentProcessTruncatedAtLimitFallsBackToPs() {
+        // The current process reads its own arguments up to the limit, losing the long classpath and what follows
+        assertThat(
+                DragonFlyBsdOSProcess.reconcileArguments(cmdline("/usr/local/bin/java", "-Dfoo=bar", "-cp"),
+                        "/usr/local/bin/java -Dfoo=bar -cp .:a.jar:b.jar S", "java"),
+                is(List.of("/usr/local/bin/java", "-Dfoo=bar", "-cp", ".:a.jar:b.jar", "S")));
+    }
+
+    @Test
+    void testProcessTitleAndKernelThreadKeepTheFile() {
+        // setproctitle(): ps follows the title with "(ucomm)"
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("dhclient: vtnet0"), "dhclient: vtnet0 (dhclient)",
+                "dhclient"), is(List.of("dhclient: vtnet0")));
+        // Sixteen bytes of real arguments that ps prints exactly, parentheses and all
+        byte[] parenthesized = cmdline("(sd-pam-worker)");
+        assertThat(parenthesized.length, is(16));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(parenthesized, "(sd-pam-worker)", "sd-pam-worker"),
+                is(List.of("(sd-pam-worker)")));
+        // A kernel thread has no arguments, and ps prints its name in parentheses
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "(idle_5)", "idle_5"), is(empty()));
+    }
+
+    @Test
+    void testEmptyFileKeepsNoArguments() {
+        // Without the file a title cannot be told from arguments, so neither is split into them
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "dhclient: vtnet0 (dhclient)", "dhclient"),
+                is(empty()));
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(new byte[0], "/sbin/init --", "init"), is(empty()));
+    }
+
+    @Test
+    void testCommandNameSuffixIsNotAnArgument() {
+        // ps appends " (ucomm)" to a line that does not start with the command name; it is never an argument
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("worker", "-q"), "worker -q --long (svc)", "svc"),
+                is(List.of("worker", "-q", "--long")));
+    }
+
+    @Test
+    void testTrailingCommandNameArgumentIsKept() {
+        // argv[0] names the command, so ps adds no suffix and a trailing "(java)" is a real argument
+        assertThat(
+                DragonFlyBsdOSProcess.reconcileArguments(cmdline("/usr/local/bin/java", "-cp"),
+                        "/usr/local/bin/java -cp a.jar Main (java)", "java"),
+                is(List.of("/usr/local/bin/java", "-cp", "a.jar", "Main", "(java)")));
+        // A name longer than MAXCOMLEN still names the command it was cut to
+        assertThat(
+                DragonFlyBsdOSProcess.reconcileArguments(cmdline("/opt/a_very_long_program_name", "5"),
+                        "/opt/a_very_long_program_name 5", "a_very_long_prog"),
+                is(List.of("/opt/a_very_long_program_name", "5")));
+    }
+
+    @Test
+    void testEscapedCharacterIsNotTruncation() {
+        // ps prints a backslash doubled, so the file's line is a prefix of ps's without being cut short
+        assertThat(DragonFlyBsdOSProcess.reconcileArguments(cmdline("echo", "\\"), "echo \\\\", "echo"),
+                is(List.of("echo", "\\")));
     }
 }

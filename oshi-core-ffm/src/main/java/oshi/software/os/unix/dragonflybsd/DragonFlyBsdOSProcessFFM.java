@@ -14,7 +14,6 @@ import static oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions.SIZE_T;
 
 import java.lang.foreign.MemorySegment;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -26,9 +25,7 @@ import oshi.ffm.platform.unix.dragonflybsd.DragonFlyBsdLibcFunctions;
 import oshi.ffm.platform.unix.freebsd.FreeBsdLibcFunctions;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
-import oshi.util.FileUtil;
 import oshi.util.LogLevel;
-import oshi.util.ParseUtil;
 
 /**
  * FFM-backed DragonFly BSD OS process.
@@ -45,16 +42,6 @@ public class DragonFlyBsdOSProcessFFM extends DragonFlyBsdOSProcess {
     public DragonFlyBsdOSProcessFFM(int pid, Map<BsdPsKeyword, String> psMap, DragonFlyBsdOperatingSystemFFM os) {
         super(pid, os);
         updateAttributes(psMap);
-    }
-
-    @Override
-    protected List<String> queryArguments() {
-        // DragonFlyBSD provides command line via /proc filesystem
-        byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        if (cmdBytes.length > 0) {
-            return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
-        }
-        return Collections.emptyList();
     }
 
     @Override

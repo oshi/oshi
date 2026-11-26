@@ -160,7 +160,8 @@ public abstract class BsdOSThread extends AbstractOSThread {
 
     /**
      * Returns the {@code ps} command (without the trailing {@code -p <pid>}) used to enumerate this process's threads
-     * when refreshing a single thread.
+     * when refreshing a single thread. It must not include {@code -a}: FreeBSD 15 and later select processes matching
+     * {@code -a} or {@code -p}, which lists every thread on the system.
      *
      * @return the {@code ps} command prefix
      */

@@ -1,6 +1,8 @@
 # 7.8.1 (in progress)
 
-* Your contribution here!
+##### Bug Fixes and Improvements
+
+* [#3919](https://github.com/oshi/oshi/pull/3919): Fixed `getProcess(pid)`, `getCurrentProcess()`, `OSProcess.updateAttributes()` and `getThreadDetails()` on FreeBSD 15 and later, which read the kernel's process and every thread on the system; and on DragonFly BSD, `getArguments()` and `getCommandLine()` for command lines longer than 256 bytes and `getVirtualSize()` and `getResidentMemory()` for processes over 1 GB - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.8.0 (2026-11-15)
 

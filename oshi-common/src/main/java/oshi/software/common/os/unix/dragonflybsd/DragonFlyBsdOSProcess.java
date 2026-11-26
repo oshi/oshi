@@ -55,8 +55,18 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
     public static final List<BsdPsKeyword> PS_KEYWORDS = Collections.unmodifiableList(Arrays.asList(STATE, PID, PPID,
             USER, UID, RGID, NLWP, PRI, VSZ, RSS, TIME, MAJFLT, MINFLT, NVCSW, NIVCSW, UCOMM, COMMAND));
 
-    public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(Enum::name)
-            .map(name -> name.toLowerCase(Locale.ROOT)).collect(Collectors.joining(","));
+    /**
+     * The {@code ps -o} column list for {@link #PS_KEYWORDS}. DragonFly's {@code ps} prints a size wider than its
+     * column scaled, as {@code 5.65G}, and a column is as wide as its header, so {@code vsz} and {@code rss} get
+     * headers wide enough for any count of KiB.
+     */
+    public static final String PS_COMMAND_ARGS = PS_KEYWORDS.stream().map(DragonFlyBsdOSProcess::psColumn)
+            .collect(Collectors.joining(","));
+
+    private static String psColumn(BsdPsKeyword keyword) {
+        String column = keyword.name().toLowerCase(Locale.ROOT);
+        return keyword == VSZ || keyword == RSS ? column + "=" + keyword.name() + "_IN_KIB_UNSCALED" : column;
+    }
 
     /**
      * The {@code KERN_PROC} sysctl subtype that returns a process's executable path (12 on FreeBSD).
@@ -73,7 +83,15 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
      */
     private static final int MAXCOMLEN = 16;
 
+    /**
+     * The longest {@code ps} command column that {@code MAXCOMLEN} bytes of arguments can print as: every byte escaped
+     * as {@code \ooo}, followed by a {@code " (ucomm)"} suffix.
+     */
+    private static final int MAX_PRINTED_COMLEN = 4 * MAXCOMLEN + MAXCOMLEN + 3;
+
     private final OperatingSystem os;
+
+    private volatile String ucomm = "";
 
     /**
      * Constructs a new {@code DragonFlyBsdOSProcess}.
@@ -169,6 +187,75 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
                 && argv0Name.substring(MAXCOMLEN).chars().noneMatch(c -> c == ':' || Character.isWhitespace(c));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * DragonFly's {@code /proc/<pid>/cmdline} holds the kernel's argument cache, which is dropped for a command line
+     * longer than {@code kern.ps_arg_cache_limit}. The file then holds another process's {@code MAXCOMLEN} command name
+     * buffer, and the current process loses its arguments past the limit. {@code ps} reads the arguments from the
+     * process's memory instead, so where the two disagree its command column is used, split on whitespace. That split
+     * cannot keep an argument containing a space whole, and keeps the escapes {@code ps} prints for unprintable
+     * characters.
+     */
+    @Override
+    protected List<String> queryArguments() {
+        byte[] cmdline = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
+        return Collections.unmodifiableList(reconcileArguments(cmdline, this.commandLineBackup, this.ucomm));
+    }
+
+    @Override
+    protected String queryCommandLineBackup(Map<BsdPsKeyword, String> psMap) {
+        this.ucomm = ParseUtil.getStringValueOrEmpty(psMap.get(UCOMM));
+        return super.queryCommandLineBackup(psMap);
+    }
+
+    /**
+     * Chooses between the arguments in {@code /proc/<pid>/cmdline} and the {@code ps} command column.
+     *
+     * @param cmdline   the bytes of {@code /proc/<pid>/cmdline}
+     * @param psCommand the {@code ps} command column, or an empty string if unknown
+     * @param ucomm     the {@code ps} command name, or an empty string if unknown
+     * @return the arguments: the file's when it has none or they agree with {@code ps}, since only the file keeps an
+     *         argument that contains a space whole; otherwise those {@code ps} printed, or none if it could read none
+     *         either
+     */
+    static List<String> reconcileArguments(byte[] cmdline, String psCommand, String ucomm) {
+        List<String> args = ParseUtil.parseByteArrayToStrings(cmdline);
+        String joined = String.join(" ", args);
+        // Without the file, a process title cannot be told from arguments; the command line falls back to ps's
+        if (args.isEmpty() || psCommand.isEmpty() || psCommand.equals(joined)) {
+            return args;
+        }
+        // ps prints "(ucomm)" for a process whose arguments it cannot read, so the file holds the name buffer too
+        if (psCommand.startsWith("(") && psCommand.endsWith(")")) {
+            return cmdline.length == MAXCOMLEN ? Collections.emptyList() : args;
+        }
+        // The kernel drops its argument cache only past kern.ps_arg_cache_limit (256 by default), so the file holds the
+        // name buffer only when ps prints more than any MAXCOMLEN bytes of arguments could. That buffer holds ucomm,
+        // not argv[0], so argv[0] then comes from ps
+        boolean nameBuffer = cmdline.length == MAXCOMLEN && psCommand.length() > MAX_PRINTED_COMLEN;
+        String argv0 = nameBuffer ? ParseUtil.whitespaces.split(psCommand.trim(), 2)[0] : args.get(0);
+        // ps follows the arguments with " (ucomm)" when the last element of argv[0] does not name the command in its
+        // first MAXCOMLEN characters, as with a setproctitle() title; otherwise a trailing "(ucomm)" is an argument
+        String suffix = " (" + ucomm + ")";
+        boolean decorated = !ucomm.isEmpty() && psCommand.endsWith(suffix)
+                && !firstComlen(argv0.substring(argv0.lastIndexOf('/') + 1)).equals(firstComlen(ucomm));
+        String printed = decorated ? psCommand.substring(0, psCommand.length() - suffix.length()) : psCommand;
+        if (printed.equals(joined)) {
+            return args;
+        }
+        // The current process's file stops at an argument boundary; ps escaping a character only looks like a prefix
+        boolean truncated = printed.startsWith(joined + " ");
+        if (nameBuffer || truncated) {
+            return Arrays.asList(ParseUtil.whitespaces.split(printed.trim(), -1));
+        }
+        return args;
+    }
+
+    private static String firstComlen(String name) {
+        return name.length() > MAXCOMLEN ? name.substring(0, MAXCOMLEN) : name;
+    }
+
     @Override
     protected int queryBitness() {
         // DragonFly BSD has no KERN_PROC_SV_NAME (its KERN_PROC subtype 9 is the executable's path) and no ABI
@@ -201,7 +288,7 @@ public abstract class DragonFlyBsdOSProcess extends BsdOSProcess {
 
     @Override
     public List<OSThread> getThreadDetails() {
-        String psCommand = "ps -awwxo " + DragonFlyBsdOSThread.PS_THREAD_COLUMNS + " -H";
+        String psCommand = "ps -wwxo " + DragonFlyBsdOSThread.PS_THREAD_COLUMNS + " -H";
         if (getProcessID() >= 0) {
             psCommand += " -p " + getProcessID();
         }

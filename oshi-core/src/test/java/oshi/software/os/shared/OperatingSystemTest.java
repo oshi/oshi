@@ -255,6 +255,26 @@ class OperatingSystemTest {
     }
 
     @Test
+    void testCurrentProcessMatchesJdk() {
+        // The JDK reads its own process independently, so a disagreement means OSHI parsed another process's row, as
+        // when FreeBSD 15 and later list every process for a ps command combining -a with -p
+        ProcessHandle self = ProcessHandle.current();
+        OSProcess current = os.getProcess((int) self.pid());
+        assertNotNull(current, "Current process should be found by its JDK PID");
+        assertThat("Current process ID should match the JDK's", current.getProcessID(), is((int) self.pid()));
+        self.parent().ifPresent(parent -> assertThat("Current process parent should match the JDK's",
+                current.getParentProcessID(), is((int) parent.pid())));
+        assertThat("Refreshing the current process should succeed", current.updateAttributes(), is(true));
+        self.parent().ifPresent(parent -> assertThat("Refreshed parent should still match the JDK's",
+                current.getParentProcessID(), is((int) parent.pid())));
+        // Threads only accumulate during a test run, so a count taken afterward bounds the details taken before
+        int details = current.getThreadDetails().size();
+        current.updateAttributes();
+        assertThat("Current process thread details should hold only its own threads", details,
+                is(lessThanOrEqualTo(current.getThreadCount() + 10)));
+    }
+
+    @Test
     void testThreads() {
         List<OSThread> threads = proc.getThreadDetails();
         for (OSThread thread : threads) {

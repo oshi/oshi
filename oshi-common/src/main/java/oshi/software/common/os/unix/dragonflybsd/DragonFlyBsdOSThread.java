@@ -70,6 +70,6 @@ public class DragonFlyBsdOSThread extends BsdOSThread {
 
     @Override
     protected String psThreadCommand() {
-        return "ps -awwxo " + PS_THREAD_COLUMNS + " -H";
+        return "ps -wwxo " + PS_THREAD_COLUMNS + " -H";
     }
 }

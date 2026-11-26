@@ -7,7 +7,6 @@ package oshi.software.os.unix.dragonflybsd;
 import static oshi.jna.platform.unix.FreeBsdLibc.RLIMIT_NOFILE;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import com.sun.jna.Memory;
@@ -19,8 +18,6 @@ import oshi.jna.ByRef.CloseableSizeTByReference;
 import oshi.jna.platform.unix.DragonFlyBsdLibc;
 import oshi.software.common.os.unix.bsd.BsdPsKeyword;
 import oshi.software.common.os.unix.dragonflybsd.DragonFlyBsdOSProcess;
-import oshi.util.FileUtil;
-import oshi.util.ParseUtil;
 
 /**
  * OSProcess implementation
@@ -31,16 +28,6 @@ public class DragonFlyBsdOSProcessJNA extends DragonFlyBsdOSProcess {
     public DragonFlyBsdOSProcessJNA(int pid, Map<BsdPsKeyword, String> psMap, DragonFlyBsdOperatingSystemJNA os) {
         super(pid, os);
         updateAttributes(psMap);
-    }
-
-    @Override
-    protected List<String> queryArguments() {
-        // DragonFlyBSD provides command line via /proc filesystem
-        byte[] cmdBytes = FileUtil.readAllBytes("/proc/" + getProcessID() + "/cmdline", false);
-        if (cmdBytes.length > 0) {
-            return Collections.unmodifiableList(ParseUtil.parseByteArrayToStrings(cmdBytes));
-        }
-        return Collections.emptyList();
     }
 
     @Override

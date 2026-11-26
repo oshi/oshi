@@ -72,6 +72,6 @@ public class OpenBsdOSThread extends BsdOSThread {
 
     @Override
     protected String psThreadCommand() {
-        return "ps -aHwwxo " + PS_THREAD_COLUMNS;
+        return "ps -Hwwxo " + PS_THREAD_COLUMNS;
     }
 }
