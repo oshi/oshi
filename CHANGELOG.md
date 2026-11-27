@@ -1,27 +1,12 @@
-# 7.8.1 (in progress)
+# 7.8.2 (in progress)
 
-##### Behavior Changes
+* Your contribution here!
 
-`oshi-benchmark` is published to Maven Central again, as a runnable jar: `java -jar oshi-benchmark-7.8.1.jar` runs the JNA and FFM benchmarks on JDK 25 or later, with nothing to build.
-
-* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM without a `model name` in `/proc/cpuinfo`, `ProcessorIdentifier.getName()` names a core whose implementer and part are in OSHI's table from them, such as `Cortex-A72`, as `lscpu` does, instead of the board from the device tree, which remains the fallback for other cores; the board is still reported by `ComputerSystem` and `Baseboard` - [@huber-and](https://github.com/huber-and).
-
-##### Bug Fixes and Improvements
-
-* [#3919](https://github.com/oshi/oshi/pull/3919): Fixed `getProcess(pid)`, `getCurrentProcess()`, `OSProcess.updateAttributes()` and `getThreadDetails()` on FreeBSD 15 and later, which read the kernel's process and every thread on the system; and on DragonFly BSD, `getArguments()` and `getCommandLine()` for command lines longer than 256 bytes and `getVirtualSize()` and `getResidentMemory()` for processes over 1 GB - [@dbwiddis](https://github.com/dbwiddis).
-* [#3927](https://github.com/oshi/oshi/pull/3927),
-  [#3929](https://github.com/oshi/oshi/pull/3929): On NetBSD, DragonFly BSD and OpenBSD, `OSProcess.getKernelTime()` reports kernel time instead of 0 with all CPU time in `getUserTime()` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3928](https://github.com/oshi/oshi/pull/3928): On NetBSD, an `OSProcess` read while that process is starting a command no longer reports 0 for its CPU time, page faults and context switches - [@dbwiddis](https://github.com/dbwiddis).
-* [#3920](https://github.com/oshi/oshi/pull/3920): Commands OSHI runs are found in the `sbin` directories when the `PATH` it inherits leaves them out, as NetBSD's `sshd` and many cron jobs do; on NetBSD most values were empty there - [@dbwiddis](https://github.com/dbwiddis).
-* [#3921](https://github.com/oshi/oshi/pull/3921): Fixed `OSProcess.getOpenFiles()` on AIX, which was always 0, and `getPowerSources()` on Solaris, which reported a battery on machines without one - [@dbwiddis](https://github.com/dbwiddis).
-* [#3926](https://github.com/oshi/oshi/pull/3926): On AIX, `NetworkIF.getIfOperStatus()` reports whether an interface is up instead of always `UNKNOWN`, and `FileSystem.getMaxFileDescriptorsPerProcess()` reports the kernel's per-process ceiling, `OPEN_MAX`, instead of `Long.MAX_VALUE` when `/etc/security/limits` is unreadable - [@dbwiddis](https://github.com/dbwiddis).
-* [#3922](https://github.com/oshi/oshi/pull/3922): On Linux, `getThreadDetails()` includes the main thread, `getVendorFreq()` and `getMaxFreq()` report the rated frequency on IBM Z (s390x), and a processor with no model name is `unknown` rather than `-` - [@dbwiddis](https://github.com/dbwiddis).
-* [#3923](https://github.com/oshi/oshi/pull/3923): On Windows, `OSProcess.getContextSwitches()` reports the total of the process's threads instead of 0, `getMicroarchitecture()` identifies ARM64 cores such as Azure Cobalt 100's Neoverse N2, and `OSFileStore.getOptions()` lists flags in the same order on both backends - [@dbwiddis](https://github.com/dbwiddis).
-* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM, `getModel()` and `getMicroarchitecture()` report the core on a Raspberry Pi instead of the board name the kernel appends to `/proc/cpuinfo`, which also corrects the part number in `getProcessorID()` where neither `dmidecode` nor `cpuid` is available; `getVendorFreq()` falls back to the cpufreq hardware maximum when cpuinfo and `lshw` state none - [@huber-and](https://github.com/huber-and).
-
-# 7.8.0 (2026-11-15)
+# 7.8.0 (2026-11-15), 7.8.1 (2026-11-27)
 
 OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Windows sensors. Recommending it was a mistake. With it on the class path, a JVM does not exit after `main` returns. The DLL it bundles uses a kernel driver that Microsoft Defender flags as a hacking tool. On some hosts it returns no data ([#3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to any of these reports. Remove it from your build and run [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) with its web server on instead; see the [FAQ](FAQ.md#reading-librehardwaremonitor-095-and-later).
+
+`oshi-benchmark` is published to Maven Central again, as a runnable jar: `java -jar oshi-benchmark-7.8.1.jar` runs the JNA and FFM benchmarks on JDK 25 or later, with nothing to build.
 
 ##### New Features
 
@@ -42,6 +27,7 @@ OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Wind
 * [#3896](https://github.com/oshi/oshi/pull/3896): On Windows, `HWDiskStore.getPartitions()` includes partitions without a drive letter, such as the EFI system and recovery partitions, with an empty mount point - [@dbwiddis](https://github.com/dbwiddis).
 * [#3898](https://github.com/oshi/oshi/pull/3898): `OperatingSystem.getInstalledApplications()` returns an unmodifiable list on every platform, as it already did on macOS - [@dbwiddis](https://github.com/dbwiddis).
 * [#3905](https://github.com/oshi/oshi/pull/3905): Windows `Sensors` reads LibreHardwareMonitor 0.9.5 and later through the application's web server when `oshi.os.windows.lhm.url` is set, since those versions no longer publish to WMI, and no longer reads the `jLibreHardwareMonitor` dependency - [@dbwiddis](https://github.com/dbwiddis).
+* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM without a `model name` in `/proc/cpuinfo`, `ProcessorIdentifier.getName()` names the core from its implementer and part, such as `Cortex-A72`, as `lscpu` does, instead of the board from the device tree, which remains the fallback for a core not in that table; the board is still reported by `ComputerSystem` and `Baseboard` - [@huber-and](https://github.com/huber-and).
 
 ##### Bug Fixes and Improvements
 
@@ -79,6 +65,20 @@ OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Wind
   [#3890](https://github.com/oshi/oshi/pull/3890),
   [#3897](https://github.com/oshi/oshi/pull/3897): Fixed processes and threads: `getProcessCount()` on macOS, affinity on Linux without native access and on OpenBSD, bitness on AIX, the working directory on Solaris, the group on DragonFly BSD, thread CPU times, context switches and page faults on Solaris, and NetBSD threads, which reported their process's totals. OpenBSD `getSwapPagesIn()` and `getSwapPagesOut()` count pages rather than bytes - [@dbwiddis](https://github.com/dbwiddis).
 * [#3880](https://github.com/oshi/oshi/pull/3880): Linux lists OpenRC services, and native-free Linux reads udev properties for disks, partitions and network adapters - [@dbwiddis](https://github.com/dbwiddis).
+* [#3919](https://github.com/oshi/oshi/pull/3919),
+  [#3921](https://github.com/oshi/oshi/pull/3921),
+  [#3922](https://github.com/oshi/oshi/pull/3922),
+  [#3923](https://github.com/oshi/oshi/pull/3923),
+  [#3927](https://github.com/oshi/oshi/pull/3927),
+  [#3928](https://github.com/oshi/oshi/pull/3928),
+  [#3929](https://github.com/oshi/oshi/pull/3929): Fixed `OSProcess` values: `getKernelTime()` on NetBSD, DragonFly BSD and OpenBSD, which was 0 with all CPU time in `getUserTime()`; CPU time, page faults and context switches on NetBSD for a process starting a command; `getContextSwitches()` on Windows and `getOpenFiles()` on AIX, which were always 0; `getArguments()`, `getCommandLine()`, `getVirtualSize()` and `getResidentMemory()` on DragonFly BSD for long command lines and processes over 1 GB; and `getProcess(pid)`, `getCurrentProcess()`, `updateAttributes()` and `getThreadDetails()` on FreeBSD 15 and later, which read every thread on the system. On Linux, `getThreadDetails()` includes the main thread - [@dbwiddis](https://github.com/dbwiddis).
+* [#3920](https://github.com/oshi/oshi/pull/3920): Commands OSHI runs are found in the `sbin` directories when the `PATH` it inherits leaves them out, as NetBSD's `sshd` and many cron jobs do; on NetBSD most values were empty there - [@dbwiddis](https://github.com/dbwiddis).
+* [#3921](https://github.com/oshi/oshi/pull/3921): Fixed `getPowerSources()` on Solaris, which reported a battery on machines without one - [@dbwiddis](https://github.com/dbwiddis).
+* [#3922](https://github.com/oshi/oshi/pull/3922),
+  [#3923](https://github.com/oshi/oshi/pull/3923),
+  [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM, `getModel()` and `getMicroarchitecture()` report the core on a Raspberry Pi instead of the board name the kernel appends to `/proc/cpuinfo`, which also corrects the part number in `getProcessorID()` where neither `dmidecode` nor `cpuid` is available, and `getVendorFreq()` falls back to the cpufreq hardware maximum when cpuinfo and `lshw` state none. `getVendorFreq()` and `getMaxFreq()` report the rated frequency on IBM Z (s390x), a Linux processor with no model name is `unknown` rather than `-`, and `getMicroarchitecture()` identifies Windows ARM64 cores such as Azure Cobalt 100's Neoverse N2 - [@dbwiddis](https://github.com/dbwiddis), [@huber-and](https://github.com/huber-and).
+* [#3923](https://github.com/oshi/oshi/pull/3923): `OSFileStore.getOptions()` on Windows lists flags in the same order on both backends - [@dbwiddis](https://github.com/dbwiddis).
+* [#3926](https://github.com/oshi/oshi/pull/3926): On AIX, `NetworkIF.getIfOperStatus()` reports whether an interface is up instead of always `UNKNOWN`, and `FileSystem.getMaxFileDescriptorsPerProcess()` reports the kernel's per-process ceiling, `OPEN_MAX`, instead of `Long.MAX_VALUE` when `/etc/security/limits` is unreadable - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.7.0 (2026-09-29), 7.7.1 (2026-10-10), 7.7.2 (2026-10-20), 7.7.3 (2026-10-31)
 

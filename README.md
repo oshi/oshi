@@ -51,9 +51,9 @@ Both implementations share the same API interfaces from `oshi-common`. Choose on
 Downloads and Dependency Management
 -----------------------------------
 Stable Release Versions
-  * JNA: [oshi-core-7.8.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.8.0)
-  * FFM: [oshi-core-ffm-7.8.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.8.0)
-  * Common: [oshi-common-7.8.0](https://central.sonatype.com/artifact/com.github.oshi/oshi-common/7.8.0)
+  * JNA: [oshi-core-7.8.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core/7.8.1)
+  * FFM: [oshi-core-ffm-7.8.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-core-ffm/7.8.1)
+  * Common: [oshi-common-7.8.1](https://central.sonatype.com/artifact/com.github.oshi/oshi-common/7.8.1)
 
 Snapshot builds of the next version are published to `https://central.sonatype.com/repository/maven-snapshots/`, which your build must be configured to use.
 
@@ -168,6 +168,8 @@ VERSION=7.8.1
 curl -LO https://repo1.maven.org/maven2/com/github/oshi/oshi-benchmark/$VERSION/oshi-benchmark-$VERSION.jar
 java -jar oshi-benchmark-$VERSION.jar
 ```
+
+The licenses of the libraries bundled in the jar are listed in its `META-INF/BUNDLED-LICENSES.txt`.
 
 From a clone, `./oshi-benchmark/scripts/run-benchmarks.sh` builds and runs the current source.
 

@@ -16,6 +16,8 @@ java -jar oshi-benchmark-$VERSION.jar CpuTicksBenchmark  # run those matching a 
 java --enable-native-access=ALL-UNNAMED -cp oshi-benchmark-$VERSION.jar oshi.benchmark.MonitoringFootprintReport
 ```
 
+The jar keeps each bundled library's license text, and `META-INF/BUNDLED-LICENSES.txt` inside it says which file holds which.
+
 ## Running All Benchmarks
 
 ```sh
