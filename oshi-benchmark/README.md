@@ -6,7 +6,7 @@ Requires **JDK 25+** (for FFM support).
 
 ## Running the Published Jar
 
-Each release publishes `oshi-benchmark` to Maven Central as a runnable jar holding OSHI, JNA with its native code for every platform, and JMH, so nothing needs to be built. Any JMH option works, as shown below for the script:
+Each release publishes `oshi-benchmark` to Maven Central as a runnable jar holding OSHI, JNA and JMH, so nothing needs to be built. JNA's native library is included for every platform OSHI supports except NetBSD, where it comes from pkgsrc's `java-jna` package; without it, OSHI's JNA backend falls back to command-line tools there, so its NetBSD results do not measure native JNA calls. Any JMH option works, as shown below for the script:
 
 ```sh
 VERSION=7.8.1   # 7.8.1 or later

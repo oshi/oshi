@@ -161,7 +161,7 @@ See the [oshi-metrics README](oshi-metrics/) for full setup, selective registrat
 
 ### [`oshi-benchmark`](oshi-benchmark/) — JMH Benchmarks
 
-JMH benchmarks comparing JNA and FFM implementations side by side. Requires JDK 25+. The published jar runs on its own, with every platform's native code included:
+JMH benchmarks comparing JNA and FFM implementations side by side. Requires JDK 25+. The published jar runs on its own; on NetBSD, JNA's native library comes from pkgsrc's `java-jna` package:
 
 ```sh
 VERSION=7.8.1

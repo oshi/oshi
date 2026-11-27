@@ -20,8 +20,6 @@
         <maven.compiler.testRelease>${oshi.ffm.release}</maven.compiler.testRelease>
         <maven.test.skip>true</maven.test.skip>
         <native.access.modules>ALL-UNNAMED</native.access.modules>
-        <!-- The published jar is the runnable JMH uber-jar, so it is shaded in every build. Set to none to skip. -->
-        <shade.phase>package</shade.phase>
         <uberjar.name>benchmarks</uberjar.name>
         <!-- Exclude this benchmark/comparison module from SonarCloud: its comparison tests only compile under the
         native-comparison profile, so the default Sonar build has no test binaries for it (the source of a
@@ -107,7 +105,8 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <phase>${shade.phase}</phase>
+                        <!-- Always shaded: the published jar, and target/benchmarks.jar that the scripts run, are the uber-jar -->
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <transformers>
@@ -121,6 +120,11 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/CompilerHints</resource>
                                 </transformer>
+                                <!-- SLF4J and Commons Math each ship this file; keep both texts rather than one.
+                                META-INF/BUNDLED-LICENSES.txt says where each bundled library's license is. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/LICENSE.txt</resource>
+                                </transformer>
                             </transformers>
                             <filters>
                                 <filter>
@@ -129,6 +133,13 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <!-- The same file as slf4j-api's, which is kept -->
+                                    <artifact>org.slf4j:slf4j-simple</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

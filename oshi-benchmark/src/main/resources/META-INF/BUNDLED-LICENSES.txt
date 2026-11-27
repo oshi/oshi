@@ -1,0 +1,46 @@
+This jar bundles OSHI with the libraries it needs to run its benchmarks. Each component keeps its own license,
+and this file says where in the jar each license text is. The bundled version of every library is recorded in
+META-INF/maven/<groupId>/<artifactId>/pom.properties.
+
+Component                                        License                                   Text in this jar
+-----------------------------------------------  ----------------------------------------  ---------------------------
+OSHI (oshi-common, oshi-core, oshi-core-ffm,     MIT                                       below
+  oshi-benchmark)
+Java Microbenchmark Harness (org.openjdk.jmh)    GPL v2 with the Classpath Exception       LICENSE
+JOpt Simple (net.sf.jopt-simple), used by JMH    MIT                                       THIRD-PARTY
+Apache Commons Math (org.apache.commons)         Apache 2.0                                META-INF/LICENSE.txt,
+                                                                                           META-INF/NOTICE.txt
+Java Native Access (net.java.dev.jna)            Apache 2.0, or LGPL 2.1 or later          META-INF/LICENSE,
+                                                                                           META-INF/AL2.0,
+                                                                                           META-INF/LGPL2.1
+SLF4J (org.slf4j)                                MIT                                       META-INF/LICENSE.txt
+
+META-INF/LICENSE.txt holds the license files of SLF4J and Apache Commons Math, one after the other.
+
+The source code of JMH, and of every other bundled library, is published on Maven Central beside its binary, as
+the artifact's "sources" jar. JMH's source is also at https://github.com/openjdk/jmh.
+
+OSHI
+----
+
+MIT License
+
+Copyright (c) 2010-2026 The OSHI Project Contributors: https://github.com/oshi/oshi/graphs/contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
