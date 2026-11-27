@@ -20,10 +20,10 @@
         <maven.compiler.testRelease>${oshi.ffm.release}</maven.compiler.testRelease>
         <maven.test.skip>true</maven.test.skip>
         <native.access.modules>ALL-UNNAMED</native.access.modules>
-        <shade.phase>none</shade.phase>
+        <!-- The published jar is the runnable JMH uber-jar, so it is shaded in every build. Set to none to skip. -->
+        <shade.phase>package</shade.phase>
         <uberjar.name>benchmarks</uberjar.name>
-        <!-- Exclude this benchmark/comparison module from SonarCloud: it is not published (see excludeArtifacts on
-        central-publishing-maven-plugin in the parent pom), and its comparison tests only compile under the
+        <!-- Exclude this benchmark/comparison module from SonarCloud: its comparison tests only compile under the
         native-comparison profile, so the default Sonar build has no test binaries for it (the source of a
         "sonar.java.test.binaries" warning). -->
         <sonar.skip>true</sonar.skip>
@@ -94,6 +94,9 @@
     </dependencies>
 
     <build>
+        <!-- Keeps the local jar at target/benchmarks.jar, where the scripts and workflows run it. The shaded jar
+        replaces the main artifact, which is deployed under the usual oshi-benchmark-<version>.jar name. -->
+        <finalName>${uberjar.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -107,7 +110,6 @@
                         <phase>${shade.phase}</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <finalName>${uberjar.name}</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.openjdk.jmh.Main</mainClass>

@@ -1,5 +1,7 @@
 # 7.8.1 (in progress)
 
+`oshi-benchmark` is published to Maven Central again, as a runnable jar: `java -jar oshi-benchmark-7.8.1.jar` runs the JNA and FFM benchmarks on JDK 25 or later, with nothing to build.
+
 ##### Bug Fixes and Improvements
 
 * [#3919](https://github.com/oshi/oshi/pull/3919): Fixed `getProcess(pid)`, `getCurrentProcess()`, `OSProcess.updateAttributes()` and `getThreadDetails()` on FreeBSD 15 and later, which read the kernel's process and every thread on the system; and on DragonFly BSD, `getArguments()` and `getCommandLine()` for command lines longer than 256 bytes and `getVirtualSize()` and `getResidentMemory()` for processes over 1 GB - [@dbwiddis](https://github.com/dbwiddis).

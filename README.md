@@ -161,11 +161,15 @@ See the [oshi-metrics README](oshi-metrics/) for full setup, selective registrat
 
 ### [`oshi-benchmark`](oshi-benchmark/) — JMH Benchmarks
 
-JMH benchmarks comparing JNA and FFM implementations side by side. Requires JDK 25+.
+JMH benchmarks comparing JNA and FFM implementations side by side. Requires JDK 25+. The published jar runs on its own, with every platform's native code included:
 
 ```sh
-./oshi-benchmark/scripts/run-benchmarks.sh
+VERSION=7.8.1
+curl -LO https://repo1.maven.org/maven2/com/github/oshi/oshi-benchmark/$VERSION/oshi-benchmark-$VERSION.jar
+java -jar oshi-benchmark-$VERSION.jar
 ```
+
+From a clone, `./oshi-benchmark/scripts/run-benchmarks.sh` builds and runs the current source.
 
 See the [oshi-benchmark README](oshi-benchmark/) for running specific benchmarks and custom JMH options.
 

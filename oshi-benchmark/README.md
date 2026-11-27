@@ -4,6 +4,18 @@ JMH benchmarks comparing the **JNA** (`oshi-core`) and **FFM** (`oshi-core-ffm`)
 
 Requires **JDK 25+** (for FFM support).
 
+## Running the Published Jar
+
+Each release publishes `oshi-benchmark` to Maven Central as a runnable jar holding OSHI, JNA with its native code for every platform, and JMH, so nothing needs to be built. Any JMH option works, as shown below for the script:
+
+```sh
+VERSION=7.8.1   # 7.8.1 or later
+curl -LO https://repo1.maven.org/maven2/com/github/oshi/oshi-benchmark/$VERSION/oshi-benchmark-$VERSION.jar
+java -jar oshi-benchmark-$VERSION.jar -l                 # list the benchmarks
+java -jar oshi-benchmark-$VERSION.jar CpuTicksBenchmark  # run those matching a regex
+java --enable-native-access=ALL-UNNAMED -cp oshi-benchmark-$VERSION.jar oshi.benchmark.MonitoringFootprintReport
+```
+
 ## Running All Benchmarks
 
 ```sh
@@ -58,6 +70,6 @@ Any additional arguments are passed directly to JMH:
 ## Building Manually
 
 ```sh
-./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package
+./mvnw package -pl oshi-benchmark -am -DskipTests
 java -jar oshi-benchmark/target/benchmarks.jar
 ```

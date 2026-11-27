@@ -29,7 +29,7 @@ fi
 if [ ! -f "${JAR}" ]; then
     echo "benchmarks.jar not found — building first..."
     ./mvnw install -pl oshi-common,oshi-core,oshi-core-ffm -DskipTests -q
-    ./mvnw package -pl oshi-benchmark -DskipTests -Dshade.phase=package -q
+    ./mvnw package -pl oshi-benchmark -DskipTests -q
 fi
 
 exec java -jar "${JAR}" "$@"
