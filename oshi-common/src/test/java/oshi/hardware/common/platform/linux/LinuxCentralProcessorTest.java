@@ -654,8 +654,8 @@ class LinuxCentralProcessorTest {
         ProcessorIdentifier identifier = new ProcessorIdentifier(id.vendor(), "", id.family(), id.model(),
                 id.stepping(), "", true);
         assertThat(identifier.getMicroarchitecture(), is("Cortex-A72"));
-        // Without dmidecode or cpuid the processor ID is the MIDR built from these fields; the board name made the part
-        // 0
+        // Without dmidecode or cpuid the processor ID is the MIDR built from these fields; the board name made the
+        // part 0
         assertThat(LinuxCentralProcessor.createMIDR(id.vendor(), id.stepping(), id.model(), id.family()),
                 is("4108D083"));
     }
