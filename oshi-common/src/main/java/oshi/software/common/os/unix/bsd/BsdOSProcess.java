@@ -12,6 +12,7 @@ import static oshi.software.os.OSProcess.State.WAITING;
 import static oshi.software.os.OSProcess.State.ZOMBIE;
 import static oshi.util.Memoizer.memoize;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
@@ -47,6 +48,7 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
     protected volatile long majorFaults;
     protected volatile long voluntaryContextSwitches;
     protected volatile long involuntaryContextSwitches;
+    private volatile boolean splitCpuTimes;
     protected volatile String commandLineBackup = "";
 
     /**
@@ -152,18 +154,9 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
 
     @Override
     public boolean updateAttributes() {
-        List<BsdPsKeyword> cols = psKeywords();
-        // No -a: FreeBSD 15 and later list every process matching -a OR -p, and the first row is then the kernel
-        String psCommand = "ps -wwxo " + psCommandArgs() + " -p " + getProcessID();
-        List<String> procList = ExecutingCommand.runNative(psCommand);
-        if (procList.size() > 1) {
-            // Skip the header row and parse the first data row against this platform's columns
-            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class, cols,
-                    procList.get(1).trim(), ' ');
-            // Check if the last (thus all) value populated
-            if (psMap.containsKey(cols.get(cols.size() - 1))) {
-                return updateAttributes(psMap);
-            }
+        Map<BsdPsKeyword, String> psMap = queryPsRow();
+        if (!psMap.isEmpty()) {
+            return updateAttributes(psMap);
         }
         this.state = State.INVALID;
         return false;
@@ -210,20 +203,30 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         } else {
             updateThreadCount();
         }
-        // Kernel/user time: FreeBSD reports systime separately (time is user+sys); the others fold
-        // kernel time into a single cputime/time column. Clamp both against a decrease; see
-        // monotonic(long, long).
-        if (psMap.containsKey(BsdPsKeyword.SYSTIME)) {
+        // Kernel/user time: NetBSD and DragonFly read the split from /proc and OpenBSD from its kinfo_proc, since their
+        // ps has only the sum; FreeBSD's ps reports systime separately (time is user+sys). Clamp both against a
+        // decrease; see monotonic(long, long).
+        long[] cpuTimes = queryKernelUserTime();
+        if (cpuTimes.length == 2) {
+            if (this.splitCpuTimes) {
+                this.kernelTime = monotonic(this.kernelTime, cpuTimes[0]);
+                this.userTime = monotonic(this.userTime, cpuTimes[1]);
+            } else {
+                // The first split replaces a ps sum that counted kernel time as user time
+                this.kernelTime = cpuTimes[0];
+                this.userTime = cpuTimes[1];
+                this.splitCpuTimes = true;
+            }
+        } else if (psMap.containsKey(BsdPsKeyword.SYSTIME)) {
             long sysTime = ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.SYSTIME), 0L);
             this.kernelTime = monotonic(this.kernelTime, sysTime);
             this.userTime = monotonic(this.userTime,
                     ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L) - sysTime);
-        } else if (psMap.containsKey(BsdPsKeyword.CPUTIME)) {
-            this.kernelTime = 0L;
-            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.CPUTIME), 0L));
-        } else {
-            this.kernelTime = 0L;
-            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(BsdPsKeyword.TIME), 0L));
+        } else if (!this.splitCpuTimes) {
+            // Once /proc has split the times, ps's sum cannot be divided without counting kernel time as user time,
+            // so the last split stands until /proc answers again
+            BsdPsKeyword totalKey = psMap.containsKey(BsdPsKeyword.CPUTIME) ? BsdPsKeyword.CPUTIME : BsdPsKeyword.TIME;
+            this.userTime = monotonic(this.userTime, ParseUtil.parseDHMSOrDefault(psMap.get(totalKey), 0L));
         }
         // Start/up time: DragonFly resolves an absolute start time from /proc; the others derive it
         // from the ps elapsed-time column.
@@ -246,6 +249,28 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
         this.voluntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NVCSW), 0L);
         this.involuntaryContextSwitches = ParseUtil.parseLongOrDefault(psMap.get(BsdPsKeyword.NIVCSW), 0L);
         return true;
+    }
+
+    /**
+     * Runs {@code ps} for this process alone and parses its row.
+     *
+     * @return the parsed {@code ps} columns, or an empty map if the process is not listed or its row is incomplete
+     */
+    protected Map<BsdPsKeyword, String> queryPsRow() {
+        List<BsdPsKeyword> cols = psKeywords();
+        // No -a: FreeBSD 15 and later list every process matching -a OR -p, and the first row is then the kernel
+        String psCommand = "ps -wwxo " + psCommandArgs() + " -p " + getProcessID();
+        List<String> procList = ExecutingCommand.runNative(psCommand);
+        if (procList.size() > 1) {
+            // Skip the header row and parse the first data row against this platform's columns
+            Map<BsdPsKeyword, String> psMap = ParseUtil.stringToEnumMap(BsdPsKeyword.class, cols,
+                    procList.get(1).trim(), ' ');
+            // Check if the last (thus all) value populated
+            if (psMap.containsKey(cols.get(cols.size() - 1))) {
+                return psMap;
+            }
+        }
+        return Collections.emptyMap();
     }
 
     /**
@@ -442,6 +467,18 @@ public abstract class BsdOSProcess extends AbstractOSProcess {
      */
     protected long queryStartTimeMillis() {
         return -1L;
+    }
+
+    /**
+     * Returns this process's kernel and user time from a source that keeps them apart, for platforms whose {@code ps}
+     * reports only their sum. The default has none; NetBSD and DragonFly override this to read {@code /proc}, and
+     * OpenBSD its {@code kinfo_proc}.
+     *
+     * @return the kernel and user time in milliseconds, in that order, or an empty array to take them from the
+     *         {@code ps} columns
+     */
+    protected long[] queryKernelUserTime() {
+        return new long[0];
     }
 
     /**

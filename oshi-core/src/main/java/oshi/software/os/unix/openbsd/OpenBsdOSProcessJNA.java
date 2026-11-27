@@ -154,6 +154,20 @@ public class OpenBsdOSProcessJNA extends OpenBsdOSProcess {
     }
 
     @Override
+    protected byte[] queryKinfoProcPrefix() {
+        int[] mib = { OpenBsdLibc.CTL_KERN, KERN_PROC, KERN_PROC_PID, getProcessID(), KINFO_PROC_PREFIX_SIZE, 1 };
+        try (Memory m = new Memory(KINFO_PROC_PREFIX_SIZE);
+                CloseableSizeTByReference size = new CloseableSizeTByReference(KINFO_PROC_PREFIX_SIZE)) {
+            // A process that no longer exists is not an error: the call succeeds and returns no entry
+            if (OpenBsdLibc.INSTANCE.sysctl(mib, mib.length, m, size, null, size_t.ZERO) == 0
+                    && size.getValue().longValue() == KINFO_PROC_PREFIX_SIZE) {
+                return m.getByteArray(0, KINFO_PROC_PREFIX_SIZE);
+            }
+        }
+        return new byte[0];
+    }
+
+    @Override
     protected int queryCpuCount() {
         return OpenBsdSysctlUtil.sysctl(new int[] { OpenBsdLibc.CTL_HW, OpenBsdLibc.HW_NCPUFOUND }, 0);
     }

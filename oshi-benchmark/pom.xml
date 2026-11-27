@@ -20,10 +20,8 @@
         <maven.compiler.testRelease>${oshi.ffm.release}</maven.compiler.testRelease>
         <maven.test.skip>true</maven.test.skip>
         <native.access.modules>ALL-UNNAMED</native.access.modules>
-        <shade.phase>none</shade.phase>
         <uberjar.name>benchmarks</uberjar.name>
-        <!-- Exclude this benchmark/comparison module from SonarCloud: it is not published (see excludeArtifacts on
-        central-publishing-maven-plugin in the parent pom), and its comparison tests only compile under the
+        <!-- Exclude this benchmark/comparison module from SonarCloud: its comparison tests only compile under the
         native-comparison profile, so the default Sonar build has no test binaries for it (the source of a
         "sonar.java.test.binaries" warning). -->
         <sonar.skip>true</sonar.skip>
@@ -94,6 +92,9 @@
     </dependencies>
 
     <build>
+        <!-- Keeps the local jar at target/benchmarks.jar, where the scripts and workflows run it. The shaded jar
+        replaces the main artifact, which is deployed under the usual oshi-benchmark-<version>.jar name. -->
+        <finalName>${uberjar.name}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -104,10 +105,10 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-                        <phase>${shade.phase}</phase>
+                        <!-- Always shaded: the published jar, and target/benchmarks.jar that the scripts run, are the uber-jar -->
+                        <phase>package</phase>
                         <configuration>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <finalName>${uberjar.name}</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>org.openjdk.jmh.Main</mainClass>
@@ -119,6 +120,11 @@
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                     <resource>META-INF/CompilerHints</resource>
                                 </transformer>
+                                <!-- SLF4J and Commons Math each ship this file; keep both texts rather than one.
+                                META-INF/BUNDLED-LICENSES.txt says where each bundled library's license is. -->
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                    <resource>META-INF/LICENSE.txt</resource>
+                                </transformer>
                             </transformers>
                             <filters>
                                 <filter>
@@ -127,6 +133,13 @@
                                         <exclude>META-INF/*.SF</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <!-- The same file as slf4j-api's, which is kept -->
+                                    <artifact>org.slf4j:slf4j-simple</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/LICENSE.txt</exclude>
                                     </excludes>
                                 </filter>
                             </filters>

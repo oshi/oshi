@@ -180,10 +180,8 @@ public final class LhmMetrics {
         Map<String, Long> timestamps = new HashMap<>();
         for (String line : lines) {
             Matcher sample = SAMPLE.matcher(line.trim());
-            if (!sample.matches()) {
-                continue;
-            }
-            double value = ParseUtil.parseDoubleOrDefault(sample.group(3), Double.NaN);
+            // A comment line, or a sample whose value is not a number
+            double value = sample.matches() ? ParseUtil.parseDoubleOrDefault(sample.group(3), Double.NaN) : Double.NaN;
             if (Double.isNaN(value)) {
                 continue;
             }

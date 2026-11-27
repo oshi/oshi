@@ -111,11 +111,11 @@ AIX shows a Solaris-like ~80x FFM advantage on `CpuTicks`: every read traverses 
 The numbers above were collected on GitHub Actions CI runners, which may differ significantly from your hardware and workload (e.g., number of running processes, mounted file stores, or network interfaces). The `oshi-benchmark` module contains JMH benchmarks that can be built and run with JDK 25+:
 
 ```sh
-./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+./mvnw package -pl oshi-benchmark -am -DskipTests -q
 java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 7 -f 5
 ```
 
-Run `java -jar oshi-benchmark/target/benchmarks.jar -h` for the full list of JMH options, including listing available benchmarks (`-l`) and running specific ones by regex filter.
+Each release also publishes this jar to Maven Central as `com.github.oshi:oshi-benchmark`, runnable without a build; see the [oshi-benchmark README](oshi-benchmark/README.md). Run `java -jar oshi-benchmark/target/benchmarks.jar -h` for the full list of JMH options, including listing available benchmarks (`-l`) and running specific ones by regex filter.
 
 ## CPU/memory trade-offs
 

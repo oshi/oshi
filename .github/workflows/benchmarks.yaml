@@ -35,7 +35,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build benchmark jar
-        run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+        run: ./mvnw package -pl oshi-benchmark -am -DskipTests -q
       # Longer settings than the VM jobs below: native runners give stable numbers, so this on-demand run
       # invests ~30 min for accuracy. -prof gc adds per-op allocation (bytes/op) for the memory columns.
       - name: Run JMH benchmarks
@@ -60,7 +60,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build benchmark jar
-        run: ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q
+        run: ./mvnw package -pl oshi-benchmark -am -DskipTests -q
       # Longer settings than the VM jobs below: native runners give stable numbers, so this on-demand run
       # invests ~30 min for accuracy. -prof gc adds per-op allocation (bytes/op) for the memory columns.
       - name: Run JMH benchmarks
@@ -85,7 +85,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - name: Build benchmark jar
-        run: ./mvnw package -pl oshi-benchmark -am "-DskipTests" "-Dshade.phase=package" -q
+        run: ./mvnw package -pl oshi-benchmark -am "-DskipTests" -q
       # Longer settings than the VM jobs below: native runners give stable numbers, so this on-demand run
       # invests ~30 min for accuracy. -prof gc adds per-op allocation (bytes/op) for the memory columns.
       - name: Run JMH benchmarks
@@ -116,7 +116,7 @@ jobs:
           run: |
             export JAVA_HOME=/usr/local/openjdk25
             export PATH=$JAVA_HOME/bin:$PATH
-            ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
+            ./mvnw package -pl oshi-benchmark -am -DskipTests -q -B
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
 
   benchopenbsd:
@@ -146,7 +146,7 @@ jobs:
             # `java` invocation needs PATH/JAVA_HOME set explicitly.
             export JAVA_HOME=/usr/local/jdk-25
             export PATH=$JAVA_HOME/bin:$PATH
-            mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B
+            mvn package -pl oshi-benchmark -am -DskipTests -q -B
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
 
   benchnetbsd:
@@ -190,7 +190,7 @@ jobs:
             fi
             export PATH=$JAVA_HOME/bin:$PATH
             mount -t procfs procfs /proc 2>/dev/null || true
-            ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
+            ./mvnw package -pl oshi-benchmark -am -DskipTests -q -B -Dmaven.gitcommitid.skip=true
             # Set after the build, so only the JMH JVM and its forks see it: points JNA at the pkgsrc libjnidispatch
             export JAVA_TOOL_OPTIONS="-Djna.boot.library.path=/usr/pkg/lib"
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1
@@ -258,7 +258,7 @@ jobs:
           # Build the shaded benchmark jar then run JMH. The benchmark classes
           # themselves have no platform gate; they instantiate both
           # oshi.SystemInfo and oshi.ffm.SystemInfo unconditionally.
-          mvn package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
+          mvn package -pl oshi-benchmark -am -DskipTests -q -B -Dmaven.gitcommitid.skip=true
           # Explicit $JAVA_HOME/bin/java: /opt/freeware/bin on AIX shadows
           # `java` with the OS-bundled Java 8, which doesn't recognize
           # --enable-native-access (added in JDK 17) — the flag the
@@ -293,5 +293,5 @@ jobs:
             export PATH=$JAVA_HOME/bin:$PATH
             export MAVEN_OPTS="-Xmx1g"
             export _JAVA_OPTIONS="-Xmx1g"
-            ./mvnw package -pl oshi-benchmark -am -DskipTests -Dshade.phase=package -q -B -Dmaven.gitcommitid.skip=true
+            ./mvnw package -pl oshi-benchmark -am -DskipTests -q -B -Dmaven.gitcommitid.skip=true
             java -jar oshi-benchmark/target/benchmarks.jar -wi 1 -i 3 -f 1

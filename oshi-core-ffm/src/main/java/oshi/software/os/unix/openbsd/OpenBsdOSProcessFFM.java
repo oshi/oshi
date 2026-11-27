@@ -5,6 +5,7 @@
 package oshi.software.os.unix.openbsd;
 
 import static java.lang.foreign.ValueLayout.ADDRESS;
+import static java.lang.foreign.ValueLayout.JAVA_BYTE;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 import static java.lang.foreign.ValueLayout.JAVA_LONG;
 import static oshi.ffm.ForeignFunctions.CAPTURED_STATE_LAYOUT;
@@ -148,6 +149,26 @@ public class OpenBsdOSProcessFFM extends oshi.software.common.os.unix.openbsd.Op
             }
             return soft ? PosixLibcFunctions.rlimitCur(rlim) : PosixLibcFunctions.rlimitMax(rlim);
         }, LOG, WARN, "Failed getrlimit", -1L);
+    }
+
+    @Override
+    protected byte[] queryKinfoProcPrefix() {
+        int[] mib = { CTL_KERN, KERN_PROC, KERN_PROC_PID, getProcessID(), KINFO_PROC_PREFIX_SIZE, 1 };
+        return callInArenaOrDefault(arena -> {
+            MemorySegment mibSeg = arena.allocate(JAVA_INT, mib.length);
+            for (int i = 0; i < mib.length; i++) {
+                mibSeg.setAtIndex(JAVA_INT, i, mib[i]);
+            }
+            MemorySegment buf = arena.allocate(KINFO_PROC_PREFIX_SIZE);
+            MemorySegment sizeSeg = arena.allocateFrom(SIZE_T, KINFO_PROC_PREFIX_SIZE);
+            MemorySegment callState = arena.allocate(CAPTURED_STATE_LAYOUT);
+            // A process that no longer exists is not an error: the call succeeds and returns no entry
+            if (OpenBsdLibcFunctions.sysctl(callState, mibSeg, mib.length, buf, sizeSeg, MemorySegment.NULL, 0L) == 0
+                    && sizeSeg.get(SIZE_T, 0) == KINFO_PROC_PREFIX_SIZE) {
+                return buf.toArray(JAVA_BYTE);
+            }
+            return new byte[0];
+        }, new byte[0], LOG, WARN, "Failed to get process times for pid {}", getProcessID());
     }
 
     @Override

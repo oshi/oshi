@@ -55,9 +55,10 @@ import oshi.util.common.platform.unix.netbsd.FstatUtil;
 public class NetBsdOSProcess extends BsdOSProcess {
     private static final Pattern AFFINITY = Pattern.compile("Affinity:");
     private static final Pattern COMMA_OR_WHITESPACE = Pattern.compile("[,\\s]+");
-    private static final int ARGS_READ_ATTEMPTS_SELF = 15;
-    private static final int ARGS_READ_ATTEMPTS_OTHER = 2;
-    private static final long ARGS_READ_RETRY_MILLIS = 20L;
+    // The kernel withholds parts of a process while it is inside posix_spawn; see queryArguments and isTornRow
+    private static final int SPAWN_RETRY_ATTEMPTS_SELF = 15;
+    private static final int SPAWN_RETRY_ATTEMPTS_OTHER = 2;
+    private static final long SPAWN_RETRY_MILLIS = 20L;
 
     /**
      * Ordered {@code ps} columns queried for each process. Shared by NetBsdOSProcess and the NetBSD OperatingSystem so
@@ -98,6 +99,42 @@ public class NetBsdOSProcess extends BsdOSProcess {
         super(pid);
         this.os = os;
         updateAttributes(psMap);
+    }
+
+    @Override
+    protected synchronized boolean updateAttributes(Map<BsdPsKeyword, String> psMap) {
+        Map<BsdPsKeyword, String> row = psMap;
+        int attempts = getProcessID() == this.os.getProcessId() ? SPAWN_RETRY_ATTEMPTS_SELF
+                : SPAWN_RETRY_ATTEMPTS_OTHER;
+        for (int attempt = 1; attempt < attempts && isTornRow(row); attempt++) {
+            Util.sleep(SPAWN_RETRY_MILLIS);
+            Map<BsdPsKeyword, String> retry = queryPsRow();
+            if (retry.isEmpty()) {
+                break;
+            }
+            row = retry;
+        }
+        return super.updateAttributes(row);
+    }
+
+    /**
+     * Whether a {@code ps} row is missing the counters the kernel withholds while the process is inside
+     * {@code posix_spawn}. Package-private for testing.
+     * <p>
+     * {@code fill_kproc2()} fills the CPU time, page faults and context switches only when it can take the process's
+     * {@code p_reflock}; {@code sysctl_doeproc} reports the process with all of them zero otherwise. A JVM holds that
+     * lock whenever one of its threads runs a command, as OSHI does. A live process that has run at all has nonzero
+     * minor faults and context switches, so all four zero marks such a row.
+     *
+     * @param psMap the parsed {@code ps} columns
+     * @return {@code true} if the row's CPU time, minor faults and both context-switch counts are all zero
+     */
+    static boolean isTornRow(Map<BsdPsKeyword, String> psMap) {
+        return !ParseUtil.getStringValueOrEmpty(psMap.get(STATE)).startsWith("Z")
+                && ParseUtil.parseDHMSOrDefault(psMap.get(CPUTIME), 0L) == 0L
+                && ParseUtil.parseLongOrDefault(psMap.get(MINFLT), 0L) == 0L
+                && ParseUtil.parseLongOrDefault(psMap.get(NVCSW), 0L) == 0L
+                && ParseUtil.parseLongOrDefault(psMap.get(NIVCSW), 0L) == 0L;
     }
 
     @Override
@@ -212,7 +249,8 @@ public class NetBsdOSProcess extends BsdOSProcess {
         // provokes itself, by running ps while another thread spawns, and so is given the longer budget; for any other
         // process an empty read is usually genuine. The result is memoized for the life of this object, so a single
         // refusal would otherwise stick.
-        int attempts = getProcessID() == this.os.getProcessId() ? ARGS_READ_ATTEMPTS_SELF : ARGS_READ_ATTEMPTS_OTHER;
+        int attempts = getProcessID() == this.os.getProcessId() ? SPAWN_RETRY_ATTEMPTS_SELF
+                : SPAWN_RETRY_ATTEMPTS_OTHER;
         for (int attempt = 1;; attempt++) {
             byte[] cmdBytes = FileUtil.readAllBytes(cmdline, false);
             if (cmdBytes.length > 0) {
@@ -221,7 +259,7 @@ public class NetBsdOSProcess extends BsdOSProcess {
             if (attempt >= attempts || !new File(cmdline).exists()) {
                 return Collections.emptyList();
             }
-            Util.sleep(ARGS_READ_RETRY_MILLIS);
+            Util.sleep(SPAWN_RETRY_MILLIS);
         }
     }
 
@@ -354,5 +392,40 @@ public class NetBsdOSProcess extends BsdOSProcess {
         } else {
             this.threadCount = 1;
         }
+    }
+
+    @Override
+    protected long[] queryKernelUserTime() {
+        return parseKernelUserTime(FileUtil.getStringFromFile("/proc/" + getProcessID() + "/stat"));
+    }
+
+    /**
+     * Parses the kernel and user time from NetBSD's Linux-format {@code /proc/<pid>/stat}, which ps does not separate.
+     * Package-private for testing.
+     * <p>
+     * Fields 14 and 15 are the {@code p_uutime} and {@code p_ustime} of the process's {@code kinfo_proc2}, in a fixed
+     * 100 ticks per second whatever the kernel's {@code hz} ({@code UTIME2TICKS} in {@code procfs_linux.c}). The
+     * command name is parenthesized and may itself contain spaces or parentheses, so fields are counted from the last
+     * closing parenthesis, after which field 3, the state, comes first.
+     *
+     * @param stat the contents of {@code /proc/<pid>/stat}, empty if procfs is not mounted or the process has exited
+     * @return the kernel and user time in milliseconds, in that order, or an empty array if they could not be read
+     */
+    static long[] parseKernelUserTime(String stat) {
+        int nameEnd = stat.lastIndexOf(')');
+        if (nameEnd < 0) {
+            return new long[0];
+        }
+        String[] split = ParseUtil.whitespaces.split(stat.substring(nameEnd + 1).trim(), -1);
+        // Field n of the Linux format is at index n - 3
+        if (split.length < 13) {
+            return new long[0];
+        }
+        long utime = ParseUtil.parseLongOrDefault(split[11], -1L);
+        long stime = ParseUtil.parseLongOrDefault(split[12], -1L);
+        if (utime < 0L || stime < 0L) {
+            return new long[0];
+        }
+        return new long[] { stime * 10L, utime * 10L };
     }
 }

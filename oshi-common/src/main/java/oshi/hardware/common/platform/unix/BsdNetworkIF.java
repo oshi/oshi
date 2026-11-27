@@ -17,6 +17,7 @@ import oshi.hardware.NetworkIF;
 import oshi.hardware.common.AbstractNetworkIF;
 import oshi.util.ExecutingCommand;
 import oshi.util.ParseUtil;
+import oshi.util.driver.unix.Ifconfig;
 
 /**
  * BsdNetworkIF applicable to FreeBSD, DragonFly BSD, NetBSD and OpenBSD.
@@ -29,7 +30,6 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
     private static final String MEDIA_RATE = "(?i)(?<!\\d)(\\d++(?:\\.\\d++)?+)";
     private static final String MEDIA_UNIT = "([GM]?+)(?:base|bps)";
     private static final String DESCRIPTION = "description:";
-    private static final String STATUS = "status: ";
     private static final Pattern MEDIA_SPEED = Pattern.compile(MEDIA_RATE + MEDIA_UNIT); // NOSONAR java:S8786 - linear
 
     private volatile String ifAlias = "";
@@ -90,7 +90,7 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
         List<String> ifconfig = ExecutingCommand.runNative("/sbin/ifconfig " + getName());
         this.speed = parseMediaSpeed(ifconfig);
         this.ifAlias = parseDescription(ifconfig);
-        this.ifOperStatus = parseOperStatus(ifconfig);
+        this.ifOperStatus = Ifconfig.parseOperStatus(ifconfig);
         return true;
     }
 
@@ -115,69 +115,6 @@ public final class BsdNetworkIF extends AbstractNetworkIF {
             }
         }
         return "";
-    }
-
-    /**
-     * Parses the operational status from {@code ifconfig <interface>}. Package-private for testing.
-     * <p>
-     * An interface without {@code UP} in its flags is down, whatever its {@code status:} line says: NetBSD prints
-     * {@code status: active} on a loopback that is administratively down, and OpenBSD on an {@code enc0} with no flags
-     * at all. Otherwise the {@code status:} line decides: {@code active}, {@code associated} on a wireless interface,
-     * and {@code master} on a CARP interface mean the link is up; {@code no carrier}, {@code no network} and NetBSD's
-     * {@code down}, for a tunnel without endpoints, that it is down; a CARP {@code backup} is dormant; and NetBSD's
-     * {@code unknown} and OpenBSD's {@code invalid} are unknown, as is any word not listed here. An interface that
-     * reports no media, such as a loopback on FreeBSD, has no {@code status:} line, and is up when it is
-     * {@code RUNNING}.
-     *
-     * @param ifconfig the lines emitted by {@code ifconfig <interface>}
-     * @return the operational status, or {@link IfOperStatus#UNKNOWN} if there is no output
-     */
-    static IfOperStatus parseOperStatus(List<String> ifconfig) {
-        if (ifconfig.isEmpty()) {
-            return IfOperStatus.UNKNOWN;
-        }
-        String first = ifconfig.get(0);
-        int open = first.indexOf('<');
-        int close = first.indexOf('>', open + 1);
-        if (open < 0 || close < 0) {
-            return IfOperStatus.UNKNOWN;
-        }
-        List<String> flags = Arrays.asList(first.substring(open + 1, close).split(",", -1));
-        if (!flags.contains("UP")) {
-            return IfOperStatus.DOWN;
-        }
-        for (String line : ifconfig) {
-            String trimmed = line.trim();
-            if (trimmed.startsWith(STATUS)) {
-                return linkStatus(trimmed.substring(STATUS.length()).trim());
-            }
-        }
-        return flags.contains("RUNNING") ? IfOperStatus.UP : IfOperStatus.DOWN;
-    }
-
-    private static IfOperStatus linkStatus(String status) {
-        if (status.startsWith("no ")) {
-            // "no carrier", "no network" on wireless, "no ring" on FDDI
-            return IfOperStatus.DOWN;
-        }
-        switch (status) {
-            case "active":
-            case "associated":
-            case "running":
-            case "inserted":
-            case "master":
-            case "half-duplex":
-            case "full-duplex":
-                return IfOperStatus.UP;
-            case "down":
-                return IfOperStatus.DOWN;
-            case "backup":
-                // A CARP interface standing by for the master
-                return IfOperStatus.DORMANT;
-            default:
-                // "unknown" on NetBSD, "invalid" on OpenBSD, or a word this list does not know
-                return IfOperStatus.UNKNOWN;
-        }
     }
 
     /**

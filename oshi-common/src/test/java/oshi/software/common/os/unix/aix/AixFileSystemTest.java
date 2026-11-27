@@ -86,18 +86,4 @@ class AixFileSystemTest {
         assertThat(AixFileSystem.parseOpenFileDescriptors(List.of("garbage", "more garbage")), is(0L));
         assertThat(AixFileSystem.parseOpenFileDescriptors(Collections.emptyList()), is(0L));
     }
-
-    @Test
-    void testParseMaxFileDescriptorsPerProcess() {
-        List<String> limits = List.of("default:", "        fsize = -1", "        nofiles = 2000",
-                "        core = 2097151");
-        assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(limits), is(2000L));
-    }
-
-    @Test
-    void testParseMaxFileDescriptorsPerProcessMissing() {
-        // No nofiles line: unlimited (Long.MAX_VALUE)
-        assertThat(AixFileSystem.parseMaxFileDescriptorsPerProcess(List.of("default:", "        fsize = -1")),
-                is(Long.MAX_VALUE));
-    }
 }

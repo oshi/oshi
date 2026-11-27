@@ -19,6 +19,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import oshi.hardware.NetworkIF.IfOperStatus;
+import oshi.util.driver.unix.Ifconfig;
 
 class BsdNetworkIFTest {
 
@@ -224,18 +225,18 @@ class BsdNetworkIFTest {
 
     @Test
     void testParseOperStatus() {
-        assertThat(BsdNetworkIF.parseOperStatus(FREEBSD_VTNET), is(IfOperStatus.UP));
+        assertThat(Ifconfig.parseOperStatus(FREEBSD_VTNET), is(IfOperStatus.UP));
         // No media, so no status line: RUNNING decides
-        assertThat(BsdNetworkIF.parseOperStatus(FREEBSD_LO0), is(IfOperStatus.UP));
-        assertThat(BsdNetworkIF.parseOperStatus(FREEBSD_LO1_DOWN), is(IfOperStatus.DOWN));
-        assertThat(BsdNetworkIF.parseOperStatus(NETBSD_LO0), is(IfOperStatus.UP));
+        assertThat(Ifconfig.parseOperStatus(FREEBSD_LO0), is(IfOperStatus.UP));
+        assertThat(Ifconfig.parseOperStatus(FREEBSD_LO1_DOWN), is(IfOperStatus.DOWN));
+        assertThat(Ifconfig.parseOperStatus(NETBSD_LO0), is(IfOperStatus.UP));
         // The status line says active, but the interface is not UP
-        assertThat(BsdNetworkIF.parseOperStatus(NETBSD_LO1_DOWN), is(IfOperStatus.DOWN));
-        assertThat(BsdNetworkIF.parseOperStatus(OPENBSD_ENC0), is(IfOperStatus.DOWN));
-        assertThat(BsdNetworkIF.parseOperStatus(List.of("em0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500",
+        assertThat(Ifconfig.parseOperStatus(NETBSD_LO1_DOWN), is(IfOperStatus.DOWN));
+        assertThat(Ifconfig.parseOperStatus(OPENBSD_ENC0), is(IfOperStatus.DOWN));
+        assertThat(Ifconfig.parseOperStatus(List.of("em0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500",
                 "\tmedia: Ethernet autoselect (none)", "\tstatus: no carrier")), is(IfOperStatus.DOWN));
         assertThat(
-                BsdNetworkIF.parseOperStatus(
+                Ifconfig.parseOperStatus(
                         List.of("wlan0: flags=8843<UP,BROADCAST,RUNNING> mtu 1500", "\tstatus: associated")),
                 is(IfOperStatus.UP));
         assertThat(statusOf("down"), is(IfOperStatus.DOWN));
@@ -244,11 +245,11 @@ class BsdNetworkIFTest {
         assertThat(statusOf("backup"), is(IfOperStatus.DORMANT));
         assertThat(statusOf("unknown"), is(IfOperStatus.UNKNOWN));
         assertThat(statusOf("invalid"), is(IfOperStatus.UNKNOWN));
-        assertThat(BsdNetworkIF.parseOperStatus(Collections.emptyList()), is(IfOperStatus.UNKNOWN));
+        assertThat(Ifconfig.parseOperStatus(Collections.emptyList()), is(IfOperStatus.UNKNOWN));
     }
 
     private static IfOperStatus statusOf(String status) {
-        return BsdNetworkIF.parseOperStatus(
+        return Ifconfig.parseOperStatus(
                 List.of("gif0: flags=0x8051<UP,POINTOPOINT,RUNNING,MULTICAST> mtu 1280", "\tstatus: " + status));
     }
 }
