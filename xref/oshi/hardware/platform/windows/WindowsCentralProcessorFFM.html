@@ -145,7 +145,7 @@
 <a class="jxr_linenumber" name="L137" href="#L137">137</a>         processorID = chooseProcessorId(wmiProcessorId, midr,
 <a class="jxr_linenumber" name="L138" href="#L138">138</a>                 () -&gt; createProcessorID(stepping, model, family, is64 ? <strong class="jxr_keyword">new</strong> String[] { <span class="jxr_string">"ia64"</span> } : <strong class="jxr_keyword">new</strong> String[0]));
 <a class="jxr_linenumber" name="L139" href="#L139">139</a>         <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> ProcessorIdentifier(cpuVendor, cpuName, cpuFamily, cpuModel, cpuStepping, processorID, cpu64bit,
-<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 cpuVendorFreq);
+<a class="jxr_linenumber" name="L140" href="#L140">140</a>                 cpuVendorFreq, armMicroarchitecture(midr));
 <a class="jxr_linenumber" name="L141" href="#L141">141</a>     }
 <a class="jxr_linenumber" name="L142" href="#L142">142</a> 
 <a class="jxr_linenumber" name="L143" href="#L143">143</a>     @Override

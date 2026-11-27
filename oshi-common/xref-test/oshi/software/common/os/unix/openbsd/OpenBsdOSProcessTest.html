@@ -15,29 +15,62 @@
 <a class="jxr_linenumber" name="L7" href="#L7">7</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.MatcherAssert.assertThat;
 <a class="jxr_linenumber" name="L8" href="#L8">8</a>   <strong class="jxr_keyword">import</strong> <strong class="jxr_keyword">static</strong> org.hamcrest.Matchers.is;
 <a class="jxr_linenumber" name="L9" href="#L9">9</a>   
-<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
-<a class="jxr_linenumber" name="L11" href="#L11">11</a>  
-<a class="jxr_linenumber" name="L12" href="#L12">12</a>  <strong class="jxr_keyword">class</strong> <a name="OpenBsdOSProcessTest" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdOSProcessTest.html#OpenBsdOSProcessTest">OpenBsdOSProcessTest</a> {
-<a class="jxr_linenumber" name="L13" href="#L13">13</a>  
-<a class="jxr_linenumber" name="L14" href="#L14">14</a>      <em class="jxr_comment">// A kern.cpustats record: six cs_time values followed by cs_flags</em>
-<a class="jxr_linenumber" name="L15" href="#L15">15</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[] cpuStats(<strong class="jxr_keyword">boolean</strong> online) {
-<a class="jxr_linenumber" name="L16" href="#L16">16</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] { 1L, 2L, 3L, 4L, 5L, 6L, online ? 0x1L : 0x0L };
-<a class="jxr_linenumber" name="L17" href="#L17">17</a>      }
-<a class="jxr_linenumber" name="L18" href="#L18">18</a>  
-<a class="jxr_linenumber" name="L19" href="#L19">19</a>      @Test
-<a class="jxr_linenumber" name="L20" href="#L20">20</a>      <strong class="jxr_keyword">void</strong> testOnlineCpuMask() {
-<a class="jxr_linenumber" name="L21" href="#L21">21</a>          <em class="jxr_comment">// Every processor online</em>
-<a class="jxr_linenumber" name="L22" href="#L22">22</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(4, cpu -&gt; cpuStats(<strong class="jxr_keyword">true</strong>)), is(0b1111L));
-<a class="jxr_linenumber" name="L23" href="#L23">23</a>          <em class="jxr_comment">// hw.smt=0 takes the odd-numbered SMT siblings offline</em>
-<a class="jxr_linenumber" name="L24" href="#L24">24</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(4, cpu -&gt; cpuStats(cpu % 2 == 0)), is(0b0101L));
-<a class="jxr_linenumber" name="L25" href="#L25">25</a>          <em class="jxr_comment">// An unreadable record leaves its processor out; none readable is 0</em>
-<a class="jxr_linenumber" name="L26" href="#L26">26</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(3, cpu -&gt; cpu == 1 ? <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[0] : cpuStats(<strong class="jxr_keyword">true</strong>)), is(0b101L));
-<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(4, cpu -&gt; <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[0]), is(0L));
-<a class="jxr_linenumber" name="L28" href="#L28">28</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(0, cpu -&gt; cpuStats(<strong class="jxr_keyword">true</strong>)), is(0L));
-<a class="jxr_linenumber" name="L29" href="#L29">29</a>          <em class="jxr_comment">// More processors than the mask holds</em>
-<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(80, cpu -&gt; cpuStats(<strong class="jxr_keyword">true</strong>)), is(-1L));
-<a class="jxr_linenumber" name="L31" href="#L31">31</a>      }
-<a class="jxr_linenumber" name="L32" href="#L32">32</a>  }
+<a class="jxr_linenumber" name="L10" href="#L10">10</a>  <strong class="jxr_keyword">import</strong> java.nio.ByteBuffer;
+<a class="jxr_linenumber" name="L11" href="#L11">11</a>  <strong class="jxr_keyword">import</strong> java.nio.ByteOrder;
+<a class="jxr_linenumber" name="L12" href="#L12">12</a>  
+<a class="jxr_linenumber" name="L13" href="#L13">13</a>  <strong class="jxr_keyword">import</strong> org.junit.jupiter.api.Test;
+<a class="jxr_linenumber" name="L14" href="#L14">14</a>  
+<a class="jxr_linenumber" name="L15" href="#L15">15</a>  <strong class="jxr_keyword">class</strong> <a name="OpenBsdOSProcessTest" href="../../../../../../oshi/software/common/os/unix/openbsd/OpenBsdOSProcessTest.html#OpenBsdOSProcessTest">OpenBsdOSProcessTest</a> {
+<a class="jxr_linenumber" name="L16" href="#L16">16</a>  
+<a class="jxr_linenumber" name="L17" href="#L17">17</a>      <em class="jxr_comment">// A kern.cpustats record: six cs_time values followed by cs_flags</em>
+<a class="jxr_linenumber" name="L18" href="#L18">18</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> <strong class="jxr_keyword">long</strong>[] cpuStats(<strong class="jxr_keyword">boolean</strong> online) {
+<a class="jxr_linenumber" name="L19" href="#L19">19</a>          <strong class="jxr_keyword">return</strong> <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] { 1L, 2L, 3L, 4L, 5L, 6L, online ? 0x1L : 0x0L };
+<a class="jxr_linenumber" name="L20" href="#L20">20</a>      }
+<a class="jxr_linenumber" name="L21" href="#L21">21</a>  
+<a class="jxr_linenumber" name="L22" href="#L22">22</a>      @Test
+<a class="jxr_linenumber" name="L23" href="#L23">23</a>      <strong class="jxr_keyword">void</strong> testOnlineCpuMask() {
+<a class="jxr_linenumber" name="L24" href="#L24">24</a>          <em class="jxr_comment">// Every processor online</em>
+<a class="jxr_linenumber" name="L25" href="#L25">25</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(4, cpu -&gt; cpuStats(<strong class="jxr_keyword">true</strong>)), is(0b1111L));
+<a class="jxr_linenumber" name="L26" href="#L26">26</a>          <em class="jxr_comment">// hw.smt=0 takes the odd-numbered SMT siblings offline</em>
+<a class="jxr_linenumber" name="L27" href="#L27">27</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(4, cpu -&gt; cpuStats(cpu % 2 == 0)), is(0b0101L));
+<a class="jxr_linenumber" name="L28" href="#L28">28</a>          <em class="jxr_comment">// An unreadable record leaves its processor out; none readable is 0</em>
+<a class="jxr_linenumber" name="L29" href="#L29">29</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(3, cpu -&gt; cpu == 1 ? <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[0] : cpuStats(<strong class="jxr_keyword">true</strong>)), is(0b101L));
+<a class="jxr_linenumber" name="L30" href="#L30">30</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(4, cpu -&gt; <strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[0]), is(0L));
+<a class="jxr_linenumber" name="L31" href="#L31">31</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(0, cpu -&gt; cpuStats(<strong class="jxr_keyword">true</strong>)), is(0L));
+<a class="jxr_linenumber" name="L32" href="#L32">32</a>          <em class="jxr_comment">// More processors than the mask holds</em>
+<a class="jxr_linenumber" name="L33" href="#L33">33</a>          assertThat(OpenBsdOSProcess.onlineCpuMask(80, cpu -&gt; cpuStats(<strong class="jxr_keyword">true</strong>)), is(-1L));
+<a class="jxr_linenumber" name="L34" href="#L34">34</a>      }
+<a class="jxr_linenumber" name="L35" href="#L35">35</a>  
+<a class="jxr_linenumber" name="L36" href="#L36">36</a>      <strong class="jxr_keyword">private</strong> <strong class="jxr_keyword">static</strong> byte[] kinfoProc(<strong class="jxr_keyword">int</strong> pid, <strong class="jxr_keyword">long</strong> uvalid, <strong class="jxr_keyword">int</strong> uSec, <strong class="jxr_keyword">int</strong> uUsec, <strong class="jxr_keyword">int</strong> sSec, <strong class="jxr_keyword">int</strong> sUsec) {
+<a class="jxr_linenumber" name="L37" href="#L37">37</a>          <em class="jxr_comment">// Offsets of struct kinfo_proc in &lt;sys/sysctl.h&gt;</em>
+<a class="jxr_linenumber" name="L38" href="#L38">38</a>          ByteBuffer entry = ByteBuffer.allocate(436).order(ByteOrder.nativeOrder());
+<a class="jxr_linenumber" name="L39" href="#L39">39</a>          entry.putInt(108, pid);
+<a class="jxr_linenumber" name="L40" href="#L40">40</a>          entry.putLong(400, uvalid);
+<a class="jxr_linenumber" name="L41" href="#L41">41</a>          entry.putInt(420, uSec);
+<a class="jxr_linenumber" name="L42" href="#L42">42</a>          entry.putInt(424, uUsec);
+<a class="jxr_linenumber" name="L43" href="#L43">43</a>          entry.putInt(428, sSec);
+<a class="jxr_linenumber" name="L44" href="#L44">44</a>          entry.putInt(432, sUsec);
+<a class="jxr_linenumber" name="L45" href="#L45">45</a>          <strong class="jxr_keyword">return</strong> entry.array();
+<a class="jxr_linenumber" name="L46" href="#L46">46</a>      }
+<a class="jxr_linenumber" name="L47" href="#L47">47</a>  
+<a class="jxr_linenumber" name="L48" href="#L48">48</a>      @Test
+<a class="jxr_linenumber" name="L49" href="#L49">49</a>      <strong class="jxr_keyword">void</strong> testParseKernelUserTime() {
+<a class="jxr_linenumber" name="L50" href="#L50">50</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, 3, 977_795, 1, 250_000), 42),
+<a class="jxr_linenumber" name="L51" href="#L51">51</a>                  is(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] { 1250L, 3977L }));
+<a class="jxr_linenumber" name="L52" href="#L52">52</a>          <em class="jxr_comment">// u_int32_t seconds past Integer.MAX_VALUE stay positive</em>
+<a class="jxr_linenumber" name="L53" href="#L53">53</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, -1, 0, 0, 0), 42)[1], is(4_294_967_295_000L));
+<a class="jxr_linenumber" name="L54" href="#L54">54</a>          <em class="jxr_comment">// A process exiting but not yet a zombie keeps p_uvalid with its times left zero</em>
+<a class="jxr_linenumber" name="L55" href="#L55">55</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, 0, 0, 0, 0), 42).length, is(0));
+<a class="jxr_linenumber" name="L56" href="#L56">56</a>          <em class="jxr_comment">// Any time at all is a real split</em>
+<a class="jxr_linenumber" name="L57" href="#L57">57</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 1L, 0, 0, 0, 1000), 42),
+<a class="jxr_linenumber" name="L58" href="#L58">58</a>                  is(<strong class="jxr_keyword">new</strong> <strong class="jxr_keyword">long</strong>[] { 1L, 0L }));
+<a class="jxr_linenumber" name="L59" href="#L59">59</a>          <em class="jxr_comment">// A zombie, an entry for another process, or a short or empty read</em>
+<a class="jxr_linenumber" name="L60" href="#L60">60</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(42, 0L, 3, 0, 1, 0), 42).length, is(0));
+<a class="jxr_linenumber" name="L61" href="#L61">61</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(kinfoProc(43, 1L, 3, 0, 1, 0), 42).length, is(0));
+<a class="jxr_linenumber" name="L62" href="#L62">62</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(<strong class="jxr_keyword">new</strong> byte[400], 42).length, is(0));
+<a class="jxr_linenumber" name="L63" href="#L63">63</a>          assertThat(OpenBsdOSProcess.parseKernelUserTime(<strong class="jxr_keyword">new</strong> byte[0], 42).length, is(0));
+<a class="jxr_linenumber" name="L64" href="#L64">64</a>      }
+<a class="jxr_linenumber" name="L65" href="#L65">65</a>  }
 </pre>
 <hr/>
 <div id="footer">© 2010–2026 <a href="https://github.com/oshi/">oshi</a></div>
