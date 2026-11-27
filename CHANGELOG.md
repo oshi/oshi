@@ -4,7 +4,7 @@
 
 `oshi-benchmark` is published to Maven Central again, as a runnable jar: `java -jar oshi-benchmark-7.8.1.jar` runs the JNA and FFM benchmarks on JDK 25 or later, with nothing to build.
 
-* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM without a `model name` in `/proc/cpuinfo`, `ProcessorIdentifier.getName()` names the core from its implementer and part, such as `Cortex-A72`, as `lscpu` does, instead of the board from the device tree; the board is still reported by `ComputerSystem` and `Baseboard` - [@huber-and](https://github.com/huber-and).
+* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM without a `model name` in `/proc/cpuinfo`, `ProcessorIdentifier.getName()` names a core whose implementer and part are in OSHI's table from them, such as `Cortex-A72`, as `lscpu` does, instead of the board from the device tree, which remains the fallback for other cores; the board is still reported by `ComputerSystem` and `Baseboard` - [@huber-and](https://github.com/huber-and).
 
 ##### Bug Fixes and Improvements
 
@@ -17,7 +17,7 @@
 * [#3926](https://github.com/oshi/oshi/pull/3926): On AIX, `NetworkIF.getIfOperStatus()` reports whether an interface is up instead of always `UNKNOWN`, and `FileSystem.getMaxFileDescriptorsPerProcess()` reports the kernel's per-process ceiling, `OPEN_MAX`, instead of `Long.MAX_VALUE` when `/etc/security/limits` is unreadable - [@dbwiddis](https://github.com/dbwiddis).
 * [#3922](https://github.com/oshi/oshi/pull/3922): On Linux, `getThreadDetails()` includes the main thread, `getVendorFreq()` and `getMaxFreq()` report the rated frequency on IBM Z (s390x), and a processor with no model name is `unknown` rather than `-` - [@dbwiddis](https://github.com/dbwiddis).
 * [#3923](https://github.com/oshi/oshi/pull/3923): On Windows, `OSProcess.getContextSwitches()` reports the total of the process's threads instead of 0, `getMicroarchitecture()` identifies ARM64 cores such as Azure Cobalt 100's Neoverse N2, and `OSFileStore.getOptions()` lists flags in the same order on both backends - [@dbwiddis](https://github.com/dbwiddis).
-* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM, `getModel()` and `getMicroarchitecture()` report the core on a Raspberry Pi instead of the board name the kernel appends to `/proc/cpuinfo`, and `getVendorFreq()` falls back to the cpufreq hardware maximum when cpuinfo and `lshw` state none - [@huber-and](https://github.com/huber-and).
+* [#3925](https://github.com/oshi/oshi/pull/3925): On Linux ARM, `getModel()` and `getMicroarchitecture()` report the core on a Raspberry Pi instead of the board name the kernel appends to `/proc/cpuinfo`, which also corrects the part number in `getProcessorID()` where neither `dmidecode` nor `cpuid` is available; `getVendorFreq()` falls back to the cpufreq hardware maximum when cpuinfo and `lshw` state none - [@huber-and](https://github.com/huber-and).
 
 # 7.8.0 (2026-11-15)
 

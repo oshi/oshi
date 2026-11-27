@@ -606,8 +606,7 @@ class LinuxCentralProcessorTest {
     @Test
     void testParseProcessorIdFromCpuinfoRaspberryPiBoardLines() {
         // A Compute Module 4 on a Yocto image (Serial removed): the Raspberry Pi kernel appends the board after the
-        // cores,
-        // and its "Model" line must not replace the part, or the microarchitecture lookup fails
+        // cores, and its "Model" line must not replace the part, or the microarchitecture lookup fails
         List<String> cpuinfo = """
                 processor\t: 0
                 BogoMIPS\t: 108.00
@@ -655,6 +654,10 @@ class LinuxCentralProcessorTest {
         ProcessorIdentifier identifier = new ProcessorIdentifier(id.vendor(), "", id.family(), id.model(),
                 id.stepping(), "", true);
         assertThat(identifier.getMicroarchitecture(), is("Cortex-A72"));
+        // Without dmidecode or cpuid the processor ID is the MIDR built from these fields; the board name made the part
+        // 0
+        assertThat(LinuxCentralProcessor.createMIDR(id.vendor(), id.stepping(), id.model(), id.family()),
+                is("4108D083"));
     }
 
     @Test
@@ -667,11 +670,17 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testQueryCpuinfoMaxFreq(@TempDir Path tempDir) throws IOException {
-        Path maxFreq = tempDir.resolve("cpuinfo_max_freq");
-        writeFile(maxFreq, "1500000\n");
-        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(maxFreq.toString()), is(1_500_000_000L));
-        writeFile(maxFreq, "0\n");
-        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(maxFreq.toString()), is(-1L));
+        // big.LITTLE like an RK3588: the A55 cluster is policy0, the A76 clusters policy4 and policy6. The highest
+        // hardware maximum wins, and a lowered scaling_max_freq is ignored.
+        Path cpuFreq = tempDir.resolve("cpufreq");
+        writeFile(cpuFreq.resolve("policy0/cpuinfo_max_freq"), "1800000\n");
+        writeFile(cpuFreq.resolve("policy4/cpuinfo_max_freq"), "2400000\n");
+        writeFile(cpuFreq.resolve("policy4/scaling_max_freq"), "1200000\n");
+        writeFile(cpuFreq.resolve("policy6/cpuinfo_max_freq"), "2304000\n");
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(cpuFreq.toString()), is(2_400_000_000L));
+        Path zero = tempDir.resolve("zero");
+        writeFile(zero.resolve("policy0/cpuinfo_max_freq"), "0\n");
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(zero.toString()), is(-1L));
         assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(tempDir.resolve("missing").toString()), is(-1L));
         assertThat(LinuxCentralProcessor.isArmImplementer("0x41"), is(true));
         assertThat(LinuxCentralProcessor.isArmImplementer("GenuineIntel"), is(false));
@@ -679,9 +688,9 @@ class LinuxCentralProcessorTest {
 
     @Test
     void testArmVendorFreq(@TempDir Path tempDir) throws IOException {
-        Path maxFreq = tempDir.resolve("cpuinfo_max_freq");
-        writeFile(maxFreq, "1800000\n");
-        String file = maxFreq.toString();
+        Path cpuFreq = tempDir.resolve("cpufreq");
+        writeFile(cpuFreq.resolve("policy0/cpuinfo_max_freq"), "1800000\n");
+        String file = cpuFreq.toString();
         assertThat(LinuxCentralProcessor.armVendorFreq(-1L, "Cortex-A72", "0x41", file), is(1_800_000_000L));
         assertThat("cpuinfo or lshw gave one",
                 LinuxCentralProcessor.armVendorFreq(2_000_000_000L, "Cortex-A72", "0x41", file), is(2_000_000_000L));

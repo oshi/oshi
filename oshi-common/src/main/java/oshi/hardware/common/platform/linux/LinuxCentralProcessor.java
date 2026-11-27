@@ -92,7 +92,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq = cpuCapacity;
             }
         }
-        cpuFreq = armVendorFreq(cpuFreq, cpuName, id.vendor(), SysPath.CPU + "cpu0/cpufreq/cpuinfo_max_freq");
+        cpuFreq = armVendorFreq(cpuFreq, cpuName, id.vendor(), SysPath.CPU + "cpufreq");
         String processorID = id.processorId().isEmpty()
                 ? getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(), queryHwcap())
                 : id.processorId();
@@ -143,29 +143,37 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
      * Not on x86, whose {@code cpuinfo_max_freq} includes turbo, and not when the name carries a frequency, which
      * {@link ProcessorIdentifier} parses from it. Package-private for testing.
      *
-     * @param cpuFreq            the frequency from cpuinfo or {@code lshw}, or -1 when the name carries one
-     * @param cpuName            the processor name
-     * @param vendor             the vendor as parsed, an implementer code on ARM
-     * @param cpuinfoMaxFreqFile the {@code cpuinfo_max_freq} file, in kHz
+     * @param cpuFreq     the frequency from cpuinfo or {@code lshw}, or -1 when the name carries one
+     * @param cpuName     the processor name
+     * @param vendor      the vendor as parsed, an implementer code on ARM
+     * @param cpuFreqPath the cpufreq directory holding the {@code policy*} directories
      * @return the vendor frequency in Hz, or {@code cpuFreq} if it is known or the fallback does not apply
      */
-    static long armVendorFreq(long cpuFreq, String cpuName, String vendor, String cpuinfoMaxFreqFile) {
+    static long armVendorFreq(long cpuFreq, String cpuName, String vendor, String cpuFreqPath) {
         if (cpuFreq > 0L || cpuName.contains("Hz") || !isArmImplementer(vendor)) {
             return cpuFreq;
         }
-        return queryCpuinfoMaxFreq(cpuinfoMaxFreqFile);
+        return queryCpuinfoMaxFreq(cpuFreqPath);
     }
 
     /**
-     * Reads the hardware maximum frequency of a cpufreq policy, which on ARM stands in for the vendor frequency.
-     * Package-private for testing.
+     * Reads the highest hardware maximum frequency of the cpufreq policies, which on ARM stands in for the vendor
+     * frequency. On big.LITTLE the name comes from the last {@code CPU part}, usually a big core, while {@code cpu0} is
+     * usually a LITTLE one, so the highest policy matches the named core. Unlike {@link #queryMaxFreqFromCpuFreqPath}
+     * this ignores {@code scaling_max_freq}, a governor limit a user can lower. Package-private for testing.
      *
-     * @param cpuinfoMaxFreqFile the {@code cpuinfo_max_freq} file, in kHz
-     * @return the frequency in Hz, or -1 if the file is missing or zero
+     * @param cpuFreqPath the cpufreq directory holding the {@code policy*} directories
+     * @return the frequency in Hz, or -1 if no policy states one
      */
-    static long queryCpuinfoMaxFreq(String cpuinfoMaxFreqFile) {
-        long khz = FileUtil.getLongFromFile(cpuinfoMaxFreqFile);
-        return khz > 0L ? khz * 1000L : -1L;
+    static long queryCpuinfoMaxFreq(String cpuFreqPath) {
+        String policyPrefix = Paths.get(cpuFreqPath, "policy").toString();
+        try (Stream<Path> path = Files.list(Paths.get(cpuFreqPath))) {
+            long khz = path.filter(p -> p.toString().startsWith(policyPrefix))
+                    .mapToLong(p -> FileUtil.getLongFromFile(p.toString() + "/cpuinfo_max_freq")).max().orElse(0L);
+            return khz > 0L ? khz * 1000L : -1L;
+        } catch (IOException e) {
+            return -1L;
+        }
     }
 
     /** Immutable holder for the identifier fields parsed from {@code /proc/cpuinfo}. Package-private for testing. */
