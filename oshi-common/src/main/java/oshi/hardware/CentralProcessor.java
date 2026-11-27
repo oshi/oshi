@@ -1038,6 +1038,10 @@ public interface CentralProcessor {
         /**
          * Vendor frequency (in Hz), eg. for processor named Intel(R) Core(TM)2 Duo CPU T7300 @ 2.00GHz the vendor
          * frequency is 2000000000.
+         * <p>
+         * On Linux ARM, where neither {@code /proc/cpuinfo} nor {@code lshw} states one, this is the hardware maximum
+         * of the cpufreq policy ({@code cpuinfo_max_freq}). It follows the firmware setting, so an overclocked board
+         * reports its overclock.
          *
          * @return Processor frequency or -1 if unknown.
          */

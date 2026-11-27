@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.CentralProcessor;
+import oshi.util.FileUtil;
 import oshi.util.ParseUtil;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
@@ -37,6 +38,10 @@ import oshi.util.tuples.Triplet;
 public abstract class AbstractCentralProcessor implements CentralProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCentralProcessor.class);
+
+    private static final String OSHI_ARCHITECTURE_PROPERTIES = "oshi.architecture.properties";
+    // Only cores of ARM's own design have part numbers in the table
+    private static final int ARM_IMPLEMENTER = 0x41;
 
     private final Supplier<ProcessorIdentifier> cpuid = memoize(this::queryProcessorId);
     private final Supplier<Long> maxFreq = memoize(this::queryMaxFreq, defaultExpiration());
@@ -318,6 +323,24 @@ public abstract class AbstractCentralProcessor implements CentralProcessor {
             }
         }
         return Collections.unmodifiableMap(bits);
+    }
+
+    /**
+     * Looks up an ARM core in {@code oshi.architecture.properties} by the implementer and part number of its
+     * {@code MIDR_EL1}, the two values Linux's {@code /proc/cpuinfo} reports as {@code CPU implementer} and
+     * {@code CPU part}.
+     *
+     * @param implementer the implementer code
+     * @param part        the part number
+     * @return the core, such as {@code Cortex-A72}, or {@code null} if it is not of ARM's own design or its part is not
+     *         in the table
+     */
+    protected static @Nullable String armCoreName(int implementer, int part) {
+        if (implementer != ARM_IMPLEMENTER) {
+            return null;
+        }
+        String key = String.format(Locale.ROOT, "arm.0x%03x", part);
+        return FileUtil.readPropertiesFromFilename(OSHI_ARCHITECTURE_PROPERTIES).getProperty(key);
     }
 
     /**

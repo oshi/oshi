@@ -31,6 +31,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import oshi.hardware.CentralProcessor.LogicalProcessor;
 import oshi.hardware.CentralProcessor.ProcessorCache;
+import oshi.hardware.CentralProcessor.ProcessorIdentifier;
 import oshi.util.tuples.Quartet;
 import oshi.util.tuples.Triplet;
 
@@ -600,6 +601,103 @@ class LinuxCentralProcessorTest {
         assertThat(id.stepping(), is("r0p3"));
         assertThat(id.name(), is(""));
         assertThat("ARMv8 is 64-bit", id.cpu64bit(), is(true));
+    }
+
+    @Test
+    void testParseProcessorIdFromCpuinfoRaspberryPiBoardLines() {
+        // A Compute Module 4 on a Yocto image (Serial removed): the Raspberry Pi kernel appends the board after the
+        // cores, and its "Model" line must not replace the part, or the microarchitecture lookup fails
+        List<String> cpuinfo = """
+                processor\t: 0
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                processor\t: 1
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                processor\t: 2
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                processor\t: 3
+                BogoMIPS\t: 108.00
+                Features\t: fp asimd evtstrm crc32 cpuid
+                CPU implementer\t: 0x41
+                CPU architecture: 8
+                CPU variant\t: 0x0
+                CPU part\t: 0xd08
+                CPU revision\t: 3
+
+                Revision\t: a03140
+                Model\t\t: Raspberry Pi Compute Module 4 Rev 1.0
+                """.lines().toList();
+        LinuxCentralProcessor.CpuInfoIdentity id = LinuxCentralProcessor.parseProcessorIdFromCpuinfo(cpuinfo);
+        assertThat(id.vendor(), is("0x41"));
+        assertThat(id.model(), is("0xd08"));
+        assertThat(id.stepping(), is("r0p3"));
+        ProcessorIdentifier identifier = new ProcessorIdentifier(id.vendor(), "", id.family(), id.model(),
+                id.stepping(), "", true);
+        assertThat(identifier.getMicroarchitecture(), is("Cortex-A72"));
+        // Without dmidecode or cpuid the processor ID is the MIDR built from these fields; the board name made the part
+        // 0
+        assertThat(LinuxCentralProcessor.createMIDR(id.vendor(), id.stepping(), id.model(), id.family()),
+                is("4108D083"));
+    }
+
+    @Test
+    void testArmCoreName() {
+        assertThat(LinuxCentralProcessor.armCoreName("0x41", "0xd08"), is("Cortex-A72"));
+        assertThat("a part not in the table", LinuxCentralProcessor.armCoreName("0x41", "0xfff"), is(nullValue()));
+        assertThat("not ARM's own design", LinuxCentralProcessor.armCoreName("0x51", "0xd08"), is(nullValue()));
+        assertThat("x86", LinuxCentralProcessor.armCoreName("GenuineIntel", "158"), is(nullValue()));
+    }
+
+    @Test
+    void testQueryCpuinfoMaxFreq(@TempDir Path tempDir) throws IOException {
+        // big.LITTLE like an RK3588: the A55 cluster is policy0, the A76 clusters policy4 and policy6. The highest
+        // hardware maximum wins, and a lowered scaling_max_freq is ignored.
+        Path cpuFreq = tempDir.resolve("cpufreq");
+        writeFile(cpuFreq.resolve("policy0/cpuinfo_max_freq"), "1800000\n");
+        writeFile(cpuFreq.resolve("policy4/cpuinfo_max_freq"), "2400000\n");
+        writeFile(cpuFreq.resolve("policy4/scaling_max_freq"), "1200000\n");
+        writeFile(cpuFreq.resolve("policy6/cpuinfo_max_freq"), "2304000\n");
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(cpuFreq.toString()), is(2_400_000_000L));
+        Path zero = tempDir.resolve("zero");
+        writeFile(zero.resolve("policy0/cpuinfo_max_freq"), "0\n");
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(zero.toString()), is(-1L));
+        assertThat(LinuxCentralProcessor.queryCpuinfoMaxFreq(tempDir.resolve("missing").toString()), is(-1L));
+        assertThat(LinuxCentralProcessor.isArmImplementer("0x41"), is(true));
+        assertThat(LinuxCentralProcessor.isArmImplementer("GenuineIntel"), is(false));
+    }
+
+    @Test
+    void testArmVendorFreq(@TempDir Path tempDir) throws IOException {
+        Path cpuFreq = tempDir.resolve("cpufreq");
+        writeFile(cpuFreq.resolve("policy0/cpuinfo_max_freq"), "1800000\n");
+        String file = cpuFreq.toString();
+        assertThat(LinuxCentralProcessor.armVendorFreq(-1L, "Cortex-A72", "0x41", file), is(1_800_000_000L));
+        assertThat("cpuinfo or lshw gave one",
+                LinuxCentralProcessor.armVendorFreq(2_000_000_000L, "Cortex-A72", "0x41", file), is(2_000_000_000L));
+        assertThat("the name carries one", LinuxCentralProcessor.armVendorFreq(-1L, "Some SoC @ 1.50GHz", "0x41", file),
+                is(-1L));
+        assertThat("x86 includes turbo", LinuxCentralProcessor.armVendorFreq(0L, "Some CPU", "GenuineIntel", file),
+                is(0L));
     }
 
     @Test

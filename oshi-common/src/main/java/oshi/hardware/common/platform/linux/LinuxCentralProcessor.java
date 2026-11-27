@@ -76,7 +76,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         CpuInfoIdentity id = parseProcessorIdFromCpuinfo(FileUtil.readFile(CPUINFO));
         String cpuName = id.name();
         if (cpuName.isEmpty()) {
-            cpuName = FileUtil.getStringFromFile(MODEL).trim();
+            // arm64 cpuinfo has no model name. Name the core by its part, as lscpu does. The device tree names the
+            // board, which ComputerSystem and Baseboard already report, so it is only the fallback for an unknown part.
+            String armCore = armCoreName(id.vendor(), id.model());
+            cpuName = armCore == null ? FileUtil.getStringFromFile(MODEL).trim() : armCore;
         }
         long cpuFreq = id.freq();
         if (cpuName.contains("Hz")) {
@@ -89,6 +92,7 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                 cpuFreq = cpuCapacity;
             }
         }
+        cpuFreq = armVendorFreq(cpuFreq, cpuName, id.vendor(), SysPath.CPU + "cpufreq");
         String processorID = id.processorId().isEmpty()
                 ? getProcessorID(id.vendor(), id.stepping(), id.model(), id.family(), id.flags(), queryHwcap())
                 : id.processorId();
@@ -107,6 +111,69 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         // carries no marker; the markers still matter for a 32-bit JVM or userland on 64-bit hardware
         return new ProcessorIdentifier(cpuVendor, cpuName, id.family(), cpuModel, id.stepping(), processorID,
                 id.cpu64bit() || Util.is64Bit(), cpuFreq);
+    }
+
+    /**
+     * Whether the vendor read from {@code /proc/cpuinfo} is an ARM {@code CPU implementer} code rather than a vendor
+     * string. Package-private for testing.
+     *
+     * @param vendor the vendor as parsed
+     * @return true for an implementer code such as {@code 0x41}
+     */
+    static boolean isArmImplementer(String vendor) {
+        return vendor.startsWith("0x");
+    }
+
+    /**
+     * Names an ARM core by the implementer and part read from {@code /proc/cpuinfo}. Package-private for testing.
+     *
+     * @param vendor the vendor as parsed, an implementer code on ARM
+     * @param model  the model as parsed, the part number on ARM
+     * @return the core, such as {@code Cortex-A72}, or {@code null} if this is not ARM or the part is not in the table
+     */
+    static @Nullable String armCoreName(String vendor, String model) {
+        if (!isArmImplementer(vendor)) {
+            return null;
+        }
+        return armCoreName(ParseUtil.hexStringToInt(vendor, -1), ParseUtil.hexStringToInt(model, -1));
+    }
+
+    /**
+     * Falls back to the cpufreq hardware maximum for the vendor frequency of an ARM core, whose cpuinfo states none.
+     * Not on x86, whose {@code cpuinfo_max_freq} includes turbo, and not when the name carries a frequency, which
+     * {@link ProcessorIdentifier} parses from it. Package-private for testing.
+     *
+     * @param cpuFreq     the frequency from cpuinfo or {@code lshw}, or -1 when the name carries one
+     * @param cpuName     the processor name
+     * @param vendor      the vendor as parsed, an implementer code on ARM
+     * @param cpuFreqPath the cpufreq directory holding the {@code policy*} directories
+     * @return the vendor frequency in Hz, or {@code cpuFreq} if it is known or the fallback does not apply
+     */
+    static long armVendorFreq(long cpuFreq, String cpuName, String vendor, String cpuFreqPath) {
+        if (cpuFreq > 0L || cpuName.contains("Hz") || !isArmImplementer(vendor)) {
+            return cpuFreq;
+        }
+        return queryCpuinfoMaxFreq(cpuFreqPath);
+    }
+
+    /**
+     * Reads the highest hardware maximum frequency of the cpufreq policies, which on ARM stands in for the vendor
+     * frequency. On big.LITTLE the name comes from the last {@code CPU part}, usually a big core, while {@code cpu0} is
+     * usually a LITTLE one, so the highest policy matches the named core. Unlike {@link #queryMaxFreqFromCpuFreqPath}
+     * this ignores {@code scaling_max_freq}, a governor limit a user can lower. Package-private for testing.
+     *
+     * @param cpuFreqPath the cpufreq directory holding the {@code policy*} directories
+     * @return the frequency in Hz, or -1 if no policy states one
+     */
+    static long queryCpuinfoMaxFreq(String cpuFreqPath) {
+        String policyPrefix = Paths.get(cpuFreqPath, "policy").toString();
+        try (Stream<Path> path = Files.list(Paths.get(cpuFreqPath))) {
+            long khz = path.filter(p -> p.toString().startsWith(policyPrefix))
+                    .mapToLong(p -> FileUtil.getLongFromFile(p.toString() + "/cpuinfo_max_freq")).max().orElse(0L);
+            return khz > 0L ? khz * 1000L : -1L;
+        } catch (IOException e) {
+            return -1L;
+        }
     }
 
     /** Immutable holder for the identifier fields parsed from {@code /proc/cpuinfo}. Package-private for testing. */
@@ -195,6 +262,8 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         String s390Ident = "";
         String s390Machine = "";
         String armArchitecture = "";
+        // The Raspberry Pi kernel appends the board as "Model" after the cores, so it must not replace the part
+        String armPart = "";
         for (String line : cpuInfo) {
             String[] splitLine = ParseUtil.whitespacesColonWhitespace.split(line, -1);
             if (splitLine.length < 2) {
@@ -263,8 +332,10 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
                     }
                     break;
                 case "model":
-                case "cpu part":
                     model = splitLine[1];
+                    break;
+                case "cpu part":
+                    armPart = splitLine[1];
                     break;
                 case "cpu family":
                     family = splitLine[1];
@@ -282,6 +353,9 @@ public abstract class LinuxCentralProcessor extends AbstractCentralProcessor {
         }
         if (stepping.isEmpty()) {
             stepping = armStepping.toString();
+        }
+        if (!armPart.isEmpty()) {
+            model = armPart;
         }
         if (!armArchitecture.isEmpty() && isArm64bit(armArchitecture, vendor, model)) {
             cpu64bit = true;
