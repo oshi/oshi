@@ -8,17 +8,17 @@ OSHI provides two native access implementations:
 - **JNA** (`oshi-core`): Supports JDK 8+ and all platforms OSHI targets. JNA uses reflection-based marshalling for native calls, which adds overhead per invocation.
 - **FFM** (`oshi-core-ffm`): Requires JDK 25+ and supports the same platforms as the JNA implementation. FFM (Foreign Function & Memory API) uses compiler-optimized stubs for native calls, reducing per-call overhead.
 
-The tables below show approximate average times from JMH benchmarks (5 warmup iterations, 7 measurement iterations, 5 forks) captured by the manually-triggered `Benchmarks (manual)` workflow (`.github/workflows/benchmarks.yaml`) on GitHub Actions runners. The workflow is `workflow_dispatch`-only so it doesn't burn CI time on every push/PR; re-run it when adding a platform or making a perf-relevant change.
+The tables below show approximate average times from JMH benchmarks captured by the manually-triggered `Benchmarks (manual)` workflow (`.github/workflows/benchmarks.yaml`), which runs the published `oshi-benchmark` jar on GitHub Actions runners (5 warmup iterations, 10 measurement iterations, 3 forks), in nested VMs, and on a shared AIX host (1 warmup iteration, 3 measurement iterations, 1 fork). The workflow is `workflow_dispatch`-only so it doesn't burn CI time on every push/PR; re-run it when adding a platform or making a perf-relevant change. See [Running benchmarks yourself](#running-benchmarks-yourself) to measure your own hardware.
 
 ### macOS
 
 | Benchmark  | FFM     | JNA      |
 |------------|---------|----------|
-| CpuTicks   | ~5 µs   | ~6 µs    |
-| FileStore  | ~43 µs  | ~97 µs   |
-| Memory     | ~3 µs   | ~7 µs    |
-| NetworkIF  | ~18 µs  | ~115 µs  |
-| Processes  | ~1.5 ms | ~10.7 ms |
+| CpuTicks   | ~7 µs   | ~10 µs   |
+| FileStore  | ~54 µs  | ~110 µs  |
+| Memory     | ~3.6 µs | ~8.6 µs  |
+| NetworkIF  | ~38 µs  | ~203 µs  |
+| Processes  | ~3.9 ms | ~16 ms   |
 
 macOS shows the largest FFM advantage because most system information requires native syscalls (`sysctl`, `proc_pidinfo`, etc.) where FFM's lower per-call overhead compounds across many invocations.
 
@@ -26,13 +26,13 @@ macOS shows the largest FFM advantage because most system information requires n
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~0.24 ms | ~0.46 ms |
-| FileStore  | ~32 µs   | ~117 µs  |
-| Memory     | ~72 µs   | ~111 µs  |
-| NetworkIF  | ~4.0 ms  | ~1.1 ms  |
-| Processes  | ~8.2 ms  | ~8.8 ms  |
+| CpuTicks   | ~0.13 ms | ~0.26 ms |
+| FileStore  | ~17 µs   | ~96 µs   |
+| Memory     | ~44 µs   | ~61 µs   |
+| NetworkIF  | ~447 µs  | ~635 µs  |
+| Processes  | ~4.1 ms  | ~5.3 ms  |
 
-Windows benefits from FFM across most benchmarks. The NetworkIF anomaly (FFM slower) is due to occasional WMI query latency spikes on the CI runner.
+Windows benefits from FFM across every benchmark, by 1.3x to 6x. Earlier captures occasionally showed FFM slower on `NetworkIF`, from WMI query latency spikes on the CI runner.
 
 ### Linux
 
@@ -50,13 +50,13 @@ Linux shows minimal difference between FFM and JNA for most benchmarks. This is 
 
 | Benchmark  | FFM     | JNA     |
 |------------|---------|---------|
-| CpuTicks   | ~4 µs   | ~4 µs   |
-| FileStore  | ~66 ms  | ~66 ms  |
-| Memory     | ~1.6 ms | ~1.6 ms |
-| NetworkIF  | ~11 ms  | ~11 ms  |
-| Processes  | ~2.9 ms | ~3.0 ms |
+| CpuTicks   | ~3 µs   | ~8 µs   |
+| FileStore  | ~11 ms  | ~11 ms  |
+| Memory     | ~1.5 ms | ~1.5 ms |
+| NetworkIF  | ~4.4 ms | ~4.4 ms |
+| Processes  | ~2.8 ms | ~2.9 ms |
 
-FreeBSD, NetBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap because most data comes from `sysctl` reads that don't bottleneck on per-call overhead.
+FreeBSD, NetBSD, OpenBSD and Solaris all run inside a nested QEMU VM on an Ubuntu runner, so absolute numbers are noisier than the native-runner platforms above; only the relative JNA-vs-FFM comparison within a single run is meaningful. FreeBSD shows essentially no FFM/JNA gap outside `CpuTicks` because most data comes from `sysctl` reads and command output that don't bottleneck on per-call overhead; `NetworkIF` runs `ifconfig` for each interface's speed and status. The JNA `CpuTicks` figure has an error bar larger than itself.
 
 ### NetBSD
 
@@ -86,36 +86,37 @@ OpenBSD's `FileStore` and `Processes` numbers carry very wide error bars in the 
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~16 µs   | ~1.3 ms  |
-| FileStore  | ~80 ms   | ~82 ms   |
-| Memory     | ~9.8 ms  | ~9.9 ms  |
-| NetworkIF  | ~306 µs  | ~415 µs  |
-| Processes  | ~367 ms  | ~368 ms  |
+| CpuTicks   | ~13 µs   | ~1.7 ms  |
+| FileStore  | ~82 ms   | ~87 ms   |
+| Memory     | ~9.5 ms  | ~9.8 ms  |
+| NetworkIF  | ~316 µs  | ~399 µs  |
+| Processes  | ~1.1 ms  | ~1.1 ms  |
 
-Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~80x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
+Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~100x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
 
 ### AIX
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~67 µs   | ~5.5 ms  |
-| FileStore  | ~267 ms  | ~267 ms  |
-| Memory     | ~114 µs  | ~203 µs  |
-| NetworkIF  | ~49 µs   | ~341 µs  |
-| Processes  | ~8.5 ms  | ~9.2 ms  |
+| CpuTicks   | ~69 µs   | ~9.9 ms  |
+| FileStore  | ~319 ms  | ~319 ms  |
+| Memory     | ~131 µs  | ~280 µs  |
+| NetworkIF  | ~30 ms   | ~32 ms   |
+| Processes  | ~16 ms   | ~17 ms   |
 
-AIX shows a Solaris-like ~80x FFM advantage on `CpuTicks`: every read traverses a `libperfstat` call, and JNA's per-call marshalling dominates against AIX's tiny native cost. `FileStore` is bottlenecked on filesystem stat() calls and is insensitive to native-binding overhead. AIX runs on cfarm119 (shared real hardware via SSH, OpenJ9 JDK 25), so numbers are more stable than the nested-VM platforms above but noisier than the dedicated GitHub Actions runners.
+AIX shows a Solaris-like FFM advantage of roughly two orders of magnitude on `CpuTicks`: every read traverses a `libperfstat` call, and JNA's per-call marshalling dominates against AIX's tiny native cost. `FileStore` is bottlenecked on filesystem stat() calls and is insensitive to native-binding overhead. `NetworkIF` reads its counters from `libperfstat` but runs `ifconfig` for each interface's status, as the BSDs do, and that process launch dominates. Error bars on the AIX `CpuTicks` and `Processes` figures exceed the values themselves. AIX runs on cfarm119 (shared real hardware via SSH, OpenJ9 JDK 25), so numbers are more stable than the nested-VM platforms above but noisier than the dedicated GitHub Actions runners.
 
-### Running benchmarks locally
+### Running benchmarks yourself
 
-The numbers above were collected on GitHub Actions CI runners, which may differ significantly from your hardware and workload (e.g., number of running processes, mounted file stores, or network interfaces). The `oshi-benchmark` module contains JMH benchmarks that can be built and run with JDK 25+:
+The numbers above were collected on CI runners, which may differ significantly from your hardware and workload (e.g., number of running processes, mounted file stores, or network interfaces). Each release from 7.8.1 on publishes the benchmarks as a runnable jar, on Maven Central as `com.github.oshi:oshi-benchmark` and attached to the [GitHub release](https://github.com/oshi/oshi/releases), so measuring your own system needs only JDK 25+ and no build:
 
 ```sh
-./mvnw package -pl oshi-benchmark -am -DskipTests -q
-java -jar oshi-benchmark/target/benchmarks.jar -wi 5 -i 7 -f 5
+VERSION=7.8.1
+curl -LO https://repo1.maven.org/maven2/com/github/oshi/oshi-benchmark/$VERSION/oshi-benchmark-$VERSION.jar
+java -jar oshi-benchmark-$VERSION.jar -wi 5 -i 10 -f 3
 ```
 
-Each release also publishes this jar to Maven Central as `com.github.oshi:oshi-benchmark`, runnable without a build; see the [oshi-benchmark README](oshi-benchmark/README.md). Run `java -jar oshi-benchmark/target/benchmarks.jar -h` for the full list of JMH options, including listing available benchmarks (`-l`) and running specific ones by regex filter.
+The [oshi-benchmark README](oshi-benchmark/README.md) covers running individual benchmarks, JMH options, the memory footprint report, NetBSD's JNA setup, the CI workflow's inputs, and building the jar from source.
 
 ## CPU/memory trade-offs
 
@@ -127,20 +128,20 @@ Users with memory constraints can ensure the existing cached information is disp
 
 A monitoring agent that samples the same metrics repeatedly should **hold a single `SystemInfo` and its subordinate objects** rather than constructing a new `SystemInfo` for each poll. Realistic poll intervals are far longer than the sub-second memoizer TTL, so the memoizer does not help *across* polls; the trade-off is the CPU to reconstruct the object graph each poll versus the memory retained by holding it.
 
-The dominant reconstruction cost is the `CentralProcessor` (CPU topology and identifier queries). Reading CPU load ticks once per poll, measured by `ReuseVsRecreateBenchmark` with memoization disabled (`-f 3`):
+The dominant reconstruction cost is the `CentralProcessor` (CPU topology and identifier queries). Reading CPU load ticks once per poll, measured by `ReuseVsRecreateBenchmark` with memoization disabled:
 
 | Platform | Recreate per poll | Reuse (held) per poll | Retained if held |
 |----------|------------------:|----------------------:|-----------------:|
-| Windows  | 10.7 ms | 632 µs  | 3.9 KB |
-| macOS    | 3.8 ms  | 2.4 µs  | 8.5 KB |
-| Linux    | 2.4 ms  | 19.5 µs | 5.0 KB |
+| Windows  | 6.5 ms  | 255 µs  | 4.1 KB |
+| macOS    | 7.4 ms  | 2.8 µs  | 8.6 KB |
+| Linux    | 2.4 ms  | 16.9 µs | 5.4 KB |
 
-Reconstructing costs milliseconds per poll (most on Windows, where CPU identity comes from WMI/registry) for a few KB of retained memory saved — a strongly favorable trade for CPU-derived metrics. Two caveats:
+Reconstructing costs milliseconds per poll (6–7 ms on Windows, where CPU identity comes from WMI/registry, and on macOS) for a few KB of retained memory saved — a strongly favorable trade for CPU-derived metrics. Two caveats:
 
 - **Available memory does not benefit:** recreate ≈ reuse on all platforms (`GlobalMemory` is cheap to construct), so the win is specific to the `CentralProcessor`.
-- **The process list does not benefit:** `getProcesses()` is a live full query (~10 ms and 1–15 MB allocated per poll on every platform, reused or not). To track specific processes, hold the individual `OSProcess` objects and call `updateAttributes()` rather than re-querying the whole list (see below).
+- **The process list does not benefit:** `getProcesses()` is a live full query (5–17 ms and 1–16 MB allocated per poll on these platforms, reused or not). To track specific processes, hold the individual `OSProcess` objects and call `updateAttributes()` rather than re-querying the whole list (see below).
 
-Holding a `SystemInfo` and one snapshot of *every* subsystem it returns (measured by `MonitoringFootprintReport`) retains roughly **0.65 MB**, dominated by the process-list snapshot; the persistent hardware/OS caches alone are under ~150 KB. Applications with tight memory constraints can release even that by discarding the `SystemInfo` between collections, paying the reconstruction cost above.
+Holding a `SystemInfo` and one snapshot of *every* subsystem it returns (measured by `MonitoringFootprintReport`) retains roughly **150–400 KB** on the CI runners (149 KB on Linux, 247 KB on Windows, 387 KB on macOS), much of it the process-list snapshot, which grows with the number of processes; the persistent hardware/OS caches alone are under ~160 KB. Applications with tight memory constraints can release even that by discarding the `SystemInfo` between collections, paying the reconstruction cost above.
 
 ## Updating statistics on objects in a list
 
