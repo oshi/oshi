@@ -140,8 +140,9 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
 * Log on to [Central Portal](https://central.sonatype.com/publishing) and publish the validated deployment (if the automatic publish did not succeed).
 
 * Add a title and release notes [to the tag](https://github.com/oshi/oshi/tags) on GitHub and publish the release to make it current.
-    * Publishing fires the `Attach dist archive to GitHub Release` workflow, which rebuilds
-      `oshi-dist-x.x.x.zip` from the tag and uploads it as a release asset. **The workflow must
+    * Publishing fires the `Attach dist archive and benchmark jar to GitHub Release` workflow, which
+      rebuilds `oshi-dist-x.x.x.zip` and `oshi-benchmark-x.x.x.jar` from the tag and uploads them as
+      release assets. **The workflow must
       already be on master before `release:prepare` cuts the tag**, or the checked-out tag will not
       contain it and nothing will fire.
     * If the workflow fails or the tag predates it, re-run it with an explicit tag:
@@ -150,7 +151,8 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
       ```
     * Or upload by hand from the `release:perform` build, which runs in `target/checkout`:
       ```sh
-      gh release upload oshi-parent-x.x.x target/checkout/oshi-dist/target/oshi-dist-x.x.x.zip
+      cp target/checkout/oshi-benchmark/target/benchmarks.jar oshi-benchmark-x.x.x.jar
+      gh release upload oshi-parent-x.x.x target/checkout/oshi-dist/target/oshi-dist-x.x.x.zip oshi-benchmark-x.x.x.jar
       ```
     * The rebuilt jars are functionally identical to Central's but not byte-identical: the manifest
       carries a `Build-Time` and no `project.build.outputTimestamp` is set, so checksums differ.
@@ -189,7 +191,7 @@ See [this page](https://central.sonatype.org/pages/apache-maven.html#performing-
     gh run list --workflow site.yaml --limit 1
     gh run list --workflow javadoc-io.yaml --limit 1
     ```
-    * The release should have `oshi-dist-x.x.x.zip` attached:
+    * The release should have `oshi-dist-x.x.x.zip` and `oshi-benchmark-x.x.x.jar` attached:
       `gh release view oshi-parent-x.x.x --json assets --jq '.assets[].name'`
     * The site should show the new version: `curl -sL https://oshi.ooo | grep x.x.x`. The `-L` is
       required, because `oshi.ooo` redirects to `www.oshi.ooo`, and without it the check reads the
