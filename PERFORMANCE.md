@@ -92,19 +92,19 @@ OpenBSD's `FileStore` and `Processes` numbers carry very wide error bars in the 
 | NetworkIF  | ~316 µs  | ~399 µs  |
 | Processes  | ~1.1 ms  | ~1.1 ms  |
 
-Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~100x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. Same nested-VM caveat as FreeBSD.
+Solaris (illumos) shows the most dramatic FFM advantage on `CpuTicks` (~100x faster) because every CPU-tick read crosses a `libkstat`/`kstat2` boundary, and JNA's per-call marshalling cost dominates the workload. `Processes` fell from ~200–300 ms to ~1 ms in 7.8.0, when `getProcesses()` stopped launching a `getent` process for every process's user and group name already in `/etc/passwd` and `/etc/group` ([#3890](https://github.com/oshi/oshi/pull/3890)); Linux and AIX shared the fix. Same nested-VM caveat as FreeBSD.
 
 ### AIX
 
 | Benchmark  | FFM      | JNA      |
 |------------|----------|----------|
-| CpuTicks   | ~69 µs   | ~9.9 ms  |
-| FileStore  | ~319 ms  | ~319 ms  |
-| Memory     | ~131 µs  | ~280 µs  |
-| NetworkIF  | ~30 ms   | ~32 ms   |
-| Processes  | ~16 ms   | ~17 ms   |
+| CpuTicks   | ~77 µs   | ~8.7 ms  |
+| FileStore  | ~325 ms  | ~319 ms  |
+| Memory     | ~128 µs  | ~280 µs  |
+| NetworkIF  | ~113 µs  | ~505 µs  |
+| Processes  | ~15 ms   | ~19 ms   |
 
-AIX shows a Solaris-like FFM advantage of roughly two orders of magnitude on `CpuTicks`: every read traverses a `libperfstat` call, and JNA's per-call marshalling dominates against AIX's tiny native cost. `FileStore` is bottlenecked on filesystem stat() calls and is insensitive to native-binding overhead. `NetworkIF` reads its counters from `libperfstat` but runs `ifconfig` for each interface's status, as the BSDs do, and that process launch dominates. Error bars on the AIX `CpuTicks` and `Processes` figures exceed the values themselves. AIX runs on cfarm119 (shared real hardware via SSH, OpenJ9 JDK 25), so numbers are more stable than the nested-VM platforms above but noisier than the dedicated GitHub Actions runners.
+AIX shows a Solaris-like FFM advantage of roughly two orders of magnitude on `CpuTicks`: every read traverses a `libperfstat` call, and JNA's per-call marshalling dominates against AIX's tiny native cost. `FileStore` is bottlenecked on filesystem stat() calls and is insensitive to native-binding overhead. `NetworkIF` reads its counters from `libperfstat` and each interface's status from its flags; 7.8.1 ran `ifconfig` for the status instead, which took ~30 ms. Error bars on the AIX `CpuTicks`, `Processes` and JNA `NetworkIF` figures exceed the values themselves. AIX runs on cfarm119 (shared real hardware via SSH, OpenJ9 JDK 25), so numbers are more stable than the nested-VM platforms above but noisier than the dedicated GitHub Actions runners.
 
 ### Running benchmarks yourself
 

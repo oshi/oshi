@@ -4,6 +4,10 @@
 
 * [#3931](https://github.com/oshi/oshi/pull/3931): Each GitHub release now carries the runnable `oshi-benchmark` jar alongside the `oshi-dist` zip, and the manual `Benchmarks` workflow runs a published release or snapshot jar on every platform, with inputs choosing the version, platforms, benchmarks and JMH options - [@dbwiddis](https://github.com/dbwiddis).
 
+##### Bug Fixes and Improvements
+
+* [#3932](https://github.com/oshi/oshi/pull/3932): `NetworkIF.updateAttributes()` on AIX reads the interface status from the interface flags instead of running `ifconfig` for each interface - [@dbwiddis](https://github.com/dbwiddis).
+
 # 7.8.0 (2026-11-15), 7.8.1 (2026-11-27)
 
 OSHI no longer supports the optional `jLibreHardwareMonitor` dependency for Windows sensors. Recommending it was a mistake. With it on the class path, a JVM does not exit after `main` returns. The DLL it bundles uses a kernel driver that Microsoft Defender flags as a hacking tool. On some hosts it returns no data ([#3707](https://github.com/oshi/oshi/issues/3707)). Its maintainer has not responded to any of these reports. Remove it from your build and run [LibreHardwareMonitor](https://github.com/LibreHardwareMonitor/LibreHardwareMonitor) with its web server on instead; see the [FAQ](FAQ.md#reading-librehardwaremonitor-095-and-later).

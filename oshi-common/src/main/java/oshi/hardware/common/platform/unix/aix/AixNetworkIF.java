@@ -80,8 +80,8 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
     /**
      * Gets an interface's operational status from its flags. perfstat carries none, and AIX's {@code ifconfig} prints
      * no {@code status:} line, so the interface is up when its flags include both {@code UP} and {@code RUNNING}: the
-     * test {@link NetworkInterface#isUp()} makes with a single {@code SIOCGIFFLAGS} ioctl, where launching
-     * {@code ifconfig} for each interface on every update took about 15 ms.
+     * test {@link NetworkInterface#isUp()} makes with a single {@code SIOCGIFFLAGS} ioctl, at about a thousandth of the
+     * cost of launching {@code ifconfig}.
      *
      * @param netint the interface
      * @return {@link IfOperStatus#UP} or {@link IfOperStatus#DOWN}, or {@link IfOperStatus#UNKNOWN} if the flags could
