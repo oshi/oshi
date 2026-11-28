@@ -1,6 +1,8 @@
 # 7.8.2 (in progress)
 
-* Your contribution here!
+##### New Features
+
+* [#3931](https://github.com/oshi/oshi/pull/3931): Each GitHub release now carries the runnable `oshi-benchmark` jar alongside the `oshi-dist` zip, and the manual `Benchmarks` workflow runs a published release or snapshot jar on every platform, with inputs choosing the version, platforms, benchmarks and JMH options - [@dbwiddis](https://github.com/dbwiddis).
 
 # 7.8.0 (2026-11-15), 7.8.1 (2026-11-27)
 
