@@ -5,13 +5,12 @@
 package oshi.hardware.common.platform.unix.aix;
 
 import java.net.NetworkInterface;
+import java.net.SocketException;
 
 import org.jspecify.annotations.Nullable;
 
 import oshi.annotation.concurrent.ThreadSafe;
 import oshi.hardware.common.AbstractNetworkIF;
-import oshi.util.ExecutingCommand;
-import oshi.util.driver.unix.Ifconfig;
 
 /**
  * Abstract base for AIX NetworkIF. {@link #updateAttributes()} populates fields from a per-interface stats POJO that
@@ -73,10 +72,49 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
         this.inDrops = stats.inDrops;
         this.speed = stats.speed;
         this.ifType = stats.ifType;
-        // perfstat has no interface flags; ifconfig prints them as the BSDs do, with no status line
-        this.ifOperStatus = Ifconfig.parseOperStatus(ExecutingCommand.runNative("/usr/sbin/ifconfig " + getName()));
+        this.ifOperStatus = queryOperStatus(queryNetworkInterface());
         this.timeStamp = System.currentTimeMillis();
         return true;
+    }
+
+    /**
+     * Gets an interface's operational status from its flags. perfstat carries none, and AIX's {@code ifconfig} prints
+     * no {@code status:} line, so the interface is up when its flags include both {@code UP} and {@code RUNNING}: the
+     * test {@link NetworkInterface#isUp()} makes with a single {@code SIOCGIFFLAGS} ioctl, at about a thousandth of the
+     * cost of launching {@code ifconfig}.
+     *
+     * @param netint the interface
+     * @return {@link IfOperStatus#UP} or {@link IfOperStatus#DOWN}, or {@link IfOperStatus#UNKNOWN} if the flags could
+     *         not be read, as when the interface has gone away
+     */
+    static IfOperStatus queryOperStatus(NetworkInterface netint) {
+        return queryOperStatus(netint::isUp);
+    }
+
+    /**
+     * Maps a read of an interface's flags to its operational status.
+     *
+     * @param isUp reads whether the flags include both {@code UP} and {@code RUNNING}
+     * @return {@link IfOperStatus#UP} or {@link IfOperStatus#DOWN}, or {@link IfOperStatus#UNKNOWN} if the read fails
+     */
+    static IfOperStatus queryOperStatus(FlagsRead isUp) {
+        try {
+            return isUp.get() ? IfOperStatus.UP : IfOperStatus.DOWN;
+        } catch (SocketException e) {
+            return IfOperStatus.UNKNOWN;
+        }
+    }
+
+    /** A read of an interface's flags, as {@link NetworkInterface#isUp()} makes. */
+    @FunctionalInterface
+    interface FlagsRead {
+        /**
+         * Reads the flags.
+         *
+         * @return whether the flags include both {@code UP} and {@code RUNNING}
+         * @throws SocketException if the flags could not be read
+         */
+        boolean get() throws SocketException;
     }
 
     /**

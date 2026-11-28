@@ -176,6 +176,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <configuration>
+                    <!-- The plain jar and the shaded jar share target/benchmarks.jar. Without this, a rebuild with no
+                    change in this module keeps the previous shaded jar as the plain one, and shading it again lets its
+                    stale OSHI classes win over the freshly built oshi-common, oshi-core and oshi-core-ffm. -->
+                    <forceCreation>true</forceCreation>
                     <archive>
                         <manifestFile combine.self="override" />
                     </archive>
