@@ -23,6 +23,20 @@ manually deployed using `mvn clean deploy`
   Saturday's: `gh workflow run coverity.yaml` and `gh workflow run ffm-audit.yaml`. Review new
   [Coverity Scan](https://scan.coverity.com/projects/oshi-oshi) defects, and download the artifacts
   of any failed FFM audit job.
+* Benchmark the release candidate against the last release, so a performance regression is caught
+  before it ships. Run the `Benchmarks (manual)` workflow twice, on the same day so both see the same
+  runners: once on the snapshot, and once on the previous release.
+    ```sh
+    gh workflow run benchmarks.yaml -f version=x.x.x-SNAPSHOT
+    gh workflow run benchmarks.yaml -f version=latest
+    ```
+    * The snapshot is deployed by each push to master that changes code, so check that the timestamped
+      jar the `Resolve benchmark jar` job names is newer than the last code merge.
+    * Compare each platform's two runs. A benchmark several times slower on the snapshot is a regression
+      until shown otherwise; the nested-VM and AIX jobs are noisy, so look there for order-of-magnitude
+      changes only. 7.8.1 shipped one: an `ifconfig` launch per interface took AIX `NetworkIF` from
+      ~50 µs to ~30 ms.
+    * Update the [PERFORMANCE.md](PERFORMANCE.md) tables from the snapshot run if they no longer match.
 * Choose an appropriate [version number](https://semver.org/) for the release
     * Proactively change version numbers in the download links on [README.md](README.md).
     * Copy `README.md` to `src/site/markdown/index.md`, then apply the site transformations below.

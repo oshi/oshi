@@ -41,6 +41,7 @@
     <!--java.base -->
     <allow class="java.net.InetAddress" />
     <allow class="java.net.NetworkInterface" />
+    <allow class="java.net.SocketException" />
     <allow pkg="java.io" />
     <allow pkg="java.lang" />
     <allow pkg="java.math" />

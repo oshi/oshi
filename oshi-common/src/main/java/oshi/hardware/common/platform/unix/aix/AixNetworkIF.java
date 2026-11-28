@@ -88,11 +88,33 @@ public abstract class AixNetworkIF extends AbstractNetworkIF {
      *         not be read, as when the interface has gone away
      */
     static IfOperStatus queryOperStatus(NetworkInterface netint) {
+        return queryOperStatus(netint::isUp);
+    }
+
+    /**
+     * Maps a read of an interface's flags to its operational status.
+     *
+     * @param isUp reads whether the flags include both {@code UP} and {@code RUNNING}
+     * @return {@link IfOperStatus#UP} or {@link IfOperStatus#DOWN}, or {@link IfOperStatus#UNKNOWN} if the read fails
+     */
+    static IfOperStatus queryOperStatus(FlagsRead isUp) {
         try {
-            return netint.isUp() ? IfOperStatus.UP : IfOperStatus.DOWN;
+            return isUp.get() ? IfOperStatus.UP : IfOperStatus.DOWN;
         } catch (SocketException e) {
             return IfOperStatus.UNKNOWN;
         }
+    }
+
+    /** A read of an interface's flags, as {@link NetworkInterface#isUp()} makes. */
+    @FunctionalInterface
+    interface FlagsRead {
+        /**
+         * Reads the flags.
+         *
+         * @return whether the flags include both {@code UP} and {@code RUNNING}
+         * @throws SocketException if the flags could not be read
+         */
+        boolean get() throws SocketException;
     }
 
     /**
