@@ -35,11 +35,11 @@ on:
         required: false
         default: ''
       native-args:
-        description: 'JMH options on the Linux, macOS and Windows runners'
+        description: 'JMH options on the Linux, macOS and Windows runners, split on spaces (quotes are not interpreted)'
         required: true
         default: '-wi 5 -i 10 -f 3 -prof gc'
       vm-args:
-        description: 'JMH options on the BSD, AIX and OpenIndiana jobs'
+        description: 'JMH options on the BSD, AIX and OpenIndiana jobs, split on spaces (quotes are not interpreted)'
         required: true
         default: '-wi 1 -i 3 -f 1'
 
